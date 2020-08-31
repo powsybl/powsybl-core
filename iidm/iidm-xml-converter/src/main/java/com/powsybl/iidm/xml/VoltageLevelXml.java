@@ -87,17 +87,17 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
         IidmXmlUtil.writeIntAttributeUntilMaximumVersion(NODE_COUNT, vl.getNodeBreakerView().getMaximumNodeIndex() + 1, IidmXmlVersion.V_1_1, context);
-        for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
+        for (BusbarSection bs : IidmXmlUtil.sorted(vl.getNodeBreakerView().getBusbarSections(), context.getOptions())) {
             BusbarSectionXml.INSTANCE.write(bs, null, context);
         }
-        for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
+        for (Switch sw : IidmXmlUtil.sorted(vl.getNodeBreakerView().getSwitches(), context.getOptions())) {
             NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
         writeNodeBreakerTopologyInternalConnections(vl, context);
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
             Map<String, Set<Integer>> nodesByBus = Networks.getNodesByBus(vl);
-            vl.getBusView().getBusStream()
+            IidmXmlUtil.sorted(vl.getBusView().getBusStream(), context.getOptions())
                     .filter(bus -> !Double.isNaN(bus.getV()) || !Double.isNaN(bus.getAngle()))
                     .forEach(bus -> {
                         Set<Integer> nodes = nodesByBus.get(bus.getId());
@@ -119,20 +119,20 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeNodeBreakerTopologyInternalConnections(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (VoltageLevel.NodeBreakerView.InternalConnection ic : vl.getNodeBreakerView().getInternalConnections()) {
+        for (VoltageLevel.NodeBreakerView.InternalConnection ic : IidmXmlUtil.sortedInternalConnections(vl.getNodeBreakerView().getInternalConnections(), context.getOptions())) {
             NodeBreakerViewInternalConnectionXml.INSTANCE.write(ic.getNode1(), ic.getNode2(), context);
         }
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        for (Bus b : vl.getBusBreakerView().getBuses()) {
+        for (Bus b : IidmXmlUtil.sorted(vl.getBusBreakerView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
             BusXml.INSTANCE.write(b, null, context);
         }
-        for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+        for (Switch sw : IidmXmlUtil.sorted(vl.getBusBreakerView().getSwitches(), context.getOptions())) {
             Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
             Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
             if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
@@ -145,7 +145,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void writeBusBranchTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        for (Bus b : vl.getBusView().getBuses()) {
+        for (Bus b : IidmXmlUtil.sorted(vl.getBusView().getBuses(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
@@ -155,7 +155,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeGenerators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Generator g : vl.getGenerators()) {
+        for (Generator g : IidmXmlUtil.sorted(vl.getGenerators(), context.getOptions())) {
             if (!context.getFilter().test(g)) {
                 continue;
             }
@@ -164,7 +164,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBatteries(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Battery b : vl.getBatteries()) {
+        for (Battery b : IidmXmlUtil.sorted(vl.getBatteries(), context.getOptions())) {
             if (!context.getFilter().test(b)) {
                 continue;
             }
@@ -173,7 +173,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeLoads(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (Load l : vl.getLoads()) {
+        for (Load l : IidmXmlUtil.sorted(vl.getLoads(), context.getOptions())) {
             if (!context.getFilter().test(l)) {
                 continue;
             }
@@ -182,7 +182,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (ShuntCompensator sc : vl.getShuntCompensators()) {
+        for (ShuntCompensator sc : IidmXmlUtil.sorted(vl.getShuntCompensators(), context.getOptions())) {
             if (!context.getFilter().test(sc)) {
                 continue;
             }
@@ -191,7 +191,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (DanglingLine dl : vl.getDanglingLines()) {
+        for (DanglingLine dl : IidmXmlUtil.sorted(vl.getDanglingLines(), context.getOptions())) {
             if (!context.getFilter().test(dl)) {
                 continue;
             }
@@ -200,7 +200,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeStaticVarCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
+        for (StaticVarCompensator svc : IidmXmlUtil.sorted(vl.getStaticVarCompensators(), context.getOptions())) {
             if (!context.getFilter().test(svc)) {
                 continue;
             }
@@ -209,7 +209,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeVscConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (VscConverterStation cs : vl.getVscConverterStations()) {
+        for (VscConverterStation cs : IidmXmlUtil.sorted(vl.getVscConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;
             }
@@ -218,7 +218,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeLccConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (LccConverterStation cs : vl.getLccConverterStations()) {
+        for (LccConverterStation cs : IidmXmlUtil.sorted(vl.getLccConverterStations(), context.getOptions())) {
             if (!context.getFilter().test(cs)) {
                 continue;
             }
@@ -303,7 +303,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     BusbarSectionXml.INSTANCE.read(vl, context);
                     break;
 
-                case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME:
                     NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
                     break;
 
@@ -348,7 +348,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     BusXml.INSTANCE.read(vl, context);
                     break;
 
-                case BusBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
+                case AbstractSwitchXml.ROOT_ELEMENT_NAME:
                     BusBreakerViewSwitchXml.INSTANCE.read(vl, context);
                     break;
 

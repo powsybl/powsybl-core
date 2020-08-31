@@ -18,12 +18,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-class MergedLine implements Line {
+class MergedLine implements TieLine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MergedLine.class);
 
@@ -31,9 +30,9 @@ class MergedLine implements Line {
 
     private final MergingViewIndex index;
 
-    private final DanglingLine dl1;
+    private final HalfLineAdapter half1;
 
-    private final DanglingLine dl2;
+    private final HalfLineAdapter half2;
 
     private String id;
 
@@ -43,8 +42,8 @@ class MergedLine implements Line {
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.dl1 = Objects.requireNonNull(dl1, "dangling line 1 is null");
-        this.dl2 = Objects.requireNonNull(dl2, "dangling line 2 is null");
+        this.half1 = new HalfLineAdapter(dl1);
+        this.half2 = new HalfLineAdapter(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
@@ -105,22 +104,24 @@ class MergedLine implements Line {
     }
 
     void computeAndSetP0() {
-        double p1 = dl1.getTerminal().getP();
-        double p2 = dl2.getTerminal().getP();
+        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        double p1 = getTerminal1().getP();
+        double p2 = getTerminal2().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
             double losses = p1 + p2;
-            dl1.setP0((p1 + losses / 2.0) * sign(p2));
-            dl2.setP0((p2 + losses / 2.0) * sign(p1));
+            half1.setXnodeP((p1 + losses / 2.0) * sign(p2));
+            half2.setXnodeP((p2 + losses / 2.0) * sign(p1));
         }
     }
 
     void computeAndSetQ0() {
-        double q1 = dl1.getTerminal().getQ();
-        double q2 = dl2.getTerminal().getQ();
+        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        double q1 = getTerminal1().getQ();
+        double q2 = getTerminal2().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
             double losses = q1 + q2;
-            dl1.setQ0((q1 + losses / 2.0) * sign(q2));
-            dl2.setQ0((q2 + losses / 2.0) * sign(q1));
+            half1.setXnodeQ((q1 + losses / 2.0) * sign(q2));
+            half2.setXnodeQ((q2 + losses / 2.0) * sign(q1));
         }
     }
 
@@ -138,12 +139,20 @@ class MergedLine implements Line {
 
     @Override
     public boolean isTieLine() {
-        return false;
+        return true;
     }
 
     @Override
     public MergingView getNetwork() {
         return index.getView();
+    }
+
+    private DanglingLine getDanglingLine1() {
+        return half1.getDanglingLine();
+    }
+
+    private DanglingLine getDanglingLine2() {
+        return half2.getDanglingLine();
     }
 
     @Override
@@ -160,12 +169,12 @@ class MergedLine implements Line {
 
     @Override
     public Terminal getTerminal1() {
-        return index.getTerminal(dl1.getTerminal());
+        return index.getTerminal(half1.getDanglingLine().getTerminal());
     }
 
     @Override
     public Terminal getTerminal2() {
-        return index.getTerminal(dl2.getTerminal());
+        return index.getTerminal(half2.getDanglingLine().getTerminal());
     }
 
     @Override
@@ -182,22 +191,22 @@ class MergedLine implements Line {
 
     @Override
     public CurrentLimits getCurrentLimits1() {
-        return dl1.getCurrentLimits();
+        return getDanglingLine1().getCurrentLimits();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return dl1.newCurrentLimits();
+        return getDanglingLine1().newCurrentLimits();
     }
 
     @Override
     public CurrentLimits getCurrentLimits2() {
-        return dl2.getCurrentLimits();
+        return getDanglingLine2().getCurrentLimits();
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return dl2.newCurrentLimits();
+        return getDanglingLine2().newCurrentLimits();
     }
 
     @Override
@@ -213,69 +222,69 @@ class MergedLine implements Line {
 
     @Override
     public double getR() {
-        return dl1.getR() + dl2.getR();
+        return half1.getR() + half2.getR();
     }
 
     @Override
     public Line setR(final double r) {
-        dl1.setR(r / 2.0d);
-        dl2.setR(r / 2.0d);
+        half1.setR(r / 2);
+        half2.setR(r / 2);
         return this;
     }
 
     @Override
     public double getX() {
-        return dl1.getX() + dl2.getX();
+        return half1.getX() + half2.getX();
     }
 
     @Override
     public Line setX(final double x) {
-        dl1.setX(x / 2.0d);
-        dl2.setX(x / 2.0d);
+        half1.setX(x / 2);
+        half2.setX(x / 2);
         return this;
     }
 
     @Override
     public double getG1() {
-        return dl1.getG();
+        return getDanglingLine1().getG();
     }
 
     @Override
     public Line setG1(final double g1) {
-        dl1.setG(g1);
+        half1.setG(g1);
         return this;
     }
 
     @Override
     public double getG2() {
-        return dl2.getG();
+        return getDanglingLine2().getG();
     }
 
     @Override
     public Line setG2(final double g2) {
-        dl2.setG(g2);
+        half2.setG(g2);
         return this;
     }
 
     @Override
     public double getB1() {
-        return dl1.getB();
+        return getDanglingLine1().getB();
     }
 
     @Override
     public Line setB1(final double b1) {
-        dl1.setB(b1);
+        half1.setB(b1);
         return this;
     }
 
     @Override
     public double getB2() {
-        return dl2.getB();
+        return getDanglingLine2().getB();
     }
 
     @Override
     public Line setB2(final double b2) {
-        dl2.setB(b2);
+        half2.setB(b2);
         return this;
     }
 
@@ -283,8 +292,8 @@ class MergedLine implements Line {
     public Terminal getTerminal(final String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
 
-        Terminal terminal1 = dl1.getTerminal();
-        Terminal terminal2 = dl2.getTerminal();
+        Terminal terminal1 = getDanglingLine1().getTerminal();
+        Terminal terminal2 = getDanglingLine2().getTerminal();
         if (voltageLevelId.equals(terminal1.getVoltageLevel().getId())) {
             return terminal1;
         } else if (voltageLevelId.equals(terminal2.getVoltageLevel().getId())) {
@@ -307,9 +316,9 @@ class MergedLine implements Line {
         if (term instanceof AbstractAdapter) {
             term = ((AbstractAdapter<Terminal>) term).getDelegate();
         }
-        if (term == dl1.getTerminal()) {
+        if (term == getDanglingLine1().getTerminal()) {
             return Side.ONE;
-        } else if (term == dl2.getTerminal()) {
+        } else if (term == getDanglingLine2().getTerminal()) {
             return Side.TWO;
         } else {
             throw new PowsyblException("The terminal is not connected to this branch");
@@ -417,10 +426,7 @@ class MergedLine implements Line {
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return Stream.concat(dl1.getTerminals().stream(),
-                             dl2.getTerminals().stream())
-                     .map(index::getTerminal)
-                     .collect(Collectors.toList());
+        return Arrays.asList(getTerminal1(), getTerminal2());
     }
 
     @Override
@@ -450,13 +456,13 @@ class MergedLine implements Line {
 
     @Override
     public boolean isFictitious() {
-        return dl1.isFictitious() || dl2.isFictitious();
+        return getDanglingLine1().isFictitious() || getDanglingLine2().isFictitious();
     }
 
     @Override
     public void setFictitious(boolean fictitious) {
-        dl1.setFictitious(fictitious);
-        dl2.setFictitious(fictitious);
+        getDanglingLine1().setFictitious(fictitious);
+        getDanglingLine2().setFictitious(fictitious);
     }
 
     @Override
@@ -473,8 +479,8 @@ class MergedLine implements Line {
 
     @Override
     public String setProperty(final String key, final String value) {
-        dl1.setProperty(key, value);
-        dl2.setProperty(key, value);
+        getDanglingLine1().setProperty(key, value);
+        getDanglingLine2().setProperty(key, value);
         return (String) properties.setProperty(key, value);
     }
 
@@ -493,12 +499,15 @@ class MergedLine implements Line {
 
     @Override
     public <E extends Extension<Line>> E getExtension(final Class<? super E> type) {
-        throw MergingView.createNotImplementedException();
+        return null;
+        // throw MergingView.createNotImplementedException();
     }
 
     @Override
     public <E extends Extension<Line>> E getExtensionByName(final String name) {
-        throw MergingView.createNotImplementedException();
+        // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
+        // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
+        return null;
     }
 
     @Override
@@ -508,11 +517,45 @@ class MergedLine implements Line {
 
     @Override
     public <E extends Extension<Line>> Collection<E> getExtensions() {
-        throw MergingView.createNotImplementedException();
+        // TODO(mathbagu): This method is used in the UCTE export so we prefer returning an empty list instead of throwing an exception
+        // TODO(mathbagu): is it a good idea to extend AbstractExtendable?
+        return Collections.emptyList();
+    }
+
+    @Override
+    public String getImplementationName() {
+        return "MergingView";
     }
 
     @Override
     public <E extends Extension<Line>, B extends ExtensionAdder<Line, E>> B newExtension(Class<B> type) {
         throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public String getUcteXnodeCode() {
+        return getDanglingLine1().getUcteXnodeCode();
+    }
+
+    @Override
+    public HalfLine getHalf1() {
+        return half1;
+    }
+
+    @Override
+    public HalfLine getHalf2() {
+        return half2;
+    }
+
+    @Override
+    public HalfLine getHalf(Side side) {
+        switch (side) {
+            case ONE:
+                return half1;
+            case TWO:
+                return half2;
+            default:
+                throw new AssertionError("Unknown branch side " + side);
+        }
     }
 }

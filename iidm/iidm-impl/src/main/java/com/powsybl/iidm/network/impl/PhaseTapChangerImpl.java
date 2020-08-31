@@ -6,15 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -139,5 +134,14 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     protected String getTapChangerAttribute() {
         return "phase" + parent.getTapChangerAttribute();
+    }
+
+    @Override
+    public Map<Integer, PhaseTapChangerStep> getAllSteps() {
+        Map<Integer, PhaseTapChangerStep> allSteps = new HashMap<>();
+        for (int i = 0; i < steps.size(); i++) {
+            allSteps.put(i + lowTapPosition, steps.get(i));
+        }
+        return allSteps;
     }
 }

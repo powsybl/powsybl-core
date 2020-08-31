@@ -125,8 +125,7 @@ public class RatioTapChangerAdapterTest {
         step.setRho(stepRho);
         assertEquals(stepRho, step.getRho(), 0.0);
 
-        // Not implemented yet !
-        // remove
-        TestUtil.notImplemented(ratioTapChanger::remove);
+        ratioTapChanger.remove();
+        assertNull(twt.getRatioTapChanger());
     }
 }

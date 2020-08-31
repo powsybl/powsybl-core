@@ -18,6 +18,7 @@ import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertFalse;
@@ -125,17 +126,19 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getG()).thenReturn(g1 * (1 - g1 / 100));
         Mockito.when(transformer1.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer1.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        Mockito.when(transformer1.getOptionalRatioTapChanger()).thenReturn(Optional.of(ratioTapChanger));
+        Mockito.when(transformer1.hasRatioTapChanger()).thenReturn(true);
         Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
 
         looseConfigSpecificCompatibility = new ValidationConfig(0.1, true, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setT2wtSplitShuntAdmittance(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
+                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setTwtSplitShuntAdmittance(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
         strictConfigSpecificCompatibility = new ValidationConfig(0.01, false, "LoadFlowMock", ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                 ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
-                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setT2wtSplitShuntAdmittance(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
+                ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters().setTwtSplitShuntAdmittance(true), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT, ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT,
                 ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
     }
@@ -231,6 +234,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer2.getG()).thenReturn(g1 * (1 - g1 / 100));
         Mockito.when(transformer2.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer2.getRatioTapChanger()).thenReturn(ratioTapChanger);
+        Mockito.when(transformer2.getOptionalRatioTapChanger()).thenReturn(Optional.ofNullable(ratioTapChanger));
+        Mockito.when(transformer2.hasRatioTapChanger()).thenReturn(true);
         Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);
 

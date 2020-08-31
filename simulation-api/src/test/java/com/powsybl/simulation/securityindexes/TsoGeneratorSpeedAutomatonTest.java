@@ -17,7 +17,6 @@ import java.io.StringReader;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -37,8 +36,8 @@ public class TsoGeneratorSpeedAutomatonTest {
                 xmlReader.close();
             }
         }
-        assertTrue(index.getOnUnderSpeedDiconnectedGenerators().equals(Arrays.asList("a", "b")));
-        assertTrue(index.getOnOverSpeedDiconnectedGenerators().equals(Arrays.asList("c")));
+        assertEquals(Arrays.asList("a", "b"), index.getOnUnderSpeedDiconnectedGenerators());
+        assertEquals(Arrays.asList("c"), index.getOnOverSpeedDiconnectedGenerators());
         assertEquals(xml, index.toXml());
     }
 }

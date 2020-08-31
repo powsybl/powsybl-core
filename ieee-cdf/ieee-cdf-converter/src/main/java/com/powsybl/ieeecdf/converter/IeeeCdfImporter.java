@@ -14,12 +14,11 @@ import com.powsybl.ieeecdf.model.*;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
-import org.jgrapht.graph.Pseudograph;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -46,6 +45,8 @@ public class IeeeCdfImporter implements Importer {
                                                                                  ParameterType.BOOLEAN,
                                                                                  "Ignore base voltage specified in the file",
                                                                                  Boolean.TRUE);
+
+    private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
 
     @Override
     public String getFormat() {
@@ -116,68 +117,8 @@ public class IeeeCdfImporter implements Importer {
         }
     }
 
-    private static class ContainersMapping {
-
-        private final Map<Integer, String> busNumToVoltageLevelId = new HashMap<>();
-
-        private final Map<String, Set<Integer>> voltageLevelIdToBusNums = new HashMap<>();
-
-        private final Map<String, String> voltageLevelIdToSubstationId = new HashMap<>();
-    }
-
-    private static ContainersMapping createContainerMapping(IeeeCdfModel ieeeCdfModel) {
-        ContainersMapping containersMapping = new ContainersMapping();
-
-        // group buses connected to non impedant lines to voltage levels
-        createVoltageLevelMapping(ieeeCdfModel, containersMapping);
-
-        // group voltage levels connected by transformers to substations
-        createSubstationMapping(ieeeCdfModel, containersMapping);
-
-        return containersMapping;
-    }
-
     private static boolean isTransformer(IeeeCdfBranch ieeeCdfBranch) {
         return ieeeCdfBranch.getType() != null && (ieeeCdfBranch.getType() != IeeeCdfBranch.Type.TRANSMISSION_LINE || ieeeCdfBranch.getFinalTurnsRatio() != 0);
-    }
-
-    private static void createSubstationMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {
-        UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
-        for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
-            sGraph.addVertex(voltageLevelId);
-        }
-        for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            if (isTransformer(ieeeCdfBranch)) {
-                sGraph.addEdge(containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber()),
-                        containersMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber()));
-            }
-        }
-        int substationNum = 1;
-        for (Set<String> voltageLevelIds : new ConnectivityInspector<>(sGraph).connectedSets()) {
-            String substationId = "S" + substationNum++;
-            for (String voltageLevelId : voltageLevelIds) {
-                containersMapping.voltageLevelIdToSubstationId.put(voltageLevelId, substationId);
-            }
-        }
-    }
-
-    private static void createVoltageLevelMapping(IeeeCdfModel ieeeCdfModel, ContainersMapping containersMapping) {
-        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
-        for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
-            vlGraph.addVertex(ieeeCdfBus.getNumber());
-        }
-        for (IeeeCdfBranch ieeeCdfBranch : ieeeCdfModel.getBranches()) {
-            if (ieeeCdfBranch.getResistance() == 0 && ieeeCdfBranch.getReactance() == 0) {
-                vlGraph.addEdge(ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber());
-            }
-        }
-        for (Set<Integer> busNums : new ConnectivityInspector<>(vlGraph).connectedSets()) {
-            String voltageLevelId = "VL" + busNums.iterator().next();
-            containersMapping.voltageLevelIdToBusNums.put(voltageLevelId, busNums);
-            for (int busNum : busNums) {
-                containersMapping.busNumToVoltageLevelId.put(busNum, voltageLevelId);
-            }
-        }
     }
 
     private static String getBusId(int busNum) {
@@ -187,8 +128,8 @@ public class IeeeCdfImporter implements Importer {
     private static void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network) {
         for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
-            String voltageLevelId = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBus.getNumber());
-            String substationId = containerMapping.voltageLevelIdToSubstationId.get(voltageLevelId);
+            String voltageLevelId = containerMapping.getVoltageLevelId(ieeeCdfBus.getNumber());
+            String substationId = containerMapping.getSubstationId(voltageLevelId);
 
             // create substation
             Substation substation = createSubstation(network, substationId);
@@ -197,7 +138,7 @@ public class IeeeCdfImporter implements Importer {
             VoltageLevel voltageLevel = createVoltageLevel(ieeeCdfBus, perUnitContext, voltageLevelId, substation, network);
 
             // create bus
-            createBus(ieeeCdfBus, voltageLevel);
+            Bus bus = createBus(ieeeCdfBus, voltageLevel);
 
             // create load
             createLoad(ieeeCdfBus, voltageLevel);
@@ -238,6 +179,11 @@ public class IeeeCdfImporter implements Importer {
 
                 default:
                     throw new IllegalStateException("Unexpected bus type: " + ieeeCdfBus.getType());
+            }
+
+            // Attach a slack bus
+            if (ieeeCdfBus.getType() == IeeeCdfBus.Type.HOLD_VOLTAGE_AND_ANGLE) {
+                SlackTerminal.attach(bus);
             }
         }
     }
@@ -297,8 +243,8 @@ public class IeeeCdfImporter implements Importer {
                 .setConnectableBus(busId)
                 .setBus(busId)
                 .setTargetP(ieeeCdfBus.getActiveGeneration())
-                .setMaxP(Double.MAX_VALUE)
-                .setMinP(-Double.MAX_VALUE);
+                .setMaxP(DEFAULT_ACTIVE_POWER_LIMIT)
+                .setMinP(-DEFAULT_ACTIVE_POWER_LIMIT);
     }
 
     private static void createShuntCompensator(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext, VoltageLevel voltageLevel) {
@@ -309,9 +255,11 @@ public class IeeeCdfImporter implements Importer {
                     .setId(busId + "-SH")
                     .setConnectableBus(busId)
                     .setBus(busId)
-                    .setbPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
-                    .setCurrentSectionCount(1)
-                    .setMaximumSectionCount(1)
+                    .setSectionCount(1)
+                    .newLinearModel()
+                        .setMaximumSectionCount(1)
+                        .setBPerSection(ieeeCdfBus.getShuntSusceptance() / zb)
+                        .add()
                     .add();
         }
     }
@@ -329,8 +277,8 @@ public class IeeeCdfImporter implements Importer {
         String id = getBranchId('L', ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber(), ieeeCdfBranch.getCircuit(), network);
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
-        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
-        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getTapBusNumber());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getzBusNumber());
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
         network.newLine()
@@ -354,8 +302,8 @@ public class IeeeCdfImporter implements Importer {
         String id = getBranchId('T', ieeeCdfBranch.getTapBusNumber(), ieeeCdfBranch.getzBusNumber(), ieeeCdfBranch.getCircuit(), network);
         String bus1Id = getBusId(ieeeCdfBranch.getTapBusNumber());
         String bus2Id = getBusId(ieeeCdfBranch.getzBusNumber());
-        String voltageLevel1Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getTapBusNumber());
-        String voltageLevel2Id = containerMapping.busNumToVoltageLevelId.get(ieeeCdfBranch.getzBusNumber());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getTapBusNumber());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(ieeeCdfBranch.getzBusNumber());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
@@ -525,7 +473,10 @@ public class IeeeCdfImporter implements Importer {
             }
 
             // build container to fit IIDM requirements
-            ContainersMapping containerMapping = createContainerMapping(ieeeCdfModel);
+            ContainersMapping containerMapping = ContainersMapping.create(ieeeCdfModel.getBuses(), ieeeCdfModel.getBranches(),
+                IeeeCdfBus::getNumber, IeeeCdfBranch::getTapBusNumber, IeeeCdfBranch::getzBusNumber, branch -> 0,  IeeeCdfBranch::getResistance,
+                IeeeCdfBranch::getReactance, IeeeCdfImporter::isTransformer, busNums -> "VL" + busNums.iterator().next(),
+                substationNum -> "S" + substationNum++);
 
             boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
                                                                                   ParameterDefaultValueConfig.INSTANCE);

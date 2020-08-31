@@ -11,8 +11,18 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.triplestore.api.TripleStoreFactory;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,6 +75,48 @@ public class CgmesConformity1ModifiedConversionTest {
         for (int k = 1; k <= 4; k++) {
             assertEquals(1.0, ptc.getStep(k).getRho(), 0);
         }
+    }
+
+    @Test
+    public void microBEPhaseTapChangerLinearTest() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
+            config);
+
+        PhaseTapChanger ptc = n.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertEquals(25, ptc.getStepCount());
+
+        for (int step = 1; step <= ptc.getStepCount(); step++) {
+            assertEquals(1.0, ptc.getStep(step).getRho(), 0);
+            assertEquals(0.0, ptc.getStep(step).getR(), 0);
+            assertEquals(-87.517240, ptc.getStep(1).getX(), 0.000001);
+            assertEquals(0.0, ptc.getStep(step).getG(), 0);
+            assertEquals(0.0, ptc.getStep(step).getB(), 0);
+        }
+
+        // Check alpha in some steps
+        assertEquals(14.4, ptc.getStep(1).getAlpha(), 0.001);
+        assertEquals(8.4, ptc.getStep(6).getAlpha(), 0.001);
+        assertEquals(2.4, ptc.getStep(11).getAlpha(), 0.001);
+        assertEquals(0.0, ptc.getStep(13).getAlpha(), 0.0);
+        assertEquals(-1.2, ptc.getStep(14).getAlpha(), 0.001);
+        assertEquals(-7.2, ptc.getStep(19).getAlpha(), 0.001);
+        assertEquals(-14.4, ptc.getStep(25).getAlpha(), 0.001);
+    }
+
+    private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
+
+        ReadOnlyDataSource ds = testGridModel.dataSource();
+        String impl = TripleStoreFactory.defaultImplementation();
+
+        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
+
+        config.setConvertSvInjections(true);
+        config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
+        Conversion c = new Conversion(cgmes, config);
+        Network n = c.convert();
+
+        return n;
     }
 
     @Test
@@ -218,8 +270,8 @@ public class CgmesConformity1ModifiedConversionTest {
         ShuntCompensator shunt = network.getShuntCompensator("_d771118f-36e9-4115-a128-cc3d9ce3e3da");
         assertNotNull(shunt);
         assertEquals(1, shunt.getMaximumSectionCount());
-        assertEquals(0.0012, shunt.getbPerSection(), 0.0);
-        assertEquals(1, shunt.getCurrentSectionCount());
+        assertEquals(0.0012, shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), 0.0);
+        assertEquals(1, shunt.getSectionCount());
     }
 
     @Test
@@ -231,6 +283,53 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(shunt.getTerminal().getBusView().getBus().getV(), shunt.getTargetV(), 0.0d);
         assertEquals(0.0d, shunt.getTargetDeadband(), 0.0d);
         assertEquals(shunt.getTerminal(), shunt.getRegulatingTerminal());
+    }
+
+    @Test
+    public void microBEUndefinedPatl() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEUndefinedPatl().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line line = network.getLine("_ffbabc27-1ccd-4fdc-b037-e341706c8d29");
+        CurrentLimits limits = line.getCurrentLimits1();
+        assertNotNull(limits);
+        assertEquals(2, limits.getTemporaryLimits().size());
+        assertEquals(1312.0, limits.getPermanentLimit(), 0.0);
+    }
+
+    @Test
+    public void microBEEquivalentInjectionRegulatingVoltage() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentInjectionRegulatingVoltage().dataSource(),
+                NetworkFactory.findDefault(), null);
+
+        DanglingLine danglingLineRegulating = network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4");
+        assertNotNull(danglingLineRegulating);
+        assertTrue(danglingLineRegulating.getGeneration().isVoltageRegulationOn());
+        assertEquals(220.1234, danglingLineRegulating.getGeneration().getTargetV(), 0.0);
+
+        DanglingLine danglingLineNotRegulating = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        assertNotNull(danglingLineNotRegulating);
+        assertEquals(-27.365225, danglingLineNotRegulating.getP0(), 0.0);
+        assertEquals(0.425626, danglingLineNotRegulating.getQ0(), 0.0);
+    }
+
+    @Test
+    public void microBEConformNonConformLoads() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEConformNonConformLoads().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Load conformLoad = network.getLoad("_cb459405-cc14-4215-a45c-416789205904");
+        Load nonConformLoad = network.getLoad("_1c6beed6-1acf-42e7-ba55-0cc9f04bddd8");
+        LoadDetail conformDetails = conformLoad.getExtension(LoadDetail.class);
+        assertNotNull(conformDetails);
+        assertEquals(0.0, conformDetails.getFixedActivePower(), 0.0);
+        assertEquals(0.0, conformDetails.getFixedReactivePower(), 0.0);
+        assertEquals(200.0, conformDetails.getVariableActivePower(), 0.0);
+        assertEquals(90.0, conformDetails.getVariableReactivePower(), 0.0);
+        LoadDetail nonConformDetails = nonConformLoad.getExtension(LoadDetail.class);
+        assertNotNull(nonConformDetails);
+        assertEquals(200.0, nonConformDetails.getFixedActivePower(), 0.0);
+        assertEquals(50.0, nonConformDetails.getFixedReactivePower(), 0.0);
+        assertEquals(0.0, nonConformDetails.getVariableActivePower(), 0.0);
+        assertEquals(0.0, nonConformDetails.getVariableReactivePower(), 0.0);
     }
 
     @Test
@@ -252,15 +351,15 @@ public class CgmesConformity1ModifiedConversionTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
-        assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
-        assertTrue(Double.isNaN(svc.getReactivePowerSetPoint()));
+        assertEquals(229.5, svc.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(svc.getReactivePowerSetpoint()));
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator reactivePowerSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(reactivePowerSvc);
         assertEquals(REACTIVE_POWER, reactivePowerSvc.getRegulationMode());
-        assertEquals(229.5, reactivePowerSvc.getReactivePowerSetPoint(), 0.0);
-        assertTrue(Double.isNaN(reactivePowerSvc.getVoltageSetPoint()));
+        assertEquals(229.5, reactivePowerSvc.getReactivePowerSetpoint(), 0.0);
+        assertTrue(Double.isNaN(reactivePowerSvc.getVoltageSetpoint()));
     }
 
     @Test
@@ -279,7 +378,7 @@ public class CgmesConformity1ModifiedConversionTest {
         StaticVarCompensator off2 = modified2.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(off2);
         assertEquals(REACTIVE_POWER, off2.getRegulationMode());
-        assertEquals(0.0d, off2.getReactivePowerSetPoint(), 0.0d);
+        assertEquals(0.0d, off2.getReactivePowerSetpoint(), 0.0d);
     }
 
     @Test
@@ -288,13 +387,13 @@ public class CgmesConformity1ModifiedConversionTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
-        assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
+        assertEquals(229.5, svc.getVoltageSetpoint(), 0.0);
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbSvcNoRegulatingControl().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
         assertEquals(VOLTAGE, modifiedSvc.getRegulationMode());
-        assertEquals(159.5, modifiedSvc.getVoltageSetPoint(), 0.0);
+        assertEquals(159.5, modifiedSvc.getVoltageSetpoint(), 0.0);
     }
 
     @Test
@@ -303,13 +402,13 @@ public class CgmesConformity1ModifiedConversionTest {
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(svc);
         assertEquals(VOLTAGE, svc.getRegulationMode());
-        assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
+        assertEquals(229.5, svc.getVoltageSetpoint(), 0.0);
 
         Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         assertNotNull(modifiedSvc);
         assertEquals(REACTIVE_POWER, modifiedSvc.getRegulationMode());
-        assertEquals(0.0, modifiedSvc.getReactivePowerSetPoint(), 0.0);
+        assertEquals(0.0, modifiedSvc.getReactivePowerSetpoint(), 0.0);
     }
 
     @Test
@@ -486,6 +585,42 @@ public class CgmesConformity1ModifiedConversionTest {
     public void smallNodeBrokerHvdcMissingDCLineSegment() {
         // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment().dataSource(), null));
+    }
+
+    @Test
+    public void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
+        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
+
+        // Original CGMES equipment was a switch (a Breaker)
+        // It has been mapped to a low impedance line
+        Line line = n.getLine("_5e9f0079-647e-46da-b0ee-f5f24e127602");
+        assertNotNull(line);
+
+        // Terminals in original CGMES data were connected
+        CgmesTerminal t1 = cgmes.terminal("_ba0cc755-9201-4d57-8206-3fa57b147583");
+        CgmesTerminal t2 = cgmes.terminal("_43f700ce-3882-4906-b41f-b7c4eb2e74e0");
+        assertTrue(t1.connected());
+        assertTrue(t2.connected());
+        t1.conductingEquipmentType().endsWith("Breaker");
+
+        // But as the switch was open,
+        // the BusView for both ends of the Line
+        // must return a null bus
+        Bus bus1 = line.getTerminal1().getBusView().getBus();
+        Bus bus2 = line.getTerminal2().getBusView().getBus();
+        assertNull(bus1);
+        assertNull(bus2);
+        // End2 must have a connectable bus
+        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
+        assertNotNull(cbus2);
+        assertTrue(cbus2.getConnectedTerminalCount() > 1);
+        // End1 may or may not have a bus defined in BusView,
+        // Depending on the definition of a bus,
+        // that is under review (PR #1316)
+        // The end1 will only be connectable to one end
+        // of a real line segment
     }
 
     private FileSystem fileSystem;

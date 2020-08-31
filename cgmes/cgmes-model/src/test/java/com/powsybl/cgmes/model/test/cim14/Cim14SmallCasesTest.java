@@ -7,11 +7,19 @@
 
 package com.powsybl.cgmes.model.test.cim14;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.junit.Test;
 
+import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.cgmes.model.test.CgmesModelTester;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -19,22 +27,43 @@ import com.powsybl.cgmes.model.test.CgmesModelTester;
 public class Cim14SmallCasesTest {
 
     @Test
-    public void small1() throws IOException {
+    public void small1() {
         new CgmesModelTester(Cim14SmallCasesCatalog.small1()).test();
     }
 
     @Test
-    public void m7Buses() throws IOException {
+    public void small1PlusInvalidFileContent() throws IOException {
+        TestGridModelResources t = Cim14SmallCasesCatalog.small1PlusInvalidFileContent();
+        // The data source contains invalid files
+        CgmesOnDataSource c = new CgmesOnDataSource(t.dataSource());
+        assertTrue(t.dataSource().listNames(".*").containsAll(INVALID_CONTENT_FILES));
+        // And they are correctly ignored as valid CIM content
+        assertFalse(c.names().containsAll(INVALID_CONTENT_FILES));
+        // The test case ignoring the invalid content is handled correctly
+        new CgmesModelTester(t).test();
+    }
+
+    @Test
+    public void m7Buses() {
         new CgmesModelTester(Cim14SmallCasesCatalog.m7buses()).test();
     }
 
     @Test
-    public void ieee14() throws IOException {
+    public void ieee14() {
         new CgmesModelTester(Cim14SmallCasesCatalog.ieee14()).test();
     }
 
     @Test
-    public void nordic32() throws IOException {
+    public void nordic32() {
         new CgmesModelTester(Cim14SmallCasesCatalog.nordic32()).test();
     }
+
+    private static final String[] INVALID_CONTENT_FILES_VALUES = new String[] {
+        "invalidContent_EQ.notxml",
+        "invalidContent_EQ.xml",
+        "validRdfInvalidContent_EQ.xml",
+        "validCimInvalidContent_EQ.xml"
+    };
+    private static final Set<String> INVALID_CONTENT_FILES = new HashSet<>(Arrays.asList(INVALID_CONTENT_FILES_VALUES));
+
 }

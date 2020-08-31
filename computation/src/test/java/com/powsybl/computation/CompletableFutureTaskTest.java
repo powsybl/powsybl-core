@@ -58,7 +58,7 @@ public class CompletableFutureTaskTest {
     }
 
     @Test
-    public void whenTaskThrowsThenThrowExecutionException() {
+    public void whenTaskThrowsThenThrowExecutionException() throws InterruptedException {
 
         CompletableFutureTask<Integer> task = CompletableFutureTask.runAsync(() -> {
             throw new MyException();
@@ -69,8 +69,6 @@ public class CompletableFutureTaskTest {
             fail();
         } catch (ExecutionException exc) {
             assertTrue(exc.getCause() instanceof MyException);
-        } catch (Throwable exc) {
-            fail();
         }
     }
 
@@ -114,11 +112,9 @@ public class CompletableFutureTaskTest {
 
         try {
             task.get();
-            fail();
+            fail("Should not happen: task has been cancelled");
         } catch (CancellationException exc) {
             //ignored
-        } catch (Throwable exc) {
-            fail();
         }
 
         waitForInterruption.await();

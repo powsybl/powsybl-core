@@ -170,7 +170,7 @@ public class PsseRawReader {
         readRecordBlock(reader); // TODO
 
         // switched shunt data
-        readRecordBlock(reader); // TODO
+        model.getSwitchedShunts().addAll(parseRecords(readRecordBlock(reader), PsseSwitchedShunt.class));
 
         // gne device data
         readRecordBlock(reader); // TODO
@@ -179,5 +179,28 @@ public class PsseRawReader {
         readRecordBlock(reader);
 
         return model;
+    }
+
+    public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
+        Objects.requireNonNull(reader);
+
+        // just check the first record if this file is in PSS/E format
+        PsseCaseIdentification caseIdentification;
+        try {
+            caseIdentification = readCaseIdentification(reader);
+        } catch (PsseException e) {
+            return false; // invalid PSS/E content
+        }
+
+        int ic = caseIdentification.getIc();
+        double sbase = caseIdentification.getSbase();
+        int rev = caseIdentification.getRev();
+        double basfrq = caseIdentification.getBasfrq();
+
+        if (ic == 0 && sbase > 0. && rev <= PsseConstants.SUPPORTED_VERSION && basfrq > 0.) {
+            return true;
+        }
+
+        return false;
     }
 }

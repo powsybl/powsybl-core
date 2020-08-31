@@ -65,14 +65,14 @@ public class UndirectedGraphImplTest {
 
     @Test
     public void testConstructor() {
-        assertTrue(graph.getVertexCount() == 0);
-        assertTrue(graph.getEdgeCount() == 0);
+        assertEquals(0, graph.getVertexCount());
+        assertEquals(0, graph.getEdgeCount());
     }
 
     @Test
     public void testAddVertex() {
         graph.addVertex();
-        assertTrue(graph.getVertexCount() == 1);
+        assertEquals(1, graph.getVertexCount());
     }
 
     @Test
@@ -132,9 +132,9 @@ public class UndirectedGraphImplTest {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, null);
-        assertTrue(graph.getVertexCount() == 2);
-        assertTrue(e == 0);
-        assertTrue(graph.getEdgeCount() == 1);
+        assertEquals(2, graph.getVertexCount());
+        assertEquals(0, e);
+        assertEquals(1, graph.getEdgeCount());
         assertEquals(0, graph.getEdgeVertex1(e));
         assertEquals(1, graph.getEdgeVertex2(e));
     }
@@ -146,17 +146,17 @@ public class UndirectedGraphImplTest {
         graph.addVertex();
         int e = graph.addEdge(0, 1, null);
         graph.removeEdge(e);
-        assertTrue(graph.getEdgeCount() == 0);
+        assertEquals(0, graph.getEdgeCount());
         e = graph.addEdge(0, 1, null);
-        assertTrue(e == 0);
+        assertEquals(0, e);
         int e2 = graph.addEdge(1, 2, null);
         graph.removeEdge(e);
-        assertTrue(graph.getEdgeCount() == 1);
+        assertEquals(1, graph.getEdgeCount());
         e = graph.addEdge(0, 1, null);
-        assertTrue(e == 0);
+        assertEquals(0, e);
         graph.removeEdge(e);
         graph.removeEdge(e2);
-        assertTrue(graph.getEdgeCount() == 0);
+        assertEquals(0, graph.getEdgeCount());
     }
 
     @Test
@@ -255,7 +255,7 @@ public class UndirectedGraphImplTest {
         graph.addEdge(4, 5, null); // 5
         graph.addEdge(3, 5, null); // 6
         List<TIntArrayList> paths = graph.findAllPaths(0, vertex -> vertex != null && "end".equals(vertex.name), null);
-        assertTrue(paths.size() == 3);
+        assertEquals(3, paths.size());
         assertArrayEquals(paths.get(0).toArray(), new int[] {2, 6});
         assertArrayEquals(paths.get(1).toArray(), new int[] {0, 3, 5});
         assertArrayEquals(paths.get(2).toArray(), new int[] {1, 4, 5});

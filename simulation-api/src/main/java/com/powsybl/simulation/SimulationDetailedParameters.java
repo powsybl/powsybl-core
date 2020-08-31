@@ -16,7 +16,6 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -151,7 +150,7 @@ public class SimulationDetailedParameters {
             while (xmlsr.hasNext()) {
                 int eventType = xmlsr.next();
                 switch (eventType) {
-                    case XMLEvent.START_ELEMENT:
+                    case XMLStreamConstants.START_ELEMENT:
                         switch (xmlsr.getLocalName()) {
                             case "contingency":
                                 contingency = new Contingency(xmlsr.getAttributeValue(null, "id"));

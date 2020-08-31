@@ -6,34 +6,20 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Substation;
-
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class EntsoeArea extends AbstractExtension<Substation> {
-
-    private EntsoeGeographicalCode code;
-
-    public EntsoeArea(Substation substation, EntsoeGeographicalCode code) {
-        super(substation);
-        this.code = Objects.requireNonNull(code);
-    }
+public interface EntsoeArea extends Extension<Substation> {
 
     @Override
-    public String getName() {
+    default String getName() {
         return "entsoeArea";
     }
 
-    public EntsoeGeographicalCode getCode() {
-        return code;
-    }
+    EntsoeGeographicalCode getCode();
 
-    public EntsoeArea setCode(EntsoeGeographicalCode code) {
-        this.code = Objects.requireNonNull(code);
-        return this;
-    }
+    EntsoeArea setCode(EntsoeGeographicalCode code);
 }

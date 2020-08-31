@@ -13,7 +13,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.4.0-SNAPSHOT</version>
+        <version>3.6.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -23,6 +23,7 @@
 
     <modules>
         <module>psse-model</module>
+        <module>psse-converter</module>
     </modules>
 
 </project>

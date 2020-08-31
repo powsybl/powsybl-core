@@ -11,11 +11,10 @@ import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
+import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
-import com.powsybl.math.graph.GraphUtil;
-import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
-import gnu.trove.list.array.TIntArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -667,162 +666,53 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return busView;
     }
 
-    private abstract static class AbstractComponentsManager<C extends Component> {
+    static final class ConnectedComponentsManager extends AbstractConnectedComponentsManager<ConnectedComponentImpl> {
 
-        protected final NetworkImpl network;
+        private final NetworkImpl network;
 
-        private AbstractComponentsManager(NetworkImpl network) {
+        private ConnectedComponentsManager(NetworkImpl network) {
             this.network = Objects.requireNonNull(network);
         }
 
-        private List<C> components;
-
-        void invalidate() {
-            components = null;
-        }
-
-        protected void addToAdjacencyList(Bus bus1, Bus bus2, Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            if (bus1 != null && bus2 != null) {
-                int busNum1 = id2num.get(bus1.getId());
-                int busNum2 = id2num.get(bus2.getId());
-                adjacencyList[busNum1].add(busNum2);
-                adjacencyList[busNum2].add(busNum1);
-            }
-        }
-
-        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            for (LineImpl line : Sets.union(network.index.getAll(LineImpl.class), network.index.getAll(TieLineImpl.class))) {
-                BusExt bus1 = line.getTerminal1().getBusView().getBus();
-                BusExt bus2 = line.getTerminal2().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-            for (TwoWindingsTransformerImpl transfo : network.index.getAll(TwoWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getTerminal1().getBusView().getBus();
-                BusExt bus2 = transfo.getTerminal2().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-            for (ThreeWindingsTransformerImpl transfo : network.index.getAll(ThreeWindingsTransformerImpl.class)) {
-                BusExt bus1 = transfo.getLeg1().getTerminal().getBusView().getBus();
-                BusExt bus2 = transfo.getLeg2().getTerminal().getBusView().getBus();
-                BusExt bus3 = transfo.getLeg3().getTerminal().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-                addToAdjacencyList(bus1, bus3, id2num, adjacencyList);
-                addToAdjacencyList(bus2, bus3, id2num, adjacencyList);
-            }
-        }
-
-        protected abstract C createComponent(int num, int size);
-
-        protected abstract String getComponentLabel();
-
-        protected abstract void setComponentNumber(BusExt bus, int num);
-
-        void update() {
-            if (components != null) {
-                return;
-            }
-
-            long startTime = System.currentTimeMillis();
-
-            // reset
-            for (Bus b : network.getBusBreakerView().getBuses()) {
-                setComponentNumber((BusExt) b, -1);
-            }
-
-            int num = 0;
-            Map<String, Integer> id2num = new HashMap<>();
-            List<BusExt> num2bus = new ArrayList<>();
-            for (Bus bus : network.getBusView().getBuses()) {
-                num2bus.add((BusExt) bus);
-                id2num.put(bus.getId(), num);
-                num++;
-            }
-            TIntArrayList[] adjacencyList = new TIntArrayList[num];
-            for (int i = 0; i < adjacencyList.length; i++) {
-                adjacencyList[i] = new TIntArrayList(3);
-            }
-            fillAdjacencyList(id2num, adjacencyList);
-
-            ConnectedComponentsComputationResult result = GraphUtil.computeConnectedComponents(adjacencyList);
-
-            components = new ArrayList<>(result.getComponentSize().length);
-            for (int i = 0; i < result.getComponentSize().length; i++) {
-                components.add(createComponent(i, result.getComponentSize()[i]));
-            }
-
-            for (int i = 0; i < result.getComponentNumber().length; i++) {
-                BusExt bus = num2bus.get(i);
-                setComponentNumber(bus, result.getComponentNumber()[i]);
-            }
-
-            LOGGER.debug("{} components computed in {} ms", getComponentLabel(), System.currentTimeMillis() - startTime);
-        }
-
-        List<C> getConnectedComponents() {
-            update();
-            return components;
-        }
-
-        C getComponent(int num) {
-            // update() must not be put here, but explicitly called each time before because update may
-            // trigger a new component computation and so on a change in the value of the num component already passed
-            // (and outdated consequently) in parameter of this method
-            return num != -1 ? components.get(num) : null;
-        }
-
-    }
-
-    static final class ConnectedComponentsManager extends AbstractComponentsManager<ConnectedComponentImpl> {
-
-        private ConnectedComponentsManager(NetworkImpl network) {
-            super(network);
+        @Override
+        protected Network getNetwork() {
+            return network;
         }
 
         @Override
-        protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            super.fillAdjacencyList(id2num, adjacencyList);
-            for (HvdcLineImpl line : network.index.getAll(HvdcLineImpl.class)) {
-                BusExt bus1 = line.getConverterStation1().getTerminal().getBusView().getBus();
-                BusExt bus2 = line.getConverterStation2().getTerminal().getBusView().getBus();
-                addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
-            }
-        }
-
-        @Override
-        protected String getComponentLabel() {
-            return "Connected";
-        }
-
-        @Override
-        protected void setComponentNumber(BusExt bus, int num) {
+        protected void setComponentNumber(Bus bus, int num) {
             Objects.requireNonNull(bus);
-            bus.setConnectedComponentNumber(num);
+            ((BusExt) bus).setConnectedComponentNumber(num);
         }
 
+        @Override
         protected ConnectedComponentImpl createComponent(int num, int size) {
             return new ConnectedComponentImpl(num, size, network.ref);
         }
     }
 
-    static final class SynchronousComponentsManager extends AbstractComponentsManager<SynchronousComponentImpl> {
+    static final class SynchronousComponentsManager extends AbstractSynchronousComponentsManager<SynchronousComponentImpl> {
+
+        private final NetworkImpl network;
 
         private SynchronousComponentsManager(NetworkImpl network) {
-            super(network);
+            this.network = Objects.requireNonNull(network);
         }
 
+        @Override
+        protected Network getNetwork() {
+            return network;
+        }
+
+        @Override
+        protected void setComponentNumber(Bus bus, int num) {
+            Objects.requireNonNull(bus);
+            ((BusExt) bus).setSynchronousComponentNumber(num);
+        }
+
+        @Override
         protected SynchronousComponentImpl createComponent(int num, int size) {
             return new SynchronousComponentImpl(num, size, network.ref);
-        }
-
-        @Override
-        protected String getComponentLabel() {
-            return "Synchronous";
-        }
-
-        @Override
-        protected void setComponentNumber(BusExt bus, int num) {
-            Objects.requireNonNull(bus);
-            bus.setSynchronousComponentNumber(num);
         }
     }
 
@@ -966,6 +856,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (dl1 != null) {
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
+            l.aliases = new HashSet<>();
+            l.aliases.add(dl1.getId());
+            l.aliases.add(dl2.getId());
+            l.aliases.addAll(dl1.getAliases());
+            l.aliases.addAll(dl2.getAliases());
             Terminal t1 = dl1.getTerminal();
             Terminal t2 = dl2.getTerminal();
             VoltageLevel vl1 = t1.getVoltageLevel();
@@ -983,6 +878,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b2 = 0;
             l.half1.xnodeP = dl1.getP0();
             l.half1.xnodeQ = dl1.getQ0();
+            l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
@@ -993,6 +889,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b1 = 0;
             l.half2.xnodeP = dl2.getP0();
             l.half2.xnodeQ = dl2.getQ0();
+            l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1038,13 +935,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             if (dl1.getProperty(prop).equals(dl2.getProperty(prop))) {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else if (dl1.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 1 is empty, keeping side 2 value '{}'", prop, dl2.getProperty(prop));
                 properties.setProperty(prop, dl2.getProperty(prop));
             } else if (dl2.getProperty(prop).isEmpty()) {
-                LOGGER.warn("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. Side 2 is empty, keeping side 1 value '{}'", prop, dl1.getProperty(prop));
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
-                LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+                LOGGER.debug("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
             }
         });
         dl1Properties.forEach(prop -> properties.setProperty(prop + "_1", dl1.getProperty(prop)));
@@ -1070,6 +967,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half1.b2)
                         .setXnodeP(mergedLine.half1.xnodeP)
                         .setXnodeQ(mergedLine.half1.xnodeQ)
+                        .setFictitious(mergedLine.half1.fictitious)
                     .line2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
@@ -1080,6 +978,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB2(mergedLine.half2.b2)
                         .setXnodeP(mergedLine.half2.xnodeP)
                         .setXnodeQ(mergedLine.half2.xnodeQ)
+                        .setFictitious(mergedLine.half2.fictitious)
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
@@ -1101,6 +1000,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
+            mergedLine.aliases.forEach(l::addAlias);
 
             mergedLineByBoundary.put(new Boundary(mergedLine.country1, mergedLine.country2), mergedLine);
         }
@@ -1108,6 +1008,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     class MergedLine {
         String id;
+        Set<String> aliases;
         String voltageLevel1;
         String voltageLevel2;
         String xnode;
@@ -1130,6 +1031,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double b2;
             double xnodeP;
             double xnodeQ;
+            boolean fictitious;
         }
 
         final HalfMergedLine half1 = new HalfMergedLine();

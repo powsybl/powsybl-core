@@ -6,20 +6,12 @@
  */
 package com.powsybl.cgmes.conversion.test.update;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.update.elements16.GeneratorToSynchronousMachine;
 import com.powsybl.cgmes.conversion.update.elements16.TwoWindingsTransformerToPowerTransformer;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -91,8 +83,8 @@ public final class NetworkChanges {
 
         if (network.getShuntCompensatorCount() > 0) {
             ShuntCompensator sh = network.getShuntCompensators().iterator().next();
-            sh.setbPerSection(sh.getbPerSection() + 0.2);
-            sh.setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
+            sh.getModel(ShuntCompensatorLinearModel.class).setBPerSection(sh.getModel(ShuntCompensatorLinearModel.class).getBPerSection() + 0.2);
+            sh.getModel(ShuntCompensatorLinearModel.class).setMaximumSectionCount(sh.getMaximumSectionCount() + 5);
         }
     }
 
@@ -107,14 +99,14 @@ public final class NetworkChanges {
     public static void modifyShuntCompensatorSections(Network network) {
         boolean found = false;
         for (ShuntCompensator sh : network.getShuntCompensators()) {
-            int newSections = sh.getCurrentSectionCount() == 0 ? sh.getMaximumSectionCount() : 0;
-            if (newSections != sh.getCurrentSectionCount()) {
-                sh.setCurrentSectionCount(newSections);
+            int newSections = sh.getSectionCount() == 0 ? sh.getMaximumSectionCount() : 0;
+            if (newSections != sh.getSectionCount()) {
+                sh.setSectionCount(newSections);
                 found = true;
             }
         }
         if (!found) {
-            LOG.error("Did not find a ShuntCompensator to test");
+            LOG.warn("Did not find a ShuntCompensator to test");
         }
     }
 

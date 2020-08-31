@@ -6,6 +6,7 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
@@ -277,7 +278,10 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
 
-        sc.setCurrentSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
+        if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+            throw new PowsyblException("non linear shunt not supported yet");
+        }
+        sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         Terminal t = sc.getTerminal();
         t.setQ(q);
 
@@ -431,7 +435,7 @@ public class AmplNetworkReader {
             if (q == 0) {
                 svc.setRegulationMode(RegulationMode.OFF);
             } else {
-                svc.setReactivePowerSetPoint(-q);
+                svc.setReactivePowerSetpoint(-q);
                 svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
             }
         }
@@ -439,7 +443,7 @@ public class AmplNetworkReader {
         Terminal t = svc.getTerminal();
         t.setQ(q);
         double nominalV = t.getVoltageLevel().getNominalV();
-        svc.setVoltageSetPoint(targetV * nominalV);
+        svc.setVoltageSetpoint(targetV * nominalV);
 
         busConnection(t, busNum);
 

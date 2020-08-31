@@ -187,7 +187,7 @@ public class UcteNetworkExt implements UcteNetwork {
         if (substations == null) {
             LOGGER.trace("Update substations...");
             substations = new ArrayList<>();
-            node2voltageLevel = new HashMap<>();
+            node2voltageLevel = new TreeMap<>();
             UndirectedGraph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
                 // the main node of the substation is not an xnode and the one with the highest voltage

@@ -76,6 +76,74 @@ import java.util.stream.Stream;
  *     <td>readable</td>
  *   </tr>
  * </table>
+ *
+ * <p>
+ *  Characteristics
+ * </p>
+ *
+ * <table style="border: 1px solid black; border-collapse: collapse">
+ *     <thead>
+ *         <tr>
+ *             <th style="border: 1px solid black">Attribute</th>
+ *             <th style="border: 1px solid black">Type</th>
+ *             <th style="border: 1px solid black">Unit</th>
+ *             <th style="border: 1px solid black">Required</th>
+ *             <th style="border: 1px solid black">Defaut value</th>
+ *             <th style="border: 1px solid black">Description</th>
+ *         </tr>
+ *     </thead>
+ *     <tbody>
+ *         <tr>
+ *             <td style="border: 1px solid black">Id</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Unique identifier of the voltage level</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">Name</td>
+ *             <td style="border: 1px solid black">String</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">Human-readable name of the voltage level</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">NominalV</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The nominal voltage</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">LowVoltageLimit</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The low voltage limit</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">HighVoltageLimit</td>
+ *             <td style="border: 1px solid black">double</td>
+ *             <td style="border: 1px solid black">kV</td>
+ *             <td style="border: 1px solid black">no</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The high voltage limit</td>
+ *         </tr>
+ *         <tr>
+ *             <td style="border: 1px solid black">TopologyKind</td>
+ *             <td style="border: 1px solid black">TopologyKind</td>
+ *             <td style="border: 1px solid black">-</td>
+ *             <td style="border: 1px solid black">yes</td>
+ *             <td style="border: 1px solid black"> - </td>
+ *             <td style="border: 1px solid black">The kind of topology</td>
+ *         </tr>
+ *     </tbody>
+ * </table>
+ *
  * <h3>Creating a substation with a node/breaker topology model:</h3>
  * The substation of the example has two voltage levels VL1 and VL2 described by a
  * node/breaker topology model. The first voltage level VL1 has 2 busbar sections

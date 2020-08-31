@@ -41,7 +41,7 @@ public class BranchDataTest {
 
         Line line = branchTestData.getLine();
         BranchData branchData = new BranchData(line, 0, false);
-        boolean ok = branchCompareFlow(branchData, -223.390802, 328.051088, 223.390802, -316.050498);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
         assertTrue(ok);
     }
 
@@ -124,7 +124,7 @@ public class BranchDataTest {
 
         Line line = branchTestData.getLine();
         BranchData branchData = new BranchData(line, 0, false);
-        boolean ok = branchCompareFlow(branchData, -217.840937, 1.90106, 217.840937, 1.901069);
+        boolean ok = branchCompareFlow(branchData, -220.598417, 161.925133, 220.598417, -156.074867);
         assertTrue(ok);
     }
 
@@ -761,7 +761,7 @@ public class BranchDataTest {
             double b0 = b1 / rho0Square + b2;
             r = r0 * (1 + w.branch.end1.tap.r / 100);
             x = x0 * (1 + w.branch.end1.tap.x / 100);
-            if (w.config.t2wtSplitShuntAdmittance) {
+            if (w.config.twtSplitShuntAdmittance) {
                 g1 = g0 / 2 * (1 + w.branch.end1.tap.g / 100);
                 b1 = b0 / 2 * (1 + w.branch.end1.tap.b / 100);
             } else {
@@ -839,7 +839,7 @@ public class BranchDataTest {
             double b0 = t.branch.end1.b / rho0Square + t.branch.end2.b;
             r = r0 * (1 + t.branch.end1.tap.r / 100);
             x = x0 * (1 + t.branch.end1.tap.x / 100);
-            if (t.config.t2wtSplitShuntAdmittance) {
+            if (t.config.twtSplitShuntAdmittance) {
                 g1 = g0 / 2 * (1 + t.branch.end1.tap.g / 100);
                 b1 = b0 / 2 * (1 + t.branch.end1.tap.b / 100);
                 g2 = g0 / 2;
@@ -1012,7 +1012,7 @@ public class BranchDataTest {
         boolean convertAsTransformer = true;
         double toleranceFlow = TOLERANCE_FLOW;
         double toleranceVoltage = TOLERANCE_VOLTAGE;
-        boolean t2wtSplitShuntAdmittance = true;
+        boolean twtSplitShuntAdmittance = true;
         boolean applyReactanceCorrection = false;
         double epsilonX;
     }

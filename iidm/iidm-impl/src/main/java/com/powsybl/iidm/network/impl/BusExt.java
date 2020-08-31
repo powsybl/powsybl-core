@@ -16,8 +16,10 @@ import java.util.stream.Stream;
  */
 interface BusExt extends Bus {
 
+    @Override
     Iterable<TerminalExt> getConnectedTerminals();
 
+    @Override
     Stream<TerminalExt> getConnectedTerminalStream();
 
     void setConnectedComponentNumber(int connectedComponentNumber);

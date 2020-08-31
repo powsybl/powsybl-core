@@ -228,12 +228,24 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkbPerSection(Validable validable, double bPerSection) {
-        if (Double.isNaN(bPerSection)) {
-            throw new ValidationException(validable, "susceptance per section is invalid");
-        }
+    public static void checkLinearBPerSection(Validable validable, double bPerSection) {
+        checkBPerSection(validable, bPerSection);
         if (bPerSection == 0) {
             throw new ValidationException(validable, "susceptance per section is equal to zero");
+        }
+    }
+
+    public static void checkBPerSection(Validable validable, double sectionB) {
+        if (Double.isNaN(sectionB)) {
+            throw new ValidationException(validable, "section susceptance is invalid");
+        }
+    }
+
+    public static void checkMaximumSectionCount(Validable validable, int maximumSectionCount) {
+        if (maximumSectionCount <= 0) {
+            throw new ValidationException(validable,
+                    "the maximum number of section (" + maximumSectionCount
+                            + ") should be greater than 0");
         }
     }
 
@@ -243,11 +255,7 @@ public final class ValidationUtil {
                     "the current number of section (" + currentSectionCount
                             + ") should be greater than or equal to 0");
         }
-        if (maximumSectionCount <= 0) {
-            throw new ValidationException(validable,
-                    "the maximum number of section (" + maximumSectionCount
-                            + ")should be greater than 0");
-        }
+        checkMaximumSectionCount(validable, maximumSectionCount);
         if (currentSectionCount > maximumSectionCount) {
             throw new ValidationException(validable,
                     "the current number (" + currentSectionCount
@@ -310,7 +318,7 @@ public final class ValidationUtil {
     }
 
     public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
-                                               Terminal regulationTerminal, double targetV, Network network) {
+                                                      Terminal regulationTerminal, double targetV, Network network) {
         if (regulating) {
             if (Double.isNaN(targetV)) {
                 throw new ValidationException(validable,
@@ -323,15 +331,15 @@ public final class ValidationUtil {
                 throw new ValidationException(validable,
                         "a regulation terminal has to be set for a regulating ratio tap changer");
             }
-            if (regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+            if (regulationTerminal.getVoltageLevel().getNetwork() != network) {
                 throw new ValidationException(validable, "regulation terminal is not part of the network");
             }
         }
     }
 
     public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                               double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                               Network network) {
+                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                      Network network) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "phase regulation mode is not set");
         }
@@ -341,7 +349,7 @@ public final class ValidationUtil {
         if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
             throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
         }
-        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "phase regulation terminal is not part of the network");
         }
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
@@ -350,7 +358,7 @@ public final class ValidationUtil {
     }
 
     public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+                                                               Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throw new ValidationException(validable, "Only one regulating control enabled is allowed");
         }

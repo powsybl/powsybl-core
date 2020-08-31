@@ -1,18 +1,18 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_2" id="m7buses" caseDate="2019-04-01T15:09:55.001+02:00" forecastDistance="0" sourceFormat="CIM1">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_3" id="m7buses" caseDate="2019-04-01T15:09:55.001+02:00" forecastDistance="0" sourceFormat="CIM1">
     <iidm:substation id="_FP.AND11_SS" name="FP.AND11_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FTDPRA11_VL" name="FTDPRA11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FTDPRA12_TN" v="406.4447937011719" angle="-0.017328999936580658"/>
-                <iidm:bus id="_FTDPRA11_TN" v="406.4447937011719" angle="-0.017328999936580658"/>
+                <iidm:bus id="_FTDPRA12_TN" name="FTDPRA12" v="406.4447937011719" angle="-0.017328999936580658"/>
+                <iidm:bus id="_FTDPRA11_TN" name="FTDPRA11" v="406.4447937011719" angle="-0.017328999936580658"/>
                 <iidm:switch id="_FTDPRA11-FTDPRA12-A_SW" name="FTDPRA11-FTDPRA12-A" kind="BREAKER" retained="true" open="false" bus1="_FTDPRA11_TN" bus2="_FTDPRA12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_FTDPRC11_EC" name="FTDPRC11" loadType="UNDEFINED" p0="480.0" q0="4.800000190734863" bus="_FTDPRA11_TN" connectableBus="_FTDPRA11_TN" p="480.0" q="4.800000190734863"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="_FP.AND11_VL" name="FP.AND11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FP.AND12_TN" v="406.4466552734375" angle="0.01733900047838688"/>
-                <iidm:bus id="_FP.AND11_TN" v="406.4466552734375" angle="0.01733900047838688"/>
+                <iidm:bus id="_FP.AND12_TN" name="FP.AND12" v="406.4466552734375" angle="0.01733900047838688"/>
+                <iidm:bus id="_FP.AND11_TN" name="FP.AND11" v="406.4466552734375" angle="0.01733900047838688"/>
                 <iidm:switch id="_FP.AND11-FP.AND12-A_SW" name="FP.AND11-FP.AND12-A" kind="BREAKER" retained="true" open="false" bus1="_FP.AND11_TN" bus2="_FP.AND12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_FP.ANC12_EC" name="FP.ANC12" loadType="UNDEFINED" p0="240.0" q0="2.4000000953674316" bus="_FP.AND11_TN" connectableBus="_FP.AND11_TN" p="240.0" q="2.4000000953674316"/>
@@ -60,8 +60,8 @@
     <iidm:substation id="_FS.BIS11_SS" name="FS.BIS11_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FS.BIS11_VL" name="FS.BIS11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FS.BIS12_TN" v="406.44244384765625" angle="-0.0034580000210553408"/>
-                <iidm:bus id="_FS.BIS11_TN" v="406.44244384765625" angle="-0.0034580000210553408"/>
+                <iidm:bus id="_FS.BIS12_TN" name="FS.BIS12" v="406.44244384765625" angle="-0.0034580000210553408"/>
+                <iidm:bus id="_FS.BIS11_TN" name="FS.BIS11" v="406.44244384765625" angle="-0.0034580000210553408"/>
                 <iidm:switch id="_FS.BIS11-FS.BIS12-A_SW" name="FS.BIS11-FS.BIS12-A" kind="BREAKER" retained="true" open="false" bus1="_FS.BIS11_TN" bus2="_FS.BIS12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_FS.BIC11_EC" name="FS.BIC11" loadType="UNDEFINED" p0="240.0" q0="2.4000000953674316" bus="_FS.BIS11_TN" connectableBus="_FS.BIS11_TN" p="240.0" q="2.4000000953674316"/>
@@ -70,8 +70,8 @@
     <iidm:substation id="_FSSV.O11_SS" name="FSSV.O11_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FSSV.O11_VL" name="FSSV.O11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FSSV.O12_TN" v="406.45001220703125" angle="0.09358499944210052"/>
-                <iidm:bus id="_FSSV.O11_TN" v="406.45001220703125" angle="0.09358499944210052"/>
+                <iidm:bus id="_FSSV.O12_TN" name="FSSV.O12" v="406.45001220703125" angle="0.09358499944210052"/>
+                <iidm:bus id="_FSSV.O11_TN" name="FSSV.O11" v="406.45001220703125" angle="0.09358499944210052"/>
                 <iidm:switch id="_FSSV.O11-FSSV.O12-A_SW" name="FSSV.O11-FSSV.O12-A" kind="BREAKER" retained="true" open="false" bus1="_FSSV.O11_TN" bus2="_FSSV.O12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="_FSSV.T11_SM" name="FSSV.T11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="960.0130004882812" targetV="406.45001220703125" targetQ="2.865334987640381" bus="_FSSV.O11_TN" connectableBus="_FSSV.O11_TN" p="-960.0130004882812" q="-2.865334987640381">
@@ -82,8 +82,8 @@
     <iidm:substation id="_FTILL511_SS" name="FTILL511_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FTILL511_VL" name="FTILL511_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FTILL512_TN" v="406.4404602050781" angle="0.0034779999405145645"/>
-                <iidm:bus id="_FTILL511_TN" v="406.4404602050781" angle="0.0034779999405145645"/>
+                <iidm:bus id="_FTILL512_TN" name="FTILL512" v="406.4404602050781" angle="0.0034779999405145645"/>
+                <iidm:bus id="_FTILL511_TN" name="FTILL511" v="406.4404602050781" angle="0.0034779999405145645"/>
                 <iidm:switch id="_FTILL511-FTILL512-A_SW" name="FTILL511-FTILL512-A" kind="BREAKER" retained="true" open="false" bus1="_FTILL511_TN" bus2="_FTILL512_TN"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_FTILLC51_EC" name="FTILLC51" loadType="UNDEFINED" p0="480.0" q0="4.800000190734863" bus="_FTILL511_TN" connectableBus="_FTILL511_TN" p="480.0" q="4.800000190734863"/>
@@ -92,8 +92,8 @@
     <iidm:substation id="_FVALDI11_SS" name="FVALDI11_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FVALDI11_VL" name="FVALDI11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FVALDI12_TN" v="406.45001220703125" angle="0.03119100071489811"/>
-                <iidm:bus id="_FVALDI11_TN" v="406.45001220703125" angle="0.03119100071489811"/>
+                <iidm:bus id="_FVALDI12_TN" name="FVALDI12" v="406.45001220703125" angle="0.03119100071489811"/>
+                <iidm:bus id="_FVALDI11_TN" name="FVALDI11" v="406.45001220703125" angle="0.03119100071489811"/>
                 <iidm:switch id="_FVALDI11-FVALDI12-A_SW" name="FVALDI11-FVALDI12-A" kind="BREAKER" retained="true" open="false" bus1="_FVALDI11_TN" bus2="_FVALDI12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="_FVALDT11_SM" name="FVALDT11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="480.0060119628906" targetV="406.45001220703125" targetQ="6.419357776641846" bus="_FVALDI11_TN" connectableBus="_FVALDI11_TN" p="-480.0060119628906" q="-6.419357776641846">
@@ -104,8 +104,8 @@
     <iidm:substation id="_FVERGE11_SS" name="FVERGE11_SS" geographicalTags="_SGR_07">
         <iidm:voltageLevel id="_FVERGE11_VL" name="FVERGE11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
-                <iidm:bus id="_FVERGE12_TN" v="406.45001220703125" angle="0.0"/>
-                <iidm:bus id="_FVERGE11_TN" v="406.45001220703125" angle="0.0"/>
+                <iidm:bus id="_FVERGE12_TN" name="FVERGE12" v="406.45001220703125" angle="0.0"/>
+                <iidm:bus id="_FVERGE11_TN" name="FVERGE11" v="406.45001220703125" angle="0.0"/>
                 <iidm:switch id="_FVERGE11-FVERGE12-A_SW" name="FVERGE11-FVERGE12-A" kind="BREAKER" retained="true" open="false" bus1="_FVERGE11_TN" bus2="_FVERGE12_TN"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="_FVERGT11_SM" name="FVERGT11" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-0.002566999988630414" targetV="406.45001220703125" targetQ="7.002781867980957" bus="_FVERGE11_TN" connectableBus="_FVERGE11_TN" p="0.002566999988630414" q="-7.002781867980957">

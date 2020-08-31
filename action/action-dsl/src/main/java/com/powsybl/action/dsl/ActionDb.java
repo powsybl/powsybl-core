@@ -31,6 +31,10 @@ public class ActionDb {
         return contingencies.values();
     }
 
+    public Collection<Action> getActions() {
+        return actions.values();
+    }
+
     public Contingency getContingency(String id) {
         Objects.requireNonNull(id);
         Contingency contingency = contingencies.get(id);

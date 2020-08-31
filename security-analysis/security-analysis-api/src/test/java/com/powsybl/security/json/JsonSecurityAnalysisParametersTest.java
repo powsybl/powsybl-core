@@ -12,7 +12,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.SecurityAnalysisParameters;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -40,9 +39,9 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     @Test
     public void updateLoadFlowParameters() {
         SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
-        parameters.getLoadFlowParameters().setT2wtSplitShuntAdmittance(true);
+        parameters.getLoadFlowParameters().setTwtSplitShuntAdmittance(true);
         JsonSecurityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SecurityAnalysisParametersIncomplete.json"));
-        assertTrue(parameters.getLoadFlowParameters().isT2wtSplitShuntAdmittance());
+        assertTrue(parameters.getLoadFlowParameters().isTwtSplitShuntAdmittance());
     }
 
     @Test
@@ -54,12 +53,10 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
     }
 
     @Test
-    public void readError() throws IOException {
-        try {
-            JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersWithExtension.json"));
-            Assert.fail();
-        } catch (AssertionError ignored) {
-        }
+    public void readError() {
+        expected.expect(AssertionError.class);
+        expected.expectMessage("Unexpected field: unexpected");
+        JsonSecurityAnalysisParameters.read(getClass().getResourceAsStream("/SecurityAnalysisParametersInvalid.json"));
     }
 
     @Test

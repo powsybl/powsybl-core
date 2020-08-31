@@ -1,0 +1,11 @@
+{
+  "version" : "1.3",
+  "voltageInitMode" : "PREVIOUS_VALUES",
+  "transformerVoltageControlOn" : true,
+  "phaseShifterRegulationOn" : false,
+  "noGeneratorReactiveLimits" : true,
+  "twtSplitShuntAdmittance" : true,
+  "simulShunt" : true,
+  "readSlackBus" : true,
+  "writeSlackBus" : true
+}

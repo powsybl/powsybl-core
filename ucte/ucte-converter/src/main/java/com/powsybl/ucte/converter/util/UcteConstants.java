@@ -19,8 +19,11 @@ public final class UcteConstants {
     public static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
     public static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
     public static final String NOMINAL_POWER_KEY = "nomimalPower";
+    public static final String STATUS_PROPERTY_KEY = "status";
+    public static final String IS_COUPLER_PROPERTY_KEY = "isCoupler";
     public static final String NOT_POSSIBLE_TO_IMPORT = "It's not possible to import this network";
     public static final String ORDER_CODE = "orderCode";
+    public static final String POWER_PLANT_TYPE_PROPERTY_KEY = "powerPlantType";
     public static final double DEFAULT_MAX_CURRENT = 999999.0;
     public static final int DEFAULT_POWER_LIMIT = 9999;
 }
