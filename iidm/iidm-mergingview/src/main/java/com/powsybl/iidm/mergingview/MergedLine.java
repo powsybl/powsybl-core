@@ -417,6 +417,25 @@ class MergedLine implements TieLine {
         return getOptionalName().orElse(id);
     }
 
+    private boolean isMergedProperty(PropertyType type, String key) {
+        boolean isMerged = false;
+        switch (type) {
+            case STRING:
+                isMerged = isMergedProperty(getDanglingLine1().getStringProperty(key), getDanglingLine2().getStringProperty(key));
+                break;
+            case INTEGER:
+                isMerged = isMergedProperty(getDanglingLine1().getIntegerProperty(key), getDanglingLine2().getIntegerProperty(key));
+                break;
+            case DOUBLE:
+                isMerged = isMergedProperty(getDanglingLine1().getDoubleProperty(key), getDanglingLine2().getDoubleProperty(key));
+                break;
+            case BOOLEAN:
+                isMerged = isMergedProperty(getDanglingLine1().getBooleanProperty(key), getDanglingLine2().getBooleanProperty(key));
+                break;
+        }
+        return isMerged;
+    }
+
     private <P> boolean isMergedProperty(P prop1, P prop2) {
         if ((prop1 != null && prop2 == null) || (prop1 != null && prop2 instanceof String && ((String) prop2).isEmpty())) {
             return true;
@@ -465,29 +484,8 @@ class MergedLine implements TieLine {
         properties.addAll(Sets.difference(dl2PropertyNames, commonProperties));
         for (String key : commonProperties) {
             PropertyType type = getDanglingLine1().getPropertyType(key);
-            if (type == getDanglingLine2().getPropertyType(key)) {
-                switch (type) {
-                    case STRING:
-                        if (isMergedProperty(getDanglingLine1().getStringProperty(key), getDanglingLine2().getStringProperty(key))) {
-                            properties.add(key);
-                        }
-                        break;
-                    case INTEGER:
-                        if (isMergedProperty(getDanglingLine1().getIntegerProperty(key), getDanglingLine2().getIntegerProperty(key))) {
-                            properties.add(key);
-                        }
-                        break;
-                    case DOUBLE:
-                        if (isMergedProperty(getDanglingLine1().getDoubleProperty(key), getDanglingLine2().getDoubleProperty(key))) {
-                            properties.add(key);
-                        }
-                        break;
-                    case BOOLEAN:
-                        if (isMergedProperty(getDanglingLine1().getBooleanProperty(key), getDanglingLine2().getBooleanProperty(key))) {
-                            properties.add(key);
-                        }
-                        break;
-                }
+            if (isMergedProperty(type, key)) {
+                properties.add(key);
             }
         }
         return properties;
@@ -514,25 +512,8 @@ class MergedLine implements TieLine {
         if (type2 != null && type1 == null) {
             return type2;
         }
-        if (type1 != null && type1.equals(type2)) {
-            boolean isMergedProperty = false;
-            switch (type1) {
-                case STRING:
-                    isMergedProperty = getDanglingLine1().getStringProperty(key).equals(getDanglingLine2().getStringProperty(key));
-                    break;
-                case INTEGER:
-                    isMergedProperty = getDanglingLine1().getIntegerProperty(key) == getDanglingLine2().getIntegerProperty(key);
-                    break;
-                case DOUBLE:
-                    isMergedProperty = getDanglingLine1().getDoubleProperty(key) == getDanglingLine2().getDoubleProperty(key);
-                    break;
-                case BOOLEAN:
-                    isMergedProperty = getDanglingLine1().getBooleanProperty(key) == getDanglingLine2().getBooleanProperty(key);
-                    break;
-            }
-            if (isMergedProperty) {
-                return type1;
-            }
+        if (type1 != null && type1.equals(type2) && isMergedProperty(type1, key)) {
+            return type1;
         }
         return null;
     }

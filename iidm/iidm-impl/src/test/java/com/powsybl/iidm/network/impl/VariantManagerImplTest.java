@@ -83,11 +83,6 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public PropertyType getPropertyType(String key) {
-            return null;
-        }
-
-        @Override
         public String getStringProperty(String key) {
             return null;
         }
@@ -321,6 +316,9 @@ public class VariantManagerImplTest {
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
         assertEquals(Collections.singleton(0), variantManager.getVariantIndexes());
         assertEquals(2, identifiable1.reducedCount);
+
+        // Default Identifiable.getPropertyType
+        assertEquals(Identifiable.PropertyType.STRING, identifiable1.getPropertyType(""));
     }
 
     @Test

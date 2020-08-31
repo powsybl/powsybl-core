@@ -41,6 +41,8 @@ public class UcteImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteImporter.class);
 
+    private static final String XNODE_SUFFIX = "_XNode";
+
     private static final float LINE_MIN_Z = 0.05f;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
@@ -793,11 +795,11 @@ public class UcteImporter implements Importer {
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable identifiable) {
-        identifiable.setStringProperty(STATUS_PROPERTY_KEY + "_XNode", ucteNode.getStatus().toString());
+        identifiable.setStringProperty(STATUS_PROPERTY_KEY + XNODE_SUFFIX, ucteNode.getStatus().toString());
     }
 
     private static void addXnodeStatusProperty(TieLine tieLine, DanglingLine danglingLine) {
-        tieLine.setStringProperty(STATUS_PROPERTY_KEY + "_XNode", danglingLine.getStringProperty(STATUS_PROPERTY_KEY + "_XNode", null));
+        tieLine.setStringProperty(STATUS_PROPERTY_KEY + XNODE_SUFFIX, danglingLine.getStringProperty(STATUS_PROPERTY_KEY + XNODE_SUFFIX, null));
     }
 
     private static void addDanglingLineCouplerProperty(UcteLine ucteLine, DanglingLine danglingLine) {

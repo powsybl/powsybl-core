@@ -93,50 +93,66 @@ final class Property {
         String error = "Inconsistencies of property for '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line";
         if (dl1.getPropertyType(key) != dl2.getPropertyType(key)) {
             LOGGER.error("Inconsistencies of property type for '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line",
-                key, dl1.getPropertyType(key), dl2.getPropertyType(key));
+                    key, dl1.getPropertyType(key), dl2.getPropertyType(key));
             return;
         }
         switch (dl1.getPropertyType(key)) {
             case STRING:
-                String str1 = dl1.getStringProperty(key);
-                String str2 = dl2.getStringProperty(key);
-                if (str1.equals("")) {
-                    putMergedProperty(key, dl2, properties);
-                } else if (str2.equals("") || str1.equals(str2)) {
-                    putMergedProperty(key, dl1, properties);
-                } else {
-                    LOGGER.error(error, key, str1, str2);
-                }
+                mergeStringProperty(key, dl1, dl2, properties, error);
                 break;
             case INTEGER:
-                int int1 = dl1.getIntegerProperty(key);
-                int int2 = dl2.getIntegerProperty(key);
-                if (int1 == int2) {
-                    putMergedProperty(key, dl2, properties);
-                } else {
-                    LOGGER.error(error, key, int1, int2);
-                }
+                mergeIntegerProperty(key, dl1, dl2, properties, error);
                 break;
             case DOUBLE:
-                double dbl1 = dl1.getDoubleProperty(key);
-                double dbl2 = dl2.getDoubleProperty(key);
-                if (Double.isNaN(dbl1)) {
-                    putMergedProperty(key, dl2, properties);
-                } else if (Double.isNaN(dbl2) || dbl1 == dbl2) {
-                    putMergedProperty(key, dl1, properties);
-                } else {
-                    LOGGER.error(error, key, dbl1, dbl2);
-                }
+                mergeDoubleProperty(key, dl1, dl2, properties, error);
                 break;
             case BOOLEAN:
-                boolean bool1 = dl1.getBooleanProperty(key);
-                boolean bool2 = dl2.getBooleanProperty(key);
-                if (bool1 == bool2) {
-                    putMergedProperty(key, dl1, properties);
-                } else {
-                    LOGGER.error(error, key, bool1, bool2);
-                }
+                mergeBooleanProperty(key, dl1, dl2, properties, error);
                 break;
+        }
+    }
+
+    private static void mergeStringProperty(String key, DanglingLine dl1, DanglingLine dl2, Map<String, Property> properties, String error) {
+        String str1 = dl1.getStringProperty(key);
+        String str2 = dl2.getStringProperty(key);
+        if (str1.equals("")) {
+            putMergedProperty(key, dl2, properties);
+        } else if (str2.equals("") || str1.equals(str2)) {
+            putMergedProperty(key, dl1, properties);
+        } else {
+            LOGGER.error(error, key, str1, str2);
+        }
+    }
+
+    private static void mergeIntegerProperty(String key, DanglingLine dl1, DanglingLine dl2, Map<String, Property> properties, String error) {
+        int int1 = dl1.getIntegerProperty(key);
+        int int2 = dl2.getIntegerProperty(key);
+        if (int1 == int2) {
+            putMergedProperty(key, dl2, properties);
+        } else {
+            LOGGER.error(error, key, int1, int2);
+        }
+    }
+
+    private static void mergeDoubleProperty(String key, DanglingLine dl1, DanglingLine dl2, Map<String, Property> properties, String error) {
+        double dbl1 = dl1.getDoubleProperty(key);
+        double dbl2 = dl2.getDoubleProperty(key);
+        if (Double.isNaN(dbl1)) {
+            putMergedProperty(key, dl2, properties);
+        } else if (Double.isNaN(dbl2) || dbl1 == dbl2) {
+            putMergedProperty(key, dl1, properties);
+        } else {
+            LOGGER.error(error, key, dbl1, dbl2);
+        }
+    }
+
+    private static void mergeBooleanProperty(String key, DanglingLine dl1, DanglingLine dl2, Map<String, Property> properties, String error) {
+        boolean bool1 = dl1.getBooleanProperty(key);
+        boolean bool2 = dl2.getBooleanProperty(key);
+        if (bool1 == bool2) {
+            putMergedProperty(key, dl1, properties);
+        } else {
+            LOGGER.error(error, key, bool1, bool2);
         }
     }
 
