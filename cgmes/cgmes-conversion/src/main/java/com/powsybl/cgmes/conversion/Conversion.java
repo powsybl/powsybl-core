@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformer
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -129,7 +130,6 @@ public class Conversion {
     }
 
     public Network convert() {
-
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
         }
@@ -138,6 +138,10 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
+        network.setProperty("CGMES_topology", cgmes.isNodeBreaker() ? "NODE_BREAKER" : "BUS_BRANCH");
+        if (cgmes instanceof CgmesModelTripleStore) {
+            network.setProperty("CIM_version", String.valueOf(((CgmesModelTripleStore) cgmes).getCimVersion()));
+        }
         Context context = createContext(network);
         assignNetworkProperties(context);
 
