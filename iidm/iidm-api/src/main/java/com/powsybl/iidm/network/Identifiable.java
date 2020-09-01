@@ -48,8 +48,8 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Get the aliases of the object with a given alias type.
      */
-    default Set<String> getAliases(String aliasType) {
-        return Collections.emptySet();
+    default Optional<String> getAliasFromType(String aliasType) {
+        return Optional.empty();
     }
 
     /**
