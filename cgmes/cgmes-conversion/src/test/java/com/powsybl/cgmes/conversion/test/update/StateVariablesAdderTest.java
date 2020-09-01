@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -234,8 +233,8 @@ public class StateVariablesAdderTest {
     }
 
     private DataSource tmpDataSource(String name) throws IOException {
-        // XXX(Luma) Path exportFolder = fileSystem.getPath(name);
-        Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
+        Path exportFolder = fileSystem.getPath(name);
+        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
