@@ -11,6 +11,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -94,5 +96,18 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
         }
         return rcPtc;
+    }
+
+    @Override
+    protected void addAliases(Identifiable<?> identifiable) {
+        super.addAliases(identifiable);
+        String ptc = context.cgmes().phaseTapChangerForPowerTransformer(identifiable.getId());
+        if (ptc != null) {
+            identifiable.addAlias(ptc, CgmesNames.PHASE_TAP_CHANGER);
+        }
+        String rtc = context.cgmes().ratioTapChangerForPowerTransformer(identifiable.getId());
+        if (rtc != null) {
+            identifiable.addAlias(rtc, CgmesNames.RATIO_TAP_CHANGER);
+        }
     }
 }

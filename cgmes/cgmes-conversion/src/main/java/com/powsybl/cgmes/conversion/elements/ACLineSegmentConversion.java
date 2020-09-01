@@ -108,6 +108,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         identify(adder);
         connect(adder);
         final Line l = adder.add();
+        addAliases(l);
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 
@@ -165,6 +166,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                         .setVoltageRegulationOn(false)
                     .add()
                     .add();
+            addAliases(dl);
         }
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
@@ -286,6 +288,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             identify(adder, id1 + " + " + id2, name1 + " + " + name2);
             connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
             mline = adder.add();
+            addAliases(mline);
         } else {
             TieLineAdder adder = context.network().newTieLine()
                     .line1()
@@ -314,6 +317,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             identify(adder, id1 + " + " + id2, name1 + " + " + name2);
             connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
             mline = adder.add();
+            addAliases(mline);
         }
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
