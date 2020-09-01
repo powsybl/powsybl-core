@@ -13,16 +13,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.cgmes.model.*;
 import com.powsybl.commons.PowsyblException;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
@@ -74,7 +71,7 @@ public class StateVariablesAdder {
     }
 
     public void addStateVariablesToCgmes() {
-        if (cgmes.isNodeBreaker()) {
+        if (network.getProperty("CGMES_topology").equals("NODE_BREAKER")) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
