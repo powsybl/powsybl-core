@@ -41,6 +41,8 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
             XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", bs.getAngle(), context.getWriter());
+            XmlUtil.writeDouble("fictitious p", bs.getFictitiousP(), context.getWriter());
+            XmlUtil.writeDouble("fictitious q", bs.getFictitiousQ(), context.getWriter());
         });
     }
 
@@ -58,6 +60,13 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_0, context, () -> {
             double v = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
             double angle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+            // After a state estimation calculation,
+            // fictitious injections may be attributed to the busbar sections
+            // in node/breaker topology.
+            double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitious p");
+            double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "fictitious q");
+            bbs.setFictitiousP(p);
+            bbs.setFictitiousQ(q);
             context.getEndTasks().add(() -> {
                 Bus b = bbs.getTerminal().getBusView().getBus();
                 if (b != null) {
