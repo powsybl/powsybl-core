@@ -147,19 +147,18 @@ public class StateVariablesAdder {
         addInjectionPowerFlowToCgmes(powerFlows, network.getBatteries());
 
         // PowerFlow at boundaries set as it was in original cgmes.
-        for (PropertyBag terminal : originalTerminals) {
-            if (terminal.getId("SvPowerFlow") == null) {
+        for (DanglingLine dl : network.getDanglingLines()) {
+            if (!Boolean.parseBoolean(dl.getProperty("hasPowerFlow"))) {
                 continue;
             }
-            boundaryNodesFromDanglingLines.values().forEach(value -> {
-                if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
-                    PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-                    p.put("p", terminal.getId("p"));
-                    p.put("q", terminal.getId("q"));
-                    p.put(CgmesNames.TERMINAL, terminal.getId(CgmesNames.TERMINAL));
-                    powerFlows.add(p);
-                }
-            });
+            String boundarySideStr = dl.getProperty("boundarySide");
+            if (boundarySideStr != null) {
+                PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+                p.put("p", String.valueOf(dl.getP0()));
+                p.put("q", String.valueOf(dl.getQ0()));
+                p.put(CgmesNames.TERMINAL, dl.getProperty(CgmesNames.TERMINAL + boundarySideStr));
+                powerFlows.add(p);
+            }
         }
         cgmes.add(originalSVcontext, "SvPowerFlow", powerFlows);
     }
@@ -405,11 +404,11 @@ public class StateVariablesAdder {
     private final CgmesModel cgmes;
     private final Network network;
     private final int cimVersion;
-    private final PropertyBags originalTerminals;
+    private final PropertyBags originalTerminals; // TODO delete
     private final PropertyBags originalFullModel;
-    private final PropertyBags originalTopologicalIslands;
-    private final String originalSVcontext;
-    private final Map<String, String> boundaryNodesFromDanglingLines;
+    private final PropertyBags originalTopologicalIslands; // TODO from an extension
+    private final String originalSVcontext; // TODO from a property
+    private final Map<String, String> boundaryNodesFromDanglingLines; // TODO delete
     private static final String IN_SERVICE = "inService";
 
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
