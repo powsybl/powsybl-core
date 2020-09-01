@@ -180,8 +180,10 @@ public interface CgmesModel {
 
     // TODO If we could store identifiers for tap changers and terminals in IIDM
     // then we would not need to query back the CGMES model for these mappings
-
-    String terminalForEquipment(String conductingEquipmentId, int sequenceNumber);
+    @Deprecated
+    default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
+        return null;
+    }
 
     String ratioTapChangerForPowerTransformer(String powerTransformerId);
 

@@ -36,6 +36,7 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         identify(adder);
         connect(adder);
         Load load = adder.add();
+        addAliases(load);
         convertedTerminals(load.getTerminal());
     }
 }

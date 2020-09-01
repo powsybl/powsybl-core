@@ -67,6 +67,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                         .setTargetV(regulation.targetV)
                     .add()
                     .add();
+            addAliases(dl);
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the dangling line
@@ -81,6 +82,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                         .setTargetQ(0.0)
                     .add()
                     .add();
+            addAliases(dl);
         }
         return dl;
     }
@@ -102,6 +104,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        addAliases(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
     }

@@ -12,12 +12,8 @@ import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.BranchAdder;
-import com.powsybl.iidm.network.InjectionAdder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -419,6 +415,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
                 .setBus(terminalConnected(terminal) ? busId(terminal) : null)
                 .setConnectableBus(busId(terminal));
+        }
+    }
+
+    protected void addAliases(Identifiable<?> identifiable) {
+        int i = 1;
+        for (TerminalData td : terminals) {
+            if (td == null) {
+                return;
+            }
+            identifiable.addAlias(td.t.id(), CgmesNames.TERMINAL + i);
+            i++;
         }
     }
 

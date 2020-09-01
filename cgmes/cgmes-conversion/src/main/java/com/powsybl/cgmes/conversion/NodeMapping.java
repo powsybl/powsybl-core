@@ -68,7 +68,7 @@ public class NodeMapping {
             vl.getNodeBreakerView().newSwitch()
                     .setFictitious(true)
                     // Use the id and name of terminal
-                    .setId(t.id())
+                    .setId(t.id() + "_SW_fict")
                     .setName(t.name())
                     .setNode1(iidmNodeForConductingEquipment)
                     .setNode2(iidmNodeForConnectivityNode)
