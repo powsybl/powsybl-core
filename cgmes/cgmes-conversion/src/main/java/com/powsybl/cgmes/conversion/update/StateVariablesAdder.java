@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
@@ -47,17 +48,21 @@ import com.powsybl.triplestore.api.PropertyBags;
 public class StateVariablesAdder {
 
     public StateVariablesAdder(CgmesModel cgmes, Network n) {
+        this(cgmes, n, originalSVcontext(cgmes));
+    }
+
+    public StateVariablesAdder(CgmesModel cgmes, Network n, String svContext) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.network = Objects.requireNonNull(n);
         this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
         this.originalTerminals = cgmes.terminals();
         this.originalFullModel = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         this.originalTopologicalIslands = cgmes.topologicalIslands();
-        this.originalSVcontext = originalSVcontext();
+        this.originalSVcontext = Objects.requireNonNull(svContext);
         this.boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines();
     }
 
-    private String originalSVcontext() {
+    private static String originalSVcontext(CgmesModel cgmes) {
         PropertyBags pbs = cgmes.graph();
         PropertyBag defaultSvContext = new PropertyBag(Collections.singletonList(CgmesNames.GRAPH));
         defaultSvContext.put(CgmesNames.GRAPH, CgmesSubset.STATE_VARIABLES.toString());
@@ -197,11 +202,11 @@ public class StateVariablesAdder {
             // then we would not need to query the CGMES model
             if (hasPhaseTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER).orElseThrow(PowsyblException::new));
                 tapSteps.add(p);
             } else if (hasRatioTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
                 tapSteps.add(p);
             }
         }
@@ -211,11 +216,11 @@ public class StateVariablesAdder {
             Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
                 if (hasPhaseTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
                     tapSteps.add(p);
                 } else if (hasRatioTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
                     tapSteps.add(p);
                 }
             });
@@ -314,7 +319,7 @@ public class StateVariablesAdder {
     private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
         // TODO If we could store a terminal identifier in IIDM
         // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL + sequenceNumber).orElse(null);
         if (cgmesTerminal == null) {
             return null;
         }
