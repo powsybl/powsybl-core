@@ -168,6 +168,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .add();
             addAliases(dl);
         }
+        dl.setProperty("boundarySide", String.valueOf(boundarySide));
+        dl.setProperty("hasPowerFlow", String.valueOf(context.boundary().hasPowerFlow(boundaryNode)));
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
