@@ -6,12 +6,18 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.List;
+
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -72,5 +78,63 @@ public class LoadDetailTest {
         assertEquals(30f, detail.getFixedReactivePower(), 0f);
         assertEquals(40f, detail.getVariableActivePower(), 0f);
         assertEquals(20f, detail.getVariableReactivePower(), 0f);
+    }
+
+    @Test
+    public void variantsCloneTest() {
+        String variant1 = "variant1";
+        String variant2 = "variant2";
+        String variant3 = "variant3";
+
+        // Creates the extension
+        Network network = createTestNetwork();
+        LoadDetail ld = network.getLoad("L").getExtension(LoadDetail.class);
+        assertNotNull(ld);
+
+        // Testing variant cloning
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, variant1);
+        variantManager.cloneVariant(variant1, variant2);
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(40f, ld.getFixedActivePower(), 0f);
+        assertEquals(20f, ld.getFixedReactivePower(), 0f);
+        assertEquals(60f, ld.getVariableActivePower(), 0f);
+        assertEquals(30f, ld.getVariableReactivePower(), 0f);
+
+        // Testing setting different values in the cloned variant and going back to the initial one
+        ld.setFixedActivePower(60f).setFixedReactivePower(30f).setVariableActivePower(40f).setVariableReactivePower(20f);
+        assertEquals(60f, ld.getFixedActivePower(), 0f);
+        assertEquals(30f, ld.getFixedReactivePower(), 0f);
+        assertEquals(40f, ld.getVariableActivePower(), 0f);
+        assertEquals(20f, ld.getVariableReactivePower(), 0f);
+        variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
+        assertEquals(40f, ld.getFixedActivePower(), 0f);
+        assertEquals(20f, ld.getFixedReactivePower(), 0f);
+        assertEquals(60f, ld.getVariableActivePower(), 0f);
+        assertEquals(30f, ld.getVariableReactivePower(), 0f);
+
+        // Removes a variant then adds another variant to test variant recycling (hence calling allocateVariantArrayElement)
+        variantManager.removeVariant(variant1);
+        List<String> targetVariantIds = Arrays.asList(variant1, variant3);
+        variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
+        variantManager.setWorkingVariant(variant1);
+        assertEquals(40f, ld.getFixedActivePower(), 0f);
+        assertEquals(20f, ld.getFixedReactivePower(), 0f);
+        assertEquals(60f, ld.getVariableActivePower(), 0f);
+        assertEquals(30f, ld.getVariableReactivePower(), 0f);
+        variantManager.setWorkingVariant(variant3);
+        assertEquals(40f, ld.getFixedActivePower(), 0f);
+        assertEquals(20f, ld.getFixedReactivePower(), 0f);
+        assertEquals(60f, ld.getVariableActivePower(), 0f);
+        assertEquals(30f, ld.getVariableReactivePower(), 0f);
+
+        // Test removing current variant
+        variantManager.removeVariant(variant3);
+        try {
+            ld.getFixedActivePower();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Variant index not set", e.getMessage());
+        }
     }
 }

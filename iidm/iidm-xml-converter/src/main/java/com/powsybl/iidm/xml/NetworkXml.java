@@ -45,6 +45,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
+import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -207,29 +208,27 @@ public final class NetworkXml {
                 .orElseGet(extensionXmlSerializer::getNamespaceUri);
     }
 
-    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
-        Set<String> extensionsSet = new HashSet<>();
-        for (Extension<? extends Identifiable<?>> extension : extensions) {
-            extensionsSet.add(extension.getName());
-        }
-        return extensionsSet;
-    }
-
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
-        for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
+        for (Identifiable<?> identifiable : IidmXmlUtil.sorted(n.getIdentifiables(), options)) {
+            if (!context.isExportedEquipment(identifiable)) {
                 continue;
             }
-            context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
-            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : extensions) {
-                if (options.withExtension(extension.getName())) {
-                    writeExtension(extension, context);
+
+            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
+                    .filter(e -> options.withExtension(e.getName()))
+                    .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
+                    .collect(Collectors.toList());
+            if (!extensions.isEmpty()) {
+                context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
+                    if (options.withExtension(extension.getName())) {
+                        writeExtension(extension, context);
+                    }
                 }
+                context.getExtensionsWriter().writeEndElement();
             }
-            context.getExtensionsWriter().writeEndElement();
         }
     }
 
@@ -271,10 +270,10 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
-        for (Substation s : n.getSubstations()) {
+        for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, null, context);
         }
-        for (Line l : n.getLines()) {
+        for (Line l : IidmXmlUtil.sorted(n.getLines(), context.getOptions())) {
             if (!filter.test(l)) {
                 continue;
             }
@@ -284,7 +283,7 @@ public final class NetworkXml {
                 LineXml.INSTANCE.write(l, n, context);
             }
         }
-        for (HvdcLine l : n.getHvdcLines()) {
+        for (HvdcLine l : IidmXmlUtil.sorted(n.getHvdcLines(), context.getOptions())) {
             if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                 continue;
             }
