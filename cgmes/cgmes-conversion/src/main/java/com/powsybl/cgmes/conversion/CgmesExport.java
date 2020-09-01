@@ -44,7 +44,7 @@ public class CgmesExport implements Exporter {
 
     @Override
     public void export(Network network, Properties params, DataSource ds) {
-        if (Boolean.valueOf(params.getProperty("cgmes.export.usingOnlyNetwork"))) {
+        if (params != null && Boolean.valueOf(params.getProperty("cgmes.export.usingOnlyNetwork"))) {
             exportUsingOnlyNetwork(network, params, ds);
         } else {
             exportUsingOriginalCgmesModel(network, params, ds);
