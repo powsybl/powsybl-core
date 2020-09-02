@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -116,7 +115,7 @@ public class ExportTest {
     }
 
     DiffBuilder diffSv(InputStream expected, InputStream actual) {
-        return selectingSvVoltageSameTopologicalNode(ignoringSvIds(onlySvVoltages(diff(expected, actual))));
+        return selectingSvVoltageSameTopologicalNode(ignoringSvIds(filteredSvObjects(diff(expected, actual))));
     }
 
     private void isOk(Diff diff) {
@@ -136,9 +135,11 @@ public class ExportTest {
         return DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments();
     }
 
-    private DiffBuilder onlySvVoltages(DiffBuilder diffBuilder) {
+    private DiffBuilder filteredSvObjects(DiffBuilder diffBuilder) {
         return diffBuilder.withNodeFilter(n -> {
-            return n.getLocalName().equals("RDF") || n.getLocalName().equals("SvVoltage");
+            return n.getLocalName().equals("RDF")
+                    || n.getLocalName().equals("SvVoltage")
+                    || n.getLocalName().equals("SvShuntCompensatorSections");
         });
     }
 
@@ -176,8 +177,8 @@ public class ExportTest {
     }
 
     public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
-        // Path exportFolder = fileSystem.getPath(name);
-        Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
+        Path exportFolder = fileSystem.getPath(name);
+        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }

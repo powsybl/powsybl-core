@@ -37,6 +37,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TieLine;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -111,6 +112,9 @@ public class CgmesExport implements Exporter {
     private static void writeSV(Network network, XMLStreamWriter writer) {
         try {
             writeSvVoltages(network, writer);
+            for (ShuntCompensator s : network.getShuntCompensators()) {
+                writeSvShuntCompensatorSections(writer, s.getId(), s.getSectionCount());
+            }
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -164,6 +168,22 @@ public class CgmesExport implements Exporter {
         writer.writeEndElement();
         writer.writeEmptyElement("cim:SvVoltage.TopologicalNode");
         writer.writeAttribute("rdf:resource", "#" + topologicalNode);
+        writer.writeEndElement();
+    }
+
+    private static void writeSvShuntCompensatorSections(XMLStreamWriter writer, String shuntCompensatorId, int sections) throws XMLStreamException {
+        // FIXME(Luma) remove this reference block
+        // <cim:SvShuntCompensatorSections rdf:ID="_a24efa62-9d8c-47ae-8fb7-5c15b7e06fad">
+        // <cim:SvShuntCompensatorSections.ShuntCompensator rdf:resource="#_04553478-c766-11e1-8775-005056c00008"/>
+        // <cim:SvShuntCompensatorSections.continuousSections>5</cim:SvShuntCompensatorSections.continuousSections>
+        // </cim:SvShuntCompensatorSections>
+        writer.writeStartElement("cim:SvShuntCompensatorSections");
+        writer.writeAttribute("rdf:ID", getUniqueId());
+        writer.writeStartElement("cim:SvShuntCompensatorSections.continuousSections");
+        writer.writeCharacters(Integer.toString(sections));
+        writer.writeEndElement();
+        writer.writeEmptyElement("SvShuntCompensatorSections.ShuntCompensator");
+        writer.writeAttribute("rdf:resource", "#" + shuntCompensatorId);
         writer.writeEndElement();
     }
 
