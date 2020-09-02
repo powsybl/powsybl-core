@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -86,8 +87,8 @@ public class ExportTest {
         CgmesExport e = new CgmesExport();
 
         // Export modified network to new CGMES using two alternatives
-        DataSource tmpUsingCgmes = tmpDataSource("usingCgmes");
-        DataSource tmpUsingOnlyNetwork = tmpDataSource("usingOnlyNetwork");
+        DataSource tmpUsingCgmes = tmpDataSource(fileSystem, "usingCgmes");
+        DataSource tmpUsingOnlyNetwork = tmpDataSource(fileSystem, "usingOnlyNetwork");
         Properties ep = new Properties();
         e.export(network0, ep, tmpUsingCgmes);
         ep.setProperty("cgmes.export.usingOnlyNetwork", "true");
@@ -174,9 +175,9 @@ public class ExportTest {
         return diff;
     }
 
-    protected DataSource tmpDataSource(String name) throws IOException {
-        Path exportFolder = fileSystem.getPath(name);
-        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
+    public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
+        // Path exportFolder = fileSystem.getPath(name);
+        Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
@@ -185,8 +186,8 @@ public class ExportTest {
         return tmpDataSource;
     }
 
-    protected FileSystem fileSystem;
-    protected CgmesImport cgmesImport;
+    private FileSystem fileSystem;
+    private CgmesImport cgmesImport;
 
     private static final Logger LOG = LoggerFactory.getLogger(ExportTest.class);
 }

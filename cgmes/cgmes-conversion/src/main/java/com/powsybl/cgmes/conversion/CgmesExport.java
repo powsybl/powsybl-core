@@ -92,11 +92,14 @@ public class CgmesExport implements Exporter {
         export(network, ds, "SSH", CgmesExport::writeSSH);
     }
 
-    private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> writer) {
+    private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> exporter) {
         String baseName = network.getProperty("baseName");
-        try (OutputStream os = ds.newOutputStream(baseName + "_SV.xml", false); BufferedOutputStream bos = new BufferedOutputStream(os)) {
+        String filename = baseName + "_" + profileSuffix + ".xml";
+        try (OutputStream os = ds.newOutputStream(filename, false); BufferedOutputStream bos = new BufferedOutputStream(os)) {
             try {
-                writer.accept(network, initializeWriter(bos));
+                XMLStreamWriter writer = initializeWriter(bos);
+                exporter.accept(network, writer);
+                writer.writeEndDocument();
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
@@ -142,7 +145,6 @@ public class CgmesExport implements Exporter {
             TieLine tieLine = (TieLine) l;
             // FIXME(Luma) Obtain voltage at inner node
         }
-        writer.writeEndDocument();
     }
 
     private static void writeSvVoltage(XMLStreamWriter writer, String topologicalNode, double v, double angle) throws XMLStreamException {

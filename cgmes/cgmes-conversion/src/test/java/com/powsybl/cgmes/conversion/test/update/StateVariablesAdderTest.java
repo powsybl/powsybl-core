@@ -9,10 +9,15 @@ package com.powsybl.cgmes.conversion.test.update;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Properties;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -23,6 +28,7 @@ import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -32,7 +38,18 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
  */
-public class StateVariablesAdderTest extends ExportTest {
+public class StateVariablesAdderTest {
+
+    @Before
+    public void setUp() {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        cgmesImport = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
 
     @Test
     public void conformityMicroGridBaseCase() throws IOException {
@@ -57,7 +74,7 @@ public class StateVariablesAdderTest extends ExportTest {
         NetworkChanges.modifyStateVariables(network0);
 
         // Export modified network to new CGMES
-        DataSource tmp = tmpDataSource("export-modified");
+        DataSource tmp = ExportTest.tmpDataSource(fileSystem, "export-modified");
         CgmesExport e = new CgmesExport();
         e.export(network0, new Properties(), tmp);
 
@@ -87,4 +104,6 @@ public class StateVariablesAdderTest extends ExportTest {
         new Comparison(network0, network1, new ComparisonConfig()).compareBuses();
     }
 
+    private FileSystem fileSystem;
+    private CgmesImport cgmesImport;
 }
