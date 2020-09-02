@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -31,9 +32,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TieLine;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
 
@@ -54,7 +58,7 @@ public class CgmesExport implements Exporter {
                     throw new CgmesModelException("CGMES model should not be available as Network extension");
                 }
             }
-            exportUsingOnlyNetwork(network, params, ds);
+            exportUsingOnlyNetwork(network, ds);
         } else {
             if (ext == null) {
                 throw new CgmesModelException("CGMES model is required and not found in Network extension");
@@ -69,12 +73,30 @@ public class CgmesExport implements Exporter {
     private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
     private static final boolean INDENT = true;
 
-    private void exportUsingOnlyNetwork(Network network, Properties params, DataSource ds) {
+    private void exportUsingOnlyNetwork(Network network, DataSource ds) {
+        // We are assuming that we want CGM export when network is a MergingView
+        // For a CGM export we want to obtain a single SV and individual SSH files
+        exportStateVariables(network, ds);
+        if (network instanceof MergingView) {
+            ((MergingView) network).getNetworkStream().forEach(igm -> exportSteadyStateHypothesis(igm, ds));
+        } else {
+            exportSteadyStateHypothesis(network, ds);
+        }
+    }
+
+    private void exportStateVariables(Network network, DataSource ds) {
+        export(network, ds, "SV", CgmesExport::writeSV);
+    }
+
+    private void exportSteadyStateHypothesis(Network network, DataSource ds) {
+        export(network, ds, "SSH", CgmesExport::writeSSH);
+    }
+
+    private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> writer) {
         String baseName = network.getProperty("baseName");
-        try (OutputStream os = ds.newOutputStream(baseName + "_SV.xml", false);
-                BufferedOutputStream bos = new BufferedOutputStream(os)) {
+        try (OutputStream os = ds.newOutputStream(baseName + "_SV.xml", false); BufferedOutputStream bos = new BufferedOutputStream(os)) {
             try {
-                writeSV(network, initializeWriter(bos));
+                writer.accept(network, initializeWriter(bos));
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
             }
@@ -83,7 +105,19 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static void writeSV(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeSV(Network network, XMLStreamWriter writer) {
+        try {
+            writeSvVoltages(network, writer);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void writeSSH(Network network, XMLStreamWriter writer) {
+        // TODO(Luma) write updated power flow inputs
+    }
+
+    private static void writeSvVoltages(Network network, XMLStreamWriter writer) throws XMLStreamException {
         // FIXME(Luma)
         // Node-breaker: build topological nodes
         // Bus-branch: reuse topological nodes (stored in bus-breaker view buses)
@@ -99,15 +133,24 @@ public class CgmesExport implements Exporter {
             String topologicalNode = dl.getAliases().iterator().next();
             writeSvVoltage(writer, topologicalNode, Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
         }
+        // Voltages at inner nodes of Tie Lines
+        // (boundary nodes that have been left inside CGM)
+        for (Line l : network.getLines()) {
+            if (!l.isTieLine()) {
+                continue;
+            }
+            TieLine tieLine = (TieLine) l;
+            // FIXME(Luma) Obtain voltage at inner node
+        }
         writer.writeEndDocument();
     }
 
     private static void writeSvVoltage(XMLStreamWriter writer, String topologicalNode, double v, double angle) throws XMLStreamException {
         // FIXME(Luma) remove this reference block
         // <cim:SvVoltage rdf:ID="_d4548915-4f00-4507-ba54-350cafcee1af">
-        //     <cim:SvVoltage.angle>-18.20656</cim:SvVoltage.angle>
-        //     <cim:SvVoltage.v>128.575378</cim:SvVoltage.v>
-        //     <cim:SvVoltage.TopologicalNode rdf:resource="#_0471bd2a-c766-11e1-8775-005056c00008" />
+        // <cim:SvVoltage.angle>-18.20656</cim:SvVoltage.angle>
+        // <cim:SvVoltage.v>128.575378</cim:SvVoltage.v>
+        // <cim:SvVoltage.TopologicalNode rdf:resource="#_0471bd2a-c766-11e1-8775-005056c00008" />
         // </cim:SvVoltage>
         writer.writeStartElement("cim:SvVoltage");
         writer.writeAttribute("rdf:ID", getUniqueId());
@@ -137,9 +180,9 @@ public class CgmesExport implements Exporter {
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
         // FIXME(Luma) remove this reference line and consider adding entsoe namespace
         // <rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
-        //          xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
-        //          xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
-        //          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+        // xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
+        // xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+        // xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
         writer.setPrefix("rdf", RDF_NAMESPACE);
         writer.setPrefix("cim", CIM_NAMESPACE);
         writer.setPrefix("md", MD_NAMESPACE);
