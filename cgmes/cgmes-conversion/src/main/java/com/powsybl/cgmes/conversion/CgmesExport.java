@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
 
@@ -44,10 +45,21 @@ public class CgmesExport implements Exporter {
 
     @Override
     public void export(Network network, Properties params, DataSource ds) {
+        Objects.requireNonNull(network);
+        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
         if (params != null && Boolean.valueOf(params.getProperty("cgmes.export.usingOnlyNetwork"))) {
+            if (ext != null) {
+                CgmesModel cgmesSource = ext.getCgmesModel();
+                if (cgmesSource != null) {
+                    throw new CgmesModelException("CGMES model should not be available as Network extension");
+                }
+            }
             exportUsingOnlyNetwork(network, params, ds);
         } else {
-            exportUsingOriginalCgmesModel(network, params, ds);
+            if (ext == null) {
+                throw new CgmesModelException("CGMES model is required and not found in Network extension");
+            }
+            exportUsingOriginalCgmesModel(network, params, ds, ext);
         }
     }
 
@@ -58,13 +70,6 @@ public class CgmesExport implements Exporter {
     private static final boolean INDENT = true;
 
     private void exportUsingOnlyNetwork(Network network, Properties params, DataSource ds) {
-        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
-        if (ext != null) {
-            CgmesModel cgmesSource = ext.getCgmesModel();
-            if (cgmesSource != null) {
-                throw new CgmesModelException("CGMES model should not be available in Network");
-            }
-        }
         String baseName = network.getProperty("baseName");
         try (OutputStream os = ds.newOutputStream(baseName + "_SV.xml", false);
                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
@@ -94,7 +99,7 @@ public class CgmesExport implements Exporter {
             String topologicalNode = dl.getAliases().iterator().next();
             writeSvVoltage(writer, topologicalNode, Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
         }
-        writer.writeEndElement();
+        writer.writeEndDocument();
     }
 
     private static void writeSvVoltage(XMLStreamWriter writer, String topologicalNode, double v, double angle) throws XMLStreamException {
@@ -145,23 +150,11 @@ public class CgmesExport implements Exporter {
         return writer;
     }
 
-    private void exportUsingOriginalCgmesModel(Network network, Properties params, DataSource ds) {
-
-        // Right now the network must contain the original CgmesModel
-        // In the future it should be possible to export to CGMES
-        // directly from an IIDM Network,
-        // without the need for the original CgmesModel
-        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
-        if (ext == null) {
-            throw new CgmesModelException("No extension for CGMES model found in Network");
-        }
+    private void exportUsingOriginalCgmesModel(Network network, Properties params, DataSource ds, CgmesModelExtension ext) {
         CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
-
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
-
         String variantId = network.getVariantManager().getWorkingVariantId();
-
         cgmesUpdate.update(cgmes, variantId);
         // Fill the State Variables data with the Network current state values
         StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);
