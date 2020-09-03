@@ -51,16 +51,6 @@ public class SwitchConversion extends AbstractConnectorConversion {
         return true;
     }
 
-    public String boundaryNode() {
-        // Only one of the end points can be in the boundary
-        if (isBoundary(1)) {
-            return nodeId(1);
-        } else if (isBoundary(2)) {
-            return nodeId(2);
-        }
-        return null;
-    }
-
     @Override
     public void convert() {
         if (isBoundary(1)) {

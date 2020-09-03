@@ -29,6 +29,16 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         super(type, p, context, 2);
     }
 
+    public String boundaryNode() {
+        // Only one of the end points can be in the boundary
+        if (isBoundary(1)) {
+            return nodeId(1);
+        } else if (isBoundary(2)) {
+            return nodeId(2);
+        }
+        return null;
+    }
+
     public void convertToDanglingLine(int boundarySide, String ucteXnodeCode) {
         convertToDanglingLine(boundarySide, 0.0, 0.0, 0.0, 0.0, ucteXnodeCode);
     }

@@ -257,8 +257,7 @@ public class Conversion {
     private Network createNetwork() {
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
-        Network network = networkFactory.createNetwork(networkId, sourceFormat);
-        return network;
+        return networkFactory.createNetwork(networkId, sourceFormat);
     }
 
     private Context createContext(Network network) {
@@ -329,24 +328,24 @@ public class Conversion {
         }
     }
 
+    // Supported conversions:
+    // Only one Line (--> create dangling line)
+    // Only one Switch (--> create dangling line with z0)
+    // Two lines (--> merge both lines and replace by equivalent)
+    // Line and Switch (--> switch to z0 line and merge both lines)
+
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
         // At least each delayed boundary node should have one equipment attached to it
         // Currently supported equipment at boundary are lines and switches
         List<PropertyBag> beqs = context.boundary().equipmentAtNode(node);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
-            beqs.forEach(beq -> {
-                LOG.debug(beq.tabulateLocals("EquipmentAtBoundary")); });
+            beqs.forEach(beq -> LOG.debug(beq.tabulateLocals("EquipmentAtBoundary")));
         }
         if (beqs.size() > 2) {
             context.invalid(node, "Too many equipment at boundary node");
             return;
         }
-        // Supported conversions:
-        // Only one line (--> create dangling line)
-        // Only one switch (--> create dangling line with z0)
-        // Two lines (--> merge both lines and replace by equivalent)
-        // Line and switch (--> switch to z0 line and merge both lines)
 
         BoundaryConfigurationType boundaryConfigurationType = boundaryConfiguration(context, beqs, node);
         switch (boundaryConfigurationType) {
