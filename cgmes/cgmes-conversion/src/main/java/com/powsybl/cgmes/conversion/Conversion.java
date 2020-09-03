@@ -105,6 +105,10 @@ public class Conversion {
         NETWORK_SIDE, STAR_BUS_SIDE, END1, END2, END3
     }
 
+    private enum BoundaryConfigurationType {
+        NONE, LINE, SWITCH, LINE_LINE, LINE_SWITCH
+    }
+
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -338,54 +342,92 @@ public class Conversion {
             context.invalid(node, "Too many equipment at boundary node");
             return;
         }
-        // FIXME(Luma) Supported conversions:
+        // Supported conversions:
         // Only one line (--> create dangling line)
         // Only one switch (--> create dangling line with z0)
         // Two lines (--> merge both lines and replace by equivalent)
         // Line and switch (--> switch to z0 line and merge both lines)
+
+        BoundaryConfigurationType boundaryConfigurationType = boundaryConfiguration(context, beqs, node);
+        switch (boundaryConfigurationType) {
+            case NONE:
+                break;
+            case LINE:
+                new ACLineSegmentConversion(getBoundaryLine(beqs), context).convert();
+                break;
+            case SWITCH:
+                new SwitchConversion(getBoundarySwitch(beqs), context).convert();
+                break;
+            case LINE_LINE:
+                new ACLineSegmentConversion(getBoundaryLine(beqs), context)
+                    .convertMergedLinesAtNode(getBoundaryOtherLine(beqs), node);
+                break;
+            case LINE_SWITCH:
+                new ACLineSegmentConversion(getBoundaryLine(beqs), context)
+                    .convertLineAndSwitchAtNode(getBoundarySwitch(beqs), node);
+                break;
+        }
+    }
+
+    private static BoundaryConfigurationType boundaryConfiguration(Context context, List<PropertyBag> beqs, String node) {
         if (beqs.size() == 1) {
-            // FIXME(Luma) check it is a line
             PropertyBag beq = beqs.get(0);
             String lineId = beq.getId(CgmesNames.AC_LINE_SEGMENT);
-            String switchId = beq.getId("Switch");
+            String switchId = beq.getId(CgmesNames.SWITCH);
             if (lineId != null) {
-                new ACLineSegmentConversion(beq, context).convert();
+                return BoundaryConfigurationType.LINE;
             } else if (switchId != null) {
-                new SwitchConversion(beq, context).convert();
+                return BoundaryConfigurationType.SWITCH;
             } else {
                 // Should have been a line or a switch
                 context.invalid(node, "Unexpected equipment at boundary node. Expected ACLineSegment or Switch");
+                return BoundaryConfigurationType.NONE;
             }
         } else {
             // Exactly two equipment at boundary node
             String lineId0 = beqs.get(0).getId(CgmesNames.AC_LINE_SEGMENT);
             String lineId1 = beqs.get(1).getId(CgmesNames.AC_LINE_SEGMENT);
-            String switchId0 = beqs.get(0).getId("Switch");
-            String switchId1 = beqs.get(1).getId("Switch");
+            String switchId0 = beqs.get(0).getId(CgmesNames.SWITCH);
+            String switchId1 = beqs.get(1).getId(CgmesNames.SWITCH);
             if (lineId0 != null && lineId1 != null) {
-                PropertyBag line0 = beqs.get(0);
-                PropertyBag line1 = beqs.get(1);
-                new ACLineSegmentConversion(line0, context).convertMergedLinesAtNode(line1, node);
-            } else if (switchId0 != null && switchId1 != null) {
-                context.invalid(node, "Found two Switches at boundary node. Boundary configuration not supported");
+                return BoundaryConfigurationType.LINE_LINE;
+            } else if (lineId0 != null && switchId1 != null) {
+                return BoundaryConfigurationType.LINE_SWITCH;
+            } else if (lineId1 != null && switchId0 != null) {
+                return BoundaryConfigurationType.LINE_SWITCH;
             } else {
-                // Must be a switch and a line
-                PropertyBag line = null;
-                PropertyBag sw = null;
-                if (lineId0 != null && switchId1 != null) {
-                    line = beqs.get(0);
-                    sw = beqs.get(1);
-                } else if (lineId1 != null && switchId0 != null) {
-                    line = beqs.get(1);
-                    sw = beqs.get(0);
-                } else {
-                    context.invalid(node, "Found equipment not supported at boundary node");
-                }
-                if (line != null && sw != null) {
-                    new ACLineSegmentConversion(line, context).convertLineAndSwitchAtNode(sw, node);
-                }
+                context.invalid(node, "Equipment configuration not supported at boundary node");
+                return BoundaryConfigurationType.NONE;
             }
         }
+    }
+
+    private static PropertyBag getBoundaryLine(List<PropertyBag> beqs) {
+        if (beqs.size() == 1) {
+            return beqs.get(0);
+        } else {
+            if (beqs.get(0).getId(CgmesNames.AC_LINE_SEGMENT) != null) {
+                return beqs.get(0);
+            } else {
+                return beqs.get(1);
+            }
+        }
+    }
+
+    private static PropertyBag getBoundarySwitch(List<PropertyBag> beqs) {
+        if (beqs.size() == 1) {
+            return beqs.get(0);
+        } else {
+            if (beqs.get(0).getId(CgmesNames.SWITCH) != null) {
+                return beqs.get(0);
+            } else {
+                return beqs.get(1);
+            }
+        }
+    }
+
+    private static PropertyBag getBoundaryOtherLine(List<PropertyBag> beqs) {
+        return beqs.get(1);
     }
 
     private void convertTransformers(Context context) {

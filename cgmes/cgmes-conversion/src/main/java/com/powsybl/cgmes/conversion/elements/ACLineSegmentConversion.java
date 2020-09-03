@@ -214,98 +214,21 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             otherEnd = 2;
         }
 
-        String iidmVoltageLevelId1 = iidmVoltageLevelId(thisEnd);
-        String iidmVoltageLevelId2 = otherc.iidmVoltageLevelId(otherEnd);
-        boolean mt1connected = terminalConnected(thisEnd);
-        boolean mt2connected = otherc.terminalConnected(otherEnd);
-        String mbus1 = busId(thisEnd);
-        String mbus2 = otherc.busId(otherEnd);
-        int mnode1 = -1;
-        int mnode2 = -1;
-        if (context.nodeBreaker()) {
-            mnode1 = iidmNode(thisEnd);
-            mnode2 = otherc.iidmNode(otherEnd);
-        }
-
-        double lineR = p.asDouble("r");
-        double lineX = p.asDouble("x");
-        double lineGch = p.asDouble("gch", 0);
-        double lineBch = p.asDouble("bch", 0);
-        double otherR = other.asDouble("r");
-        double otherX = other.asDouble("x");
-        double otherGch = other.asDouble("gch", 0);
-        double otherBch = other.asDouble("bch", 0);
-
-        String id1 = context.namingStrategy().getId("Line", id);
-        String id2 = context.namingStrategy().getId("Line", otherId);
-        String name1 = context.namingStrategy().getName("Line", name);
-        String name2 = context.namingStrategy().getName("Line", otherName);
+        BoundaryLine boundaryLine1 = fillBoundaryLineFromLine(this, p, id, name, thisEnd);
+        BoundaryLine boundaryLine2 = fillBoundaryLineFromLine(otherc, other, otherId, otherName, otherEnd);
 
         Line mline;
         if (context.config().mergeBoundariesUsingTieLines()) {
-            TieLineAdder adder = context.network().newTieLine()
-                    .setId(id1 + " + " + id2)
-                    .setName(name1 + " + " + name2)
-                    .line1()
-                    .setId(id1)
-                    .setName(name1)
-                    .setR(lineR)
-                    .setX(lineX)
-                    .setG1(lineGch / 2)
-                    .setG2(lineGch / 2)
-                    .setB1(lineBch / 2)
-                    .setB2(lineBch / 2)
-                    .setXnodeP(0)
-                    .setXnodeQ(0)
-                    .line2()
-                    .setId(id2)
-                    .setName(name2)
-                    .setR(otherR)
-                    .setX(otherX)
-                    .setG1(otherGch / 2)
-                    .setG2(otherGch / 2)
-                    .setB1(otherBch / 2)
-                    .setB2(otherBch / 2)
-                    .setXnodeP(0)
-                    .setXnodeQ(0)
-                    .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
+            mline = createTieLine(boundaryNode, boundaryLine1, boundaryLine2);
         } else {
-            PiModel pi1 = new PiModel();
-            pi1.r = lineR;
-            pi1.x = lineX;
-            pi1.g1 = lineGch / 2.0;
-            pi1.b1 = lineBch / 2.0;
-            pi1.g2 = pi1.g1;
-            pi1.b2 = pi1.b1;
-            PiModel pi2 = new PiModel();
-            pi2.r = otherR;
-            pi2.x = otherX;
-            pi2.g1 = otherGch / 2.0;
-            pi2.b1 = otherBch / 2.0;
-            pi2.g2 = pi2.g1;
-            pi2.b2 = pi2.b1;
-            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-            LineAdder adder = context.network().newLine()
-                    .setR(pim.r)
-                    .setX(pim.x)
-                    .setG1(pim.g1)
-                    .setG2(pim.g2)
-                    .setB1(pim.b1)
-                    .setB2(pim.b2);
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
+            mline = createQuadripole(boundaryLine1, boundaryLine2);
         }
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
 
     public void convertLineAndSwitchAtNode(PropertyBag other, String boundaryNode) {
-        // FIXME(Luma) review duplicated code with convertMergedLinesAtNode
-        String otherId = other.getId("Switch");
+        String otherId = other.getId(CgmesNames.SWITCH);
         String otherName = other.getId("name");
         ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);
 
@@ -320,93 +243,137 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             otherEnd = 2;
         }
 
-        String iidmVoltageLevelId1 = iidmVoltageLevelId(thisEnd);
-        String iidmVoltageLevelId2 = otherc.iidmVoltageLevelId(otherEnd);
-        boolean mt1connected = terminalConnected(thisEnd);
-        boolean mt2connected = otherc.terminalConnected(otherEnd);
-        String mbus1 = busId(thisEnd);
-        String mbus2 = otherc.busId(otherEnd);
-        int mnode1 = -1;
-        int mnode2 = -1;
-        if (context.nodeBreaker()) {
-            mnode1 = iidmNode(thisEnd);
-            mnode2 = otherc.iidmNode(otherEnd);
-        }
-
-        double lineR = p.asDouble("r");
-        double lineX = p.asDouble("x");
-        double lineGch = p.asDouble("gch", 0);
-        double lineBch = p.asDouble("bch", 0);
-        double otherR = 0.0;
-        double otherX = 0.0;
-        double otherGch = 0.0;
-        double otherBch = 0.0;
-
-        String id1 = context.namingStrategy().getId("Line", id);
-        String id2 = context.namingStrategy().getId("Switch", otherId);
-        String name1 = context.namingStrategy().getName("Line", name);
-        String name2 = context.namingStrategy().getName("Switch", otherName);
+        BoundaryLine boundaryLine1 = fillBoundaryLineFromLine(this, p, id, name, thisEnd);
+        BoundaryLine boundaryLine2 = fillBoundaryLineFromSwitch(otherc, otherId, otherName, otherEnd);
 
         Line mline;
         if (context.config().mergeBoundariesUsingTieLines()) {
-            TieLineAdder adder = context.network().newTieLine()
-                    .setId(id1 + " + " + id2)
-                    .setName(name1 + " + " + name2)
-                    .line1()
-                    .setId(id1)
-                    .setName(name1)
-                    .setR(lineR)
-                    .setX(lineX)
-                    .setG1(lineGch / 2)
-                    .setG2(lineGch / 2)
-                    .setB1(lineBch / 2)
-                    .setB2(lineBch / 2)
-                    .setXnodeP(0)
-                    .setXnodeQ(0)
-                    .line2()
-                    .setId(id2)
-                    .setName(name2)
-                    .setR(otherR)
-                    .setX(otherX)
-                    .setG1(otherGch / 2)
-                    .setG2(otherGch / 2)
-                    .setB1(otherBch / 2)
-                    .setB2(otherBch / 2)
-                    .setXnodeP(0)
-                    .setXnodeQ(0)
-                    .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
+            mline = createTieLine(boundaryNode, boundaryLine1, boundaryLine2);
         } else {
-            PiModel pi1 = new PiModel();
-            pi1.r = lineR;
-            pi1.x = lineX;
-            pi1.g1 = lineGch / 2.0;
-            pi1.b1 = lineBch / 2.0;
-            pi1.g2 = pi1.g1;
-            pi1.b2 = pi1.b1;
-            PiModel pi2 = new PiModel();
-            pi2.r = otherR;
-            pi2.x = otherX;
-            pi2.g1 = otherGch / 2.0;
-            pi2.b1 = otherBch / 2.0;
-            pi2.g2 = pi2.g1;
-            pi2.b2 = pi2.b1;
-            PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-            LineAdder adder = context.network().newLine()
-                    .setR(pim.r)
-                    .setX(pim.x)
-                    .setG1(pim.g1)
-                    .setG2(pim.g2)
-                    .setB1(pim.b1)
-                    .setB2(pim.b2);
-            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
-            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
-            mline = adder.add();
+            mline = createQuadripole(boundaryLine1, boundaryLine2);
         }
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
+    }
+
+    private Line createTieLine(String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+        TieLineAdder adder = context.network().newTieLine()
+            .setId(boundaryLine1.id + " + " + boundaryLine2.id)
+            .setName(boundaryLine1.name + " + " + boundaryLine2.name)
+            .line1()
+            .setId(boundaryLine1.id)
+            .setName(boundaryLine1.name)
+            .setR(boundaryLine1.r)
+            .setX(boundaryLine1.x)
+            .setG1(boundaryLine1.g / 2)
+            .setG2(boundaryLine1.g / 2)
+            .setB1(boundaryLine1.b / 2)
+            .setB2(boundaryLine1.b / 2)
+            .setXnodeP(0)
+            .setXnodeQ(0)
+            .line2()
+            .setId(boundaryLine2.id)
+            .setName(boundaryLine2.name)
+            .setR(boundaryLine2.r)
+            .setX(boundaryLine2.x)
+            .setG1(boundaryLine2.g / 2)
+            .setG2(boundaryLine2.g / 2)
+            .setB1(boundaryLine2.b / 2)
+            .setB2(boundaryLine2.b / 2)
+            .setXnodeP(0)
+            .setXnodeQ(0)
+            .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+        identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
+        connect(adder, boundaryLine1.tsoIidmVoltageLevelId, boundaryLine1.tsoBus, boundaryLine1.tsoTconnected,
+            boundaryLine1.tsoNode, boundaryLine2.tsoIidmVoltageLevelId, boundaryLine2.tsoBus,
+            boundaryLine2.tsoTconnected, boundaryLine2.tsoNode);
+        return adder.add();
+    }
+
+    private Line createQuadripole(BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+        PiModel pi1 = new PiModel();
+        pi1.r = boundaryLine1.r;
+        pi1.x = boundaryLine1.x;
+        pi1.g1 = boundaryLine1.g / 2.0;
+        pi1.b1 = boundaryLine1.b / 2.0;
+        pi1.g2 = pi1.g1;
+        pi1.b2 = pi1.b1;
+        PiModel pi2 = new PiModel();
+        pi2.r = boundaryLine2.r;
+        pi2.x = boundaryLine2.x;
+        pi2.g1 = boundaryLine2.g / 2.0;
+        pi2.b1 = boundaryLine2.b / 2.0;
+        pi2.g2 = pi2.g1;
+        pi2.b2 = pi2.b1;
+        PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
+        LineAdder adder = context.network().newLine()
+            .setR(pim.r)
+            .setX(pim.x)
+            .setG1(pim.g1)
+            .setG2(pim.g2)
+            .setB1(pim.b1)
+            .setB2(pim.b2);
+        identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
+        connect(adder, boundaryLine1.tsoIidmVoltageLevelId, boundaryLine1.tsoBus, boundaryLine1.tsoTconnected,
+            boundaryLine1.tsoNode, boundaryLine2.tsoIidmVoltageLevelId, boundaryLine2.tsoBus,
+            boundaryLine2.tsoTconnected, boundaryLine2.tsoNode);
+        return adder.add();
+    }
+
+    private BoundaryLine fillBoundaryLineFromLine(ACLineSegmentConversion ac, PropertyBag p, String id, String name, int tsoEnd) {
+        BoundaryLine boundaryLine = new BoundaryLine();
+
+        boundaryLine.tsoIidmVoltageLevelId = ac.iidmVoltageLevelId(tsoEnd);
+        boundaryLine.tsoTconnected = ac.terminalConnected(tsoEnd);
+        boundaryLine.tsoBus = ac.busId(tsoEnd);
+        boundaryLine.tsoNode = -1;
+        if (context.nodeBreaker()) {
+            boundaryLine.tsoNode = ac.iidmNode(tsoEnd);
+        }
+
+        boundaryLine.r = p.asDouble("r");
+        boundaryLine.x = p.asDouble("x");
+        boundaryLine.g = p.asDouble("gch", 0);
+        boundaryLine.b = p.asDouble("bch", 0);
+
+        boundaryLine.id = context.namingStrategy().getId("Line", id);
+        boundaryLine.name = context.namingStrategy().getName("Line", name);
+
+        return boundaryLine;
+    }
+
+    private BoundaryLine fillBoundaryLineFromSwitch(ACLineSegmentConversion ac, String id, String name, int tsoEnd) {
+        BoundaryLine boundaryLine = new BoundaryLine();
+
+        boundaryLine.tsoIidmVoltageLevelId = ac.iidmVoltageLevelId(tsoEnd);
+        boundaryLine.tsoTconnected = ac.terminalConnected(tsoEnd);
+        boundaryLine.tsoBus = ac.busId(tsoEnd);
+        boundaryLine.tsoNode = -1;
+        if (context.nodeBreaker()) {
+            boundaryLine.tsoNode = ac.iidmNode(tsoEnd);
+        }
+
+        boundaryLine.r = 0.0;
+        boundaryLine.x = 0.0;
+        boundaryLine.g = 0.0;
+        boundaryLine.b = 0.0;
+        boundaryLine.id = context.namingStrategy().getId(CgmesNames.SWITCH, id);
+        boundaryLine.name = context.namingStrategy().getName(CgmesNames.SWITCH, name);
+
+        return boundaryLine;
+    }
+
+    static class BoundaryLine {
+        String id;
+        String name;
+        String tsoIidmVoltageLevelId;
+        String tsoBus;
+        boolean tsoTconnected;
+        int tsoNode;
+        double r;
+        double x;
+        double g;
+        double b;
     }
 
     static class PiModel {
