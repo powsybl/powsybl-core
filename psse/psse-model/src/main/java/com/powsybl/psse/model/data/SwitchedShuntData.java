@@ -42,7 +42,7 @@ class SwitchedShuntData extends BlockData {
 
         if (this.getPsseVersion() == PsseVersion.VERSION_35) {
             List<PsseSwitchedShunt35> switchedShunt35List = parseRecordsHeader(records, PsseSwitchedShunt35.class, headers);
-            return new ArrayList<>(switchedShunt35List); // TODO improve
+            return new ArrayList<>(switchedShunt35List);
         } else { // version_33
             return parseRecordsHeader(records, PsseSwitchedShunt.class, headers);
         }
@@ -61,7 +61,7 @@ class SwitchedShuntData extends BlockData {
 
         context.setSwitchedShuntDataReadFields(headers);
         List<PsseSwitchedShunt35> switchedShunt35List = parseRecordsHeader(records, PsseSwitchedShunt35.class, headers);
-        return new ArrayList<>(switchedShunt35List); // TODO improve
+        return new ArrayList<>(switchedShunt35List);
     }
 
     private static String[] switchedShuntDataDataHeaders(PsseVersion version) {

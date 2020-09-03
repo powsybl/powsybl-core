@@ -42,7 +42,7 @@ class GeneratorData extends BlockData {
 
         if (this.getPsseVersion() == PsseVersion.VERSION_35) {
             List<PsseGenerator35> generator35List = parseRecordsHeader(records, PsseGenerator35.class, headers);
-            return new ArrayList<>(generator35List); // TODO improve
+            return new ArrayList<>(generator35List);
         } else { // version_33
             return parseRecordsHeader(records, PsseGenerator.class, headers);
         }
@@ -61,7 +61,7 @@ class GeneratorData extends BlockData {
 
         context.setGeneratorDataReadFields(headers);
         List<PsseGenerator35> generator35List = parseRecordsHeader(records, PsseGenerator35.class, headers);
-        return new ArrayList<>(generator35List); // TODO improve
+        return new ArrayList<>(generator35List);
     }
 
     private static String[] generatorDataHeaders(PsseVersion version) {

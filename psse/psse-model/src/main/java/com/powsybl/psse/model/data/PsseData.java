@@ -62,11 +62,7 @@ public class PsseData {
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        if (ic == 0 && sbase > 0. && ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev) && basfrq > 0.) {
-            return true;
-        }
-
-        return false;
+        return ic == 0 && sbase > 0. && ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev) && basfrq > 0.0;
     }
 
     public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {

@@ -42,7 +42,7 @@ class LoadData extends BlockData {
 
         if (this.getPsseVersion() == PsseVersion.VERSION_35) {
             List<PsseLoad35> load35List = parseRecordsHeader(records, PsseLoad35.class, headers);
-            return new ArrayList<>(load35List); // TODO improve
+            return new ArrayList<>(load35List);
         } else { // version_33
             return parseRecordsHeader(records, PsseLoad.class, headers);
         }
@@ -61,7 +61,7 @@ class LoadData extends BlockData {
 
         context.setLoadDataReadFields(headers);
         List<PsseLoad35> load35List = parseRecordsHeader(records, PsseLoad35.class, headers);
-        return new ArrayList<>(load35List); // TODO improve
+        return new ArrayList<>(load35List);
     }
 
     private static String[] loadDataHeaders(PsseVersion version) {

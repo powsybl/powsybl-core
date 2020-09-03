@@ -112,7 +112,7 @@ class TransformerData extends BlockData {
 
         setRawxReadFields(records, headers, context);
         List<PsseTransformer35> transformer35List = parseRecordsHeader(records, PsseTransformer35.class, headers);
-        return new ArrayList<>(transformer35List); // TODO improve
+        return new ArrayList<>(transformer35List);
     }
 
     private static boolean is3wtransformer(String record, String delimiter) {

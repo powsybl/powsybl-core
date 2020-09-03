@@ -21,7 +21,6 @@ public class PsseRawModel35 extends PsseRawModel {
 
     @Override
     public void addLoads(List<PsseLoad> loads) {
-        // loads.forEach(load -> assertTrue(load instanceof PsseLoad35));
         loads.forEach(load -> {
             if (load instanceof PsseLoad35) {
                 System.err.printf("es PsseLoad35 %n");

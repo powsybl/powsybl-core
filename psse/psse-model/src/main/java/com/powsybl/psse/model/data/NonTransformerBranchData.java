@@ -42,7 +42,7 @@ class NonTransformerBranchData extends BlockData {
 
         if (this.getPsseVersion() == PsseVersion.VERSION_35) {
             List<PsseNonTransformerBranch35> nonTransformerBranch35List = parseRecordsHeader(records, PsseNonTransformerBranch35.class, headers);
-            return new ArrayList<>(nonTransformerBranch35List); // TODO improve
+            return new ArrayList<>(nonTransformerBranch35List);
         } else { // version_33
             return parseRecordsHeader(records, PsseNonTransformerBranch.class, headers);
         }
@@ -61,7 +61,7 @@ class NonTransformerBranchData extends BlockData {
 
         context.setNonTransformerBranchDataReadFields(headers);
         List<PsseNonTransformerBranch35> nonTransformerBranch35List = parseRecordsHeader(records, PsseNonTransformerBranch35.class, headers);
-        return new ArrayList<>(nonTransformerBranch35List); // TODO improve
+        return new ArrayList<>(nonTransformerBranch35List);
     }
 
     private static String[] nonTransformerBranchDataHeaders(PsseVersion version) {
