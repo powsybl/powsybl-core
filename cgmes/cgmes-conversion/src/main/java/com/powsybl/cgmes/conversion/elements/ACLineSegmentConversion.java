@@ -7,19 +7,13 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.List;
-
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.TieLineAdder;
-import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -97,101 +91,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
     }
 
     private void convertToDanglingLine(int boundarySide) {
-        // Non-boundary side (other side) of the line
-        int modelSide = 3 - boundarySide;
-        String boundaryNode = nodeId(boundarySide);
-
-        // check again boundary node is correct
-        assert isBoundary(boundarySide) && !isBoundary(modelSide);
-
-        PowerFlow f = new PowerFlow(0, 0);
-        // Only consider potential power flow at boundary side if that side is connected
-        if (terminalConnected(boundarySide) && context.boundary().hasPowerFlow(boundaryNode)) {
-            f = context.boundary().powerFlowAtNode(boundaryNode);
-        }
-        // There should be some equipment at boundarySide to model exchange through that
-        // point
-        // But we have observed, for the test case conformity/miniBusBranch,
-        // that the ACLineSegment:
-        // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
-        // ends in a boundary node where there is no other line,
-        // does not have energy consumer or equivalent injection
-        if (terminalConnected(boundarySide)
-                && !context.boundary().hasPowerFlow(boundaryNode)
-                && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
-            missing("Equipment for modeling consumption/injection at boundary node");
-        }
-
         double r = p.asDouble("r");
         double x = p.asDouble("x");
-        double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
-                .setEnsureIdUnicity(false)
-                .setR(r)
-                .setX(x)
-                .setG(gch)
-                .setB(bch)
-                .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
-        identify(dlAdder);
-        connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
-        DanglingLine dl;
-        if (equivalentInjectionConversion != null) {
-            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
-        } else {
-            dl = dlAdder.setP0(f.p())
-                    .setQ0(f.q())
-                    .newGeneration()
-                        .setTargetP(0.0)
-                        .setTargetQ(0.0)
-                        .setTargetV(Double.NaN)
-                        .setVoltageRegulationOn(false)
-                    .add()
-                    .add();
-        }
-        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        double bch = p.asDouble("bch");
 
-        // If we do not have power flow at model side and we can compute it,
-        // do it and assign the result at the terminal of the dangling line
-        if (context.config().computeFlowsAtBoundaryDanglingLines()
-                && terminalConnected(modelSide)
-                && !powerFlow(modelSide).defined()
-                && context.boundary().hasVoltage(boundaryNode)) {
-            double v = context.boundary().vAtBoundary(boundaryNode);
-            double angle = context.boundary().angleAtBoundary(boundaryNode);
-            // The net sum of power flow "entering" at boundary is "exiting"
-            // through the line, we have to change the sign of the sum of flows
-            // at the node when we consider flow at line end
-            double p = dl.getP0() - dl.getGeneration().getTargetP();
-            double q = dl.getQ0() - dl.getGeneration().getTargetQ();
-            SV svboundary = new SV(-p, -q, v, angle);
-            // The other side power flow must be computed taking into account
-            // the same criteria used for ACLineSegment: total shunt admittance
-            // is divided in 2 equal shunt admittance at each side of series impedance
-            double g = dl.getG() / 2;
-            double b = dl.getB() / 2;
-            SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1);
-            dl.getTerminal().setP(svmodel.getP());
-            dl.getTerminal().setQ(svmodel.getQ());
-        }
-    }
-
-    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
-        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
-        if (eis.isEmpty()) {
-            return null;
-        } else if (eis.size() > 1) {
-            // This should not happen
-            // We have decided to create a dangling line,
-            // so only one MAS at this boundary point,
-            // so there must be only one equivalent injection
-            invalid("Multiple equivalent injections at boundary node");
-            return null;
-        } else {
-            return new EquivalentInjectionConversion(eis.get(0), context);
-        }
+        String boundaryNode = nodeId(boundarySide);
+        convertToDanglingLine(boundarySide, r, x, gch, bch, findUcteXnodeCode(boundaryNode));
     }
 
     private String findUcteXnodeCode(String boundaryNode) {
@@ -284,9 +190,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             .setXnodeQ(0)
             .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
         identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
-        connect(adder, boundaryLine1.tsoIidmVoltageLevelId, boundaryLine1.tsoBus, boundaryLine1.tsoTconnected,
-            boundaryLine1.tsoNode, boundaryLine2.tsoIidmVoltageLevelId, boundaryLine2.tsoBus,
-            boundaryLine2.tsoTconnected, boundaryLine2.tsoNode);
+        connect(adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,
+            boundaryLine1.modelNode, boundaryLine2.modelIidmVoltageLevelId, boundaryLine2.modelBus,
+            boundaryLine2.modelTconnected, boundaryLine2.modelNode);
         return adder.add();
     }
 
@@ -314,21 +220,21 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             .setB1(pim.b1)
             .setB2(pim.b2);
         identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
-        connect(adder, boundaryLine1.tsoIidmVoltageLevelId, boundaryLine1.tsoBus, boundaryLine1.tsoTconnected,
-            boundaryLine1.tsoNode, boundaryLine2.tsoIidmVoltageLevelId, boundaryLine2.tsoBus,
-            boundaryLine2.tsoTconnected, boundaryLine2.tsoNode);
+        connect(adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,
+            boundaryLine1.modelNode, boundaryLine2.modelIidmVoltageLevelId, boundaryLine2.modelBus,
+            boundaryLine2.modelTconnected, boundaryLine2.modelNode);
         return adder.add();
     }
 
-    private BoundaryLine fillBoundaryLineFromLine(ACLineSegmentConversion ac, PropertyBag p, String id, String name, int tsoEnd) {
+    private BoundaryLine fillBoundaryLineFromLine(ACLineSegmentConversion ac, PropertyBag p, String id, String name, int modelEnd) {
         BoundaryLine boundaryLine = new BoundaryLine();
 
-        boundaryLine.tsoIidmVoltageLevelId = ac.iidmVoltageLevelId(tsoEnd);
-        boundaryLine.tsoTconnected = ac.terminalConnected(tsoEnd);
-        boundaryLine.tsoBus = ac.busId(tsoEnd);
-        boundaryLine.tsoNode = -1;
+        boundaryLine.modelIidmVoltageLevelId = ac.iidmVoltageLevelId(modelEnd);
+        boundaryLine.modelTconnected = ac.terminalConnected(modelEnd);
+        boundaryLine.modelBus = ac.busId(modelEnd);
+        boundaryLine.modelNode = -1;
         if (context.nodeBreaker()) {
-            boundaryLine.tsoNode = ac.iidmNode(tsoEnd);
+            boundaryLine.modelNode = ac.iidmNode(modelEnd);
         }
 
         boundaryLine.r = p.asDouble("r");
@@ -342,15 +248,15 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         return boundaryLine;
     }
 
-    private BoundaryLine fillBoundaryLineFromSwitch(ACLineSegmentConversion ac, String id, String name, int tsoEnd) {
+    private BoundaryLine fillBoundaryLineFromSwitch(ACLineSegmentConversion ac, String id, String name, int modelEnd) {
         BoundaryLine boundaryLine = new BoundaryLine();
 
-        boundaryLine.tsoIidmVoltageLevelId = ac.iidmVoltageLevelId(tsoEnd);
-        boundaryLine.tsoTconnected = ac.terminalConnected(tsoEnd);
-        boundaryLine.tsoBus = ac.busId(tsoEnd);
-        boundaryLine.tsoNode = -1;
+        boundaryLine.modelIidmVoltageLevelId = ac.iidmVoltageLevelId(modelEnd);
+        boundaryLine.modelTconnected = ac.terminalConnected(modelEnd);
+        boundaryLine.modelBus = ac.busId(modelEnd);
+        boundaryLine.modelNode = -1;
         if (context.nodeBreaker()) {
-            boundaryLine.tsoNode = ac.iidmNode(tsoEnd);
+            boundaryLine.modelNode = ac.iidmNode(modelEnd);
         }
 
         boundaryLine.r = 0.0;
@@ -366,10 +272,10 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
     static class BoundaryLine {
         String id;
         String name;
-        String tsoIidmVoltageLevelId;
-        String tsoBus;
-        boolean tsoTconnected;
-        int tsoNode;
+        String modelIidmVoltageLevelId;
+        String modelBus;
+        boolean modelTconnected;
+        int modelNode;
         double r;
         double x;
         double g;
@@ -443,5 +349,4 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             return pi;
         }
     }
-
 }

@@ -13,13 +13,13 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public abstract class AbstractBranchConversion extends AbstractConductingEquipmentConversion {
+public abstract class AbstractBranchConversion extends AbstractConnectorConversion {
 
     public AbstractBranchConversion(
             String type,
             PropertyBag p,
             Context context) {
-        super(type, p, context, 2);
+        super(type, p, context);
     }
 
     @Override
