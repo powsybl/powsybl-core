@@ -27,6 +27,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.ComparisonResult;
@@ -115,7 +116,7 @@ public class ExportTest {
     }
 
     DiffBuilder diffSv(InputStream expected, InputStream actual) {
-        return selectingSvVoltageSameTopologicalNode(ignoringSvIds(filteredSvObjects(diff(expected, actual))));
+        return selectingEquivalentSvObjects(ignoringSvIds(withSelectedSvObjects(diff(expected, actual))));
     }
 
     private void isOk(Diff diff) {
@@ -132,15 +133,27 @@ public class ExportTest {
     private DiffBuilder diff(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
-        return DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments();
+        return DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().withComparisonListeners((comparison, comparisonResult) -> {
+            if (comparisonResult.equals(ComparisonResult.DIFFERENT)) {
+                LOG.error("comparison {}", comparison.getType());
+                LOG.error("    control {}", comparison.getControlDetails().getXPath());
+                LOG.error("            {}", comparison.getControlDetails().getValue());
+                LOG.error("    test    {}", comparison.getTestDetails().getXPath());
+                LOG.error("            {}", comparison.getTestDetails().getValue());
+                LOG.error("    result  {}", comparisonResult);
+            }
+        });
     }
 
-    private DiffBuilder filteredSvObjects(DiffBuilder diffBuilder) {
-        return diffBuilder.withNodeFilter(n -> {
-            return n.getLocalName().equals("RDF")
-                    || n.getLocalName().equals("SvVoltage")
-                    || n.getLocalName().equals("SvShuntCompensatorSections");
-        });
+    private DiffBuilder withSelectedSvObjects(DiffBuilder diffBuilder) {
+        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvTag(n));
+    }
+
+    private static boolean isConsideredSvTag(Node n) {
+        return n.getLocalName() != null
+                && (n.getLocalName().equals("RDF")
+                        || n.getLocalName().startsWith("SvVoltage")
+                        || n.getLocalName().startsWith("SvShuntCompensatorSections"));
     }
 
     private static DiffBuilder ignoringSvIds(DiffBuilder diffBuilder) {
@@ -153,24 +166,28 @@ public class ExportTest {
         });
     }
 
-    private static DiffBuilder selectingSvVoltageSameTopologicalNode(DiffBuilder diffBuilder) {
+    private static DiffBuilder selectingEquivalentSvObjects(DiffBuilder diffBuilder) {
         Map<String, String> prefixUris = new HashMap<>(2);
         prefixUris.put("cim", CgmesExport.CIM_NAMESPACE);
         prefixUris.put("rdf", CgmesExport.RDF_NAMESPACE);
-        ElementSelector elementSelector = ElementSelectors.conditionalBuilder().whenElementIsNamed("SvVoltage")
-                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris,
-                        ElementSelectors.byNameAndAllAttributes))
-                .elseUse(ElementSelectors.byName).build();
+        ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
+                .whenElementIsNamed("SvShuntCompensatorSections")
+                .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .whenElementIsNamed("SvVoltage")
+                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .elseUse(ElementSelectors.byName)
+                .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
     }
 
     private static Diff compare(DiffBuilder diffBuilder) {
         Diff diff = diffBuilder.build();
         boolean hasDiff = diff.hasDifferences();
-        if (hasDiff && LOG.isDebugEnabled()) {
-            LOG.debug("Differences:");
+        if (hasDiff && LOG.isErrorEnabled()) {
             for (Difference d : diff.getDifferences()) {
-                LOG.debug("  {}", d.getComparison().toString());
+                if (d.getResult() == ComparisonResult.DIFFERENT) {
+                    LOG.error("XML difference {}", d.getComparison().toString());
+                }
             }
         }
         return diff;

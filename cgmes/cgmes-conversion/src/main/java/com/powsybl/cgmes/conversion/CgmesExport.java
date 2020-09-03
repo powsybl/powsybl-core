@@ -182,7 +182,7 @@ public class CgmesExport implements Exporter {
         writer.writeStartElement("cim:SvShuntCompensatorSections.continuousSections");
         writer.writeCharacters(Integer.toString(sections));
         writer.writeEndElement();
-        writer.writeEmptyElement("SvShuntCompensatorSections.ShuntCompensator");
+        writer.writeEmptyElement("cim:SvShuntCompensatorSections.ShuntCompensator");
         writer.writeAttribute("rdf:resource", "#" + shuntCompensatorId);
         writer.writeEndElement();
     }

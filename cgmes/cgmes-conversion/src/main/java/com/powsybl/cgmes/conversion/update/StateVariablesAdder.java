@@ -180,18 +180,24 @@ public class StateVariablesAdder {
         PropertyBags svVoltages = new PropertyBags();
         boundaryNodesFromDanglingLines.forEach((line, tpNodeId) -> {
             DanglingLine dl = network.getDanglingLine(line);
-            Bus b = dl.getTerminal().getBusBreakerView().getBus();
             double v;
             double angle;
-            if (b != null) {
-                Complex v2 = calcVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
-                    dl.getP0(), dl.getQ0());
-                v = v2.abs();
-                angle = Math.toDegrees(v2.getArgument());
+            // If available as a property, use it
+            if (dl.hasProperty("v") && dl.hasProperty("angle")) {
+                v = Double.valueOf(dl.getProperty("v"));
+                angle = Double.valueOf(dl.getProperty("angle"));
             } else {
-                // TODO(Luma) No bus for the dangling line, assume voltage is 0 ?
-                v = 0;
-                angle = 0;
+                // Compute boundary node voltage from known network voltage
+                Bus b = dl.getTerminal().getBusBreakerView().getBus();
+                if (b != null) {
+                    Complex v2 = calcVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(), dl.getP0(), dl.getQ0());
+                    v = v2.abs();
+                    angle = Math.toDegrees(v2.getArgument());
+                } else {
+                    // TODO(Luma) No bus for the dangling line, assume voltage is 0 ?
+                    v = 0;
+                    angle = 0;
+                }
             }
             svVoltages.add(buildSvVoltage(tpNodeId, v, angle));
         });

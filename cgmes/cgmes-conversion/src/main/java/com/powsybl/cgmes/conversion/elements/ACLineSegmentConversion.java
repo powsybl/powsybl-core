@@ -156,6 +156,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // Consider asking explicitly for the topologicalNodeId() instead of nodeId()
         // and then use alias "cgmes.topologicalNode"
         dl.addAlias(nodeId(boundarySide));
+        // Add original value of voltage at boundary as property
+        if (context.boundary().hasVoltage(boundaryNode)) {
+            dl.setProperty("v", Double.toString(context.boundary().vAtBoundary(boundaryNode)));
+            dl.setProperty("angle", Double.toString(context.boundary().angleAtBoundary(boundaryNode)));
+        }
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
