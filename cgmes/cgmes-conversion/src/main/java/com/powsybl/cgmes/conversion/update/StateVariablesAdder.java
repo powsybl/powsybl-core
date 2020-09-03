@@ -51,6 +51,7 @@ public class StateVariablesAdder {
         this.network = Objects.requireNonNull(n);
         this.cimVersion = Integer.parseInt(n.getProperty("CIM_version"));
         this.svContext = Objects.requireNonNull(svContext);
+        this.independantFromCgmesModel = true;
     }
 
     public StateVariablesAdder(CgmesModel cgmes, Network n, String svContext) {
@@ -58,6 +59,11 @@ public class StateVariablesAdder {
         this.network = Objects.requireNonNull(n);
         this.cimVersion = ((CgmesModelTripleStore) cgmes).getCimVersion();
         this.svContext = Objects.requireNonNull(svContext);
+        this.originalTerminals = cgmes.terminals();
+        this.originalFullModel = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
+        this.originalTopologicalIslands = cgmes.topologicalIslands();
+        this.independantFromCgmesModel = false;
+        this.boundaryNodesFromDanglingLines = boundaryNodesFromDanglingLines();
     }
 
     private static String originalSVcontext(CgmesModel cgmes) {
@@ -102,17 +108,30 @@ public class StateVariablesAdder {
     private void addVoltagesForTopologicalNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model
-        if (network.getProperty("CGMES_topology").equals("NODE_BREAKER")) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
-        for (Bus b : network.getBusBreakerView().getBuses()) {
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            p.put(CgmesNames.ANGLE, fs(b.getAngle()));
-            p.put(CgmesNames.VOLTAGE, fs(b.getV()));
-            p.put(CgmesNames.TOPOLOGICAL_NODE, b.getId());
-            voltages.add(p);
+        if (independantFromCgmesModel) {
+            if (network.getProperty("CGMES_topology").equals("NODE_BREAKER")) {
+                // TODO we need to export SV file data for NodeBraker
+                LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
+                return;
+            }
+            for (Bus b : network.getBusBreakerView().getBuses()) {
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                p.put(CgmesNames.TOPOLOGICAL_NODE, b.getId());
+                voltages.add(p);
+            }
+        } else {
+            for (PropertyBag tn : cgmes.topologicalNodes()) {
+                Bus b = network.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                if (b != null) {
+                    p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+                    p.put(CgmesNames.VOLTAGE, fs(b.getV()));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, tn.getId(CgmesNames.TOPOLOGICAL_NODE));
+                    voltages.add(p);
+                }
+            }
         }
         cgmes.add(svContext, "SvVoltage", voltages);
     }
@@ -120,22 +139,43 @@ public class StateVariablesAdder {
     private void addVoltagesForBoundaryNodes() {
         PropertyBags voltages = new PropertyBags();
         // add voltages for TpNodes existing in the Model's boundaries
-        for (DanglingLine dl : network.getDanglingLines()) {
-            PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            if (b != null) {
-                // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
-                        dl.getP0(), dl.getQ0());
-                p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
-                p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, dl.getUcteXnodeCode());
-            } else {
-                p.put(CgmesNames.ANGLE, fs(0.0));
-                p.put(CgmesNames.VOLTAGE, fs(0.0));
-                p.put(CgmesNames.TOPOLOGICAL_NODE, dl.getUcteXnodeCode());
+        if (independantFromCgmesModel) {
+            for (DanglingLine dl : network.getDanglingLines()) {
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                Bus b = dl.getTerminal().getBusBreakerView().getBus();
+                if (b != null) {
+                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
+                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
+                            dl.getP0(), dl.getQ0());
+                    p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
+                    p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, dl.getUcteXnodeCode());
+                } else {
+                    p.put(CgmesNames.ANGLE, fs(0.0));
+                    p.put(CgmesNames.VOLTAGE, fs(0.0));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, dl.getUcteXnodeCode());
+                }
+                voltages.add(p);
             }
-            voltages.add(p);
+        } else {
+            boundaryNodesFromDanglingLines.forEach((line, bnode) -> {
+                PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
+                DanglingLine dl = network.getDanglingLine(line);
+                Bus b = dl.getTerminal().getBusBreakerView().getBus();
+                if (b != null) {
+                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
+                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
+                            dl.getP0(), dl.getQ0());
+                    p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
+                    p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                } else {
+                    p.put(CgmesNames.ANGLE, fs(0.0));
+                    p.put(CgmesNames.VOLTAGE, fs(0.0));
+                    p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
+                }
+                voltages.add(p);
+            });
         }
         cgmes.add(svContext, "SvVoltage", voltages);
     }
@@ -149,17 +189,34 @@ public class StateVariablesAdder {
         addInjectionPowerFlowToCgmes(powerFlows, network.getBatteries());
 
         // PowerFlow at boundaries set as it was in original cgmes.
-        for (DanglingLine dl : network.getDanglingLines()) {
-            if (!Boolean.parseBoolean(dl.getProperty("hasPowerFlow"))) {
-                continue;
+        if (independantFromCgmesModel) {
+            for (DanglingLine dl : network.getDanglingLines()) {
+                if (!Boolean.parseBoolean(dl.getProperty("hasPowerFlow"))) {
+                    continue;
+                }
+                String boundarySideStr = dl.getProperty("boundarySide");
+                if (boundarySideStr != null) {
+                    PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+                    p.put("p", String.valueOf(dl.getP0()));
+                    p.put("q", String.valueOf(dl.getQ0()));
+                    p.put(CgmesNames.TERMINAL, dl.getProperty(CgmesNames.TERMINAL + boundarySideStr));
+                    powerFlows.add(p);
+                }
             }
-            String boundarySideStr = dl.getProperty("boundarySide");
-            if (boundarySideStr != null) {
-                PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-                p.put("p", String.valueOf(dl.getP0()));
-                p.put("q", String.valueOf(dl.getQ0()));
-                p.put(CgmesNames.TERMINAL, dl.getProperty(CgmesNames.TERMINAL + boundarySideStr));
-                powerFlows.add(p);
+        } else {
+            for (PropertyBag terminal : originalTerminals) {
+                if (terminal.getId("SvPowerFlow") == null) {
+                    continue;
+                }
+                boundaryNodesFromDanglingLines.values().forEach(value -> {
+                    if (CgmesTerminal.topologicalNode(terminal).equals(value)) {
+                        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+                        p.put("p", terminal.getId("p"));
+                        p.put("q", terminal.getId("q"));
+                        p.put(CgmesNames.TERMINAL, terminal.getId(CgmesNames.TERMINAL));
+                        powerFlows.add(p);
+                    }
+                });
             }
         }
         cgmes.add(svContext, "SvPowerFlow", powerFlows);
@@ -200,11 +257,19 @@ public class StateVariablesAdder {
             // then we would not need to query the CGMES model
             if (hasPhaseTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                if (independantFromCgmesModel) {
+                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                } else {
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                }
                 tapSteps.add(p);
             } else if (hasRatioTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                if (independantFromCgmesModel) {
+                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                } else {
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                }
                 tapSteps.add(p);
             }
         }
@@ -214,11 +279,19 @@ public class StateVariablesAdder {
             Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
                 if (hasPhaseTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                    if (independantFromCgmesModel) {
+                        p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                    } else {
+                        p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                    }
                     tapSteps.add(p);
                 } else if (hasRatioTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                    if (independantFromCgmesModel) {
+                        p.put(CgmesNames.TAP_CHANGER, t.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER).orElseThrow(PowsyblException::new));
+                    } else {
+                        p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                    }
                     tapSteps.add(p);
                 }
             });
@@ -259,15 +332,53 @@ public class StateVariablesAdder {
                 });
 
         // SvStatus at boundaries set as it was in original cgmes.
-        for (DanglingLine dl : network.getDanglingLines()) {
-            if (dl.hasProperty(IN_SERVICE)) {
-                PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
-                p.put(IN_SERVICE, dl.getProperty(IN_SERVICE));
-                p.put(CgmesNames.CONDUCTING_EQUIPMENT, dl.getId());
-                svStatus.add(p);
+        if (independantFromCgmesModel) {
+            for (DanglingLine dl : network.getDanglingLines()) {
+                if (dl.hasProperty(IN_SERVICE)) {
+                    PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                    p.put(IN_SERVICE, dl.getProperty(IN_SERVICE));
+                    p.put(CgmesNames.CONDUCTING_EQUIPMENT, dl.getId());
+                    svStatus.add(p);
+                }
+            }
+        } else {
+            for (PropertyBag terminal : originalTerminals) {
+                if (terminal.getId("SvStatus") == null) {
+                    continue;
+                }
+                boundaryNodesFromDanglingLines.values().forEach(value -> {
+                    if (terminal.getId(CgmesNames.TOPOLOGICAL_NODE).equals(value)) {
+                        PropertyBag p = new PropertyBag(SV_SVSTATUS_PROPERTIES);
+                        p.put(IN_SERVICE, terminal.getId(IN_SERVICE));
+                        p.put(CgmesNames.CONDUCTING_EQUIPMENT, terminal.getId(CgmesNames.CONDUCTING_EQUIPMENT));
+                        svStatus.add(p);
+                    }
+                });
             }
         }
         cgmes.add(svContext, "SvStatus", svStatus);
+    }
+
+    private Map<String, String> boundaryNodesFromDanglingLines() {
+        Map<String, String> nodesFromLines = new HashMap<>();
+        List<String> boundaryNodes = cgmes.boundaryNodes().pluckLocals("Node");
+
+        for (PropertyBag line : cgmes.acLineSegments()) {
+            String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
+            // we need only acLinesSegments that were converted into DanglingLines
+            if (network.getDanglingLine(lineId) == null) {
+                continue;
+            }
+            String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
+            String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
+            // find not null boundary node for line
+            if (boundaryNodes.contains(tpNode1)) {
+                nodesFromLines.put(lineId, tpNode1);
+            } else if (boundaryNodes.contains(tpNode2)) {
+                nodesFromLines.put(lineId, tpNode2);
+            }
+        }
+        return nodesFromLines;
     }
 
     private static Complex complexVoltage(double r, double x, double g, double b,
@@ -290,7 +401,12 @@ public class StateVariablesAdder {
     private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
         // TODO If we could store a terminal identifier in IIDM
         // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL + sequenceNumber).orElse(null);
+        String cgmesTerminal;
+        if (independantFromCgmesModel) {
+            cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL + sequenceNumber).orElse(null);
+        } else {
+            cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
+        }
         if (cgmesTerminal == null) {
             return null;
         }
@@ -310,53 +426,80 @@ public class StateVariablesAdder {
         // TopologicalNodes.
         // Also, there can be > 1 TopologicalIsland, so we need to re-group PropertyBags
         // by TopologicalIsland ID.
-        Map<Integer, List<String>> islands = new HashMap<>();
-        Map<Integer, String> angleRefs = new HashMap<>();
-        if (network.getProperty("CGMES_topology").equals("NODE_BREAKER")) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            if (slackTerminal != null) {
-                angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum(),
-                        slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
-            }
-        }
-        for (Bus b : network.getBusBreakerView().getBuses()) {
-            if (b.getSynchronousComponent() != null) {
-                int num = b.getSynchronousComponent().getNum();
-                islands.computeIfAbsent(num, i -> new ArrayList<>());
-                islands.get(num).add(b.getId());
-            }
-        }
-        // now we can process all TPNodes from each island, and put them in one
-        // multivaluedProperty.
         PropertyBags topologicalIslands = new PropertyBags();
-        islands.forEach((num, tps) -> {
-            PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
-            topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
-            topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
-            topologicalIsland.put(CgmesNames.NAME, "TPI#" + num);
-            if (angleRefs.containsKey(num)) {
-                topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, angleRefs.get(num));
-            } else {
-                boolean angleRefFound = false;
-                for (String tp : tps) {
-                    if (network.getBusBreakerView().getBus(tp).getAngle() == 0) {
-                        topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, tp);
-                        angleRefFound = true;
-                        break;
+        if (independantFromCgmesModel) {
+            Map<Integer, List<String>> islands = new HashMap<>();
+            Map<Integer, String> angleRefs = new HashMap<>();
+            if (network.getProperty("CGMES_topology").equals("NODE_BREAKER")) {
+                // TODO we need to export SV file data for NodeBraker
+                LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
+                return;
+            }
+            for (VoltageLevel vl : network.getVoltageLevels()) {
+                SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+                if (slackTerminal != null) {
+                    angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum(),
+                            slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
+                }
+            }
+            for (Bus b : network.getBusBreakerView().getBuses()) {
+                if (b.getSynchronousComponent() != null) {
+                    int num = b.getSynchronousComponent().getNum();
+                    islands.computeIfAbsent(num, i -> new ArrayList<>());
+                    islands.get(num).add(b.getId());
+                }
+            }
+            // now we can process all TPNodes from each island, and put them in one
+            // multivaluedProperty.
+            islands.forEach((num, tps) -> {
+                PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
+                topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
+                topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
+                topologicalIsland.put(CgmesNames.NAME, "TPI#" + num); // TODO does it need to change?
+                if (angleRefs.containsKey(num)) {
+                    topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, angleRefs.get(num));
+                } else {
+                    boolean angleRefFound = false;
+                    for (String tp : tps) {
+                        if (network.getBusBreakerView().getBus(tp).getAngle() == 0) {
+                            topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, tp);
+                            angleRefFound = true;
+                            break;
+                        }
+                    }
+                    if (!angleRefFound) {
+                        topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, tps.get(0));
                     }
                 }
-                if (!angleRefFound) {
-                    topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE, tps.get(0));
+                topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES, String.join(",", tps));
+                topologicalIslands.add(topologicalIsland);
+            });
+        } else {
+            Map<String, PropertyBags> byTopologicalIslandId = new HashMap<>();
+            originalTopologicalIslands.forEach(pb -> {
+                String island = pb.getId(CgmesNames.TOPOLOGICAL_ISLAND);
+                if (byTopologicalIslandId.keySet().contains(island)) {
+                    byTopologicalIslandId.get(island).add(pb);
+                } else {
+                    PropertyBags pbs = new PropertyBags();
+                    pbs.add(pb);
+                    byTopologicalIslandId.put(island, pbs);
                 }
-            }
-            topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES, String.join(",", tps));
-            topologicalIslands.add(topologicalIsland);
-        });
+            });
+            // now we can process all TPNodes from each island, and put them in one
+            // multivaluedProperty.
+            byTopologicalIslandId.values().forEach(island -> {
+                PropertyBag topologicalIsland = new PropertyBag(SV_TOPOLOGICALISLAND_PROPERTIES);
+                topologicalIsland.setClassPropertyNames(Collections.singletonList(CgmesNames.NAME));
+                topologicalIsland.setMultivaluedProperty(Collections.singletonList("TopologicalNodes"));
+                topologicalIsland.put(CgmesNames.NAME, island.get(0).getId("name"));
+                topologicalIsland.put(CgmesNames.ANGLEREF_TOPOLOGICALNODE,
+                        island.get(0).getId(CgmesNames.ANGLEREF_TOPOLOGICALNODE));
+                topologicalIsland.put(CgmesNames.TOPOLOGICAL_NODES,
+                        String.join(",", island.pluckLocals(CgmesNames.TOPOLOGICAL_NODES)));
+                topologicalIslands.add(topologicalIsland);
+            });
+        }
         cgmes.add(svContext, CgmesNames.TOPOLOGICAL_ISLAND, topologicalIslands);
     }
 
@@ -369,20 +512,41 @@ public class StateVariablesAdder {
         // number of values, SPARQL will return multiple result sets.
         // All are equal, except the multiValued property value.
         PropertyBag newModelDescription = new PropertyBag(SV_FULLMODEL_PROPERTIES);
-        newModelDescription
-                .setClassPropertyNames(
-                        Arrays.asList(CgmesNames.SCENARIO_TIME, CgmesNames.CREATED, CgmesNames.DESCRIPTION,
-                                CgmesNames.VERSION, CgmesNames.DEPENDENT_ON, CgmesNames.PROFILE,
-                                CgmesNames.MODELING_AUTHORITY_SET));
-        newModelDescription.setMultivaluedProperty(Collections.singletonList(CgmesNames.DEPENDENT_ON));
-        newModelDescription.put(CgmesNames.SCENARIO_TIME, network.getProperty(CgmesNames.SCENARIO_TIME));
-        newModelDescription.put(CgmesNames.CREATED, DateTime.now().toString());
-        newModelDescription.put(CgmesNames.DESCRIPTION, network.getProperty(CgmesNames.DESCRIPTION));
-        newModelDescription.put(CgmesNames.VERSION, String.valueOf(Integer.parseInt(network.getProperty(CgmesNames.VERSION)) + 1));
-        newModelDescription.put(CgmesNames.DEPENDENT_ON, network.getProperty(CgmesNames.DEPENDENT_ON));
-        newModelDescription.put(CgmesNames.PROFILE, "http://entsoe.eu/CIM/StateVariables/4/1");
-        newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET, network.getProperty(CgmesNames.MODELING_AUTHORITY_SET));
-        fullModelSV.add(newModelDescription);
+        if (independantFromCgmesModel && cimVersion == 16) {
+            newModelDescription
+                    .setClassPropertyNames(
+                            Arrays.asList(CgmesNames.SCENARIO_TIME, CgmesNames.CREATED, CgmesNames.DESCRIPTION,
+                                    CgmesNames.VERSION, CgmesNames.DEPENDENT_ON, CgmesNames.PROFILE,
+                                    CgmesNames.MODELING_AUTHORITY_SET));
+            newModelDescription.setMultivaluedProperty(Collections.singletonList(CgmesNames.DEPENDENT_ON));
+            newModelDescription.put(CgmesNames.SCENARIO_TIME, network.getProperty(CgmesNames.SCENARIO_TIME));
+            newModelDescription.put(CgmesNames.CREATED, DateTime.now().toString());
+            newModelDescription.put(CgmesNames.DESCRIPTION, network.getProperty(CgmesNames.DESCRIPTION));
+            newModelDescription.put(CgmesNames.VERSION, String.valueOf(Integer.parseInt(network.getProperty(CgmesNames.VERSION)) + 1));
+            newModelDescription.put(CgmesNames.DEPENDENT_ON, network.getProperty(CgmesNames.DEPENDENT_ON));
+            newModelDescription.put(CgmesNames.PROFILE, "http://entsoe.eu/CIM/StateVariables/4/1");
+            newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET, network.getProperty(CgmesNames.MODELING_AUTHORITY_SET));
+            fullModelSV.add(newModelDescription);
+        } else {
+            if (!originalFullModel.isEmpty()) {
+                newModelDescription
+                        .setClassPropertyNames(
+                                Arrays.asList(CgmesNames.SCENARIO_TIME, CgmesNames.CREATED, CgmesNames.DESCRIPTION,
+                                        CgmesNames.VERSION, CgmesNames.DEPENDENT_ON, CgmesNames.PROFILE,
+                                        CgmesNames.MODELING_AUTHORITY_SET));
+                newModelDescription.setMultivaluedProperty(Collections.singletonList(CgmesNames.DEPENDENT_ON));
+                newModelDescription.put(CgmesNames.SCENARIO_TIME, originalFullModel.get(0).getId("scenarioTime"));
+                newModelDescription.put(CgmesNames.CREATED, originalFullModel.get(0).getId("created"));
+                newModelDescription.put(CgmesNames.DESCRIPTION, originalFullModel.get(0).getId("description"));
+                newModelDescription.put(CgmesNames.VERSION, originalFullModel.get(0).getId("version"));
+                newModelDescription.put(CgmesNames.DEPENDENT_ON,
+                        String.join(",", originalFullModel.pluckLocals("DependentOn")));
+                newModelDescription.put(CgmesNames.PROFILE, originalFullModel.get(0).getId("profile"));
+                newModelDescription.put(CgmesNames.MODELING_AUTHORITY_SET,
+                        originalFullModel.get(0).getId("modelingAuthoritySet"));
+                fullModelSV.add(newModelDescription);
+            }
+        }
         cgmes.add(svContext, CgmesNames.FULL_MODEL, fullModelSV);
     }
 
@@ -399,9 +563,14 @@ public class StateVariablesAdder {
     }
 
     private final CgmesModel cgmes;
+    private final boolean independantFromCgmesModel;
     private final Network network;
     private final int cimVersion;
     private final String svContext;
+    private PropertyBags originalTerminals; // old way
+    private PropertyBags originalFullModel; // old way
+    private PropertyBags originalTopologicalIslands; // old way
+    private Map<String, String> boundaryNodesFromDanglingLines; // old way
     private static final String IN_SERVICE = "inService";
 
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE,
