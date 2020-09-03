@@ -21,61 +21,41 @@ public class PsseRawModel35 extends PsseRawModel {
 
     @Override
     public void addLoads(List<PsseLoad> loads) {
-        loads.forEach(load -> {
-            if (load instanceof PsseLoad35) {
-                System.err.printf("es PsseLoad35 %n");
-            } else {
-                System.err.printf("es PsseLoad %n");
-            }
-        });
+        if (loads.stream().anyMatch(load -> !(load instanceof PsseLoad35))) {
+            throw new PsseException("PsseRawModel35. Unexpected instanceof load");
+        }
         getLoads().addAll(loads);
     }
 
     @Override
     public void addGenerators(List<PsseGenerator> generators) {
-        generators.forEach(generator -> {
-            if (generator instanceof PsseGenerator35) {
-                System.err.printf("es PsseGenerator35 %n");
-            } else {
-                System.err.printf("es PsseGenerator %n");
-            }
-        });
+        if (generators.stream().anyMatch(generator -> !(generator instanceof PsseGenerator35))) {
+            throw new PsseException("PsseRawModel35. Unexpected instanceof generator");
+        }
         getGenerators().addAll(generators);
     }
 
     @Override
     public void addNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
-        nonTransformerBranches.forEach(nonTransformerBranch -> {
-            if (nonTransformerBranch instanceof PsseNonTransformerBranch35) {
-                System.err.printf("es NonTransformerBranche35 %n");
-            } else {
-                System.err.printf("es NonTransformerBranche %n");
-            }
-        });
+        if (nonTransformerBranches.stream().anyMatch(nonTransformerBranch -> !(nonTransformerBranch instanceof PsseNonTransformerBranch35))) {
+            throw new PsseException("PsseRawModel35. Unexpected instanceof nonTransformerBranch");
+        }
         getNonTransformerBranches().addAll(nonTransformerBranches);
     }
 
     @Override
     public void addTransformers(List<PsseTransformer> transformers) {
-        transformers.forEach(transformer -> {
-            if (transformer instanceof PsseTransformer35) {
-                System.err.printf("es PsseTransformer35 %n");
-            } else {
-                System.err.printf("es PsseTransformer %n");
-            }
-        });
+        if (transformers.stream().anyMatch(transformer -> !(transformer instanceof PsseTransformer35))) {
+            throw new PsseException("PsseRawModel35. Unexpected instanceof transformer");
+        }
         getTransformers().addAll(transformers);
     }
 
     @Override
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
-        switchedShunts.forEach(switchedShunt -> {
-            if (switchedShunt instanceof PsseSwitchedShunt35) {
-                System.err.printf("es PsseSwitchedShunt35 %n");
-            } else {
-                System.err.printf("es PsseSwitchedShunt %n");
-            }
-        });
+        if (switchedShunts.stream().anyMatch(switchedShunt -> !(switchedShunt instanceof PsseSwitchedShunt35))) {
+            throw new PsseException("PsseRawModel35. Unexpected instanceof switchedShunt");
+        }
         getSwitchedShunts().addAll(switchedShunts);
     }
 }
