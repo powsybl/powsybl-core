@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -81,21 +82,25 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvModelDescription(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
+        if (svMetadata == null) {
+            return;
+        }
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(network.getProperty(CgmesNames.SCENARIO_TIME));
+        writer.writeCharacters(svMetadata.getScenarioTime());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(DateTime.now().toString());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
-        writer.writeCharacters(network.getProperty(CgmesNames.DESCRIPTION));
+        writer.writeCharacters(svMetadata.getDescription());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(network.hasProperty(CgmesNames.VERSION) ? String.valueOf(Integer.parseInt(network.getProperty(CgmesNames.VERSION)) + 1) : "1");
+        writer.writeCharacters(is(svMetadata.getSvVersion()));
         writer.writeEndElement();
-        for (String dependency : network.getProperty(CgmesNames.DEPENDENT_ON).split(",")) {
+        for (String dependency : svMetadata.getDependencies()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
@@ -103,7 +108,7 @@ public final class StateVariablesExport {
         writer.writeCharacters("http://entsoe.eu/CIM/StateVariables/4/1");
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
-        writer.writeCharacters(network.getProperty(CgmesNames.MODELING_AUTHORITY_SET)); // TODO: what do you put for mergingView?
+        writer.writeCharacters(svMetadata.getModelingAuthoritySet()); // TODO: what do you put for mergingView?
         writer.writeEndElement();
         writer.writeEndElement();
     }
