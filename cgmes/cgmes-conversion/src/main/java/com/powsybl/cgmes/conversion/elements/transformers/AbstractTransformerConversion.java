@@ -17,6 +17,9 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.List;
+import java.util.Optional;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -101,13 +104,19 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     @Override
     protected void addAliases(Identifiable<?> identifiable) {
         super.addAliases(identifiable);
-        String ptc = context.cgmes().phaseTapChangerForPowerTransformer(identifiable.getId());
-        if (ptc != null) {
-            identifiable.addAlias(ptc, CgmesNames.PHASE_TAP_CHANGER);
+        List<String> ptcs = context.cgmes().phaseTapChangerListForPowerTransformer(identifiable.getId());
+        if (ptcs != null) {
+            for (int  i = 0; i < ptcs.size(); i++) {
+                int index = i + 1;
+                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, CgmesNames.PHASE_TAP_CHANGER + index));
+            }
         }
-        String rtc = context.cgmes().ratioTapChangerForPowerTransformer(identifiable.getId());
-        if (rtc != null) {
-            identifiable.addAlias(rtc, CgmesNames.RATIO_TAP_CHANGER);
+        List<String> rtcs = context.cgmes().ratioTapChangerListForPowerTransformer(identifiable.getId());
+        if (rtcs != null) {
+            for (int i = 0; i < rtcs.size(); i++) {
+                int index = i + 1;
+                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, CgmesNames.RATIO_TAP_CHANGER + index));
+            }
         }
     }
 }
