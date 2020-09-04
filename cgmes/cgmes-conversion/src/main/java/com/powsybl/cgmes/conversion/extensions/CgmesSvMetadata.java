@@ -8,7 +8,6 @@ package com.powsybl.cgmes.conversion.extensions;
 
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
-import org.joda.time.DateTime;
 
 import java.util.List;
 

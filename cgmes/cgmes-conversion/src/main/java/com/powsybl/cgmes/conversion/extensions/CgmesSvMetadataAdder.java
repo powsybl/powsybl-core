@@ -8,7 +8,6 @@ package com.powsybl.cgmes.conversion.extensions;
 
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
-import org.joda.time.DateTime;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
