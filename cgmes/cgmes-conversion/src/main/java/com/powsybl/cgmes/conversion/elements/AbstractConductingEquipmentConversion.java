@@ -154,6 +154,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             : terminals[n - 1].t.topologicalNode();
     }
 
+    protected String topologicalNodeId(int n) {
+        return terminals[n - 1].t.topologicalNode();
+    }
+
     boolean isBoundary(int n) {
         return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
     }

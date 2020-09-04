@@ -74,8 +74,9 @@ class NetworkIndex {
                 // Silently ignore affecting the same alias twice to an object
                 return false;
             }
-            String message = String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+            String message = String.format("Object (%s) with id '%s' with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
                     obj.getClass(),
+                    obj.getId(),
                     alias,
                     aliasConflict.getClass(),
                     aliasConflict.getId());

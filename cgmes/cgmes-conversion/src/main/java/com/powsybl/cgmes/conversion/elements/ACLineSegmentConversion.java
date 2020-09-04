@@ -157,10 +157,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         dl.setProperty("hasPowerFlow", String.valueOf(context.boundary().hasPowerFlow(boundaryNode)));
         context.cgmes().terminal(terminalId(boundarySide)).inService().ifPresent(inService -> dl.setProperty("inService", String.valueOf(inService)));
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
-        // FIXME(Luma) use typed Alias "cgmes.node"
-        // Consider asking explicitly for the topologicalNodeId() instead of nodeId()
-        // and then use alias "cgmes.topologicalNode"
-        dl.addAlias(nodeId(boundarySide));
+        dl.addAlias(topologicalNodeId(boundarySide), CgmesNames.TOPOLOGICAL_NODE);
         // Add original value of voltage at boundary as property
         if (context.boundary().hasVoltage(boundaryNode)) {
             dl.setProperty("v", Double.toString(context.boundary().vAtBoundary(boundaryNode)));

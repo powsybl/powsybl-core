@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -29,6 +30,7 @@ import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -154,9 +156,12 @@ public class CgmesExport implements Exporter {
         }
         // Voltages at boundary nodes of dangling lines
         for (DanglingLine dl : network.getDanglingLines()) {
-            // FIXME(Luma) Obtain from typed alias cgmes.topologicalNode
-            String topologicalNode = dl.getAliases().iterator().next();
-            writeSvVoltage(writer, topologicalNode, Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
+            Optional<String> topologicalNode = dl.getAliasFromType(CgmesNames.TOPOLOGICAL_NODE);
+            if (topologicalNode.isPresent()) {
+                writeSvVoltage(writer, topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
+            } else {
+                throw new PowsyblException("Missing topologicalNode at danglingLine " + dl.getId());
+            }
         }
         // Voltages at inner nodes of Tie Lines
         // (boundary nodes that have been left inside CGM)

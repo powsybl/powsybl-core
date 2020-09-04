@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
+import org.xmlunit.diff.Comparison;
 import org.xmlunit.diff.ComparisonResult;
 import org.xmlunit.diff.ComparisonType;
 import org.xmlunit.diff.DefaultNodeMatcher;
@@ -102,7 +103,8 @@ public class ExportTest {
         compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SSH", this::diffSSH, ds.getBaseName());
     }
 
-    private void compare(DataSource dsExpected, DataSource dsActual, String profile, BiFunction<InputStream, InputStream, DiffBuilder> diff, String originalBaseName) throws IOException {
+    private void compare(DataSource dsExpected, DataSource dsActual, String profile, BiFunction<InputStream, InputStream, DiffBuilder> diff, String originalBaseName)
+            throws IOException {
         String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
         String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
         LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
@@ -146,16 +148,38 @@ public class ExportTest {
     private DiffBuilder diff(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
-        return DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().withComparisonListeners((comparison, comparisonResult) -> {
-            if (comparisonResult.equals(ComparisonResult.DIFFERENT)) {
-                LOG.error("comparison {}", comparison.getType());
-                LOG.error("    control {}", comparison.getControlDetails().getXPath());
-                LOG.error("            {}", comparison.getControlDetails().getValue());
-                LOG.error("    test    {}", comparison.getTestDetails().getXPath());
-                LOG.error("            {}", comparison.getTestDetails().getValue());
-                LOG.error("    result  {}", comparisonResult);
+        return DiffBuilder.compare(control).withTest(test)
+                .ignoreWhitespace()
+                .ignoreComments()
+                .withComparisonListeners(ExportTest::debugComparison);
+    }
+
+    private static void debugComparison(Comparison comparison, ComparisonResult comparisonResult) {
+        if (comparisonResult.equals(ComparisonResult.DIFFERENT)) {
+            LOG.error("comparison {}", comparison.getType());
+            LOG.error("    control {}", comparison.getControlDetails().getXPath());
+            debugNode(comparison.getControlDetails().getTarget());
+            LOG.error("    test    {}", comparison.getTestDetails().getXPath());
+            debugNode(comparison.getTestDetails().getTarget());
+            LOG.error("    result  {}", comparisonResult);
+        }
+    }
+
+    private static void debugNode(Node n) {
+        if (n != null) {
+            int maxNodes = 5;
+            for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
+                Node n1 = n.getChildNodes().item(k);
+                LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
+                Node r = n1.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "resource");
+                if (r != null) {
+                    LOG.error("            rdf:resource = {}", r.getTextContent());
+                }
             }
-        });
+            if (n.getChildNodes().getLength() > maxNodes) {
+                LOG.error("            ...");
+            }
+        }
     }
 
     private DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
@@ -214,7 +238,7 @@ public class ExportTest {
         if (hasDiff && LOG.isErrorEnabled()) {
             for (Difference d : diff.getDifferences()) {
                 if (d.getResult() == ComparisonResult.DIFFERENT) {
-                    LOG.error("XML difference {}", d.getComparison().toString());
+                    LOG.error("XML difference {}", d.getComparison());
                 }
             }
         }
