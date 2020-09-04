@@ -66,7 +66,7 @@ public class CgmesExport implements Exporter {
             if (ext == null) {
                 throw new CgmesModelException("CGMES model is required and not found in Network extension");
             }
-            exportUsingOriginalCgmesModel(network, params, ds, ext);
+            exportUsingOriginalCgmesModel(network, ds, ext);
         }
     }
 
@@ -99,15 +99,19 @@ public class CgmesExport implements Exporter {
         String baseName = network.getProperty("baseName");
         String filename = baseName + "_" + profileSuffix + ".xml";
         try (OutputStream os = ds.newOutputStream(filename, false); BufferedOutputStream bos = new BufferedOutputStream(os)) {
-            try {
-                XMLStreamWriter writer = initializeWriter(bos);
-                exporter.accept(network, writer);
-                writer.writeEndDocument();
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
+            export(network, bos, exporter);
         } catch (IOException x) {
             throw new PowsyblException("Exporting to CGMES using only Network");
+        }
+    }
+
+    private void export(Network network, OutputStream os, BiConsumer<Network, XMLStreamWriter> exporter) {
+        try {
+            XMLStreamWriter writer = initializeWriter(os);
+            exporter.accept(network, writer);
+            writer.writeEndDocument();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
@@ -248,7 +252,7 @@ public class CgmesExport implements Exporter {
         return writer;
     }
 
-    private void exportUsingOriginalCgmesModel(Network network, Properties params, DataSource ds, CgmesModelExtension ext) {
+    private void exportUsingOriginalCgmesModel(Network network, DataSource ds, CgmesModelExtension ext) {
         CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
