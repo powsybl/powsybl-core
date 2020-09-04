@@ -36,7 +36,10 @@ public final class StateVariablesExport {
     private static final String DATA_NAMESPACE = "http://microgrid/#";
 
     private static final String ID = "ID";
-    private static final String RESOURCE = "resource";
+
+    private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
+    private static final String SV_VOLTAGE_V = "SvVoltage.v";
+    private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
 
     private static final String CIM_VERSION = "CIM_version";
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
@@ -94,7 +97,7 @@ public final class StateVariablesExport {
         writer.writeEndElement();
         for (String dependency : network.getProperty(CgmesNames.DEPENDENT_ON).split(",")) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, RESOURCE, dependency);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters("http://entsoe.eu/CIM/StateVariables/4/1");
@@ -135,10 +138,10 @@ public final class StateVariablesExport {
             writer.writeCharacters(getUniqueId()); // TODO do we need another name?
             writer.writeEndElement();
             writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + angleRefs.getOrDefault(island.getKey(), island.getValue().get(0)));
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.getOrDefault(island.getKey(), island.getValue().get(0)));
             for (String tn : island.getValue()) {
                 writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
-                writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + tn);
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
             }
             writer.writeEndElement();
         }
@@ -153,14 +156,14 @@ public final class StateVariablesExport {
         for (Bus b : network.getBusBreakerView().getBuses()) {
             writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
             writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.angle");
+            writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
             writer.writeCharacters(fs(b.getAngle()));
             writer.writeEndElement();
-            writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.v");
+            writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
             writer.writeCharacters(fs(b.getV()));
             writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, "SvVoltage.TopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + b.getId());
+            writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + b.getId());
             writer.writeEndElement();
         }
     }
@@ -173,23 +176,23 @@ public final class StateVariablesExport {
                 // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
                 Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
                         dl.getP0(), dl.getQ0());
-                writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.angle");
+                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
                 writer.writeCharacters(fs(Math.toDegrees(v2.getArgument())));
                 writer.writeEndElement();
-                writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.v");
+                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
                 writer.writeCharacters(fs(v2.abs()));
                 writer.writeEndElement();
-                writer.writeEmptyElement(CIM_NAMESPACE, "SvVoltage.TopologicalNode");
-                writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + dl.getUcteXnodeCode());
+                writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dl.getUcteXnodeCode());
             } else {
-                writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.angle");
+                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
                 writer.writeCharacters("0.0");
                 writer.writeEndElement();
-                writer.writeStartElement(CIM_NAMESPACE, "SvVoltage.v");
+                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
                 writer.writeCharacters("0.0");
                 writer.writeEndElement();
-                writer.writeEmptyElement(CIM_NAMESPACE, "SvVoltage.TopologicalNode");
-                writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + dl.getUcteXnodeCode());
+                writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dl.getUcteXnodeCode());
             }
             writer.writeEndElement();
         }
@@ -217,7 +220,7 @@ public final class StateVariablesExport {
                 writer.writeCharacters(String.valueOf(dl.getQ0()));
                 writer.writeEndElement();
                 writer.writeEmptyElement(CIM_NAMESPACE, "SvPowerFlow.Terminal");
-                writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + dl.getProperty(CgmesNames.TERMINAL + boundarySideStr));
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dl.getProperty(CgmesNames.TERMINAL + boundarySideStr));
                 writer.writeEndElement();
             }
         }
@@ -240,7 +243,7 @@ public final class StateVariablesExport {
                 writer.writeCharacters(fs(terminal.getQ()));
                 writer.writeEndElement();
                 writer.writeEmptyElement(CIM_NAMESPACE, "SvPowerFlow.Terminal");
-                writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + cgmesTerminal);
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + cgmesTerminal);
                 writer.writeEndElement();
             } catch (XMLStreamException e) {
                 throw new UncheckedXmlStreamException(e);
@@ -256,7 +259,7 @@ public final class StateVariablesExport {
             writer.writeStartElement(CIM_NAMESPACE, "SvShuntCompensatorSections");
             writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
             writer.writeEmptyElement(CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + s.getId());
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
             writer.writeStartElement(CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
             writer.writeCharacters(is(s.getSectionCount()));
             writer.writeEndElement();
@@ -296,7 +299,7 @@ public final class StateVariablesExport {
         writer.writeCharacters(is(tapPosition));
         writer.writeEndElement();
         writer.writeEmptyElement(CIM_NAMESPACE, "SvTapStep.TapChanger");
-        writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + tapChangerId);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
         writer.writeEndElement();
     }
 
@@ -323,7 +326,7 @@ public final class StateVariablesExport {
             writer.writeCharacters(inService);
             writer.writeEndElement();
             writer.writeEmptyElement(CIM_NAMESPACE, "SvStatus.ConductingEquipment");
-            writer.writeAttribute(RDF_NAMESPACE, RESOURCE, "#" + conductingEquipmentId);
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
