@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMetadata> implements CgmesSvMetadataAdder {
 
-    private DateTime scenarioTime;
+    private String scenarioTime;
     private String description;
     private int svVersion;
     private final List<String> dependencies = new ArrayList<>();
@@ -30,7 +30,7 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
     }
 
     @Override
-    public CgmesSvMetadataAdder setScenarioTime(DateTime scenarioTime) {
+    public CgmesSvMetadataAdder setScenarioTime(String scenarioTime) {
         this.scenarioTime = scenarioTime;
         return this;
     }
