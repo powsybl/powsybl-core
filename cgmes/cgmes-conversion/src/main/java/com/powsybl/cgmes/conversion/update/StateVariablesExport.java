@@ -93,7 +93,7 @@ public final class StateVariablesExport {
         writer.writeCharacters(network.getProperty(CgmesNames.DESCRIPTION));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(String.valueOf(Integer.parseInt(network.getProperty(CgmesNames.VERSION)) + 1));
+        writer.writeCharacters(network.hasProperty(CgmesNames.VERSION) ? String.valueOf(Integer.parseInt(network.getProperty(CgmesNames.VERSION)) + 1 ) : "1");
         writer.writeEndElement();
         for (String dependency : network.getProperty(CgmesNames.DEPENDENT_ON).split(",")) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
