@@ -15,7 +15,7 @@ import org.joda.time.DateTime;
  */
 public interface CgmesSvMetadataAdder extends ExtensionAdder<Network, CgmesSvMetadata> {
 
-    CgmesSvMetadataAdder setScenarioTime(DateTime scenarioTime);
+    CgmesSvMetadataAdder setScenarioTime(String scenarioTime);
 
     CgmesSvMetadataAdder setDescription(String description);
 

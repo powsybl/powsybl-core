@@ -20,13 +20,13 @@ import java.util.Objects;
  */
 class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvMetadata {
 
-    private final DateTime scenarioTime;
+    private final String scenarioTime;
     private final String description;
     private final int svVersion;
     private final List<String> dependencies = new ArrayList<>();
     private final String modelingAuthoritySet;
 
-    public CgmesSvMetadataImpl(DateTime scenarioTime, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
+    public CgmesSvMetadataImpl(String scenarioTime, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         this.description = Objects.requireNonNull(description);
         this.svVersion = svVersion;
@@ -35,7 +35,7 @@ class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvM
     }
 
     @Override
-    public DateTime getScenarioTime() {
+    public String getScenarioTime() {
         return scenarioTime;
     }
 
