@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.util.SV;
@@ -39,17 +40,19 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         return null;
     }
 
-    public void convertToDanglingLine(int boundarySide, String ucteXnodeCode) {
-        convertToDanglingLine(boundarySide, 0.0, 0.0, 0.0, 0.0, ucteXnodeCode);
+    public void convertToDanglingLine(int boundarySide) {
+        convertToDanglingLine(boundarySide, 0.0, 0.0, 0.0, 0.0);
     }
 
-    public void convertToDanglingLine(int boundarySide, double r, double x, double gch, double bch, String ucteXnodeCode) {
+    public void convertToDanglingLine(int boundarySide, double r, double x, double gch, double bch) {
         // Non-boundary side (other side) of the line
         int modelSide = 3 - boundarySide;
         String boundaryNode = nodeId(boundarySide);
 
         // check again boundary node is correct
-        assert isBoundary(boundarySide) && !isBoundary(modelSide);
+        if (!isBoundary(boundarySide) || isBoundary(modelSide)) {
+            throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
+        }
 
         PowerFlow f = new PowerFlow(0, 0);
         // Only consider potential power flow at boundary side if that side is connected
@@ -75,7 +78,7 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
             .setX(x)
             .setG(gch)
             .setB(bch)
-            .setUcteXnodeCode(ucteXnodeCode);
+            .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
         identify(dlAdder);
         connect(dlAdder, modelSide);
         EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(

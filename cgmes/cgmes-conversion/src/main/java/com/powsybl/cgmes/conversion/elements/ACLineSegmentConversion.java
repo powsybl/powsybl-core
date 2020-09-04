@@ -57,7 +57,12 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         if (context.config().convertBoundary()) {
             convertLine();
         } else {
-            convertToDanglingLine(boundarySide);
+            double r = p.asDouble("r");
+            double x = p.asDouble("x");
+            double gch = p.asDouble("gch", 0.0);
+            double bch = p.asDouble("bch");
+
+            convertToDanglingLine(boundarySide, r, x, gch, bch);
         }
     }
 
@@ -78,20 +83,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         connect(adder);
         final Line l = adder.add();
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
-    }
-
-    private void convertToDanglingLine(int boundarySide) {
-        double r = p.asDouble("r");
-        double x = p.asDouble("x");
-        double gch = p.asDouble("gch", 0.0);
-        double bch = p.asDouble("bch");
-
-        String boundaryNode = nodeId(boundarySide);
-        convertToDanglingLine(boundarySide, r, x, gch, bch, findUcteXnodeCode(boundaryNode));
-    }
-
-    private String findUcteXnodeCode(String boundaryNode) {
-        return context.boundary().nameAtBoundary(boundaryNode);
     }
 
     public void convertMergedLinesAtNode(PropertyBag other, String boundaryNode) {

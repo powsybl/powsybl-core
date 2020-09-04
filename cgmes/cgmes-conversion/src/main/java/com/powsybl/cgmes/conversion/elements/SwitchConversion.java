@@ -100,11 +100,6 @@ public class SwitchConversion extends AbstractConnectorConversion {
         }
     }
 
-    private void convertToDanglingLine(int boundarySide) {
-        //TODO get ucteXnodeCode
-        convertToDanglingLine(boundarySide, "FIXME");
-    }
-
     private SwitchKind kind() {
         String type = p.getLocal("type").toLowerCase();
         if (type.contains("breaker")) {
