@@ -16,6 +16,8 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -131,7 +133,6 @@ public class Conversion {
     }
 
     public Network convert() {
-
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
         }
@@ -140,6 +141,11 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
+        network.setProperty("CGMES_topology", cgmes.isNodeBreaker() ? "NODE_BREAKER" : "BUS_BRANCH");
+        if (cgmes instanceof CgmesModelTripleStore) {
+            network.setProperty("CIM_version", String.valueOf(((CgmesModelTripleStore) cgmes).getCimVersion()));
+        }
+        addCgmesSvDescription(network);
         Context context = createContext(network);
         assignNetworkProperties(context);
 
@@ -284,6 +290,17 @@ public class Conversion {
         LOG.info("cgmes modelCreated       : {}", modelCreated);
         LOG.info("network caseDate         : {}", context.network().getCaseDate());
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
+    }
+
+    private void addCgmesSvDescription(Network network) {
+        PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
+        if (svDescription != null && !svDescription.isEmpty()) {
+            network.setProperty(CgmesNames.SCENARIO_TIME, svDescription.get(0).getId("scenarioTime"));
+            network.setProperty(CgmesNames.DESCRIPTION, svDescription.get(0).getId("description"));
+            network.setProperty(CgmesNames.VERSION, svDescription.get(0).getId("version"));
+            network.setProperty(CgmesNames.DEPENDENT_ON, String.join(",", svDescription.pluckLocals("DependentOn")));
+            network.setProperty(CgmesNames.MODELING_AUTHORITY_SET, svDescription.get(0).getId("modelingAuthoritySet"));
+        }
     }
 
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {

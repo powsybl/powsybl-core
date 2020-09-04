@@ -10,6 +10,7 @@ package com.powsybl.cgmes.model;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -43,6 +44,7 @@ public class CgmesTerminal {
         // (TODO(Luma): missing reference here)
 
         this.connected = t.asBoolean("connected", false);
+        this.inService = t.containsKey("inService") ? Boolean.parseBoolean(t.getId("inService")) : null;
         this.flow = new PowerFlow(t, "p", "q");
     }
 
@@ -74,6 +76,10 @@ public class CgmesTerminal {
         return connected;
     }
 
+    public Optional<Boolean> inService() {
+        return Optional.ofNullable(inService);
+    }
+
     public PowerFlow flow() {
         return flow;
     }
@@ -83,6 +89,7 @@ public class CgmesTerminal {
     private final String conductingEquipment;
     private final String conductingEquipmentType;
     private final boolean connected;
+    private final Boolean inService;
     private final PowerFlow flow;
     private final String connectivityNode;
     private final String topologicalNode;

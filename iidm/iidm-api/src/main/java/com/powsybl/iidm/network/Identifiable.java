@@ -46,10 +46,31 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
+     * Get the aliases of the object with a given alias type.
+     */
+    default Optional<String> getAliasFromType(String aliasType) {
+        return Optional.empty();
+    }
+
+    /**
+     * Get the alias type of an alias if it exists, an empty optional otherwise.
+     */
+    default Optional<String> getAliasType(String alias) {
+        return Optional.empty();
+    }
+
+    /**
      * Add an alias to the object. Aliases must be unique in associated Network, and different
-     * from any identifiable ID.
+     * from any identifiable ID. No alias type is associated to this alias.
      */
     default void addAlias(String alias) {
+    }
+
+    /**
+     * Add an alias to the object. Aliases must be unique in associated Network, and different
+     * from any identifiable ID. This alias is associated to a given alias type.
+     */
+    default void addAlias(String alias, String aliasType) {
     }
 
     /**

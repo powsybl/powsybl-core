@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
@@ -24,9 +25,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected boolean fictitious = false;
 
-    protected Set<String> aliases = new TreeSet<>();
-
     protected final Properties properties = new Properties();
+
+    private final Set<String> aliasesWithoutType = new HashSet<>();
+    private final Map<String, String> aliasesByType = new HashMap<>();
 
     AbstractIdentifiable(String id, String name) {
         this.id = id;
@@ -55,25 +57,62 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Set<String> getAliases() {
+        Set<String> aliases = new HashSet<>();
+        aliases.addAll(aliasesWithoutType);
+        aliases.addAll(aliasesByType.values());
         return Collections.unmodifiableSet(aliases);
     }
 
     @Override
+    public Optional<String> getAliasType(String alias) {
+        Objects.requireNonNull(alias);
+        if (aliasesWithoutType.contains(alias)) {
+            return Optional.empty();
+        }
+        return aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
+    }
+
+    @Override
+    public Optional<String> getAliasFromType(String aliasType) {
+        Objects.requireNonNull(aliasType);
+        return Optional.ofNullable(aliasesByType.get(aliasType));
+    }
+
+    @Override
     public void addAlias(String alias) {
+        addAlias(alias, null);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType) {
+        Objects.requireNonNull(alias);
+        if (aliasType != null && aliasesByType.containsKey(aliasType)) {
+            throw new PowsyblException(id + " already has an alias of type " + aliasType);
+        }
         if (getNetwork().getIndex().addAlias(this, alias)) {
-            aliases.add(alias);
+            if (aliasType != null) {
+                aliasesByType.put(aliasType, alias);
+            } else {
+                aliasesWithoutType.add(alias);
+            }
         }
     }
 
     @Override
     public void removeAlias(String alias) {
+        Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
-        aliases.remove(alias);
+        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().contains(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        if (type != null) {
+            aliasesByType.remove(type);
+        } else {
+            aliasesWithoutType.remove(alias);
+        }
     }
 
     @Override
     public boolean hasAliases() {
-        return !aliases.isEmpty();
+        return !aliasesWithoutType.isEmpty() || !aliasesByType.isEmpty();
     }
 
     @Override
