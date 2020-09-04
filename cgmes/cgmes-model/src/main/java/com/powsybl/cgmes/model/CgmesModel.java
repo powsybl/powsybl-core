@@ -15,10 +15,7 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -187,12 +184,12 @@ public interface CgmesModel {
 
     @Deprecated
     default String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return ratioTapChangerListForPowerTransformer(powerTransformerId).get(0);
+        return ratioTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     @Deprecated
     default String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return phaseTapChangerListForPowerTransformer(powerTransformerId).get(0);
+        return phaseTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
     }
 
     default List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
