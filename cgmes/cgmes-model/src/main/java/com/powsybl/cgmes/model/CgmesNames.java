@@ -12,6 +12,10 @@ package com.powsybl.cgmes.model;
  */
 public final class CgmesNames {
 
+    public static final String RDF = "RDF";
+    public static final String ABOUT = "about";
+    public static final String RESOURCE = "resource";
+
     public static final String NAME = "IdentifiedObject.name";
     public static final String GRAPH = "graph";
 
@@ -22,6 +26,7 @@ public final class CgmesNames {
     public static final String VERSION = "Model.version";
     public static final String DEPENDENT_ON = "Model.DependentOn";
     public static final String PROFILE = "Model.profile";
+    public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
     public static final String SUBSTATION = "Substation";

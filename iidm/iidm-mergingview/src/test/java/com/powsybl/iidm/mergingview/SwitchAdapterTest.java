@@ -50,7 +50,7 @@ public class SwitchAdapterTest {
 
         assertEquals(swExpected.getKind(), swActual.getKind());
 
-        assertTrue(swActual.getVoltageLevel() instanceof VoltageLevelAdapter);
+        assertTrue(swActual.getVoltageLevel() instanceof NodeBreakerVoltageLevelAdapter);
         assertEquals(swExpected.getVoltageLevel().getId(), swActual.getVoltageLevel().getId());
     }
 }

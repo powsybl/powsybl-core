@@ -35,7 +35,7 @@ public class TerminalAdapterTest {
     public void testSetterGetter() {
         final Terminal t1 = mergingView.getLoad("LOAD").getTerminal();
         assertTrue(t1 instanceof TerminalAdapter);
-        assertTrue(t1.getVoltageLevel() instanceof VoltageLevelAdapter);
+        assertTrue(t1.getVoltageLevel() instanceof BusBreakerVoltageLevelAdapter);
 
         assertNotNull(t1.getConnectable());
         final double p = 4.0;

@@ -7,8 +7,8 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.PowsyblException;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 
 import java.util.*;
@@ -76,7 +76,7 @@ public class ContainersMapping {
                                                          ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2,
                                                          ToDoubleFunction<B> branchToResistance, ToDoubleFunction<B> branchToReactance,
                                                          Function<Set<Integer>, String> busesToVoltageLevelId, ContainersMapping containersMapping) {
-        UndirectedGraph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
+        Graph<Integer, Object> vlGraph = new Pseudograph<>(Object.class);
         for (N bus : buses) {
             vlGraph.addVertex(busToNum.applyAsInt(bus));
         }
@@ -97,7 +97,7 @@ public class ContainersMapping {
     private static <B> void createSubstationMapping(List<B> branches, ToIntFunction<B> branchToNum1, ToIntFunction<B> branchToNum2, ToIntFunction<B> branchToNum3,
                                                     Predicate<B> branchToIsTransformer, IntFunction<String> substationNumToId,
                                                     ContainersMapping containersMapping) {
-        UndirectedGraph<String, Object> sGraph = new Pseudograph<>(Object.class);
+        Graph<String, Object> sGraph = new Pseudograph<>(Object.class);
         for (String voltageLevelId : containersMapping.voltageLevelIdToBusNums.keySet()) {
             sGraph.addVertex(voltageLevelId);
         }
