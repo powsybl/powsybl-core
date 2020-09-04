@@ -17,7 +17,9 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.function.BiFunction;
 
+import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
 import org.apache.commons.io.FileUtils;
@@ -69,17 +71,17 @@ public class ExportTest {
     }
 
     @Test
-    public void testSvExportAlternativesBusBranch() throws IOException {
-        exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(CgmesConformity1Catalog.smallBusBranch().dataSource());
+    public void testExportAlternativesBusBranch() throws IOException {
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource());
     }
 
     @Ignore("not yet implemented")
     @Test
-    public void testSvExportAlternativesNodeBreaker() throws IOException {
-        exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+    public void testExportAlternativesNodeBreaker() throws IOException {
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
     }
 
-    private void exportUsingCgmesModelUsingOnlyNetworkAndCompareSV(ReadOnlyDataSource ds) throws IOException {
+    private void exportUsingCgmesModelUsingOnlyNetworkAndCompare(ReadOnlyDataSource ds) throws IOException {
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), null);
         NetworkChanges.modifyStateVariables(network0);
         network0.setProperty("baseName", ds.getBaseName());
@@ -95,28 +97,39 @@ public class ExportTest {
         network0.removeExtension(CgmesModelExtension.class);
         e.export(network0, ep, tmpUsingOnlyNetwork);
 
-        // Compare resulting SV of both variants
-        String sv1 = tmpUsingCgmes.listNames(".*SV.*").parallelStream().findFirst().orElse("-");
-        String sv2 = tmpUsingOnlyNetwork.listNames(".*SV.*").parallelStream().findFirst().orElse("-");
-        LOG.debug("test SV export using CGMES original model and using only Network. Output files:");
-        LOG.debug("   using CGMES        {}", sv1);
-        LOG.debug("   using Network only {}", sv2);
-        assertTrue(sv1.contains(ds.getBaseName()));
-        assertTrue(sv2.contains(ds.getBaseName()));
-        try (InputStream expected = tmpUsingCgmes.newInputStream(sv1)) {
-            try (InputStream actual = tmpUsingOnlyNetwork.newInputStream(sv2)) {
-                isOk(compare(diffSv(expected, actual).checkForSimilar()));
+        // Check resulting SV and SSH of both variants
+        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SV", this::diffSV, ds.getBaseName());
+        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SSH", this::diffSSH, ds.getBaseName());
+    }
+
+    private void compare(DataSource dsExpected, DataSource dsActual, String profile, BiFunction<InputStream, InputStream, DiffBuilder> diff, String originalBaseName) throws IOException {
+        String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
+        String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
+        LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
+        LOG.debug("   using CGMES        {}", svExpected);
+        LOG.debug("   using Network only {}", svActual);
+        assertTrue(svExpected.contains(originalBaseName));
+        assertTrue(svActual.contains(originalBaseName));
+        // Check that files are similar according to the diff function given
+        try (InputStream expected = dsExpected.newInputStream(svExpected)) {
+            try (InputStream actual = dsActual.newInputStream(svActual)) {
+                isOk(compare(diff.apply(expected, actual).checkForSimilar()));
             }
         }
-        try (InputStream expected = tmpUsingCgmes.newInputStream(sv1)) {
-            try (InputStream actual = tmpUsingOnlyNetwork.newInputStream(sv2)) {
-                onlyNodeListSequenceDiffs(compare(diffSv(expected, actual).checkForIdentical()));
+        // Check again that only differences reported when checking for identical contents are the order of elements
+        try (InputStream expected = dsExpected.newInputStream(svExpected)) {
+            try (InputStream actual = dsActual.newInputStream(svActual)) {
+                onlyNodeListSequenceDiffs(compare(diff.apply(expected, actual).checkForIdentical()));
             }
         }
     }
 
-    DiffBuilder diffSv(InputStream expected, InputStream actual) {
-        return selectingEquivalentSvObjects(ignoringSvIds(withSelectedSvObjects(diff(expected, actual))));
+    DiffBuilder diffSV(InputStream expected, InputStream actual) {
+        return selectingEquivalentSvObjects(ignoringSvIds(withSelectedSvNodes(diff(expected, actual))));
+    }
+
+    DiffBuilder diffSSH(InputStream expected, InputStream actual) {
+        return selectingEquivalentSshObjects(withSelectedSshNodes(diff(expected, actual)));
     }
 
     private void isOk(Diff diff) {
@@ -145,15 +158,25 @@ public class ExportTest {
         });
     }
 
-    private DiffBuilder withSelectedSvObjects(DiffBuilder diffBuilder) {
-        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvTag(n));
+    private DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
+        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvNode(n));
     }
 
-    private static boolean isConsideredSvTag(Node n) {
+    private DiffBuilder withSelectedSshNodes(DiffBuilder diffBuilder) {
+        return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSshNode(n));
+    }
+
+    private static boolean isConsideredSvNode(Node n) {
         return n.getLocalName() != null
                 && (n.getLocalName().equals("RDF")
                         || n.getLocalName().startsWith("SvVoltage")
                         || n.getLocalName().startsWith("SvShuntCompensatorSections"));
+    }
+
+    private static boolean isConsideredSshNode(Node n) {
+        return n.getLocalName() != null
+                && (n.getLocalName().equals("RDF")
+                        || n.getLocalName().startsWith("EnergyConsumer"));
     }
 
     private static DiffBuilder ignoringSvIds(DiffBuilder diffBuilder) {
@@ -180,6 +203,11 @@ public class ExportTest {
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
     }
 
+    private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {
+        QName aboutAttribute = new QName(CgmesExport.RDF_NAMESPACE, "about");
+        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAttributes(aboutAttribute)));
+    }
+
     private static Diff compare(DiffBuilder diffBuilder) {
         Diff diff = diffBuilder.build();
         boolean hasDiff = diff.hasDifferences();
@@ -195,7 +223,7 @@ public class ExportTest {
 
     public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
         Path exportFolder = fileSystem.getPath(name);
-        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", name);
+        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "Downloads", "temp_work", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -474,8 +475,11 @@ public class StateVariablesAdder {
         return p;
     }
 
+    // Avoid trailing zeros
+    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
+
     private static String fstr(double value) {
-        return Double.isNaN(value) ? String.valueOf(0.0) : String.valueOf(value);
+        return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
     }
 
     private static String istr(int value) {

@@ -11,6 +11,7 @@ import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
@@ -36,6 +37,7 @@ import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.TieLine;
@@ -121,7 +123,19 @@ public class CgmesExport implements Exporter {
     }
 
     private static void writeSSH(Network network, XMLStreamWriter writer) {
-        // TODO(Luma) write updated power flow inputs
+        // Write updated power flow inputs
+        try {
+            writeSshEnergyConsumers(network, writer);
+            // TODO(Luma) Terminal.connected, SynchronousMachine.p/q, TapChanger.step, ...
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void writeSshEnergyConsumers(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        for (Load load : network.getLoads()) {
+            writeSshEnergyConsumer(writer, load.getId(), load.getP0(), load.getQ0());
+        }
     }
 
     private static void writeSvVoltages(Network network, XMLStreamWriter writer) throws XMLStreamException {
@@ -151,6 +165,25 @@ public class CgmesExport implements Exporter {
         }
     }
 
+    private static void writeSshEnergyConsumer(XMLStreamWriter writer, String id, double p, double q) throws XMLStreamException {
+        writer.writeStartElement("cim:EnergyConsumer");
+        writer.writeAttribute("rdf:about", "#" + id);
+        writer.writeStartElement("cim:EnergyConsumer.p");
+        writeDouble(writer, p);
+        writer.writeEndElement();
+        writer.writeStartElement("cim:EnergyConsumer.q");
+        writeDouble(writer, q);
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    // Avoid trailing zeros
+    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
+
+    private static void writeDouble(XMLStreamWriter writer, double value) throws XMLStreamException {
+        writer.writeCharacters(DOUBLE_FORMAT.format(value));
+    }
+
     private static void writeSvVoltage(XMLStreamWriter writer, String topologicalNode, double v, double angle) throws XMLStreamException {
         // FIXME(Luma) remove this reference block
         // <cim:SvVoltage rdf:ID="_d4548915-4f00-4507-ba54-350cafcee1af">
@@ -161,10 +194,10 @@ public class CgmesExport implements Exporter {
         writer.writeStartElement("cim:SvVoltage");
         writer.writeAttribute("rdf:ID", getUniqueId());
         writer.writeStartElement("cim:SvVoltage.angle");
-        writer.writeCharacters(Double.toString(angle));
+        writeDouble(writer, angle);
         writer.writeEndElement();
         writer.writeStartElement("cim:SvVoltage.v");
-        writer.writeCharacters(Double.toString(v));
+        writeDouble(writer, v);
         writer.writeEndElement();
         writer.writeEmptyElement("cim:SvVoltage.TopologicalNode");
         writer.writeAttribute("rdf:resource", "#" + topologicalNode);
