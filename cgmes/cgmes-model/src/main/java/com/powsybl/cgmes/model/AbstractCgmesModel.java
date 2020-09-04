@@ -9,11 +9,7 @@ package com.powsybl.cgmes.model;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -62,13 +58,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
-        return powerTransformerRatioTapChanger.get(powerTransformerId);
+    public List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
+        return powerTransformerRatioTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerRatioTapChanger.get(powerTransformerId));
     }
 
     @Override
-    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
-        return powerTransformerPhaseTapChanger.get(powerTransformerId);
+    public List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
+        return powerTransformerPhaseTapChanger.get(powerTransformerId) == null ? null : Arrays.asList(powerTransformerPhaseTapChanger.get(powerTransformerId));
     }
 
     @Override
@@ -144,9 +140,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
                 ends.add(end);
                 if (end.getId("PhaseTapChanger") != null) {
-                    powerTransformerPhaseTapChanger.put(id, end.getId("PhaseTapChanger"));
+                    powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
+                    powerTransformerPhaseTapChanger.get(id)[end.asInt("endNumber", 1) - 1] = end.getId("PhaseTapChanger");
                 } else if (end.getId("RatioTapChanger") != null) {
-                    powerTransformerRatioTapChanger.put(id, end.getId("RatioTapChanger"));
+                    powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
+                    powerTransformerRatioTapChanger.get(id)[end.asInt("endNumber", 1) - 1] = end.getId("RatioTapChanger");
                 }
             });
         gends.entrySet()
@@ -252,8 +250,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, Double> cachedBaseVoltages;
     private Map<String, PropertyBag> cachedNodes;
     // equipmentId, sequenceNumber, terminalId
-    private Map<String, String> powerTransformerRatioTapChanger;
-    private Map<String, String> powerTransformerPhaseTapChanger;
+    private Map<String, String[]> powerTransformerRatioTapChanger;
+    private Map<String, String[]> powerTransformerPhaseTapChanger;
     private Map<String, CgmesDcTerminal> cachedDcTerminals;
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
