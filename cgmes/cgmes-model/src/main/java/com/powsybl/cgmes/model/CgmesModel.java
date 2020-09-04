@@ -15,6 +15,8 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -178,16 +180,28 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    // TODO If we could store identifiers for tap changers and terminals in IIDM
-    // then we would not need to query back the CGMES model for these mappings
     @Deprecated
     default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
         return null;
     }
 
-    String ratioTapChangerForPowerTransformer(String powerTransformerId);
+    @Deprecated
+    default String ratioTapChangerForPowerTransformer(String powerTransformerId) {
+        return ratioTapChangerListForPowerTransformer(powerTransformerId).get(0);
+    }
 
-    String phaseTapChangerForPowerTransformer(String powerTransformerId);
+    @Deprecated
+    default String phaseTapChangerForPowerTransformer(String powerTransformerId) {
+        return phaseTapChangerListForPowerTransformer(powerTransformerId).get(0);
+    }
+
+    default List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.singletonList(ratioTapChangerForPowerTransformer(powerTransformerId));
+    }
+
+    default List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.singletonList(phaseTapChangerForPowerTransformer(powerTransformerId));
+    }
 
     // TODO(Luma) refactoring node-breaker conversion temporal
 
