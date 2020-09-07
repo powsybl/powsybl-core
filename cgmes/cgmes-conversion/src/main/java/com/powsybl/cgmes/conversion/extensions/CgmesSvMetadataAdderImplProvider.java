@@ -24,7 +24,7 @@ public class CgmesSvMetadataAdderImplProvider implements
 
     @Override
     public Class<? super CgmesSvMetadataAdderImpl> getAdderClass() {
-        return CgmesSvMetadataAdderImpl.class;
+        return CgmesSvMetadataAdder.class;
     }
 
     @Override
