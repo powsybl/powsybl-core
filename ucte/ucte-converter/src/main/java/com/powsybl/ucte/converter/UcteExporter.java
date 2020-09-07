@@ -840,14 +840,12 @@ public class UcteExporter implements Exporter {
         if (permanentLimit1.isPresent()) {
             if (permanentLimit2.isPresent()) {
                 return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
-            } else {
-                return permanentLimit1.get().intValue();
             }
+            return permanentLimit1.get().intValue();
         } else if (permanentLimit2.isPresent()) {
             return permanentLimit2.get().intValue();
-        } else {
-            return null;
         }
+        return null;
     }
 
     static NamingStrategy findNamingStrategy(String name, List<NamingStrategy> namingStrategies) {
