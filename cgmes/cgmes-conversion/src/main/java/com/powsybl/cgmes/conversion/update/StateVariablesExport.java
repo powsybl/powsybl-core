@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -34,7 +36,6 @@ public final class StateVariablesExport {
     private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     private static final String CIM_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
     private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
-    private static final String DATA_NAMESPACE = "http://microgrid/#";
 
     private static final String ID = "ID";
 
@@ -47,7 +48,7 @@ public final class StateVariablesExport {
 
     public static void write(Network network, XMLStreamWriter writer) {
         try {
-            initializeWriter(writer);
+            writeRdf(writer);
 
             if ("16".equals(network.getProperty(CIM_VERSION))) {
                 writeSvModelDescription(network, writer);
@@ -67,18 +68,16 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void initializeWriter(XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeRdf(XMLStreamWriter writer) throws XMLStreamException {
         writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
         writer.setPrefix("rdf", RDF_NAMESPACE);
         writer.setPrefix("cim", CIM_NAMESPACE);
         writer.setPrefix("md", MD_NAMESPACE);
-        writer.setPrefix("data", DATA_NAMESPACE);
         writer.writeStartElement(RDF_NAMESPACE, "RDF");
         writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
         writer.writeNamespace("rdf", RDF_NAMESPACE);
         writer.writeNamespace("cim", CIM_NAMESPACE);
         writer.writeNamespace("md", MD_NAMESPACE);
-        writer.writeNamespace("data", DATA_NAMESPACE);
     }
 
     private static void writeSvModelDescription(Network network, XMLStreamWriter writer) throws XMLStreamException {
@@ -159,48 +158,41 @@ public final class StateVariablesExport {
             return;
         }
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
-            writer.writeCharacters(fs(b.getAngle()));
-            writer.writeEndElement();
-            writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
-            writer.writeCharacters(fs(b.getV()));
-            writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + b.getId());
-            writer.writeEndElement();
+            writeVoltage(b.getId(), b.getV(), b.getAngle(), writer);
         }
     }
 
     private static void writeVoltagesForBoundaryNodes(Network network, XMLStreamWriter writer) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
-            if (b != null) {
-                // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
-                        dl.getP0(), dl.getQ0());
-                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
-                writer.writeCharacters(fs(Math.toDegrees(v2.getArgument())));
-                writer.writeEndElement();
-                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
-                writer.writeCharacters(fs(v2.abs()));
-                writer.writeEndElement();
-                writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dl.getUcteXnodeCode());
-            } else {
-                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
-                writer.writeCharacters("0.0");
-                writer.writeEndElement();
-                writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
-                writer.writeCharacters("0.0");
-                writer.writeEndElement();
-                writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dl.getUcteXnodeCode());
+            Optional<String> topologicalNode = dl.getAliasFromType(CgmesNames.TOPOLOGICAL_NODE);
+            if (topologicalNode.isPresent()) {
+                if (dl.hasProperty("v") && dl.hasProperty("angle")) {
+                    writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), writer);
+                } else if (b != null) {
+                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
+                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
+                            dl.getP0(), dl.getQ0());
+                    writeVoltage(topologicalNode.get(), v2.abs(), Math.toDegrees(v2.getArgument()), writer);
+                } else {
+                    writeVoltage(topologicalNode.get(), 0.0, 0.0, writer);
+                }
             }
-            writer.writeEndElement();
         }
+    }
+
+    private static void writeVoltage(String topologicalNode, double v, double angle, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
+        writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
+        writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
+        writer.writeCharacters(fs(angle));
+        writer.writeEndElement();
+        writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
+        writer.writeCharacters(fs(v));
+        writer.writeEndElement();
+        writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+        writer.writeEndElement();
     }
 
     private static void writePowerFlowToCgmes(Network network, XMLStreamWriter writer) throws XMLStreamException {
@@ -342,8 +334,11 @@ public final class StateVariablesExport {
         return UUID.randomUUID().toString();
     }
 
+    // Avoid trailing zeros
+    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
+
     private static String fs(double value) {
-        return Double.isNaN(value) ? String.valueOf(0.0) : String.valueOf(value);
+        return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
     }
 
     private static Complex complexVoltage(double r, double x, double g, double b,

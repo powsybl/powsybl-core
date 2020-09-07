@@ -27,6 +27,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
+import com.powsybl.cgmes.conversion.update.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -73,6 +74,7 @@ public class CgmesExport implements Exporter {
     }
 
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
+    private static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String CIM_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
     private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
@@ -90,7 +92,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void exportStateVariables(Network network, DataSource ds) {
-        export(network, ds, "SV", CgmesExport::writeSV);
+        export(network, ds, "SV", StateVariablesExport::write);
     }
 
     private void exportSteadyStateHypothesis(Network network, DataSource ds) {
@@ -131,11 +133,25 @@ public class CgmesExport implements Exporter {
     private static void writeSSH(Network network, XMLStreamWriter writer) {
         // Write updated power flow inputs
         try {
+            writeRdf(writer);
             writeSshEnergyConsumers(network, writer);
             // TODO(Luma) Terminal.connected, SynchronousMachine.p/q, TapChanger.step, ...
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
+    }
+
+    // FIXME(Luma) this is common with StateVariablesExport.writeRdf
+    private static void writeRdf(XMLStreamWriter writer) throws XMLStreamException {
+        writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
+        writer.setPrefix("rdf", RDF_NAMESPACE);
+        writer.setPrefix("cim", CIM_NAMESPACE);
+        writer.setPrefix("md", MD_NAMESPACE);
+        writer.writeStartElement(RDF_NAMESPACE, "RDF");
+        writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
+        writer.writeNamespace("rdf", RDF_NAMESPACE);
+        writer.writeNamespace("cim", CIM_NAMESPACE);
+        writer.writeNamespace("md", MD_NAMESPACE);
     }
 
     private static void writeSshEnergyConsumers(Network network, XMLStreamWriter writer) throws XMLStreamException {
@@ -242,18 +258,6 @@ public class CgmesExport implements Exporter {
             writer = indentingWriter;
         }
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-        // FIXME(Luma) remove this reference line and consider adding entsoe namespace
-        // <rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#"
-        // xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
-        // xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
-        // xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-        writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", CIM_NAMESPACE);
-        writer.setPrefix("md", MD_NAMESPACE);
-        writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", CIM_NAMESPACE);
-        writer.writeNamespace("md", MD_NAMESPACE);
         return writer;
     }
 
