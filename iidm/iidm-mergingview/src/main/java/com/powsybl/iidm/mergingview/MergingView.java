@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
@@ -24,7 +25,7 @@ import java.util.stream.StreamSupport;
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public final class MergingView implements Network {
+public final class MergingView implements Network, MultiVariantObject {
     private static final Logger LOGGER = LoggerFactory.getLogger(MergingView.class);
 
     /** Indexing of all Identifiable into current merging view */
@@ -33,9 +34,14 @@ public final class MergingView implements Network {
     /** Delegate for Identifiable creation into current merging view */
     private final Network workingNetwork;
 
+    /** Components managers */
+    private final Map<String, ConnectedComponentsManager> connectedComponentsManager = new HashMap<>();
+    private final Map<String, SynchronousComponentsManager> synchronousComponentsManager = new HashMap<>();
+
     /** To listen events from merging network */
     private final NetworkListener mergeDanglingLineListener;
     private final NetworkListener danglingLinePowerListener;
+    private final TopologyListener topologyListener;
 
     static PowsyblException createNotImplementedException() {
         return new PowsyblException("Not implemented exception");
@@ -53,21 +59,22 @@ public final class MergingView implements Network {
 
         @Override
         public Bus getBus(final String id) {
-            return index.get(n -> n.getBusBreakerView().getBus(id), index::getBus);
+            return index.getVoltageLevelStream()
+                    .map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+            return FluentIterable.from(index.getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusBreakerView().getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return index.getNetworkStream()
-                    .map(Network::getBusBreakerView)
-                    .map(Network.BusBreakerView::getBusStream)
-                    .flatMap(stream -> stream)
-                    .map(index::getBus);
+            return index.getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getBusStream());
         }
 
         @Override
@@ -102,29 +109,27 @@ public final class MergingView implements Network {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableList(getBusStream().collect(Collectors.toList()));
+            return FluentIterable.from(index.getVoltageLevels())
+                    .transformAndConcat(vl -> vl.getBusView().getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return index.getNetworkStream()
-                    .map(Network::getBusView)
-                    .map(Network.BusView::getBusStream)
-                    .flatMap(stream -> stream)
-                    .map(index::getBus);
+            return index.getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream());
         }
 
         @Override
         public Bus getBus(final String id) {
-            return index.get(n -> n.getBusView().getBus(id), index::getBus);
+            return index.getVoltageLevelStream()
+                    .map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
-        // -------------------------------
-        // Not implemented methods -------
-        // -------------------------------
         @Override
         public Collection<Component> getConnectedComponents() {
-            throw createNotImplementedException();
+            return Collections.unmodifiableList(index.getView().getConnectedComponentsManager().getConnectedComponents());
         }
     }
 
@@ -139,9 +144,14 @@ public final class MergingView implements Network {
 
         index = new MergingViewIndex(this);
         variantManager = new MergingVariantManager(index);
+
+        connectedComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new ConnectedComponentsManager(this));
+        synchronousComponentsManager.put(VariantManagerConstants.INITIAL_VARIANT_ID, new SynchronousComponentsManager(this));
+
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
         danglingLinePowerListener = new DanglingLinePowerListener(index);
+        topologyListener = new TopologyListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
         // Working network will store view informations
@@ -216,6 +226,15 @@ public final class MergingView implements Network {
     public Network setForecastDistance(final int forecastDistance) {
         workingNetwork.setForecastDistance(forecastDistance);
         return this;
+    }
+
+    @Override
+    public Network getNetwork() {
+        return this;
+    }
+
+    public Network getNetwork(String id) {
+        return index.getNetwork(n -> n.getId().equals(id));
     }
 
     @Override
@@ -386,11 +405,6 @@ public final class MergingView implements Network {
     }
 
     // VoltageLevel
-    @Override
-    public Network getNetwork() {
-        return this;
-    }
-
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Collections.unmodifiableCollection(index.getVoltageLevels());
@@ -693,17 +707,17 @@ public final class MergingView implements Network {
 
     @Override
     public Iterable<Line> getLines() {
-        return Collections.unmodifiableCollection(index.getLines());
+        return index.getLines();
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return index.getLines().stream();
+        return index.getLineStream();
     }
 
     @Override
     public int getLineCount() {
-        return index.getLines().size();
+        return index.getLineCount();
     }
 
     @Override
@@ -714,17 +728,17 @@ public final class MergingView implements Network {
     // DanglingLines
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(index.getDanglingLines());
+        return index.getDanglingLines();
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return index.getDanglingLines().stream();
+        return index.getDanglingLineStream();
     }
 
     @Override
     public int getDanglingLineCount() {
-        return index.getDanglingLines().size();
+        return index.getDanglingLineCount();
     }
 
     @Override
@@ -805,14 +819,39 @@ public final class MergingView implements Network {
     }
 
     @Override
-    public VariantManager getVariantManager() {
+    public MergingVariantManager getVariantManager() {
         return variantManager;
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        // FIXME(mathbagu)
+        for (String targetVariantId : targetVariantIds) {
+            connectedComponentsManager.put(targetVariantId, new ConnectedComponentsManager(this));
+            synchronousComponentsManager.put(targetVariantId, new SynchronousComponentsManager(this));
+        }
+    }
+
+    @Override
+    public void removeVariant(String variantId) {
+        // FIXME(mathbagu)
+        connectedComponentsManager.remove(variantId);
+        synchronousComponentsManager.remove(variantId);
     }
 
     private void addInternalListeners(Network network) {
         // Attach all custom listeners
         network.addListener(mergeDanglingLineListener);
         network.addListener(danglingLinePowerListener);
+        network.addListener(topologyListener);
+    }
+
+    ConnectedComponentsManager getConnectedComponentsManager() {
+        return connectedComponentsManager.get(getVariantManager().getWorkingVariantId());
+    }
+
+    SynchronousComponentsManager getSynchronousComponentsManager() {
+        return synchronousComponentsManager.get(getVariantManager().getWorkingVariantId());
     }
 
     // -------------------------------

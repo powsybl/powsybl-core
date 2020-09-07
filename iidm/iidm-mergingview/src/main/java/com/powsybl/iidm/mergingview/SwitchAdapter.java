@@ -8,7 +8,6 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -20,7 +19,7 @@ public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implement
     }
 
     @Override
-    public VoltageLevel getVoltageLevel() {
+    public VoltageLevelAdapter getVoltageLevel() {
         return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 
