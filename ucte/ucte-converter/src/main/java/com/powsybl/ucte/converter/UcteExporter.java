@@ -841,9 +841,16 @@ public class UcteExporter implements Exporter {
             if (permanentLimit2.isPresent()) {
                 return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
             }
-            return permanentLimit1.get().intValue();
-        } else if (permanentLimit2.isPresent()) {
-            return permanentLimit2.get().intValue();
+            if (!permanentLimit2.isPresent()) {
+                return permanentLimit1.get().intValue();
+            }
+        } else {
+            if (permanentLimit2.isPresent()) {
+                return permanentLimit2.get().intValue();
+            }
+            if (!permanentLimit2.isPresent()) {
+                return null;
+            }
         }
         return null;
     }
