@@ -28,6 +28,6 @@ public interface CgmesSvMetadata extends Extension<Network> {
 
     @Override
     default String getName() {
-        return "CgmesSvMetadata";
+        return "cgmesSvMetadata";
     }
 }
