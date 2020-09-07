@@ -11,13 +11,14 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -145,9 +146,9 @@ public class Conversion {
         if (cgmes instanceof CgmesModelTripleStore) {
             network.setProperty("CIM_version", String.valueOf(((CgmesModelTripleStore) cgmes).getCimVersion()));
         }
-        addCgmesSvDescription(network);
         Context context = createContext(network);
         assignNetworkProperties(context);
+        addCgmesSvMetadata(network);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -292,14 +293,16 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvDescription(Network network) {
+    private void addCgmesSvMetadata(Network network) {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
-            network.setProperty(CgmesNames.SCENARIO_TIME, svDescription.get(0).getId("scenarioTime"));
-            network.setProperty(CgmesNames.DESCRIPTION, svDescription.get(0).getId("description"));
-            network.setProperty(CgmesNames.VERSION, svDescription.get(0).getId("version"));
-            network.setProperty(CgmesNames.DEPENDENT_ON, String.join(",", svDescription.pluckLocals("DependentOn")));
-            network.setProperty(CgmesNames.MODELING_AUTHORITY_SET, svDescription.get(0).getId("modelingAuthoritySet"));
+            CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
+                    .setScenarioTime(svDescription.get(0).getId("scenarioTime"))
+                    .setDescription(svDescription.get(0).getId("description"))
+                    .setSvVersion(svDescription.get(0).asInt("version"))
+                    .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
+            svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
+            adder.add();
         }
     }
 
