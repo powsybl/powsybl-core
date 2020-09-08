@@ -25,6 +25,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -341,7 +342,7 @@ public final class StateVariablesExport {
     }
 
     // Avoid trailing zeros
-    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
+    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", new DecimalFormatSymbols(Locale.US));
 
     private static String fs(double value) {
         return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
