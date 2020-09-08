@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -41,7 +42,7 @@ public class CgmesSvMetadataTest {
         assertTrue(extension.getDependencies().contains("http://dependency2"));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test(expected = PowsyblException.class)
     public void invalid() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesSvMetadataAdder.class)

@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
@@ -20,7 +21,7 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
 
     private String scenarioTime;
     private String description;
-    private int svVersion;
+    private int svVersion = 0;
     private final List<String> dependencies = new ArrayList<>();
     private String modelingAuthoritySet;
 
@@ -60,6 +61,18 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
 
     @Override
     protected CgmesSvMetadata createExtension(Network extendable) {
+        if (scenarioTime == null) {
+            throw new PowsyblException("cgmesSvMetadata.scenarioTime is undefined");
+        }
+        if (description == null) {
+            throw new PowsyblException("cgmesSvMetadata.description is undefined");
+        }
+        if (dependencies.isEmpty()) {
+            throw new PowsyblException("cgmesSvMetadata.dependencies must have at least one dependency");
+        }
+        if (modelingAuthoritySet == null) {
+            throw new PowsyblException("cgmesSvMetadata.modelingAuthoritySet is undefined");
+        }
         return new CgmesSvMetadataImpl(scenarioTime, description, svVersion, dependencies, modelingAuthoritySet);
     }
 }
