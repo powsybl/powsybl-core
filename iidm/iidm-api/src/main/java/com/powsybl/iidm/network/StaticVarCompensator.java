@@ -135,7 +135,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * @return the voltage setpoint
      */
     default double getVoltageSetpoint() {
-        return getVoltageSetpoint();
+        return getVoltageSetPoint();
     }
 
     /**
@@ -145,7 +145,6 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     default double getVoltageSetPoint() {
         return getVoltageSetpoint();
     }
-
 
     /**
      * <p>Set the voltage setpoint in Kv.</p>
