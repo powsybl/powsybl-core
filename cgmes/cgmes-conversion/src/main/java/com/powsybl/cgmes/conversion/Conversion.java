@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.extensions.CIMCharacteristicsAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
@@ -140,13 +141,10 @@ public class Conversion {
             throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
-        network.setProperty("CGMES_topology", cgmes.isNodeBreaker() ? "NODE_BREAKER" : "BUS_BRANCH");
-        if (cgmes instanceof CgmesModelTripleStore) {
-            network.setProperty("CIM_version", String.valueOf(((CgmesModelTripleStore) cgmes).getCimVersion()));
-        }
         Context context = createContext(network);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network);
+        addCimCharacteristics(network);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -295,6 +293,15 @@ public class Conversion {
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
+        }
+    }
+
+    private void addCimCharacteristics(Network network) {
+        if (cgmes instanceof CgmesModelTripleStore) {
+            network.newExtension(CIMCharacteristicsAdder.class)
+                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .add();
         }
     }
 
