@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cc="http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="cimCharacteristics">
+        <xs:complexType>
+            <xs:attribute name="topologyKind" use="required" type="cc:nonEmptyString"/>
+            <xs:attribute name="cimVersion" use="required" type="xs:int"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
