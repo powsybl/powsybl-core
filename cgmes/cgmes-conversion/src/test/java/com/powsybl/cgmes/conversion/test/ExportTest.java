@@ -200,7 +200,8 @@ public class ExportTest {
                 || n.getLocalName().startsWith("SvStatus")
                 || n.getLocalName().startsWith("SvPowerFlow")
                 || n.getLocalName().equals("FullModel")
-                || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created"));
+                || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
+                || n.getLocalName().startsWith("TopologicalIsland") && !n.getLocalName().equals("TopologicalIsland.AngleRefTopologicalNode"));
     }
 
     private static boolean isConsideredSshNode(Node n) {
@@ -212,15 +213,19 @@ public class ExportTest {
     private static DiffBuilder ignoringNonPersistentIds(DiffBuilder diffBuilder) {
         return diffBuilder.withAttributeFilter(attr -> {
             String elementName = attr.getOwnerElement().getLocalName();
+            boolean ignored = false;
             if (elementName != null) {
                 // Identifiers of SV objects are not persistent,
                 // can be ignored for comparison with control
-                boolean isSvId = elementName.startsWith("Sv") && attr.getLocalName().equals("ID");
-                boolean isModelAbout = elementName.equals("FullModel") && attr.getLocalName().equals("about");
-                return !isSvId && !isModelAbout;
-            } else {
-                return true;
+                if (elementName.startsWith("Sv")) {
+                    ignored = attr.getLocalName().equals("ID");
+                } else if (elementName.equals("FullModel")) {
+                    ignored = attr.getLocalName().equals("about");
+                } else if (elementName.equals("TopologicalIsland")) {
+                    ignored = attr.getLocalName().equals("ID");
+                }
             }
+            return !ignored;
         });
     }
 
@@ -228,17 +233,21 @@ public class ExportTest {
         Map<String, String> prefixUris = new HashMap<>(2);
         prefixUris.put("cim", CgmesExport.CIM_NAMESPACE);
         prefixUris.put("rdf", CgmesExport.RDF_NAMESPACE);
+        QName resourceAttribute = new QName(CgmesExport.RDF_NAMESPACE, "resource");
+        ElementSelector byResource = ElementSelectors.byNameAndAttributes(resourceAttribute);
         ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
                 .whenElementIsNamed("SvShuntCompensatorSections")
-                .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, byResource))
                 .whenElementIsNamed("SvVoltage")
-                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, byResource))
                 .whenElementIsNamed("SvTapStep")
-                .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, byResource))
                 .whenElementIsNamed("SvStatus")
-                .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, byResource))
                 .whenElementIsNamed("SvPowerFlow")
-                .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, byResource))
+                .whenElementIsNamed("TopologicalIsland.TopologicalNodes")
+                .thenUse(byResource)
                 .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
