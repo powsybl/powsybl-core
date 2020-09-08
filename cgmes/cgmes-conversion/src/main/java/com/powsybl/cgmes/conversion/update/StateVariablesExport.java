@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
@@ -22,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -32,18 +32,11 @@ import java.util.stream.Stream;
  */
 public final class StateVariablesExport {
 
-    private static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
-    private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
-    private static final String CIM_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
-    private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
-
     private static final String ID = "ID";
 
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
     private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
-
-    private static final String CIM_VERSION = "CIM_version";
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
@@ -51,9 +44,9 @@ public final class StateVariablesExport {
 
     public static void write(Network network, XMLStreamWriter writer) {
         try {
-            writeRdf(writer);
+            CgmesExport.writeRdfRoot(writer);
 
-            if ("16".equals(network.getProperty(CIM_VERSION))) {
+            if ("16".equals(network.getProperty(CgmesExport.CIM_VERSION))) {
                 writeSvModelDescription(network, writer);
                 writeTopologicalIslands(network, writer);
             }
@@ -71,45 +64,33 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeRdf(XMLStreamWriter writer) throws XMLStreamException {
-        writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
-        writer.setPrefix("rdf", RDF_NAMESPACE);
-        writer.setPrefix("cim", CIM_NAMESPACE);
-        writer.setPrefix("md", MD_NAMESPACE);
-        writer.writeStartElement(RDF_NAMESPACE, "RDF");
-        writer.writeNamespace("entsoe", ENTSOE_NAMESPACE);
-        writer.writeNamespace("rdf", RDF_NAMESPACE);
-        writer.writeNamespace("cim", CIM_NAMESPACE);
-        writer.writeNamespace("md", MD_NAMESPACE);
-    }
-
     private static void writeSvModelDescription(Network network, XMLStreamWriter writer) throws XMLStreamException {
         CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
         if (svMetadata == null) {
             return;
         }
-        writer.writeStartElement(MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, "FullModel");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExport.getUniqueId());
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
         writer.writeCharacters(svMetadata.getScenarioTime());
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(DateTime.now().toString());
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.DESCRIPTION);
         writer.writeCharacters(svMetadata.getDescription());
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.VERSION);
         writer.writeCharacters(is(svMetadata.getSvVersion()));
         writer.writeEndElement();
         for (String dependency : svMetadata.getDependencies()) {
-            writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
+            writer.writeEmptyElement(CgmesExport.MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.PROFILE);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.PROFILE);
         writer.writeCharacters("http://entsoe.eu/CIM/StateVariables/4/1");
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
         writer.writeCharacters(svMetadata.getModelingAuthoritySet()); // TODO: what do you put for mergingView?
         writer.writeEndElement();
         writer.writeEndElement();
@@ -139,16 +120,16 @@ public final class StateVariablesExport {
         }
 
         for (Map.Entry<Integer, List<String>> island : islands.entrySet()) {
-            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.TOPOLOGICAL_ISLAND);
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.NAME);
-            writer.writeCharacters(getUniqueId()); // TODO do we need another name?
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, CgmesNames.TOPOLOGICAL_ISLAND);
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, CgmesNames.NAME);
+            writer.writeCharacters(CgmesExport.getUniqueId()); // TODO do we need another name?
             writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.getOrDefault(island.getKey(), island.getValue().get(0)));
+            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.getOrDefault(island.getKey(), island.getValue().get(0)));
             for (String tn : island.getValue()) {
-                writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
+                writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
+                writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
             }
             writer.writeEndElement();
         }
@@ -194,16 +175,16 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltage(String topologicalNode, double v, double angle, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
-        writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-        writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
-        writer.writeCharacters(format(angle));
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvVoltage");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
+        writer.writeCharacters(CgmesExport.format(angle));
         writer.writeEndElement();
-        writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
-        writer.writeCharacters(format(v));
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, SV_VOLTAGE_V);
+        writer.writeCharacters(CgmesExport.format(v));
         writer.writeEndElement();
-        writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
+        writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
         writer.writeEndElement();
     }
 
@@ -243,16 +224,16 @@ public final class StateVariablesExport {
 
     private static void writePowerFlow(String terminal, double p, double q, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow");
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.p");
-            writer.writeCharacters(format(p));
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvPowerFlow");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvPowerFlow.p");
+            writer.writeCharacters(CgmesExport.format(p));
             writer.writeEndElement();
-            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.q");
-            writer.writeCharacters(format(q));
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvPowerFlow.q");
+            writer.writeCharacters(CgmesExport.format(q));
             writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, "SvPowerFlow.Terminal");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
+            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvPowerFlow.Terminal");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -261,11 +242,11 @@ public final class StateVariablesExport {
 
     private static void writeShuntCompensatorSections(Network network, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            writer.writeStartElement(CIM_NAMESPACE, "SvShuntCompensatorSections");
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeEmptyElement(CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
-            writer.writeStartElement(CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
             writer.writeCharacters(is(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeEndElement();
@@ -299,13 +280,13 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvTapStep(String tapChangerId, int tapPosition, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CIM_NAMESPACE, "SvTapStep");
-        writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-        writer.writeStartElement(CIM_NAMESPACE, "SvTapStep.position");
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvTapStep");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvTapStep.position");
         writer.writeCharacters(is(tapPosition));
         writer.writeEndElement();
-        writer.writeEmptyElement(CIM_NAMESPACE, "SvTapStep.TapChanger");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
+        writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvTapStep.TapChanger");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
         writer.writeEndElement();
     }
 
@@ -326,28 +307,17 @@ public final class StateVariablesExport {
 
     private static void writeStatus(String inService, String conductingEquipmentId, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(CIM_NAMESPACE, "SvStatus");
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, "SvStatus.inService");
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvStatus");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvStatus.inService");
             writer.writeCharacters(inService);
             writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, "SvStatus.ConductingEquipment");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
+            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvStatus.ConductingEquipment");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    private static String getUniqueId() {
-        return UUID.randomUUID().toString();
-    }
-
-    // Avoid trailing zeros
-    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
-
-    private static String format(double value) {
-        return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
     }
 
     private static Complex complexVoltage(double r, double x, double g, double b,

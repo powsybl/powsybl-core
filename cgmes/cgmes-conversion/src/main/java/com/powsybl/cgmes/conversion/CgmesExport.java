@@ -14,6 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -26,6 +27,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.conversion.update.StateVariablesExport;
+import com.powsybl.cgmes.conversion.update.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -34,7 +36,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
@@ -65,11 +66,14 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
-    private static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
+    public static final String CIM_VERSION = "CIM_version";
+
+    public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String CIM_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
-    private static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
+    public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
+
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
     private static final boolean INDENT = true;
 
     private void exportUsingOnlyNetwork(Network network, DataSource ds) {
@@ -88,7 +92,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void exportSteadyStateHypothesis(Network network, DataSource ds) {
-        export(network, ds, "SSH", CgmesExport::writeSSH);
+        export(network, ds, "SSH", SteadyStateHypothesisExport::write);
     }
 
     private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> exporter) {
@@ -111,19 +115,7 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static void writeSSH(Network network, XMLStreamWriter writer) {
-        // Write updated power flow inputs
-        try {
-            writeRdf(writer);
-            writeSshEnergyConsumers(network, writer);
-            // TODO(Luma) Terminal.connected, SynchronousMachine.p/q, TapChanger.step, ...
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
-    // FIXME(Luma) this is common with StateVariablesExport.writeRdf
-    private static void writeRdf(XMLStreamWriter writer) throws XMLStreamException {
+    public static void writeRdfRoot(XMLStreamWriter writer) throws XMLStreamException {
         writer.setPrefix("entsoe", ENTSOE_NAMESPACE);
         writer.setPrefix("rdf", RDF_NAMESPACE);
         writer.setPrefix("cim", CIM_NAMESPACE);
@@ -135,29 +127,15 @@ public class CgmesExport implements Exporter {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    private static void writeSshEnergyConsumers(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        for (Load load : network.getLoads()) {
-            writeSshEnergyConsumer(writer, load.getId(), load.getP0(), load.getQ0());
-        }
-    }
-
-    private static void writeSshEnergyConsumer(XMLStreamWriter writer, String id, double p, double q) throws XMLStreamException {
-        writer.writeStartElement("cim:EnergyConsumer");
-        writer.writeAttribute("rdf:about", "#" + id);
-        writer.writeStartElement("cim:EnergyConsumer.p");
-        writeDouble(writer, p);
-        writer.writeEndElement();
-        writer.writeStartElement("cim:EnergyConsumer.q");
-        writeDouble(writer, q);
-        writer.writeEndElement();
-        writer.writeEndElement();
-    }
-
     // Avoid trailing zeros
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
 
-    private static void writeDouble(XMLStreamWriter writer, double value) throws XMLStreamException {
-        writer.writeCharacters(DOUBLE_FORMAT.format(value));
+    public static String format(double value) {
+        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+    }
+
+    public static String getUniqueId() {
+        return UUID.randomUUID().toString();
     }
 
     private static XMLStreamWriter initializeWriter(OutputStream os) throws XMLStreamException {
