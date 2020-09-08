@@ -45,11 +45,11 @@ public class ContingencyTopologyTraverserTest {
         Line l1 = network.newLine()
                 .setId("l12")
                 .setVoltageLevel1("vl1")
-                .setConnectableBus1("b1")
                 .setBus1("b1")
+                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
                 .setVoltageLevel2("vl2")
-                .setConnectableBus2("b2")
                 .setBus2("b2")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
                 .setR(1)
                 .setX(1)
                 .setG1(0)
@@ -66,7 +66,7 @@ public class ContingencyTopologyTraverserTest {
         assertEquals("BusTerminal[b1]", terminalsToDisconnect.iterator().next().toString());
 
         l1.getTerminal1().disconnect();
-        assertNull(l1.getTerminal1().getBusBreakerView().getBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, l1.getTerminal1().getBusBreakerView().getConnectionStatus());
 
         switchesToOpen.clear();
         terminalsToDisconnect.clear();

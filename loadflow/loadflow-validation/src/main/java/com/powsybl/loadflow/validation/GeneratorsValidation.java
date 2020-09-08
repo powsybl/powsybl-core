@@ -99,9 +99,7 @@ public final class GeneratorsValidation {
         double maxQ = gen.getReactiveLimits().getMaxQ(targetP);
         double v = bus != null ? bus.getV() : Double.NaN;
         boolean connected = bus != null;
-        Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        boolean mainComponent = bus != null && bus.isInMainConnectedComponent();
         return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected,
                                mainComponent, config, generatorsWriter, guesser);
     }

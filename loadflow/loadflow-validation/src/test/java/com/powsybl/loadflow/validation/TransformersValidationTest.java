@@ -60,7 +60,6 @@ public class TransformersValidationTest extends AbstractValidationTest {
 
         BusView busView = Mockito.mock(BusView.class);
         Mockito.when(busView.getBus()).thenReturn(bus);
-        Mockito.when(busView.getConnectableBus()).thenReturn(bus);
 
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.when(terminal.getBusView()).thenReturn(busView);

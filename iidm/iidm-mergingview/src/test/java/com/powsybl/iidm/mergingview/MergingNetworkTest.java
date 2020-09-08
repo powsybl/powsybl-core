@@ -234,8 +234,8 @@ public class MergingNetworkTest {
         n1.getLine("NHV1_NHV2_1").remove();
         n1.getVoltageLevel("VLHV1").newDanglingLine()
                 .setId("DL1")
-                .setConnectableBus("NHV1")
                 .setBus("NHV1")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.0)
@@ -250,6 +250,7 @@ public class MergingNetworkTest {
         vl.newDanglingLine()
                 .setId("DL")
                 .setBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setR(10.0)
                 .setX(1.0)
                 .setB(10e-6)
@@ -261,8 +262,8 @@ public class MergingNetworkTest {
         vl.getBusBreakerView().newBus().setId("BUS1").add();
         vl.newDanglingLine()
                 .setId("DL2")
-                .setConnectableBus("BUS1")
                 .setBus("BUS1")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(0.0)
                 .setQ0(0.0)
                 .setR(1.0)

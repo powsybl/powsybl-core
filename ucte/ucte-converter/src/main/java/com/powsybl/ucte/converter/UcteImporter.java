@@ -196,7 +196,7 @@ public class UcteImporter implements Importer {
         voltageLevel.newLoad()
                 .setId(loadId)
                 .setBus(bus.getId())
-                .setConnectableBus(bus.getId())
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(p0)
                 .setQ0(q0)
                 .add();
@@ -237,7 +237,7 @@ public class UcteImporter implements Importer {
                 .setId(generatorId)
                 .setEnergySource(energySource)
                 .setBus(bus.getId())
-                .setConnectableBus(bus.getId())
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
@@ -268,8 +268,8 @@ public class UcteImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
                 .setId(ucteLine.getId().toString())
-                .setBus(connected ? nodeCode.toString() : null)
-                .setConnectableBus(nodeCode.toString())
+                .setBus(nodeCode.toString())
+                .setConnectionStatus(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
                 .setG(0f)
@@ -370,10 +370,10 @@ public class UcteImporter implements Importer {
                 .setId(ucteLine.getId().toString())
                 .setVoltageLevel1(ucteVoltageLevel1.getName())
                 .setVoltageLevel2(ucteVoltageLevel2.getName())
-                .setBus1(connected ? nodeCode1.toString() : null)
-                .setBus2(connected ? nodeCode2.toString() : null)
-                .setConnectableBus1(nodeCode1.toString())
-                .setConnectableBus2(nodeCode2.toString())
+                .setBus1(nodeCode1.toString())
+                .setConnectionStatus1(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                .setBus2(nodeCode2.toString())
+                .setConnectionStatus2(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
                 .setG1(0f)
@@ -573,7 +573,7 @@ public class UcteImporter implements Importer {
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
-                .setConnectableBus(yNodeName)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setR(0.0f)
                 .setX(LINE_MIN_Z)
                 .setG(0f)
@@ -607,10 +607,10 @@ public class UcteImporter implements Importer {
                 .setId(ucteTransfo.getId().toString())
                 .setVoltageLevel1(voltageLevelId1)
                 .setVoltageLevel2(voltageLevelId2)
-                .setBus1(connected ? busId1 : null)
-                .setBus2(connected ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2)
+                .setBus1(busId1)
+                .setBus2(busId2)
+                .setConnectionStatus1(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                .setConnectionStatus2(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
                 .setRatedU1(ucteTransfo.getRatedVoltage2())
                 .setRatedU2(ucteTransfo.getRatedVoltage1())
                 .setR(ucteTransfo.getResistance())
@@ -686,10 +686,10 @@ public class UcteImporter implements Importer {
                         .setId(ucteTransfo.getId().toString())
                         .setVoltageLevel1(ucteVoltageLevel2.getName())
                         .setVoltageLevel2(ucteVoltageLevel1.getName())
-                        .setBus1(connected ? nodeCode2.toString() : null)
-                        .setBus2(connected ? nodeCode1.toString() : null)
-                        .setConnectableBus1(nodeCode2.toString())
-                        .setConnectableBus2(nodeCode1.toString())
+                        .setBus1(nodeCode2.toString())
+                        .setConnectionStatus1(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                        .setBus2(nodeCode1.toString())
+                        .setConnectionStatus2(connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
                         .setRatedU1(ucteTransfo.getRatedVoltage2())
                         .setRatedU2(ucteTransfo.getRatedVoltage1())
                         .setR(ucteTransfo.getResistance())
@@ -717,6 +717,13 @@ public class UcteImporter implements Importer {
 
     private static String getBusId(Bus bus) {
         return bus != null ? bus.getId() : null;
+    }
+
+    private static Terminal.ConnectionStatus getConnectionStatus(Terminal terminal) {
+        if (terminal.getBusView().getBus() == null) {
+            return null;
+        }
+        return terminal.isConnected() ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE;
     }
 
     private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
@@ -902,11 +909,11 @@ public class UcteImporter implements Importer {
         TieLine mergeLine = network.newTieLine()
                 .setId(mergeLineId)
                 .setVoltageLevel1(dlAtSideOne.getTerminal().getVoltageLevel().getId())
-                .setConnectableBus1(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus1(getBusId(dlAtSideOne.getTerminal().getBusBreakerView().getBus()))
+                .setConnectionStatus1(getConnectionStatus(dlAtSideOne.getTerminal()))
                 .setVoltageLevel2(dlAtSideTwo.getTerminal().getVoltageLevel().getId())
-                .setConnectableBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
+                .setConnectionStatus2(getConnectionStatus(dlAtSideOne.getTerminal()))
                 .line1()
                 .setId(dlAtSideOne.getId())
                 .setR(dlAtSideOne.getR())

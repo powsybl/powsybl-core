@@ -137,8 +137,8 @@ public abstract class AbstractTopologyTraverserTest {
                 .add();
         vl3.newLoad()
                 .setId("LD2")
-                .setConnectableBus("B1")
                 .setBus("B1")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(1.0)
                 .setQ0(1.0)
                 .add();
@@ -153,8 +153,8 @@ public abstract class AbstractTopologyTraverserTest {
                 .setVoltageLevel1("VL2")
                 .setNode1(4)
                 .setVoltageLevel2("VL3")
-                .setConnectableBus2("B1")
                 .setBus2("B1")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
                 .setR(1.0)
                 .setX(1.0)
                 .setG1(0.0)

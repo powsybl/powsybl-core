@@ -47,12 +47,6 @@ public class ThreeWindingsTransformerAdderAdapter extends AbstractIdentifiableAd
         }
 
         @Override
-        public ThreeWindingsTransformerAdder.LegAdder setConnectableBus(final String connectableBus) {
-            getDelegate().setConnectableBus(connectableBus);
-            return this;
-        }
-
-        @Override
         public ThreeWindingsTransformerAdder.LegAdder setR(final double r) {
             getDelegate().setR(r);
             return this;

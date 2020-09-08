@@ -42,7 +42,7 @@ public class LoadDetailTest {
         vl.newLoad()
                 .setId("L")
                 .setBus("B")
-                .setConnectableBus("B")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(100)
                 .setQ0(50)
                 .add();

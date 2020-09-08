@@ -45,8 +45,10 @@ public abstract class AbstractTapChangerTest {
                                 .setRatedU2(6.0)
                                 .setVoltageLevel1("vl1")
                                 .setVoltageLevel2("vl2")
-                                .setConnectableBus1("busA")
-                                .setConnectableBus2("busB")
+                                .setBus1("busA")
+                                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                                .setBus2("busB")
+                                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                             .add();
         terminal = twt.getTerminal(Branch.Side.ONE);
     }
@@ -536,8 +538,8 @@ public abstract class AbstractTapChangerTest {
                     .setB(1.7)
                     .setRatedU(1.1)
                     .setVoltageLevel("vl1")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add()
                 .newLeg2()
                     .setR(2.03)
@@ -546,7 +548,8 @@ public abstract class AbstractTapChangerTest {
                     .setB(0.0)
                     .setRatedU(2.05)
                     .setVoltageLevel("vl2")
-                    .setConnectableBus("busB")
+                    .setBus("busB")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                     .add()
                 .newLeg3()
                     .setR(3.3)
@@ -555,7 +558,8 @@ public abstract class AbstractTapChangerTest {
                     .setB(0.0)
                     .setRatedU(3.5)
                     .setVoltageLevel("vl2")
-                    .setConnectableBus("busB")
+                    .setBus("busB")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                 .add()
                 .add();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");

@@ -30,13 +30,13 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         }
 
         @Override
-        public Bus getConnectableBus() {
-            return getBus(getDelegate().getConnectableBus());
+        public void setBus(String busId) {
+            getDelegate().setBus(busId);
         }
 
         @Override
-        public void setConnectableBus(final String busId) {
-            getDelegate().setConnectableBus(busId);
+        public ConnectionStatus getConnectionStatus() {
+            return getDelegate().getConnectionStatus();
         }
 
         private Bus getBus(Bus bus) {
@@ -58,8 +58,8 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         }
 
         @Override
-        public Bus getConnectableBus() {
-            return getBus(getDelegate().getConnectableBus());
+        public ConnectionStatus getConnectionStatus() {
+            return getDelegate().getConnectionStatus();
         }
 
         private Bus getBus(Bus bus) {

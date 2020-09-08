@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
@@ -171,6 +172,7 @@ public class HvdcLineAdapterTest {
         mergingView.getVoltageLevel("vl1").newLccConverterStation()
                                                   .setId("C3")
                                                   .setBus("busA")
+                                                  .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                                                   .setLossFactor(0.011f)
                                                   .setPowerFactor(0.5f)
                                               .add();

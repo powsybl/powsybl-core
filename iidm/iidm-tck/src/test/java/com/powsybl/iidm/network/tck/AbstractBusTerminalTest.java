@@ -22,12 +22,12 @@ public abstract class AbstractBusTerminalTest {
     public void testSetInvalidConnectableBus() {
         Network network = EurostagTutorialExample1Factory.create();
         try {
-            network.getLoad("LOAD").getTerminal().getBusBreakerView().setConnectableBus("UNKNOWN");
+            network.getLoad("LOAD").getTerminal().getBusBreakerView().setBus("UNKNOWN");
         } catch (PowsyblException e) {
             // Ignored
         }
         try {
-            network.getLoad("LOAD").getTerminal().getBusBreakerView().setConnectableBus("UNKNOWN");
+            network.getLoad("LOAD").getTerminal().getBusBreakerView().setBus("UNKNOWN");
         } catch (NullPointerException e) {
             Assert.fail();
         } catch (PowsyblException e) {

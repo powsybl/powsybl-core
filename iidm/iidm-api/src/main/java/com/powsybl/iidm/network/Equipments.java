@@ -42,21 +42,14 @@ public final class Equipments {
 
     public static ConnectionInfo getConnectionInfoInBusBreakerView(Terminal t) {
         Bus bus = t.getBusBreakerView().getBus();
-        boolean connected;
-        if (bus != null) {
-            connected = true;
-        } else {
-            connected = false;
-            bus = t.getBusBreakerView().getConnectableBus();
-            if (bus == null) {
-                // otherwise take first bus of the substation at the same voltage
-                // level...
-                Iterator<Bus> itVLB = t.getVoltageLevel().getBusBreakerView().getBuses().iterator();
-                if (itVLB.hasNext()) {
-                    bus = itVLB.next();
-                } else {
-                    throw new PowsyblException("Cannot find a connection bus");
-                }
+        boolean connected = Terminal.ConnectionStatus.CONNECTED.equals(t.getBusBreakerView().getConnectionStatus());
+        if (bus == null) {
+            // otherwise take first bus of the substation at the same voltage level...
+            Iterator<Bus> itVLB = t.getVoltageLevel().getBusBreakerView().getBuses().iterator();
+            if (itVLB.hasNext()) {
+                bus = itVLB.next();
+            } else {
+                throw new PowsyblException("Cannot find a connection bus");
             }
         }
         return new ConnectionInfo(bus, connected);

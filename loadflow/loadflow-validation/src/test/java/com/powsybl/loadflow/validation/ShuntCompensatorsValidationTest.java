@@ -52,7 +52,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
 
         shuntBusView = Mockito.mock(BusView.class);
         Mockito.when(shuntBusView.getBus()).thenReturn(shuntBus);
-        Mockito.when(shuntBusView.getConnectableBus()).thenReturn(shuntBus);
+        Mockito.when(shuntBusView.getConnectionStatus()).thenReturn(Terminal.ConnectionStatus.CONNECTED);
 
         VoltageLevel shuntVoltageLevel = Mockito.mock(VoltageLevel.class);
         Mockito.when(shuntVoltageLevel.getNominalV()).thenReturn(nominalV);
@@ -114,7 +114,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         assertFalse(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
 
         // if the shunt is disconnected then either “q” is not defined or “q” is 0
-        Mockito.when(shuntBusView.getBus()).thenReturn(null);
+        Mockito.when(shuntBusView.getConnectionStatus()).thenReturn(Terminal.ConnectionStatus.CONNECTABLE);
         assertFalse(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
         Mockito.when(shuntTerminal.getQ()).thenReturn(Double.NaN);
         assertTrue(ShuntCompensatorsValidation.INSTANCE.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));

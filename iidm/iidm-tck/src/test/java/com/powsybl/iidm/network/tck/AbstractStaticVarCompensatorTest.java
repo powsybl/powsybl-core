@@ -166,8 +166,8 @@ public abstract class AbstractStaticVarCompensatorTest {
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
         return vl2.newStaticVarCompensator()
                 .setId(id)
-                .setConnectableBus("B2")
                 .setBus("B2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)

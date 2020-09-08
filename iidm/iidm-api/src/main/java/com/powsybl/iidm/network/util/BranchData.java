@@ -124,8 +124,6 @@ public class BranchData {
 
         Bus bus1 = line.getTerminal1().getBusView().getBus();
         Bus bus2 = line.getTerminal2().getBusView().getBus();
-        Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
-        Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
 
         r = line.getR();
         x = line.getX();
@@ -150,10 +148,8 @@ public class BranchData {
 
         connected1 = bus1 != null;
         connected2 = bus2 != null;
-        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
-        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
-        mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        mainComponent1 = bus1 != null && bus1.isInMainConnectedComponent();
+        mainComponent2 = bus2 != null && bus2.isInMainConnectedComponent();
 
         rho1 = 1f;
         alpha1 = 0f;
@@ -174,8 +170,6 @@ public class BranchData {
 
         Bus bus1 = twt.getTerminal1().getBusView().getBus();
         Bus bus2 = twt.getTerminal2().getBusView().getBus();
-        Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
-        Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
 
         r = getR(twt);
         x = getX(twt);
@@ -204,10 +198,8 @@ public class BranchData {
 
         connected1 = bus1 != null;
         connected2 = bus2 != null;
-        boolean connectableMainComponent1 = connectableBus1 != null && connectableBus1.isInMainConnectedComponent();
-        boolean connectableMainComponent2 = connectableBus2 != null && connectableBus2.isInMainConnectedComponent();
-        mainComponent1 = bus1 != null ? bus1.isInMainConnectedComponent() : connectableMainComponent1;
-        mainComponent2 = bus2 != null ? bus2.isInMainConnectedComponent() : connectableMainComponent2;
+        mainComponent1 = bus1 != null && bus1.isInMainConnectedComponent();
+        mainComponent2 = bus2 != null && bus2.isInMainConnectedComponent();
 
         computeValues();
     }

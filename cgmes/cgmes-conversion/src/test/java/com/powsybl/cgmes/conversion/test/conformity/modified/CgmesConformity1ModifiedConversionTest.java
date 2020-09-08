@@ -607,15 +607,15 @@ public class CgmesConformity1ModifiedConversionTest {
 
         // But as the switch was open,
         // the BusView for both ends of the Line
-        // must return a null bus
+        // must have not a connected bus
         Bus bus1 = line.getTerminal1().getBusView().getBus();
         Bus bus2 = line.getTerminal2().getBusView().getBus();
+        // End1 have no connectable bus
         assertNull(bus1);
-        assertNull(bus2);
         // End2 must have a connectable bus
-        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
-        assertNotNull(cbus2);
-        assertTrue(cbus2.getConnectedTerminalCount() > 1);
+        assertNotNull(bus2);
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, line.getTerminal2().getBusView().getConnectionStatus());
+        assertTrue(bus2.getConnectedTerminalCount() > 1);
         // End1 may or may not have a bus defined in BusView,
         // Depending on the definition of a bus,
         // that is under review (PR #1316)

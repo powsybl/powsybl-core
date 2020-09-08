@@ -30,7 +30,7 @@ public final class ShuntTestCaseFactory {
                 .newShuntCompensator()
                     .setId("SHUNT")
                     .setBus("B1")
-                    .setConnectableBus("B1")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setSectionCount(1)
                     .setVoltageRegulatorOn(true)
                     .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
@@ -57,7 +57,7 @@ public final class ShuntTestCaseFactory {
                 .newShuntCompensator()
                     .setId("SHUNT")
                     .setBus("B1")
-                    .setConnectableBus("B1")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setSectionCount(1)
                     .setVoltageRegulatorOn(true)
                     .setRegulatingTerminal(network.getLoad("LOAD").getTerminal())
@@ -112,8 +112,8 @@ public final class ShuntTestCaseFactory {
 
         vl2.newLoad()
                 .setId("LOAD")
-                .setConnectableBus("B2")
                 .setBus("B2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(100.0)
                 .setQ0(50.0)
                 .add();

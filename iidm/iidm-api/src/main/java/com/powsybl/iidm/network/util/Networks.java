@@ -131,7 +131,7 @@ public final class Networks {
     private static void addLoads(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (Load l : network.getLoads()) {
             Terminal.BusBreakerView view = l.getTerminal().getBusBreakerView();
-            if (view.getBus() != null) {
+            if (Terminal.ConnectionStatus.CONNECTED.equals(view.getConnectionStatus())) {
                 if (view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.connectedLoads.add(l.getId());
                     balanceMainCC.connectedLoadVolume += l.getP0();
@@ -140,7 +140,7 @@ public final class Networks {
                     balanceOtherCC.connectedLoadVolume += l.getP0();
                 }
             } else {
-                if (view.getConnectableBus().isInMainConnectedComponent()) {
+                if (view.getBus() != null && view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.disconnectedLoads.add(l.getId());
                     balanceMainCC.disconnectedLoadVolume += l.getP0();
                 } else {
@@ -154,7 +154,7 @@ public final class Networks {
     private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (DanglingLine dl : network.getDanglingLines()) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
-            if (view.getBus() != null) {
+            if (Terminal.ConnectionStatus.CONNECTED.equals(view.getConnectionStatus())) {
                 if (view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.connectedLoads.add(dl.getId());
                     balanceMainCC.connectedLoadVolume += dl.getP0();
@@ -163,7 +163,7 @@ public final class Networks {
                     balanceOtherCC.connectedLoadVolume += dl.getP0();
                 }
             } else {
-                if (view.getConnectableBus().isInMainConnectedComponent()) {
+                if (view.getBus() != null && view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.disconnectedLoads.add(dl.getId());
                     balanceMainCC.disconnectedLoadVolume += dl.getP0();
                 } else {
@@ -177,7 +177,7 @@ public final class Networks {
     private static void addGenerators(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (Generator g : network.getGenerators()) {
             Terminal.BusBreakerView view = g.getTerminal().getBusBreakerView();
-            if (view.getBus() != null) {
+            if (Terminal.ConnectionStatus.CONNECTED.equals(view.getConnectionStatus())) {
                 if (view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.connectedMaxGeneration += g.getMaxP();
                     balanceMainCC.connectedGeneration += g.getTargetP();
@@ -188,7 +188,7 @@ public final class Networks {
                     balanceOtherCC.connectedGenerators.add(g.getId());
                 }
             } else {
-                if (view.getConnectableBus().isInMainConnectedComponent()) {
+                if (view.getBus() != null && view.getBus().isInMainConnectedComponent()) {
                     balanceMainCC.disconnectedMaxGeneration += g.getMaxP();
                     balanceMainCC.disconnectedGeneration += g.getTargetP();
                     balanceMainCC.disconnectedGenerators.add(g.getId());
@@ -206,9 +206,11 @@ public final class Networks {
             Terminal.BusBreakerView view = sc.getTerminal().getBusBreakerView();
             double q = sc.getB() * Math.pow(sc.getTerminal().getVoltageLevel().getNominalV(), 2);
             if (view.getBus() != null) {
-                addConnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
-            } else {
-                addDisonnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
+                if (Terminal.ConnectionStatus.CONNECTED.equals(view.getConnectionStatus())) {
+                    addConnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
+                } else {
+                    addDisonnectedShunt(view, q, sc.getId(), balanceMainCC, balanceOtherCC);
+                }
             }
         }
     }
@@ -232,7 +234,7 @@ public final class Networks {
     }
 
     private static void addDisonnectedShunt(Terminal.BusBreakerView view, double q, String shuntId, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        if (view.getConnectableBus().isInMainConnectedComponent()) {
+        if (view.getBus().isInMainConnectedComponent()) {
             if (q > 0) {
                 balanceMainCC.disconnectedShuntPositiveVolume += q;
             } else {
@@ -331,12 +333,12 @@ public final class Networks {
         for (Generator g : network.getGenerators()) {
             double dp = Math.abs(g.getTerminal().getP() + g.getTargetP());
             double dq = Math.abs(g.getTerminal().getQ() + g.getTargetQ());
-            double dv = Math.abs(g.getTerminal().getBusBreakerView().getConnectableBus().getV() - g.getTargetV());
+            double dv = Math.abs(g.getTerminal().getBusBreakerView().getBus().getV() - g.getTargetV());
             if (dp > 1 || dq > 5 || dv > 0.1) {
                 logger.warn("Generator {}: ({}, {}, {}) ({}, {}, {}) -> ({}, {}, {})", g.getId(),
                         dp, dq, dv,
                         -g.getTargetP(), -g.getTargetQ(), g.getTargetV(),
-                        g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getConnectableBus().getV());
+                        g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getBus().getV());
             }
         }
     }
@@ -357,7 +359,7 @@ public final class Networks {
             Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(i);
             if (terminal != null) {
                 Bus bus = terminal.getBusView().getBus();
-                if (bus != null) {
+                if (bus != null && Terminal.ConnectionStatus.CONNECTED.equals(terminal.getBusView().getConnectionStatus())) {
                     nodesByBus.computeIfAbsent(bus.getId(), k -> new TreeSet<>()).add(i);
                 }
             } else {

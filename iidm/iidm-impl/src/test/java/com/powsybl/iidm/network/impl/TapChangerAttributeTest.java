@@ -2,14 +2,9 @@ package com.powsybl.iidm.network.impl;
 
 import static org.junit.Assert.assertEquals;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChangerHolder;
-import com.powsybl.iidm.network.RatioTapChangerHolder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 
 public class TapChangerAttributeTest {
@@ -47,8 +42,8 @@ public class TapChangerAttributeTest {
             .setB(1.7)
             .setRatedU(1.1)
             .setVoltageLevel("vl1")
-            .setConnectableBus("busA")
             .setBus("busA")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .add()
             .newLeg2()
             .setR(2.03)
@@ -57,7 +52,8 @@ public class TapChangerAttributeTest {
             .setB(0.0)
             .setRatedU(2.05)
             .setVoltageLevel("vl2")
-            .setConnectableBus("busB")
+            .setBus("busB")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
             .add()
             .newLeg3()
             .setR(3.3)
@@ -66,7 +62,8 @@ public class TapChangerAttributeTest {
             .setB(0.0)
             .setRatedU(3.5)
             .setVoltageLevel("vl2")
-            .setConnectableBus("busB")
+            .setBus("busB")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
             .add()
             .add();
     }
@@ -83,8 +80,10 @@ public class TapChangerAttributeTest {
             .setRatedU2(6.0)
             .setVoltageLevel1("vl1")
             .setVoltageLevel2("vl2")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
+            .setBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+            .setBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
             .add();
     }
 

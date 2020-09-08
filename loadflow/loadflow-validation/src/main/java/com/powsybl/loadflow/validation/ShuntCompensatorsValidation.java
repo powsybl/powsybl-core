@@ -95,12 +95,11 @@ public final class ShuntCompensatorsValidation {
         double bPerSection = shunt.getModel(ShuntCompensatorLinearModel.class).getBPerSection();
         double nominalV = shunt.getTerminal().getVoltageLevel().getNominalV();
         double qMax = bPerSection * maximumSectionCount * nominalV * nominalV;
-        Bus bus = shunt.getTerminal().getBusView().getBus();
+        Terminal.ConnectionStatus connectionStatus = shunt.getTerminal().getBusView().getConnectionStatus();
+        boolean connected = Terminal.ConnectionStatus.CONNECTED.equals(connectionStatus);
+        Bus bus = connected ? shunt.getTerminal().getBusView().getBus() : null;
         double v = bus != null ? bus.getV() : Double.NaN;
-        boolean connected = bus != null;
-        Bus connectableBus = shunt.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        boolean mainComponent = bus != null && bus.isInMainConnectedComponent();
         return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
     }
 

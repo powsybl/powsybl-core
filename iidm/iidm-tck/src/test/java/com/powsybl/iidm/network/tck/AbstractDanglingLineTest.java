@@ -80,7 +80,7 @@ public abstract class AbstractDanglingLineTest {
                         .setQ0(q0)
                         .setUcteXnodeCode(ucteXnodeCode)
                         .setBus(BUS_VL_ID)
-                        .setConnectableBus(BUS_VL_ID)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
@@ -251,7 +251,7 @@ public abstract class AbstractDanglingLineTest {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnodeCode)
                 .setBus(BUS_VL_ID)
-                .setConnectableBus(BUS_VL_ID)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .newGeneration()
                     .setTargetP(440)
                     .setMaxP(900)
@@ -289,7 +289,7 @@ public abstract class AbstractDanglingLineTest {
                         .setQ0(q0)
                         .setUcteXnodeCode(ucteCode)
                         .setBus(BUS_VL_ID)
-                        .setConnectableBus(BUS_VL_ID)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .add();
     }
 

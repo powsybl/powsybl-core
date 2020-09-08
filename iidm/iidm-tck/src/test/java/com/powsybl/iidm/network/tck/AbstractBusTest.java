@@ -45,18 +45,18 @@ public abstract class AbstractBusTest {
                                                     .setId("lcc")
                                                     .setName("lcc")
                                                     .setBus("bus1")
+                                                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                                                     .setLossFactor(0.011f)
                                                     .setPowerFactor(0.5f)
-                                                    .setConnectableBus("bus1")
                                                 .add();
         VscConverterStation vscConverterStation = voltageLevel.newVscConverterStation()
                                                     .setId("vsc")
                                                     .setName("vsc")
                                                     .setBus("bus1")
+                                                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                                                     .setLossFactor(0.011f)
                                                     .setVoltageRegulatorOn(false)
                                                     .setReactivePowerSetpoint(1.0)
-                                                    .setConnectableBus("bus1")
                                                 .add();
         assertEquals(HvdcConverterStation.HvdcType.LCC, lccConverterStation.getHvdcType());
         assertEquals(HvdcConverterStation.HvdcType.VSC, vscConverterStation.getHvdcType());

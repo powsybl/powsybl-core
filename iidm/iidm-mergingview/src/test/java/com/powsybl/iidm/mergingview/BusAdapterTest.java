@@ -299,6 +299,7 @@ public class BusAdapterTest {
                 .setTargetP(50.0)
                 .setTargetQ(30.0)
                 .setBus("B1")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("B2")
@@ -307,8 +308,10 @@ public class BusAdapterTest {
                 .setId("L")
                 .setVoltageLevel1("S1_VL")
                 .setBus1("B1")
+                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
                 .setVoltageLevel2("S1_VL")
                 .setBus2("B2")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
                 .setR(1.0)
                 .setX(1.0)
                 .setG1(0.0)
@@ -319,6 +322,7 @@ public class BusAdapterTest {
         vl.newDanglingLine()
                 .setId("S2_DL")
                 .setBus("B2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setUcteXnodeCode("XNode")
                 .setR(10.0)
                 .setX(1.0)
@@ -349,14 +353,15 @@ public class BusAdapterTest {
                 .add();
         vl.newLoad()
                 .setId("LOAD")
-                .setConnectableBus("B3")
                 .setBus("B3")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(100.0)
                 .setQ0(1.0)
                 .add();
         vl.newDanglingLine()
                 .setId("S2_DL")
                 .setBus("B3")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setUcteXnodeCode("XNode")
                 .setR(10.0)
                 .setX(1.0)
@@ -382,7 +387,7 @@ public class BusAdapterTest {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnodeCode)
                 .setBus(busId)
-                .setConnectableBus(busId)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
     }
 

@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" bus="B1" connectableBus="B1">
+            <iidm:shunt id="SHUNT" sectionCount="1" voltageRegulatorOn="true" targetV="200.0" targetDeadband="5.0" busId="B1" connectionStatus="CONNECTED">
                 <iidm:property name="test" value="test"/>
                 <iidm:shuntNonLinearModel>
                     <iidm:section b="1.0E-5" g="0.0"/>
@@ -20,7 +20,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B2"/>
             </iidm:busBreakerTopology>
-            <iidm:load id="LOAD" loadType="UNDEFINED" p0="100.0" q0="50.0" bus="B2" connectableBus="B2"/>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="100.0" q0="50.0" busId="B2" connectionStatus="CONNECTED"/>
         </iidm:voltageLevel>
     </iidm:substation>
 </iidm:network>

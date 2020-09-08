@@ -64,6 +64,7 @@ public abstract class AbstractCalculatedTopologyTest {
         vl1.newLoad()
                 .setId("L1")
                 .setBus("B1a")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(1)
                 .setQ0(0)
                 .add();
@@ -73,6 +74,7 @@ public abstract class AbstractCalculatedTopologyTest {
         vl1.newGenerator()
                 .setId("G1")
                 .setBus("B1b")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setMinP(0)
                 .setMaxP(1)
                 .setTargetP(1)
@@ -91,6 +93,7 @@ public abstract class AbstractCalculatedTopologyTest {
         vl2.newLoad()
                 .setId("L2")
                 .setBus("B2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(1)
                 .setQ0(0)
                 .add();
@@ -99,7 +102,9 @@ public abstract class AbstractCalculatedTopologyTest {
                 .setVoltageLevel1("VL1")
                 .setVoltageLevel2("VL2")
                 .setBus1("B1a")
+                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
                 .setBus2("B2")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
                 .setR(1)
                 .setX(1)
                 .setG1(0)
@@ -179,6 +184,7 @@ public abstract class AbstractCalculatedTopologyTest {
         vl2.newLoad()
                 .setId("L2")
                 .setBus("B2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(1)
                 .setQ0(0)
                 .add();

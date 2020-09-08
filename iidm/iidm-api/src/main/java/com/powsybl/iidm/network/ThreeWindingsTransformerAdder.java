@@ -20,7 +20,17 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         LegAdder setBus(String bus);
 
-        LegAdder setConnectableBus(String connectableBus);
+        default LegAdder setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+            return this;
+        }
+
+        /**
+         * @deprecated bus and connectableBus are redundant, so we use bus and connection status.
+         */
+        @Deprecated
+        default LegAdder setConnectableBus(String connectableBus) {
+            return setBus(connectableBus);
+        }
 
         LegAdder setR(double r);
 

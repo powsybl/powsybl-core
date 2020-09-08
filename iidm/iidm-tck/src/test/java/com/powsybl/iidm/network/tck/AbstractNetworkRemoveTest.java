@@ -59,7 +59,7 @@ public abstract class AbstractNetworkRemoveTest {
         Load l = network.getLoad("LOAD");
         assertEquals(NLOAD, l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
-        l.getTerminal().getBusBreakerView().setConnectableBus(NEW_BUS);
+        l.getTerminal().getBusBreakerView().setBus(NEW_BUS);
         assertEquals(NEW_BUS, l.getTerminal().getBusBreakerView().getBus().getId());
         assertTrue(l.getTerminal().isConnected());
     }

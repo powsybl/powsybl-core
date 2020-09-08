@@ -9,14 +9,8 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
-
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -72,6 +66,7 @@ public class IssuesTest {
         Generator g1 = vl1.newGenerator()
             .setId("G1")
             .setBus("B1")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .setMinP(0)
             .setMaxP(1)
             .setTargetP(1)
@@ -86,6 +81,7 @@ public class IssuesTest {
         vl2.newLoad()
             .setId("L2")
             .setBus("B2")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .setP0(1)
             .setQ0(0)
             .add();

@@ -34,6 +34,7 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
         vl.newDanglingLine()
                 .setId("DL")
                 .setBus("B")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setR(1.0)
                 .setX(1.0)
                 .setG(0.0)

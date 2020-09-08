@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Terminal;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -16,7 +18,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
 
     private String bus;
 
-    private String connectableBus;
+    private Terminal.ConnectionStatus connectionStatus;
 
     public T setNode(int node) {
         this.node = node;
@@ -28,8 +30,8 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return (T) this;
     }
 
-    public T setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
+    public T setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+        this.connectionStatus = connectionStatus;
         return (T) this;
     }
 
@@ -37,7 +39,7 @@ abstract class AbstractInjectionAdder<T extends AbstractInjectionAdder<T>> exten
         return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node)
                 .setBus(bus)
-                .setConnectableBus(connectableBus)
+                .setConnectionStatus(connectionStatus)
                 .build();
     }
 }

@@ -37,11 +37,9 @@ class BranchTestData {
 
         BusView busView1 = Mockito.mock(BusView.class);
         Mockito.when(busView1.getBus()).thenReturn(bus1);
-        Mockito.when(busView1.getConnectableBus()).thenReturn(null);
 
         BusView busView2 = Mockito.mock(BusView.class);
         Mockito.when(busView2.getBus()).thenReturn(bus2);
-        Mockito.when(busView1.getConnectableBus()).thenReturn(null);
 
         voltageLevel1 = Mockito.mock(VoltageLevel.class);
         Mockito.when(voltageLevel1.getNominalV()).thenReturn(400.0);

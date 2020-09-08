@@ -16,6 +16,16 @@ public interface InjectionAdder<T extends InjectionAdder> extends IdentifiableAd
 
     T setBus(String bus);
 
-    T setConnectableBus(String connectableBus);
+    default T setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+        return (T) this;
+    }
+
+    /**
+     * @deprecated bus and connectableBus are redundant, so we use bus and connection status
+     */
+    @Deprecated
+    default T setConnectableBus(String connectableBus) {
+        return setBus(connectableBus);
+    }
 
 }

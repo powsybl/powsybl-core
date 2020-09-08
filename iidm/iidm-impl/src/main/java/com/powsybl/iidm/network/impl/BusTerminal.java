@@ -30,16 +30,17 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getBus() {
-            return isConnected() ? getConnectableBus() : null;
-        }
-
-        @Override
-        public ConfiguredBus getConnectableBus() {
             return ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
         }
 
         @Override
-        public void setConnectableBus(String busId) {
+        public ConnectionStatus getConnectionStatus() {
+            ConnectionStatus connectableStatus = getBus() != null ? ConnectionStatus.CONNECTABLE : null;
+            return isConnected() ? ConnectionStatus.CONNECTED : connectableStatus;
+        }
+
+        @Override
+        public void setBus(String busId) {
             Objects.requireNonNull(busId);
             BusBreakerVoltageLevel vl = (BusBreakerVoltageLevel) voltageLevel;
 
@@ -59,15 +60,15 @@ class BusTerminal extends AbstractTerminal {
 
         @Override
         public BusExt getBus() {
-            return isConnected() ? this.getConnectableBus() : null;
-        }
-
-        @Override
-        public MergedBus getConnectableBus() {
             ConfiguredBus bus = ((BusBreakerVoltageLevel) voltageLevel).getBus(getConnectableBusId(), true);
             return ((BusBreakerVoltageLevel) voltageLevel).calculatedBusTopology.getMergedBus(bus);
         }
 
+        @Override
+        public ConnectionStatus getConnectionStatus() {
+            ConnectionStatus connectableStatus = getBus() != null ? ConnectionStatus.CONNECTABLE : null;
+            return isConnected() ? ConnectionStatus.CONNECTED : connectableStatus;
+        }
     };
 
     // attributes depending on the variant

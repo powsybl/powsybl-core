@@ -897,7 +897,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 if (b1 != null) {
                     l.bus1 = b1.getId();
                 }
-                l.connectableBus1 = t1.getBusBreakerView().getConnectableBus().getId();
+                l.connectionStatus1 = t1.getBusBreakerView().getConnectionStatus();
             } else {
                 l.node1 = t1.getNodeBreakerView().getNode();
             }
@@ -906,7 +906,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 if (b2 != null) {
                     l.bus2 = b2.getId();
                 }
-                l.connectableBus2 = t2.getBusBreakerView().getConnectableBus().getId();
+                l.connectionStatus2 = t2.getBusBreakerView().getConnectionStatus();
             } else {
                 l.node2 = t2.getNodeBreakerView().getNode();
             }
@@ -983,11 +983,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
             }
-            la.setConnectableBus1(mergedLine.connectableBus1);
+            la.setConnectionStatus1(mergedLine.connectionStatus1);
             if (mergedLine.bus2 != null) {
                 la.setBus2(mergedLine.bus2);
             }
-            la.setConnectableBus2(mergedLine.connectableBus2);
+            la.setConnectionStatus2(mergedLine.connectionStatus2);
             if (mergedLine.node1 != null) {
                 la.setNode1(mergedLine.node1);
             }
@@ -1014,8 +1014,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         String xnode;
         String bus1;
         String bus2;
-        String connectableBus1;
-        String connectableBus2;
+        Terminal.ConnectionStatus connectionStatus1;
+        Terminal.ConnectionStatus connectionStatus2;
         Integer node1;
         Integer node2;
         Properties properties = new Properties();

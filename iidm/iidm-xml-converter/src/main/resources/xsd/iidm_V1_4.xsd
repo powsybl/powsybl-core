@@ -205,12 +205,18 @@
             <xs:enumeration value="OTHER"/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="ConnectionStatus">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="CONNECTED"/>
+            <xs:enumeration value="CONNECTABLE"/>
+        </xs:restriction>
+    </xs:simpleType>
     <xs:complexType name="Injection">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node" use="optional" type="xs:int"/>
-                <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="p" use="optional" type="xs:double"/>
                 <xs:attribute name="q" use="optional" type="xs:double"/>
             </xs:extension>
@@ -364,12 +370,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus1" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus2" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:double"/>
                 <xs:attribute name="q1" use="optional" type="xs:double"/>
@@ -431,16 +437,16 @@
                 <xs:attribute name="b2" use="required" type="xs:double"/>
                 <xs:attribute name="b3" use="required" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
-                <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus1" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
-                <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus2" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node3" use="optional" type="xs:int"/>
-                <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="busId3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connectionStatus3" use="optional" type="iidm:ConnectionStatus"/>
                 <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:double"/>
                 <xs:attribute name="q1" use="optional" type="xs:double"/>

@@ -196,7 +196,8 @@ public class PsseImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseLoad.getI()));
         Load load = voltageLevel.newLoad()
                 .setId(busId + "-L" + psseLoad.getId())
-                .setConnectableBus(busId)
+                .setBus(busId)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                 .setP0(psseLoad.getPl()) //TODO: take into account Ip, Yp when iidm static load will have exponential modelling
                 .setQ0(psseLoad.getQl()) //TODO: take into account Iq, Yq when iidm static load will have exponential modelling
                 .add();
@@ -213,8 +214,8 @@ public class PsseImporter implements Importer {
             VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseShunt.getI()));
             ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                     .setId(busId + "-SH" + psseShunt.getId())
-                    .setConnectableBus(busId)
                     .setBus(busId)
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setBPerSection(psseShunt.getBl())//TODO: take into account gl
@@ -271,7 +272,8 @@ public class PsseImporter implements Importer {
             if (psseSwShunt.getBinit() != 0) { //TODO : improve it to make it robust to all configurations
                 ShuntCompensator shunt = voltageLevel.newShuntCompensator()
                         .setId(busId + "-SwSH-B" + i)
-                        .setConnectableBus(busId)
+                        .setBus(busId)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                         .setSectionCount(1)
                         .newLinearModel() //TODO: use Binit and sbl.getNi(i) to initiate Bi, for now we use Binit to obtain de same load-flow results
                             .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
@@ -291,7 +293,8 @@ public class PsseImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI()));
         Generator generator =  voltageLevel.newGenerator()
                 .setId(busId + "-G" + psseGen.getId())
-                .setConnectableBus(busId)
+                .setBus(busId)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                 .setTargetP(psseGen.getPg())
                 .setMaxP(psseGen.getPt())
                 .setMinP(psseGen.getPb())
@@ -363,9 +366,9 @@ public class PsseImporter implements Importer {
         Line line = network.newLine()
                 .setId(id)
                 .setEnsureIdUnicity(true)
-                .setConnectableBus1(bus1Id)
+                .setBus1(bus1Id)
                 .setVoltageLevel1(voltageLevel1Id)
-                .setConnectableBus2(bus2Id)
+                .setBus2(bus2Id)
                 .setVoltageLevel2(voltageLevel2Id)
                 .setR(psseLine.getR() * zb)
                 .setX(psseLine.getX() * zb)
@@ -457,9 +460,11 @@ public class PsseImporter implements Importer {
             TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
                     .setEnsureIdUnicity(true)
-                    .setConnectableBus1(bus1Id)
+                    .setBus1(bus1Id)
+                    .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
                     .setVoltageLevel1(voltageLevel1Id)
-                    .setConnectableBus2(bus2Id)
+                    .setBus2(bus2Id)
+                    .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                     .setVoltageLevel2(voltageLevel2Id)
                     .setRatedU1(voltageLevel1.getNominalV() * w1)
                     .setRatedU2(voltageLevel2.getNominalV() * w2)
@@ -585,7 +590,8 @@ public class PsseImporter implements Importer {
                         .setG(gmPu * w1 * w1 / zbV0)
                         .setB(bmPu * w1 * w1 / zbV0)
                         .setRatedU(voltageLevel1.getNominalV() * w1)
-                        .setConnectableBus(bus1Id)
+                        .setBus(bus1Id)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                         .setVoltageLevel(voltageLevel1Id)
                     .add()
                     .newLeg2()
@@ -594,7 +600,8 @@ public class PsseImporter implements Importer {
                         .setG(0)
                         .setB(0)
                         .setRatedU(voltageLevel2.getNominalV() * w2)
-                        .setConnectableBus(bus2Id)
+                        .setBus(bus2Id)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                         .setVoltageLevel(voltageLevel2Id)
                     .add()
                     .newLeg3()
@@ -603,7 +610,8 @@ public class PsseImporter implements Importer {
                         .setG(0)
                         .setB(0)
                         .setRatedU(voltageLevel3.getNominalV() * w3)
-                        .setConnectableBus(bus3Id)
+                        .setBus(bus3Id)
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                         .setVoltageLevel(voltageLevel3Id)
                     .add()
                  .add();

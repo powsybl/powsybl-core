@@ -52,15 +52,14 @@ public class TerminalAdapterTest {
         // BusBreakerView
         final Terminal.BusBreakerView busBreakerView = t1.getBusBreakerView();
         assertTrue(busBreakerView instanceof TerminalAdapter.BusBreakerViewAdapter);
-        busBreakerView.setConnectableBus("NLOAD");
+        busBreakerView.setBus("NLOAD");
         assertNotNull(busBreakerView.getBus());
-        assertNotNull(busBreakerView.getConnectableBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTED, busBreakerView.getConnectionStatus());
 
         // BusView
         final Terminal.BusView busView = t1.getBusView();
         assertTrue(busView instanceof TerminalAdapter.BusViewAdapter);
         assertNotNull(busView.getBus());
-        assertNotNull(busView.getConnectableBus());
 
         // NodeBreakerView
         final Terminal.NodeBreakerView nodeBreakerView = t1.getNodeBreakerView();

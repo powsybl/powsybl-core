@@ -34,7 +34,7 @@ public final class AmplUtil {
     }
 
     public static Bus getConnectableBus(Terminal t) {
-        return t.getBusView().getConnectableBus();
+        return t.getBusView().getBus();
     }
 
     public static int getConnectableBusNum(StringToIntMapper<AmplSubset> mapper, Terminal t) {

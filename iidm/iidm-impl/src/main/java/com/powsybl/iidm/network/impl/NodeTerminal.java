@@ -50,15 +50,15 @@ class NodeTerminal extends AbstractTerminal {
         }
 
         @Override
-        public BusExt getConnectableBus() {
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectableBus(node);
+        public ConnectionStatus getConnectionStatus() {
+            ConnectionStatus status = getBus() != null ? ConnectionStatus.CONNECTABLE : null;
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusBreakerTopology().getConnectedBus(node) != null ? ConnectionStatus.CONNECTED : status;
         }
 
         @Override
-        public void setConnectableBus(String busId) {
+        public void setBus(String busId) {
             throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
         }
-
     };
 
     private final BusViewExt busView = new BusViewExt() {
@@ -69,10 +69,10 @@ class NodeTerminal extends AbstractTerminal {
         }
 
         @Override
-        public BusExt getConnectableBus() {
-            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getConnectableBus(node);
+        public ConnectionStatus getConnectionStatus() {
+            ConnectionStatus status = getBus() != null ? ConnectionStatus.CONNECTABLE : null;
+            return ((NodeBreakerVoltageLevel) voltageLevel).getCalculatedBusTopology().getConnectedBus(node) != null ? ConnectionStatus.CONNECTED : status;
         }
-
     };
 
     NodeTerminal(Ref<? extends VariantManagerHolder> network, int node) {

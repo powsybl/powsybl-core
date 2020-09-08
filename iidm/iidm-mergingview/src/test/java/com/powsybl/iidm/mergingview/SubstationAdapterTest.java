@@ -110,9 +110,9 @@ public class SubstationAdapterTest {
                 .setVoltageLevel1("vl1")
                 .setVoltageLevel2("vl2")
                 .setBus1("busA")
-                .setConnectableBus1("busA")
+                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
                 .setBus2("busB")
-                .setConnectableBus2("busB")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         assertSame(t2wt, substation.getTwoWindingsTransformers().iterator().next());
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
@@ -130,8 +130,8 @@ public class SubstationAdapterTest {
                         .setB(1.7)
                         .setRatedU(1.1)
                         .setVoltageLevel("vl1")
-                        .setConnectableBus("busA")
                         .setBus("busA")
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                         .setRatedU(1.0d)
                     .add()
                     .newLeg2()
@@ -139,7 +139,8 @@ public class SubstationAdapterTest {
                         .setX(2.04)
                         .setRatedU(2.05)
                         .setVoltageLevel("vl2")
-                        .setConnectableBus("busB")
+                        .setBus("busB")
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTABLE)
                         .setRatedU(2.0d)
                     .add()
                     .newLeg3()
@@ -148,7 +149,7 @@ public class SubstationAdapterTest {
                         .setRatedU(3.5)
                         .setVoltageLevel("vl2")
                         .setBus("busB")
-                        .setConnectableBus("busB")
+                        .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                         .setRatedU(3.0d)
                     .add()
                 .add();

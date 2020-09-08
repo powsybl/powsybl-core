@@ -34,6 +34,7 @@ public class BatteryAdapterTest {
                                          .setName("BATEST")
                                          .setFictitious(true)
                                          .setBus("busA")
+                                         .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                                          .setMaxP(9999.99d)
                                          .setMinP(-9999.99d)
                                          .setP0(15.0d)

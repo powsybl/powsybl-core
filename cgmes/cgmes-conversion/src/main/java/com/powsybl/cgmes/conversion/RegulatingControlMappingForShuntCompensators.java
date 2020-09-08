@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -77,12 +78,18 @@ public class RegulatingControlMappingForShuntCompensators {
     }
 
     private void setDefaultRegulatingControl(ShuntCompensator shuntCompensator) {
-        shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getTerminal().getBusView().getBus())
+        if (Terminal.ConnectionStatus.CONNECTED.equals(shuntCompensator.getTerminal().getBusView().getConnectionStatus())) {
+            shuntCompensator.setTargetV(Optional.ofNullable(shuntCompensator.getTerminal().getBusView().getBus())
                     .map(Bus::getV)
                     .filter(v -> !Double.isNaN(v))
                     .orElseGet(() -> shuntCompensator.getTerminal().getVoltageLevel().getNominalV()))
-                .setTargetDeadband(0.0)
-                .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
+                    .setTargetDeadband(0.0)
+                    .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
+        } else {
+            shuntCompensator.setTargetV(shuntCompensator.getTerminal().getVoltageLevel().getNominalV())
+                    .setTargetDeadband(0.0)
+                    .setVoltageRegulatorOn(true);
+        }
     }
 
     private void setRegulatingControl(ShuntCompensator shuntCompensator, RegulatingControl rc) {

@@ -33,8 +33,8 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .add();
         vl1.newDanglingLine()
                 .setId("dl1")
-                .setConnectableBus("b1")
                 .setBus("b1")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(0)
                 .setQ0(0)
                 .setR(1)
@@ -58,8 +58,8 @@ public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
                 .add();
         vl2.newDanglingLine()
                 .setId("dl2")
-                .setConnectableBus("b2")
                 .setBus("b2")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(0)
                 .setQ0(0)
                 .setR(1)

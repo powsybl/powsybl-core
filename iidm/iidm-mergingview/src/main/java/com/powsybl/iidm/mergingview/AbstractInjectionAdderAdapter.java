@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.InjectionAdder;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -33,8 +34,8 @@ abstract class AbstractInjectionAdderAdapter<I extends InjectionAdder<I>> extend
     }
 
     @Override
-    public I setConnectableBus(String connectableBus) {
-        getDelegate().setConnectableBus(connectableBus);
+    public I setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+        getDelegate().setConnectionStatus(connectionStatus);
         return (I) this;
     }
 }

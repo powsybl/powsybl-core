@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,16 +23,6 @@ import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
 import com.powsybl.cgmes.conversion.update.IidmChangeUpdate;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -203,6 +194,7 @@ public final class ChangelogUpdateTest {
         voltageLevel1.newLoad()
             .setId("load")
             .setBus("bus1")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .setP0(10)
             .setQ0(3)
             .add();
@@ -216,6 +208,7 @@ public final class ChangelogUpdateTest {
             .setTargetP(607.0)
             .setTargetQ(301.0)
             .setBus("bus1")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .add();
         generator.newReactiveCapabilityCurve()
             .beginPoint().setP(200.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
@@ -227,7 +220,9 @@ public final class ChangelogUpdateTest {
             .setVoltageLevel1("voltageLevel1")
             .setVoltageLevel2("voltageLevel2")
             .setBus1("bus1")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setBus2("bus2")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .setR(1.935)
             .setX(34.2)
             .setB1(2.120575e-5)

@@ -119,7 +119,7 @@ public class StateVariablesAdder {
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
             DanglingLine dl = network.getDanglingLine(line);
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            if (b != null) {
+            if (b != null && Terminal.ConnectionStatus.CONNECTED.equals(dl.getTerminal().getBusBreakerView().getConnectionStatus())) {
                 // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
                 Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
                     dl.getP0(), dl.getQ0());

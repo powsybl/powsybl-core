@@ -64,7 +64,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         if (context.nodeBreaker()) {
             adder.setNode(node);
         } else {
-            adder.setConnectableBus(busId).setBus(busId);
+            adder.setBus(busId).setConnectionStatus(Terminal.ConnectionStatus.CONNECTED);
         }
     }
 

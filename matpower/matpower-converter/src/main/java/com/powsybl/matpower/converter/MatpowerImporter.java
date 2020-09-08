@@ -121,8 +121,8 @@ public class MatpowerImporter implements Importer {
             Generator generator = voltageLevel.newGenerator()
                     .setId(genId)
                     .setEnsureIdUnicity(true)
-                    .setConnectableBus(busId)
-                    .setBus(isInService(mGen) ? busId : null)
+                    .setBus(busId)
+                    .setConnectionStatus(isInService(mGen) ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
                     .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
@@ -196,8 +196,8 @@ public class MatpowerImporter implements Importer {
             String loadId = getId(LOAD_PREFIX, mBus.getNumber());
             Load newLoad = voltageLevel.newLoad()
                 .setId(loadId)
-                .setConnectableBus(busId)
                 .setBus(busId)
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setP0(mBus.getRealPowerDemand())
                 .setQ0(mBus.getReactivePowerDemand())
                 .add();
@@ -212,8 +212,8 @@ public class MatpowerImporter implements Importer {
             double zb = voltageLevel.getNominalV() * voltageLevel.getNominalV() / perUnitContext.getBaseMva();
             ShuntCompensatorAdder adder = voltageLevel.newShuntCompensator()
                     .setId(shuntId)
-                    .setConnectableBus(busId)
                     .setBus(busId)
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setSectionCount(1);
             adder.newLinearModel()
                     .setBPerSection(mBus.getShuntSusceptance() / perUnitContext.getBaseMva() / zb)
@@ -243,18 +243,17 @@ public class MatpowerImporter implements Importer {
             VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
             double zb = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getBaseMva();
             boolean isInService = isInService(mBranch);
-            String connectedBus1 = isInService ? bus1Id : null;
-            String connectedBus2 = isInService ? bus2Id : null;
+            Terminal.ConnectionStatus connectionStatus = isInService ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE;
 
             if (isTransformer(mBranch)) {
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
-                        .setBus1(connectedBus1)
-                        .setConnectableBus1(bus1Id)
+                        .setBus1(bus1Id)
+                        .setConnectionStatus1(connectionStatus)
                         .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(connectedBus2)
-                        .setConnectableBus2(bus2Id)
+                        .setBus2(bus2Id)
+                        .setConnectionStatus2(connectionStatus)
                         .setVoltageLevel2(voltageLevel2Id)
                         .setRatedU1(voltageLevel1.getNominalV() * mBranch.getRatio())
                         .setRatedU2(voltageLevel2.getNominalV())
@@ -268,11 +267,11 @@ public class MatpowerImporter implements Importer {
                 Line newLine = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
-                        .setBus1(connectedBus1)
-                        .setConnectableBus1(bus1Id)
+                        .setBus1(bus1Id)
+                        .setConnectionStatus1(connectionStatus)
                         .setVoltageLevel1(voltageLevel1Id)
-                        .setBus2(connectedBus2)
-                        .setConnectableBus2(bus2Id)
+                        .setBus2(bus2Id)
+                        .setConnectionStatus2(connectionStatus)
                         .setVoltageLevel2(voltageLevel2Id)
                         .setR(mBranch.getR() * zb)
                         .setX(mBranch.getX() * zb)

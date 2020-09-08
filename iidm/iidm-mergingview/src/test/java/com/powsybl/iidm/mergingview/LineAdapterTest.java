@@ -7,11 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyVisitor;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
@@ -224,8 +220,10 @@ public class LineAdapterTest {
                           .setVoltageLevel2("VLBAT")
                           .setBus1(busId1)
                           .setBus2("NBAT")
-                          .setConnectableBus1(connectableBusId1)
-                          .setConnectableBus2("NBAT")
+                          .setBus1(connectableBusId1)
+                          .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                          .setBus2("NBAT")
+                          .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                       .add();
     }
 }

@@ -103,9 +103,7 @@ public final class StaticVarCompensatorsValidation {
             vControlled = vController;
         }
         boolean connected = bus != null;
-        Bus connectableBus = svc.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        boolean mainComponent = bus != null && bus.isInMainConnectedComponent();
         return checkSVCs(svc.getId(), p, q, vControlled, vController, nominalVcontroller, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
     }
 

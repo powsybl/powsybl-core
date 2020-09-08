@@ -59,9 +59,9 @@ public abstract class AbstractLineTest {
             .setVoltageLevel1("vl1")
             .setVoltageLevel2("vl2")
             .setBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .add();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
@@ -77,10 +77,10 @@ public abstract class AbstractLineTest {
         Bus busB = voltageLevelB.getBusBreakerView().getBus("busB");
         assertSame(busA, acLine.getTerminal1().getBusBreakerView().getBus());
         assertSame(busB, acLine.getTerminal2().getBusBreakerView().getBus());
-        assertSame(busA, acLine.getTerminal("vl1").getBusBreakerView().getConnectableBus());
-        assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getConnectableBus());
-        assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getConnectableBus());
-        assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
+        assertSame(busA, acLine.getTerminal("vl1").getBusBreakerView().getBus());
+        assertSame(busB, acLine.getTerminal("vl2").getBusBreakerView().getBus());
+        assertSame(busA, acLine.getTerminal(Branch.Side.ONE).getBusBreakerView().getBus());
+        assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getBus());
 
         assertFalse(acLine.isTieLine());
         assertEquals(ConnectableType.LINE, acLine.getType());
@@ -177,9 +177,9 @@ public abstract class AbstractLineTest {
             .setVoltageLevel1("vl1")
             .setVoltageLevel2("vl2")
             .setBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .add();
         verify(mockedListener, times(1)).onCreation(acLine);
         // Get initial values
@@ -307,10 +307,10 @@ public abstract class AbstractLineTest {
             .setName("testNameTie")
             .setVoltageLevel1("vl1")
             .setBus1("busA")
-            .setConnectableBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setVoltageLevel2("vl2")
             .setBus2("busB")
-            .setConnectableBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .setUcteXnodeCode("ucte")
             .line1()
             .setId("hl1")
@@ -559,9 +559,9 @@ public abstract class AbstractLineTest {
             .setVoltageLevel1("vl1")
             .setVoltageLevel2("vl2")
             .setBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .add();
     }
 
@@ -595,10 +595,10 @@ public abstract class AbstractLineTest {
             .setXnodeQ(6.0)
             .setVoltageLevel1("vl1")
             .setBus1("busA")
-            .setConnectableBus1("busA")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setVoltageLevel2("vl2")
             .setBus2("busB")
-            .setConnectableBus2("busB")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .setUcteXnodeCode(code)
             .add();
     }

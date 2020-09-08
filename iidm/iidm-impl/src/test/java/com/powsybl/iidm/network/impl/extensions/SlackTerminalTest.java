@@ -45,7 +45,7 @@ public class SlackTerminalTest {
         vl.newLoad()
             .setId("L")
             .setBus("B")
-            .setConnectableBus("B")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .setP0(100)
             .setQ0(50)
             .add();
@@ -65,7 +65,7 @@ public class SlackTerminalTest {
         vl1.newGenerator()
             .setId("GE")
             .setBus("B1")
-            .setConnectableBus("B1")
+            .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .setTargetP(100)
             .setMinP(0)
             .setMaxP(110)
@@ -84,7 +84,9 @@ public class SlackTerminalTest {
             .setVoltageLevel1("VL")
             .setVoltageLevel2("VL1")
             .setBus1("B")
+            .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTED)
             .setBus2("B1")
+            .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTED)
             .add();
 
         return network;

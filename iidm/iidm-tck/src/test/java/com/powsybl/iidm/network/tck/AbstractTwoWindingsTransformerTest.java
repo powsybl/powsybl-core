@@ -33,8 +33,10 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                                                                     .setRatedS(7.0)
                                                                     .setVoltageLevel1("vl1")
                                                                     .setVoltageLevel2("vl2")
-                                                                    .setConnectableBus1("busA")
-                                                                    .setConnectableBus2("busB")
+                                                                    .setBus1("busA")
+                                                                    .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                                                                    .setBus2("busB")
+                                                                    .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                                                                 .add();
         assertEquals("twt", twoWindingsTransformer.getId());
         assertEquals(TWT_NAME, twoWindingsTransformer.getOptionalName().orElse(null));
@@ -166,8 +168,10 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                         .setRatedU2(6.0)
                         .setVoltageLevel1("vl1")
                         .setVoltageLevel2("vl3")
-                        .setConnectableBus1("busA")
-                        .setConnectableBus2("busC")
+                        .setBus1("busA")
+                        .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                        .setBus2("busC")
+                        .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                     .add();
     }
 
@@ -185,8 +189,10 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                     .setRatedS(ratedS)
                     .setVoltageLevel1("vl1")
                     .setVoltageLevel2("vl2")
-                    .setConnectableBus1("busA")
-                    .setConnectableBus2("busB")
+                    .setBus1("busA")
+                    .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                    .setBus2("busB")
+                    .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                 .add();
     }
 

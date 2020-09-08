@@ -50,7 +50,7 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setTargetV(380)
                 .setTargetP(10)
                 .setBus("B")
-                .setConnectableBus("B")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         g1.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -73,7 +73,7 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setTargetV(380)
                 .setTargetP(10)
                 .setBus("B")
-                .setConnectableBus("B")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         g2.newMinMaxReactiveLimits()
                 .setMinQ(1)

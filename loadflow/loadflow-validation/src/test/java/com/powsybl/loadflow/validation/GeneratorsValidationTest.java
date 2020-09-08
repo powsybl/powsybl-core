@@ -59,7 +59,6 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
         genBusView = Mockito.mock(BusView.class);
         Mockito.when(genBusView.getBus()).thenReturn(genBus);
-        Mockito.when(genBusView.getConnectableBus()).thenReturn(genBus);
 
         genTerminal = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal.getP()).thenReturn(p);
@@ -188,7 +187,6 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
         BusView genBusView1 = Mockito.mock(BusView.class);
         Mockito.when(genBusView1.getBus()).thenReturn(genBus1);
-        Mockito.when(genBusView1.getConnectableBus()).thenReturn(genBus1);
 
         Terminal genTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal1.getP()).thenReturn(p);
@@ -229,7 +227,6 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
         BusView genBusView2 = Mockito.mock(BusView.class);
         Mockito.when(genBusView2.getBus()).thenReturn(genBus2);
-        Mockito.when(genBusView2.getConnectableBus()).thenReturn(genBus2);
 
         Terminal genTerminal2 = Mockito.mock(Terminal.class);
         Mockito.when(genTerminal2.getP()).thenReturn(-155.236);

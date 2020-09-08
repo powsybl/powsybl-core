@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
@@ -24,7 +25,7 @@ class TerminalBuilder {
 
     private String bus;
 
-    private String connectableBus;
+    private Terminal.ConnectionStatus connectionStatus;
 
     TerminalBuilder(Ref<? extends VariantManagerHolder> network, Validable validable) {
         this.network = network;
@@ -36,8 +37,8 @@ class TerminalBuilder {
         return this;
     }
 
-    TerminalBuilder setConnectableBus(String connectableBus) {
-        this.connectableBus = connectableBus;
+    TerminalBuilder setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+        this.connectionStatus = connectionStatus;
         return this;
     }
 
@@ -47,32 +48,15 @@ class TerminalBuilder {
     }
 
     TerminalExt build() {
-        String connectionBus = getConnectionBus();
-        if (node != null && connectionBus != null) {
+        if (node != null && bus != null) {
             throw new ValidationException(validable,
                     "connection node and connection bus are exclusives");
         }
 
         if (node == null) {
-            if (connectionBus == null) {
-                throw new ValidationException(validable, "connectable bus is not set");
-            }
-
-            return new BusTerminal(network, connectionBus, bus != null);
+            return new BusTerminal(network, bus, Terminal.ConnectionStatus.CONNECTED.equals(connectionStatus));
         } else {
             return new NodeTerminal(network, node);
-        }
-    }
-
-    private String getConnectionBus() {
-        if (bus != null) {
-            if ((connectableBus != null) && (!bus.equals(connectableBus))) {
-                throw new ValidationException(validable, "connection bus is different to connectable bus");
-            }
-
-            return bus;
-        } else {
-            return connectableBus;
         }
     }
 }

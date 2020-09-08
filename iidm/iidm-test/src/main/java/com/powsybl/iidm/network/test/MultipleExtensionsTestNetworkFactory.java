@@ -47,14 +47,14 @@ public final class MultipleExtensionsTestNetworkFactory {
                 .setP0(0.0f)
                 .setQ0(0.0f)
                 .setBus("BUS")
-                .setConnectableBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         Load load2 = vl.newLoad()
                 .setId("LOAD2")
                 .setP0(0.0f)
                 .setQ0(0.0f)
                 .setBus("BUS")
-                .setConnectableBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         load.addExtension(LoadFooExt.class, new LoadFooExt(load));
         load.addExtension(LoadBarExt.class, new LoadBarExt(load));

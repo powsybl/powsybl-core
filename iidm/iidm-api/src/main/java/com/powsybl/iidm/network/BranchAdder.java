@@ -18,7 +18,17 @@ public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T>
 
     T setBus1(String bus1);
 
-    T setConnectableBus1(String connectableBus1);
+    /**
+     * @deprecated bus and connectableBus are redundant, so we use bus and connection status.
+     */
+    @Deprecated
+    default T setConnectableBus1(String connectableBus1) {
+        return setBus1(connectableBus1);
+    }
+
+    default T setConnectionStatus1(Terminal.ConnectionStatus connectionStatus1) {
+        return (T) this;
+    }
 
     T setVoltageLevel2(String voltageLevelId2);
 
@@ -26,6 +36,16 @@ public interface BranchAdder<T extends BranchAdder> extends IdentifiableAdder<T>
 
     T setBus2(String bus2);
 
-    T setConnectableBus2(String connectableBus2);
+    /**
+     * @deprecated bus and connectableBus are redundant, so we use bus and connection status.
+     */
+    @Deprecated
+    default T setConnectableBus2(String connectableBus2) {
+        return setBus2(connectableBus2);
+    }
+
+    default T setConnectionStatus2(Terminal.ConnectionStatus connectionStatus2) {
+        return (T) this;
+    }
 
 }

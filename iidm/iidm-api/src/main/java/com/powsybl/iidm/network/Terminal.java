@@ -25,26 +25,49 @@ public interface Terminal {
 
     }
 
+    enum ConnectionStatus {
+        CONNECTED,
+        CONNECTABLE
+    }
+
     /**
      * A bus/breaker view of the terminal.
      */
     public static interface BusBreakerView {
 
         /**
-         * Get the connection bus of this terminal in the bus/breaker topology.
+         * Get the bus of this terminal in the bus/breaker topology.
          * <p>Depends on the working variant.
-         * @return the connection bus in the bus/breaker topology or null if not connected
+         * @return the bus in the bus/breaker topology or null if not connected and not connectable
          * @see VariantManager
          */
         Bus getBus();
 
         /**
+         * Get the connection status of the bus.
+         * @return the connection status or null if not connected and not connectable
+         */
+        default ConnectionStatus getConnectionStatus() {
+            return null;
+        }
+
+        default void setBus(String busId) {
+        }
+
+        /**
          * Get a bus that can be used to connected the terminal in the
          * bus/breaker topology.
+         * @deprecated bus and connectableBus are redundant, so we use bus and connection status
          */
-        Bus getConnectableBus();
+        @Deprecated
+        default Bus getConnectableBus() {
+            return getBus();
+        }
 
-        void setConnectableBus(String busId);
+        @Deprecated
+        default void setConnectableBus(String busId) {
+            setBus(busId);
+        }
     }
 
     /**
@@ -53,18 +76,30 @@ public interface Terminal {
     public static interface BusView {
 
         /**
-         * Get the connection bus of this terminal in the bus only topology.
+         * Get the bus of this terminal in the bus only topology.
          * <p>Depends on the working variant.
-         * @return the connection bus in the bus only topology or null if not connected
+         * @return the bus in the bus only topology or null if not connected and not connectable
          * @see VariantManager
          */
         Bus getBus();
 
         /**
+         * Get the connection status of the bus.
+         * @return the connection status or null if not connected and not connectable
+         */
+        default ConnectionStatus getConnectionStatus() {
+            return null;
+        }
+
+        /**
          * Get a bus that can be used to connected the terminal in the
          * bus only topology.
+         * @deprecated bus and connectableBus are redundant, so we use bus and connection status
          */
-        Bus getConnectableBus();
+        @Deprecated
+        default Bus getConnectableBus() {
+            return getBus();
+        }
 
     }
 

@@ -175,10 +175,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {
-            if (terminal.isConnected()) {
-                adder.setBus(terminal.getBusBreakerView().getBus().getId());
-            }
-            adder.setConnectableBus(terminal.getBusBreakerView().getConnectableBus().getId());
+            adder.setBus(terminal.getBusBreakerView().getBus().getId());
+            adder.setConnectionStatus(terminal.getBusBreakerView().getConnectionStatus());
         }
     }
 

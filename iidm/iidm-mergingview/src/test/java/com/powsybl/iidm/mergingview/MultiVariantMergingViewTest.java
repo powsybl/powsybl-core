@@ -105,17 +105,17 @@ public class MultiVariantMergingViewTest {
                 .setP0(10)
                 .setQ0(10)
                 .setBus("NLOAD")
-                .setConnectableBus("NLOAD")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .add();
         manager.setWorkingVariant("NEW_VARIANT");
         assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
         assertEquals(2, Iterables.size(nload.getLoads()));
         newLoad.getTerminal().disconnect();
-        assertNull(newLoad.getTerminal().getBusBreakerView().getBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, newLoad.getTerminal().getBusBreakerView().getConnectionStatus());
         assertEquals(2, Iterables.size(vlload.getLoads()));
         assertEquals(1, Iterables.size(nload.getLoads()));
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTED, newLoad.getTerminal().getBusBreakerView().getConnectionStatus());
         assertEquals(2, Iterables.size(vlload.getLoads()));
         assertEquals(2, Iterables.size(nload.getLoads()));
     }

@@ -37,8 +37,10 @@ public class PhaseTapChangerAdapterTest {
                 .setRatedU2(6.0)
                 .setVoltageLevel1("vl1")
                 .setVoltageLevel2("vl2")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
+                .setBus1("busA")
+                .setConnectionStatus1(Terminal.ConnectionStatus.CONNECTABLE)
+                .setBus2("busB")
+                .setConnectionStatus2(Terminal.ConnectionStatus.CONNECTABLE)
                 .add();
         terminal = twt.getTerminal(Branch.Side.ONE);
     }

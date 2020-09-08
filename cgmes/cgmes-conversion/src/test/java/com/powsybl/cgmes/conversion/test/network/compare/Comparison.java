@@ -346,8 +346,8 @@ public class Comparison {
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
         sameIdentifier("ConnectableBus",
-                expected.getTerminal().getBusBreakerView().getConnectableBus(),
-                actual.getTerminal().getBusBreakerView().getConnectableBus());
+                expected.getTerminal().getBusBreakerView().getBus(),
+                actual.getTerminal().getBusBreakerView().getBus());
         Bus be = expected.getTerminal().getBusBreakerView().getBus();
         Bus ba = actual.getTerminal().getBusBreakerView().getBus();
         if (be == null) {

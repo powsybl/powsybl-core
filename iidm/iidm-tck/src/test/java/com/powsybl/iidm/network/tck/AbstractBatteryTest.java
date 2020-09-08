@@ -149,6 +149,7 @@ public abstract class AbstractBatteryTest {
                 .setP0(15.0)
                 .setQ0(10.0)
                 .setBus("NBAT")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         Battery battery = network.getBattery(BAT_ID);
         assertNotNull(battery);
@@ -221,6 +222,7 @@ public abstract class AbstractBatteryTest {
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setBus("NBAT")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
     }
 }

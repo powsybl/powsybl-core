@@ -63,8 +63,8 @@ public class VoltageLevelAdapterTest {
         vlActual.newVscConverterStation()
                     .setId("C1")
                     .setName("Converter1")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setLossFactor(0.011f)
                     .setVoltageSetpoint(405.0)
                     .setVoltageRegulatorOn(true)
@@ -81,8 +81,8 @@ public class VoltageLevelAdapterTest {
         // Battery
         Battery battery = vlActual.newBattery()
                     .setId("BAT")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setMaxP(9999.99)
                     .setMinP(-9999.99)
                     .setP0(15)
@@ -98,8 +98,8 @@ public class VoltageLevelAdapterTest {
         // Generator
         vlActual.newGenerator()
                     .setId("GEN").setVoltageRegulatorOn(true)
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setMaxP(9999.99)
                     .setMinP(-9999.99)
                     .setTargetV(25.5)
@@ -117,8 +117,8 @@ public class VoltageLevelAdapterTest {
         // Load
         vlActual.newLoad()
                     .setId("LOAD")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setP0(9999.99)
                     .setQ0(-9999.99)
                     .setLoadType(LoadType.FICTITIOUS)
@@ -134,8 +134,8 @@ public class VoltageLevelAdapterTest {
         // ShuntCompensator
         vlActual.newShuntCompensator()
                     .setId("SHUNT")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setSectionCount(1)
                     .newLinearModel()
                         .setBPerSection(1e-5)
@@ -153,8 +153,8 @@ public class VoltageLevelAdapterTest {
         vlActual.newStaticVarCompensator()
                     .setId("svc1")
                     .setName("scv1")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setBmin(0.0002)
                     .setBmax(0.0008)
                     .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
@@ -174,8 +174,8 @@ public class VoltageLevelAdapterTest {
         vlActual.newLccConverterStation()
                     .setId("C2")
                     .setName("Converter2")
-                    .setConnectableBus("busA")
                     .setBus("busA")
+                    .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                     .setLossFactor(0.011f)
                     .setPowerFactor(0.5f)
                     .setEnsureIdUnicity(false)
@@ -206,7 +206,7 @@ public class VoltageLevelAdapterTest {
                 .setQ0(6)
                 .setUcteXnodeCode("code")
                 .setBus("busA")
-                .setConnectableBus("busA")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
             .add();
         vlActual.getDanglingLines().forEach(s -> {
             assertTrue(s instanceof DanglingLineAdapter);

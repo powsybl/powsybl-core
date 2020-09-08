@@ -178,9 +178,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             return;
         }
         Bus bus = t.getBusView().getBus();
-        if (bus == null) {
+        if (bus == null || !Terminal.ConnectionStatus.CONNECTED.equals(t.getBusView().getConnectionStatus())) {
             bus = t.getBusBreakerView().getBus();
-            if (bus == null) {
+            if (bus == null || !Terminal.ConnectionStatus.CONNECTED.equals(t.getBusBreakerView().getConnectionStatus())) {
                 LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", id);
                 return;
             }

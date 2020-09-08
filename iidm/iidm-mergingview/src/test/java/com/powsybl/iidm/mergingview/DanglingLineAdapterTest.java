@@ -297,7 +297,7 @@ public class DanglingLineAdapterTest {
                                                      .setQ0(q0)
                                                      .setUcteXnodeCode(ucteCode)
                                                      .setBus(busId)
-                                                     .setConnectableBus(busId)
+                                                     .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                                                      .setEnsureIdUnicity(false)
                                                  .add();
         return dl;

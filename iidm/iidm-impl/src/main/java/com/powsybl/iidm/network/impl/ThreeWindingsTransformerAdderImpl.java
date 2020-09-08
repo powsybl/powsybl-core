@@ -6,14 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -32,7 +29,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected String bus;
 
-        protected String connectableBus;
+        protected Terminal.ConnectionStatus connectionStatus;
 
         protected double r = Double.NaN;
 
@@ -63,8 +60,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return this;
         }
 
-        public LegAdder setConnectableBus(String connectableBus) {
-            this.connectableBus = connectableBus;
+        public LegAdder setConnectionStatus(Terminal.ConnectionStatus connectionStatus) {
+            this.connectionStatus = connectionStatus;
             return this;
         }
 
@@ -120,7 +117,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node)
                 .setBus(bus)
-                .setConnectableBus(connectableBus)
+                .setConnectionStatus(connectionStatus)
                 .build();
         }
 

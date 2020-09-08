@@ -464,9 +464,7 @@ public class TwtData {
 
     private static boolean isMainComponent(Leg leg) {
         Bus bus = leg.getTerminal().getBusView().getBus();
-        Bus connectableBus = leg.getTerminal().getBusView().getConnectableBus();
-        boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
-        return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+        return bus != null && bus.isInMainConnectedComponent();
     }
 
     public String getId() {

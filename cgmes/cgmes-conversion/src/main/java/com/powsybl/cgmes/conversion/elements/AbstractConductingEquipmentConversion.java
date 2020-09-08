@@ -319,7 +319,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode());
         } else {
-            adder.setBus(terminalConnected() ? busId() : null).setConnectableBus(busId());
+            adder
+                    .setBus(busId())
+                    .setConnectionStatus(terminalConnected() ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 
@@ -327,7 +329,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             adder.setNode(iidmNode(terminal));
         } else {
-            adder.setBus(terminalConnected(terminal) ? busId(terminal) : null).setConnectableBus(busId(terminal));
+            adder
+                    .setBus(busId(terminal))
+                    .setConnectionStatus(terminalConnected(terminal) ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 
@@ -344,10 +348,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
                 .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setBus1(terminalConnected(1) ? busId1 : null)
-                .setBus2(terminalConnected(2) ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
+                .setBus1(busId1)
+                .setBus2(busId2)
+                .setConnectionStatus1(terminalConnected(1) ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                .setConnectionStatus2(terminalConnected(2) ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 
@@ -364,10 +368,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                 .setVoltageLevel1(iidmVoltageLevelId1)
                 .setVoltageLevel2(iidmVoltageLevelId2)
-                .setBus1(t1Connected ? busId1 : null)
-                .setBus2(t2Connected ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
+                .setBus1(busId1)
+                .setBus2(busId2)
+                .setConnectionStatus1(t1Connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                .setConnectionStatus2(t2Connected ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 
@@ -388,10 +392,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             adder
                 .setVoltageLevel1(iidmVoltageLevelId(1))
                 .setVoltageLevel2(iidmVoltageLevelId(2))
-                .setBus1(t1Connected && branchIsClosed ? busId1 : null)
-                .setBus2(t2Connected && branchIsClosed ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2);
+                .setBus1(busId1)
+                .setBus2(busId2)
+                .setConnectionStatus1(t1Connected && branchIsClosed ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE)
+                .setConnectionStatus2(t2Connected && branchIsClosed ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 
@@ -417,8 +421,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         } else {
             adder
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
-                .setBus(terminalConnected(terminal) ? busId(terminal) : null)
-                .setConnectableBus(busId(terminal));
+                .setBus(busId(terminal))
+                .setConnectionStatus(terminalConnected(terminal) ? Terminal.ConnectionStatus.CONNECTED : Terminal.ConnectionStatus.CONNECTABLE);
         }
     }
 

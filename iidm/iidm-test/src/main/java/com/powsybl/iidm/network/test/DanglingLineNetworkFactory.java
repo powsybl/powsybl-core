@@ -27,6 +27,7 @@ public final class DanglingLineNetworkFactory {
         DanglingLine danglingLine = network.getVoltageLevel("VL").newDanglingLine()
                 .setId("DL")
                 .setBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setR(10.0)
                 .setX(1.0)
                 .setB(10e-6)
@@ -47,6 +48,7 @@ public final class DanglingLineNetworkFactory {
         DanglingLine danglingLine = network.getVoltageLevel("VL").newDanglingLine()
                 .setId("DL")
                 .setBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .setR(10.0)
                 .setX(1.0)
                 .setB(10e-6)
@@ -105,6 +107,7 @@ public final class DanglingLineNetworkFactory {
                 .setTargetP(50.0)
                 .setTargetQ(30.0)
                 .setBus("BUS")
+                .setConnectionStatus(Terminal.ConnectionStatus.CONNECTED)
                 .add();
         return network;
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 
 /**
@@ -18,7 +19,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String bus1;
 
-    private String connectableBus1;
+    private Terminal.ConnectionStatus connectionStatus1;
 
     private String voltageLevelId1;
 
@@ -26,7 +27,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
 
     private String bus2;
 
-    private String connectableBus2;
+    private Terminal.ConnectionStatus connectionStatus2;
 
     private String voltageLevelId2;
 
@@ -40,8 +41,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return (T) this;
     }
 
-    public T setConnectableBus1(String connectableBus1) {
-        this.connectableBus1 = connectableBus1;
+    public T setConnectionStatus1(Terminal.ConnectionStatus connectionStatus1) {
+        this.connectionStatus1 = connectionStatus1;
         return (T) this;
     }
 
@@ -54,7 +55,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node1)
                 .setBus(bus1)
-                .setConnectableBus(connectableBus1)
+                .setConnectionStatus(connectionStatus1)
                 .build();
     }
 
@@ -80,8 +81,8 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return (T) this;
     }
 
-    public T setConnectableBus2(String connectableBus2) {
-        this.connectableBus2 = connectableBus2;
+    public T setConnectionStatus2(Terminal.ConnectionStatus connectionStatus2) {
+        this.connectionStatus2 = connectionStatus2;
         return (T) this;
     }
 
@@ -94,7 +95,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node2)
                 .setBus(bus2)
-                .setConnectableBus(connectableBus2)
+                .setConnectionStatus(connectionStatus2)
                 .build();
     }
 

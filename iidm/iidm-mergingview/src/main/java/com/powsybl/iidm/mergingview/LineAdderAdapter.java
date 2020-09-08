@@ -35,7 +35,7 @@ class LineAdderAdapter implements LineAdder {
 
     private String bus1;
 
-    private String connectableBus1;
+    private Terminal.ConnectionStatus connectionStatus1;
 
     private String voltageLevelId1;
 
@@ -43,7 +43,7 @@ class LineAdderAdapter implements LineAdder {
 
     private String bus2;
 
-    private String connectableBus2;
+    private Terminal.ConnectionStatus connectionStatus2;
 
     private String voltageLevelId2;
 
@@ -83,10 +83,10 @@ class LineAdderAdapter implements LineAdder {
             // -- first dangling line
             final MergingView view = index.getView();
             final VoltageLevel vl1 = view.getVoltageLevel(voltageLevelId1);
-            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, g1, b1, bus1, connectableBus1, node1, ucteXnodeCode);
+            addDanglingLine(vl1, id + DL1_SUFFIX, name, p0, q0, r, x, g1, b1, bus1, connectionStatus1, node1, ucteXnodeCode);
             // -- second dangling line
             final VoltageLevel vl2 = view.getVoltageLevel(voltageLevelId2);
-            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, g2, b2, bus2, connectableBus2, node2, ucteXnodeCode);
+            addDanglingLine(vl2, id + DL2_SUFFIX, name, p0, q0, r, x, g2, b2, bus2, connectionStatus2, node2, ucteXnodeCode);
             // MergedLine.id is forced here
             // Return the merged line as the new line
             newLine = index.getMergedLineByCode(ucteXnodeCode)
@@ -113,7 +113,7 @@ class LineAdderAdapter implements LineAdder {
 
     private static DanglingLine addDanglingLine(final VoltageLevel vl, final String id, final String name,
                                                 final double p0, final double q0, final double r, final double x, final double g, final double b,
-                                                final String bus, final String connectableBus, final Integer node, final String ucteXnodeCode) {
+                                                final String bus, final Terminal.ConnectionStatus connectionStatus, final Integer node, final String ucteXnodeCode) {
         DanglingLineAdder adder = vl.newDanglingLine()
                     .setId(id)
                     .setName(name)
@@ -125,7 +125,7 @@ class LineAdderAdapter implements LineAdder {
                     .setB(b)
                     .setUcteXnodeCode(ucteXnodeCode)
                     .setBus(bus)
-                    .setConnectableBus(connectableBus);
+                    .setConnectionStatus(connectionStatus);
         if (node != null) {
             adder.setNode(node);
         }
@@ -148,9 +148,9 @@ class LineAdderAdapter implements LineAdder {
                     .setVoltageLevel1(voltageLevelId1)
                     .setVoltageLevel2(voltageLevelId2)
                     .setBus1(bus1)
-                    .setConnectableBus1(connectableBus1)
+                    .setConnectionStatus1(connectionStatus1)
                     .setBus2(bus2)
-                    .setConnectableBus2(connectableBus2);
+                    .setConnectionStatus2(connectionStatus2);
         if (node1 != null) {
             adder.setNode1(node1);
         }
@@ -240,8 +240,8 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setConnectableBus1(String connectableBus1) {
-        this.connectableBus1 = connectableBus1;
+    public LineAdder setConnectionStatus1(Terminal.ConnectionStatus connectionStatus1) {
+        this.connectionStatus1 = connectionStatus1;
         return this;
     }
 
@@ -264,8 +264,8 @@ class LineAdderAdapter implements LineAdder {
     }
 
     @Override
-    public LineAdder setConnectableBus2(String connectableBus2) {
-        this.connectableBus2 = connectableBus2;
+    public LineAdder setConnectionStatus2(Terminal.ConnectionStatus connectionStatus2) {
+        this.connectionStatus2 = connectionStatus2;
         return this;
     }
 

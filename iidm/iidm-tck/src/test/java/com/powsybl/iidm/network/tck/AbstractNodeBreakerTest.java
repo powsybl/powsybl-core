@@ -172,7 +172,7 @@ public abstract class AbstractNodeBreakerTest {
         assertTrue(topo.getOptionalTerminal(2).isPresent());
         assertTrue(topo.getOptionalTerminal(3).isPresent());
         assertNotNull(g.getTerminal().getBusView().getBus());
-        assertNull(l.getTerminal().getBusView().getBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, l.getTerminal().getBusView().getConnectionStatus());
         assertTrue(g.getTerminal().isConnected());
         assertFalse(l.getTerminal().isConnected());
 
@@ -189,7 +189,7 @@ public abstract class AbstractNodeBreakerTest {
 
         // check generator is disconnected
         assertTrue(topo.getOptionalTerminal(3).isPresent());
-        assertNull(g.getTerminal().getBusView().getBus());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, g.getTerminal().getBusView().getConnectionStatus());
         assertFalse(g.getTerminal().isConnected());
 
         // remove generator
@@ -204,8 +204,8 @@ public abstract class AbstractNodeBreakerTest {
         return i.getTerminal().getBusView().getBus();
     }
 
-    private static Bus getConnectableBus(Injection i) {
-        return i.getTerminal().getBusView().getConnectableBus();
+    private static Terminal.ConnectionStatus getConnectionStatus(Injection i) {
+        return i.getTerminal().getBusView().getConnectionStatus();
     }
 
     @Test
@@ -248,23 +248,22 @@ public abstract class AbstractNodeBreakerTest {
         assertEquals(2, network.getBusView().getBusStream().count());
 
         // load "L0" is connected to bus "VL_0"
-        assertNotNull(getBus(network.getLoad("L0")));
-        assertEquals("VL_0", getConnectableBus(network.getLoad("L0")).getId());
+        assertEquals(Terminal.ConnectionStatus.CONNECTED, getConnectionStatus(network.getLoad("L0")));
+        assertEquals("VL_0", getBus(network.getLoad("L0")).getId());
 
         // load "L1" is connected to bus "VL_1"
-        assertNotNull(getBus(network.getLoad("L1")));
-        assertEquals("VL_1", getConnectableBus(network.getLoad("L1")).getId());
+        assertEquals(Terminal.ConnectionStatus.CONNECTED, getConnectionStatus(network.getLoad("L1")));
+        assertEquals("VL_1", getBus(network.getLoad("L1")).getId());
 
         // load "L2" is not connected but is connectable to bus "VL_1"
-        assertNull(getBus(network.getLoad("L2")));
-        assertEquals("VL_1", getConnectableBus(network.getLoad("L2")).getId());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, getConnectionStatus(network.getLoad("L2")));
+        assertEquals("VL_1", getBus(network.getLoad("L2")).getId());
 
         // load "L3" is not connected and has no connectable bus (the first bus is taken as connectable bus in this case)
-        assertNull(getBus(network.getLoad("L3")));
-        assertEquals("VL_0", getConnectableBus(network.getLoad("L3")).getId());
+        assertEquals(Terminal.ConnectionStatus.CONNECTABLE, getConnectionStatus(network.getLoad("L3")));
+        assertEquals("VL_0", getBus(network.getLoad("L3")).getId());
 
         // load "L4" is not connected, has no connectable bus and is in a disconnected voltage level
-        assertNull(getBus(network.getLoad("L4")));
-        assertNull(getConnectableBus(network.getLoad("L4")));
+        assertNull(getConnectionStatus(network.getLoad("L4")));
     }
 }

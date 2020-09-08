@@ -59,16 +59,16 @@ public class BusFilter {
             Terminal t1 = branch.getTerminal1();
             Terminal t2 = branch.getTerminal2();
             if (options.getTopologyLevel() == TopologyLevel.BUS_BRANCH) {
-                Bus b1 = t1.getBusView().getConnectableBus();
-                Bus b2 = t2.getBusView().getConnectableBus();
+                Bus b1 = t1.getBusView().getBus();
+                Bus b2 = t2.getBusView().getBus();
                 if ((b1 != null && b1.isInMainConnectedComponent()) && b2 != null && !b2.isInMainConnectedComponent()) {
                     buses.add(b2.getId());
                 } else if (b1 != null && !b1.isInMainConnectedComponent() && b2 != null && b2.isInMainConnectedComponent()) {
                     buses.add(b1.getId());
                 }
             } else {
-                Bus b1 = t1.getBusBreakerView().getConnectableBus();
-                Bus b2 = t2.getBusBreakerView().getConnectableBus();
+                Bus b1 = t1.getBusBreakerView().getBus();
+                Bus b2 = t2.getBusBreakerView().getBus();
                 if (b1.isInMainConnectedComponent() && !b2.isInMainConnectedComponent()) {
                     buses.add(b2.getId());
                 } else if (!b1.isInMainConnectedComponent() && b2.isInMainConnectedComponent()) {
@@ -96,7 +96,7 @@ public class BusFilter {
             return true;
         }
         for (Terminal t : connectable.getTerminals()) {
-            Bus b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ? t.getBusView().getConnectableBus() : t.getBusBreakerView().getConnectableBus();
+            Bus b = options.getTopologyLevel() == TopologyLevel.BUS_BRANCH ? t.getBusView().getBus() : t.getBusBreakerView().getBus();
             if (b != null && !buses.contains(b.getId())) {
                 return false;
             }

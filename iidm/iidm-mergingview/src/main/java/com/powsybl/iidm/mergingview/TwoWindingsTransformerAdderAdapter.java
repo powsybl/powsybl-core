@@ -46,12 +46,6 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdde
     }
 
     @Override
-    public TwoWindingsTransformerAdder setConnectableBus1(final String connectableBus1) {
-        getDelegate().setConnectableBus1(connectableBus1);
-        return this;
-    }
-
-    @Override
     public TwoWindingsTransformerAdder setVoltageLevel2(final String voltageLevelId2) {
         getDelegate().setVoltageLevel2(voltageLevelId2);
         return this;
@@ -66,12 +60,6 @@ public class TwoWindingsTransformerAdderAdapter extends AbstractIdentifiableAdde
     @Override
     public TwoWindingsTransformerAdder setBus2(final String bus2) {
         getDelegate().setBus2(bus2);
-        return this;
-    }
-
-    @Override
-    public TwoWindingsTransformerAdder setConnectableBus2(final String connectableBus2) {
-        getDelegate().setConnectableBus2(connectableBus2);
         return this;
     }
 
