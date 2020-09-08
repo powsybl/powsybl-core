@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
@@ -167,20 +168,30 @@ public class ExportTest {
 
     private static void debugNode(Node n) {
         if (n != null) {
+            debugAttributes(n, "            ");
             int maxNodes = 5;
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
                 LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
-                if (n1.getAttributes() != null) {
-                    Node r = n1.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "resource");
-                    if (r != null) {
-                        LOG.error("            rdf:resource = {}", r.getTextContent());
-                    }
-                }
+                debugAttributes(n1, "                ");
             }
             if (n.getChildNodes().getLength() > maxNodes) {
                 LOG.error("            ...");
             }
+        }
+    }
+
+    private static void debugAttributes(Node n, String indent) {
+        if (n.getAttributes() != null) {
+            debugAttribute(n, CgmesExport.RDF_NAMESPACE, "resource", indent);
+            debugAttribute(n, CgmesExport.RDF_NAMESPACE, "about", indent);
+        }
+    }
+
+    private static void debugAttribute(Node n, String namespace, String localName, String indent) {
+        Node a = n.getAttributes().getNamedItemNS(namespace, localName);
+        if (a != null) {
+            LOG.error("{}{} = {}", indent, localName, a.getTextContent());
         }
     }
 
@@ -207,7 +218,12 @@ public class ExportTest {
     private static boolean isConsideredSshNode(Node n) {
         return n.getLocalName() != null
                 && (n.getLocalName().equals("RDF")
-                        || n.getLocalName().startsWith("EnergyConsumer"));
+                        || n.getLocalName().startsWith("EnergyConsumer")
+                        || n.getLocalName().startsWith("Terminal")
+                        // FIXME(Luma) check also model description data
+//                        || n.getLocalName().equals("FullModel")
+//                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
+                        );
     }
 
     private static DiffBuilder ignoringNonPersistentIds(DiffBuilder diffBuilder) {
