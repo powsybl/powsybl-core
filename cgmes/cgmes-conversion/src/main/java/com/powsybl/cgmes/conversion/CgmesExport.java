@@ -13,9 +13,7 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Properties;
-import java.util.UUID;
 import java.util.function.BiConsumer;
 
 import javax.xml.stream.XMLOutputFactory;
@@ -31,19 +29,13 @@ import com.powsybl.cgmes.conversion.update.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TieLine;
 
 import javanet.staxutils.IndentingXMLStreamWriter;
 
@@ -119,17 +111,6 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static void writeSV(Network network, XMLStreamWriter writer) {
-        try {
-            writeSvVoltages(network, writer);
-            for (ShuntCompensator s : network.getShuntCompensators()) {
-                writeSvShuntCompensatorSections(writer, s.getId(), s.getSectionCount());
-            }
-        } catch (XMLStreamException e) {
-            throw new UncheckedXmlStreamException(e);
-        }
-    }
-
     private static void writeSSH(Network network, XMLStreamWriter writer) {
         // Write updated power flow inputs
         try {
@@ -160,36 +141,6 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private static void writeSvVoltages(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        // FIXME(Luma)
-        // Node-breaker: build topological nodes
-        // Bus-branch: reuse topological nodes (stored in bus-breaker view buses)
-        for (Bus b : network.getBusBreakerView().getBuses()) {
-            // FIXME(Luma) for bus-branch the bus id in the bus-breaker view contains the topoNode id
-            // For node-breaker, we can try to use aliases or properties???
-            String topologicalNode = b.getId();
-            writeSvVoltage(writer, topologicalNode, b.getV(), b.getAngle());
-        }
-        // Voltages at boundary nodes of dangling lines
-        for (DanglingLine dl : network.getDanglingLines()) {
-            Optional<String> topologicalNode = dl.getAliasFromType(CgmesNames.TOPOLOGICAL_NODE);
-            if (topologicalNode.isPresent()) {
-                writeSvVoltage(writer, topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")));
-            } else {
-                throw new PowsyblException("Missing topologicalNode at danglingLine " + dl.getId());
-            }
-        }
-        // Voltages at inner nodes of Tie Lines
-        // (boundary nodes that have been left inside CGM)
-        for (Line l : network.getLines()) {
-            if (!l.isTieLine()) {
-                continue;
-            }
-            TieLine tieLine = (TieLine) l;
-            // FIXME(Luma) Obtain voltage at inner node
-        }
-    }
-
     private static void writeSshEnergyConsumer(XMLStreamWriter writer, String id, double p, double q) throws XMLStreamException {
         writer.writeStartElement("cim:EnergyConsumer");
         writer.writeAttribute("rdf:about", "#" + id);
@@ -207,46 +158,6 @@ public class CgmesExport implements Exporter {
 
     private static void writeDouble(XMLStreamWriter writer, double value) throws XMLStreamException {
         writer.writeCharacters(DOUBLE_FORMAT.format(value));
-    }
-
-    private static void writeSvVoltage(XMLStreamWriter writer, String topologicalNode, double v, double angle) throws XMLStreamException {
-        // FIXME(Luma) remove this reference block
-        // <cim:SvVoltage rdf:ID="_d4548915-4f00-4507-ba54-350cafcee1af">
-        // <cim:SvVoltage.angle>-18.20656</cim:SvVoltage.angle>
-        // <cim:SvVoltage.v>128.575378</cim:SvVoltage.v>
-        // <cim:SvVoltage.TopologicalNode rdf:resource="#_0471bd2a-c766-11e1-8775-005056c00008" />
-        // </cim:SvVoltage>
-        writer.writeStartElement("cim:SvVoltage");
-        writer.writeAttribute("rdf:ID", getUniqueId());
-        writer.writeStartElement("cim:SvVoltage.angle");
-        writeDouble(writer, angle);
-        writer.writeEndElement();
-        writer.writeStartElement("cim:SvVoltage.v");
-        writeDouble(writer, v);
-        writer.writeEndElement();
-        writer.writeEmptyElement("cim:SvVoltage.TopologicalNode");
-        writer.writeAttribute("rdf:resource", "#" + topologicalNode);
-        writer.writeEndElement();
-    }
-
-    private static void writeSvShuntCompensatorSections(XMLStreamWriter writer, String shuntCompensatorId, int sections) throws XMLStreamException {
-        // FIXME(Luma) remove this reference block
-        // <cim:SvShuntCompensatorSections rdf:ID="_a24efa62-9d8c-47ae-8fb7-5c15b7e06fad">
-        // <cim:SvShuntCompensatorSections.ShuntCompensator rdf:resource="#_04553478-c766-11e1-8775-005056c00008"/>
-        // <cim:SvShuntCompensatorSections.continuousSections>5</cim:SvShuntCompensatorSections.continuousSections>
-        // </cim:SvShuntCompensatorSections>
-        writer.writeStartElement("cim:SvShuntCompensatorSections");
-        writer.writeAttribute("rdf:ID", getUniqueId());
-        writer.writeStartElement("cim:SvShuntCompensatorSections.continuousSections");
-        writer.writeCharacters(Integer.toString(sections));
-        writer.writeEndElement();
-        writer.writeEmptyElement("cim:SvShuntCompensatorSections.ShuntCompensator");
-        writer.writeAttribute("rdf:resource", "#" + shuntCompensatorId);
-        writer.writeEndElement();
-    }
-
-    private static String getUniqueId() {
-        return UUID.randomUUID().toString();
     }
 
     private static XMLStreamWriter initializeWriter(OutputStream os) throws XMLStreamException {

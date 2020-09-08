@@ -171,9 +171,11 @@ public class ExportTest {
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
                 LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
-                Node r = n1.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "resource");
-                if (r != null) {
-                    LOG.error("            rdf:resource = {}", r.getTextContent());
+                if (n1.getAttributes() != null) {
+                    Node r = n1.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "resource");
+                    if (r != null) {
+                        LOG.error("            rdf:resource = {}", r.getTextContent());
+                    }
                 }
             }
             if (n.getChildNodes().getLength() > maxNodes) {
@@ -194,7 +196,8 @@ public class ExportTest {
         return n.getLocalName() != null
                 && (n.getLocalName().equals("RDF")
                         || n.getLocalName().startsWith("SvVoltage")
-                        || n.getLocalName().startsWith("SvShuntCompensatorSections"));
+                        || n.getLocalName().startsWith("SvShuntCompensatorSections")
+                        || n.getLocalName().startsWith("SvTapStep"));
     }
 
     private static boolean isConsideredSshNode(Node n) {
@@ -222,6 +225,8 @@ public class ExportTest {
                 .thenUse(ElementSelectors.byXPath("./cim:SvShuntCompensatorSections.ShuntCompensator", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .whenElementIsNamed("SvVoltage")
                 .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .whenElementIsNamed("SvTapStep")
+                .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
