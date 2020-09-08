@@ -168,6 +168,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .add();
             addAliases(dl);
         }
+        dl.addAlias(boundaryNode, CgmesNames.TOPOLOGICAL_NODE);
         dl.setProperty("boundarySide", String.valueOf(boundarySide));
         dl.setProperty("hasPowerFlow", String.valueOf(context.boundary().hasPowerFlow(boundaryNode)));
         context.cgmes().terminal(terminalId(boundarySide)).inService().ifPresent(inService -> dl.setProperty("inService", String.valueOf(inService)));
