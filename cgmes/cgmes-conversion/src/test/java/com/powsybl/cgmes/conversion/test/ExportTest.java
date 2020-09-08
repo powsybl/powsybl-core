@@ -248,6 +248,8 @@ public class ExportTest {
                 .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, byResource))
                 .whenElementIsNamed("TopologicalIsland.TopologicalNodes")
                 .thenUse(byResource)
+                .whenElementIsNamed("Model.DependentOn")
+                .thenUse(byResource)
                 .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
