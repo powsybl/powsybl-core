@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.List;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
@@ -97,8 +98,9 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
                 .setVoltageRegulationOn(false)
                 .add()
                 .add();
+            addAliases(dl);
         }
-        addAliases(dl);
+        dl.addAlias(boundaryNode, CgmesNames.TOPOLOGICAL_NODE);
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
