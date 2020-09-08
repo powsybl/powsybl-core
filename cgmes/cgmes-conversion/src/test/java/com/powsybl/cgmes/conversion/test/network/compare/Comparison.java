@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
@@ -48,6 +49,10 @@ public class Comparison {
         if (config.checkNetworkId) {
             compare("networkId", expected.getId(), actual.getId());
         }
+
+        // Compare SV metadata
+        compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
+
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
                 expected.getSubstationStream(),
@@ -132,6 +137,33 @@ public class Comparison {
             T tactual = (T) actual;
             testAttributes.accept((T) expected, tactual);
         });
+    }
+
+    private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
+        if (expected == null && actual != null) {
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesSvMetadata_extension");
+            return;
+        }
+        if (expected != null) {
+            if (actual == null) {
+                diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
+                return;
+            }
+            compare("scenarioTime", expected.getScenarioTime(), actual.getScenarioTime());
+            compare("description", expected.getDescription(), actual.getDescription());
+            compare("svVersion", expected.getSvVersion(), actual.getSvVersion());
+            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+            for (String dep : expected.getDependencies()) {
+                if (!actual.getDependencies().contains(dep)) {
+                    diff.missing("dependentOn: " + dep);
+                }
+            }
+            for (String dep : actual.getDependencies()) {
+                if (!expected.getDependencies().contains(dep)) {
+                    diff.unexpected("dependentOn: " + dep);
+                }
+            }
+        }
     }
 
     // Buses in bus breaker view are not inserted in the index for Network Identifiables
