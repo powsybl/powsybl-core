@@ -197,7 +197,8 @@ public class ExportTest {
                 && (n.getLocalName().equals("RDF")
                         || n.getLocalName().startsWith("SvVoltage")
                         || n.getLocalName().startsWith("SvShuntCompensatorSections")
-                        || n.getLocalName().startsWith("SvTapStep"));
+                        || n.getLocalName().startsWith("SvTapStep")
+                        || n.getLocalName().startsWith("SvStatus"));
     }
 
     private static boolean isConsideredSshNode(Node n) {
@@ -227,6 +228,8 @@ public class ExportTest {
                 .thenUse(ElementSelectors.byXPath("./cim:SvVoltage.TopologicalNode", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .whenElementIsNamed("SvTapStep")
                 .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .whenElementIsNamed("SvStatus")
+                .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
