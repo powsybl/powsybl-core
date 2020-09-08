@@ -98,7 +98,7 @@ public final class StateVariablesExport {
         writer.writeCharacters(svMetadata.getDescription());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(is(svMetadata.getSvVersion()));
+        writer.writeCharacters(is(svMetadata.getSvVersion() + 1));
         writer.writeEndElement();
         for (String dependency : svMetadata.getDependencies()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
