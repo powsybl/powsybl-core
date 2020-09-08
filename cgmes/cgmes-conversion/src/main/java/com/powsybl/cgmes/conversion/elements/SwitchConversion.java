@@ -172,6 +172,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                     .add()
                     .add();
         }
+        addAliases(dl);
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
         dl.addAlias(topologicalNodeId(boundarySide), CgmesNames.TOPOLOGICAL_NODE);
 

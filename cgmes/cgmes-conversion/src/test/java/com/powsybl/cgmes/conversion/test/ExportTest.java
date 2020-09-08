@@ -127,7 +127,7 @@ public class ExportTest {
     }
 
     DiffBuilder diffSV(InputStream expected, InputStream actual) {
-        return selectingEquivalentSvObjects(ignoringSvIds(withSelectedSvNodes(diff(expected, actual))));
+        return selectingEquivalentSvObjects(ignoringNonPersistentIds(withSelectedSvNodes(diff(expected, actual))));
     }
 
     DiffBuilder diffSSH(InputStream expected, InputStream actual) {
@@ -193,12 +193,14 @@ public class ExportTest {
     }
 
     private static boolean isConsideredSvNode(Node n) {
-        return n.getLocalName() != null
-                && (n.getLocalName().equals("RDF")
-                        || n.getLocalName().startsWith("SvVoltage")
-                        || n.getLocalName().startsWith("SvShuntCompensatorSections")
-                        || n.getLocalName().startsWith("SvTapStep")
-                        || n.getLocalName().startsWith("SvStatus"));
+        return n.getLocalName() != null && (n.getLocalName().equals("RDF")
+                || n.getLocalName().startsWith("SvVoltage")
+                || n.getLocalName().startsWith("SvShuntCompensatorSections")
+                || n.getLocalName().startsWith("SvTapStep")
+                || n.getLocalName().startsWith("SvStatus")
+                || n.getLocalName().startsWith("SvPowerFlow")
+                || n.getLocalName().equals("FullModel")
+                || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created"));
     }
 
     private static boolean isConsideredSshNode(Node n) {
@@ -207,13 +209,18 @@ public class ExportTest {
                         || n.getLocalName().startsWith("EnergyConsumer"));
     }
 
-    private static DiffBuilder ignoringSvIds(DiffBuilder diffBuilder) {
+    private static DiffBuilder ignoringNonPersistentIds(DiffBuilder diffBuilder) {
         return diffBuilder.withAttributeFilter(attr -> {
-            // Identifiers of SV objects are not persistent,
-            // can be completely ignored for comparison with control
             String elementName = attr.getOwnerElement().getLocalName();
-            boolean isSvId = elementName != null && elementName.startsWith("Sv") && attr.getLocalName().equals("ID");
-            return !isSvId;
+            if (elementName != null) {
+                // Identifiers of SV objects are not persistent,
+                // can be ignored for comparison with control
+                boolean isSvId = elementName.startsWith("Sv") && attr.getLocalName().equals("ID");
+                boolean isModelAbout = elementName.equals("FullModel") && attr.getLocalName().equals("about");
+                return !isSvId && !isModelAbout;
+            } else {
+                return true;
+            }
         });
     }
 
@@ -230,6 +237,8 @@ public class ExportTest {
                 .thenUse(ElementSelectors.byXPath("./cim:SvTapStep.TapChanger", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .whenElementIsNamed("SvStatus")
                 .thenUse(ElementSelectors.byXPath("./cim:SvStatus.ConductingEquipment", prefixUris, ElementSelectors.byNameAndAllAttributes))
+                .whenElementIsNamed("SvPowerFlow")
+                .thenUse(ElementSelectors.byXPath("./cim:SvPowerFlow.Terminal", prefixUris, ElementSelectors.byNameAndAllAttributes))
                 .elseUse(ElementSelectors.byName)
                 .build();
         return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));

@@ -31,7 +31,6 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerHolder;
 import com.powsybl.iidm.network.RatioTapChangerHolder;
@@ -229,16 +228,14 @@ public class StateVariablesAdder {
         cgmes.add(originalSVcontext, "SvPowerFlow", svPowerFlows);
     }
 
-    private <I extends Injection<?>> void addPowerFlows(PropertyBags svPowerFlows,
-        Iterable<I> injections) {
+    private <I extends Injection<?>> void addPowerFlows(PropertyBags svPowerFlows, Iterable<I> injections) {
         injections.forEach(i -> {
             int sequenceNumber = 1;
             PropertyBag p = buildSvPowerFlow(i.getTerminal(), sequenceNumber);
             if (p != null) {
                 svPowerFlows.add(p);
-            } else if (i instanceof Load) {
-                // FIXME(Luma) CGMES SvInjection objects were created as loads
-                LOG.error("No SvPowerFlow created for load {}", i.getId());
+            } else {
+                LOG.error("No SvPowerFlow created for {}", i.getId());
             }
         });
     }
@@ -426,9 +423,7 @@ public class StateVariablesAdder {
     }
 
     private PropertyBag buildSvPowerFlow(Terminal terminal, int sequenceNumber) {
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal == null) {
             return null;
         }

@@ -44,7 +44,10 @@ public final class StateVariablesExport {
     private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
 
     private static final String CIM_VERSION = "CIM_version";
+
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
+
+    private static final boolean EXPORT_BRANCH_POWER_FLOWS = false;
 
     public static void write(Network network, XMLStreamWriter writer) {
         try {
@@ -194,10 +197,10 @@ public final class StateVariablesExport {
         writer.writeStartElement(CIM_NAMESPACE, "SvVoltage");
         writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
         writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_ANGLE);
-        writer.writeCharacters(fs(angle));
+        writer.writeCharacters(format(angle));
         writer.writeEndElement();
         writer.writeStartElement(CIM_NAMESPACE, SV_VOLTAGE_V);
-        writer.writeCharacters(fs(v));
+        writer.writeCharacters(format(v));
         writer.writeEndElement();
         writer.writeEmptyElement(CIM_NAMESPACE, SV_VOLTAGE_TOPOLOGICAL_NODE);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + topologicalNode);
@@ -205,54 +208,55 @@ public final class StateVariablesExport {
     }
 
     private static void writePowerFlows(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        writeInjectionPowerFlowToCgmes(network, writer, Network::getLoadStream);
-        writeInjectionPowerFlowToCgmes(network, writer, Network::getGeneratorStream);
-        writeInjectionPowerFlowToCgmes(network, writer, Network::getShuntCompensatorStream);
-        writeInjectionPowerFlowToCgmes(network, writer, Network::getStaticVarCompensatorStream);
-        writeInjectionPowerFlowToCgmes(network, writer, Network::getBatteryStream);
+        writeInjectionsPowerFlows(network, writer, Network::getLoadStream);
+        writeInjectionsPowerFlows(network, writer, Network::getGeneratorStream);
+        writeInjectionsPowerFlows(network, writer, Network::getShuntCompensatorStream);
+        writeInjectionsPowerFlows(network, writer, Network::getStaticVarCompensatorStream);
+        writeInjectionsPowerFlows(network, writer, Network::getBatteryStream);
 
         for (DanglingLine dl : network.getDanglingLines()) {
-            if (!Boolean.parseBoolean(dl.getProperty("hasPowerFlow"))) {
-                continue;
+            if (EXPORT_BRANCH_POWER_FLOWS) {
+                String boundarySideStr = dl.getProperty("boundarySide");
+                if (boundarySideStr != null) {
+                    // The flow at the original Line terminal must have opposite sign of a load modeled at dangling line
+                    dl.getAliasFromType(CgmesNames.TERMINAL + boundarySideStr)
+                        .ifPresent(linet -> writePowerFlow(linet, -dl.getP0(), -dl.getQ0(), writer));
+                }
             }
-            String boundarySideStr = dl.getProperty("boundarySide");
-            if (boundarySideStr != null) {
-                String terminal = dl.getProperty(CgmesNames.TERMINAL + boundarySideStr);
-                writePowerFlow(terminal, dl.getP0(), dl.getQ0(), writer);
-            }
+            dl.getAliasFromType("EquivalentInjectionTerminal")
+                .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), writer));
         }
     }
 
-    private static <I extends Injection<I>> void writeInjectionPowerFlowToCgmes(Network network, XMLStreamWriter writer, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), writer));
+    private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, XMLStreamWriter writer, Function<Network, Stream<I>> injectionStream) {
+        injectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), writer));
     }
 
     private static void writePowerFlow(Terminal terminal, XMLStreamWriter writer) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
-            try {
-                writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), writer);
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        } else if (terminal.getConnectable() instanceof Load) {
-            // FIXME CGMES SvInjection objects created as loads
-            LOG.error("No SvPowerFlow created for load {}", terminal.getConnectable().getId());
+            writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), writer);
+        } else {
+            LOG.error("No SvPowerFlow created for {}", terminal.getConnectable().getId());
         }
     }
 
-    private static void writePowerFlow(String terminal, double p, double q, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow");
-        writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-        writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.p");
-        writer.writeCharacters(String.valueOf(p));
-        writer.writeEndElement();
-        writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.q");
-        writer.writeCharacters(String.valueOf(q));
-        writer.writeEndElement();
-        writer.writeEmptyElement(CIM_NAMESPACE, "SvPowerFlow.Terminal");
-        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
-        writer.writeEndElement();
+    private static void writePowerFlow(String terminal, double p, double q, XMLStreamWriter writer) {
+        try {
+            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow");
+            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
+            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.p");
+            writer.writeCharacters(format(p));
+            writer.writeEndElement();
+            writer.writeStartElement(CIM_NAMESPACE, "SvPowerFlow.q");
+            writer.writeCharacters(format(q));
+            writer.writeEndElement();
+            writer.writeEmptyElement(CIM_NAMESPACE, "SvPowerFlow.Terminal");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminal);
+            writer.writeEndElement();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     private static void writeShuntCompensatorSections(Network network, XMLStreamWriter writer) throws XMLStreamException {
@@ -342,7 +346,7 @@ public final class StateVariablesExport {
     // Avoid trailing zeros
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
 
-    private static String fs(double value) {
+    private static String format(double value) {
         return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
     }
 

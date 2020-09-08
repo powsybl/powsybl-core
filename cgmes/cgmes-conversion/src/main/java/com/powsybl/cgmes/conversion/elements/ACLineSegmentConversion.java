@@ -151,8 +151,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                         .setVoltageRegulationOn(false)
                     .add()
                     .add();
-            addAliases(dl);
         }
+        addAliases(dl);
         dl.setProperty("boundarySide", String.valueOf(boundarySide));
         dl.setProperty("hasPowerFlow", String.valueOf(context.boundary().hasPowerFlow(boundaryNode)));
         context.cgmes().terminal(terminalId(boundarySide)).inService().ifPresent(inService -> dl.setProperty("inService", String.valueOf(inService)));
