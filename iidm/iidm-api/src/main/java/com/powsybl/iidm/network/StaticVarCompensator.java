@@ -146,7 +146,6 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
         return getVoltageSetpoint();
     }
 
-
     /**
      * <p>Set the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
