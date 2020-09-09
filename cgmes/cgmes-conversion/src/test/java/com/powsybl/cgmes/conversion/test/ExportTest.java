@@ -14,11 +14,13 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.function.BiFunction;
+import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
@@ -39,6 +41,8 @@ import org.xmlunit.diff.ComparisonType;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelector;
 import org.xmlunit.diff.ElementSelectors;
 
@@ -49,6 +53,7 @@ import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.test.update.NetworkChanges;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -74,16 +79,48 @@ public class ExportTest {
 
     @Test
     public void testExportAlternativesBusBranch() throws IOException {
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource());
+        DifferenceEvaluator knownDiffs = this::ignoringJunctionsTerminals;
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
     @Ignore("not yet implemented")
     @Test
     public void testExportAlternativesNodeBreaker() throws IOException {
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource());
+        DifferenceEvaluator knownDiffs = this::ignoringJunctionsTerminals;
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), knownDiffs);
     }
 
-    private void exportUsingCgmesModelUsingOnlyNetworkAndCompare(ReadOnlyDataSource ds) throws IOException {
+    static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
+            "#_65a95678-1819-43cd-94d2-a03756822725",
+            "#_5c96df9d-39fa-46fe-a424-7b3e50184f79",
+            "#_9c6a1e49-17b2-46fc-8e32-c95dec33eba8")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    ComparisonResult ignoringJunctionsTerminals(Comparison comparison, ComparisonResult result) {
+        // If control node is a terminal of a junction, ignore the difference
+        // Means that we also have to ignore length of children of RDF element
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
+                && comparison.getControlDetails().getTarget().getLocalName().equals("RDF")) {
+                return ComparisonResult.EQUAL;
+            } else if (isJunctionTerminal(comparison.getControlDetails().getTarget())) {
+                return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    private boolean isJunctionTerminal(Node n) {
+        if (n.getLocalName().equals(CgmesNames.TERMINAL)) {
+            String about = n.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "about").getTextContent();
+            if (JUNCTIONS_TERMINALS.contains(about)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void exportUsingCgmesModelUsingOnlyNetworkAndCompare(ReadOnlyDataSource ds, DifferenceEvaluator knownDiffs) throws IOException {
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), null);
         NetworkChanges.modifyStateVariables(network0);
         network0.setProperty("baseName", ds.getBaseName());
@@ -100,11 +137,15 @@ public class ExportTest {
         e.export(network0, ep, tmpUsingOnlyNetwork);
 
         // Check resulting SV and SSH of both variants
-        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SV", this::diffSV, ds.getBaseName());
-        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SSH", this::diffSSH, ds.getBaseName());
+        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SV", this::diffSV, knownDiffs, ds.getBaseName());
+        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SSH", this::diffSSH, knownDiffs, ds.getBaseName());
     }
 
-    private void compare(DataSource dsExpected, DataSource dsActual, String profile, BiFunction<InputStream, InputStream, DiffBuilder> diff, String originalBaseName)
+    static interface DifferenceBuilder {
+        DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
+    }
+
+    private void compare(DataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
             throws IOException {
         String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
         String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
@@ -116,23 +157,23 @@ public class ExportTest {
         // Check that files are similar according to the diff function given
         try (InputStream expected = dsExpected.newInputStream(svExpected)) {
             try (InputStream actual = dsActual.newInputStream(svActual)) {
-                isOk(compare(diff.apply(expected, actual).checkForSimilar()));
+                isOk(compare(diff.build(expected, actual, knownDiffs).checkForSimilar()));
             }
         }
         // Check again that only differences reported when checking for identical contents are the order of elements
         try (InputStream expected = dsExpected.newInputStream(svExpected)) {
             try (InputStream actual = dsActual.newInputStream(svActual)) {
-                onlyNodeListSequenceDiffs(compare(diff.apply(expected, actual).checkForIdentical()));
+                onlyNodeListSequenceDiffs(compare(diff.build(expected, actual, knownDiffs).checkForIdentical()));
             }
         }
     }
 
-    DiffBuilder diffSV(InputStream expected, InputStream actual) {
-        return selectingEquivalentSvObjects(ignoringNonPersistentIds(withSelectedSvNodes(diff(expected, actual))));
+    DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
+        return selectingEquivalentSvObjects(ignoringNonPersistentIds(withSelectedSvNodes(diff(expected, actual, de))));
     }
 
-    DiffBuilder diffSSH(InputStream expected, InputStream actual) {
-        return selectingEquivalentSshObjects(withSelectedSshNodes(diff(expected, actual)));
+    DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
+        return selectingEquivalentSshObjects(withSelectedSshNodes(diff(expected, actual, de)));
     }
 
     private void isOk(Diff diff) {
@@ -146,12 +187,14 @@ public class ExportTest {
         }
     }
 
-    private DiffBuilder diff(InputStream expected, InputStream actual) {
+    private DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator de) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         return DiffBuilder.compare(control).withTest(test)
                 .ignoreWhitespace()
                 .ignoreComments()
+                .withDifferenceEvaluator(
+                        DifferenceEvaluators.chain(DifferenceEvaluators.Default, de))
                 .withComparisonListeners(ExportTest::debugComparison);
     }
 
