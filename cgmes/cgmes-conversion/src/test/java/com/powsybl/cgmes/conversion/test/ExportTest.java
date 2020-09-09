@@ -78,30 +78,34 @@ public class ExportTest {
     }
 
     @Test
-    public void testExportAlternativesBusBranch() throws IOException {
-        DifferenceEvaluator knownDiffs = this::ignoringJunctionsTerminals;
+    public void testExportAlternativesBusBranchSmall() throws IOException {
+        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionsTerminals;
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
+    }
+
+    @Test
+    public void testExportAlternativesBusBranchMicro() throws IOException {
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), this::noKnownDiffs);
     }
 
     @Ignore("not yet implemented")
     @Test
-    public void testExportAlternativesNodeBreaker() throws IOException {
-        DifferenceEvaluator knownDiffs = this::ignoringJunctionsTerminals;
+    public void testExportAlternativesNodeBreakerSmall() throws IOException {
+        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionsTerminals;
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), knownDiffs);
     }
 
-    static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
-            "#_65a95678-1819-43cd-94d2-a03756822725",
-            "#_5c96df9d-39fa-46fe-a424-7b3e50184f79",
-            "#_9c6a1e49-17b2-46fc-8e32-c95dec33eba8")
-            .collect(Collectors.toCollection(HashSet::new));
+    ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
+        // No previously known differences that should be filtered
+        return result;
+    }
 
-    ComparisonResult ignoringJunctionsTerminals(Comparison comparison, ComparisonResult result) {
+    private static ComparisonResult ignoringJunctionsTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
         if (result == ComparisonResult.DIFFERENT) {
             if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
-                && comparison.getControlDetails().getTarget().getLocalName().equals("RDF")) {
+                    && comparison.getControlDetails().getTarget().getLocalName().equals("RDF")) {
                 return ComparisonResult.EQUAL;
             } else if (isJunctionTerminal(comparison.getControlDetails().getTarget())) {
                 return ComparisonResult.EQUAL;
@@ -110,7 +114,13 @@ public class ExportTest {
         return result;
     }
 
-    private boolean isJunctionTerminal(Node n) {
+    private static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
+            "#_65a95678-1819-43cd-94d2-a03756822725",
+            "#_5c96df9d-39fa-46fe-a424-7b3e50184f79",
+            "#_9c6a1e49-17b2-46fc-8e32-c95dec33eba8")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static boolean isJunctionTerminal(Node n) {
         if (n != null && n.getNodeType() == Node.ELEMENT_NODE && n.getLocalName().equals(CgmesNames.TERMINAL)) {
             String about = n.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "about").getTextContent();
             if (JUNCTIONS_TERMINALS.contains(about)) {
@@ -187,14 +197,52 @@ public class ExportTest {
         }
     }
 
-    private DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator de) {
+    ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
+        // If both control and test nodes are text that can be converted to a number
+        // check that they represent the same number
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            // If different result for control and test,
+            // node must have a parent
+            Node n = comparison.getControlDetails().getTarget().getParentNode();
+            if (isTextContentNumeric(n)) {
+                try {
+                    double control = Double.parseDouble(comparison.getControlDetails().getTarget().getTextContent());
+                    try {
+                        double test = Double.parseDouble(comparison.getTestDetails().getTarget().getTextContent());
+                        if (Math.abs(control - test) < toleranceForNumericContent(n)) {
+                            return ComparisonResult.EQUAL;
+                        }
+                    } catch (NumberFormatException x) {
+                        // not numeric, keep previous comparison result
+                    }
+                } catch (NumberFormatException x) {
+                    // not numeric, keep previous comparison result
+                }
+            }
+        }
+        return result;
+    }
+
+    private boolean isTextContentNumeric(Node n) {
+        return n.getNodeType() == Node.ELEMENT_NODE
+                && (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q") || n.getLocalName().endsWith(".v")  || n.getLocalName().endsWith(".angle"));
+    }
+
+    private double toleranceForNumericContent(Node n) {
+        if (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q")) {
+            return 1e-5;
+        }
+        return 1e-10;
+    }
+
+    private DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator user) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         return DiffBuilder.compare(control).withTest(test)
                 .ignoreWhitespace()
                 .ignoreComments()
                 .withDifferenceEvaluator(
-                        DifferenceEvaluators.chain(DifferenceEvaluators.Default, de))
+                        DifferenceEvaluators.chain(DifferenceEvaluators.Default, this::numericDifferenceEvaluator, user))
                 .withComparisonListeners(ExportTest::debugComparison);
     }
 
@@ -275,7 +323,7 @@ public class ExportTest {
 //                        || n.getLocalName().contains("GeneratingUnit")
 //                        || n.getLocalName().equals("FullModel")
 //                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
-                        );
+                );
     }
 
     private static DiffBuilder ignoringNonPersistentIds(DiffBuilder diffBuilder) {
