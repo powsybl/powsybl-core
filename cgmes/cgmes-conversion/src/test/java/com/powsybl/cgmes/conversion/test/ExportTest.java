@@ -85,7 +85,10 @@ public class ExportTest {
 
     @Test
     public void testExportAlternativesBusBranchMicro() throws IOException {
-        DifferenceEvaluator knownDiffs = ExportTest::ignoringMissingTopologicalIslandInControl;
+        DifferenceEvaluator knownDiffs =
+                DifferenceEvaluators.chain(
+                        ExportTest::ignoringMissingTopologicalIslandInControl,
+                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
     }
 
@@ -115,6 +118,35 @@ public class ExportTest {
                     && test.getNodeType() == Node.ELEMENT_NODE
                     && test.getLocalName().equals("TopologicalIsland")) {
                 return ComparisonResult.EQUAL;
+            }
+        }
+        return result;
+    }
+
+    private static ComparisonResult ignoringSynchronousMachinesWithTargetDeadband(Comparison comparison, ComparisonResult result) {
+        // In micro grid there are two regulating controls for synchronous machines
+        // that have a target deadband of 0.5
+        // PowSyBl does not allow deadband for generator regulation
+        // we export deadband 0
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            Node control = comparison.getControlDetails().getTarget();
+            // XPtah is RDF/RegulatingControl/RegulatingControl.targetDeadband/text()
+            // check that parent of current text node is a regulating control target deadband,
+            // then check grand parent is one of the known diff identifiers
+            if (control.getParentNode() != null
+                    && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
+                    && control.getParentNode().getLocalName().equals("RegulatingControl.targetDeadband")) {
+                Node rccontrol = control.getParentNode().getParentNode();
+                String about = rccontrol.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "about").getTextContent();
+                if (about.equals("#_84bf5be8-eb59-4555-b131-fce4d2d7775d")
+                        || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")) {
+                    // FIXME(Luma) The regulating control _6ba406ce-78cf-4485-9b01-a34e584f1a8d
+                    // is shared between a synchronous machine and a tap changer
+                    // In PowSyBl, from the point of view of the generator,
+                    // we consider the regulating control without deadband
+                    // But the transformer should be allowed to use a deadband
+                    return ComparisonResult.EQUAL;
+                }
             }
         }
         return result;
@@ -340,6 +372,9 @@ public class ExportTest {
                         || n.getLocalName().startsWith("RotatingMachine")
                         || n.getLocalName().startsWith("RegulatingCondEq")
                         || n.getLocalName().startsWith("RegulatingControl")
+                        // Previous condition includes this one
+                        // but we state explicitly that we consider tap changer control objects
+                        || n.getLocalName().startsWith("TapChangerControl")
 // FIXME(Luma) Pending
 //                        || n.getLocalName().startsWith("ControlArea")
 //                        || n.getLocalName().contains("GeneratingUnit")
