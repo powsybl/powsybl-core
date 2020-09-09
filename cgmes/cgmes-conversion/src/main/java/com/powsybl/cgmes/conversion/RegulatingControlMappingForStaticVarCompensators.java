@@ -122,7 +122,9 @@ public class RegulatingControlMappingForStaticVarCompensators {
             svc.setRegulationMode(regulationMode);
         }
         svc.setRegulatingTerminal(terminal);
-
+        if (okSet) {
+            svc.setProperty("RegulatingControl", rc.regulatingControlId);
+        }
         return okSet;
     }
 

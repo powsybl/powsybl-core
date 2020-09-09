@@ -269,7 +269,10 @@ public class ExportTest {
                         || n.getLocalName().startsWith("SynchronousMachine")
                         || n.getLocalName().startsWith("RotatingMachine")
                         || n.getLocalName().startsWith("RegulatingCondEq")
-// FIXME(Luma) check also model description data
+                        || n.getLocalName().startsWith("RegulatingControl")
+// FIXME(Luma) Pending
+//                        || n.getLocalName().startsWith("ControlArea")
+//                        || n.getLocalName().contains("GeneratingUnit")
 //                        || n.getLocalName().equals("FullModel")
 //                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
                         );

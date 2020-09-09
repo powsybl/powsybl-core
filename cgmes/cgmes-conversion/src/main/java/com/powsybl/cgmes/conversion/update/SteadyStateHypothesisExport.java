@@ -45,6 +45,8 @@ public final class SteadyStateHypothesisExport {
             writeShuntCompensators(network, writer);
             writeSynchronousMachines(network, writer);
             writeTerminals(network, writer);
+            // FIXME(Luma) pending: regulating controls for transformers (RegulatingControl)
+            // FIXME(Luma) pending: control areas (ControlArea) and generating unit participation factors (GeneratingUnit.normalPF)
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -85,10 +87,12 @@ public final class SteadyStateHypothesisExport {
     private static void writeTapChangers(Network network, XMLStreamWriter writer) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
-                String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1)
+                        .orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger("Phase", ptcId, twt.getPhaseTapChanger(), writer);
             } else if (twt.hasRatioTapChanger()) {
-                String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1)
+                        .orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger("Ratio", rtcId, twt.getRatioTapChanger(), writer);
             }
         }
@@ -132,6 +136,12 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeEndElement();
+
+            if (s.hasProperty("RegulatingControl")) {
+                // PowSyBl has considered the control as discrete, with a certain targetDeadband
+                // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
+                writeRegulatingControl(s.getProperty("RegulatingControl"), true, s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k", writer);
+            }
         }
     }
 
@@ -154,10 +164,15 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
             writer.writeEndElement();
             writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine.operatingMode");
-            // FIXME(Luma) store the operating mode as a property in Generator ?
-            // Now all generators in PowSyBl are considered as generator, not motor
+            // All generators in PowSyBl are considered as generator, not motor
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, CgmesExport.CIM_NAMESPACE + "SynchronousMachineOperatingMode.generator");
             writer.writeEndElement();
+
+            if (g.hasProperty("RegulatingControl")) {
+                // PowSyBl has considered the control as continuous and with targetDeadband of size 0
+                // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
+                writeRegulatingControl(g.getProperty("RegulatingControl"), false, g.isVoltageRegulatorOn(), 0, g.getTargetV(), "k", writer);
+            }
         }
     }
 
@@ -171,6 +186,26 @@ public final class SteadyStateHypothesisExport {
             }
         }
         return false;
+    }
+
+    private static void writeRegulatingControl(String id, boolean discrete, boolean controlEnabled, double targetDeadband, double targetValue, String targetValueUnitMultiplier, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.discrete");
+        writer.writeCharacters(Boolean.toString(discrete));
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.enabled");
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetDeadband");
+        writer.writeCharacters(CgmesExport.format(targetDeadband));
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetValue");
+        writer.writeCharacters(CgmesExport.format(targetValue));
+        writer.writeEndElement();
+        writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetValueUnitMultiplier");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "resource", CgmesExport.CIM_NAMESPACE + "UnitMultiplier." + targetValueUnitMultiplier);
+        writer.writeEndElement();
     }
 
     private static void writeTapChanger(String ratioPhase, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {

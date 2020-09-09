@@ -73,6 +73,7 @@ public class RegulatingControlMappingForShuntCompensators {
             return;
         }
         setRegulatingControl(shuntCompensator, rc);
+        shuntCompensator.setProperty("RegulatingControl", rcId);
         rc.setCorrectlySet(true);
     }
 
