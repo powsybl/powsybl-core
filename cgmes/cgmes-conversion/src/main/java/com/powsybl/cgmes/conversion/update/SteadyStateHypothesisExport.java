@@ -41,6 +41,7 @@ public final class SteadyStateHypothesisExport {
             writeEnergyConsumers(network, writer);
             writeEquivalentInjections(network, writer);
             writeTapChangers(network, writer);
+            writeShuntCompensators(network, writer);
             writeTerminals(network, writer);
 
             writer.writeEndDocument();
@@ -102,6 +103,33 @@ public final class SteadyStateHypothesisExport {
                 }
                 i++;
             }
+        }
+    }
+
+    private static void writeShuntCompensators(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        for (ShuntCompensator s : network.getShuntCompensators()) {
+            String linearNonlinear;
+            switch (s.getModelType()) {
+                case LINEAR:
+                    linearNonlinear = "Linear";
+                    break;
+                case NON_LINEAR:
+                    linearNonlinear = "NonLinear";
+                    break;
+                default:
+                    linearNonlinear = "";
+                    break;
+            }
+            boolean controlEnabled = s.isVoltageRegulatorOn();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, linearNonlinear + "ShuntCompensator");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + s.getId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ShuntCompensator.sections");
+            writer.writeCharacters(CgmesExport.format(s.getSectionCount()));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingCondEq.controlEnabled");
+            writer.writeCharacters(Boolean.toString(controlEnabled));
+            writer.writeEndElement();
+            writer.writeEndElement();
         }
     }
 

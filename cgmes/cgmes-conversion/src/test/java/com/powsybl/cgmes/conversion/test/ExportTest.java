@@ -265,6 +265,7 @@ public class ExportTest {
                         || n.getLocalName().startsWith("Terminal")
                         || n.getLocalName().startsWith("EquivalentInjection")
                         || n.getLocalName().contains("TapChanger")
+                        || n.getLocalName().contains("ShuntCompensator")
 // FIXME(Luma) check also model description data
 //                        || n.getLocalName().equals("FullModel")
 //                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
