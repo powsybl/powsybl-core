@@ -11,9 +11,11 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 import javax.xml.stream.XMLStreamException;
@@ -38,6 +40,7 @@ public final class SteadyStateHypothesisExport {
             }
             writeEnergyConsumers(network, writer);
             writeEquivalentInjections(network, writer);
+            writeTapChangers(network, writer);
             writeTerminals(network, writer);
 
             writer.writeEndDocument();
@@ -74,6 +77,48 @@ public final class SteadyStateHypothesisExport {
         for (DanglingLine dl : network.getDanglingLines()) {
             writeEquivalentInjection(dl, writer);
         }
+    }
+
+    private static void writeTapChangers(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            if (twt.hasPhaseTapChanger()) {
+                String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                writeTapChanger("Phase", ptcId, twt.getPhaseTapChanger(), writer);
+            } else if (twt.hasRatioTapChanger()) {
+                String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                writeTapChanger("Ratio", rtcId, twt.getRatioTapChanger(), writer);
+            }
+        }
+
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            int i = 1;
+            for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
+                if (leg.hasPhaseTapChanger()) {
+                    String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    writeTapChanger("Phase", ptcId, leg.getPhaseTapChanger(), writer);
+                } else if (leg.hasRatioTapChanger()) {
+                    String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    writeTapChanger("Ratio", rtcId, leg.getRatioTapChanger(), writer);
+                }
+                i++;
+            }
+        }
+    }
+
+    private static void writeTapChanger(String ratioPhase, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
+        writeTapChanger(ratioPhase, id, tc.isRegulating(), tc.getTapPosition(), writer);
+    }
+
+    private static void writeTapChanger(String ratioPhase, String id, boolean controlEnabled, int step, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, ratioPhase + CgmesNames.TAP_CHANGER);
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "TapChanger.controlEnabled");
+        writer.writeCharacters(Boolean.toString(controlEnabled));
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "TapChanger.step");
+        writer.writeCharacters(CgmesExport.format(step));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeTerminal(Terminal t, Connectable<?> c, XMLStreamWriter writer) {

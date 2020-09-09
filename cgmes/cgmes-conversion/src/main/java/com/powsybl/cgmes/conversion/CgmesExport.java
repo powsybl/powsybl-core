@@ -134,6 +134,10 @@ public class CgmesExport implements Exporter {
         return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
+    public static String format(int value) {
+        return String.valueOf(value);
+    }
+
     public static String getUniqueId() {
         return UUID.randomUUID().toString();
     }

@@ -264,7 +264,8 @@ public class ExportTest {
                         || n.getLocalName().startsWith("EnergyConsumer")
                         || n.getLocalName().startsWith("Terminal")
                         || n.getLocalName().startsWith("EquivalentInjection")
-                        // FIXME(Luma) check also model description data
+                        || n.getLocalName().contains("TapChanger")
+// FIXME(Luma) check also model description data
 //                        || n.getLocalName().equals("FullModel")
 //                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
                         );

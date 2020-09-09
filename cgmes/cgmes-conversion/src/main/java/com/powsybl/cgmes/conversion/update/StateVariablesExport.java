@@ -81,7 +81,7 @@ public final class StateVariablesExport {
         writer.writeCharacters(svMetadata.getDescription());
         writer.writeEndElement();
         writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(is(svMetadata.getSvVersion()));
+        writer.writeCharacters(CgmesExport.format(svMetadata.getSvVersion()));
         writer.writeEndElement();
         for (String dependency : svMetadata.getDependencies()) {
             writer.writeEmptyElement(CgmesExport.MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
@@ -247,7 +247,7 @@ public final class StateVariablesExport {
             writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
             writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
-            writer.writeCharacters(is(s.getSectionCount()));
+            writer.writeCharacters(CgmesExport.format(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeEndElement();
         }
@@ -283,7 +283,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvTapStep");
         writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
         writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvTapStep.position");
-        writer.writeCharacters(is(tapPosition));
+        writer.writeCharacters(CgmesExport.format(tapPosition));
         writer.writeEndElement();
         writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvTapStep.TapChanger");
         writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tapChangerId);
@@ -327,10 +327,6 @@ public final class StateVariablesExport {
         Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
         Complex s1 = new Complex(p, q);
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
-    }
-
-    private static String is(int value) {
-        return String.valueOf(value);
     }
 
     private StateVariablesExport() {
