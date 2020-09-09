@@ -228,6 +228,11 @@ public final class SteadyStateHypothesisExport {
         int numt = 0;
         if (c.getTerminals().size() == 1) {
             numt = 1;
+            if (c instanceof DanglingLine) {
+                int boundarySide = Integer.valueOf(c.getProperty("boundarySide"));
+                int modelSide = 3 - boundarySide;
+                numt = modelSide;
+            }
         } else {
             if (c instanceof Injection) {
                 // An injection should have only one terminal
