@@ -244,8 +244,10 @@ public class ExportTest {
     }
 
     private boolean isTextContentNumeric(Node n) {
-        return n.getNodeType() == Node.ELEMENT_NODE
-                && (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q") || n.getLocalName().endsWith(".v")  || n.getLocalName().endsWith(".angle"));
+        return n.getNodeType() == Node.ELEMENT_NODE &&
+                (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q")
+                        || n.getLocalName().endsWith(".v") || n.getLocalName().endsWith(".angle")
+                        || n.getLocalName().endsWith(".regulationTarget") || n.getLocalName().endsWith(".targetValue"));
     }
 
     private double toleranceForNumericContent(Node n) {
