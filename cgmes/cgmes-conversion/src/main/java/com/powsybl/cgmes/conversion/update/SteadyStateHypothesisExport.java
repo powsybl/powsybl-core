@@ -37,6 +37,7 @@ public final class SteadyStateHypothesisExport {
                 writeModelDescription(network, writer);
             }
             writeEnergyConsumers(network, writer);
+            writeEquivalentInjections(network, writer);
             writeTerminals(network, writer);
 
             writer.writeEndDocument();
@@ -65,6 +66,13 @@ public final class SteadyStateHypothesisExport {
             dl.getAliasFromType(CgmesNames.TERMINAL + dl.getProperty("boundarySide")).ifPresent(tid -> {
                 writeTerminal(tid, true, writer);
             });
+        }
+    }
+
+    private static void writeEquivalentInjections(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        // One equivalent injection for every dangling line
+        for (DanglingLine dl : network.getDanglingLines()) {
+            writeEquivalentInjection(dl, writer);
         }
     }
 
@@ -114,7 +122,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeTerminal(String terminalId, boolean connected, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "Terminal");
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, CgmesNames.TERMINAL);
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + terminalId);
             writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ACDCTerminal.connected");
             writer.writeCharacters(Boolean.toString(connected));
@@ -122,6 +130,35 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void writeEquivalentInjection(DanglingLine dl, XMLStreamWriter writer) throws XMLStreamException {
+        Optional<String> ei = dl.getAliasFromType("EquivalentInjection");
+        if (ei.isPresent()) {
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + ei.get());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.p");
+            writer.writeCharacters(CgmesExport.format(dl.getP0()));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.q");
+            writer.writeCharacters(CgmesExport.format(dl.getQ0()));
+            writer.writeEndElement();
+            // regulationStatus and regulationTarget are optional,
+            // but test cases contain the attributes with disabled and 0
+            boolean regulationStatus = false;
+            double regulationTarget = 0;
+            if (dl.getGeneration() != null) {
+                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
+                regulationTarget = dl.getGeneration().getTargetV();
+            }
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.regulationStatus");
+            writer.writeCharacters(Boolean.toString(regulationStatus));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.regulationTarget");
+            writer.writeCharacters(CgmesExport.format(regulationTarget));
+            writer.writeEndElement();
+            writer.writeEndElement();
         }
     }
 

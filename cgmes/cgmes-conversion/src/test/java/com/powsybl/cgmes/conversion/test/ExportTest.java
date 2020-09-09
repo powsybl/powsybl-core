@@ -111,7 +111,7 @@ public class ExportTest {
     }
 
     private boolean isJunctionTerminal(Node n) {
-        if (n.getLocalName().equals(CgmesNames.TERMINAL)) {
+        if (n != null && n.getLocalName().equals(CgmesNames.TERMINAL)) {
             String about = n.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "about").getTextContent();
             if (JUNCTIONS_TERMINALS.contains(about)) {
                 return true;
@@ -263,6 +263,7 @@ public class ExportTest {
                 && (n.getLocalName().equals("RDF")
                         || n.getLocalName().startsWith("EnergyConsumer")
                         || n.getLocalName().startsWith("Terminal")
+                        || n.getLocalName().startsWith("EquivalentInjection")
                         // FIXME(Luma) check also model description data
 //                        || n.getLocalName().equals("FullModel")
 //                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
