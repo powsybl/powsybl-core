@@ -79,7 +79,7 @@ public class ExportTest {
 
     @Test
     public void testExportAlternativesBusBranchSmall() throws IOException {
-        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionsTerminals;
+        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionOrBusbarTerminals;
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
@@ -88,14 +88,15 @@ public class ExportTest {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
                         ExportTest::ignoringMissingTopologicalIslandInControl,
-                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband);
+                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband,
+                        ExportTest::ignoringJunctionOrBusbarTerminals);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
     }
 
     @Ignore("not yet implemented")
     @Test
     public void testExportAlternativesNodeBreakerSmall() throws IOException {
-        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionsTerminals;
+        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionOrBusbarTerminals;
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), knownDiffs);
     }
 
@@ -152,30 +153,46 @@ public class ExportTest {
         return result;
     }
 
-    private static ComparisonResult ignoringJunctionsTerminals(Comparison comparison, ComparisonResult result) {
+    private static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
         if (result == ComparisonResult.DIFFERENT) {
             if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
                     && comparison.getControlDetails().getTarget().getLocalName().equals("RDF")) {
                 return ComparisonResult.EQUAL;
-            } else if (isJunctionTerminal(comparison.getControlDetails().getTarget())) {
+            } else if (isJunctionOrBusbarTerminal(comparison.getControlDetails().getTarget())) {
                 return ComparisonResult.EQUAL;
             }
         }
         return result;
     }
 
+    // Present in small grid
     private static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
             "#_65a95678-1819-43cd-94d2-a03756822725",
             "#_5c96df9d-39fa-46fe-a424-7b3e50184f79",
             "#_9c6a1e49-17b2-46fc-8e32-c95dec33eba8")
             .collect(Collectors.toCollection(HashSet::new));
 
-    private static boolean isJunctionTerminal(Node n) {
+    // Present in micro grid
+    private static final Set<String> BUSBAR_TERMINALS = Stream.of(
+            "#_3c6d83a3-b5f9-41a2-a3d9-cf15d903ed0a",
+            "#_ad794c0e-b9ec-420b-ada1-97680e3dde05",
+            "#_a1b46f53-86f1-497e-bf57-c3b6268bcd6c",
+            "#_65b8c937-9b25-4b9e-addf-602dbc1337f9",
+            "#_62fc0a4e-00aa-4bf7-b1a0-3a5b2c0b5492",
+            "#_800ada75-8c8c-4568-aec5-20f799e45f3c",
+            "#_fa9e0f4d-8a2f-45e1-9e36-3611600d1c94",
+            "#_302fe23a-f64d-41bd-8a81-78130433916d",
+            "#_8f1c492f-a7cc-4160-9a14-54f1743e4850")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static boolean isJunctionOrBusbarTerminal(Node n) {
         if (n != null && n.getNodeType() == Node.ELEMENT_NODE && n.getLocalName().equals(CgmesNames.TERMINAL)) {
             String about = n.getAttributes().getNamedItemNS(CgmesExport.RDF_NAMESPACE, "about").getTextContent();
             if (JUNCTIONS_TERMINALS.contains(about)) {
+                return true;
+            } else if (BUSBAR_TERMINALS.contains(about)) {
                 return true;
             }
         }
