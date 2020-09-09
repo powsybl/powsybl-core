@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public final class SteadyStateHypothesisExport {
             writeEquivalentInjections(network, writer);
             writeTapChangers(network, writer);
             writeShuntCompensators(network, writer);
+            writeSynchronousMachines(network, writer);
             writeTerminals(network, writer);
 
             writer.writeEndDocument();
@@ -131,6 +133,44 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             writer.writeEndElement();
         }
+    }
+
+    private static void writeSynchronousMachines(Network network, XMLStreamWriter writer) throws XMLStreamException {
+        for (Generator g : network.getGenerators()) {
+            boolean controlEnabled = g.isVoltageRegulatorOn();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine");
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + g.getId());
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingCondEq.controlEnabled");
+            writer.writeCharacters(Boolean.toString(controlEnabled));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RotatingMachine.p");
+            writer.writeCharacters(CgmesExport.format(g.getTerminal().getP()));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RotatingMachine.q");
+            writer.writeCharacters(CgmesExport.format(g.getTerminal().getQ()));
+            writer.writeEndElement();
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine.referencePriority");
+            // reference priority is used for angle reference selection (slack)
+            writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
+            writer.writeEndElement();
+            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine.operatingMode");
+            // FIXME(Luma) store the operating mode as a property in Generator ?
+            // Now all generators in PowSyBl are considered as generator, not motor
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, CgmesExport.CIM_NAMESPACE + "SynchronousMachineOperatingMode.generator");
+            writer.writeEndElement();
+        }
+    }
+
+    private static boolean isInSlackBus(Generator g) {
+        VoltageLevel vl = g.getTerminal().getVoltageLevel();
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        if (slackTerminal != null) {
+            Bus slackBus = slackTerminal.getTerminal().getBusBreakerView().getBus();
+            if (slackBus == g.getTerminal().getBusBreakerView().getBus()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void writeTapChanger(String ratioPhase, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
