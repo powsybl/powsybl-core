@@ -58,11 +58,13 @@ public final class SteadyStateHypothesisExport {
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
-            dl.getAliasFromType("EquivalentInjection").ifPresent(tid -> {
+            dl.getAliasFromType("EquivalentInjectionTerminal").ifPresent(tid -> {
                 writeTerminal(tid, true, writer);
             });
-            // Terminal for boundary end of original line/switch is always connected
-            // dl.getAliasFromType(CgmesNames.TERMINAL + boundarySide, connected);
+            // Terminal for boundary side of original line/switch is always connected
+            dl.getAliasFromType(CgmesNames.TERMINAL + dl.getProperty("boundarySide")).ifPresent(tid -> {
+                writeTerminal(tid, true, writer);
+            });
         }
     }
 
