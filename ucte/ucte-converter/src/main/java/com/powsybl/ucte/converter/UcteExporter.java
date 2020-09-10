@@ -811,11 +811,11 @@ public class UcteExporter implements Exporter {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
                 ucteLine.setCurrentLimit(null);
-                LOGGER.warn("Switch {}: No current limit provided", sw.getId(), null);
+                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
             }
         } else {
             ucteLine.setCurrentLimit(null);
-            LOGGER.warn("Switch {}: No current limit provided", sw.getId(), null);
+            LOGGER.warn("Switch {}: No current limit provided", sw.getId());
         }
     }
 
@@ -840,7 +840,7 @@ public class UcteExporter implements Exporter {
     private static Integer getPermanentLimit(Branch<?> branch) {
         Optional<Double> permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit);
         Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
-        if (permanentLimit1.isPresent() & permanentLimit2.isPresent()) {
+        if (permanentLimit1.isPresent() && permanentLimit2.isPresent()) {
             return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
         } else if (permanentLimit1.isPresent()) {
             return permanentLimit1.get().intValue();
