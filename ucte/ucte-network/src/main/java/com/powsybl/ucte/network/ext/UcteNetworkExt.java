@@ -9,8 +9,8 @@ package com.powsybl.ucte.network.ext;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.powsybl.ucte.network.*;
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,8 +116,8 @@ public class UcteNetworkExt implements UcteNetwork {
         return network.getRegulation(transfoId);
     }
 
-    private UndirectedGraph<UcteNodeCode, Object> createSubstationGraph(UcteNetwork network) {
-        UndirectedGraph<UcteNodeCode, Object> graph = new Pseudograph<>(Object.class);
+    private Graph<UcteNodeCode, Object> createSubstationGraph(UcteNetwork network) {
+        Graph<UcteNodeCode, Object> graph = new Pseudograph<>(Object.class);
         for (UcteNode node : network.getNodes()) {
             graph.addVertex(node.getCode());
         }
@@ -130,7 +130,7 @@ public class UcteNetworkExt implements UcteNetwork {
         return graph;
     }
 
-    private void addEdgeBetweenSameGeographicalSpotNodes(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
+    private void addEdgeBetweenSameGeographicalSpotNodes(UcteNetwork network, Graph<UcteNodeCode, Object> graph) {
         // ...nodes with same geographical spot
         Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getUcteCountryCode() + node.getCode().getGeographicalSpot());
         for (Map.Entry<String, Collection<UcteNode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
@@ -144,7 +144,7 @@ public class UcteNetworkExt implements UcteNetwork {
         }
     }
 
-    private void addEdgeBetweenTransformers(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
+    private void addEdgeBetweenTransformers(UcteNetwork network, Graph<UcteNodeCode, Object> graph) {
         // ...nodes connected by a transformer
         for (UcteTransformer tfo : network.getTransformers()) {
             UcteNodeCode nodeCode1 = tfo.getId().getNodeCode1();
@@ -153,7 +153,7 @@ public class UcteNetworkExt implements UcteNetwork {
         }
     }
 
-    private void addEdgeForCouplerOrLowImpedanceLine(UcteNetwork network, UndirectedGraph<UcteNodeCode, Object> graph) {
+    private void addEdgeForCouplerOrLowImpedanceLine(UcteNetwork network, Graph<UcteNodeCode, Object> graph) {
         // ...nodes connected by a coupler or by a low impedance line
         for (UcteLine l : network.getLines()) {
             UcteNodeCode nodeCode1 = l.getId().getNodeCode1();
@@ -188,7 +188,7 @@ public class UcteNetworkExt implements UcteNetwork {
             LOGGER.trace("Update substations...");
             substations = new ArrayList<>();
             node2voltageLevel = new TreeMap<>();
-            UndirectedGraph<UcteNodeCode, Object> graph = createSubstationGraph(network);
+            Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
                 // the main node of the substation is not an xnode and the one with the highest voltage
                 // level and the lowest busbar number.
