@@ -12,7 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.conversion.extensions.CIMCharacteristics;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
@@ -44,7 +44,7 @@ public class Comparison {
         }
 
         // Compare CIM characteristics
-        compareCIMCharacteristics(expected.getExtension(CIMCharacteristics.class), actual.getExtension(CIMCharacteristics.class));
+        compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
         // Compare SV metadata
         compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
@@ -135,7 +135,7 @@ public class Comparison {
         });
     }
 
-    private void compareCIMCharacteristics(CIMCharacteristics expected, CIMCharacteristics actual) {
+    private void compareCIMCharacteristics(CimCharacteristics expected, CimCharacteristics actual) {
         if (expected == null && actual != null) {
             diff.unexpected(actual.getExtendable().getId() + "_cimCharacteristics_extension");
             return;

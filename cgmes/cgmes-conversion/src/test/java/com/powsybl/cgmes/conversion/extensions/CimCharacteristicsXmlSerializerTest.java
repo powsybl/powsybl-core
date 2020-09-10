@@ -19,12 +19,12 @@ import java.io.IOException;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CIMCharacteristicsXmlSerializerTest extends AbstractConverterTest {
+public class CimCharacteristicsXmlSerializerTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create().setCaseDate(DateTime.parse("2020-09-08T14:28:13.738+02:00"));
-        network.newExtension(CIMCharacteristicsAdder.class)
+        network.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .setCimVersion(14)
                 .add();
