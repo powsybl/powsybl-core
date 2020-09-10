@@ -13,7 +13,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CIMCharacteristics extends Extension<Network> {
+public interface CimCharacteristics extends Extension<Network> {
 
     CgmesTopologyKind getTopologyKind();
 

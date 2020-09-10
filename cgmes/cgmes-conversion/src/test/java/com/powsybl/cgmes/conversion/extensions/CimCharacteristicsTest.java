@@ -20,7 +20,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CIMCharacteristicsTest {
+public class CimCharacteristicsTest {
 
     @Rule
     public final ExpectedException expected = ExpectedException.none();
@@ -28,11 +28,11 @@ public class CIMCharacteristicsTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        network.newExtension(CIMCharacteristicsAdder.class)
+        network.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
                 .setCimVersion(16)
                 .add();
-        CIMCharacteristics extension = network.getExtension(CIMCharacteristics.class);
+        CimCharacteristics extension = network.getExtension(CimCharacteristics.class);
         assertNotNull(extension);
         assertEquals(CgmesTopologyKind.NODE_BREAKER, extension.getTopologyKind());
         assertEquals(16, extension.getCimVersion());
@@ -41,7 +41,7 @@ public class CIMCharacteristicsTest {
     @Test
     public void invalid() {
         expected.expect(PowsyblException.class);
-        expected.expectMessage("CIMCharacteristics.topologyKind is undefined");
-        EurostagTutorialExample1Factory.create().newExtension(CIMCharacteristicsAdder.class).add();
+        expected.expectMessage("CimCharacteristics.topologyKind is undefined");
+        EurostagTutorialExample1Factory.create().newExtension(CimCharacteristicsAdder.class).add();
     }
 }

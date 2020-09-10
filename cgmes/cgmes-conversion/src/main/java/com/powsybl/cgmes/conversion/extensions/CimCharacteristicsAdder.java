@@ -13,14 +13,14 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CIMCharacteristicsAdder extends ExtensionAdder<Network, CIMCharacteristics> {
+public interface CimCharacteristicsAdder extends ExtensionAdder<Network, CimCharacteristics> {
 
-    CIMCharacteristicsAdder setTopologyKind(CgmesTopologyKind cgmesTopologyKind);
+    CimCharacteristicsAdder setTopologyKind(CgmesTopologyKind cgmesTopologyKind);
 
-    CIMCharacteristicsAdder setCimVersion(int cimVersion);
+    CimCharacteristicsAdder setCimVersion(int cimVersion);
 
     @Override
-    default Class<CIMCharacteristics> getExtensionClass() {
-        return CIMCharacteristics.class;
+    default Class<CimCharacteristics> getExtensionClass() {
+        return CimCharacteristics.class;
     }
 }

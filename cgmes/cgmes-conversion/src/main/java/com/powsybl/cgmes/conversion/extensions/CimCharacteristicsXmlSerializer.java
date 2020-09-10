@@ -25,15 +25,15 @@ import javax.xml.stream.XMLStreamWriter;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CIMCharacteristicsXmlSerializer extends AbstractExtensionXmlSerializer<Network, CIMCharacteristics> {
+public class CimCharacteristicsXmlSerializer extends AbstractExtensionXmlSerializer<Network, CimCharacteristics> {
 
-    public CIMCharacteristicsXmlSerializer() {
-        super("cimCharacteristics", "network", CIMCharacteristics.class, false, "cimCharacteristics.xsd",
+    public CimCharacteristicsXmlSerializer() {
+        super("cimCharacteristics", "network", CimCharacteristics.class, false, "cimCharacteristics.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cim_characteristics/1_0", "cc");
     }
 
     @Override
-    public void write(CIMCharacteristics extension, XmlWriterContext context) throws XMLStreamException {
+    public void write(CimCharacteristics extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
         writer.writeAttribute("topologyKind", extension.getTopologyKind().toString());
@@ -41,13 +41,13 @@ public class CIMCharacteristicsXmlSerializer extends AbstractExtensionXmlSeriali
     }
 
     @Override
-    public CIMCharacteristics read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CimCharacteristics read(Network extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XMLStreamReader reader = networkContext.getReader();
-        extendable.newExtension(CIMCharacteristicsAdder.class)
+        extendable.newExtension(CimCharacteristicsAdder.class)
                 .setTopologyKind(CgmesTopologyKind.valueOf(reader.getAttributeValue(null, "topologyKind")))
                 .setCimVersion(XmlUtil.readIntAttribute(reader, "cimVersion"))
                 .add();
-        return extendable.getExtension(CIMCharacteristics.class);
+        return extendable.getExtension(CimCharacteristics.class);
     }
 }

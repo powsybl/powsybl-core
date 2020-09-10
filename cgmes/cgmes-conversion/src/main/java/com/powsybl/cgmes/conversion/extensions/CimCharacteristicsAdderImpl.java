@@ -14,35 +14,35 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CIMCharacteristicsAdderImpl extends AbstractExtensionAdder<Network, CIMCharacteristics> implements CIMCharacteristicsAdder {
+class CimCharacteristicsAdderImpl extends AbstractExtensionAdder<Network, CimCharacteristics> implements CimCharacteristicsAdder {
 
     private CgmesTopologyKind cgmesTopologyKind;
     private int cimVersion = -1;
 
-    CIMCharacteristicsAdderImpl(Network extendable) {
+    CimCharacteristicsAdderImpl(Network extendable) {
         super(extendable);
     }
 
     @Override
-    public CIMCharacteristicsAdder setTopologyKind(CgmesTopologyKind cgmesTopologyKind) {
+    public CimCharacteristicsAdder setTopologyKind(CgmesTopologyKind cgmesTopologyKind) {
         this.cgmesTopologyKind = cgmesTopologyKind;
         return this;
     }
 
     @Override
-    public CIMCharacteristicsAdder setCimVersion(int cimVersion) {
+    public CimCharacteristicsAdder setCimVersion(int cimVersion) {
         this.cimVersion = cimVersion;
         return this;
     }
 
     @Override
-    protected CIMCharacteristics createExtension(Network extendable) {
+    protected CimCharacteristics createExtension(Network extendable) {
         if (cgmesTopologyKind == null) {
-            throw new PowsyblException("CIMCharacteristics.topologyKind is undefined");
+            throw new PowsyblException("CimCharacteristics.topologyKind is undefined");
         }
         if (cimVersion == -1) {
-            throw new PowsyblException("CIMCharacteristics.cimVersion is undefined");
+            throw new PowsyblException("CimCharacteristics.cimVersion is undefined");
         }
-        return new CIMCharacteristicsImpl(cgmesTopologyKind, cimVersion);
+        return new CimCharacteristicsImpl(cgmesTopologyKind, cimVersion);
     }
 }

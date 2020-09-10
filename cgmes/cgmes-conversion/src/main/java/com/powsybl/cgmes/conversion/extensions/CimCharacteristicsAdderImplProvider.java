@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CIMCharacteristicsAdderImplProvider implements ExtensionAdderProvider<Network, CIMCharacteristics, CIMCharacteristicsAdderImpl> {
+public class CimCharacteristicsAdderImplProvider implements ExtensionAdderProvider<Network, CimCharacteristics, CimCharacteristicsAdderImpl> {
 
     @Override
     public String getImplementationName() {
@@ -22,12 +22,12 @@ public class CIMCharacteristicsAdderImplProvider implements ExtensionAdderProvid
     }
 
     @Override
-    public Class<? super CIMCharacteristicsAdderImpl> getAdderClass() {
-        return CIMCharacteristicsAdderImpl.class;
+    public Class<? super CimCharacteristicsAdderImpl> getAdderClass() {
+        return CimCharacteristicsAdderImpl.class;
     }
 
     @Override
-    public CIMCharacteristicsAdderImpl newAdder(Network extendable) {
-        return new CIMCharacteristicsAdderImpl(extendable);
+    public CimCharacteristicsAdderImpl newAdder(Network extendable) {
+        return new CimCharacteristicsAdderImpl(extendable);
     }
 }

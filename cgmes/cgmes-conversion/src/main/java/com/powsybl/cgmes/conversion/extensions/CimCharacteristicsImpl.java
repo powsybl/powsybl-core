@@ -15,12 +15,12 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CIMCharacteristicsImpl extends AbstractExtension<Network> implements CIMCharacteristics {
+class CimCharacteristicsImpl extends AbstractExtension<Network> implements CimCharacteristics {
 
     private final CgmesTopologyKind cgmesTopologyKind;
     private final int cimVersion;
 
-    CIMCharacteristicsImpl(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
+    CimCharacteristicsImpl(CgmesTopologyKind cgmesTopologyKind, int cimVersion) {
         this.cgmesTopologyKind = Objects.requireNonNull(cgmesTopologyKind);
         this.cimVersion = cimVersion;
     }
