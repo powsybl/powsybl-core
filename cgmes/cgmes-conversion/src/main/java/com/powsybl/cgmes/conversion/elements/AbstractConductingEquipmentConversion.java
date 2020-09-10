@@ -438,7 +438,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (td == null) {
                 return;
             }
-            identifiable.addAlias(td.t.id(), CgmesNames.TERMINAL + i);
+            identifiable.addAlias(td.t.id(), "CGMES." + CgmesNames.TERMINAL + i);
             i++;
         }
     }

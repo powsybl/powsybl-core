@@ -177,16 +177,21 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    @Deprecated
     default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
         return null;
     }
 
+    /**
+     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
+     */
     @Deprecated
     default String ratioTapChangerForPowerTransformer(String powerTransformerId) {
         return ratioTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
     }
 
+    /**
+     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
+     */
     @Deprecated
     default String phaseTapChangerForPowerTransformer(String powerTransformerId) {
         return phaseTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);

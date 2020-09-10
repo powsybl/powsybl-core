@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -67,7 +68,6 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                         .setTargetV(regulation.targetV)
                     .add()
                     .add();
-            addAliases(dl);
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the dangling line
@@ -82,7 +82,18 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                         .setTargetQ(0.0)
                     .add()
                     .add();
-            addAliases(dl);
+        }
+        // We do not call addAliases(dl) !
+        // Because we do not want to add this equivalent injection
+        // terminal id as a generic "Terminal" alias of the dangling line,
+        // Terminal1 and Terminal2 aliases should be used for
+        // the original ACLineSegment or Switch terminals
+        // We want to keep track add this equivalent injection terminal
+        // under a separate, specific, alias type
+        dl.addAlias(this.id, "CGMES.EquivalentInjection");
+        CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
+        if (cgmesTerminal != null) {
+            dl.addAlias(cgmesTerminal.id(), "CGMES.EquivalentInjectionTerminal");
         }
         return dl;
     }
