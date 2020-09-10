@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -100,12 +103,12 @@ public class UcteExporter implements Exporter {
      */
     private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy) {
         if (network.getShuntCompensatorCount() > 0 ||
-            network.getStaticVarCompensatorCount() > 0 ||
-            network.getBatteryCount() > 0 ||
-            network.getLccConverterStationCount() > 0 ||
-            network.getVscConverterStationCount() > 0 ||
-            network.getHvdcLineCount() > 0 ||
-            network.getThreeWindingsTransformerCount() > 0) {
+                network.getStaticVarCompensatorCount() > 0 ||
+                network.getBatteryCount() > 0 ||
+                network.getLccConverterStationCount() > 0 ||
+                network.getVscConverterStationCount() > 0 ||
+                network.getHvdcLineCount() > 0 ||
+                network.getThreeWindingsTransformerCount() > 0) {
 
             throw new UcteException("This network contains unsupported equipments");
         }
@@ -837,22 +840,15 @@ public class UcteExporter implements Exporter {
     private static Integer getPermanentLimit(Branch<?> branch) {
         Optional<Double> permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit);
         Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
-        if (permanentLimit1.isPresent()) {
-            if (permanentLimit2.isPresent()) {
-                return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
-            }
-            if (!permanentLimit2.isPresent()) {
-                return permanentLimit1.get().intValue();
-            }
+        if (permanentLimit1.isPresent() & permanentLimit2.isPresent()) {
+            return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
+        } else if (permanentLimit1.isPresent()) {
+            return permanentLimit1.get().intValue();
+        } else if (permanentLimit2.isPresent()) {
+            return permanentLimit2.get().intValue();
         } else {
-            if (permanentLimit2.isPresent()) {
-                return permanentLimit2.get().intValue();
-            }
-            if (!permanentLimit2.isPresent()) {
-                return null;
-            }
+            return null;
         }
-        return null;
     }
 
     static NamingStrategy findNamingStrategy(String name, List<NamingStrategy> namingStrategies) {
