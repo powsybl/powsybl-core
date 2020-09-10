@@ -10,7 +10,9 @@ import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +21,9 @@ import static org.junit.Assert.assertNotNull;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CIMCharacteristicsTest {
+
+    @Rule
+    public final ExpectedException expected = ExpectedException.none();
 
     @Test
     public void test() {
@@ -33,8 +38,10 @@ public class CIMCharacteristicsTest {
         assertEquals(16, extension.getCimVersion());
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void invalid() {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("CIMCharacteristics.topologyKind is undefined");
         EurostagTutorialExample1Factory.create().newExtension(CIMCharacteristicsAdder.class).add();
     }
 }
