@@ -842,12 +842,8 @@ public class UcteExporter implements Exporter {
         Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
         if (permanentLimit1.isPresent() && permanentLimit2.isPresent()) {
             return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
-        } else if (permanentLimit1.isPresent()) {
-            return permanentLimit1.get().intValue();
-        } else if (permanentLimit2.isPresent()) {
-            return permanentLimit2.get().intValue();
-        } else {
-            return null;
+        } else  {
+            return permanentLimit1.map(Double::intValue).orElseGet(() -> permanentLimit2.isPresent() ? permanentLimit2.get().intValue() : null);
         }
     }
 
