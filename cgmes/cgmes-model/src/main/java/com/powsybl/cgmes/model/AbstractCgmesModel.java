@@ -131,6 +131,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         // Alternative implementation:
         // instead of sorting after building each list,
         // use a sorted collection when inserting
+        String endNumber = "endNumber";
         Map<String, PropertyBags> gends = new HashMap<>();
         powerTransformerRatioTapChanger = new HashMap<>();
         powerTransformerPhaseTapChanger = new HashMap<>();
@@ -141,10 +142,10 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 ends.add(end);
                 if (end.getId("PhaseTapChanger") != null) {
                     powerTransformerPhaseTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerPhaseTapChanger.get(id)[end.asInt("endNumber", 1) - 1] = end.getId("PhaseTapChanger");
+                    powerTransformerPhaseTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("PhaseTapChanger");
                 } else if (end.getId("RatioTapChanger") != null) {
                     powerTransformerRatioTapChanger.computeIfAbsent(id, s -> new String[3]);
-                    powerTransformerRatioTapChanger.get(id)[end.asInt("endNumber", 1) - 1] = end.getId("RatioTapChanger");
+                    powerTransformerRatioTapChanger.get(id)[end.asInt(endNumber, 1) - 1] = end.getId("RatioTapChanger");
                 }
             });
         gends.entrySet()
@@ -153,7 +154,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     tends.getValue().stream()
                         .sorted(Comparator
                             .comparing(WindingType::fromTransformerEnd)
-                            .thenComparing(end -> end.asInt("endNumber", -1)))
+                            .thenComparing(end -> end.asInt(endNumber, -1)))
                         .collect(Collectors.toList()));
                 tends.setValue(tends1);
             });
