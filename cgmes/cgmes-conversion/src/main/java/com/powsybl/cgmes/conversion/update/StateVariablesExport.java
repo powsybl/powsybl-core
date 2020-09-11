@@ -7,7 +7,7 @@
 package com.powsybl.cgmes.conversion.update;
 
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
-import com.powsybl.cgmes.conversion.extensions.CIMCharacteristics;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
@@ -52,7 +52,7 @@ public final class StateVariablesExport {
         try {
             writeRdf(writer);
 
-            if (network.getExtension(CIMCharacteristics.class) != null && network.getExtension(CIMCharacteristics.class).getCimVersion() == 16) {
+            if (network.getExtension(CimCharacteristics.class) != null && network.getExtension(CimCharacteristics.class).getCimVersion() == 16) {
                 writeSvModelDescription(network, writer);
                 writeTopologicalIslands(network, writer);
             }
@@ -117,7 +117,7 @@ public final class StateVariablesExport {
     private static void writeTopologicalIslands(Network network, XMLStreamWriter writer) throws XMLStreamException {
         Map<Integer, List<String>> islands = new HashMap<>();
         Map<Integer, String> angleRefs = new HashMap<>();
-        if (network.getExtension(CIMCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CIMCharacteristics.class).getTopologyKind())) {
+        if (network.getExtension(CimCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CimCharacteristics.class).getTopologyKind())) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
@@ -154,7 +154,7 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForTopologicalNodes(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        if (network.getExtension(CIMCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CIMCharacteristics.class).getTopologyKind())) {
+        if (network.getExtension(CimCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CimCharacteristics.class).getTopologyKind())) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
