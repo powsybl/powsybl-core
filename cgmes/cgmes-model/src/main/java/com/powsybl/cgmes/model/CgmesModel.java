@@ -177,6 +177,11 @@ public interface CgmesModel {
 
     // Helper mappings
 
+    /**
+     * @deprecated Not used anymore. To get the CGMES Terminal ID of an equipment, use alias i.e.
+     * {@code equipement.getAlias("CGMES.Terminal1")}
+     */
+    @Deprecated
     default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
         return null;
     }
