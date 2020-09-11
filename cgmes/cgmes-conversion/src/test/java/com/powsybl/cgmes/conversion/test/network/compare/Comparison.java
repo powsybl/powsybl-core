@@ -14,10 +14,7 @@ import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -182,6 +179,20 @@ public class Comparison {
             compare("highVoltageLimit",
                     expected.getHighVoltageLimit(),
                     actual.getHighVoltageLimit());
+        }
+        SlackTerminal expectedSlackTerminal = expected.getExtension(SlackTerminal.class);
+        SlackTerminal actualSlackTerminal = actual.getExtension(SlackTerminal.class);
+        if (expectedSlackTerminal == null) {
+            if (actualSlackTerminal != null) {
+                diff.unexpected("slackTerminal");
+            }
+        } else {
+            if (actualSlackTerminal == null) {
+                diff.missing("slackTerminal");
+            } else {
+                equivalent("slackTerminal", expectedSlackTerminal.getTerminal().getConnectable(),
+                        actualSlackTerminal.getTerminal().getConnectable());
+            }
         }
     }
 
