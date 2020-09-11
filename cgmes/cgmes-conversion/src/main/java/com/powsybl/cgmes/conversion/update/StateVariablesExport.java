@@ -124,7 +124,7 @@ public final class StateVariablesExport {
         }
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            if (slackTerminal != null) {
+            if (slackTerminal != null && slackTerminal.getTerminal() != null && slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
                 angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum(),
                         slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
             }
