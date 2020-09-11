@@ -17,7 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -501,7 +500,7 @@ class MergedLine implements TieLine {
         getDanglingLine1().setFictitious(fictitious);
         getDanglingLine2().setFictitious(fictitious);
     }
-    
+
     @Override
     public PropertyType getPropertyType(String key) {
         PropertyType type1 = getDanglingLine1().getPropertyType(key);

@@ -231,7 +231,7 @@ public final class MergingView implements Network, MultiVariantObject {
     public Network getNetwork(String id) {
         return index.getNetwork(n -> n.getId().equals(id));
     }
-    
+
     @Override
     public PropertyType getPropertyType(String key) {
         return index.getNetworkStream()
