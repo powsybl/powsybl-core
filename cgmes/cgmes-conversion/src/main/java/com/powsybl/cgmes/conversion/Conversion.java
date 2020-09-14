@@ -11,12 +11,14 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -148,6 +150,7 @@ public class Conversion {
         Context context = createContext(network);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network);
+        addCimCharacteristics(network);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -301,6 +304,15 @@ public class Conversion {
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
+        }
+    }
+
+    private void addCimCharacteristics(Network network) {
+        if (cgmes instanceof CgmesModelTripleStore) {
+            network.newExtension(CimCharacteristicsAdder.class)
+                    .setTopologyKind(cgmes.isNodeBreaker() ? CgmesTopologyKind.NODE_BREAKER : CgmesTopologyKind.BUS_BRANCH)
+                    .setCimVersion(((CgmesModelTripleStore) cgmes).getCimVersion())
+                    .add();
         }
     }
 
