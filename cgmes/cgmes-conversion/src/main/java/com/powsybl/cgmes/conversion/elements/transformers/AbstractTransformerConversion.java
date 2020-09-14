@@ -96,7 +96,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+                tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag(), tc.getType());
         }
         return rcPtc;
     }

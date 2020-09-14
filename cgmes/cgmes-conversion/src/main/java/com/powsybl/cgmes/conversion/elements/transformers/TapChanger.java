@@ -40,6 +40,7 @@ public class TapChanger {
     private final List<Step> steps = new ArrayList<>();
     private boolean ltcFlag = false;
     private String id = null;
+    private String type = null;
     private boolean regulating = false;
     private String regulatingControlId = null;
     private String tculControlMode = null;
@@ -148,6 +149,11 @@ public class TapChanger {
         return this;
     }
 
+    public TapChanger setType(String type) {
+        this.type = type;
+        return this;
+    }
+
     public TapChanger setId(String id) {
         this.id = id;
         return this;
@@ -195,6 +201,10 @@ public class TapChanger {
 
     public boolean isLtcFlag() {
         return ltcFlag;
+    }
+
+    public String getType() {
+        return type;
     }
 
     public String getId() {

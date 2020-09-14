@@ -158,7 +158,6 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static String phaseTapChangerType(Identifiable<?> eq, String ptcId) {
-        // FIXME(Luma) store tap changer type (Linear, Tabular, NonLinear: Symmetrical, Asymmetrical) in eq properties
         String key = String.format("PhaseTapChanger.%s.type", ptcId);
         if (eq.hasProperty(key)) {
             return eq.getProperty(key);
