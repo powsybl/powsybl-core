@@ -43,7 +43,7 @@ public class MergedCimCharacteristicsTest {
         assertEquals(14, mergedExt1.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt1.getTopologyKind());
 
-        CimCharacteristics mergedExt2 = network.getExtension(CimCharacteristics.class);
+        CimCharacteristics mergedExt2 = network.getExtensionByName("cimCharacteristics");
         assertNotNull(mergedExt2);
         assertEquals(14, mergedExt2.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt2.getTopologyKind());
