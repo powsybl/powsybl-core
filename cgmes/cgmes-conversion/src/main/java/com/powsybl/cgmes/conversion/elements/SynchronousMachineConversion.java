@@ -64,6 +64,10 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (!Double.isNaN(normalPF)) {
             g.setProperty("normalPF", Double.toString(normalPF));
         }
+        String generatingUnit = p.getId("GeneratingUnit");
+        if (generatingUnit != null) {
+            g.setProperty("GeneratingUnit", generatingUnit);
+        }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }

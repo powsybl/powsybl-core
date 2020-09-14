@@ -480,7 +480,6 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static String generatingUnitId(Generator g) {
-        // FIXME(Luma) assign this property during import
         // (g.id = syncrhonousmachine.id != generatingunit.id)
         return g.getProperty("GeneratingUnit");
     }
