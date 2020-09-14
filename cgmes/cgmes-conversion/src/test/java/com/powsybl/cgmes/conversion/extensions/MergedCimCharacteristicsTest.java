@@ -37,9 +37,15 @@ public class MergedCimCharacteristicsTest {
 
         MergingView network = MergingView.create("network", "test");
         network.merge(network1, network2);
-        CimCharacteristics mergedExt = network.getExtension(CimCharacteristics.class);
-        assertNotNull(mergedExt);
-        assertEquals(14, mergedExt.getCimVersion());
-        assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt.getTopologyKind());
+
+        CimCharacteristics mergedExt1 = network.getExtension(CimCharacteristics.class);
+        assertNotNull(mergedExt1);
+        assertEquals(14, mergedExt1.getCimVersion());
+        assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt1.getTopologyKind());
+
+        CimCharacteristics mergedExt2 = network.getExtension(CimCharacteristics.class);
+        assertNotNull(mergedExt2);
+        assertEquals(14, mergedExt2.getCimVersion());
+        assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt2.getTopologyKind());
     }
 }
