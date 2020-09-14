@@ -796,33 +796,29 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public <E extends Extension<Network>> E getExtension(final Class<? super E> type) {
-        if (workingNetwork.getExtension(type) != null) {
-            return workingNetwork.getExtension(type);
+        if (workingNetwork.getExtension(type) == null) {
+            index.getNetworkStream()
+                    .map(n -> (E) n.getExtension(type))
+                    .filter(Objects::nonNull)
+                    .forEach(ext -> SUPPLIER.get().stream()
+                            .filter(emv -> emv.getExtensionClass() == type)
+                            .findFirst()
+                            .ifPresent(emv -> emv.merge(workingNetwork, ext)));
         }
-        List<E> extensions = index.getNetworkStream().map(n -> (E) n.getExtension(type)).filter(Objects::nonNull).collect(Collectors.toList());
-        if (extensions.isEmpty()) {
-            return null;
-        }
-        SUPPLIER.get().stream()
-                .filter(emv -> emv.getExtensionClass() == type)
-                .findFirst()
-                .ifPresent(emv -> extensions.forEach(e -> emv.merge(workingNetwork, e)));
         return workingNetwork.getExtension(type);
     }
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(final String name) {
-        if (workingNetwork.getExtensionByName(name) != null) {
-            return workingNetwork.getExtensionByName(name);
+        if (workingNetwork.getExtensionByName(name) == null) {
+            index.getNetworkStream()
+                    .map(n -> (E) n.getExtensionByName(name))
+                    .filter(Objects::nonNull)
+                    .forEach(ext -> SUPPLIER.get().stream()
+                            .filter(emv -> emv.getName().equals(name))
+                            .findFirst()
+                            .ifPresent(emv -> emv.merge(workingNetwork, ext)));
         }
-        List<E> extensions = index.getNetworkStream().map(n -> (E) n.getExtensionByName(name)).filter(Objects::nonNull).collect(Collectors.toList());
-        if (extensions.isEmpty()) {
-            return null;
-        }
-        SUPPLIER.get().stream()
-                .filter(emv -> emv.getName().equals(name))
-                .findFirst()
-                .ifPresent(emv -> extensions.forEach(e -> emv.merge(workingNetwork, e)));
         return workingNetwork.getExtensionByName(name);
     }
 
