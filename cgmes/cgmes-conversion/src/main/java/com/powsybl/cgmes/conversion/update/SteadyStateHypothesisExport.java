@@ -130,12 +130,12 @@ public final class SteadyStateHypothesisExport {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeTapChanger("Phase", ptcId, twt.getPhaseTapChanger(), writer);
+                writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), writer);
                 addTapChangerControl(twt, ptcId, twt.getPhaseTapChanger(), regulatingControlViews);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeTapChanger("Ratio", rtcId, twt.getRatioTapChanger(), writer);
+                writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), writer);
                 addTapChangerControl(twt, rtcId, twt.getRatioTapChanger(), regulatingControlViews);
             }
         }
@@ -145,15 +145,25 @@ public final class SteadyStateHypothesisExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeTapChanger("Phase", ptcId, leg.getPhaseTapChanger(), writer);
+                    writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), writer);
                     addTapChangerControl(twt, ptcId, leg.getPhaseTapChanger(), regulatingControlViews);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeTapChanger("Ratio", rtcId, leg.getRatioTapChanger(), writer);
+                    writeTapChanger("RatioTapChanger", rtcId, leg.getRatioTapChanger(), writer);
                     addTapChangerControl(twt, rtcId, leg.getRatioTapChanger(), regulatingControlViews);
                 }
                 i++;
             }
+        }
+    }
+
+    private static String phaseTapChangerType(Identifiable<?> eq, String ptcId) {
+        // FIXME(Luma) store tap changer type (Linear, Tabular, NonLinear: Symmetrical, Asymmetrical) in eq properties
+        String key = String.format("PhaseTapChanger.%s.type", ptcId);
+        if (eq.hasProperty(key)) {
+            return eq.getProperty(key);
+        }        else  {
+            return "PhaseTapChanger";
         }
     }
 
@@ -239,12 +249,12 @@ public final class SteadyStateHypothesisExport {
         return false;
     }
 
-    private static void writeTapChanger(String ratioPhase, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(ratioPhase, id, tc.isRegulating(), tc.getTapPosition(), writer);
+    private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
+        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), writer);
     }
 
-    private static void writeTapChanger(String ratioPhase, String id, boolean controlEnabled, int step, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, ratioPhase + CgmesNames.TAP_CHANGER);
+    private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, type);
         writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
         writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "TapChanger.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
@@ -256,22 +266,26 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void addTapChangerControl(Identifiable<?> eq, String tcId, RatioTapChanger rtc, Map<String, List<RegulatingControlView>> regulatingControlViews) {
-        // FIXME(Luma) do we need to store the id as part of the key ???
-        String key = String.format("TapChangerControl-%s", tcId);
+        // Multiple tap changers can be stored at same equipment
+        // We use the tap changer id as part of the key for storing the tap changer control id
+        String key = String.format("RatioTapChanger.%s.TapChangerControl", tcId);
         if (eq.hasProperty(key)) {
-            RegulatingControlView rcv = new RegulatingControlView(tcId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
+            String controlId = eq.getProperty(key);
+            // Unit multiplier is k for ratio tap changers (regulation value is a voltage in kV)
+            RegulatingControlView rcv = new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
                 rtc.isRegulating(), rtc.getTargetDeadband(), rtc.getTargetV(), "k");
-            regulatingControlViews.computeIfAbsent(eq.getProperty(key), k -> new ArrayList<>()).add(rcv);
+            regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
         }
     }
 
     private static void addTapChangerControl(Identifiable<?> eq, String tcId, PhaseTapChanger ptc, Map<String, List<RegulatingControlView>> regulatingControlViews) {
-        String key = String.format("TapChangerControl-%s", tcId);
+        String key = String.format("PhaseTapChanger.%s.TapChangerControl", tcId);
         if (eq.hasProperty(key)) {
-            // FIXME(Luma) unit multiplier should be M for phase tap changers ??? (regulation value is an active power flow in MW)
-            RegulatingControlView rcv = new RegulatingControlView(tcId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
-                ptc.isRegulating(), ptc.getTargetDeadband(), ptc.getRegulationValue(), "k");
-            regulatingControlViews.computeIfAbsent(eq.getProperty(key), k -> new ArrayList<>()).add(rcv);
+            String controlId = eq.getProperty(key);
+            // Unit multiplier is M for phase tap changers (regulation value is an active power flow in MW)
+            RegulatingControlView rcv = new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
+                ptc.isRegulating(), ptc.getTargetDeadband(), ptc.getRegulationValue(), "M");
+            regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
         }
     }
 
