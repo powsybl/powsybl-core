@@ -11,6 +11,7 @@ import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -21,8 +22,10 @@ import static org.junit.Assert.assertNotNull;
  */
 public class MergedCimCharacteristicsTest {
 
-    @Test
-    public void test() {
+    private MergingView network;
+
+    @Before
+    public void setUp() {
         Network network1 = EurostagTutorialExample1Factory.create();
         network1.newExtension(CimCharacteristicsAdder.class)
                 .setCimVersion(14)
@@ -35,14 +38,20 @@ public class MergedCimCharacteristicsTest {
                 .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
                 .add();
 
-        MergingView network = MergingView.create("network", "test");
+        network = MergingView.create("network", "test");
         network.merge(network1, network2);
+    }
 
+    @Test
+    public void getExtensionTest() {
         CimCharacteristics mergedExt1 = network.getExtension(CimCharacteristics.class);
         assertNotNull(mergedExt1);
         assertEquals(14, mergedExt1.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt1.getTopologyKind());
+    }
 
+    @Test
+    public void getExtensionByNameTest() {
         CimCharacteristics mergedExt2 = network.getExtensionByName("cimCharacteristics");
         assertNotNull(mergedExt2);
         assertEquals(14, mergedExt2.getCimVersion());
