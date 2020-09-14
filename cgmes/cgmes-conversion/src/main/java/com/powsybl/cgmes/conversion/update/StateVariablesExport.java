@@ -28,6 +28,7 @@ import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -115,8 +116,8 @@ public final class StateVariablesExport {
     }
 
     private static void writeTopologicalIslands(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        Map<Integer, List<String>> islands = new HashMap<>();
-        Map<Integer, String> angleRefs = new HashMap<>();
+        Map<String, List<String>> islands = new HashMap<>();
+        Map<String, String> angleRefs = new HashMap<>();
         if (network.getExtension(CimCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CimCharacteristics.class).getTopologyKind())) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
@@ -124,27 +125,45 @@ public final class StateVariablesExport {
         }
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            if (slackTerminal != null && slackTerminal.getTerminal() != null && slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
-                angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum(),
-                        slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
+            if (slackTerminal != null && slackTerminal.getTerminal() != null) {
+                if (slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
+                    String componentNum = String.valueOf(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum());
+                    if (angleRefs.containsKey(componentNum)) {
+                        Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
+                                componentNum, angleRefs.get(componentNum));
+                        LOG.info(log.get());
+                        continue;
+                    }
+                    angleRefs.put(componentNum, slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
+                } else {
+                    angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getId(),
+                            slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
+                }
             }
         }
         for (Bus b : network.getBusBreakerView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
-                islands.computeIfAbsent(num, i -> new ArrayList<>());
-                islands.get(num).add(b.getId());
+                islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
+                islands.get(String.valueOf(num)).add(b.getId());
+            } else {
+                islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
         }
 
-        for (Map.Entry<Integer, List<String>> island : islands.entrySet()) {
+        for (Map.Entry<String, List<String>> island : islands.entrySet()) {
+            if (!angleRefs.containsKey(island.getKey())) {
+                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
+                LOG.info(log.get());
+                continue;
+            }
             writer.writeStartElement(CIM_NAMESPACE, CgmesNames.TOPOLOGICAL_ISLAND);
             writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
             writer.writeStartElement(CIM_NAMESPACE, CgmesNames.NAME);
             writer.writeCharacters(getUniqueId()); // TODO do we need another name?
             writer.writeEndElement();
             writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.getOrDefault(island.getKey(), island.getValue().get(0)));
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.get(island.getKey()));
             for (String tn : island.getValue()) {
                 writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
                 writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
