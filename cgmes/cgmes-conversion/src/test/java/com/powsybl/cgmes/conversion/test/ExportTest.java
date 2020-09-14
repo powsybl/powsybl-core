@@ -293,10 +293,14 @@ public class ExportTest {
     }
 
     private boolean isTextContentNumeric(Node n) {
-        return n.getNodeType() == Node.ELEMENT_NODE &&
-                (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q")
-                        || n.getLocalName().endsWith(".v") || n.getLocalName().endsWith(".angle")
-                        || n.getLocalName().endsWith(".regulationTarget") || n.getLocalName().endsWith(".targetValue"));
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+            String name = n.getLocalName();
+            return name.endsWith(".p") || name.endsWith(".q")
+                    || name.endsWith(".v") || name.endsWith(".angle")
+                    || name.endsWith(".regulationTarget") || name.endsWith(".targetValue") || name.endsWith(".targetDeadband")
+                    || name.endsWith(".normalPF");
+        }
+        return false;
     }
 
     private double toleranceForNumericContent(Node n) {
@@ -366,37 +370,43 @@ public class ExportTest {
     }
 
     private static boolean isConsideredSvNode(Node n) {
-        return n.getLocalName() != null && (n.getLocalName().equals("RDF")
-                || n.getLocalName().startsWith("SvVoltage")
-                || n.getLocalName().startsWith("SvShuntCompensatorSections")
-                || n.getLocalName().startsWith("SvTapStep")
-                || n.getLocalName().startsWith("SvStatus")
-                || n.getLocalName().startsWith("SvPowerFlow")
-                || n.getLocalName().equals("FullModel")
-                || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
-                || n.getLocalName().startsWith("TopologicalIsland") && !n.getLocalName().equals("TopologicalIsland.AngleRefTopologicalNode"));
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+            String name = n.getLocalName();
+            return name != null && (name.equals("RDF")
+                    || name.startsWith("SvVoltage")
+                    || name.startsWith("SvShuntCompensatorSections")
+                    || name.startsWith("SvTapStep")
+                    || name.startsWith("SvStatus")
+                    || name.startsWith("SvPowerFlow")
+                    || name.equals("FullModel")
+                    || name.startsWith("Model.") && !name.equals("Model.created")
+                    || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode"));
+        }
+        return false;
     }
 
     private static boolean isConsideredSshNode(Node n) {
-        return n.getLocalName() != null
-                && (n.getLocalName().equals("RDF")
-                        || n.getLocalName().startsWith("EnergyConsumer")
-                        || n.getLocalName().startsWith("Terminal")
-                        || n.getLocalName().startsWith("EquivalentInjection")
-                        || n.getLocalName().contains("TapChanger")
-                        || n.getLocalName().contains("ShuntCompensator")
-                        || n.getLocalName().startsWith("SynchronousMachine")
-                        || n.getLocalName().startsWith("RotatingMachine")
-                        || n.getLocalName().startsWith("RegulatingCondEq")
-                        || n.getLocalName().startsWith("RegulatingControl")
-                        // Previous condition includes this one
-                        // but we state explicitly that we consider tap changer control objects
-                        || n.getLocalName().startsWith("TapChangerControl")
-                        || n.getLocalName().startsWith("ControlArea")
-                        || n.getLocalName().contains("GeneratingUnit")
-                        || n.getLocalName().equals("FullModel")
-                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
-                );
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+            String name = n.getLocalName();
+            return name.equals("RDF")
+                    || name.startsWith("EnergyConsumer")
+                    || name.startsWith("Terminal")
+                    || name.startsWith("EquivalentInjection")
+                    || name.contains("TapChanger")
+                    || name.contains("ShuntCompensator")
+                    || name.startsWith("SynchronousMachine")
+                    || name.startsWith("RotatingMachine")
+                    || name.startsWith("RegulatingCondEq")
+                    || name.startsWith("RegulatingControl")
+                    // Previous condition includes this one
+                    // but we state explicitly that we consider tap changer control objects
+                    || name.startsWith("TapChangerControl")
+                    || name.startsWith("ControlArea")
+                    || name.contains("GeneratingUnit")
+                    || name.equals("FullModel")
+                    || name.startsWith("Model.") && !name.equals("Model.created");
+        }
+        return false;
     }
 
     private static DiffBuilder ignoringNonPersistentSvIds(DiffBuilder diffBuilder) {

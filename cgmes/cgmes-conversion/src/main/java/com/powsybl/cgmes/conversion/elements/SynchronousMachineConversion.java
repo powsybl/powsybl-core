@@ -60,9 +60,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (p.asInt("referencePriority", 0) > 0) {
             SlackTerminal.attach(g.getTerminal().getBusBreakerView().getBus());
         }
-        double normalPF = p.asDouble("normalPF", Double.NaN);
-        if (!Double.isNaN(normalPF)) {
-            g.setProperty("normalPF", Double.toString(normalPF));
+        if (p.containsKey("normalPF")) {
+            g.setProperty("GeneratingUnit.normalPF", p.get("normalPF"));
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {

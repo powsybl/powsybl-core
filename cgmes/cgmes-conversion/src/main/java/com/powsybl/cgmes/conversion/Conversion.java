@@ -331,8 +331,8 @@ public class Conversion {
 
             sshControlAreas.forEach(sshControlArea -> {
                 String id = sshControlArea.getId("ControlArea");
-                double netInterchange = sshControlArea.asDouble("netInterchange", 0.0);
-                double pTolerance = sshControlArea.asDouble("pTolerance", 0.0);
+                double netInterchange = sshControlArea.asDouble("netInterchange");
+                double pTolerance = sshControlArea.asDouble("pTolerance");
                 ControlArea controlArea = new ControlArea(id, netInterchange, pTolerance);
                 adder.addControlArea(controlArea);
             });

@@ -891,9 +891,8 @@ WHERE {
         cim:IdentifiedObject.name ?name
 }}
 { GRAPH ?graphSSH {
-    ?ControlArea
-        cim:ControlArea.netInterchange ?netInterchange ;
-        cim:ControlArea.pTolerance ?pTolerance
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
 }
 
