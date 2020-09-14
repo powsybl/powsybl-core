@@ -92,7 +92,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void exportSteadyStateHypothesis(Network network, DataSource ds) {
-        export(network, ds, "SSH", new SteadyStateHypothesisExport()::write);
+        export(network, ds, "SSH", SteadyStateHypothesisExport::write);
     }
 
     private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> exporter) {

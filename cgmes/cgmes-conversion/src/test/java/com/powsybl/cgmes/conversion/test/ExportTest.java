@@ -248,11 +248,11 @@ public class ExportTest {
     }
 
     DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSvObjects(ignoringNonPersistentIds(withSelectedSvNodes(diff(expected, actual, de))));
+        return selectingEquivalentSvObjects(ignoringNonPersistentSvIds(withSelectedSvNodes(diff(expected, actual, de))));
     }
 
     DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSshObjects(withSelectedSshNodes(diff(expected, actual, de)));
+        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
     }
 
     private void isOk(Diff diff) {
@@ -392,15 +392,14 @@ public class ExportTest {
                         // Previous condition includes this one
                         // but we state explicitly that we consider tap changer control objects
                         || n.getLocalName().startsWith("TapChangerControl")
-// FIXME(Luma) Pending
-//                        || n.getLocalName().startsWith("ControlArea")
-//                        || n.getLocalName().contains("GeneratingUnit")
-//                        || n.getLocalName().equals("FullModel")
-//                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
+                        || n.getLocalName().startsWith("ControlArea")
+                        || n.getLocalName().contains("GeneratingUnit")
+                        || n.getLocalName().equals("FullModel")
+                        || n.getLocalName().startsWith("Model.") && !n.getLocalName().equals("Model.created")
                 );
     }
 
-    private static DiffBuilder ignoringNonPersistentIds(DiffBuilder diffBuilder) {
+    private static DiffBuilder ignoringNonPersistentSvIds(DiffBuilder diffBuilder) {
         return diffBuilder.withAttributeFilter(attr -> {
             String elementName = attr.getOwnerElement().getLocalName();
             boolean ignored = false;
@@ -413,6 +412,19 @@ public class ExportTest {
                     ignored = attr.getLocalName().equals("about");
                 } else if (elementName.equals("TopologicalIsland")) {
                     ignored = attr.getLocalName().equals("ID");
+                }
+            }
+            return !ignored;
+        });
+    }
+
+    private static DiffBuilder ignoringNonPersistentSshIds(DiffBuilder diffBuilder) {
+        return diffBuilder.withAttributeFilter(attr -> {
+            String elementName = attr.getOwnerElement().getLocalName();
+            boolean ignored = false;
+            if (elementName != null) {
+                if (elementName.equals("FullModel")) {
+                    ignored = attr.getLocalName().equals("about");
                 }
             }
             return !ignored;
@@ -447,7 +459,12 @@ public class ExportTest {
 
     private static DiffBuilder selectingEquivalentSshObjects(DiffBuilder diffBuilder) {
         QName aboutAttribute = new QName(CgmesExport.RDF_NAMESPACE, "about");
-        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndAttributes(aboutAttribute)));
+        ElementSelector elementSelector = ElementSelectors.conditionalBuilder()
+                .whenElementIsNamed("FullModel")
+                .thenUse(ElementSelectors.byName)
+                .elseUse(ElementSelectors.byNameAndAttributes(aboutAttribute))
+                .build();
+        return diffBuilder.withNodeMatcher(new DefaultNodeMatcher(elementSelector));
     }
 
     private static Diff compare(DiffBuilder diffBuilder) {
