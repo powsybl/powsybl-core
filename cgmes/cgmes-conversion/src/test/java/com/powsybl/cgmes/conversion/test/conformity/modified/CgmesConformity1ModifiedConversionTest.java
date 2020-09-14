@@ -21,6 +21,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 import org.junit.After;
@@ -453,6 +454,19 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(modifiedSvc);
         assertEquals(REACTIVE_POWER, modifiedSvc.getRegulationMode());
         assertEquals(0.0, modifiedSvc.getReactivePowerSetpoint(), 0.0);
+    }
+
+    @Test
+    public void miniBusBranchDisconnectedSlack() {
+        Network original = new CgmesImport().importData(CgmesConformity1Catalog.miniBusBranch().dataSource(), NetworkFactory.findDefault(), null);
+        VoltageLevel originalVl = original.getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").getTerminal().getVoltageLevel();
+        assertNotNull(originalVl.getExtension(SlackTerminal.class));
+        assertSame(original.getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").getTerminal(),
+                originalVl.getExtension(SlackTerminal.class).getTerminal());
+
+        Network modified = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchDisconnectedSlack().dataSource(), NetworkFactory.findDefault(), null);
+        VoltageLevel modifiedVl = modified.getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").getTerminal().getVoltageLevel();
+        assertNull(modifiedVl.getExtension(SlackTerminal.class));
     }
 
     @Test
