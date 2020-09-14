@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.iidm.mergingview.extensions.ExtensionMergingView;
 import com.powsybl.iidm.network.Network;
@@ -13,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
+@AutoService(ExtensionMergingView.class)
 public class CimCharacteristicsMergingView implements ExtensionMergingView<Network, CimCharacteristics> {
 
     @Override
