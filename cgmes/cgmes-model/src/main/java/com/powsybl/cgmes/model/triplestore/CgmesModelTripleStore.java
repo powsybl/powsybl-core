@@ -445,6 +445,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags controlAreas() {
+        return namedQuery("controlAreas");
+    }
+
+    @Override
     public PropertyBags acDcConverters() {
         return namedQuery("acDcConverters");
     }

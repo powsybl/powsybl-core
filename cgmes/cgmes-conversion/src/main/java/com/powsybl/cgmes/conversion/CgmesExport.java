@@ -54,7 +54,7 @@ public class CgmesExport implements Exporter {
             if (ext != null) {
                 CgmesModel cgmesSource = ext.getCgmesModel();
                 if (cgmesSource != null) {
-                    throw new CgmesModelException("CGMES model should not be available as Network extension");
+                    //throw new CgmesModelException("CGMES model should not be available as Network extension");
                 }
             }
             exportUsingOnlyNetwork(network, ds);
@@ -92,7 +92,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void exportSteadyStateHypothesis(Network network, DataSource ds) {
-        export(network, ds, "SSH", SteadyStateHypothesisExport::write);
+        export(network, ds, "SSH", new SteadyStateHypothesisExport()::write);
     }
 
     private void export(Network network, DataSource ds, String profileSuffix, BiConsumer<Network, XMLStreamWriter> exporter) {
