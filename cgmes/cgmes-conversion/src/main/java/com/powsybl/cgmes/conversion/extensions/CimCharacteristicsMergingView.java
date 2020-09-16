@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.extensions;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.extensions.ExtensionMergingView;
 import com.powsybl.iidm.network.Network;
 
@@ -36,10 +37,17 @@ public class CimCharacteristicsMergingView implements ExtensionMergingView<Netwo
                     .setTopologyKind(extension.getTopologyKind())
                     .add();
         } else {
+            checkCimVersions(original.getCimVersion(), extension.getCimVersion());
             extendable.newExtension(CimCharacteristicsAdder.class)
-                    .setCimVersion(Math.min(original.getCimVersion(), extension.getCimVersion()))
+                    .setCimVersion(extension.getCimVersion())
                     .setTopologyKind(getMergedTopologyKind(original.getTopologyKind(), extension.getTopologyKind()))
                     .add();
+        }
+    }
+
+    private static void checkCimVersions(int cimVersion1, int cimVersion2) {
+        if (cimVersion1 != cimVersion2) {
+            throw new PowsyblException("Networks are from different CIM versions (" + cimVersion1 + " and " + cimVersion2 + ")");
         }
     }
 

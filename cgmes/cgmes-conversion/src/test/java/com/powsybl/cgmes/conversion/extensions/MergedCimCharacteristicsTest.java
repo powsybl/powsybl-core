@@ -28,7 +28,7 @@ public class MergedCimCharacteristicsTest {
     public void setUp() {
         Network network1 = EurostagTutorialExample1Factory.create();
         network1.newExtension(CimCharacteristicsAdder.class)
-                .setCimVersion(14)
+                .setCimVersion(16)
                 .setTopologyKind(CgmesTopologyKind.BUS_BRANCH)
                 .add();
 
@@ -46,7 +46,7 @@ public class MergedCimCharacteristicsTest {
     public void getExtensionTest() {
         CimCharacteristics mergedExt1 = network.getExtension(CimCharacteristics.class);
         assertNotNull(mergedExt1);
-        assertEquals(14, mergedExt1.getCimVersion());
+        assertEquals(16, mergedExt1.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt1.getTopologyKind());
     }
 
@@ -54,7 +54,7 @@ public class MergedCimCharacteristicsTest {
     public void getExtensionByNameTest() {
         CimCharacteristics mergedExt2 = network.getExtensionByName("cimCharacteristics");
         assertNotNull(mergedExt2);
-        assertEquals(14, mergedExt2.getCimVersion());
+        assertEquals(16, mergedExt2.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, mergedExt2.getTopologyKind());
     }
 }
