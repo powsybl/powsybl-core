@@ -14,13 +14,13 @@ import java.io.InputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ObservableInputStream extends ForwardingInputStream<InputStream> {
+public class ObservableInputStream extends ForwardingInputStream<InputStream> {
 
     private final String streamName;
 
     private final DataSourceObserver observer;
 
-    ObservableInputStream(InputStream is, String streamName, DataSourceObserver observer) {
+    public ObservableInputStream(InputStream is, String streamName, DataSourceObserver observer) {
         super(is);
         this.streamName = streamName;
         this.observer = observer;

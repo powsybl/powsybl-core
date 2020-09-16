@@ -8,6 +8,8 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datastore.DataStore;
+import com.powsybl.commons.datastore.DataStores;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -189,6 +191,47 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
         Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
+        assertNotNull(network2.getSubstation("P1"));
+    }
+
+    @Test
+    public void importDataStore() throws IOException {
+        DataStore store = DataStores.createDataStore(fileSystem.getPath("/"));
+        // should be ok
+        assertTrue(importer.exists(store, "test0.xiidm"));
+
+        // should fail because file that does not exist
+
+        assertFalse(importer.exists(store, "test4.xiidm"));
+
+        // extension plugin will be not found but default option just warn
+        assertNotNull(importer.importDataStore(store, "test5.xiidm", null));
+
+        // extension plugin will be not found but option is set to throw an exception
+        // (deprecated parameter name)
+        Properties params = new Properties();
+        params.put("throwExceptionIfExtensionNotFound", "true");
+        try {
+            importer.importDataStore(store, "test5.xiidm", params);
+            fail();
+        } catch (RuntimeException ignored) {
+        }
+
+        // extension plugin will be not found but option is set to throw an exception
+        // (parameter name following same naming convention of XmlExporter)
+        Properties params2 = new Properties();
+        params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
+        try {
+            importer.importDataStore(store, "test5.xiidm", params2);
+            fail();
+        } catch (RuntimeException ignored) {
+        }
+
+        // read file with id mapping
+        Network network = importer.importDataStore(store, "test6.xiidm", params);
+        assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
+
+        Network network2 = importer.importDataStore(store, "test7.xiidm", null);
         assertNotNull(network2.getSubstation("P1"));
     }
 }

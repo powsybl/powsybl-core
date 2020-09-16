@@ -6,15 +6,23 @@
  */
 package com.powsybl.iidm.import_;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Properties;
+
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ReadOnlyStoreDataSource;
+import com.powsybl.commons.datastore.DataFormat;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.NonUniqueResultException;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
+import com.powsybl.commons.exceptions.NetworkImportException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Properties;
 
 /**
  * This is the base class for all IIDM importers.
@@ -85,4 +93,62 @@ public interface Importer {
     default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         throw new UnsupportedOperationException("Copy not implemented");
     }
+
+    default boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        return false;
+    }
+
+    default DataFormat getDataFormat() {
+        return null;
+    }
+
+    /**
+     * Create a model from a DataPack.
+     *
+     * @param dataPack DataPack
+     * @param networkFactory network factory
+     * @param parameters some properties to configure the import
+     * @return the model
+     */
+    default Network importDataPack(DataPack dataPack, NetworkFactory networkFactory, Properties parameters) {
+        throw new UnsupportedOperationException("importDataPack not implemented");
+    }
+
+    /**
+     * Create a model from a DataStore.
+     *
+     * @param dataStore data store
+     * @param fileName main network data format file
+     * @param networkFactory network factory
+     * @param parameters some properties to configure the import
+     * @return the model
+     */
+    default Network importDataStore(ReadOnlyDataStore dataStore, String fileName, NetworkFactory networkFactory,
+            Properties parameters) {
+        if (getDataFormat() != null) {
+            Optional<DataPack> dp;
+            try {
+                dp = getDataFormat().newDataResolver().resolve(dataStore, fileName, parameters);
+            } catch (IOException | NonUniqueResultException e) {
+                throw new NetworkImportException(e);
+            }
+            return dp.map(pack -> importDataPack(dp.get(), networkFactory, parameters))
+                    .orElseThrow(() -> new NetworkImportException("Data pack not resolved"));
+        } else {
+            return importData(new ReadOnlyStoreDataSource(dataStore, fileName), networkFactory, parameters);
+        }
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, NetworkFactory networkFactory, Properties parameters) {
+        return importDataStore(dataStore, null, networkFactory, parameters);
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, Properties parameters) {
+        return importDataStore(dataStore, NetworkFactory.findDefault(), parameters);
+    }
+
+    default Network importDataStore(ReadOnlyDataStore dataStore, String fileName, Properties parameters) {
+        return importDataStore(dataStore, fileName, NetworkFactory.findDefault(), parameters);
+    }
+
 }

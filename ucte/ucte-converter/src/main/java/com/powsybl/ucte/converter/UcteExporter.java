@@ -11,6 +11,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.ConversionParameters;
@@ -866,6 +867,24 @@ public class UcteExporter implements Exporter {
                     .filter(ns -> ns.getName().equals(name))
                     .findFirst()
                     .orElseThrow(() -> new PowsyblException("NamingStrategy '" + name + "' not found"));
+        }
+    }
+
+    @Override
+    public void export(Network network, Properties parameters, DataStore dataStore, String basename) {
+        if (network == null) {
+            throw new IllegalArgumentException("network is null");
+        }
+
+        String namingStrategyName = ConversionParameters.readStringParameter(getFormat(), parameters, NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+        NamingStrategy namingStrategy = findNamingStrategy(namingStrategyName, NAMING_STRATEGY_SUPPLIERS.get());
+
+        UcteNetwork ucteNetwork = createUcteNetwork(network, namingStrategy);
+        try (OutputStream os = dataStore.newOutputStream(basename + ".uct", false);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
+            new UcteWriter(ucteNetwork).write(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

@@ -11,11 +11,15 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataEntry;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.DataStore;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.util.Filenames;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
@@ -24,20 +28,9 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
+
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javanet.staxutils.IndentingXMLStreamWriter;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.xml.sax.SAXException;
-
-import javax.xml.XMLConstants;
-import javax.xml.stream.*;
-import javax.xml.transform.Source;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -49,8 +42,21 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import javax.xml.XMLConstants;
+import javax.xml.stream.*;
+import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xml.sax.SAXException;
+
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
-import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
+import static com.powsybl.iidm.xml.XiidmDataResolver.SUFFIX_MAPPING;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -328,6 +334,21 @@ public final class NetworkXml {
             Anonymizer anonymizer = write(network, options, bosb);
             if (options.isAnonymized()) {
                 try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    anonymizer.write(writer2);
+                }
+            }
+            return anonymizer;
+        }
+    }
+
+    public static Anonymizer write(Network network, ExportOptions options, DataStore dataStore, String filename) throws IOException {
+        try (OutputStream osb = dataStore.newOutputStream(filename, false);
+             BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
+
+            Anonymizer anonymizer = write(network, options, bosb);
+            if (options.isAnonymized()) {
+                String mappingFilename = Filenames.getBasename(filename) + "_mapping.csv";
+                try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataStore.newOutputStream(mappingFilename, false), StandardCharsets.UTF_8))) {
                     anonymizer.write(writer2);
                 }
             }
@@ -662,4 +683,31 @@ public final class NetworkXml {
             throw new UncheckedIOException(e);
         }
     }
+
+    public static Network read(DataPack dataPack, NetworkFactory networkFactory, ImportOptions options) {
+        Objects.requireNonNull(dataPack);
+        Network network = null;
+        Anonymizer anonymizer = null;
+        Optional<DataEntry> main = dataPack.getMainEntry();
+        if (main.isPresent()) {
+            Optional<DataEntry> mappingFile = dataPack.getEntry(Filenames.getBasename(main.get().getName()) + SUFFIX_MAPPING + ".csv");
+            if (mappingFile.isPresent()) {
+                anonymizer = new SimpleAnonymizer();
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataPack.getSource().newInputStream(mappingFile.get().getName()), StandardCharsets.UTF_8))) {
+                    anonymizer.read(reader);
+                } catch (IOException e) {
+                    return null;
+                }
+            }
+
+            //Read the base file with the extensions declared in the extensions list
+            try (InputStream isb = dataPack.getSource().newInputStream(main.get().getName())) {
+                network = NetworkXml.read(isb, options, anonymizer, networkFactory);
+            } catch (IOException e) {
+                return null;
+            }
+        }
+        return network;
+    }
+
 }

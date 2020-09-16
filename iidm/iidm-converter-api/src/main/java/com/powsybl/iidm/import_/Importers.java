@@ -10,6 +10,10 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datastore.DataStores;
+import com.powsybl.commons.datastore.MemDataStore;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
+import com.powsybl.commons.exceptions.NetworkImportException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.ConversionParameters;
@@ -17,12 +21,15 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -279,7 +286,7 @@ public final class Importers {
     public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
         Importer importer = getImporter(loader, format, computationManager, config);
         if (importer == null) {
-            throw new PowsyblException("Import format " + format + " not supported");
+            throw new NetworkImportException("Import format " + format + " not supported");
         }
         return importer.importData(dataSource, parameters);
     }
@@ -398,7 +405,7 @@ public final class Importers {
     public static DataSource createDataSource(Path file) {
         Objects.requireNonNull(file);
         if (!Files.isRegularFile(file)) {
-            throw new PowsyblException("File " + file + " does not exist or is not a regular file");
+            throw new NetworkImportException("File " + file + " does not exist or is not a regular file");
         }
         Path absFile = file.toAbsolutePath();
         return createDataSource(absFile.getParent(), absFile.getFileName().toString());
@@ -421,7 +428,16 @@ public final class Importers {
         return findImporter(dataSource, LOADER.get(), computationManager, CONFIG.get());
     }
 
-    /**
+    public static Importer findImporter(ReadOnlyDataStore dataStore, String fileName, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
+        for (Importer importer : Importers.list(loader, computationManager, config)) {
+            if (importer.exists(dataStore, fileName)) {
+                return importer;
+            }
+        }
+        return null;
+    }
+
+     /**
      * Loads a network from the specified file, trying to guess its format.
      *
      * @param file               The file to be loaded.
@@ -432,12 +448,25 @@ public final class Importers {
      * @return                   The loaded network
      */
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
+        ReadOnlyDataStore dataStore;
+
+        try {
+            dataStore = DataStores.createDataStore(file);
+        } catch (IOException nde) {
+            throw new NetworkImportException("Invalid file.");
+        }
+        String fileName = Files.isDirectory(file) ? null : file.toString();
+
+        Importer importer = findImporter(dataStore, fileName, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importDataStore(dataStore, fileName, parameters);
+        }
         ReadOnlyDataSource dataSource = createDataSource(file);
-        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        throw new NetworkImportException("Unsupported file format or invalid file.");
     }
 
     /**
@@ -491,13 +520,18 @@ public final class Importers {
      * @return                   The loaded network
      */
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-        dataSource.putData(filename, data);
-        Importer importer = findImporter(dataSource, loader, computationManager, config);
-        if (importer != null) {
-            return importer.importData(dataSource, parameters);
+        MemDataStore dataStore = new MemDataStore();
+        try (OutputStream os = dataStore.newOutputStream(filename, false)) {
+            IOUtils.copy(data, os);
+        } catch (IOException e) {
+            throw new NetworkImportException("Invalid data.");
         }
-        throw new PowsyblException("Unsupported file format or invalid file.");
+        Importer importer = findImporter(dataStore, filename, loader, computationManager, config);
+
+        if (importer != null) {
+            return importer.importDataStore(dataStore, filename, parameters);
+        }
+        throw new NetworkImportException("Unsupported file format or invalid file.");
     }
 
     /**
@@ -548,7 +582,7 @@ public final class Importers {
 
     public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
-            throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
+            throw new NetworkImportException("Directory " + dir + " does not exist or is not a regular directory");
         }
         for (Importer importer : Importers.list(loader, computationManager, config)) {
             Importers.importAll(dir, importer, parallel, parameters, consumer, listener);

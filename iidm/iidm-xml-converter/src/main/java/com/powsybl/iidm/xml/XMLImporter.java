@@ -16,6 +16,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datastore.DataFormat;
+import com.powsybl.commons.datastore.DataPack;
+import com.powsybl.commons.datastore.NonUniqueResultException;
+import com.powsybl.commons.datastore.ReadOnlyDataStore;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
@@ -38,10 +42,12 @@ import java.io.UncheckedIOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Stream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static com.powsybl.iidm.xml.XiidmDataResolver.SUFFIX_MAPPING;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,8 +73,6 @@ public class XMLImporter implements Importer {
             = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
-
-    static final String SUFFIX_MAPPING = "_mapping";
 
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
@@ -190,10 +194,36 @@ public class XMLImporter implements Importer {
         return network;
     }
 
+    @Override
+    public boolean exists(ReadOnlyDataStore dataStore, String fileName) {
+        try {
+            Optional<DataPack> dp = XiidmDataFormat.INSTANCE.newDataResolver().resolve(dataStore, fileName, null);
+            return dp.isPresent();
+        } catch (IOException | NonUniqueResultException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public Network importDataPack(DataPack dataPack, NetworkFactory networkFactory, Properties parameters) {
+        Objects.requireNonNull(dataPack);
+        ImportOptions options = createImportOptions(parameters);
+        long startTime = System.currentTimeMillis();
+        Network network = NetworkXml.read(dataPack, networkFactory, options);
+        LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
+        return network;
+    }
+
     private ImportOptions createImportOptions(Properties parameters) {
         return new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
     }
+
+    @Override
+    public DataFormat getDataFormat() {
+        return XiidmDataFormat.INSTANCE;
+    }
+
 }
 

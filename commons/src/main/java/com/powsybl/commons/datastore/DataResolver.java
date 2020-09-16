@@ -1,0 +1,27 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.commons.datastore;
+
+import java.io.IOException;
+import java.util.Optional;
+import java.util.Properties;
+
+import javax.annotation.Nullable;
+
+/**
+ * DataResolver implementations are responsible for knowing how to constitute,
+ * among the set of entries available in a DataStore, a consistent data pack
+ * representing one Network in a specific format
+ *
+ * @author Giovanni Ferrari <giovanni.ferrari at techrain.eu>
+ */
+public interface DataResolver {
+
+    Optional<DataPack> resolve(ReadOnlyDataStore store, @Nullable String mainFileName, @Nullable Properties parameters) throws IOException, NonUniqueResultException;
+
+    boolean validate(DataPack pack, @Nullable Properties parameters);
+}

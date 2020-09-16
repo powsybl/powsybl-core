@@ -49,12 +49,12 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     @Test
     public void checkFailsWhenNetworkFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv"}, 3, null, "com.powsybl.commons.exceptions.NetworkImportException: File wrongFile.uct does not exist or is not a regular file");
     }
 
     @Test
     public void checkFailsWhenFactorsFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv"}, 3, null, "PowsyblException: Unsupported file format or invalid file");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv"}, 3, null, "NetworkImportException: Unsupported file format or invalid file");
     }
 
     @Test
