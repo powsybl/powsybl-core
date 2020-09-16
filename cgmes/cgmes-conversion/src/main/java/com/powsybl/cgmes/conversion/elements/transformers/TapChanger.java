@@ -35,6 +35,7 @@ public class TapChanger {
         return ptc != null ? AbstractCgmesTapChangerBuilder.newPhaseTapChanger(ptc, x, context).build() : null;
     }
 
+    // see baseCloneTapChanger
     private int lowTapPosition = 0;
     private Integer tapPosition;
     private final List<Step> steps = new ArrayList<>();
@@ -45,6 +46,7 @@ public class TapChanger {
     private String regulatingControlId = null;
     private String tculControlMode = null;
     private boolean tapChangerControlEnabled = false;
+    private TapChanger hiddenCombinedTapChanger = null;
 
     class Step {
         private double angleRad = 0.0;
@@ -179,6 +181,11 @@ public class TapChanger {
         return this;
     }
 
+    public TapChanger setHiddenCombinedTapChanger(TapChanger hiddenCombinedTapChanger) {
+        this.hiddenCombinedTapChanger = hiddenCombinedTapChanger;
+        return this;
+    }
+
     public Step beginStep() {
         return new Step();
     }
@@ -225,5 +232,9 @@ public class TapChanger {
 
     public boolean isTapChangerControlEnabled() {
         return tapChangerControlEnabled;
+    }
+
+    public TapChanger getHiddenCombinedTapChanger() {
+        return hiddenCombinedTapChanger;
     }
 }

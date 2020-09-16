@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
@@ -17,7 +18,9 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -96,7 +99,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag(), tc.getType());
+                tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
         }
         return rcPtc;
     }
@@ -117,6 +120,104 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
                 int index = i + 1;
                 Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, CgmesNames.RATIO_TAP_CHANGER + index));
             }
+        }
+    }
+
+    private static RegulatingControl getRegulatingControl(Context context, String regulatingControlId) {
+        Objects.requireNonNull(regulatingControlId);
+        return context.regulatingControlMapping().cachedRegulatingControls().get(regulatingControlId);
+    }
+
+    protected List<Property> defineRatioPhaseTapChangerProperties(Context context, TapChanger rtc, TapChanger ptc) {
+        List<Property> properties = new ArrayList<>();
+
+        addRatioTapChangerProperties(context, rtc, properties);
+        addPhaseTapChangerProperties(context, ptc, properties);
+        return properties;
+    }
+
+    private static void  addRatioTapChangerProperties(Context context, TapChanger rtc, List<Property> properties) {
+        if (rtc == null || rtc.getId() == null) {
+            return;
+        }
+
+        if (rtc.getRegulatingControlId() != null) {
+            String key = String.format("RatioTapChanger.%s.TapChangerControl", rtc.getId());
+            properties.add(new Property(key, rtc.getRegulatingControlId()));
+        }
+
+        if (rtc.getHiddenCombinedTapChanger() != null) {
+            defineHiddenTapChangerProperties(context, rtc, rtc.getHiddenCombinedTapChanger(), "RatioTapChanger", properties);
+        }
+    }
+
+    private static void  addPhaseTapChangerProperties(Context context, TapChanger ptc, List<Property> properties) {
+        if (ptc == null || ptc.getId() == null) {
+            return;
+        }
+
+        if (ptc.getRegulatingControlId() != null) {
+            String key = String.format("PhaseTapChanger.%s.TapChangerControl", ptc.getId());
+            properties.add(new Property(key, ptc.getRegulatingControlId()));
+        }
+        if (ptc.getType() != null) {
+            String key = String.format("PhaseTapChanger.%s.type", ptc.getId());
+            properties.add(new Property(key, ptc.getType()));
+        }
+
+        if (ptc.getHiddenCombinedTapChanger() != null) {
+            defineHiddenTapChangerProperties(context, ptc, ptc.getHiddenCombinedTapChanger(), "PhaseTapChanger", properties);
+
+            String key = String.format("PhaseTapChanger.%s.type", ptc.getHiddenCombinedTapChanger().getId());
+            properties.add(new Property(key, ptc.getHiddenCombinedTapChanger().getType()));
+        }
+    }
+
+    private static void defineHiddenTapChangerProperties(Context context, TapChanger tc, TapChanger hiddenTc, String propertyTag, List<Property> properties) {
+
+        String key = String.format("%s.%s.hiddenTapChangerId", propertyTag, tc.getId());
+        properties.add(new Property(key, hiddenTc.getId()));
+
+        key = String.format("%s.%s.controlEnabled", propertyTag, hiddenTc.getId());
+        properties.add(new Property(key, String.valueOf(hiddenTc.isTapChangerControlEnabled())));
+
+        key = String.format("%s.%s.step", propertyTag, hiddenTc.getId());
+        properties.add(new Property(key, String.valueOf(hiddenTc.getTapPosition())));
+
+        if (hiddenTc.getRegulatingControlId() != null) {
+            key = String.format("%s.%s.tapChangerControl", propertyTag, hiddenTc.getId());
+            properties.add(new Property(key, hiddenTc.getRegulatingControlId()));
+
+            RegulatingControl rc = getRegulatingControl(context, hiddenTc.getRegulatingControlId());
+            if (rc != null) {
+                // isRegulating always false in hidden tapChangers
+                key = String.format("%s.%s.isRegulating", propertyTag, hiddenTc.getId());
+                properties.add(new Property(key, "false"));
+
+                key = String.format("%s.%s.targetValue", propertyTag, hiddenTc.getId());
+                properties.add(new Property(key, String.valueOf(rc.getTargetValue())));
+
+                key = String.format("%s.%s.targetDeadBand", propertyTag, hiddenTc.getId());
+                properties.add(new Property(key, String.valueOf(rc.getTargetDeadBand())));
+            }
+        }
+    }
+
+    static class Property {
+        String key;
+        String value;
+
+        Property(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        protected String getKey() {
+            return key;
+        }
+
+        protected String getValue() {
+            return value;
         }
     }
 }

@@ -65,13 +65,12 @@ public class RegulatingControlMappingForTransformers {
     }
 
     public CgmesRegulatingControlPhase buildRegulatingControlPhase(String id, String regulatingControlId,
-        boolean tapChangerControlEnabled, boolean ltcFlag, String type) {
+        boolean tapChangerControlEnabled, boolean ltcFlag) {
         CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
         rtc.id = id;
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
         rtc.ltcFlag = ltcFlag;
-        rtc.type = type;
         return rtc;
     }
 
@@ -101,24 +100,6 @@ public class RegulatingControlMappingForTransformers {
 
         rtcRegulating = checkOnlyOneEnabled(twt.getId(), rtcRegulating, regulatingSet, "ratioTapChanger");
         setRatioTapChangerControl(rtcRegulating, rc.ratioTapChanger, rtcControl, twt.getRatioTapChanger());
-
-        setTwoWindingsTransformerTapChangerControlProperties(twt, rc);
-    }
-
-    private static void setTwoWindingsTransformerTapChangerControlProperties(TwoWindingsTransformer twt,
-        CgmesRegulatingControlForTwoWindingsTransformer rc) {
-
-        if (rc.ratioTapChanger != null && rc.ratioTapChanger.id != null && rc.ratioTapChanger.regulatingControlId != null) {
-            String key = String.format("RatioTapChanger.%s.TapChangerControl", rc.ratioTapChanger.id);
-            twt.setProperty(key, rc.ratioTapChanger.regulatingControlId);
-        }
-
-        if (rc.phaseTapChanger != null && rc.phaseTapChanger.id != null && rc.phaseTapChanger.regulatingControlId != null) {
-            String key = String.format("PhaseTapChanger.%s.TapChangerControl", rc.phaseTapChanger.id);
-            twt.setProperty(key, rc.phaseTapChanger.regulatingControlId);
-            key = String.format("PhaseTapChanger.%s.type", rc.phaseTapChanger.id);
-            twt.setProperty(key, rc.phaseTapChanger.type);
-        }
     }
 
     private void applyTapChangersRegulatingControl(ThreeWindingsTransformer twt) {
@@ -168,44 +149,6 @@ public class RegulatingControlMappingForTransformers {
 
         rtcRegulating3 = checkOnlyOneEnabled(twt.getId(), rtcRegulating3, regulatingSet, "ratioTapChanger at Leg3");
         setRatioTapChangerControl(rtcRegulating3, rc.ratioTapChanger3, rtcControl3, twt.getLeg3().getRatioTapChanger());
-
-        setThreeWindingsTransformerTapChangerControlProperties(twt, rc);
-    }
-
-    private static void setThreeWindingsTransformerTapChangerControlProperties(ThreeWindingsTransformer twt,
-        CgmesRegulatingControlForThreeWindingsTransformer rc) {
-
-        if (rc.ratioTapChanger1 != null && rc.ratioTapChanger1.id != null && rc.ratioTapChanger1.regulatingControlId != null) {
-            String key = String.format("RatioTapChanger.%s.TapChangerControl", rc.ratioTapChanger1.id);
-            twt.setProperty(key, rc.ratioTapChanger1.regulatingControlId);
-        }
-        if (rc.ratioTapChanger2 != null && rc.ratioTapChanger2.id != null && rc.ratioTapChanger2.regulatingControlId != null) {
-            String key = String.format("RatioTapChanger.%s.TapChangerControl", rc.ratioTapChanger2.id);
-            twt.setProperty(key, rc.ratioTapChanger2.regulatingControlId);
-        }
-        if (rc.ratioTapChanger3 != null && rc.ratioTapChanger3.id != null && rc.ratioTapChanger3.regulatingControlId != null) {
-            String key = String.format("RatioTapChanger.%s.TapChangerControl", rc.ratioTapChanger3.id);
-            twt.setProperty(key, rc.ratioTapChanger3.regulatingControlId);
-        }
-
-        if (rc.phaseTapChanger1 != null && rc.phaseTapChanger1.id != null && rc.phaseTapChanger1.regulatingControlId != null) {
-            String key = String.format("PhaseTapChanger.%s.TapChangerControl", rc.phaseTapChanger1.id);
-            twt.setProperty(key, rc.phaseTapChanger1.regulatingControlId);
-            key = String.format("PhaseTapChanger.%s.type", rc.phaseTapChanger1.id);
-            twt.setProperty(key, rc.phaseTapChanger1.type);
-        }
-        if (rc.phaseTapChanger2 != null && rc.phaseTapChanger2.id != null && rc.phaseTapChanger2.regulatingControlId != null) {
-            String key = String.format("PhaseTapChanger.%s.TapChangerControl", rc.phaseTapChanger2.id);
-            twt.setProperty(key, rc.phaseTapChanger2.regulatingControlId);
-            key = String.format("PhaseTapChanger.%s.type", rc.phaseTapChanger2.id);
-            twt.setProperty(key, rc.phaseTapChanger2.type);
-        }
-        if (rc.phaseTapChanger3 != null && rc.phaseTapChanger3.id != null && rc.phaseTapChanger3.regulatingControlId != null) {
-            String key = String.format("PhaseTapChanger.%s.TapChangerControl", rc.phaseTapChanger3.id);
-            twt.setProperty(key, rc.phaseTapChanger3.regulatingControlId);
-            key = String.format("PhaseTapChanger.%s.type", rc.phaseTapChanger3.id);
-            twt.setProperty(key, rc.phaseTapChanger3.type);
-        }
     }
 
     private static boolean getRtcRegulating(RegulatingControl rc, CgmesRegulatingControlRatio r) {
@@ -420,7 +363,6 @@ public class RegulatingControlMappingForTransformers {
 
     public static class CgmesRegulatingControlPhase extends CgmesRegulatingControl {
         boolean ltcFlag;
-        String type;
     }
 
     private static class CgmesRegulatingControl {

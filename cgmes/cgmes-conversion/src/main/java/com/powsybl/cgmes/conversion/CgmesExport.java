@@ -54,7 +54,7 @@ public class CgmesExport implements Exporter {
             if (ext != null) {
                 CgmesModel cgmesSource = ext.getCgmesModel();
                 if (cgmesSource != null) {
-                    //throw new CgmesModelException("CGMES model should not be available as Network extension");
+                    throw new CgmesModelException("CGMES model should not be available as Network extension");
                 }
             }
             exportUsingOnlyNetwork(network, ds);

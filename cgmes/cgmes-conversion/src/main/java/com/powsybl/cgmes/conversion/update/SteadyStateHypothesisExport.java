@@ -132,11 +132,13 @@ public final class SteadyStateHypothesisExport {
                         .orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), writer);
                 addTapChangerControl(twt, ptcId, twt.getPhaseTapChanger(), regulatingControlViews);
+                writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), writer);
                 addTapChangerControl(twt, rtcId, twt.getRatioTapChanger(), regulatingControlViews);
+                writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
             }
         }
 
@@ -147,10 +149,12 @@ public final class SteadyStateHypothesisExport {
                     String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), writer);
                     addTapChangerControl(twt, ptcId, leg.getPhaseTapChanger(), regulatingControlViews);
+                    writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeTapChanger("RatioTapChanger", rtcId, leg.getRatioTapChanger(), writer);
                     addTapChangerControl(twt, rtcId, leg.getRatioTapChanger(), regulatingControlViews);
+                    writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
                 }
                 i++;
             }
@@ -286,6 +290,78 @@ public final class SteadyStateHypothesisExport {
                 ptc.isRegulating(), ptc.getTargetDeadband(), ptc.getRegulationValue(), "M");
             regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
         }
+    }
+
+    private static void writeHiddenRatioTapChangerAndControl(Identifiable<?> eq, String rtcId, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
+        String key = String.format("RatioTapChanger.%s.hiddenTapChangerId", rtcId);
+        if (!eq.hasProperty(key)) {
+            return;
+        }
+        String hiddenRtcId = eq.getProperty(key);
+        System.err.printf("JAMH hidden ratioTapChanger %s %n", hiddenRtcId);
+        if (1 == 1) {
+            throw new PowsyblException("JAMH");
+        }
+        writeTapChanger("RatioTapChanger", hiddenRtcId,
+            hiddenTapChangerControlEnabled(eq, "RatioTapChanger", hiddenRtcId),
+            hiddenTapChangerStep(eq, "RatioTapChanger", hiddenRtcId), writer);
+
+        addHiddenTapChangerControl(eq, "RatioTapChanger", hiddenRtcId, "k", regulatingControlViews);
+    }
+
+    private static void writeHiddenPhaseTapChangerAndControl(Identifiable<?> eq, String ptcId, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
+        String key = String.format("PhaseTapChanger.%s.hiddenTapChangerId", ptcId);
+        if (!eq.hasProperty(key)) {
+            return;
+        }
+        String hiddenPtcId = eq.getProperty(key);
+        System.err.printf("JAMH hidden phaseTapChanger %s %n", hiddenPtcId);
+        if (1 == 1) {
+            throw new PowsyblException("JAMH");
+        }
+        writeTapChanger(phaseTapChangerType(eq, hiddenPtcId), hiddenPtcId,
+            hiddenTapChangerControlEnabled(eq, "PhaseTapChanger", hiddenPtcId),
+            hiddenTapChangerStep(eq, "PhaseTapChanger", hiddenPtcId), writer);
+
+        addHiddenTapChangerControl(eq, "PhaseTapChanger", hiddenPtcId, "M", regulatingControlViews);
+    }
+
+    private static void addHiddenTapChangerControl(Identifiable<?> eq, String tag, String hiddenTcId, String unit, Map<String, List<RegulatingControlView>> regulatingControlViews) {
+        String key = String.format("%s.%s.TapChangerControl", tag, hiddenTcId);
+        if (eq.hasProperty(key)) {
+            String controlId = eq.getProperty(key);
+
+            RegulatingControlView rcv = new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
+                hiddenTapChangerControlIsRegulating(eq, tag, hiddenTcId),
+                hiddenTapChangerControlTargetDeadBand(eq, tag, hiddenTcId),
+                hiddenTapChangerControlTargetValue(eq, tag, hiddenTcId), unit);
+            regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
+        }
+    }
+
+    private static boolean hiddenTapChangerControlEnabled(Identifiable<?> eq, String tag, String hiddenTcId) {
+        String key = String.format("%s.%s.controlEnabled", tag, hiddenTcId);
+        return Boolean.valueOf(eq.getProperty(key));
+    }
+
+    private static int hiddenTapChangerStep(Identifiable<?> eq, String tag, String hiddenTcId) {
+        String key = String.format("%s.%s.step", tag, hiddenTcId);
+        return Integer.valueOf(eq.getProperty(key));
+    }
+
+    private static boolean hiddenTapChangerControlIsRegulating(Identifiable<?> eq, String tag, String hiddenTcId) {
+        String key = String.format("%s.%s.isRegulating", tag, hiddenTcId);
+        return Boolean.valueOf(eq.getProperty(key));
+    }
+
+    private static double hiddenTapChangerControlTargetDeadBand(Identifiable<?> eq, String tag, String hiddenTcId) {
+        String key = String.format("%s.%s.targetDeadBand", tag, hiddenTcId);
+        return Double.valueOf(eq.getProperty(key));
+    }
+
+    private static double hiddenTapChangerControlTargetValue(Identifiable<?> eq, String tag, String hiddenTcId) {
+        String key = String.format("%s.%s.targetValue", tag, hiddenTcId);
+        return Double.valueOf(eq.getProperty(key));
     }
 
     private static void writeRegulatingControls(XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
