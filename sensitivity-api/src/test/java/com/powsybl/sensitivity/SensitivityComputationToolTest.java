@@ -17,7 +17,7 @@ import java.util.Collections;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationProviderToolTest extends AbstractToolTest {
+public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 

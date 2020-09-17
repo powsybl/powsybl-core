@@ -14,7 +14,7 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationProviderResultExportersTest {
+public class SensitivityComputationResultExportersTest {
 
     @Test
     public void testGetFormats() {

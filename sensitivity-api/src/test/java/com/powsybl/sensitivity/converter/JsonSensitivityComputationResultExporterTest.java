@@ -26,10 +26,10 @@ import java.util.Objects;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class JsonSensitivityComputationProviderResultExporterTest extends AbstractConverterTest {
+public class JsonSensitivityComputationResultExporterTest extends AbstractConverterTest {
 
     private static SensitivityComputationResults create() throws IOException {
-        byte[] inputBytes = IOUtils.toByteArray(JsonSensitivityComputationProviderResultExporterTest.class.getResourceAsStream("/resultsExport.json"));
+        byte[] inputBytes = IOUtils.toByteArray(JsonSensitivityComputationResultExporterTest.class.getResourceAsStream("/resultsExport.json"));
         return SensitivityComputationResultJsonSerializer.read(new InputStreamReader(new ByteArrayInputStream(inputBytes)));
     }
 
@@ -63,11 +63,11 @@ public class JsonSensitivityComputationProviderResultExporterTest extends Abstra
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripTest(create(), JsonSensitivityComputationProviderResultExporterTest::write, JsonSensitivityComputationProviderResultExporterTest::read, "/resultsExport.json");
+        roundTripTest(create(), JsonSensitivityComputationResultExporterTest::write, JsonSensitivityComputationResultExporterTest::read, "/resultsExport.json");
     }
 
     @Test
     public void roundTripViaExportersTest() throws IOException {
-        roundTripTest(create(), JsonSensitivityComputationProviderResultExporterTest::writeViaExporters, JsonSensitivityComputationProviderResultExporterTest::read, "/resultsExport.json");
+        roundTripTest(create(), JsonSensitivityComputationResultExporterTest::writeViaExporters, JsonSensitivityComputationResultExporterTest::read, "/resultsExport.json");
     }
 }
