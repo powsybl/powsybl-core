@@ -90,7 +90,7 @@ public class SensitivityComputationTest {
     }
 
     @Test
-    public void testRunWithoutParamsSuccess() {;
+    public void testRunWithoutParamsSuccess() {
         SensitivityComputation.SensitivityComputationRunner runner =
             SensitivityComputation.find(
                 "another-sensitivity-computation-mock",
@@ -102,7 +102,7 @@ public class SensitivityComputationTest {
     }
 
     @Test
-    public void testRunAsyncWithoutParamsSuccess() {;
+    public void testRunAsyncWithoutParamsSuccess() {
         SensitivityComputation.SensitivityComputationRunner runner =
             SensitivityComputation.find(
                 "another-sensitivity-computation-mock",
@@ -114,7 +114,7 @@ public class SensitivityComputationTest {
     }
 
     @Test
-    public void testRunWithoutParamsSuccessNoContingencies() {;
+    public void testRunWithoutParamsSuccessNoContingencies() {
         SensitivityComputation.SensitivityComputationRunner runner =
             SensitivityComputation.find(
                 "another-sensitivity-computation-mock",
@@ -126,7 +126,7 @@ public class SensitivityComputationTest {
     }
 
     @Test
-    public void testRunAsyncWithoutParamsSuccessNoContingencies() {;
+    public void testRunAsyncWithoutParamsSuccessNoContingencies() {
         SensitivityComputation.SensitivityComputationRunner runner =
             SensitivityComputation.find(
                 "another-sensitivity-computation-mock",
