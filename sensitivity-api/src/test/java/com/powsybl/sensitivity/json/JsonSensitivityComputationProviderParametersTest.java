@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class JsonSensitivityComputationParametersTest extends AbstractConverterTest {
+public class JsonSensitivityComputationProviderParametersTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {

@@ -24,13 +24,13 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Agnes Leroy <agnes.leroy@rte-france.com>
  */
-public class CsvSensitivityComputationResultExporterTest extends AbstractConverterTest {
+public class CsvSensitivityComputationProviderResultExporterTest extends AbstractConverterTest {
 
     private static SensitivityComputationResults createSensitivityResult() {
         // read sensitivity factors
         List<SensitivityFactor> factors = Collections.emptyList();
         try {
-            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityComputationResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
+            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityComputationProviderResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

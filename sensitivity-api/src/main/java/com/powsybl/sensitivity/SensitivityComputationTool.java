@@ -135,7 +135,6 @@ public class SensitivityComputationTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         SensitivityComputationParameters params = SensitivityComputationParameters.load();
 
@@ -143,7 +142,6 @@ public class SensitivityComputationTool implements Tool {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
             JsonSensitivityComputationParameters.update(params, parametersFile);
         }
-        String workingStateId = network.getVariantManager().getWorkingVariantId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
@@ -151,9 +149,9 @@ public class SensitivityComputationTool implements Tool {
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
             ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
-            result = sensitivityComputation.run(factorsProvider, contingenciesProvider, workingStateId, params).join();
+            result = SensitivityComputation.run(network, factorsProvider, contingenciesProvider, params);
         } else {
-            result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
+            result = SensitivityComputation.run(network, factorsProvider, params);
         }
 
         if (!result.isOk()) {

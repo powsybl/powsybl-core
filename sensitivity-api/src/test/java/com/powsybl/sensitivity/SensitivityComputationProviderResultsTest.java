@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationResultsTest {
+public class SensitivityComputationProviderResultsTest {
 
     private SensitivityFactor factorOk;
     private SensitivityFactor factorNok;
