@@ -120,4 +120,39 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     public <E extends Extension<I>, B extends ExtensionAdder<I, E>> B newExtension(Class<B> type) {
         return getDelegate().newExtension(type);
     }
+
+    @Override
+    public Set<String> getAliases() {
+        return getDelegate().getAliases();
+    }
+
+    @Override
+    public Optional<String> getAliasFromType(String aliasType) {
+        return getDelegate().getAliasFromType(aliasType);
+    }
+
+    @Override
+    public Optional<String> getAliasType(String alias) {
+        return getDelegate().getAliasType(alias);
+    }
+
+    @Override
+    public void addAlias(String alias) {
+        getDelegate().addAlias(alias);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType) {
+        getDelegate().addAlias(alias, aliasType);
+    }
+
+    @Override
+    public void removeAlias(String alias) {
+        getDelegate().removeAlias(alias);
+    }
+
+    @Override
+    public boolean hasAliases() {
+        return getDelegate().hasAliases();
+    }
 }

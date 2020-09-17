@@ -23,7 +23,8 @@ public enum IidmXmlVersion {
     V_1_0(ITESLA_DOMAIN, ImmutableList.of(1, 0)),
     V_1_1(POWSYBL_DOMAIN, ImmutableList.of(1, 1)),
     V_1_2(POWSYBL_DOMAIN, ImmutableList.of(1, 2)),
-    V_1_3(POWSYBL_DOMAIN, ImmutableList.of(1, 3));
+    V_1_3(POWSYBL_DOMAIN, ImmutableList.of(1, 3)),
+    V_1_4(POWSYBL_DOMAIN, ImmutableList.of(1, 4));
 
     private final String domain;
     private final List<Integer> versionArray;

@@ -77,6 +77,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
+    public String findUcteXnodeCode(String boundaryNode) {
+        return context.boundary().nameAtBoundary(boundaryNode);
+    }
+
     @Override
     public boolean insideBoundary() {
         // A conducting equipment is inside boundary if
@@ -118,6 +122,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     k,
                     cgmesVoltageLevelId(k),
                     iidmVoltageLevelId(k)));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean validNodes() {
+        for (int k = 1; k <= numTerminals; k++) {
+            if (nodeId(k) == null) {
+                missing(nodeIdPropertyName() + k);
                 return false;
             }
         }

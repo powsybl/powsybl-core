@@ -18,15 +18,18 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConductingEquipmentConversion {
+public class SwitchConversion extends AbstractConnectorConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context, 2);
+        super("Switch", sw, context);
     }
 
     @Override
     public boolean valid() {
-        if (!super.valid()) {
+        // super.valid checks nodes and voltage levels of all terminals
+        // We may encounter boundary switches that do not have voltage level at boundary terminal
+        // So we check only that we have valid nodes
+        if (!validNodes()) {
             return false;
         }
         if (busId(1).equals(busId(2))) {
@@ -45,12 +48,30 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     @Override
     public void convert() {
+        if (isBoundary(1)) {
+            convertSwitchAtBoundary(1);
+        } else if (isBoundary(2)) {
+            convertSwitchAtBoundary(2);
+        } else {
+            convertToSwitch();
+        }
+    }
+
+    private void convertSwitchAtBoundary(int boundarySide) {
+        if (context.config().convertBoundary()) {
+            convertToSwitch();
+        } else {
+            warnDanglingLineCreated();
+            convertToDanglingLine(boundarySide);
+        }
+    }
+
+    private void convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
         if (context.nodeBreaker()) {
             VoltageLevel.NodeBreakerView.SwitchAdder adder;
-            adder = voltageLevel().getNodeBreakerView().newSwitch()
-                .setKind(kind());
+            adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
             adder.add();
@@ -73,6 +94,10 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.BREAKER;
+    }
+
+    private void warnDanglingLineCreated() {
+        fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
