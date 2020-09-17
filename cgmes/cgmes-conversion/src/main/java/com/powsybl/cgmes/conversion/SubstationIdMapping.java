@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,12 @@ public class SubstationIdMapping {
         return sid;
     }
 
+    public List<String> mergedSubstations(String cgmesIdentifier) {
+        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
+        return substationMapping.entrySet().stream().filter(record -> record.getValue().equals(sid))
+            .map(Map.Entry::getKey).collect(Collectors.toList());
+    }
+
     public boolean voltageLevelIsMapped(String cgmesIdentifier) {
         String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
         return voltageLevelMapping.containsKey(vlid);
@@ -58,6 +65,12 @@ public class SubstationIdMapping {
             return voltageLevelMapping.get(vlid);
         }
         return vlid;
+    }
+
+    public List<String> mergedVoltageLevels(String cgmesIdentifier) {
+        String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
+        return voltageLevelMapping.entrySet().stream().filter(record -> record.getValue().equals(vlid))
+            .map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     // CGMES standard:

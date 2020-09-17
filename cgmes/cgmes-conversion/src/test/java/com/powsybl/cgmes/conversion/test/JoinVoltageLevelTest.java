@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -48,6 +49,9 @@ public class JoinVoltageLevelTest {
 
         boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
         assertTrue(ok);
+
+        VoltageLevel voltageLevelIidm = n.getVoltageLevel("_a43d15db-44a6-4fda-a525-2402ff43226f");
+        assertEquals("_a43d15eb-44a6-4fda-a525-2402ff43226f", voltageLevelIidm.getAliasFromType("MergedVoltageLevel1").get());
     }
 
     @Test
@@ -85,6 +89,9 @@ public class JoinVoltageLevelTest {
             "_a43d15db-44a6-4fda-a525-2402ff43226f", "_0d68ac81-124d-4d21-afa8-6c503feef5b8", substation.getId(),
             voltageLevel1.getId(), voltageLevel2.getId());
         assertTrue(ok);
+
+        Substation substationIidm = n.getSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5");
+        assertEquals("_d6056137-34f1-43a9-b029-23fddb913bd5", substationIidm.getAliasFromType("MergedSubstation1").get());
     }
 
     private static Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
