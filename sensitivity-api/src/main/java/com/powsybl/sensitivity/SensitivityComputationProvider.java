@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.Versionable;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.CompletableFuture;
@@ -43,17 +44,19 @@ public interface SensitivityComputationProvider extends Versionable {
      * @param computationManager a computation manager to external program execution
      * @return a {@link CompletableFuture} on {@link SensitivityComputationResults} that gathers sensitivity factor values
      */
-    CompletableFuture<SensitivityComputationResults> run(Network network,
-                                                         String workingStateId,
-                                                         SensitivityFactorsProvider factorsProvider,
-                                                         SensitivityComputationParameters parameters,
-                                                         ComputationManager computationManager);
+    default CompletableFuture<SensitivityComputationResults> run(Network network,
+                                                                 String workingStateId,
+                                                                 SensitivityFactorsProvider factorsProvider,
+                                                                 SensitivityComputationParameters parameters,
+                                                                 ComputationManager computationManager) {
+        return run(network, workingStateId, factorsProvider, new EmptyContingencyListProvider(), parameters, computationManager);
+    }
 
     /**
      * Run an asynchronous single sensitivity computation job.
      * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
-     * after each {@link com.powsybl.contingency.Contingency} provided by {@code contingenciesProvider} according to
-     * the {@code parameters}.
+     * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
+     * {@code contingenciesProvider} according to the {@code parameters}.
      *
      * @param network IIDM network on which the sensitivity computation will be performed
      * @param workingStateId network variant ID on which the computation will be performed
@@ -63,12 +66,10 @@ public interface SensitivityComputationProvider extends Versionable {
      * @param computationManager a computation manager to external program execution
      * @return a {@link CompletableFuture} on {@link SensitivityComputationResults} that gathers sensitivity factor values
      */
-    default CompletableFuture<SensitivityComputationResults> run(Network network,
-                                                                 String workingStateId,
-                                                                 SensitivityFactorsProvider factorsProvider,
-                                                                 ContingenciesProvider contingenciesProvider,
-                                                                 SensitivityComputationParameters parameters,
-                                                                 ComputationManager computationManager) {
-        throw new UnsupportedOperationException("Not implemented");
-    }
+    CompletableFuture<SensitivityComputationResults> run(Network network,
+                                                         String workingStateId,
+                                                         SensitivityFactorsProvider factorsProvider,
+                                                         ContingenciesProvider contingenciesProvider,
+                                                         SensitivityComputationParameters parameters,
+                                                         ComputationManager computationManager);
 }

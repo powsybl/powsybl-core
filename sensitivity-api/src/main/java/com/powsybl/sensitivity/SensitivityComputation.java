@@ -1,6 +1,5 @@
 package com.powsybl.sensitivity;
 
-import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
@@ -14,6 +13,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
