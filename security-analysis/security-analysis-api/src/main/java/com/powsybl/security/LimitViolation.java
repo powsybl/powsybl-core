@@ -215,14 +215,9 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     public String toString() {
-        String base = "Subject id: " + this.subjectId + ", Subject name: " + this.subjectName + ", limitType: " +
-                this.limitType.toString() + ", limit: " + this.limit + ", limitName: " + this.limitName +
+        return "Subject id: " + this.subjectId + ", Subject name: " + this.subjectName + ", limitType: " +
+                this.limitType + ", limit: " + this.limit + ", limitName: " + this.limitName +
                 ", acceptableDuration: " + this.acceptableDuration + ", limitReduction: " + this.limitReduction +
-                ", value: " + this.value;
-        if (side != null) {
-            return base + ", side: " + this.side.toString();
-        } else {
-            return base + ", side: null";
-        }
+                ", value: " + this.value + ", side: " + this.side;
     }
 }
