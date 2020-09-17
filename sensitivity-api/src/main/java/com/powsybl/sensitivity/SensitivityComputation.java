@@ -199,7 +199,7 @@ public final class SensitivityComputation {
      * @param name name of the sensitivity computation implementation, null if we want to use default one
      * @return a runner for sensitivity computation implementation named {@code name}
      */
-    private static SensitivityComputationRunner find(String name) {
+    public static SensitivityComputationRunner find(String name) {
         return find(name, SENSITIVITY_COMPUTATION_PROVIDERS.get(), PlatformConfig.defaultConfig());
     }
 
@@ -209,7 +209,7 @@ public final class SensitivityComputation {
      * @throws PowsyblException in case we cannot find a default implementation
      * @return a runner for default sensitivity computation implementation
      */
-    private static SensitivityComputationRunner find() {
+    public static SensitivityComputationRunner find() {
         return find(null);
     }
 
@@ -256,53 +256,5 @@ public final class SensitivityComputation {
         }
 
         return new SensitivityComputationRunner(provider);
-    }
-
-    public static CompletableFuture<SensitivityComputationResults> runAsync(Network network,
-                                                                            SensitivityFactorsProvider factorsProvider,
-                                                                            ContingenciesProvider contingenciesProvider) {
-        return find().runAsync(network, factorsProvider, contingenciesProvider);
-    }
-
-    public static CompletableFuture<SensitivityComputationResults> runAsync(Network network,
-                                                                            SensitivityFactorsProvider factorsProvider,
-                                                                            ContingenciesProvider contingenciesProvider,
-                                                                            SensitivityComputationParameters parameters) {
-        return find().runAsync(network, factorsProvider, contingenciesProvider, parameters);
-    }
-
-    public static CompletableFuture<SensitivityComputationResults> runAsync(Network network,
-                                                                            SensitivityFactorsProvider factorsProvider) {
-        return find().runAsync(network, factorsProvider);
-    }
-
-    public static CompletableFuture<SensitivityComputationResults> runAsync(Network network,
-                                                                            SensitivityFactorsProvider factorsProvider,
-                                                                            SensitivityComputationParameters parameters) {
-        return find().runAsync(network, factorsProvider, parameters);
-    }
-
-    public static SensitivityComputationResults run(Network network,
-                                                    SensitivityFactorsProvider factorsProvider,
-                                                    ContingenciesProvider contingenciesProvider) {
-        return find().run(network, factorsProvider, contingenciesProvider);
-    }
-
-    public static SensitivityComputationResults run(Network network,
-                                                    SensitivityFactorsProvider factorsProvider,
-                                                    ContingenciesProvider contingenciesProvider,
-                                                    SensitivityComputationParameters parameters) {
-        return find().run(network, factorsProvider, contingenciesProvider, parameters);
-    }
-
-    public static SensitivityComputationResults run(Network network,
-                                                    SensitivityFactorsProvider factorsProvider) {
-        return find().run(network, factorsProvider);
-    }
-
-    public static SensitivityComputationResults run(Network network,
-                                                    SensitivityFactorsProvider factorsProvider,
-                                                    SensitivityComputationParameters parameters) {
-        return find().run(network, factorsProvider, parameters);
     }
 }

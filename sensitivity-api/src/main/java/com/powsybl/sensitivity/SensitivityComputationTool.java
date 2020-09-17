@@ -149,9 +149,9 @@ public class SensitivityComputationTool implements Tool {
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
             ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
-            result = SensitivityComputation.run(network, factorsProvider, contingenciesProvider, params);
+            result = SensitivityComputation.find().run(network, factorsProvider, contingenciesProvider, params);
         } else {
-            result = SensitivityComputation.run(network, factorsProvider, params);
+            result = SensitivityComputation.find().run(network, factorsProvider, params);
         }
 
         if (!result.isOk()) {
