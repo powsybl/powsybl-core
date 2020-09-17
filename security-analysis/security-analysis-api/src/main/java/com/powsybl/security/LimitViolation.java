@@ -14,7 +14,6 @@ import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
- *
  * A generic representation of a violation of a network equipment security limit.
  * For example, it may represent a current overload on a line.
  *
@@ -92,12 +91,12 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
-     * @param subjectId          The identifier of the network equipment on which the violation occurred.
-     * @param subjectName        An optional name of the network equipment on which the violation occurred.
-     * @param limitType          The type of limit which has been violated.
-     * @param limit              The value of the limit which has been violated.
-     * @param limitReduction     The limit reduction factor used for violation detection.
-     * @param value              The actual value of the physical value which triggered the detection of a violation.
+     * @param subjectId      The identifier of the network equipment on which the violation occurred.
+     * @param subjectName    An optional name of the network equipment on which the violation occurred.
+     * @param limitType      The type of limit which has been violated.
+     * @param limit          The value of the limit which has been violated.
+     * @param limitReduction The limit reduction factor used for violation detection.
+     * @param value          The actual value of the physical value which triggered the detection of a violation.
      */
     public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, float limitReduction, double value) {
         this(subjectId, subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
@@ -108,11 +107,11 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      *
      * <p>According to the violation type, all parameters may not be mandatory. See constructor overloads for particular types.
      *
-     * @param subjectId          The identifier of the network equipment on which the violation occurred.
-     * @param limitType          The type of limit which has been violated.
-     * @param limit              The value of the limit which has been violated.
-     * @param limitReduction     The limit reduction factor used for violation detection.
-     * @param value              The actual value of the physical value which triggered the detection of a violation.
+     * @param subjectId      The identifier of the network equipment on which the violation occurred.
+     * @param limitType      The type of limit which has been violated.
+     * @param limit          The value of the limit which has been violated.
+     * @param limitReduction The limit reduction factor used for violation detection.
+     * @param value          The actual value of the physical value which triggered the detection of a violation.
      */
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value) {
         this(subjectId, null, limitType, limit, limitReduction, value);
@@ -140,6 +139,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     /**
      * The type of limit which has been violated.
+     *
      * @return the type of limit which has been violated.
      */
     public LimitViolationType getLimitType() {
@@ -148,6 +148,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     /**
      * The value of the limit which has been violated.
+     *
      * @return the value of the limit which has been violated.
      */
     public double getLimit() {
@@ -156,6 +157,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     /**
      * The name of the limit which has been violated. May be {@code null}.
+     *
      * @return the value of the limit which has been violated. May be {@code null}.
      */
     @Nullable
@@ -197,7 +199,7 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
      * other than branches.
      *
      * @return the side of the equipment where the violation occurred. Will be {@code null} for equipments
-     *         other than branches.
+     * other than branches.
      */
     @Nullable
     public Branch.Side getSide() {
@@ -209,6 +211,18 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
             return Objects.requireNonNull(side);
         } else {
             return null;
+        }
+    }
+
+    public String toString() {
+        String base = "Subject id: " + this.subjectId + ", Subject name: " + this.subjectName + ", limitType: " +
+                this.limitType.toString() + ", limit: " + this.limit + ", limitName: " + this.limitName +
+                ", acceptableDuration: " + this.acceptableDuration + ", limitReduction: " + this.limitReduction +
+                ", value: " + this.value;
+        if (side != null) {
+            return base + ", side: " + this.side.toString();
+        } else {
+            return base + ", side: null";
         }
     }
 }
