@@ -1035,13 +1035,34 @@ public class AmplNetworkWriter {
             if (ptc != null) {
                 String id = twt.getId() + "_phase_table";
                 writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
-
             }
         }
     }
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
+            if (rtc1 != null) {
+                String id = twt.getId() + "_leg1_ratio_table";
+
+                Terminal t1 = twt.getLeg1().getTerminal();
+                double vb1 = t1.getVoltageLevel().getNominalV();
+                double zb1 = vb1 * vb1 / AmplConstants.SB;
+
+                writeRatioTapChanger(formatter, id, zb1, twt.getLeg1().getX(), rtc1);
+            }
+
+            PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
+            if (ptc1 != null) {
+                String id = twt.getId() + "_leg1_phase_table";
+
+                Terminal t1 = twt.getLeg1().getTerminal();
+                double vb1 = t1.getVoltageLevel().getNominalV();
+                double zb1 = vb1 * vb1 / AmplConstants.SB;
+
+                writePhaseTapChanger(formatter, id, zb1, twt.getLeg1().getX(), ptc1);
+            }
+
             RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
             if (rtc2 != null) {
                 String id = twt.getId() + "_leg2_ratio_table";
@@ -1053,6 +1074,17 @@ public class AmplNetworkWriter {
                 writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2);
             }
 
+            PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
+            if (ptc2 != null) {
+                String id = twt.getId() + "_leg2_phase_table";
+
+                Terminal t2 = twt.getLeg2().getTerminal();
+                double vb2 = t2.getVoltageLevel().getNominalV();
+                double zb2 = vb2 * vb2 / AmplConstants.SB;
+
+                writePhaseTapChanger(formatter, id, zb2, twt.getLeg2().getX(), ptc2);
+            }
+
             RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
             if (rtc3 != null) {
                 String id = twt.getId() + "_leg3_ratio_table";
@@ -1062,6 +1094,17 @@ public class AmplNetworkWriter {
                 double zb3 = vb3 * vb3 / AmplConstants.SB;
 
                 writeRatioTapChanger(formatter, id, zb3, twt.getLeg3().getX(), rtc3);
+            }
+
+            PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
+            if (ptc3 != null) {
+                String id = twt.getId() + "_leg3_phase_table";
+
+                Terminal t3 = twt.getLeg3().getTerminal();
+                double vb3 = t3.getVoltageLevel().getNominalV();
+                double zb3 = vb3 * vb3 / AmplConstants.SB;
+
+                writePhaseTapChanger(formatter, id, zb3, twt.getLeg3().getX(), ptc3);
             }
         }
     }
@@ -1146,6 +1189,12 @@ public class AmplNetworkWriter {
                 }
             }
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+                RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
+                if (rtc1 != null) {
+                    String rtc1Id = twt.getId() + AmplConstants.LEG1_SUFFIX;
+                    String tcs1Id = twt.getId() + "_leg1_ratio_table";
+                    writeRatioTapChanger(formatter, rtc1Id, rtc1, tcs1Id);
+                }
                 RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
                 if (rtc2 != null) {
                     String rtc2Id = twt.getId() + AmplConstants.LEG2_SUFFIX;
@@ -1186,6 +1235,50 @@ public class AmplNetworkWriter {
                     formatter.writeCell(variantIndex)
                             .writeCell(num)
                             .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
+                            .writeCell(tcsNum)
+                            .writeCell(faultNum)
+                            .writeCell(actionNum)
+                            .writeCell(ptcId);
+                }
+            }
+            for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+                PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
+                if (ptc1 != null) {
+                    String ptcId = twt.getId() + AmplConstants.LEG1_SUFFIX;
+                    String tcsId = twt.getId() + "_leg1_phase_table";
+                    int num = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+                    int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
+                    formatter.writeCell(variantIndex)
+                            .writeCell(num)
+                            .writeCell(ptc1.getTapPosition() - ptc1.getLowTapPosition() + 1)
+                            .writeCell(tcsNum)
+                            .writeCell(faultNum)
+                            .writeCell(actionNum)
+                            .writeCell(ptcId);
+                }
+                PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
+                if (ptc2 != null) {
+                    String ptcId = twt.getId() + AmplConstants.LEG2_SUFFIX;
+                    String tcsId = twt.getId() + "_leg2_phase_table";
+                    int num = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+                    int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
+                    formatter.writeCell(variantIndex)
+                            .writeCell(num)
+                            .writeCell(ptc2.getTapPosition() - ptc2.getLowTapPosition() + 1)
+                            .writeCell(tcsNum)
+                            .writeCell(faultNum)
+                            .writeCell(actionNum)
+                            .writeCell(ptcId);
+                }
+                PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
+                if (ptc3 != null) {
+                    String ptcId = twt.getId() + AmplConstants.LEG3_SUFFIX;
+                    String tcsId = twt.getId() + "_leg3_phase_table";
+                    int num = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+                    int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
+                    formatter.writeCell(variantIndex)
+                            .writeCell(num)
+                            .writeCell(ptc3.getTapPosition() - ptc3.getLowTapPosition() + 1)
                             .writeCell(tcsNum)
                             .writeCell(faultNum)
                             .writeCell(actionNum)

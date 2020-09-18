@@ -101,6 +101,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     @Test
     public void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
+        network.getThreeWindingsTransformer("3WT").getLeg1()
+                .newPhaseTapChanger()
+                .beginStep()
+                .setRho(1)
+                .setR(0.1)
+                .setX(1.)
+                .setB(0.)
+                .setG(0.)
+                .setAlpha(0)
+                .endStep()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .add();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
