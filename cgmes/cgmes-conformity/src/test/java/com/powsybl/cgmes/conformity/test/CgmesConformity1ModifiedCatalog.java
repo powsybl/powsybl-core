@@ -494,23 +494,6 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
-    public static TestGridModelResources miniBusBranchDisconnectedSlack() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/BusBranch/BaseCase_v3_disconnected_slack/";
-        String baseOriginal = ENTSOE_CONFORMITY_1
-                + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
-        return new TestGridModelResources(
-                "MiniGrid-BusBranch-disconnected-slack",
-                null,
-                new ResourceSet(base,
-                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml"),
-                new ResourceSet(baseOriginal,
-                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
-                        "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
-                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
-    }
-
     public static TestGridModelResources miniBusBranchRtcRemoteRegulation() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/BusBranch/BaseCase_v3_rtc_with_remote_regulation/";
