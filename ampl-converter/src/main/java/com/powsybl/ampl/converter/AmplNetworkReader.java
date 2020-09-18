@@ -213,7 +213,7 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
             if (twt == null) {
                 throw new AmplException("Invalid three windings transformer id '" + id + "'");
