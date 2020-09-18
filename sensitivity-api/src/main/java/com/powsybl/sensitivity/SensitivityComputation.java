@@ -10,6 +10,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * Sensitivity computation main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -41,11 +41,11 @@ public final class SensitivityComputation {
      * A sensitivity computation runner is responsible for providing convenient methods on top of {@link SensitivityComputationProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
      */
-    public static final class SensitivityComputationRunner implements Versionable {
+    public static final class Runner implements Versionable {
 
         private final SensitivityComputationProvider provider;
 
-        private SensitivityComputationRunner(SensitivityComputationProvider provider) {
+        private Runner(SensitivityComputationProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
@@ -199,14 +199,16 @@ public final class SensitivityComputation {
     }
 
     /**
-     * Get a runner for a sensitivity computation named {@code name}. In the case of a null {@code name}, default
+     * Get a runner for sensitivity computation implementation named {@code name}. In the case of a null {@code name}, default
      * implementation is used.
      *
      * @param name name of the sensitivity computation implementation, null if we want to use default one
      * @return a runner for sensitivity computation implementation named {@code name}
      */
-    public static SensitivityComputationRunner find(String name) {
-        return find(name, SENSITIVITY_COMPUTATION_PROVIDERS.get(), PlatformConfig.defaultConfig());
+    public static Runner find(String name) {
+        return new Runner(PlatformConfigNamedProvider.Finder
+                .find(name, "sensitivity-computation", SensitivityComputationProvider.class,
+                        PlatformConfig.defaultConfig()));
     }
 
     /**
@@ -215,52 +217,8 @@ public final class SensitivityComputation {
      * @throws PowsyblException in case we cannot find a default implementation
      * @return a runner for default sensitivity computation implementation
      */
-    public static SensitivityComputationRunner find() {
+    public static Runner find() {
         return find(null);
     }
 
-    /**
-     * A variant of {@link SensitivityComputation#find(String)} intended to be used for unit testing that allow passing
-     * an explicit provider list instead of relying on service loader and an explicit {@link PlatformConfig}
-     * instead of global one.
-     *
-     * @param name name of the sensitivity computation implementation, null if we want to use default one
-     * @param providers sensitivity computation provider list
-     * @param platformConfig platform config to look for default sensitivity computation implementation name
-     * @return a runner for sensitivity computation implementation named {@code name}
-     */
-    static SensitivityComputationRunner find(String name, List<SensitivityComputationProvider> providers, PlatformConfig platformConfig) {
-        Objects.requireNonNull(providers);
-        Objects.requireNonNull(platformConfig);
-
-        if (providers.isEmpty()) {
-            throw new PowsyblException("No sensitivity computation provider found");
-        }
-
-        // if no sensitivity computation implementation name is provided through the API we look for information
-        // in platform configuration
-        String sensitivityComputationName = name != null ? name : platformConfig.getOptionalModuleConfig("sensitivity-computation")
-            .flatMap(mc -> mc.getOptionalStringProperty("default"))
-            .orElse(null);
-        SensitivityComputationProvider provider;
-        if (providers.size() == 1 && sensitivityComputationName == null) {
-            // no information to select the implementation but only one provider, so we can use it by default
-            // (that is be the most common use case)
-            provider = providers.get(0);
-        } else {
-            if (providers.size() > 1 && sensitivityComputationName == null) {
-                // several providers and no information to select which one to choose, we can only throw
-                // an exception
-                List<String> providerNames = providers.stream().map(SensitivityComputationProvider::getName).collect(Collectors.toList());
-                throw new PowsyblException("Several sensitivity computation implementations found (" + providerNames
-                    + "), you must add configuration to select the implementation");
-            }
-            provider = providers.stream()
-                .filter(p -> p.getName().equals(sensitivityComputationName))
-                .findFirst()
-                .orElseThrow(() -> new PowsyblException("Sensitivity computation '" + sensitivityComputationName + "' not found"));
-        }
-
-        return new SensitivityComputationRunner(provider);
-    }
 }

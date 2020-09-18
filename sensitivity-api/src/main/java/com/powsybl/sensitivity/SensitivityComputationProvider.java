@@ -7,6 +7,7 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.commons.Versionable;
+import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
@@ -30,7 +31,7 @@ import java.util.concurrent.CompletableFuture;
  * </p>
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public interface SensitivityComputationProvider extends Versionable {
+public interface SensitivityComputationProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
      * Run an asynchronous single sensitivity computation job.
