@@ -803,19 +803,36 @@ public class AmplNetworkWriter {
             double x1 = twt.getLeg1().getX() / zb1;
             double g1 = twt.getLeg1().getG() * zb1;
             double b1 = twt.getLeg1().getB() * zb1;
+
             double r2 = twt.getLeg2().getR() / zb2;
             double x2 = twt.getLeg2().getX() / zb2;
+            double g2 = twt.getLeg2().getG() * zb2;
+            double b2 = twt.getLeg2().getB() * zb2;
+
             double r3 = twt.getLeg3().getR() / zb3;
             double x3 = twt.getLeg3().getX() / zb3;
+            double g3 = twt.getLeg3().getG() * zb3;
+            double b3 = twt.getLeg3().getB() * zb3;
+
             double ratedU1 = twt.getLeg1().getRatedU();
             double ratedU2 = twt.getLeg2().getRatedU();
             double ratedU3 = twt.getLeg3().getRatedU();
-            double ratio2 = ratedU1 / ratedU2;
-            double ratio3 = ratedU1 / ratedU3;
+            double ratedU0 = twt.getRatedU0();
+            double ratio1 = ratedU0 / ratedU1;
+            double ratio2 = ratedU0 / ratedU2;
+            double ratio3 = ratedU0 / ratedU3;
+            RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
             RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            RatioTapChanger rtc3 = twt.getLeg2().getRatioTapChanger();
+            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+            PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
+            PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
+            PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
+            int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id1) : -1;
             int rtc2Num = rtc2 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id2) : -1;
             int rtc3Num = rtc3 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id3) : -1;
+            int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id1) : -1;
+            int ptc2Num = ptc2 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id2) : -1;
+            int ptc3Num = ptc3 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id3) : -1;
 
             int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, getThreeWindingsTransformerMiddleVoltageLevelId(twt));
             String middleBusId = getThreeWindingsTransformerMiddleBusId(twt);
@@ -835,9 +852,9 @@ public class AmplNetworkWriter {
                         .writeCell(0.0)
                         .writeCell(b1)
                         .writeCell(0.0)
-                        .writeCell(1f) // ratio is one at primary leg
-                        .writeCell(-1)
-                        .writeCell(-1)
+                        .writeCell(ratio1)
+                        .writeCell(rtc1Num)
+                        .writeCell(ptc1Num)
                         .writeCell(Double.NaN)
                         .writeCell(t1.getP())
                         .writeCell(Double.NaN)
@@ -861,13 +878,13 @@ public class AmplNetworkWriter {
                         .writeCell(middleVlNum)
                         .writeCell(r2)
                         .writeCell(x2)
+                        .writeCell(g2)
                         .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
+                        .writeCell(b2)
                         .writeCell(0.0)
                         .writeCell(ratio2)
                         .writeCell(rtc2Num)
-                        .writeCell(-1)
+                        .writeCell(ptc2Num)
                         .writeCell(t2.getP())
                         .writeCell(Double.NaN)
                         .writeCell(t2.getQ())
@@ -891,13 +908,13 @@ public class AmplNetworkWriter {
                         .writeCell(middleVlNum)
                         .writeCell(r3)
                         .writeCell(x3)
+                        .writeCell(g3)
                         .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
+                        .writeCell(b3)
                         .writeCell(0.0)
                         .writeCell(ratio3)
                         .writeCell(rtc3Num)
-                        .writeCell(-1)
+                        .writeCell(ptc3Num)
                         .writeCell(t3.getP())
                         .writeCell(Double.NaN)
                         .writeCell(t3.getQ())
