@@ -56,7 +56,7 @@ public final class StateVariablesExport {
             writeRdf(writer);
 
             if (context.getCimVersion() == 16) {
-                writeSvModelDescription(network, writer, context);
+                writeSvModelDescription(writer, context);
                 writeTopologicalIslands(network, writer, context);
             }
 
@@ -85,7 +85,7 @@ public final class StateVariablesExport {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    private static void writeSvModelDescription(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeSvModelDescription(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
