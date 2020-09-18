@@ -98,8 +98,8 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
                 .setVoltageRegulationOn(false)
                 .add()
                 .add();
-            addAliases(dl);
         }
+        addAliases(dl);
         dl.addAlias(boundaryNode, "CGMES." + CgmesNames.TOPOLOGICAL_NODE);
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
