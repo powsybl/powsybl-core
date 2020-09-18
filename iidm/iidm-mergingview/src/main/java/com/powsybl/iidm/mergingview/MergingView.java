@@ -6,14 +6,10 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.commons.util.ServiceLoaderCache;
-import com.powsybl.iidm.mergingview.extensions.ExtensionMergingView;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -46,8 +42,6 @@ public final class MergingView implements Network, MultiVariantObject {
     private final NetworkListener mergeDanglingLineListener;
     private final NetworkListener danglingLinePowerListener;
     private final TopologyListener topologyListener;
-
-    private static final Supplier<List<ExtensionMergingView>> SUPPLIER = Suppliers.memoize(() -> new ServiceLoaderCache<>(ExtensionMergingView.class).getServices());
 
     static PowsyblException createNotImplementedException() {
         return new PowsyblException("Not implemented exception");
@@ -796,33 +790,11 @@ public final class MergingView implements Network, MultiVariantObject {
 
     @Override
     public <E extends Extension<Network>> E getExtension(final Class<? super E> type) {
-        if (workingNetwork.getExtension(type) != null) {
-            return workingNetwork.getExtension(type);
-        }
-        List<E> extensions = index.getNetworkStream().map(n -> (E) n.getExtension(type)).filter(Objects::nonNull).collect(Collectors.toList());
-        if (extensions.isEmpty()) {
-            return null;
-        }
-        SUPPLIER.get().stream()
-                .filter(emv -> emv.getExtensionClass() == type)
-                .findFirst()
-                .ifPresent(emv -> extensions.forEach(e -> emv.merge(workingNetwork, e)));
         return workingNetwork.getExtension(type);
     }
 
     @Override
     public <E extends Extension<Network>> E getExtensionByName(final String name) {
-        if (workingNetwork.getExtensionByName(name) != null) {
-            return workingNetwork.getExtensionByName(name);
-        }
-        List<E> extensions = index.getNetworkStream().map(n -> (E) n.getExtensionByName(name)).filter(Objects::nonNull).collect(Collectors.toList());
-        if (extensions.isEmpty()) {
-            return null;
-        }
-        SUPPLIER.get().stream()
-                .filter(emv -> emv.getName().equals(name))
-                .findFirst()
-                .ifPresent(emv -> extensions.forEach(e -> emv.merge(workingNetwork, e)));
         return workingNetwork.getExtensionByName(name);
     }
 
