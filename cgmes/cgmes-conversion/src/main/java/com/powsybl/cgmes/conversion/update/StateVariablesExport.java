@@ -7,8 +7,6 @@
 package com.powsybl.cgmes.conversion.update;
 
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -50,15 +48,19 @@ public final class StateVariablesExport {
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
     public static void write(Network network, XMLStreamWriter writer) {
+        write(network, writer, new CgmesExportContext(network));
+    }
+
+    public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         try {
             writeRdf(writer);
 
-            if (network.getExtension(CimCharacteristics.class) != null && network.getExtension(CimCharacteristics.class).getCimVersion() == 16) {
-                writeSvModelDescription(network, writer);
-                writeTopologicalIslands(network, writer);
+            if (context.getCimVersion() == 16) {
+                writeSvModelDescription(network, writer, context);
+                writeTopologicalIslands(network, writer, context);
             }
 
-            writeVoltagesForTopologicalNodes(network, writer);
+            writeVoltagesForTopologicalNodes(network, writer, context);
             writeVoltagesForBoundaryNodes(network, writer);
             writePowerFlows(network, writer);
             writeShuntCompensatorSections(network, writer);
@@ -83,26 +85,22 @@ public final class StateVariablesExport {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    private static void writeSvModelDescription(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
-        if (svMetadata == null) {
-            return;
-        }
+    private static void writeSvModelDescription(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(svMetadata.getScenarioTime());
+        writer.writeCharacters(context.getScenarioTime().toString());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(DateTime.now().toString());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
-        writer.writeCharacters(svMetadata.getDescription());
+        writer.writeCharacters(context.getSvDescription());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(is(svMetadata.getSvVersion() + 1));
+        writer.writeCharacters(is(context.getSvVersion() + 1));
         writer.writeEndElement();
-        for (String dependency : svMetadata.getDependencies()) {
+        for (String dependency : context.getDependencies()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
         }
@@ -110,15 +108,15 @@ public final class StateVariablesExport {
         writer.writeCharacters("http://entsoe.eu/CIM/StateVariables/4/1");
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
-        writer.writeCharacters(svMetadata.getModelingAuthoritySet()); // TODO: what do you put for mergingView?
+        writer.writeCharacters(context.getModelingAuthoritySet());
         writer.writeEndElement();
         writer.writeEndElement();
     }
 
-    private static void writeTopologicalIslands(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTopologicalIslands(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Map<String, List<String>> islands = new HashMap<>();
         Map<String, String> angleRefs = new HashMap<>();
-        if (network.getExtension(CimCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CimCharacteristics.class).getTopologyKind())) {
+        if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
@@ -126,7 +124,7 @@ public final class StateVariablesExport {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
             if (slackTerminal != null && slackTerminal.getTerminal() != null) {
-                if (slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
+                if (slackTerminal.getTerminal().getBusBreakerView().getBus() != null && slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
                     String componentNum = String.valueOf(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum());
                     if (angleRefs.containsKey(componentNum)) {
                         Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
@@ -135,9 +133,12 @@ public final class StateVariablesExport {
                         continue;
                     }
                     angleRefs.put(componentNum, slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
-                } else {
+                } else if (slackTerminal.getTerminal().getBusBreakerView().getBus() != null) {
                     angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getId(),
                             slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
+                } else {
+                    Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
+                    LOG.info(message.get());
                 }
             }
         }
@@ -172,8 +173,8 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeVoltagesForTopologicalNodes(Network network, XMLStreamWriter writer) throws XMLStreamException {
-        if (network.getExtension(CimCharacteristics.class) == null || CgmesTopologyKind.NODE_BREAKER.equals(network.getExtension(CimCharacteristics.class).getTopologyKind())) {
+    private static void writeVoltagesForTopologicalNodes(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+        if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
@@ -242,6 +243,7 @@ public final class StateVariablesExport {
                 writePowerFlow(terminal, dl.getP0(), dl.getQ0(), writer);
             }
         }
+        // TODO what about flows of dl's generations?
     }
 
     private static <I extends Injection<I>> void writeInjectionPowerFlowToCgmes(Network network, XMLStreamWriter writer, Function<Network, Stream<I>> getInjectionStream) {
