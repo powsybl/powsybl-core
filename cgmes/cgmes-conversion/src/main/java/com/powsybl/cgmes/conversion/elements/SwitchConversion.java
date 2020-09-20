@@ -13,20 +13,17 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.List;
 import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConductingEquipmentConversion {
+public class SwitchConversion extends AbstractConnectorConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context, 2);
+        super("Switch", sw, context);
     }
 
     @Override
@@ -49,16 +46,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             LOG.warn("    side 2 is boundary    : {}", isBoundary(2));
         }
         return true;
-    }
-
-    public String boundaryNode() {
-        // Only one of the end points can be in the boundary
-        if (isBoundary(1)) {
-            return nodeId(1);
-        } else if (isBoundary(2)) {
-            return nodeId(2);
-        }
-        return null;
     }
 
     @Override
@@ -110,101 +97,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                 s = adder.add();
             }
             addAliases(s);
-        }
-    }
-
-    // FIXME(Luma) Most of this code is duplicated with ACLineSegmentConversion
-    // Could be shared by equipments with two terminals (not branches)
-    // Only difference is that branches will provide r, x, g, b
-    // and for switches we have all these values = 0
-    private void convertToDanglingLine(int boundarySide) {
-        // Non-boundary side (other side) of the line
-        int modelSide = 3 - boundarySide;
-        String boundaryNode = nodeId(boundarySide);
-
-        // check again boundary node is correct
-        assert isBoundary(boundarySide) && !isBoundary(modelSide);
-
-        PowerFlow f = new PowerFlow(0, 0);
-        // Only consider potential power flow at boundary side if that side is connected
-        if (terminalConnected(boundarySide) && context.boundary().hasPowerFlow(boundaryNode)) {
-            f = context.boundary().powerFlowAtNode(boundaryNode);
-        }
-        // There should be some equipment at boundarySide to model exchange through that
-        // point
-        // But we have observed, for the test case conformity/miniBusBranch,
-        // that the ACLineSegment:
-        // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
-        // ends in a boundary node where there is no other line,
-        // does not have energy consumer or equivalent injection
-        if (terminalConnected(boundarySide)
-                && !context.boundary().hasPowerFlow(boundaryNode)
-                && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
-            missing("Equipment for modeling consumption/injection at boundary node");
-        }
-
-        double r = 0;
-        double x = 0;
-        double bch = 0;
-        double gch = 0;
-        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
-                .setEnsureIdUnicity(false)
-                .setR(r)
-                .setX(x)
-                .setG(gch)
-                .setB(bch)
-                .setUcteXnodeCode("FIXME");
-        identify(dlAdder);
-        connect(dlAdder, modelSide);
-        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(boundaryNode);
-        DanglingLine dl;
-        if (equivalentInjectionConversion != null) {
-            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
-        } else {
-            dl = dlAdder.setP0(f.p())
-                    .setQ0(f.q())
-                    .newGeneration()
-                        .setTargetP(0.0)
-                        .setTargetQ(0.0)
-                        .setTargetV(Double.NaN)
-                        .setVoltageRegulationOn(false)
-                    .add()
-                    .add();
-        }
-        addAliases(dl);
-        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
-        dl.addAlias(topologicalNodeId(boundarySide), CgmesNames.TOPOLOGICAL_NODE);
-
-        // If we do not have power flow at model side of the switch
-        // we can assign it directly without calculation
-        // we do not have impedance on the switch
-        // Flow out from the switch (dangling line)
-        // must be equal to the consumption seen at boundary
-        if (context.config().computeFlowsAtBoundaryDanglingLines()
-                && terminalConnected(modelSide)
-                && !powerFlow(modelSide).defined()) {
-            double p = dl.getP0() - dl.getGeneration().getTargetP();
-            double q = dl.getQ0() - dl.getGeneration().getTargetQ();
-            dl.getTerminal().setP(p);
-            dl.getTerminal().setQ(q);
-        }
-    }
-
-    // FIXME(Luma) this method is duplicated with ACLineSegmentConversion
-    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
-        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
-        if (eis.isEmpty()) {
-            return null;
-        } else if (eis.size() > 1) {
-            // This should not happen
-            // We have decided to create a dangling line,
-            // so only one MAS at this boundary point,
-            // so there must be only one equivalent injection
-            invalid("Multiple equivalent injections at boundary node");
-            return null;
-        } else {
-            return new EquivalentInjectionConversion(eis.get(0), context);
         }
     }
 

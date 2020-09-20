@@ -30,7 +30,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
 
     public CgmesSshMetadataXmlSerializer() {
         super("cgmesSshMetadata", "network", CgmesSshMetadata.class, true, "cgmesSshMetadata.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0", "cshm");
+                "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_metadata/1_0", "csshm");
     }
 
     @Override

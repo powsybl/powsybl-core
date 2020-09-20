@@ -15,13 +15,11 @@ import java.util.stream.Stream;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreas;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreasImpl.ControlArea;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -52,6 +50,9 @@ public class Comparison {
         if (config.checkNetworkId) {
             compare("networkId", expected.getId(), actual.getId());
         }
+
+        // Compare CIM characteristics
+        compareCIMCharacteristics(expected.getExtension(CimCharacteristics.class), actual.getExtension(CimCharacteristics.class));
 
         // Compare SV metadata
         compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
@@ -146,6 +147,21 @@ public class Comparison {
             T tactual = (T) actual;
             testAttributes.accept((T) expected, tactual);
         });
+    }
+
+    private void compareCIMCharacteristics(CimCharacteristics expected, CimCharacteristics actual) {
+        if (expected == null && actual != null) {
+            diff.unexpected(actual.getExtendable().getId() + "_cimCharacteristics_extension");
+            return;
+        }
+        if (expected != null) {
+            if (actual == null) {
+                diff.missing(expected.getExtendable().getId() + "_cimCharacteristics_extension");
+                return;
+            }
+            compare("topologyKind", expected.getTopologyKind().toString(), actual.getTopologyKind().toString());
+            compare("cimVersion", expected.getCimVersion(), actual.getCimVersion());
+        }
     }
 
     private void compareCgmesSvMetadata(CgmesSvMetadata expected, CgmesSvMetadata actual) {
@@ -296,6 +312,20 @@ public class Comparison {
             compare("highVoltageLimit",
                     expected.getHighVoltageLimit(),
                     actual.getHighVoltageLimit());
+        }
+        SlackTerminal expectedSlackTerminal = expected.getExtension(SlackTerminal.class);
+        SlackTerminal actualSlackTerminal = actual.getExtension(SlackTerminal.class);
+        if (expectedSlackTerminal == null) {
+            if (actualSlackTerminal != null) {
+                diff.unexpected("slackTerminal");
+            }
+        } else {
+            if (actualSlackTerminal == null) {
+                diff.missing("slackTerminal");
+            } else {
+                equivalent("slackTerminal", expectedSlackTerminal.getTerminal().getConnectable(),
+                        actualSlackTerminal.getTerminal().getConnectable());
+            }
         }
     }
 

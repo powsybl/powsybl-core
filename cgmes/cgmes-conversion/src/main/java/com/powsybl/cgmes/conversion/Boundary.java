@@ -47,7 +47,7 @@ public class Boundary {
         } else {
             nodes = Collections.emptySet();
         }
-        nodesLines = new HashMap<>();
+        nodesEquipment = new HashMap<>();
         nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
@@ -66,9 +66,9 @@ public class Boundary {
     }
 
     public void addEquipmentAtNode(PropertyBag line, String node) {
-        List<PropertyBag> lines;
-        lines = nodesLines.computeIfAbsent(node, ls -> new ArrayList<>(2));
-        lines.add(line);
+        List<PropertyBag> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(line);
     }
 
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
@@ -99,7 +99,7 @@ public class Boundary {
     }
 
     public List<PropertyBag> equipmentAtNode(String node) {
-        return nodesLines.getOrDefault(node, Collections.emptyList());
+        return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
     public List<PropertyBag> equivalentInjectionsAtNode(String node) {
@@ -116,7 +116,7 @@ public class Boundary {
     }
 
     private final Set<String> nodes;
-    private final Map<String, List<PropertyBag>> nodesLines;
+    private final Map<String, List<PropertyBag>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;

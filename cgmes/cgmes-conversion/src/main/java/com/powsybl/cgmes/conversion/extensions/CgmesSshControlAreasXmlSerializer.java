@@ -31,7 +31,7 @@ public class CgmesSshControlAreasXmlSerializer extends AbstractExtensionXmlSeria
 
     public CgmesSshControlAreasXmlSerializer() {
         super("cgmesSshControlAreas", "network", CgmesSshControlAreas.class, true, "cgmesSshControlAreas.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_control_areas/1_0", "cshca");
+                "http://www.powsybl.org/schema/iidm/ext/cgmes_ssh_control_areas/1_0", "csshca");
     }
 
     @Override

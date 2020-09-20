@@ -58,11 +58,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
         if (p.asInt("referencePriority", 0) > 0) {
-            if (g.getTerminal().getBusBreakerView().getBus() == null) {
-                context.ignored("referencePriority", () -> String.format("%s is disconnected from the network", g.getId()));
-            } else {
-                SlackTerminal.attach(g.getTerminal().getBusBreakerView().getBus());
-            }
+            SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
         }
         if (p.containsKey("normalPF")) {
             g.setProperty("GeneratingUnit.normalPF", p.get("normalPF"));

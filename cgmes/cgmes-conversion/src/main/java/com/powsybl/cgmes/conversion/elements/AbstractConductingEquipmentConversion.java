@@ -73,6 +73,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
+    public String findUcteXnodeCode(String boundaryNode) {
+        return context.boundary().nameAtBoundary(boundaryNode);
+    }
+
     @Override
     public boolean insideBoundary() {
         // A conducting equipment is inside boundary if
