@@ -271,6 +271,7 @@ public class StateVariablesAdder {
         tch.getOptionalRatioTapChanger().ifPresent(tc -> {
             // We do not have an identifier for the tap changer in IIDM
             // We need to query the CGMES model for the original tap changer identifier
+            // FIXME(Luma) consider using not deprecated: cgmes.ratioTapChangerListForPowerTransformer(transformer.getId()).get(legNum)
             String tcId = cgmes.ratioTapChangerForPowerTransformer(transformer.getId());
             tapSteps.add(buildSvTapPosition(tapStepPropertyNames, positionPropertyName, tc, tcId));
         });
@@ -278,6 +279,7 @@ public class StateVariablesAdder {
 
     private void addPhaseTapStep(PhaseTapChangerHolder tch, Identifiable<?> transformer, List<String> tapStepPropertyNames, String positionPropertyName, PropertyBags tapSteps) {
         tch.getOptionalPhaseTapChanger().ifPresent(tc -> {
+            // FIXME(Luma) consider using not deprecated: cgmes.phaseTapChangerListForPowerTransformer(transformer.getId()).get(legNum)
             String tcId = cgmes.phaseTapChangerForPowerTransformer(transformer.getId());
             tapSteps.add(buildSvTapPosition(tapStepPropertyNames, positionPropertyName, tc, tcId));
         });
