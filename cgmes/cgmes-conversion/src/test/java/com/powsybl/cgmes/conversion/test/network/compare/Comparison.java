@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.cgmes.conversion.extensions.CgmesBoundarySide;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
@@ -530,6 +531,15 @@ public class Comparison {
         compareCurrentLimits(expected, actual,
                 expected.getCurrentLimits(),
                 actual.getCurrentLimits());
+        CgmesBoundarySide expectedBoundarySide = expected.getExtension(CgmesBoundarySide.class);
+        CgmesBoundarySide actualBoundarySide = actual.getExtension(CgmesBoundarySide.class);
+        if (expectedBoundarySide == null && actualBoundarySide != null) {
+            diff.unexpected("boundarySide");
+        } else if (expectedBoundarySide != null && actualBoundarySide == null) {
+            diff.missing("boundarySide");
+        } else if (expectedBoundarySide != null) {
+            compare("boundarySide", expectedBoundarySide.getBoundarySide(), actualBoundarySide.getBoundarySide());
+        }
     }
 
     private void compareCurrentLimits(
