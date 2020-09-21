@@ -6,7 +6,6 @@
  */
 package com.powsybl.sensitivity.mocks;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
@@ -22,7 +21,6 @@ import java.util.concurrent.CompletableFuture;
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
  */
-@AutoService(SensitivityComputationProvider.class)
 public class AnotherSensitivityComputationProviderMock implements SensitivityComputationProvider {
 
     @Override
@@ -47,7 +45,7 @@ public class AnotherSensitivityComputationProviderMock implements SensitivityCom
 
     @Override
     public String getName() {
-        return "another-sensitivity-computation-mock";
+        return "AnotherSensitivityComputationMock";
     }
 
     @Override

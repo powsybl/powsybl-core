@@ -47,7 +47,7 @@ public class SensitivityComputationProviderMock implements SensitivityComputatio
 
     @Override
     public String getName() {
-        return "sensitivity-computation-mock";
+        return "SensitivityComputationMock";
     }
 
     @Override
