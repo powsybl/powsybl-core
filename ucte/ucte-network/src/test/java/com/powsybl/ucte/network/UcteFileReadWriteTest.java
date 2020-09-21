@@ -23,9 +23,11 @@ public class UcteFileReadWriteTest extends AbstractConverterTest {
 
     private static final String REFERENCE = "/20170322_1844_SN3_FR2.uct";
 
+    private static final UcteReport REPORT = new UcteSyntheticReport();
+
     private static UcteNetwork create() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(UcteFileReadWriteTest.class.getResourceAsStream(REFERENCE)))) {
-            return new UcteReader().read(br);
+            return new UcteReader().read(br, REPORT);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -41,7 +43,7 @@ public class UcteFileReadWriteTest extends AbstractConverterTest {
 
     private static UcteNetwork read(Path file) {
         try (BufferedReader br = Files.newBufferedReader(file)) {
-            return new UcteReader().read(br);
+            return new UcteReader().read(br, REPORT);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

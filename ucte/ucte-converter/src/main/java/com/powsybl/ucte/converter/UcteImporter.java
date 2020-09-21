@@ -9,15 +9,22 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
 import com.google.common.base.Stopwatch;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.entsoe.util.*;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
@@ -30,6 +37,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
@@ -44,6 +52,24 @@ public class UcteImporter implements Importer {
     private static final float LINE_MIN_Z = 0.05f;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
+
+    public static final String CONSISTENCY_CHECKS_REPORT_PROPERTY_NAME = "ucte.import.inconsistencies-report";
+
+    private static final Parameter CONSISTENCY_CHECKS_REPORT_PARAMETER
+            = new Parameter(CONSISTENCY_CHECKS_REPORT_PROPERTY_NAME, ParameterType.STRING, "Default report implementation for consistency checks", "Verbose");
+
+    private static final Supplier<List<UcteReport>> CONSISTENCY_CHECKS_REPORT_SUPPLIERS
+            = Suppliers.memoize(() -> new ServiceLoaderCache<>(UcteReport.class).getServices())::get;
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public UcteImporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public UcteImporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -340,7 +366,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z) {
-        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+        LOGGER.trace("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
@@ -968,10 +994,11 @@ public class UcteImporter implements Importer {
         try {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+                UcteReport report = createUcteReport(parameters);
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, report), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
@@ -996,4 +1023,14 @@ public class UcteImporter implements Importer {
         }
     }
 
+    /**
+     * Create a {@link UcteReport} instance based on the <pre>ucte.import.consistency-report</pre> property value
+     * @param parameters The parameters that configure this importer.
+     * @return The implementation used to report inconsistencies.
+     */
+    private UcteReport createUcteReport(Properties parameters) {
+        String name = ConversionParameters.readStringParameter(getFormat(), parameters, CONSISTENCY_CHECKS_REPORT_PARAMETER, defaultValueConfig);
+
+        return UcteReport.Finder.find(name, ParameterDefaultValueConfig.MODULE_NAME, CONSISTENCY_CHECKS_REPORT_SUPPLIERS.get(), UcteReport.class);
+    }
 }

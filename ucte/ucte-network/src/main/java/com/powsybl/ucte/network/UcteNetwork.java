@@ -45,6 +45,6 @@ public interface UcteNetwork {
 
     UcteRegulation getRegulation(UcteElementId transfoId);
 
-    void fix();
+    void fix(UcteReport report);
 
 }

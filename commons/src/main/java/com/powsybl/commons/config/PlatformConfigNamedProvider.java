@@ -9,18 +9,13 @@ package com.powsybl.commons.config;
 import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * A provider that can be loaded by by Java's ServiceLoader based on its name
+ * A provider that can be loaded by Java's ServiceLoader based on its name
  * present in an entry in the PlatformConfig.
  *
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -74,7 +69,7 @@ public interface PlatformConfigNamedProvider {
         public static <T extends PlatformConfigNamedProvider> T findDefault(String moduleName,
                 Class<T> clazz, PlatformConfig platformConfig) {
             return find(null, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
+                    Collections.singletonList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
                     platformConfig);
         }
 
@@ -87,7 +82,7 @@ public interface PlatformConfigNamedProvider {
         public static <T extends PlatformConfigNamedProvider> T find(String name, String moduleName,
                 Class<T> clazz, PlatformConfig platformConfig) {
             return find(name, moduleName,
-                    Arrays.asList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
+                    Collections.singletonList(DEFAULT_SERVICE_IMPL_NAME_PROPERTY), clazz,
                     platformConfig);
         }
 
@@ -150,6 +145,33 @@ public interface PlatformConfigNamedProvider {
             return find(name, moduleName, propertyNames, providers, platformConfig, clazz);
         }
 
+        public static <T extends PlatformConfigNamedProvider> T find(String name, String moduleName, List<T> providers, Class<T> clazz) {
+            T provider;
+            if (providers.size() == 1 && name == null) {
+                // no information to select the implementation but only one provider, so we can
+                // use it by default (that is be the most common use case)
+                provider = providers.get(0);
+            } else {
+                if (providers.size() > 1 && name == null) {
+                    // several providers and no information to select which one to choose, we can
+                    // only throw an exception
+                    List<String> providerNames = providers.stream()
+                            .map(PlatformConfigNamedProvider::getPlatformConfigName)
+                            .collect(Collectors.toList());
+                    throw new PowsyblException(
+                            "Several " + clazz.getSimpleName() + " implementations found (" + providerNames
+                                    + "), you must add configuration in PlatformConfig's module \""
+                                    + moduleName + "\" to select the implementation");
+                }
+                provider = providers.stream()
+                        .filter(p -> p.getPlatformConfigName().equals(name)).findFirst()
+                        .orElseThrow(() -> new PowsyblException(
+                                "Implementation '" + name + "' not found"));
+            }
+
+            return provider;
+        }
+
         // package private for tests
         static <T extends PlatformConfigNamedProvider> T find(String name,
                 String moduleName, List<String> propertyNames, List<T> providers,
@@ -170,30 +192,8 @@ public interface PlatformConfigNamedProvider {
                     : platformConfig.getOptionalModuleConfig(moduleName)
                             .flatMap(mc -> getOptionalFirstProperty(mc, propertyNames))
                             .orElse(null);
-            T provider;
-            if (providers.size() == 1 && finalName == null) {
-                // no information to select the implementation but only one provider, so we can
-                // use it by default (that is be the most common use case)
-                provider = providers.get(0);
-            } else {
-                if (providers.size() > 1 && finalName == null) {
-                    // several providers and no information to select which one to choose, we can
-                    // only throw an exception
-                    List<String> providerNames = providers.stream()
-                            .map(PlatformConfigNamedProvider::getPlatformConfigName)
-                            .collect(Collectors.toList());
-                    throw new PowsyblException(
-                            "Several " + clazz.getSimpleName() + " implementations found (" + providerNames
-                                    + "), you must add configuration in PlatformConfig's module \""
-                                    + moduleName + "\" to select the implementation");
-                }
-                provider = providers.stream()
-                        .filter(p -> p.getPlatformConfigName().equals(finalName)).findFirst()
-                        .orElseThrow(() -> new PowsyblException(
-                                "Loadflow '" + finalName + "' not found"));
-            }
 
-            return provider;
+            return find(finalName, moduleName, providers, clazz);
         }
 
     }

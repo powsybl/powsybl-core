@@ -12,6 +12,6 @@ package com.powsybl.ucte.network;
  */
 public interface UcteRecord {
 
-    void fix();
+    void fix(UcteReport report);
 
 }
