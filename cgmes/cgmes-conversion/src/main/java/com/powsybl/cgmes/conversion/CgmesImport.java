@@ -164,6 +164,12 @@ public class CgmesImport implements Importer {
                                 p,
                                 CONVERT_BOUNDARY_PARAMETER,
                                 defaultValueConfig))
+                .setMergeBoundariesUsingTieLines(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                MERGE_BOUNDARIES_USING_TIE_LINES_PARAMETER,
+                                defaultValueConfig))
                 .setConvertSvInjections(
                         ConversionParameters.readBooleanParameter(
                                 getFormat(),
@@ -226,6 +232,7 @@ public class CgmesImport implements Importer {
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
+    public static final String MERGE_BOUNDARIES_USING_TIE_LINES = "iidm.import.cgmes.merge-boundaries-using-tie-lines";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
@@ -251,6 +258,11 @@ public class CgmesImport implements Importer {
             "Convert boundary during import",
             Boolean.FALSE)
             .addAdditionalNames("convertBoundary");
+    private static final Parameter MERGE_BOUNDARIES_USING_TIE_LINES_PARAMETER = new Parameter(
+            MERGE_BOUNDARIES_USING_TIE_LINES,
+            ParameterType.BOOLEAN,
+            "Merge equipment at boundary using Tie Lines",
+            Boolean.TRUE);
     private static final Parameter CONVERT_SV_INJECTIONS_PARAMETER = new Parameter(
             CONVERT_SV_INJECTIONS,
             ParameterType.BOOLEAN,
