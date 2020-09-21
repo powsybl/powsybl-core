@@ -224,7 +224,7 @@ public class ExportTest {
         DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
     }
 
-    private void compare(DataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
+    private void compare(ReadOnlyDataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
             throws IOException {
         String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
         String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");

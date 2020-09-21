@@ -112,7 +112,7 @@ public final class SteadyStateHypothesisExport {
                 writeTerminal(tid, true, writer);
             });
             // Terminal for boundary side of original line/switch is always connected
-            dl.getAliasFromType(CgmesNames.TERMINAL + dl.getProperty("boundarySide")).ifPresent(tid -> {
+            dl.getAliasFromType("CGMES." + CgmesNames.TERMINAL + dl.getProperty("boundarySide")).ifPresent(tid -> {
                 writeTerminal(tid, true, writer);
             });
         }
@@ -128,14 +128,14 @@ public final class SteadyStateHypothesisExport {
     private static void writeTapChangers(Network network, XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
-                String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1)
-                        .orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String ptcId = twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + 1)
+                        .orElseGet(() -> twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), writer);
                 addTapChangerControl(twt, ptcId, twt.getPhaseTapChanger(), regulatingControlViews);
                 writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
             } else if (twt.hasRatioTapChanger()) {
-                String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1)
-                        .orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String rtcId = twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + 1)
+                        .orElseGet(() -> twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), writer);
                 addTapChangerControl(twt, rtcId, twt.getRatioTapChanger(), regulatingControlViews);
                 writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
@@ -146,12 +146,12 @@ public final class SteadyStateHypothesisExport {
             int i = 1;
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String ptcId = twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), writer);
                     addTapChangerControl(twt, ptcId, leg.getPhaseTapChanger(), regulatingControlViews);
                     writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
                 } else if (leg.hasRatioTapChanger()) {
-                    String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String rtcId = twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeTapChanger("RatioTapChanger", rtcId, leg.getRatioTapChanger(), writer);
                     addTapChangerControl(twt, rtcId, leg.getRatioTapChanger(), regulatingControlViews);
                     writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
@@ -432,7 +432,7 @@ public final class SteadyStateHypothesisExport {
             }
         }
         if (numt > 0) {
-            Optional<String> tid = c.getAliasFromType(CgmesNames.TERMINAL + numt);
+            Optional<String> tid = c.getAliasFromType("CGMES." + CgmesNames.TERMINAL + numt);
             if (tid.isPresent()) {
                 writeTerminal(tid.get(), t.isConnected(), writer);
             } else {

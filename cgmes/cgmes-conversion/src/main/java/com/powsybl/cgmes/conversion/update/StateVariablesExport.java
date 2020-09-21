@@ -149,7 +149,7 @@ public final class StateVariablesExport {
     private static void writeVoltagesForBoundaryNodes(Network network, XMLStreamWriter writer) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
-            Optional<String> topologicalNode = dl.getAliasFromType(CgmesNames.TOPOLOGICAL_NODE);
+            Optional<String> topologicalNode = dl.getAliasFromType("CGMES." + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNode.isPresent()) {
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), writer);
@@ -200,11 +200,11 @@ public final class StateVariablesExport {
                 String boundarySideStr = dl.getProperty("boundarySide");
                 if (boundarySideStr != null) {
                     // The flow at the original Line terminal must have opposite sign of a load modeled at dangling line
-                    dl.getAliasFromType(CgmesNames.TERMINAL + boundarySideStr)
+                    dl.getAliasFromType("CGMES." + CgmesNames.TERMINAL + boundarySideStr)
                         .ifPresent(linet -> writePowerFlow(linet, -dl.getP0(), -dl.getQ0(), writer));
                 }
             }
-            dl.getAliasFromType("EquivalentInjectionTerminal")
+            dl.getAliasFromType("CGMES.EquivalentInjectionTerminal")
                 .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), writer));
         }
     }
@@ -214,7 +214,7 @@ public final class StateVariablesExport {
     }
 
     private static void writePowerFlow(Terminal terminal, XMLStreamWriter writer) {
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL1).orElse(null);
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType("CGMES." + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
             writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), writer);
         } else {
@@ -246,7 +246,7 @@ public final class StateVariablesExport {
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, ID, CgmesExport.getUniqueId());
             writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExport.format(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeEndElement();
@@ -256,10 +256,10 @@ public final class StateVariablesExport {
     private static void writeTapSteps(Network network, XMLStreamWriter writer) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
-                String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String ptcId = twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition(), writer);
             } else if (twt.hasRatioTapChanger()) {
-                String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
+                String rtcId = twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition(), writer);
             }
         }
@@ -268,10 +268,10 @@ public final class StateVariablesExport {
             int i = 1;
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
-                    String ptcId = twt.getAliasFromType(CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String ptcId = twt.getAliasFromType("CGMES." + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition(), writer);
                 } else if (leg.hasRatioTapChanger()) {
-                    String rtcId = twt.getAliasFromType(CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
+                    String rtcId = twt.getAliasFromType("CGMES." + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition(), writer);
                 }
                 i++;
