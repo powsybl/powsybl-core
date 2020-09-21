@@ -116,6 +116,8 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
                 setDanglingLineModelSideFlow(dl, boundaryNode);
             }
         }
+        // record side as property
+        dl.setProperty("boundarySide", String.valueOf(boundarySide));
     }
 
     private boolean isZ0(DanglingLine dl) {
