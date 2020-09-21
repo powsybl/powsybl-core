@@ -61,6 +61,24 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
+    public void testAsyncNamedProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
+        // named provider
+        SensitivityAnalysis.Runner defaultSensitivityComputation = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        CompletableFuture<SensitivityAnalysisResults> result = defaultSensitivityComputation.runAsync(network,
+            sensitivityFactorsProvider, contingenciesProvider);
+        assertNotNull(result.get());
+    }
+
+    @Test
+    public void testAsyncNamedProviderWithMinimumArgumentsNoContingencies() throws InterruptedException, ExecutionException {
+        // named provider
+        SensitivityAnalysis.Runner defaultSensitivityComputation = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        CompletableFuture<SensitivityAnalysisResults> result = defaultSensitivityComputation.runAsync(network,
+            sensitivityFactorsProvider);
+        assertNotNull(result.get());
+    }
+
+    @Test
     public void testDefaultProviderNoContingencies() {
         SensitivityAnalysis.Runner defaultSensitivityComputation = SensitivityAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultSensitivityComputation.getName());
