@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.iidm.network.impl;
 
 import static org.junit.Assert.assertEquals;
@@ -14,6 +20,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class MergeTest {
 
     @Test
@@ -32,7 +41,7 @@ public class MergeTest {
     }
 
     @Test
-    public void mergeNodeBreakerTestPass1() throws IOException {
+    public void mergeNodeBreakerTestPass1() {
         Network n1 = createNetworkWithDanglingLine("1");
         Network n2 = createNetworkWithDanglingLine("2");
 
@@ -62,9 +71,7 @@ public class MergeTest {
     }
 
     private static void checkConnectedComponents(Network n) {
-        n.getBusView().getBuses().forEach(b -> {
-            assertEquals(0, b.getConnectedComponent().getNum());
-        });
+        n.getBusView().getBuses().forEach(b -> assertEquals(0, b.getConnectedComponent().getNum()));
     }
 
     private static Network createNetworkWithDanglingLine(String nid) {

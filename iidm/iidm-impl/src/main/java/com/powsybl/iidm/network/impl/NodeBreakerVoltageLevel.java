@@ -926,6 +926,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         graph.setVertexObject(node, null);
 
+        invalidateCache();
+
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
         clean();

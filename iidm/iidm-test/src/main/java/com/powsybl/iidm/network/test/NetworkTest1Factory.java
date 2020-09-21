@@ -106,6 +106,6 @@ public final class NetworkTest1Factory {
     }
 
     public static String id(String localId, String networkId) {
-        return networkId != null ? "n" + networkId + localId : localId;
+        return networkId != null ? "n" + networkId + "_" + localId : localId;
     }
 }
