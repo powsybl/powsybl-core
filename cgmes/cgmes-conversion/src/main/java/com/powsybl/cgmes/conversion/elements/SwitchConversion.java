@@ -23,15 +23,18 @@ import java.util.function.Supplier;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConductingEquipmentConversion {
+public class SwitchConversion extends AbstractConnectorConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context, 2);
+        super("Switch", sw, context);
     }
 
     @Override
     public boolean valid() {
-        if (!super.valid()) {
+        // super.valid checks nodes and voltage levels of all terminals
+        // We may encounter boundary switches that do not have voltage level at boundary terminal
+        // So we check only that we have valid nodes
+        if (!validNodes()) {
             return false;
         }
         if (busId(1).equals(busId(2))) {
@@ -50,17 +53,31 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     @Override
     public void convert() {
+        if (isBoundary(1)) {
+            convertSwitchAtBoundary(1);
+        } else if (isBoundary(2)) {
+            convertSwitchAtBoundary(2);
+        } else {
+            convertToSwitch();
+        }
+    }
+
+    private void convertSwitchAtBoundary(int boundarySide) {
+        if (context.config().convertBoundary()) {
+            convertToSwitch();
+        } else {
+            warnDanglingLineCreated();
+            convertToDanglingLine(boundarySide);
+        }
+    }
+
+    private void convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
         if (convertToLowImpedanceLine()) {
             warnLowImpedanceLineCreated();
-            LineAdder adder = context.network().newLine()
-                    .setR(context.config().lowImpedanceLineR())
-                    .setX(context.config().lowImpedanceLineX())
-                    .setG1(0)
-                    .setB1(0)
-                    .setG2(0)
-                    .setB2(0);
+            LineAdder adder = context.network().newLine().setR(context.config().lowImpedanceLineR())
+                    .setX(context.config().lowImpedanceLineX()).setG1(0).setB1(0).setG2(0).setB2(0);
             identify(adder);
             boolean branchIsClosed = !open;
             connect(adder, terminalConnected(1), terminalConnected(2), branchIsClosed);
@@ -69,8 +86,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
         } else {
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getNodeBreakerView().newSwitch()
-                        .setKind(kind());
+                adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
                 identify(adder);
                 connect(adder, open);
                 adder.add();
@@ -112,10 +128,12 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
     private void warnLowImpedanceLineCreated() {
         Supplier<String> reason = () -> String.format(
                 "Connected to a terminal not in the same voltage level %s (side 1: %s, side 2: %s)",
-                switchVoltageLevelId(),
-                cgmesVoltageLevelId(1),
-                cgmesVoltageLevelId(2));
+                switchVoltageLevelId(), cgmesVoltageLevelId(1), cgmesVoltageLevelId(2));
         fixed("Low impedance line", reason);
+    }
+
+    private void warnDanglingLineCreated() {
+        fixed("Dangling line with low impedance", "Connected to a boundary node");
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
