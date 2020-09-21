@@ -51,9 +51,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
-        assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
         assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+
+    @Test
+    public void writeShunt() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
     }
 
     @Test

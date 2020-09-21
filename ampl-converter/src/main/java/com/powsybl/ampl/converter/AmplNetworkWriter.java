@@ -20,7 +20,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1421,9 +1420,9 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
-                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+/*                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                     throw new PowsyblException("Non linear shunt compensator not yet supported");
-                }
+                }*/
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -1449,12 +1448,23 @@ public class AmplNetworkWriter {
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
-                double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
+                double b1;
+                double b2;
+                int points;
+                int sectionCount = 1;
+                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+                    b1 = sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections().get(sc.getSectionCount() - 1).getB() * zb;
+                    b2 = sc.getB() * zb;
+                    points = 0;
+                } else {
+                    b1 = 0;
+                    b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
+                    points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
+                    sectionCount = sc.getSectionCount();
+                }
+                double b = sc.getB() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
-                double b = sc.getB() * zb;
-                int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)
@@ -1470,7 +1480,7 @@ public class AmplNetworkWriter {
                         .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
-                        .writeCell(sc.getSectionCount());
+                        .writeCell(sectionCount);
                 addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {
