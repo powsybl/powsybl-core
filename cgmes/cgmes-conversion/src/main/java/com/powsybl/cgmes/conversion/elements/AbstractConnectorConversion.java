@@ -11,6 +11,7 @@ import java.util.List;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.conversion.extensions.CgmesBoundarySideAdder;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
@@ -102,6 +103,7 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         addAliases(dl);
         dl.addAlias(boundaryNode, "CGMES." + CgmesNames.TOPOLOGICAL_NODE);
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+        dl.newExtension(CgmesBoundarySideAdder.class).setBoundarySide(boundarySide).add();
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
