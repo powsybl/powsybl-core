@@ -107,6 +107,8 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+
         open.ensureCapacity(open.size() + number);
         open.fill(initVariantArraySize, initVariantArraySize + number, open.get(sourceIndex));
         retained.ensureCapacity(retained.size() + number);
@@ -115,17 +117,22 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+
         open.remove(open.size() - number, number);
         retained.remove(retained.size() - number, number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+
         for (int index : indexes) {
             open.set(index, open.get(sourceIndex));
             retained.set(index, retained.get(sourceIndex));
