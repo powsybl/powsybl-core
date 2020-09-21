@@ -129,10 +129,13 @@ public class CgmesExport implements Exporter {
         writer.writeNamespace("md", MD_NAMESPACE);
     }
 
-    // Avoid trailing zeros
+    // Avoid trailing zeros and format always using US locale
+
+    private static final DecimalFormatSymbols DOUBLE_FORMAT_SYMBOLS = new DecimalFormatSymbols(Locale.US);
+    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############", DOUBLE_FORMAT_SYMBOLS);
+
     public static String format(double value) {
-        DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
-        return new DecimalFormat("0.##############", otherSymbols).format(Double.isNaN(value) ? 0.0 : value);
+        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
