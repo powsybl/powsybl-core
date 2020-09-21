@@ -6,7 +6,7 @@
  */
 /**
  * The sensitivity variables package includes all available sensitivity variable implementations
- * in Hades2 sensitivity computation feature.
+ * in Hades2 sensitivity analysis feature.
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 package com.powsybl.sensitivity.factors.variables;

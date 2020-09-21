@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Objects;
 
 /**
- * Function on which impact is to be assessed by sensitivity computation
+ * Function on which impact is to be assessed by sensitivity analysis
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

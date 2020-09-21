@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-sensitivity-api</artifactId>
-    <name>Sensitivity computation API</name>
-    <description>An API, and a tool to run sensitivity computation</description>
+    <name>Sensitivity analysis API</name>
+    <description>An API, and a tool to run sensitivity analysis</description>
 
     <build>
         <plugins>

@@ -6,7 +6,7 @@
  */
 
 /**
- * The sensitivity JSON package includes JSON serializer for sensitivity computation results
+ * The sensitivity JSON package includes JSON serializer for sensitivity analysis results
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

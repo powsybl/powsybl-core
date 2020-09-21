@@ -7,7 +7,7 @@
 
 /**
  * The sensitivity functions package includes all available sensitivity function implementations
- * in Hades2 sensitivity computation feature.
+ * in Hades2 sensitivity analysis feature.
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 package com.powsybl.sensitivity.factors.functions;

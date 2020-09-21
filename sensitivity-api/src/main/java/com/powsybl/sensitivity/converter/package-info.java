@@ -7,7 +7,7 @@
 
 /**
  * The sensitivity results converter package includes standard exporter for
- * sensitivity computation results.
+ * sensitivity analysis results.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

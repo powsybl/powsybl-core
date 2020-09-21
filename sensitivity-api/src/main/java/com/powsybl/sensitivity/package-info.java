@@ -6,13 +6,13 @@
  */
 
 /**
- * Sensitivity computation API
+ * Sensitivity analysis API
  *
- * Sensitivity computation is a concrete calculation of impact factors from some network variables modification
+ * Sensitivity analysis is a concrete calculation of impact factors from some network variables modification
  * to some network function values.
  *
  * This can be assimilated to a partial derivative computation, which is effectively an efficient
- * implementation for sensitivity computation.
+ * implementation for sensitivity analysis.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

@@ -15,7 +15,7 @@ import java.util.List;
  *
  * <p>
  *     Used to generate a list of sensitivity factors to be used has inputs
- *     for sensitivity computation.
+ *     for sensitivity analysis.
  * </p>
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

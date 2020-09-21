@@ -45,7 +45,7 @@ public class AnotherSensitivityAnalysisProviderMock implements SensitivityAnalys
 
     @Override
     public String getName() {
-        return "AnotherSensitivityComputationMock";
+        return "AnotherSensitivityAnalysisMock";
     }
 
     @Override

@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  */
 public class SensitivityAnalysisTest {
 
-    private static final String DEFAULT_PROVIDER_NAME = "SensitivityComputationMock";
+    private static final String DEFAULT_PROVIDER_NAME = "SensitivityAnalysisMock";
 
     private Network network;
     private ComputationManager computationManager;

@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Objects;
 
 /**
- * Elementary result value of sensitivity computation.
+ * Elementary result value of sensitivity analysis.
  * Associates a value to a sensitivity factor.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

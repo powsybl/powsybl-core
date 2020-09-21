@@ -17,7 +17,7 @@ import java.util.Objects;
  *
  * <p>
  *     Must be subclassed to get a business meaning, helping for
- *     computation of sensitivity factors in computation engines.
+ *     computation of sensitivity factors in analysis engines.
  * </p>
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */

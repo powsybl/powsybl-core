@@ -7,7 +7,7 @@
 
 /**
  * The sensitivity factors package includes all available sensitivity factor implementations
- * in Hades2 sensitivity computation feature.
+ * in Hades2 sensitivity analysis feature.
  *
  * Not necessarily all combinations of sensitivity function and sensitivity factor are available,
  * depending on Hades2 computation core effective implementation.
