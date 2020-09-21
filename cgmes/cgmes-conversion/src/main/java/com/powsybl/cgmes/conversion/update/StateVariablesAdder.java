@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -21,6 +20,7 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
@@ -471,10 +471,8 @@ public class StateVariablesAdder {
     }
 
     // Avoid trailing zeros
-    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
-
     private static String fstr(double value) {
-        return Double.isNaN(value) ? DOUBLE_FORMAT.format(0.0) : DOUBLE_FORMAT.format(value);
+        return CgmesExport.format(value);
     }
 
     private static String istr(int value) {

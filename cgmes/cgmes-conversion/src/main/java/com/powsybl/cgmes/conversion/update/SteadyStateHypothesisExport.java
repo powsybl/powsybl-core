@@ -298,10 +298,6 @@ public final class SteadyStateHypothesisExport {
             return;
         }
         String hiddenRtcId = eq.getProperty(key);
-        System.err.printf("JAMH hidden ratioTapChanger %s %n", hiddenRtcId);
-        if (1 == 1) {
-            throw new PowsyblException("JAMH");
-        }
         writeTapChanger("RatioTapChanger", hiddenRtcId,
             hiddenTapChangerControlEnabled(eq, "RatioTapChanger", hiddenRtcId),
             hiddenTapChangerStep(eq, "RatioTapChanger", hiddenRtcId), writer);
@@ -315,10 +311,6 @@ public final class SteadyStateHypothesisExport {
             return;
         }
         String hiddenPtcId = eq.getProperty(key);
-        System.err.printf("JAMH hidden phaseTapChanger %s %n", hiddenPtcId);
-        if (1 == 1) {
-            throw new PowsyblException("JAMH");
-        }
         writeTapChanger(phaseTapChangerType(eq, hiddenPtcId), hiddenPtcId,
             hiddenTapChangerControlEnabled(eq, "PhaseTapChanger", hiddenPtcId),
             hiddenTapChangerStep(eq, "PhaseTapChanger", hiddenPtcId), writer);

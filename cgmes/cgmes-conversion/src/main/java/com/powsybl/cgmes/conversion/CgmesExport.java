@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.UUID;
@@ -128,10 +130,9 @@ public class CgmesExport implements Exporter {
     }
 
     // Avoid trailing zeros
-    private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("0.##############");
-
     public static String format(double value) {
-        return DOUBLE_FORMAT.format(Double.isNaN(value) ? 0.0 : value);
+        DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(Locale.US);
+        return new DecimalFormat("0.##############", otherSymbols).format(Double.isNaN(value) ? 0.0 : value);
     }
 
     public static String format(int value) {
