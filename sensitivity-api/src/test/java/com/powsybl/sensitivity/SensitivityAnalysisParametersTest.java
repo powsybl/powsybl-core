@@ -16,12 +16,12 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityComputationParametersTest {
+public class SensitivityAnalysisParametersTest {
     private static final String DUMMY_EXTENSION_NAME = "dummyExtension";
 
     @Test
     public void testExtensions() {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         DummyExtension dummyExtension = new DummyExtension();
         parameters.addExtension(DummyExtension.class, dummyExtension);
 
@@ -33,7 +33,7 @@ public class SensitivityComputationParametersTest {
 
     @Test
     public void testNoExtensions() {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
 
         assertEquals(0, parameters.getExtensions().size());
         assertFalse(parameters.getExtensions().contains(new DummyExtension()));
@@ -43,13 +43,13 @@ public class SensitivityComputationParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
-        SensitivityComputationParameters parameters = SensitivityComputationParameters.load();
+        SensitivityAnalysisParameters parameters = SensitivityAnalysisParameters.load();
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));
     }
 
-    private static class DummyExtension extends AbstractExtension<SensitivityComputationParameters> {
+    private static class DummyExtension extends AbstractExtension<SensitivityAnalysisParameters> {
 
         @Override
         public String getName() {
@@ -57,8 +57,8 @@ public class SensitivityComputationParametersTest {
         }
     }
 
-    @AutoService(SensitivityComputationParameters.ConfigLoader.class)
-    public static class DummyLoader implements SensitivityComputationParameters.ConfigLoader<DummyExtension> {
+    @AutoService(SensitivityAnalysisParameters.ConfigLoader.class)
+    public static class DummyLoader implements SensitivityAnalysisParameters.ConfigLoader<DummyExtension> {
 
         @Override
         public DummyExtension load(PlatformConfig platformConfig) {

@@ -18,12 +18,12 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import java.util.Objects;
 
 /**
- * Parameters for sensitivity computation.
+ * Parameters for sensitivity analysis.
  * Extensions may be added, for instance for implementation-specific parameters.
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationParameters extends AbstractExtendable<SensitivityComputationParameters> {
+public class SensitivityAnalysisParameters extends AbstractExtendable<SensitivityAnalysisParameters> {
 
     public static final String VERSION = "1.0";
 
@@ -31,7 +31,7 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
      * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
      * @param <E> The extension class
      */
-    public interface ConfigLoader<E extends Extension<SensitivityComputationParameters>> extends ExtensionConfigLoader<SensitivityComputationParameters, E> {
+    public interface ConfigLoader<E extends Extension<SensitivityAnalysisParameters>> extends ExtensionConfigLoader<SensitivityAnalysisParameters, E> {
     }
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -42,17 +42,17 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
     /**
      * Load parameters from platform default config.
      */
-    public static SensitivityComputationParameters load() {
+    public static SensitivityAnalysisParameters load() {
         return load(PlatformConfig.defaultConfig());
     }
 
     /**
      * Load parameters from a provided platform config.
      */
-    public static SensitivityComputationParameters load(PlatformConfig platformConfig) {
+    public static SensitivityAnalysisParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
@@ -70,7 +70,7 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
         return loadFlowParameters;
     }
 
-    public SensitivityComputationParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
+    public SensitivityAnalysisParameters setLoadFlowParameters(LoadFlowParameters loadFlowParameters) {
         this.loadFlowParameters = Objects.requireNonNull(loadFlowParameters);
         return this;
     }

@@ -6,14 +6,14 @@
  */
 package com.powsybl.sensitivity.converter;
 
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResults;
 
 import java.io.Writer;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public interface SensitivityComputationResultExporter {
+public interface SensitivityAnalysisResultExporter {
 
     /**
      * Get the format of this exporter
@@ -30,11 +30,11 @@ public interface SensitivityComputationResultExporter {
     String getComment();
 
     /**
-     * Export a result of a sensitivity computation
+     * Export a result of a sensitivity analysis
      *
-     * @param result The result of the sensitivity computation
+     * @param result The result of the sensitivity analysis
      * @param writer The writer used for the export
      */
-    void export(SensitivityComputationResults result, Writer writer);
+    void export(SensitivityAnalysisResults result, Writer writer);
 
 }

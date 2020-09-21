@@ -8,7 +8,7 @@ package com.powsybl.sensitivity.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResults;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
@@ -17,13 +17,12 @@ import java.io.Writer;
 import java.util.Locale;
 
 /**
- *
- * A SensitivityComputationResultExporter implementation which export the result in CSV
+ * A {@link SensitivityAnalysisResultExporter} implementation which export the result in CSV
  *
  * @author Agnes Leroy <agnes.leroy@rte-france.com>
  */
-@AutoService(SensitivityComputationResultExporter.class)
-public class CsvSensitivityComputationResultExporter implements SensitivityComputationResultExporter {
+@AutoService(SensitivityAnalysisResultExporter.class)
+public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysisResultExporter {
 
     private static final char CSV_SEPARATOR = ',';
 
@@ -49,7 +48,7 @@ public class CsvSensitivityComputationResultExporter implements SensitivityCompu
     }
 
     @Override
-    public void export(SensitivityComputationResults result, Writer writer) {
+    public void export(SensitivityAnalysisResults result, Writer writer) {
         TableFormatterFactory factory = new CsvTableFormatterFactory();
         TableFormatterConfig tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
         try (TableFormatter formatter = factory.create(writer, "", tfc,

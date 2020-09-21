@@ -7,20 +7,20 @@
 package com.powsybl.sensitivity.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.sensitivity.SensitivityComputationResults;
-import com.powsybl.sensitivity.json.SensitivityComputationResultJsonSerializer;
+import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.json.SensitivityAnalysisResultJsonSerializer;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 
 /**
- * A SensitivityComputationResultExporter implementation which export the result in JSON
+ * A {@link SensitivityAnalysisResultExporter} implementation which export the result in JSON
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-@AutoService(SensitivityComputationResultExporter.class)
-public class JsonSensitivityComputationResultExporter implements SensitivityComputationResultExporter {
+@AutoService(SensitivityAnalysisResultExporter.class)
+public class JsonSensitivityAnalysisResultExporter implements SensitivityAnalysisResultExporter {
 
     @Override
     public String getFormat() {
@@ -33,9 +33,9 @@ public class JsonSensitivityComputationResultExporter implements SensitivityComp
     }
 
     @Override
-    public void export(SensitivityComputationResults result, Writer writer) {
+    public void export(SensitivityAnalysisResults result, Writer writer) {
         try {
-            SensitivityComputationResultJsonSerializer.write(result, writer);
+            SensitivityAnalysisResultJsonSerializer.write(result, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -14,22 +14,22 @@ import static org.junit.Assert.assertNull;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationResultExportersTest {
+public class SensitivityAnalysisResultExportersTest {
 
     @Test
     public void testGetFormats() {
-        assertEquals("[CSV, JSON]", SensitivityComputationResultExporters.getFormats().toString());
+        assertEquals("[CSV, JSON]", SensitivityAnalysisResultExporters.getFormats().toString());
     }
 
     @Test
     public void testGetExporter() {
-        assertEquals("CSV", SensitivityComputationResultExporters.getExporter("CSV").getFormat());
-        assertEquals("JSON", SensitivityComputationResultExporters.getExporter("JSON").getFormat());
+        assertEquals("CSV", SensitivityAnalysisResultExporters.getExporter("CSV").getFormat());
+        assertEquals("JSON", SensitivityAnalysisResultExporters.getExporter("JSON").getFormat());
     }
 
     @Test
     public void testExporterForUnavailableFormat() {
-        SensitivityComputationResultExporter exporter = SensitivityComputationResultExporters.getExporter("Invalid");
+        SensitivityAnalysisResultExporter exporter = SensitivityAnalysisResultExporters.getExporter("Invalid");
         assertNull(exporter);
     }
 }

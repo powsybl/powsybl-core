@@ -11,32 +11,32 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.io.IOException;
 
 /**
- * Json serializer for sensitivity computation parameters
+ * Json serializer for sensitivity analysis parameters
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityComputationParametersSerializer extends StdSerializer<SensitivityComputationParameters> {
+public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
 
-    SensitivityComputationParametersSerializer() {
-        super(SensitivityComputationParameters.class);
+    SensitivityAnalysisParametersSerializer() {
+        super(SensitivityAnalysisParameters.class);
     }
 
     @Override
-    public void serialize(SensitivityComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(SensitivityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", SensitivityComputationParameters.VERSION);
+        jsonGenerator.writeStringField("version", SensitivityAnalysisParameters.VERSION);
 
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityComputationParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }

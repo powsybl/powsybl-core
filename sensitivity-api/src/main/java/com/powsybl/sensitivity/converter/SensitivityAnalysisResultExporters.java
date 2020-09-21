@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResults;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -21,11 +21,11 @@ import java.util.Objects;
 import java.util.ServiceLoader;
 
 /**
- * A utility class to work with sensitivity computation result exporters
+ * A utility class to work with sensitivity analysis result exporters
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public final class SensitivityComputationResultExporters {
+public final class SensitivityAnalysisResultExporters {
 
     /**
      * Get all supported formats.
@@ -34,7 +34,7 @@ public final class SensitivityComputationResultExporters {
      */
     public static Collection<String> getFormats() {
         List<String> formats = new ArrayList<>();
-        for (SensitivityComputationResultExporter e : ServiceLoader.load(SensitivityComputationResultExporter.class)) {
+        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class)) {
             formats.add(e.getFormat());
         }
         return formats;
@@ -47,9 +47,9 @@ public final class SensitivityComputationResultExporters {
      *
      * @return The exporter for the specified format or null if this format is not supported
      */
-    public static SensitivityComputationResultExporter getExporter(String format) {
+    public static SensitivityAnalysisResultExporter getExporter(String format) {
         Objects.requireNonNull(format);
-        for (SensitivityComputationResultExporter e : ServiceLoader.load(SensitivityComputationResultExporter.class)) {
+        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class)) {
             if (format.equals(e.getFormat())) {
                 return e;
             }
@@ -58,13 +58,13 @@ public final class SensitivityComputationResultExporters {
     }
 
     /**
-     * Export sensitivity computation results in specified format and output path
+     * Export sensitivity analysis results in specified format and output path
      *
      * @param result The results to be exported
      * @param path The export path
      * @param format The export format
      */
-    public static void export(SensitivityComputationResults result, Path path, String format) {
+    public static void export(SensitivityAnalysisResults result, Path path, String format) {
         Objects.requireNonNull(path);
 
         try (Writer writer = Files.newBufferedWriter(path)) {
@@ -75,14 +75,14 @@ public final class SensitivityComputationResultExporters {
     }
 
     /**
-     * Export sensitivity computation results in specified format and writer
+     * Export sensitivity analysis results in specified format and writer
      *
      * @param result The results to be exported
      * @param writer The export writer
      * @param format The export format
      */
-    public static void export(SensitivityComputationResults result, Writer writer, String format) {
-        SensitivityComputationResultExporter exporter = getExporter(format);
+    public static void export(SensitivityAnalysisResults result, Writer writer, String format) {
+        SensitivityAnalysisResultExporter exporter = getExporter(format);
         if (exporter == null) {
             throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
         }
@@ -90,6 +90,6 @@ public final class SensitivityComputationResultExporters {
         exporter.export(result, writer);
     }
 
-    private SensitivityComputationResultExporters() {
+    private SensitivityAnalysisResultExporters() {
     }
 }

@@ -13,17 +13,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Sensitivity computation results
+ * Sensitivity analysis results
  *
  * <p>
  *     Mainly composed of the lists of sensitivity values in N, and optionally in N-1
  * </p>
  *
- * A single sensitivity computation should return, besides its status and some stats on the
- * computation itself, all the sensitivity values for each factor (combination of a monitoredBranch and a specific
+ * A single sensitivity analysis should return, besides its status and some stats on the
+ * analysis itself, all the sensitivity values for each factor (combination of a monitoredBranch and a specific
  * equipment or group of equipments). The HADES2 sensitivity provider used with Powsybl offers the
  * possibility to calculate the sensitivity on a set of contingencies besides the N state.
- * The computation is launched only once, but the solver itself
+ * The analysis is launched only once, but the solver itself
  * modifies the matrix for each state of the network to output a full set of results.
  * In the sensitivity API, it has been allowed to provide a list of contingencies as an optional input,
  * which then triggers such a sensitivity analysis.
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @see SensitivityValue
  */
-public class SensitivityComputationResults {
+public class SensitivityAnalysisResults {
 
     private static final String VALUE_NOT_FOUND = "Sensitivity value not found for function %s and variable %s.";
     private static final String VALUE_NOT_FOUND_CONTINGENCY = "Sensitivity value not found for function %s and variable %s at contingencyId %s.";
@@ -56,20 +56,20 @@ public class SensitivityComputationResults {
     private final Map<String, List<SensitivityValue>> sensitivityValuesContingencies;
 
     /**
-     * Hades2 sensitivity computation results
+     * Hades2 sensitivity analysis results
      *
-     * @param ok true if the computation succeeded, false otherwise
-     * @param metrics map of metrics about the computation
-     * @param logs computation logs
-     * @param sensitivityValues result values of the senstivity computation in N
-     * @param sensitivityValuesContingencies result values of the senstivity computation on contingencies
+     * @param ok true if the analysis succeeded, false otherwise
+     * @param metrics map of metrics about the analysis
+     * @param logs analysis logs
+     * @param sensitivityValues result values of the sensitivity analysis in N
+     * @param sensitivityValuesContingencies result values of the sensitivity analysis on contingencies
      */
     @JsonCreator
-    public SensitivityComputationResults(@JsonProperty("ok") boolean ok,
-                                         @JsonProperty("metrics") Map<String, String> metrics,
-                                         @JsonProperty("logs") String logs,
-                                         @JsonProperty("values") List<SensitivityValue> sensitivityValues,
-                                         @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
+    public SensitivityAnalysisResults(@JsonProperty("ok") boolean ok,
+                                      @JsonProperty("metrics") Map<String, String> metrics,
+                                      @JsonProperty("logs") String logs,
+                                      @JsonProperty("values") List<SensitivityValue> sensitivityValues,
+                                      @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
         this.ok = ok;
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = Objects.requireNonNull(logs);
@@ -77,24 +77,24 @@ public class SensitivityComputationResults {
         this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
     }
 
-    public SensitivityComputationResults(boolean ok,
-                                         Map<String, String> metrics,
-                                         String logs,
-                                         List<SensitivityValue> sensitivityValues) {
+    public SensitivityAnalysisResults(boolean ok,
+                                      Map<String, String> metrics,
+                                      String logs,
+                                      List<SensitivityValue> sensitivityValues) {
         this(ok, metrics, logs, sensitivityValues, Collections.emptyMap());
     }
 
     /**
-     * Get the status of the sensitivity computation
+     * Get the status of the sensitivity analysis
      *
-     * @return true if the computation is ok, false otherwise
+     * @return true if the analysis is ok, false otherwise
      */
     public boolean isOk() {
         return ok;
     }
 
     /**
-     * Get some metrics about computation execution.
+     * Get some metrics about analysis execution.
      * Content may vary a lot depending of the implementation
      *
      * @return the metrics of the execution
@@ -104,9 +104,9 @@ public class SensitivityComputationResults {
     }
 
     /**
-     * Get computation logs.
+     * Get analysis logs.
      *
-     * @return the computation logs
+     * @return the analysis logs
      */
     public String getLogs() {
         return logs;
@@ -176,7 +176,7 @@ public class SensitivityComputationResults {
     /**
      * Get the status of the presence of contingencies
      *
-     * @return true if the computation contains contingencies, false otherwise
+     * @return true if the analysis contains contingencies, false otherwise
      */
     public boolean contingenciesArePresent() {
         return !sensitivityValuesContingencies.isEmpty();
@@ -249,7 +249,7 @@ public class SensitivityComputationResults {
                 .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId())));
     }
 
-    public static SensitivityComputationResults empty() {
-        return new SensitivityComputationResults(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
+    public static SensitivityAnalysisResults empty() {
+        return new SensitivityAnalysisResults(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
     }
 }

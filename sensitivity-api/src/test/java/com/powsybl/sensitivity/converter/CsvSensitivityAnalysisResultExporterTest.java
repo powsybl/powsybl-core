@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.sensitivity.SensitivityComputationResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResults;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.json.SensitivityFactorsJsonSerializer;
@@ -24,13 +24,13 @@ import static junit.framework.TestCase.assertEquals;
 /**
  * @author Agnes Leroy <agnes.leroy@rte-france.com>
  */
-public class CsvSensitivityComputationResultExporterTest extends AbstractConverterTest {
+public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterTest {
 
-    private static SensitivityComputationResults createSensitivityResult() {
+    private static SensitivityAnalysisResults createSensitivityResult() {
         // read sensitivity factors
         List<SensitivityFactor> factors = Collections.emptyList();
         try {
-            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityComputationResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
+            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -40,21 +40,21 @@ public class CsvSensitivityComputationResultExporterTest extends AbstractConvert
         });
         Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityComputationResults(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
+        return new SensitivityAnalysisResults(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
     }
 
-    public void writeCsv(SensitivityComputationResults results, Path path) {
-        SensitivityComputationResultExporters.export(results, path, "CSV");
+    public void writeCsv(SensitivityAnalysisResults results, Path path) {
+        SensitivityAnalysisResultExporters.export(results, path, "CSV");
     }
 
     @Test
     public void testWriteCsv() throws IOException {
-        SensitivityComputationResults result = createSensitivityResult();
+        SensitivityAnalysisResults result = createSensitivityResult();
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/sensitivity-results.csv");
     }
 
     @Test
     public void testComment() {
-        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityComputationResultExporters.getExporter("CSV").getComment());
+        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityAnalysisResultExporters.getExporter("CSV").getComment());
     }
 }

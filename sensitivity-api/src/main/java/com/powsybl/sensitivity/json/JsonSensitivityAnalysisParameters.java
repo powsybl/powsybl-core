@@ -18,7 +18,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,17 +29,17 @@ import java.nio.file.Path;
 import java.util.Objects;
 
 /**
- * Provides methods to read and write sensitivity computation parameters from and to JSON.
+ * Provides methods to read and write sensitivity analysis parameters from and to JSON.
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public final class JsonSensitivityComputationParameters {
+public final class JsonSensitivityAnalysisParameters {
 
     /**
-     * A configuration loader interface for the SensitivityComputationParameters extensions loaded from the platform configuration
+     * A configuration loader interface for the {@link SensitivityAnalysisParameters} extensions loaded from the platform configuration
      * @param <E> The extension class
      */
-    public interface ExtensionSerializer<E extends Extension<SensitivityComputationParameters>> extends ExtensionJsonSerializer<SensitivityComputationParameters, E> {
+    public interface ExtensionSerializer<E extends Extension<SensitivityAnalysisParameters>> extends ExtensionJsonSerializer<SensitivityAnalysisParameters, E> {
     }
 
     /**
@@ -58,21 +58,21 @@ public final class JsonSensitivityComputationParameters {
     /**
      * Reads parameters from a JSON file (will NOT rely on platform config).
      */
-    public static SensitivityComputationParameters read(Path jsonFile) {
-        return update(new SensitivityComputationParameters(), jsonFile);
+    public static SensitivityAnalysisParameters read(Path jsonFile) {
+        return update(new SensitivityAnalysisParameters(), jsonFile);
     }
 
     /**
      * Reads parameters from a JSON file (will NOT rely on platform config).
      */
-    public static SensitivityComputationParameters read(InputStream jsonStream) {
-        return update(new SensitivityComputationParameters(), jsonStream);
+    public static SensitivityAnalysisParameters read(InputStream jsonStream) {
+        return update(new SensitivityAnalysisParameters(), jsonStream);
     }
 
     /**
      * Updates parameters by reading the content of a JSON file.
      */
-    public static SensitivityComputationParameters update(SensitivityComputationParameters parameters, Path jsonFile) {
+    public static SensitivityAnalysisParameters update(SensitivityAnalysisParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -85,7 +85,7 @@ public final class JsonSensitivityComputationParameters {
     /**
      * Updates parameters by reading the content of a JSON stream.
      */
-    public static SensitivityComputationParameters update(SensitivityComputationParameters parameters, InputStream jsonStream) {
+    public static SensitivityAnalysisParameters update(SensitivityAnalysisParameters parameters, InputStream jsonStream) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(jsonStream);
 
@@ -100,7 +100,7 @@ public final class JsonSensitivityComputationParameters {
     /**
      * Writes parameters as JSON to a file.
      */
-    public static void write(SensitivityComputationParameters parameters, Path jsonFile) {
+    public static void write(SensitivityAnalysisParameters parameters, Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream outputStream = Files.newOutputStream(jsonFile)) {
@@ -113,7 +113,7 @@ public final class JsonSensitivityComputationParameters {
     /**
      * Writes parameters as JSON to an output stream.
      */
-    public static void write(SensitivityComputationParameters parameters, OutputStream outputStream) {
+    public static void write(SensitivityAnalysisParameters parameters, OutputStream outputStream) {
         Objects.requireNonNull(parameters);
         Objects.requireNonNull(outputStream);
 
@@ -127,31 +127,31 @@ public final class JsonSensitivityComputationParameters {
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for reading sensitivity computation parameters nested in another object.
+     *  Low level deserialization method, to be used for instance for reading sensitivity analysis parameters nested in another object.
      */
-    public static SensitivityComputationParameters deserialize(JsonParser parser, DeserializationContext context, SensitivityComputationParameters parameters) throws IOException {
-        return new SensitivityComputationParametersDeserializer().deserialize(parser, context, parameters);
+    public static SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SensitivityAnalysisParameters parameters) throws IOException {
+        return new SensitivityAnalysisParametersDeserializer().deserialize(parser, context, parameters);
     }
 
     /**
-     *  Low level deserialization method, to be used for instance for updating sensitivity computation parameters nested in another object.
+     *  Low level deserialization method, to be used for instance for updating sensitivity analysis parameters nested in another object.
      */
-    public static SensitivityComputationParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return new SensitivityComputationParametersDeserializer().deserialize(parser, context);
+    public static SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
+        return new SensitivityAnalysisParametersDeserializer().deserialize(parser, context);
     }
 
     /**
-     *  Low level serialization method, to be used for instance for writing sensitivity computation parameters nested in another object.
+     *  Low level serialization method, to be used for instance for writing sensitivity analysis parameters nested in another object.
      */
-    public static void serialize(SensitivityComputationParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
-        new SensitivityComputationParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
+    public static void serialize(SensitivityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
+        new SensitivityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new SensitivityComputationParametersJsonModule());
+                .registerModule(new SensitivityAnalysisParametersJsonModule());
     }
 
-    private JsonSensitivityComputationParameters() {
+    private JsonSensitivityAnalysisParameters() {
     }
 }

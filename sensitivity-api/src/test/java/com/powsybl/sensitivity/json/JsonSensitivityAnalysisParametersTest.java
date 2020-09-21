@@ -17,7 +17,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,33 +27,33 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class JsonSensitivityComputationParametersTest extends AbstractConverterTest {
+public class JsonSensitivityAnalysisParametersTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
-        roundTripTest(parameters, JsonSensitivityComputationParameters::write, JsonSensitivityComputationParameters::read, "/SensitivityComputationParameters.json");
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
+        roundTripTest(parameters, JsonSensitivityAnalysisParameters::write, JsonSensitivityAnalysisParameters::read, "/SensitivityAnalysisParameters.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.addExtension(DummyExtension.class, new DummyExtension());
-        writeTest(parameters, JsonSensitivityComputationParameters::write, AbstractConverterTest::compareTxt, "/SensitivityComputationParametersWithExtension.json");
+        writeTest(parameters, JsonSensitivityAnalysisParameters::write, AbstractConverterTest::compareTxt, "/SensitivityAnalysisParametersWithExtension.json");
     }
 
     @Test
     public void updateLoadFlowParameters() {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         parameters.getLoadFlowParameters().setTwtSplitShuntAdmittance(true);
-        JsonSensitivityComputationParameters.update(parameters, getClass().getResourceAsStream("/SensitivityComputationParametersIncomplete.json"));
+        JsonSensitivityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SensitivityAnalysisParametersIncomplete.json"));
 
         assertTrue(parameters.getLoadFlowParameters().isTwtSplitShuntAdmittance());
     }
 
     @Test
     public void readExtension() {
-        SensitivityComputationParameters parameters = JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersWithExtension.json"));
+        SensitivityAnalysisParameters parameters = JsonSensitivityAnalysisParameters.read(getClass().getResourceAsStream("/SensitivityAnalysisParametersWithExtension.json"));
         assertEquals(1, parameters.getExtensions().size());
         assertNotNull(parameters.getExtension(DummyExtension.class));
         assertNotNull(parameters.getExtensionByName("dummy-extension"));
@@ -61,14 +61,14 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
 
     @Test
     public void updateExtensions() {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         DummyExtension extension = new DummyExtension();
         extension.setParameterBoolean(false);
         extension.setParameterString("test");
         extension.setParameterDouble(2.8);
         DummyExtension oldExtension = new DummyExtension(extension);
         parameters.addExtension(DummyExtension.class, extension);
-        JsonSensitivityComputationParameters.update(parameters, getClass().getResourceAsStream("/SensitivityComputationParametersExtensionUpdate.json"));
+        JsonSensitivityAnalysisParameters.update(parameters, getClass().getResourceAsStream("/SensitivityAnalysisParametersExtensionUpdate.json"));
         DummyExtension updatedExtension = parameters.getExtension(DummyExtension.class);
         assertEquals(oldExtension.isParameterBoolean(), updatedExtension.isParameterBoolean());
         assertEquals(oldExtension.getParameterDouble(), updatedExtension.getParameterDouble(), 0.01);
@@ -79,10 +79,10 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
     public void readError() {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: unexpected");
-        JsonSensitivityComputationParameters.read(getClass().getResourceAsStream("/SensitivityComputationParametersInvalid.json"));
+        JsonSensitivityAnalysisParameters.read(getClass().getResourceAsStream("/SensitivityAnalysisParametersInvalid.json"));
     }
 
-    static class DummyExtension extends AbstractExtension<SensitivityComputationParameters> {
+    static class DummyExtension extends AbstractExtension<SensitivityAnalysisParameters> {
         public double parameterDouble;
         public boolean parameterBoolean;
         public String parameterString;
@@ -127,15 +127,15 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
         }
     }
 
-    @AutoService(JsonSensitivityComputationParameters.ExtensionSerializer.class)
-    public static class DummySerializer implements JsonSensitivityComputationParameters.ExtensionSerializer<DummyExtension> {
+    @AutoService(JsonSensitivityAnalysisParameters.ExtensionSerializer.class)
+    public static class DummySerializer implements JsonSensitivityAnalysisParameters.ExtensionSerializer<DummyExtension> {
         private interface SerializationSpec {
 
             @JsonIgnore
             String getName();
 
             @JsonIgnore
-            SensitivityComputationParameters getExtendable();
+            SensitivityAnalysisParameters getExtendable();
         }
 
         private static ObjectMapper createMapper() {

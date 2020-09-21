@@ -17,11 +17,11 @@ import java.util.Collections;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class SensitivityComputationToolTest extends AbstractToolTest {
+public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
-    private static final String COMMAND_NAME = "sensitivity-computation";
+    private static final String COMMAND_NAME = "sensitivity-analysis";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool();
+    private final SensitivityAnalysisTool tool = new SensitivityAnalysisTool();
 
     @Override
     @Before

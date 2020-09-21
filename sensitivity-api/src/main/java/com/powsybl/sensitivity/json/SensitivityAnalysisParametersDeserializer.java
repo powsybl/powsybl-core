@@ -13,32 +13,32 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.powsybl.sensitivity.SensitivityComputationParameters;
+import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Json deserializer for sensitivity computation parameters
+ * Json deserializer for sensitivity analysis parameters
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityComputationParametersDeserializer extends StdDeserializer<SensitivityComputationParameters> {
+public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
 
-    SensitivityComputationParametersDeserializer() {
-        super(SensitivityComputationParameters.class);
+    SensitivityAnalysisParametersDeserializer() {
+        super(SensitivityAnalysisParameters.class);
     }
 
     @Override
-    public SensitivityComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        return deserialize(parser, deserializationContext, new SensitivityComputationParameters());
+    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
+        return deserialize(parser, deserializationContext, new SensitivityAnalysisParameters());
     }
 
     @Override
-    public SensitivityComputationParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityComputationParameters parameters) throws IOException {
+    public SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext deserializationContext, SensitivityAnalysisParameters parameters) throws IOException {
 
-        List<Extension<SensitivityComputationParameters>> extensions = Collections.emptyList();
+        List<Extension<SensitivityAnalysisParameters>> extensions = Collections.emptyList();
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
 
@@ -53,7 +53,7 @@ public class SensitivityComputationParametersDeserializer extends StdDeserialize
 
                 case "extensions":
                     parser.nextToken();
-                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityComputationParameters.getExtensionSerializers(), parameters);
+                    extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonSensitivityAnalysisParameters.getExtensionSerializers(), parameters);
                     break;
 
                 default:
@@ -61,7 +61,7 @@ public class SensitivityComputationParametersDeserializer extends StdDeserialize
             }
         }
 
-        JsonSensitivityComputationParameters.getExtensionSerializers().addExtensions(parameters, extensions);
+        JsonSensitivityAnalysisParameters.getExtensionSerializers().addExtensions(parameters, extensions);
 
         return parameters;
     }

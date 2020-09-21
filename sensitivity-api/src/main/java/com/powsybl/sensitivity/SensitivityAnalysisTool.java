@@ -15,9 +15,9 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.sensitivity.converter.CsvSensitivityComputationResultExporter;
-import com.powsybl.sensitivity.converter.SensitivityComputationResultExporters;
-import com.powsybl.sensitivity.json.JsonSensitivityComputationParameters;
+import com.powsybl.sensitivity.converter.CsvSensitivityAnalysisResultExporter;
+import com.powsybl.sensitivity.converter.SensitivityAnalysisResultExporters;
+import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -37,7 +37,7 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class SensitivityComputationTool implements Tool {
+public class SensitivityAnalysisTool implements Tool {
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
@@ -51,7 +51,7 @@ public class SensitivityComputationTool implements Tool {
         return new Command() {
             @Override
             public String getName() {
-                return "sensitivity-computation";
+                return "sensitivity-analysis";
             }
 
             @Override
@@ -61,7 +61,7 @@ public class SensitivityComputationTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "Run sensitivity computation";
+                return "Run sensitivity analysis";
             }
 
             @Override
@@ -85,17 +85,17 @@ public class SensitivityComputationTool implements Tool {
                         .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                        .desc("sensitivity computation results output path")
+                        .desc("sensitivity analysis results output path")
                         .hasArg()
                         .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
-                        .desc("the output format " + SensitivityComputationResultExporters.getFormats())
+                        .desc("the output format " + SensitivityAnalysisResultExporters.getFormats())
                         .hasArg()
                         .argName("FORMAT")
                         .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
-                        .desc("sensivity computation parameters as JSON file")
+                        .desc("sensitivity analysis parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
                         .build());
@@ -136,22 +136,22 @@ public class SensitivityComputationTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
-        SensitivityComputationParameters params = SensitivityComputationParameters.load();
+        SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();
 
         if (line.hasOption(PARAMETERS_FILE)) {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonSensitivityComputationParameters.update(params, parametersFile);
+            JsonSensitivityAnalysisParameters.update(params, parametersFile);
         }
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
-        SensitivityComputationResults result;
+        SensitivityAnalysisResults result;
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
             ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
-            result = SensitivityComputation.find().run(network, factorsProvider, contingenciesProvider, params);
+            result = SensitivityAnalysis.find().run(network, factorsProvider, contingenciesProvider, params);
         } else {
-            result = SensitivityComputation.find().run(network, factorsProvider, params);
+            result = SensitivityAnalysis.find().run(network, factorsProvider, params);
         }
 
         if (!result.isOk()) {
@@ -159,11 +159,11 @@ public class SensitivityComputationTool implements Tool {
         } else {
             if (outputFile != null) {
                 context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SensitivityComputationResultExporters.export(result, outputFile, format);
+                SensitivityAnalysisResultExporters.export(result, outputFile, format);
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream());
-                new CsvSensitivityComputationResultExporter().export(result, writer);
+                new CsvSensitivityAnalysisResultExporter().export(result, writer);
             }
         }
     }
