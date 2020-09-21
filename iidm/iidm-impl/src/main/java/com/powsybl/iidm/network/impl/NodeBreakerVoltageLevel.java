@@ -926,6 +926,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         graph.setVertexObject(node, null);
 
+        invalidateCache();
+
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
         clean();
@@ -1146,6 +1148,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         for (int n = 0; n < graph.getVertexCount(); n++) {
+            if (!graph.vertexExists(n)) {
+                continue;
+            }
             Bus bus = getCalculatedBusBreakerTopology().getBus(n);
             String label = "" + n;
             TerminalExt terminal = graph.getVertexObject(n);
