@@ -116,13 +116,36 @@ public final class StateVariablesExport {
     }
 
     private static void writeTopologicalIslands(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        Map<String, List<String>> islands = new HashMap<>();
-        Map<String, String> angleRefs = new HashMap<>();
         if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
             // TODO we need to export SV file data for NodeBraker
             LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
             return;
         }
+        Map<String, String> angleRefs = buildAngleRefs(network);
+        Map<String, List<String>> islands = buildIslands(network);
+        for (Map.Entry<String, List<String>> island : islands.entrySet()) {
+            if (!angleRefs.containsKey(island.getKey())) {
+                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
+                LOG.info(log.get());
+                continue;
+            }
+            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.TOPOLOGICAL_ISLAND);
+            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
+            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.NAME);
+            writer.writeCharacters(getUniqueId()); // TODO do we need another name?
+            writer.writeEndElement();
+            writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.get(island.getKey()));
+            for (String tn : island.getValue()) {
+                writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
+            }
+            writer.writeEndElement();
+        }
+    }
+
+    private static Map<String, String> buildAngleRefs(Network network) {
+        Map<String, String> angleRefs = new HashMap<>();
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
             if (slackTerminal != null && slackTerminal.getTerminal() != null) {
@@ -144,6 +167,11 @@ public final class StateVariablesExport {
                 }
             }
         }
+        return angleRefs;
+    }
+
+    private static Map<String, List<String>> buildIslands(Network network) {
+        Map<String, List<String>> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
@@ -153,26 +181,7 @@ public final class StateVariablesExport {
                 islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
         }
-
-        for (Map.Entry<String, List<String>> island : islands.entrySet()) {
-            if (!angleRefs.containsKey(island.getKey())) {
-                Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
-                LOG.info(log.get());
-                continue;
-            }
-            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.TOPOLOGICAL_ISLAND);
-            writer.writeAttribute(RDF_NAMESPACE, ID, getUniqueId());
-            writer.writeStartElement(CIM_NAMESPACE, CgmesNames.NAME);
-            writer.writeCharacters(getUniqueId()); // TODO do we need another name?
-            writer.writeEndElement();
-            writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.AngleRefTopologicalNode");
-            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + angleRefs.get(island.getKey()));
-            for (String tn : island.getValue()) {
-                writer.writeEmptyElement(CIM_NAMESPACE, "TopologicalIsland.TopologicalNodes");
-                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + tn);
-            }
-            writer.writeEndElement();
-        }
+        return islands;
     }
 
     private static void writeVoltagesForTopologicalNodes(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
