@@ -235,13 +235,8 @@ public final class StateVariablesExport {
         writeInjectionPowerFlowToCgmes(network, writer, Network::getStaticVarCompensatorStream);
         writeInjectionPowerFlowToCgmes(network, writer, Network::getBatteryStream);
 
-        for (DanglingLine dl : network.getDanglingLines()) {
-            String boundarySideStr = dl.getProperty("boundarySide"); // TODO replace by CgmesBoundarySide extension
-            if (boundarySideStr != null) {
-                dl.getAliasFromType(CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + boundarySideStr)
-                        .ifPresent(terminal -> writePowerFlow(terminal, dl.getP0(), dl.getQ0(), writer));
-            }
-        }
+        network.getDanglingLineStream().forEach(dl -> dl.getAliasFromType(CGMES_PREFIX_ALIAS + "Terminal_Boundary")
+                .ifPresent(terminal -> writePowerFlow(terminal, dl.getP0(), dl.getQ0(), writer)));
         // TODO what about flows of dl's generations?
     }
 
