@@ -42,7 +42,7 @@ public class CgmesExportContext {
         CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
         if (svMetadata != null) {
             svDescription = svMetadata.getDescription();
-            svVersion = svMetadata.getSvVersion();
+            svVersion = svMetadata.getSvVersion() + 1;
             dependencies.addAll(svMetadata.getDependencies());
             modelingAuthoritySet = svMetadata.getModelingAuthoritySet();
         }

@@ -91,7 +91,7 @@ public final class StateVariablesExport {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(context.getScenarioTime().toString());
+        writer.writeCharacters(context.getScenarioTime().toString("yyyy-MM-dd'T'HH:mm:ss"));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(DateTime.now().toString());
@@ -100,7 +100,7 @@ public final class StateVariablesExport {
         writer.writeCharacters(context.getSvDescription());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(is(context.getSvVersion() + 1));
+        writer.writeCharacters(is(context.getSvVersion()));
         writer.writeEndElement();
         for (String dependency : context.getDependencies()) {
             writer.writeEmptyElement(MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
