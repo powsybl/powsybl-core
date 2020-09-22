@@ -275,8 +275,21 @@ public final class StateVariablesExport {
     }
 
     private static void writeSvInjection(Load svInjection, XMLStreamWriter writer) {
-        // TODO write SV injections
-        LOG.error("No SvPowerFlow created for load {}", svInjection.getId());
+        try {
+            writer.writeStartElement(CIM_NAMESPACE, "SvInjection");
+            writer.writeAttribute(RDF_NAMESPACE, ID, svInjection.getId());
+            writer.writeStartElement(CIM_NAMESPACE, "SvInjection.pInjection");
+            writer.writeCharacters(String.valueOf(svInjection.getP0()));
+            writer.writeEndElement();
+            writer.writeStartElement(CIM_NAMESPACE, "SvInjection.qInjection");
+            writer.writeCharacters(String.valueOf(svInjection.getQ0()));
+            writer.writeEndElement();
+            writer.writeEmptyElement(CIM_NAMESPACE, "SvInjection.TopologicalNode");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + svInjection.getTerminal().getBusBreakerView().getBus().getId());
+            writer.writeEndElement();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     private static void writeShuntCompensatorSections(Network network, XMLStreamWriter writer) throws XMLStreamException {
