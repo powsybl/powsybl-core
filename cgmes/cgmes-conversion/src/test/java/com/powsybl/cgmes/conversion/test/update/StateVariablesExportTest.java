@@ -16,6 +16,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.junit.Test;
@@ -80,7 +81,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
 
         // Import original
-        Network expected = new CgmesImport().importData(dataSource, properties);
+        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export SV
         Path test = tmpDir.resolve("test");
