@@ -180,7 +180,7 @@ public class StateVariablesAdder {
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : network.getShuntCompensators()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
-            p.put("continuousSections", is(s.getSectionCount()));
+            p.put("sections", is(s.getSectionCount()));
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
@@ -414,7 +414,7 @@ public class StateVariablesAdder {
         CgmesNames.TOPOLOGICAL_NODE);
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
-        "continuousSections");
+        "sections");
     private static final List<String> SV_SVSTATUS_PROPERTIES = Arrays.asList(IN_SERVICE,
         CgmesNames.CONDUCTING_EQUIPMENT);
     private static final List<String> SV_FULLMODEL_PROPERTIES = Arrays.asList(CgmesNames.SCENARIO_TIME,
