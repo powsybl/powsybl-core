@@ -18,7 +18,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, MultiVariantObject {
+class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
@@ -175,6 +175,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+
         convertersMode.ensureCapacity(convertersMode.size() + number);
         convertersMode.fill(initVariantArraySize, initVariantArraySize + number, convertersMode.get(sourceIndex));
 
@@ -184,16 +186,21 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+
         activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+
         for (int index : indexes) {
             convertersMode.set(index, convertersMode.get(sourceIndex));
             activePowerSetpoint.set(index, activePowerSetpoint.get(sourceIndex));
