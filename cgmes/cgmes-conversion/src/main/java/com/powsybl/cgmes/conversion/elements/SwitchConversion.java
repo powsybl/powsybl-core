@@ -7,15 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesContainer;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.function.Supplier;
@@ -82,21 +79,24 @@ public class SwitchConversion extends AbstractConnectorConversion {
             boolean branchIsClosed = !open;
             connect(adder, terminalConnected(1), terminalConnected(2), branchIsClosed);
             Line line = adder.add();
+            addAliases(line);
             convertedTerminals(line.getTerminal1(), line.getTerminal2());
         } else {
+            Switch s;
             if (context.nodeBreaker()) {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
                 identify(adder);
                 connect(adder, open);
-                adder.add();
+                s = adder.add();
             } else {
                 VoltageLevel.BusBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getBusBreakerView().newSwitch();
                 identify(adder);
                 connect(adder, open);
-                adder.add();
+                s = adder.add();
             }
+            addAliases(s);
         }
     }
 

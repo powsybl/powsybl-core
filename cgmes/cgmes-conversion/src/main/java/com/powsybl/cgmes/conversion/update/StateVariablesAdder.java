@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
@@ -27,7 +28,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
@@ -165,13 +165,11 @@ public class StateVariablesAdder {
     private <I extends Injection> void addInjectionPowerFlowToCgmes(PropertyBags powerFlows,
         Iterable<I> injectionStream) {
         injectionStream.forEach(i -> {
-            int sequenceNumber = 1;
-            PropertyBag p = createPowerFlowProperties(i.getTerminal(), sequenceNumber);
+            PropertyBag p = createPowerFlowProperties(i.getTerminal());
             if (p != null) {
                 powerFlows.add(p);
-            } else if (i instanceof Load) {
-                // FIXME CGMES SvInjection objects created as loads
-                LOG.error("No SvPowerFlow created for load {}", i.getId());
+            } else {
+                LOG.error("No SvPowerFlow created for {}", i.getId());
             }
         });
     }
@@ -197,28 +195,30 @@ public class StateVariablesAdder {
             // then we would not need to query the CGMES model
             if (hasPhaseTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getPhaseTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerListForPowerTransformer(t.getId()).stream().filter(Objects::nonNull).findFirst().orElseThrow(() -> new PowsyblException("Missing CGMES ptc")));
                 tapSteps.add(p);
             } else if (hasRatioTapChanger(t)) {
                 p.put(tapChangerPositionName, is(t.getRatioTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerListForPowerTransformer(t.getId()).stream().filter(Objects::nonNull).findFirst().orElseThrow(() -> new PowsyblException("Missing CGMES rtc")));
                 tapSteps.add(p);
             }
         }
 
         for (ThreeWindingsTransformer t : network.getThreeWindingsTransformers()) {
             PropertyBag p = new PropertyBag(svTapStepProperties);
-            Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3()).forEach(leg -> {
+            int legNum = 0;
+            for (Leg leg : Arrays.asList(t.getLeg1(), t.getLeg2(), t.getLeg3())) {
                 if (hasPhaseTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getPhaseTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerListForPowerTransformer(t.getId()).get(legNum));
                     tapSteps.add(p);
                 } else if (hasRatioTapChanger(leg)) {
                     p.put(tapChangerPositionName, is(leg.getRatioTapChanger().getTapPosition()));
-                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
+                    p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerListForPowerTransformer(t.getId()).get(legNum));
                     tapSteps.add(p);
                 }
-            });
+                legNum++;
+            }
         }
 
         cgmes.add(originalSVcontext, "SvTapStep", tapSteps);
@@ -311,10 +311,8 @@ public class StateVariablesAdder {
         }
     }
 
-    private PropertyBag createPowerFlowProperties(Terminal terminal, int sequenceNumber) {
-        // TODO If we could store a terminal identifier in IIDM
-        // we would not need to obtain it querying CGMES for the related equipment
-        String cgmesTerminal = cgmes.terminalForEquipment(terminal.getConnectable().getId(), sequenceNumber);
+    private PropertyBag createPowerFlowProperties(Terminal terminal) {
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType("CGMES." + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal == null) {
             return null;
         }
