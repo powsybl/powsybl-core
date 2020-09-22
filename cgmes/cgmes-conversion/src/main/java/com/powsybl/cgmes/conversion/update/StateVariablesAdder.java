@@ -425,7 +425,7 @@ public class StateVariablesAdder {
     }
 
     private PropertyBag buildSvPowerFlow(Terminal terminal, int sequenceNumber) {
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(CgmesNames.TERMINAL1).orElse(null);
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType("CGMES." + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal == null) {
             return null;
         }

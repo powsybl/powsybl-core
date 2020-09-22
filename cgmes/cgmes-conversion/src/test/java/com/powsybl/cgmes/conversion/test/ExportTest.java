@@ -83,6 +83,7 @@ public class ExportTest {
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
+    @Ignore("FIXME(Luma) pending review")
     @Test
     public void testExportAlternativesBusBranchMicro() throws IOException {
         DifferenceEvaluator knownDiffs =

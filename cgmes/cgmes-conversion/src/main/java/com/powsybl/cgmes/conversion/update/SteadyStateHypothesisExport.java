@@ -108,7 +108,7 @@ public final class SteadyStateHypothesisExport {
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
-            dl.getAliasFromType("EquivalentInjectionTerminal").ifPresent(tid -> {
+            dl.getAliasFromType("CGMES.EquivalentInjectionTerminal").ifPresent(tid -> {
                 writeTerminal(tid, true, writer);
             });
             // Terminal for boundary side of original line/switch is always connected
@@ -457,7 +457,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeEquivalentInjection(DanglingLine dl, XMLStreamWriter writer) throws XMLStreamException {
-        Optional<String> ei = dl.getAliasFromType("EquivalentInjection");
+        Optional<String> ei = dl.getAliasFromType("CGMES.EquivalentInjection");
         if (ei.isPresent()) {
             writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection");
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + ei.get());
