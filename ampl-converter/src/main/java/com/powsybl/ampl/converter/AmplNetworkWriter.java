@@ -1420,9 +1420,6 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
-/*                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-                    throw new PowsyblException("Non linear shunt compensator not yet supported");
-                }*/
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -1450,16 +1447,15 @@ public class AmplNetworkWriter {
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
                 double b2;
-                int points;
+                int points = 0;
                 int sectionCount = 1;
                 if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+                    // TODO non linear shunt has to be converted as multiple sections shunt.
                     if (sc.getSectionCount() > 1) {
                         b1 = sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections().get(sc.getSectionCount() - 1).getB() * zb;
                     }
                     b2 = sc.getB() * zb;
-                    points = 0;
                 } else {
-                    b1 = 0;
                     b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
                     points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                     sectionCount = sc.getSectionCount();

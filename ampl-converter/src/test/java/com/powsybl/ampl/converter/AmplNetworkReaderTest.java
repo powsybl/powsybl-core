@@ -56,10 +56,20 @@ public class AmplNetworkReaderTest {
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("3wt",
                 new ResourceSet("/outputs/",
-                        "3wt_branches.txt"));
+                        "3wt_branches.txt", "3wt_rtc.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
+
         testThreeWindingTransBranches(network, reader);
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
+        RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+        assertEquals(2, rtc2.getTapPosition());
+        assertEquals(0, rtc3.getTapPosition());
+        reader.readRatioTapChangers();
+        assertEquals(2, rtc2.getTapPosition());
+        assertEquals(0, rtc3.getTapPosition());
     }
 
     @Test

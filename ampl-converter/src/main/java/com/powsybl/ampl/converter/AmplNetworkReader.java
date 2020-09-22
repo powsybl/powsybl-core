@@ -213,17 +213,26 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-            if (twt == null) {
-                throw new AmplException("Invalid three windings transformer id '" + id + "'");
-            }
+            ThreeWindingsTransformer twt;
             if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
+                if (twt == null) {
+                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
+                }
                 RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
                 rtc1.setTapPosition(rtc1.getLowTapPosition() + tap - 1);
             } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
+                if (twt == null) {
+                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
+                }
                 RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
                 rtc2.setTapPosition(rtc2.getLowTapPosition() + tap - 1);
             } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
+                if (twt == null) {
+                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
+                }
                 RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
                 rtc3.setTapPosition(rtc3.getLowTapPosition() + tap - 1);
             }
@@ -296,10 +305,13 @@ public class AmplNetworkReader {
         }
 
         if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-            // nothing.
+            // as non linear shunt are considered as one section shunt for the moment
+            // we update nothing except if the sections is equal to zero. It seems that the
+            // optimizer has decided to disconnect the shunt.
+            // TODO improve non linear shunt update.
             if (sections == 0) {
                 sc.setSectionCount(sections);
-            } // else nothing.
+            }
         } else {
             sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         }
