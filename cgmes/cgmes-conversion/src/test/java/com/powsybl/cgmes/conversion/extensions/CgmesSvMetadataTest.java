@@ -9,7 +9,9 @@ package com.powsybl.cgmes.conversion.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -19,6 +21,9 @@ import static org.junit.Assert.assertTrue;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesSvMetadataTest {
+
+    @Rule
+    public final ExpectedException expected = ExpectedException.none();
 
     @Test
     public void test() {
@@ -42,8 +47,10 @@ public class CgmesSvMetadataTest {
         assertTrue(extension.getDependencies().contains("http://dependency2"));
     }
 
-    @Test(expected = PowsyblException.class)
+    @Test
     public void invalid() {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("cgmesSvMetadata.scenarioTime is undefined");
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesSvMetadataAdder.class)
                 .add();
