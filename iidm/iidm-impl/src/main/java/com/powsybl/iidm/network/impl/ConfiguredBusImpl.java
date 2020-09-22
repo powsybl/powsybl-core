@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVariantObject {
+class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     private final Ref<NetworkImpl> network;
 
@@ -158,6 +158,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+
         terminals.ensureCapacity(terminals.size() + number);
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
@@ -174,6 +176,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+
         for (int i = 0; i < number; i++) {
             terminals.remove(terminals.size() - 1);
         }
@@ -185,11 +189,15 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+
         terminals.set(index, null);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+
         for (int index : indexes) {
             terminals.set(index, new ArrayList<>(terminals.get(sourceIndex)));
             v.set(index, v.get(sourceIndex));

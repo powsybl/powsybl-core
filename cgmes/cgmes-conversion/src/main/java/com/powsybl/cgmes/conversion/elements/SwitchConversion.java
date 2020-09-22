@@ -7,12 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -69,19 +68,21 @@ public class SwitchConversion extends AbstractConnectorConversion {
     private void convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
+        Switch s;
         if (context.nodeBreaker()) {
             VoltageLevel.NodeBreakerView.SwitchAdder adder;
             adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
-            adder.add();
+            s = adder.add();
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder;
             adder = voltageLevel().getBusBreakerView().newSwitch();
             identify(adder);
             connect(adder, open);
-            adder.add();
+            s = adder.add();
         }
+        addAliases(s);
     }
 
     private SwitchKind kind() {
