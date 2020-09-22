@@ -1448,12 +1448,14 @@ public class AmplNetworkWriter {
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
-                double b1;
+                double b1 = 0;
                 double b2;
                 int points;
                 int sectionCount = 1;
                 if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-                    b1 = sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections().get(sc.getSectionCount() - 1).getB() * zb;
+                    if (sc.getSectionCount() > 1) {
+                        b1 = sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections().get(sc.getSectionCount() - 1).getB() * zb;
+                    }
                     b2 = sc.getB() * zb;
                     points = 0;
                 } else {
