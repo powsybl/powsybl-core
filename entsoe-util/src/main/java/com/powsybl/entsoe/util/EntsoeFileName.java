@@ -77,7 +77,11 @@ public class EntsoeFileName {
     }
 
     public String getCountry() {
-        return geographicalCode != null ? geographicalCode.getCountry().toString() : null;
+        if (geographicalCode != null) {
+            return this.geographicalCode.getCountry() != null ? this.geographicalCode.getCountry().toString() : null;
+        } else {
+            return null;
+        }
     }
 
 }
