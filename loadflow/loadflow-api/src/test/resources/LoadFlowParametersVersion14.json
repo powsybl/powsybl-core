@@ -9,5 +9,7 @@
   "readSlackBus" : true,
   "writeSlackBus" : true,
   "voltageRemoteControl" : true,
-  "dc" : true
+  "dc" : true,
+  "distributedSlack" : true,
+  "balanceType" : "PROPORTIONAL_TO_LOAD"
 }

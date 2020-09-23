@@ -11,7 +11,9 @@
     "readSlackBus" : false,
     "writeSlackBus" : false,
     "voltageRemoteControl" : false,
-    "dc" : false
+    "dc" : false,
+    "distributedSlack" : false,
+    "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
   },
   "extensions" : {
     "dummy-extension" : { }
