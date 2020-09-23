@@ -28,7 +28,7 @@ public class CgmesExportContext {
     private DateTime scenarioTime = DateTime.now();
 
     private String svDescription = "SV Model";
-    private int svVersion = 0;
+    private int svVersion = 1;
     private final List<String> dependencies = new ArrayList<>();
     private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
 
