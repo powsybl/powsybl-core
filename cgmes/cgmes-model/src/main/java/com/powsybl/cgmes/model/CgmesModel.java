@@ -15,8 +15,7 @@ import org.joda.time.DateTime;
 
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -178,14 +177,38 @@ public interface CgmesModel {
 
     // Helper mappings
 
-    // TODO If we could store identifiers for tap changers and terminals in IIDM
-    // then we would not need to query back the CGMES model for these mappings
+    /**
+     * @deprecated Not used anymore. To get the CGMES Terminal ID of an equipment, use alias i.e.
+     * {@code equipement.getAlias("CGMES.Terminal1")}
+     */
+    @Deprecated
+    default String terminalForEquipment(String conductingEquipmentId, int sequenceNumber) {
+        return null;
+    }
 
-    String terminalForEquipment(String conductingEquipmentId, int sequenceNumber);
+    /**
+     * @deprecated Use {@link #ratioTapChangerListForPowerTransformer(String)} instead.
+     */
+    @Deprecated
+    default String ratioTapChangerForPowerTransformer(String powerTransformerId) {
+        return ratioTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
+    }
 
-    String ratioTapChangerForPowerTransformer(String powerTransformerId);
+    /**
+     * @deprecated Use {@link #phaseTapChangerListForPowerTransformer(String)} instead.
+     */
+    @Deprecated
+    default String phaseTapChangerForPowerTransformer(String powerTransformerId) {
+        return phaseTapChangerListForPowerTransformer(powerTransformerId).stream().filter(Objects::nonNull).findFirst().orElse(null);
+    }
 
-    String phaseTapChangerForPowerTransformer(String powerTransformerId);
+    default List<String> ratioTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.singletonList(ratioTapChangerForPowerTransformer(powerTransformerId));
+    }
+
+    default List<String> phaseTapChangerListForPowerTransformer(String powerTransformerId) {
+        return Collections.singletonList(phaseTapChangerForPowerTransformer(powerTransformerId));
+    }
 
     // TODO(Luma) refactoring node-breaker conversion temporal
 
