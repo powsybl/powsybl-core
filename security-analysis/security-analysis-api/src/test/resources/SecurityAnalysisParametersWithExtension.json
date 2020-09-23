@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.3",
+    "version" : "1.4",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -9,7 +9,9 @@
     "twtSplitShuntAdmittance" : false,
     "simulShunt" : false,
     "readSlackBus" : false,
-    "writeSlackBus" : false
+    "writeSlackBus" : false,
+    "voltageRemoteControl" : false,
+    "dc" : false
   },
   "extensions" : {
     "dummy-extension" : { }
