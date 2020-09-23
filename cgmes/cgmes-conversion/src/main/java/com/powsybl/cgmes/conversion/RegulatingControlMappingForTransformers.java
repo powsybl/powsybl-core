@@ -197,17 +197,18 @@ public class RegulatingControlMappingForTransformers {
         }
 
         // Even if regulating is false, we reset the target voltage if it is not valid
+        boolean finalRegulating = regulating;
         if (control.targetValue <= 0) {
             context.ignored(rtcId,
                 "Regulating control has a bad target voltage " + control.targetValue);
-            return false;
+            finalRegulating = false;
         }
 
         // Order is important
         rtc.setRegulationTerminal(terminal)
                 .setTargetV(control.targetValue)
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(regulating);
+                .setRegulating(finalRegulating);
 
         return true;
     }

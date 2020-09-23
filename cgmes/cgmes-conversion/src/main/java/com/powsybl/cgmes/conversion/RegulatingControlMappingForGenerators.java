@@ -80,9 +80,6 @@ public class RegulatingControlMappingForGenerators {
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
-            if (okSet) {
-                gen.setProperty("RegulatingControl", controlId);
-            }
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
@@ -119,6 +116,9 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
+
+        gen.setProperty("RegulatingControl", controlId);
+        gen.setProperty("targetDeadBand", String.valueOf(control.getTargetDeadBand()));
 
         return true;
     }

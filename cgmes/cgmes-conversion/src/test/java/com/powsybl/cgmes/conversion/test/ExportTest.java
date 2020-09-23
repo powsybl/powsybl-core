@@ -83,7 +83,6 @@ public class ExportTest {
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
-    @Ignore("FIXME(Luma) differences on targetDeadband(4) and targetValue(2) in SSH RegulatingControls")
     @Test
     public void testExportAlternativesBusBranchMicro() throws IOException {
         DifferenceEvaluator knownDiffs =

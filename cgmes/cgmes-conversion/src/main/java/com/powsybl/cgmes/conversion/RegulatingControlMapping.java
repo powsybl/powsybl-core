@@ -92,7 +92,7 @@ public class RegulatingControlMapping {
         }
 
         public double getTargetDeadBand() {
-            return targetValue;
+            return targetDeadband;
         }
     }
 

@@ -68,11 +68,9 @@ public class RegulatingControlMappingForShuntCompensators {
         // If we alter the conversion to try to convert
         // if controlEnabled is false, we get errors in unit tests
         String rcId = cgmesRc.regulatingControlId;
-        if (rcId != null) {
-            shuntCompensator.setProperty("RegulatingControl", rcId);
-        }
 
         if (!cgmesRc.controlEnabled) {
+            setAdditionalProperties(shuntCompensator, rcId);
             return;
         }
         if (rcId == null) {
@@ -86,7 +84,7 @@ public class RegulatingControlMappingForShuntCompensators {
             setDefaultRegulatingControl(shuntCompensator);
             return;
         }
-        setRegulatingControl(shuntCompensator, rc);
+        setRegulatingControl(shuntCompensator, rcId, rc);
         rc.setCorrectlySet(true);
     }
 
@@ -99,12 +97,27 @@ public class RegulatingControlMappingForShuntCompensators {
                 .setVoltageRegulatorOn(true); // SSH controlEnabled attribute is true when this method is called
     }
 
-    private void setRegulatingControl(ShuntCompensator shuntCompensator, RegulatingControl rc) {
+    private void setRegulatingControl(ShuntCompensator shuntCompensator, String rcId, RegulatingControl rc) {
         shuntCompensator.setTargetV(rc.targetValue)
                 .setTargetDeadband(rc.targetDeadband)
                 .setVoltageRegulatorOn(rc.enabled);
         // Take default terminal if it has not been defined in CGMES files (it is never null)
         shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal));
+
+        shuntCompensator.setProperty("RegulatingControl", rcId);
+    }
+
+    private void setAdditionalProperties(ShuntCompensator shuntCompensator, String rcId) {
+        if (rcId == null) {
+            return;
+        }
+        RegulatingControl rc = parent.cachedRegulatingControls().get(rcId);
+        if (rc == null) {
+            return;
+        }
+        shuntCompensator.setProperty("RegulatingControl", rcId);
+        shuntCompensator.setProperty("targetValue", String.valueOf(rc.targetValue));
+        shuntCompensator.setProperty("targetDeadBand", String.valueOf(rc.targetDeadband));
     }
 
     private static class CgmesRegulatingControlForShuntCompensator {

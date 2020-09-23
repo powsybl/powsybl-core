@@ -200,10 +200,24 @@ public final class SteadyStateHypothesisExport {
                 // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
                 String rcid = s.getProperty("RegulatingControl");
                 RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, true,
-                    s.isVoltageRegulatorOn(), s.getTargetDeadband(), s.getTargetV(), "k");
+                    s.isVoltageRegulatorOn(), shuntCompensatorTargetDeadBand(s), shuntCompensatorTargetV(s), "k");
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
+    }
+
+    private static double shuntCompensatorTargetV(ShuntCompensator s) {
+        if (s.hasProperty("targetValue")) {
+            return Double.parseDouble(s.getProperty("targetValue"));
+        }
+        return s.getTargetV();
+    }
+
+    private static double shuntCompensatorTargetDeadBand(ShuntCompensator s) {
+        if (s.hasProperty("targetDeadBand")) {
+            return Double.parseDouble(s.getProperty("targetDeadBand"));
+        }
+        return s.getTargetDeadband();
     }
 
     private static void writeSynchronousMachines(Network network, XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
@@ -233,8 +247,9 @@ public final class SteadyStateHypothesisExport {
                 // PowSyBl has considered the control as continuous and with targetDeadband of size 0
                 // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
                 String rcid = g.getProperty("RegulatingControl");
+                double targetDeadBand = Double.parseDouble(g.getProperty("targetDeadBand"));
                 RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                    g.isVoltageRegulatorOn(), 0, g.getTargetV(), "k");
+                    g.isVoltageRegulatorOn(), targetDeadBand, g.getTargetV(), "k");
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
