@@ -44,7 +44,6 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ForkJoinPool;
-import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -75,17 +74,33 @@ public final class NetworkXml {
     private NetworkXml() {
     }
 
-    private static Set<String> getNetworkExtensions(Network n, ExportOptions options) {
-        Set<String> extensions = new TreeSet<>();
+    private static Collection<ExtensionXmlSerializer> getSortedNetworkExtensionSerializers(Network n, ExportOptions options) {
+        SortedMap<String, ExtensionXmlSerializer> extensionSerializers = new TreeMap<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            identifiable.getExtensions().stream()
-                .filter(e -> {
-                    ExtensionXmlSerializer serializer = getExtensionXmlSerializer(options, e.getName());
-                    return serializer == null || !serializer.isEmptySerialization(e);
-                })
-                .forEach(e -> extensions.add(e.getName()));
+            getIdentifiableExtensionsSerializers(identifiable, options).forEach(
+                (e, s) -> extensionSerializers.put(e.getName(), s));
         }
-        return extensions;
+        return extensionSerializers.values();
+    }
+
+    private static Map<Extension<? extends  Identifiable<?>>, ExtensionXmlSerializer> getIdentifiableExtensionsSerializers(
+        Identifiable<?> identifiable, ExportOptions options) {
+        Map<Extension<? extends  Identifiable<?>>, ExtensionXmlSerializer> extensionSerializers = new LinkedHashMap<>();
+        for (Extension<? extends  Identifiable<?>> extension : identifiable.getExtensions()) {
+            if (options.withExtension(extension.getName())) {
+                ExtensionXmlSerializer serializer = getExtensionXmlSerializer(options, extension.getName());
+                if (serializer != null) {
+                    if (!serializer.isEmptySerialization(extension)) {
+                        extensionSerializers.put(extension, serializer);
+                    }
+                } else {
+                    if (options.isThrowExceptionIfExtensionNotFound()) {
+                        throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
+                    }
+                }
+            }
+        }
+        return extensionSerializers;
     }
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
@@ -130,14 +145,8 @@ public final class NetworkXml {
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
-        for (String extensionName : getNetworkExtensions(n, options)) {
-            ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
-            if (extensionXmlSerializer == null) {
-                continue;
-            }
-
+        for (ExtensionXmlSerializer extensionXmlSerializer : getSortedNetworkExtensionSerializers(n, options)) {
             String namespaceUri = getNamespaceUri(extensionXmlSerializer, options);
-
             if (extensionUris.contains(namespaceUri)) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -153,17 +162,8 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
+    private static void writeExtension(Extension<? extends Identifiable<?>> extension, ExtensionXmlSerializer extensionXmlSerializer, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getExtensionsWriter();
-        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
-                extension.getName());
-
-        if (extensionXmlSerializer == null) {
-            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
-                throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
-            }
-            return;
-        }
 
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
 
@@ -217,18 +217,12 @@ public final class NetworkXml {
                 continue;
             }
 
-            Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> options.withExtension(e.getName()))
-                    .filter(e -> {
-                        ExtensionXmlSerializer serializer = getExtensionXmlSerializer(options, e.getName());
-                        return serializer != null && !serializer.isEmptySerialization(e);
-                    })
-                    .collect(Collectors.toList());
-            if (!extensions.isEmpty()) {
+            Map<Extension<? extends Identifiable<?>>, ExtensionXmlSerializer> serializerMap = getIdentifiableExtensionsSerializers(identifiable, options);
+            if (!serializerMap.isEmpty()) {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
                 context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
-                    writeExtension(extension, context);
+                for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(serializerMap.keySet(), options)) {
+                    writeExtension(extension, serializerMap.get(extension), context);
                 }
                 context.getExtensionsWriter().writeEndElement();
             }
