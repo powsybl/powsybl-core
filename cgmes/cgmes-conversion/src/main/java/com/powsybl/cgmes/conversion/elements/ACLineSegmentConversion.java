@@ -141,6 +141,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         } else {
             mline = createQuadripole(boundaryLine1, boundaryLine2);
         }
+        addAliases(mline);
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
