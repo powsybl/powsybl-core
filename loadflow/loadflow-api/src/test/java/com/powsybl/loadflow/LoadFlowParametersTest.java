@@ -81,7 +81,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE,
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC);
     }
 
@@ -127,7 +127,7 @@ public class LoadFlowParametersTest {
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE, LoadFlowParameters.DEFAULT_DC);
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE, LoadFlowParameters.DEFAULT_DC);
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC);
     }
 
     @Test
@@ -149,7 +149,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE, LoadFlowParameters.DEFAULT_DC);
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC);
     }
 
     @Test
@@ -163,7 +163,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE,
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC);
     }
 
@@ -178,7 +178,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE,
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC);
         LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
         checkValues(parameters1, voltageInitMode, LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
@@ -188,7 +188,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROLE,
+                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC);
     }
 

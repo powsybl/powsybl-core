@@ -59,7 +59,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_SIMUL_SHUNT = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = false;
     public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
-    public static final boolean DEFAULT_VOLTAGE_REMOTE_CONTROLE = false;
+    public static final boolean DEFAULT_VOLTAGE_REMOTE_CONTROL = false;
     public static final boolean DEFAULT_DC = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -103,7 +103,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setSimulShunt(config.getBooleanProperty("simulShunt", DEFAULT_SIMUL_SHUNT));
                 parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
                 parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
-                parameters.setVoltageRemoteControl(config.getBooleanProperty("voltageRemoteControl", DEFAULT_VOLTAGE_REMOTE_CONTROLE));
+                parameters.setVoltageRemoteControl(config.getBooleanProperty("voltageRemoteControl", DEFAULT_VOLTAGE_REMOTE_CONTROL));
                 parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
             });
     }
@@ -147,7 +147,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
-        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS, DEFAULT_VOLTAGE_REMOTE_CONTROLE, DEFAULT_DC);
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS, DEFAULT_VOLTAGE_REMOTE_CONTROL, DEFAULT_DC);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
