@@ -75,10 +75,15 @@ public final class NetworkXml {
     private NetworkXml() {
     }
 
-    private static Set<String> getNetworkExtensions(Network n) {
+    private static Set<String> getNetworkExtensions(Network n, ExportOptions options) {
         Set<String> extensions = new TreeSet<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-            identifiable.getExtensions().stream().filter(e -> !e.isEmpty()).forEach(e -> extensions.add(e.getName()));
+            identifiable.getExtensions().stream()
+                .filter(e -> {
+                    ExtensionXmlSerializer serializer = getExtensionXmlSerializer(options, e.getName());
+                    return serializer == null || !serializer.isEmptySerialization(e);
+                })
+                .forEach(e -> extensions.add(e.getName()));
         }
         return extensions;
     }
@@ -125,7 +130,7 @@ public final class NetworkXml {
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
-        for (String extensionName : getNetworkExtensions(n)) {
+        for (String extensionName : getNetworkExtensions(n, options)) {
             ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
             if (extensionXmlSerializer == null) {
                 continue;
@@ -214,8 +219,10 @@ public final class NetworkXml {
 
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> options.withExtension(e.getName()))
-                    .filter(e -> !e.isEmpty())
-                    .filter(e -> getExtensionXmlSerializer(options, e.getName()) != null)
+                    .filter(e -> {
+                        ExtensionXmlSerializer serializer = getExtensionXmlSerializer(options, e.getName());
+                        return serializer != null && !serializer.isEmptySerialization(e);
+                    })
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);

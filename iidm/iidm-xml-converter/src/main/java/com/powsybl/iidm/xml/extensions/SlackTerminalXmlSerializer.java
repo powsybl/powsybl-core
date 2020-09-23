@@ -51,4 +51,8 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
         return voltageLevel.getExtension(SlackTerminal.class);
     }
 
+    @Override
+    public boolean isEmptySerialization(SlackTerminal slackTerminal) {
+        return slackTerminal.isEmpty();
+    }
 }

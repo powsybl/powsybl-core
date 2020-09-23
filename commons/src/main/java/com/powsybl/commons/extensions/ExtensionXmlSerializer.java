@@ -79,4 +79,13 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
             throw new PowsyblException("The version " + extensionVersion + " of the " + getExtensionName() + " extension's XML serializer is not supported.");
         }
     }
+
+    /**
+     * Returns if the serialization of the extension is empty
+     * @param extension the extension to serialize
+     * @return true if the serialization of the extension is empty, false otherwise
+     */
+    default boolean isEmptySerialization(E extension) {
+        return false;
+    }
 }

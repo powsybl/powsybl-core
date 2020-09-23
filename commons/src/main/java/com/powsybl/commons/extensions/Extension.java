@@ -33,12 +33,4 @@ public interface Extension<T> {
      */
     void setExtendable(T extendable);
 
-    /**
-     * Return whether the extension is empty (and thus should not be serialized)
-     *
-     * @return true if the extension is empty, false otherwise
-     */
-    default boolean isEmpty() {
-        return false;
-    }
 }

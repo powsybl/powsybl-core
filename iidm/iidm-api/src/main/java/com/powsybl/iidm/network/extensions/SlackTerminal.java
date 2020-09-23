@@ -97,4 +97,9 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
         return this;
     }
 
+    /**
+     * Returns true if the current SlackTerminal is empty, meaning that this extension is unused
+     */
+    boolean isEmpty();
+
 }
