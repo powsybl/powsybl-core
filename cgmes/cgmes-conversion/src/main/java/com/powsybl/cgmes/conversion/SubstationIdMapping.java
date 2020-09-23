@@ -60,10 +60,10 @@ import com.powsybl.triplestore.api.PropertyBags;
  * For each non-visited VoltageLevel-key of the voltageLevelAdjacency Map all connected voltageLevels will be calculated  <br>
  * Two voltageLevels are connected if they are adjacent <br>
  * (allConnected method) <br>
- * All connected VoltageLevel to VL1 will be [VL1] <br>
- * All connected VoltageLevel to VL2 will be [VL2, VL3, VL4] <br>
- * All connected VoltageLevel to VL5 will be [VL5] <br>
- * All connected VoltageLevel to VL6 will be [VL6, VL7]
+ * All connected VoltageLevels to VL1 will be [VL1] <br>
+ * All connected VoltageLevels to VL2 will be [VL2, VL3, VL4] <br>
+ * All connected VoltageLevels to VL5 will be [VL5] <br>
+ * All connected VoltageLevels to VL6 will be [VL6, VL7]
  * <p>
  * So the following voltageLevels should be merged <br>
  * [VL2, VL3, VL4] and the representative (IIDM voltageLevel) will be VL2 <br>
@@ -273,11 +273,11 @@ public class SubstationIdMapping {
     private static ArrayList<String> allConnected(Map<String, List<String>> adjacency, Set<String> visited, String id) {
         ArrayList<String> allConnected = new ArrayList<>();
 
-        // Insert id in the adjacent list and record it as visited
+        // Insert id in the allConnected list and record it as visited
         allConnected.add(id);
         visited.add(id);
 
-        // Expand, adding in each step all new adjacent ids"
+        // Expand, adding in each step all non-visited adjacent ids"
         int k = 0;
         while (k < allConnected.size()) {
             String vl0 = allConnected.get(k);
