@@ -15,7 +15,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import com.powsybl.commons.PowsyblException;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
@@ -425,8 +424,7 @@ public class StateVariablesAdder {
         return p;
     }
 
-    private PropertyBag 
-      (Terminal terminal, int sequenceNumber) {
+    private PropertyBag buildSvPowerFlow(Terminal terminal, int sequenceNumber) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType("CGMES." + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal == null) {
             return null;
