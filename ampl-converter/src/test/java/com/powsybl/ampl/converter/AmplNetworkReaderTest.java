@@ -52,24 +52,62 @@ public class AmplNetworkReaderTest {
     @Test
     public void readThreeWindingTransformers() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        twt.getLeg1().newPhaseTapChanger()
+                .setTapPosition(1)
+                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationValue(200)
+                .beginStep()
+                    .setAlpha(-20.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
+                    .setAlpha(20.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .add();
+
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("3wt",
                 new ResourceSet("/outputs/",
-                        "3wt_branches.txt", "3wt_rtc.txt"));
+                        "3wt_branches.txt", "3wt_rtc.txt", "3wt_ptc.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
 
         testThreeWindingTransBranches(network, reader);
 
-        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        // Ratio tap changers
         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
         RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
         assertEquals(2, rtc2.getTapPosition());
         assertEquals(0, rtc3.getTapPosition());
         reader.readRatioTapChangers();
-        assertEquals(2, rtc2.getTapPosition());
-        assertEquals(0, rtc3.getTapPosition());
+        assertEquals(0, rtc2.getTapPosition());
+        assertEquals(2, rtc3.getTapPosition());
+
+        // Phase tap changers
+        PhaseTapChanger ptc = twt.getLeg1().getPhaseTapChanger();
+        assertEquals(1, ptc.getTapPosition());
+        reader.readPhaseTapChangers();
+        assertEquals(0, ptc.getTapPosition());
     }
 
     @Test

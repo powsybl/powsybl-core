@@ -254,24 +254,15 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = null;
-            PhaseTapChanger ptc = null;
-            if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
-                ptc = twt.getLeg1().getPhaseTapChanger();
-            } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-                ptc = twt.getLeg2().getPhaseTapChanger();
-            } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
-                ptc = twt.getLeg3().getPhaseTapChanger();
-            }
+            String twtId = id.substring(0, id.length() - 5);
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
             if (twt == null) {
-                throw new AmplException("Invalid three windings transformer id '" + id + "'");
+                throw new AmplException("Invalid three windings transformer id '" + twtId + "'");
             }
-            if (ptc != null) {
-                ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
-            }
+
+            char leg = id.charAt(id.length() - 1);
+            ThreeWindingsTransformer.Side side = ThreeWindingsTransformer.Side.values()[leg - '1'];
+            twt.getLeg(side).getOptionalPhaseTapChanger().ifPresent(ptc -> ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1));
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
             if (twt == null) {

@@ -307,6 +307,22 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     Substation getSubstation();
 
     /**
+     * Get the leg at the expected side.
+     */
+    default Leg getLeg(Side side) {
+        switch (side) {
+            case ONE:
+                return getLeg1();
+            case TWO:
+                return getLeg2();
+            case THREE:
+                return getLeg3();
+            default:
+                throw new IllegalArgumentException("Unsupported side: " + side);
+        }
+    }
+
+    /**
      * Get the leg at the primary side.
      */
     Leg getLeg1();
