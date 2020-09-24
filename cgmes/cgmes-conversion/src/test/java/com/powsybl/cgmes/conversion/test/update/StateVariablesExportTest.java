@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.update.CgmesExportContext;
 import com.powsybl.cgmes.conversion.update.StateVariablesExport;
@@ -18,21 +19,18 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import javanet.staxutils.IndentingXMLStreamWriter;
 import org.junit.Test;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.Difference;
 
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
@@ -86,10 +84,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export SV
         Path test = tmpDir.resolve("test");
         try (OutputStream os = Files.newOutputStream(test)) {
-            XMLStreamWriter writer = XMLOutputFactory.newFactory().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
-            indentingWriter.setIndent("    ");
-            writer = indentingWriter;
+            XMLStreamWriter writer = CgmesExport.initializeWriter(os);
             StateVariablesExport.write(expected, writer, new CgmesExportContext(expected).setSvVersion(svVersion));
         }
 
