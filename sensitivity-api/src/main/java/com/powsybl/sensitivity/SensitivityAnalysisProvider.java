@@ -43,13 +43,13 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param factorsProvider provider of sensitivity factors to be computed
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
-     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResults} that gathers sensitivity factor values
+     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    default CompletableFuture<SensitivityAnalysisResults> run(Network network,
-                                                              String workingStateId,
-                                                              SensitivityFactorsProvider factorsProvider,
-                                                              SensitivityAnalysisParameters parameters,
-                                                              ComputationManager computationManager) {
+    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
+                                                             String workingStateId,
+                                                             SensitivityFactorsProvider factorsProvider,
+                                                             SensitivityAnalysisParameters parameters,
+                                                             ComputationManager computationManager) {
         return run(network, workingStateId, factorsProvider, new EmptyContingencyListProvider(), parameters, computationManager);
     }
 
@@ -65,12 +65,12 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param contingenciesProvider provider of contingencies after which sensitivity factors will be computed
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
-     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResults} that gathers sensitivity factor values
+     * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    CompletableFuture<SensitivityAnalysisResults> run(Network network,
-                                                      String workingStateId,
-                                                      SensitivityFactorsProvider factorsProvider,
-                                                      ContingenciesProvider contingenciesProvider,
-                                                      SensitivityAnalysisParameters parameters,
-                                                      ComputationManager computationManager);
+    CompletableFuture<SensitivityAnalysisResult> run(Network network,
+                                                     String workingStateId,
+                                                     SensitivityFactorsProvider factorsProvider,
+                                                     ContingenciesProvider contingenciesProvider,
+                                                     SensitivityAnalysisParameters parameters,
+                                                     ComputationManager computationManager);
 }

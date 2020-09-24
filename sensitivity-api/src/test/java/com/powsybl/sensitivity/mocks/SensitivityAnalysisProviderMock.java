@@ -12,7 +12,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactorsProvider;
 
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ import java.util.concurrent.CompletableFuture;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResults> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new SensitivityAnalysisResults(
+    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
+        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(
             true,
             new HashMap<>(),
             "ok",
@@ -36,8 +36,8 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     }
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResults> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new SensitivityAnalysisResults(
+    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
+        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(
             true,
             new HashMap<>(),
             "ok",

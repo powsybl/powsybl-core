@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -64,7 +64,7 @@ public final class SensitivityAnalysisResultExporters {
      * @param path The export path
      * @param format The export format
      */
-    public static void export(SensitivityAnalysisResults result, Path path, String format) {
+    public static void export(SensitivityAnalysisResult result, Path path, String format) {
         Objects.requireNonNull(path);
 
         try (Writer writer = Files.newBufferedWriter(path)) {
@@ -81,7 +81,7 @@ public final class SensitivityAnalysisResultExporters {
      * @param writer The export writer
      * @param format The export format
      */
-    public static void export(SensitivityAnalysisResults result, Writer writer, String format) {
+    public static void export(SensitivityAnalysisResult result, Writer writer, String format) {
         SensitivityAnalysisResultExporter exporter = getExporter(format);
         if (exporter == null) {
             throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");

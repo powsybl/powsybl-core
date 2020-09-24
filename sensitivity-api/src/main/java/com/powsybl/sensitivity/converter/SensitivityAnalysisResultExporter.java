@@ -6,7 +6,7 @@
  */
 package com.powsybl.sensitivity.converter;
 
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 
 import java.io.Writer;
 
@@ -35,6 +35,6 @@ public interface SensitivityAnalysisResultExporter {
      * @param result The result of the sensitivity analysis
      * @param writer The writer used for the export
      */
-    void export(SensitivityAnalysisResults result, Writer writer);
+    void export(SensitivityAnalysisResult result, Writer writer);
 
 }

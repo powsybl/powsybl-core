@@ -96,7 +96,7 @@ public final class LoadFlow {
      */
     public static Runner find(String name) {
         return new Runner(PlatformConfigNamedProvider.Finder
-                .find(name, "load-flow", LoadFlowProvider.class,
+                .findBackwardsCompatible(name, "load-flow", LoadFlowProvider.class,
                 PlatformConfig.defaultConfig()));
     }
 

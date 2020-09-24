@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityValue;
 import com.powsybl.sensitivity.json.SensitivityFactorsJsonSerializer;
@@ -26,7 +26,7 @@ import static junit.framework.TestCase.assertEquals;
  */
 public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterTest {
 
-    private static SensitivityAnalysisResults createSensitivityResult() {
+    private static SensitivityAnalysisResult createSensitivityResult() {
         // read sensitivity factors
         List<SensitivityFactor> factors = Collections.emptyList();
         try {
@@ -40,16 +40,16 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
         });
         Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityAnalysisResults(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
+        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
     }
 
-    public void writeCsv(SensitivityAnalysisResults results, Path path) {
+    public void writeCsv(SensitivityAnalysisResult results, Path path) {
         SensitivityAnalysisResultExporters.export(results, path, "CSV");
     }
 
     @Test
     public void testWriteCsv() throws IOException {
-        SensitivityAnalysisResults result = createSensitivityResult();
+        SensitivityAnalysisResult result = createSensitivityResult();
         writeTest(result, this::writeCsv, AbstractConverterTest::compareTxt, "/sensitivity-results.csv");
     }
 

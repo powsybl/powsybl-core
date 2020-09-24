@@ -9,7 +9,7 @@ package com.powsybl.sensitivity.json;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -29,10 +29,10 @@ public final class SensitivityAnalysisResultJsonSerializer {
      * @return The sensitivity analysis results created
      * @throws IOException
      */
-    public static SensitivityAnalysisResults read(Reader reader) throws IOException {
+    public static SensitivityAnalysisResult read(Reader reader) throws IOException {
         Objects.requireNonNull(reader);
 
-        ObjectReader objectReader = JsonUtil.createObjectMapper().readerFor(SensitivityAnalysisResults.class);
+        ObjectReader objectReader = JsonUtil.createObjectMapper().readerFor(SensitivityAnalysisResult.class);
         return objectReader.readValue(reader);
     }
 
@@ -42,7 +42,7 @@ public final class SensitivityAnalysisResultJsonSerializer {
      * @param writer The writer to write to
      * @throws IOException
      */
-    public static void write(SensitivityAnalysisResults result, Writer writer) throws IOException {
+    public static void write(SensitivityAnalysisResult result, Writer writer) throws IOException {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
 

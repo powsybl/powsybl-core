@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.json.SensitivityAnalysisResultJsonSerializer;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -28,12 +28,12 @@ import java.util.Objects;
  */
 public class JsonSensitivityAnalysisResultExporterTest extends AbstractConverterTest {
 
-    private static SensitivityAnalysisResults create() throws IOException {
+    private static SensitivityAnalysisResult create() throws IOException {
         byte[] inputBytes = IOUtils.toByteArray(JsonSensitivityAnalysisResultExporterTest.class.getResourceAsStream("/resultsExport.json"));
         return SensitivityAnalysisResultJsonSerializer.read(new InputStreamReader(new ByteArrayInputStream(inputBytes)));
     }
 
-    private static SensitivityAnalysisResults read(Path jsonFile) {
+    private static SensitivityAnalysisResult read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -43,7 +43,7 @@ public class JsonSensitivityAnalysisResultExporterTest extends AbstractConverter
         }
     }
 
-    private static void write(SensitivityAnalysisResults results, Path jsonFile) {
+    private static void write(SensitivityAnalysisResult results, Path jsonFile) {
         Objects.requireNonNull(results);
         Objects.requireNonNull(jsonFile);
 
@@ -55,7 +55,7 @@ public class JsonSensitivityAnalysisResultExporterTest extends AbstractConverter
         }
     }
 
-    private static void writeViaExporters(SensitivityAnalysisResults results, Path jsonFile) {
+    private static void writeViaExporters(SensitivityAnalysisResult results, Path jsonFile) {
         Objects.requireNonNull(results);
         Objects.requireNonNull(jsonFile);
         SensitivityAnalysisResultExporters.export(results, jsonFile, "JSON");

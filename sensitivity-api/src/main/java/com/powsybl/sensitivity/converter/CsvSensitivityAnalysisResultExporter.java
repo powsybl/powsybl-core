@@ -8,7 +8,7 @@ package com.powsybl.sensitivity.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.SensitivityValue;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
     }
 
     @Override
-    public void export(SensitivityAnalysisResults result, Writer writer) {
+    public void export(SensitivityAnalysisResult result, Writer writer) {
         TableFormatterFactory factory = new CsvTableFormatterFactory();
         TableFormatterConfig tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
         try (TableFormatter formatter = factory.create(writer, "", tfc,

@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.converter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.sensitivity.SensitivityAnalysisResults;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.json.SensitivityAnalysisResultJsonSerializer;
 
 import java.io.IOException;
@@ -33,7 +33,7 @@ public class JsonSensitivityAnalysisResultExporter implements SensitivityAnalysi
     }
 
     @Override
-    public void export(SensitivityAnalysisResults result, Writer writer) {
+    public void export(SensitivityAnalysisResult result, Writer writer) {
         try {
             SensitivityAnalysisResultJsonSerializer.write(result, writer);
         } catch (IOException e) {

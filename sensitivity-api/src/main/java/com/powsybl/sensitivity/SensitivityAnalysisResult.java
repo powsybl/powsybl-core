@@ -13,7 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * Sensitivity analysis results
+ * Sensitivity analysis result
  *
  * <p>
  *     Mainly composed of the lists of sensitivity values in N, and optionally in N-1
@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @see SensitivityValue
  */
-public class SensitivityAnalysisResults {
+public class SensitivityAnalysisResult {
 
     private static final String VALUE_NOT_FOUND = "Sensitivity value not found for function %s and variable %s.";
     private static final String VALUE_NOT_FOUND_CONTINGENCY = "Sensitivity value not found for function %s and variable %s at contingencyId %s.";
@@ -56,7 +56,7 @@ public class SensitivityAnalysisResults {
     private final Map<String, List<SensitivityValue>> sensitivityValuesContingencies;
 
     /**
-     * Hades2 sensitivity analysis results
+     * Hades2 sensitivity analysis result
      *
      * @param ok true if the analysis succeeded, false otherwise
      * @param metrics map of metrics about the analysis
@@ -65,11 +65,11 @@ public class SensitivityAnalysisResults {
      * @param sensitivityValuesContingencies result values of the sensitivity analysis on contingencies
      */
     @JsonCreator
-    public SensitivityAnalysisResults(@JsonProperty("ok") boolean ok,
-                                      @JsonProperty("metrics") Map<String, String> metrics,
-                                      @JsonProperty("logs") String logs,
-                                      @JsonProperty("values") List<SensitivityValue> sensitivityValues,
-                                      @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
+    public SensitivityAnalysisResult(@JsonProperty("ok") boolean ok,
+                                     @JsonProperty("metrics") Map<String, String> metrics,
+                                     @JsonProperty("logs") String logs,
+                                     @JsonProperty("values") List<SensitivityValue> sensitivityValues,
+                                     @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
         this.ok = ok;
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = Objects.requireNonNull(logs);
@@ -77,10 +77,10 @@ public class SensitivityAnalysisResults {
         this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
     }
 
-    public SensitivityAnalysisResults(boolean ok,
-                                      Map<String, String> metrics,
-                                      String logs,
-                                      List<SensitivityValue> sensitivityValues) {
+    public SensitivityAnalysisResult(boolean ok,
+                                     Map<String, String> metrics,
+                                     String logs,
+                                     List<SensitivityValue> sensitivityValues) {
         this(ok, metrics, logs, sensitivityValues, Collections.emptyMap());
     }
 
@@ -249,7 +249,7 @@ public class SensitivityAnalysisResults {
                 .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId())));
     }
 
-    public static SensitivityAnalysisResults empty() {
-        return new SensitivityAnalysisResults(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
+    public static SensitivityAnalysisResult empty() {
+        return new SensitivityAnalysisResult(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
     }
 }
