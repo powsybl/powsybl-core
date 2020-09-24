@@ -749,7 +749,8 @@ WHERE {
     OPTIONAL { GRAPH ?graphSSH3 {
         ?SynchronousMachine 
             cim:RotatingMachine.p ?p ;
-            cim:RotatingMachine.q ?q 
+            cim:RotatingMachine.q ?q ;
+            cim:SynchronousMachine.referencePriority ?referencePriority
     }}
 }}
 }
