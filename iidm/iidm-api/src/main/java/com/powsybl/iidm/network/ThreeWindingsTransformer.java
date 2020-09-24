@@ -321,10 +321,16 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     Leg getLeg3();
 
+    /**
+     * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
+     */
     default Stream<Leg> getLegStream() {
         return Stream.of(getLeg1(), getLeg2(), getLeg3());
     }
 
+    /**
+     * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
+     */
     default List<Leg> getLegs() {
         return Arrays.asList(getLeg1(), getLeg2(), getLeg3());
     }
