@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +49,7 @@ public final class StateVariablesExport {
             CgmesExport.writeRdfRoot(writer);
 
             if (context.getCimVersion() == 16) {
-                writeSvModelDescription(writer, context);
+                CgmesExport.writeModelDescription(writer, context.getSvModelDescription(), context);
                 writeTopologicalIslands(network, writer, context);
             }
 
@@ -65,34 +64,6 @@ public final class StateVariablesExport {
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
-    }
-
-    private static void writeSvModelDescription(XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, "FullModel");
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExport.getUniqueId());
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(context.getScenarioTime().toString("yyyy-MM-dd'T'HH:mm:ss"));
-        writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(DateTime.now().toString());
-        writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.DESCRIPTION);
-        writer.writeCharacters(context.getSvDescription());
-        writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.VERSION);
-        writer.writeCharacters(CgmesExport.format(context.getSvVersion()));
-        writer.writeEndElement();
-        for (String dependency : context.getDependencies()) {
-            writer.writeEmptyElement(CgmesExport.MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
-        }
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.PROFILE);
-        writer.writeCharacters(CgmesExport.SV_PROFILE);
-        writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
-        writer.writeCharacters(context.getModelingAuthoritySet());
-        writer.writeEndElement();
-        writer.writeEndElement();
     }
 
     private static void writeTopologicalIslands(Network network, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {

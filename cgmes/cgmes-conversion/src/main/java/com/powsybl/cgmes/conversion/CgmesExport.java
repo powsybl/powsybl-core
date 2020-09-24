@@ -20,13 +20,18 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import org.joda.time.DateTime;
+
 import com.google.auto.service.AutoService;
 import com.google.common.base.Suppliers;
+import com.powsybl.cgmes.conversion.update.CgmesExportContext;
+import com.powsybl.cgmes.conversion.update.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -79,6 +84,7 @@ public class CgmesExport implements Exporter {
     public static final String CIM_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
     public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
+    public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
     private static final boolean INDENT = true;
@@ -93,6 +99,34 @@ public class CgmesExport implements Exporter {
         writer.writeNamespace("rdf", RDF_NAMESPACE);
         writer.writeNamespace("cim", CIM_NAMESPACE);
         writer.writeNamespace("md", MD_NAMESPACE);
+    }
+
+    public static void writeModelDescription(XMLStreamWriter writer, ModelDescription modelDescription, CgmesExportContext context) throws XMLStreamException {
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, "FullModel");
+        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExport.getUniqueId());
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
+        writer.writeCharacters(context.getScenarioTime().toString("yyyy-MM-dd'T'HH:mm:ss"));
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.CREATED);
+        writer.writeCharacters(DateTime.now().toString());
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.DESCRIPTION);
+        writer.writeCharacters(modelDescription.getDescription());
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.VERSION);
+        writer.writeCharacters(CgmesExport.format(modelDescription.getVersion()));
+        writer.writeEndElement();
+        for (String dependency : modelDescription.getDependencies()) {
+            writer.writeEmptyElement(CgmesExport.MD_NAMESPACE, CgmesNames.DEPENDENT_ON);
+            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, dependency);
+        }
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.PROFILE);
+        writer.writeCharacters(modelDescription.getProfile());
+        writer.writeEndElement();
+        writer.writeStartElement(CgmesExport.MD_NAMESPACE, CgmesNames.MODELING_AUTHORITY_SET);
+        writer.writeCharacters(modelDescription.getModelingAuthoritySet());
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     // Avoid trailing zeros and format always using US locale

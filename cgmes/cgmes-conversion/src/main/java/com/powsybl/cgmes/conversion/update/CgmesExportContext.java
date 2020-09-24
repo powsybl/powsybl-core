@@ -6,7 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.iidm.network.Network;
@@ -27,10 +29,73 @@ public class CgmesExportContext {
 
     private DateTime scenarioTime = DateTime.now();
 
-    private String svDescription = "SV Model";
-    private int svVersion = 1;
-    private final List<String> dependencies = new ArrayList<>();
-    private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
+    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesExport.SV_PROFILE);
+    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesExport.SSH_PROFILE);
+
+    public static final class ModelDescription {
+
+        private String description = "SV Model";
+        private int version = 1;
+        private final List<String> dependencies = new ArrayList<>();
+        private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
+        // TODO Each model may have a list of profiles, not only one
+        private String profile;
+
+        private ModelDescription(String description, String profile) {
+            this.description = description;
+            this.profile = profile;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public ModelDescription setDescription(String description) {
+            this.description = Objects.requireNonNull(description);
+            return this;
+        }
+
+        public int getVersion() {
+            return version;
+        }
+
+        public ModelDescription setVersion(int version) {
+            this.version = version;
+            return this;
+        }
+
+        public List<String> getDependencies() {
+            return Collections.unmodifiableList(dependencies);
+        }
+
+        public ModelDescription addDependency(String dependency) {
+            dependencies.add(Objects.requireNonNull(dependency));
+            return this;
+        }
+
+        public ModelDescription addDependencies(List<String> dependencies) {
+            this.dependencies.addAll(Objects.requireNonNull(dependencies));
+            return this;
+        }
+
+        public ModelDescription clearDependencies() {
+            this.dependencies.clear();
+            return this;
+        }
+
+        public String getModelingAuthoritySet() {
+            return modelingAuthoritySet;
+        }
+
+        public ModelDescription setModelingAuthoritySet(String modelingAuthoritySet) {
+            this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
+            return this;
+        }
+
+        public String getProfile() {
+            return profile;
+        }
+    }
 
     public CgmesExportContext(Network network) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
@@ -39,12 +104,21 @@ public class CgmesExportContext {
             topologyKind = cimCharacteristics.getTopologyKind();
         }
         scenarioTime = network.getCaseDate();
+        // TODO CgmesSvMetadata and CgmesSshMetadata could be in fact same class
+        // Add multiple instances of CgmesMetadata to Network, one for each profile
         CgmesSvMetadata svMetadata = network.getExtension(CgmesSvMetadata.class);
         if (svMetadata != null) {
-            svDescription = svMetadata.getDescription();
-            svVersion = svMetadata.getSvVersion() + 1;
-            dependencies.addAll(svMetadata.getDependencies());
-            modelingAuthoritySet = svMetadata.getModelingAuthoritySet();
+            svModelDescription.setDescription(svMetadata.getDescription());
+            svModelDescription.setVersion(svMetadata.getSvVersion() + 1);
+            svModelDescription.addDependencies(svMetadata.getDependencies());
+            svModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
+        }
+        CgmesSshMetadata sshMetadata = network.getExtension(CgmesSshMetadata.class);
+        if (sshMetadata != null) {
+            sshModelDescription.setDescription(svMetadata.getDescription());
+            sshModelDescription.setVersion(svMetadata.getSvVersion() + 1);
+            sshModelDescription.addDependencies(svMetadata.getDependencies());
+            sshModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
         }
     }
 
@@ -78,49 +152,11 @@ public class CgmesExportContext {
         return this;
     }
 
-    public String getSvDescription() {
-        return svDescription;
+    public ModelDescription getSvModelDescription() {
+        return svModelDescription;
     }
 
-    public CgmesExportContext setSvDescription(String svDescription) {
-        this.svDescription = Objects.requireNonNull(svDescription);
-        return this;
-    }
-
-    public int getSvVersion() {
-        return svVersion;
-    }
-
-    public CgmesExportContext setSvVersion(int svVersion) {
-        this.svVersion = svVersion;
-        return this;
-    }
-
-    public List<String> getDependencies() {
-        return Collections.unmodifiableList(dependencies);
-    }
-
-    public CgmesExportContext addDependency(String dependency) {
-        dependencies.add(Objects.requireNonNull(dependency));
-        return this;
-    }
-
-    public CgmesExportContext addDependencies(List<String> dependencies) {
-        this.dependencies.addAll(Objects.requireNonNull(dependencies));
-        return this;
-    }
-
-    public CgmesExportContext clearDependencies() {
-        this.dependencies.clear();
-        return this;
-    }
-
-    public String getModelingAuthoritySet() {
-        return modelingAuthoritySet;
-    }
-
-    public CgmesExportContext setModelingAuthoritySet(String modelingAuthoritySet) {
-        this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
-        return this;
+    public ModelDescription getSshModelDescription() {
+        return sshModelDescription;
     }
 }

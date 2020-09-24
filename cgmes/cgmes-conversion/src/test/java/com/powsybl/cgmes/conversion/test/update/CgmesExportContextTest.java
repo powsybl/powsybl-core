@@ -36,10 +36,10 @@ public class CgmesExportContextTest {
         assertEquals(16, context1.getCimVersion());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context1.getTopologyKind());
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
-        assertEquals("SV Model", context1.getSvDescription());
-        assertEquals(1, context1.getSvVersion());
-        assertTrue(context1.getDependencies().isEmpty());
-        assertEquals("powsybl.org", context1.getModelingAuthoritySet());
+        assertEquals("SV Model", context1.getSvModelDescription().getDescription());
+        assertEquals(1, context1.getSvModelDescription().getVersion());
+        assertTrue(context1.getSvModelDescription().getDependencies().isEmpty());
+        assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
 
         network.newExtension(CimCharacteristicsAdder.class)
                 .setCimVersion(14)
@@ -59,12 +59,12 @@ public class CgmesExportContextTest {
         assertEquals(14, context2.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context2.getTopologyKind());
         assertEquals(network.getCaseDate(), context2.getScenarioTime());
-        assertEquals("test", context2.getSvDescription());
-        assertEquals(3, context2.getSvVersion());
-        assertEquals(2, context2.getDependencies().size());
-        assertTrue(context2.getDependencies().contains("powsybl.test.org"));
-        assertTrue(context2.getDependencies().contains("cgmes"));
-        assertEquals("cgmes.org", context2.getModelingAuthoritySet());
+        assertEquals("test", context2.getSvModelDescription().getDescription());
+        assertEquals(3, context2.getSvModelDescription().getVersion());
+        assertEquals(2, context2.getSvModelDescription().getDependencies().size());
+        assertTrue(context2.getSvModelDescription().getDependencies().contains("powsybl.test.org"));
+        assertTrue(context2.getSvModelDescription().getDependencies().contains("cgmes"));
+        assertEquals("cgmes.org", context2.getSvModelDescription().getModelingAuthoritySet());
 
     }
 
@@ -74,10 +74,10 @@ public class CgmesExportContextTest {
         assertEquals(16, context.getCimVersion());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
         assertTrue(new Duration(DateTime.now(), context.getScenarioTime()).getStandardMinutes() < 1);
-        assertEquals("SV Model", context.getSvDescription());
-        assertEquals(1, context.getSvVersion());
-        assertTrue(context.getDependencies().isEmpty());
-        assertEquals("powsybl.org", context.getModelingAuthoritySet());
+        assertEquals("SV Model", context.getSvModelDescription().getDescription());
+        assertEquals(1, context.getSvModelDescription().getVersion());
+        assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
+        assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
     }
 
     @Test
@@ -87,29 +87,30 @@ public class CgmesExportContextTest {
         context.setCimVersion(14)
                 .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
                 .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
-                .setSvDescription("test")
-                .setSvVersion(2)
-                .addDependency("powsybl.test.org")
-                .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org");
+                .getSvModelDescription()
+                    .setDescription("test")
+                    .setVersion(2)
+                    .addDependency("powsybl.test.org")
+                    .addDependency("cgmes")
+                    .setModelingAuthoritySet("cgmes.org");
 
         assertEquals(14, context.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
         assertEquals(DateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
-        assertEquals("test", context.getSvDescription());
-        assertEquals(2, context.getSvVersion());
-        assertEquals(2, context.getDependencies().size());
-        assertTrue(context.getDependencies().contains("powsybl.test.org"));
-        assertTrue(context.getDependencies().contains("cgmes"));
-        assertEquals("cgmes.org", context.getModelingAuthoritySet());
+        assertEquals("test", context.getSvModelDescription().getDescription());
+        assertEquals(2, context.getSvModelDescription().getVersion());
+        assertEquals(2, context.getSvModelDescription().getDependencies().size());
+        assertTrue(context.getSvModelDescription().getDependencies().contains("powsybl.test.org"));
+        assertTrue(context.getSvModelDescription().getDependencies().contains("cgmes"));
+        assertEquals("cgmes.org", context.getSvModelDescription().getModelingAuthoritySet());
 
         List<String> dependencies = Arrays.asList("test1", "test2", "test3");
-        context.addDependencies(dependencies);
-        assertEquals(5, context.getDependencies().size());
-        assertTrue(context.getDependencies().containsAll(dependencies));
+        context.getSvModelDescription().addDependencies(dependencies);
+        assertEquals(5, context.getSvModelDescription().getDependencies().size());
+        assertTrue(context.getSvModelDescription().getDependencies().containsAll(dependencies));
 
-        context.clearDependencies();
-        assertTrue(context.getDependencies().isEmpty());
+        context.getSvModelDescription().clearDependencies();
+        assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
 
     }
 }
