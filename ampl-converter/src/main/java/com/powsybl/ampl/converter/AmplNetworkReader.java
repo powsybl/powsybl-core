@@ -213,24 +213,9 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = null;
-            RatioTapChanger rtc = null;
-            if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
-                rtc = twt.getLeg1().getRatioTapChanger();
-            } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-                rtc = twt.getLeg2().getRatioTapChanger();
-            } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
-                rtc = twt.getLeg3().getRatioTapChanger();
-            }
-            if (twt == null) {
-                throw new AmplException("Invalid three windings transformer id '" + id + "'");
-            }
-            if (rtc != null) {
-                rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
-            }
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            RatioTapChanger rtc = getThreeWindingsTransformerLeg(twt, id).getRatioTapChanger();
+            rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
             if (twt == null) {
@@ -254,15 +239,9 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            String twtId = id.substring(0, id.length() - 5);
-            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
-            if (twt == null) {
-                throw new AmplException("Invalid three windings transformer id '" + twtId + "'");
-            }
-
-            char leg = id.charAt(id.length() - 1);
-            ThreeWindingsTransformer.Side side = ThreeWindingsTransformer.Side.values()[leg - '1'];
-            twt.getLeg(side).getOptionalPhaseTapChanger().ifPresent(ptc -> ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1));
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            PhaseTapChanger ptc = getThreeWindingsTransformerLeg(twt, id).getPhaseTapChanger();
+            ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
             if (twt == null) {
@@ -373,34 +352,15 @@ public class AmplNetworkReader {
     }
 
     private boolean readThreeWindingsTransformerBranch(String id, double p, double q, int busNum) {
-        if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
-            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
-            if (tht != null) {
-                tht.getLeg1().getTerminal().setP(p).setQ(q);
-                busConnection(tht.getLeg1().getTerminal(), busNum);
-            } else {
-                throw new AmplException("Invalid branch (leg1) id '" + id + "'");
-            }
-        } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-            if (tht != null) {
-                tht.getLeg2().getTerminal().setP(p).setQ(q);
-                busConnection(tht.getLeg2().getTerminal(), busNum);
-            } else {
-                throw new AmplException("Invalid branch (leg2) id '" + id + "'");
-            }
-        } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer tht = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
-            if (tht != null) {
-                tht.getLeg3().getTerminal().setP(p).setQ(q);
-                busConnection(tht.getLeg3().getTerminal(), busNum);
-            } else {
-                throw new AmplException("Invalid branch (leg3) id '" + id + "'");
-            }
-        } else {
-            return false;
+        if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            ThreeWindingsTransformer twt = getThreeWindingsTransformer(network, id);
+            Terminal terminal = getThreeWindingsTransformerLeg(twt, id).getTerminal();
+            terminal.setP(p).setQ(q);
+            busConnection(terminal, busNum);
+
+            return true;
         }
-        return true;
+        return false;
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
@@ -557,13 +517,35 @@ public class AmplNetworkReader {
         }
     }
 
-    private float readFloat(String f) {
-        float res = Float.parseFloat(f);
-        return res != AmplConstants.INVALID_FLOAT_VALUE ? res : Float.NaN;
-    }
-
     private double readDouble(String d) {
         return Float.parseFloat(d) != AmplConstants.INVALID_FLOAT_VALUE ? Double.parseDouble(d) : Double.NaN;
+    }
+
+    /**
+     * Return a 3 windings transformer from one its leg ID
+     * @param legId The ID of a 3WT leg
+     * @param network The IIDM network to update
+     * @return A three windings transformer or null if not found
+     */
+    private static ThreeWindingsTransformer getThreeWindingsTransformer(Network network, String legId) {
+        String twtId = legId.substring(0, legId.length() - 5);
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(twtId);
+        if (twt == null) {
+            throw new AmplException("Unable to find transformer '" + twtId + "'");
+        }
+        return twt;
+    }
+
+    private static ThreeWindingsTransformer.Leg getThreeWindingsTransformerLeg(ThreeWindingsTransformer twt, String legId) {
+        if (legId.endsWith(AmplConstants.LEG1_SUFFIX)) {
+            return twt.getLeg1();
+        } else if (legId.endsWith(AmplConstants.LEG2_SUFFIX)) {
+            return twt.getLeg2();
+        } else if (legId.endsWith(AmplConstants.LEG3_SUFFIX)) {
+            return twt.getLeg3();
+        }
+
+        throw new IllegalArgumentException("Unexpected suffix: " + legId.substring(legId.length() - 5));
     }
 
 }
