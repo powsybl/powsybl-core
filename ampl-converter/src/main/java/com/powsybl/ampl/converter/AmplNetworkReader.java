@@ -305,13 +305,7 @@ public class AmplNetworkReader {
         }
 
         if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-            // as non linear shunt are considered as one section shunt for the moment
-            // we update nothing except if the sections is equal to zero. It seems that the
-            // optimizer has decided to disconnect the shunt.
-            // TODO improve non linear shunt update.
-            if (sections == 0) {
-                sc.setSectionCount(sections);
-            }
+            // TODO improve non linear shunt section count update.
         } else {
             sc.setSectionCount(Math.max(0, Math.min(sc.getMaximumSectionCount(), sections)));
         }

@@ -1433,7 +1433,7 @@ public class AmplNetworkWriter {
                 if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
                     // TODO non linear shunt has to be converted as multiple sections shunt.
                     if (sc.getSectionCount() > 1) {
-                        b1 = sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections().get(sc.getSectionCount() - 1).getB() * zb;
+                        b1 = sc.getB(sc.getSectionCount() - 1) * zb;
                     }
                     b2 = sc.getB() * zb;
                 } else {

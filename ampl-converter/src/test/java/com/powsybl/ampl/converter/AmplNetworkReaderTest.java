@@ -86,6 +86,25 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
+    public void readShunt() throws IOException {
+        Network network = ShuntTestCaseFactory.createNonLinear();
+        ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+        sc.setSectionCount(2);
+        assertTrue(Double.isNaN(sc.getTerminal().getQ()));
+        StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource("shunt-test-case",
+                new ResourceSet("/outputs/",
+                        "shunt-test-case_shunts.txt"));
+
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 1, mapper);
+        reader.readShunts();
+
+        ShuntCompensator sc2 = network.getShuntCompensator("SHUNT");
+        assertEquals(30.0, sc2.getTerminal().getQ(), 0.0);
+    }
+
+    @Test
     public void readDanglingLines() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);

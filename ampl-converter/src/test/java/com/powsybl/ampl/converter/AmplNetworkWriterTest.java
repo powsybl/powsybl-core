@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
 
 import org.junit.Assert;
@@ -64,6 +65,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
+    }
+
+    @Test
+    public void writeShunt2() throws IOException {
+        Network network = ShuntTestCaseFactory.createNonLinear();
+        ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+        sc.setSectionCount(2);
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_shunts", "inputs/shunt-test-case-shunts.txt");
     }
 
     @Test
