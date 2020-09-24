@@ -8,11 +8,8 @@ package com.powsybl.action.dsl.ast;
 
 import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.dsl.ast.ExpressionPrinter;
-import org.apache.commons.io.output.WriterOutputStream;
 
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.Iterator;
 
 /**
@@ -21,23 +18,31 @@ import java.util.Iterator;
 public class ActionExpressionPrinter extends ExpressionPrinter implements ActionExpressionVisitor<Void, Void> {
 
     public static String toString(ExpressionNode node) {
-        StringWriter writer = new StringWriter();
-        try (PrintStream os = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8))) {
-            print(node, os);
+        try (StringWriter writer = new StringWriter()) {
+            write(node, writer);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
+    }
 
-        return writer.toString();
+    private static void write(ExpressionNode node, StringWriter out) {
+        node.accept(new ActionExpressionPrinter(out), null);
     }
 
     public static void print(ExpressionNode node) {
         print(node, System.out);
     }
 
-    public static void print(ExpressionNode node, PrintStream out) {
+    public static void print(ExpressionNode node, OutputStream out) {
         node.accept(new ActionExpressionPrinter(out), null);
     }
 
-    public ActionExpressionPrinter(PrintStream out) {
+    public ActionExpressionPrinter(Writer out) {
+        super(out);
+    }
+
+    public ActionExpressionPrinter(OutputStream out) {
         super(out);
     }
 
@@ -45,117 +50,119 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
     public Void visitNetworkComponent(NetworkComponentNode node, Void arg) {
         switch (node.getComponentType()) {
             case BRANCH:
-                out.print("branch");
+                out.write("branch");
                 break;
             case LINE:
-                out.print("line");
+                out.write("line");
                 break;
             case TRANSFORMER:
-                out.print("transformer");
+                out.write("transformer");
                 break;
             case GENERATOR:
-                out.print("generator");
+                out.write("generator");
                 break;
             case LOAD:
-                out.print("load");
+                out.write("load");
                 break;
             case SWITCH:
-                out.print("switch_");
+                out.write("switch_");
                 break;
             default:
                 throw new AssertionError();
         }
-        out.print("('");
-        out.print(node.getComponentId());
-        out.print("')");
+        out.write("('");
+        out.write(node.getComponentId());
+        out.write("')");
         return null;
     }
 
     @Override
     public Void visitNetworkProperty(NetworkPropertyNode node, Void arg) {
         node.getParent().accept(this, arg);
-        out.print(".");
-        out.print(node.getPropertyName());
+        out.write(".");
+        out.write(node.getPropertyName());
         return null;
     }
 
     @Override
     public Void visitNetworkMethod(NetworkMethodNode node, Void arg) {
         node.getParent().accept(this, arg);
-        out.print(".");
-        out.print(node.getMethodName());
-        out.print("(");
+        out.write(".");
+        out.write(node.getMethodName());
+        out.write("(");
         for (int i = 0; i < node.getArgs().length; i++) {
             Object arg2 = node.getArgs()[i];
-            out.print(arg2);
+            out.write(arg2.toString());
             if (i < node.getArgs().length - 1) {
-                out.print(", ");
+                out.write(", ");
             }
         }
-        out.print(")");
+        out.write(")");
         return null;
     }
 
     @Override
     public Void visitActionTaken(ActionTakenNode node, Void arg) {
-        out.print("actionTaken('");
-        out.print(node.getActionId());
-        out.print("')");
+        out.write("actionTaken('");
+        out.write(node.getActionId());
+        out.write("')");
         return null;
     }
 
     @Override
     public Void visitContingencyOccurred(ContingencyOccurredNode node, Void arg) {
-        out.print("contingencyOccurred(");
+        out.write("contingencyOccurred(");
         if (node.getContingencyId() != null) {
-            out.print("'");
-            out.print(node.getContingencyId());
-            out.print("'");
+            out.write("'");
+            out.write(node.getContingencyId());
+            out.write("'");
         }
-        out.print(")");
+        out.write(")");
         return null;
     }
 
     @Override
     public Void visitLoadingRank(LoadingRankNode node, Void arg) {
-        out.print("loadingRank(");
+        out.write("loadingRank('");
         node.getBranchIdToRankNode().accept(this, arg);
-        out.print(", [");
+        out.write("', [");
         Iterator<ExpressionNode> it = node.getBranchIds().iterator();
         while (it.hasNext()) {
-            out.print(it.next().accept(this, arg));
+            out.write("'");
+            it.next().accept(this, arg);
+            out.write("'");
             if (it.hasNext()) {
-                out.print(", ");
+                out.write(", ");
             }
         }
-        out.print("])");
+        out.write("])");
         return null;
     }
 
     @Override
     public Void visitMostLoaded(MostLoadedNode node, Void arg) {
-        out.print("mostLoaded(");
-        out.print("['");
-        out.print(String.join("', '", node.getBranchIds()));
-        out.print("'])");
+        out.write("mostLoaded(");
+        out.write("['");
+        out.write(String.join("', '", node.getBranchIds()));
+        out.write("'])");
         return null;
     }
 
     @Override
     public Void visitIsOverloaded(IsOverloadedNode node, Void arg) {
-        out.print("isOverloaded(");
-        out.print("['");
-        out.print(String.join("', '", node.getBranchIds()));
-        out.print("'])");
+        out.write("isOverloaded(");
+        out.write("['");
+        out.write(String.join("', '", node.getBranchIds()));
+        out.write("'])");
         return null;
     }
 
     @Override
     public Void visitAllOverloaded(AllOverloadedNode node, Void arg) {
-        out.print("allOverloaded(");
-        out.print("['");
-        out.print(String.join("', '", node.getBranchIds()));
-        out.print("'])");
+        out.write("allOverloaded(");
+        out.write("['");
+        out.write(String.join("', '", node.getBranchIds()));
+        out.write("'])");
         return null;
     }
 
