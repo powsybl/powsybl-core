@@ -26,16 +26,6 @@ import java.util.concurrent.CompletableFuture;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
-        return CompletableFuture.completedFuture(new SensitivityAnalysisResult(
-            true,
-            new HashMap<>(),
-            "ok",
-            new ArrayList<>(),
-            new HashMap<>()));
-    }
-
-    @Override
     public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
         return CompletableFuture.completedFuture(new SensitivityAnalysisResult(
             true,

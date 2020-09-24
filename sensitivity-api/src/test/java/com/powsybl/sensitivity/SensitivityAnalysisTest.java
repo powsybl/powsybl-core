@@ -25,11 +25,12 @@ import static org.junit.Assert.*;
 public class SensitivityAnalysisTest {
 
     private static final String DEFAULT_PROVIDER_NAME = "SensitivityAnalysisMock";
-    private static final String ANOTHER_PROVIDER_NAME = "AnotherSensitivityAnalysisMock";
+
     private Network network;
     private ComputationManager computationManager;
     private SensitivityFactorsProvider sensitivityFactorsProvider;
     private ContingenciesProvider contingenciesProvider;
+    private SensitivityAnalysisParameters parameters;
 
     @Before
     public void setUp() {
@@ -40,25 +41,19 @@ public class SensitivityAnalysisTest {
         computationManager = Mockito.mock(ComputationManager.class);
         sensitivityFactorsProvider = Mockito.mock(SensitivityFactorsProvider.class);
         contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
+        parameters = Mockito.mock(SensitivityAnalysisParameters.class);
     }
 
     @Test
     public void testDefaultProvider() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultSensitivityAnalysisRunner.getName());
         assertEquals("1.0", defaultSensitivityAnalysisRunner.getVersion());
     }
 
     @Test
-    public void testAnotherProvider() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(ANOTHER_PROVIDER_NAME);
-        assertEquals(ANOTHER_PROVIDER_NAME, defaultSensitivityAnalysisRunner.getName());
-        assertEquals("2.0", defaultSensitivityAnalysisRunner.getVersion());
-    }
-
-    @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network, "v", sensitivityFactorsProvider,
                 contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
         assertNotNull(result.get());
@@ -66,23 +61,15 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network,
             sensitivityFactorsProvider, contingenciesProvider);
         assertNotNull(result.get());
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMinimumArgumentsNoContingencies() throws InterruptedException, ExecutionException {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
-        CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network,
-            sensitivityFactorsProvider);
-        assertNotNull(result.get());
-    }
-
-    @Test
     public void testSyncDefaultProvider() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, "v", sensitivityFactorsProvider,
             contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
         assertNotNull(result);
@@ -90,15 +77,21 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testSyncDefaultProviderWithMinimumArgumentsWithContingencies() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, sensitivityFactorsProvider, contingenciesProvider);
         assertNotNull(result);
     }
 
     @Test
-    public void testSyncDefaultProviderWithMinimumArgumentsNoContingencies() {
-        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find(DEFAULT_PROVIDER_NAME);
-        SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, sensitivityFactorsProvider);
+    public void testStaticRunMethodWithContingencies() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
+            network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingenciesProvider, parameters);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testStaticRunMethodNoContingencies() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, parameters);
         assertNotNull(result);
     }
 }

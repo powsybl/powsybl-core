@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Objects;
@@ -42,36 +43,19 @@ public final class SensitivityAnalysis {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        private void checkInputs(Network network,
-                                 String workingStateId,
-                                 SensitivityFactorsProvider factorsProvider,
-                                 ContingenciesProvider contingenciesProvider,
-                                 SensitivityAnalysisParameters parameters,
-                                 ComputationManager computationManager) {
-            checkInputs(network, workingStateId, factorsProvider, parameters, computationManager);
-            Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
-        }
-
-        private void checkInputs(Network network,
-                                 String workingStateId,
-                                 SensitivityFactorsProvider factorsProvider,
-                                 SensitivityAnalysisParameters parameters,
-                                 ComputationManager computationManager) {
-            Objects.requireNonNull(network, "Network should not be null");
-            Objects.requireNonNull(workingStateId, "Parameters should not be null");
-            Objects.requireNonNull(factorsProvider, "Sensitivity factors provider should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
-            Objects.requireNonNull(computationManager, "Computation manager should not be null");
-        }
-
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                      String workingStateId,
                                                                      SensitivityFactorsProvider factorsProvider,
                                                                      ContingenciesProvider contingenciesProvider,
                                                                      SensitivityAnalysisParameters parameters,
                                                                      ComputationManager computationManager) {
-            checkInputs(network, workingStateId, factorsProvider, contingenciesProvider, parameters, computationManager);
-            return provider.run(network, workingStateId, factorsProvider, contingenciesProvider, parameters, computationManager);
+            Objects.requireNonNull(network, "Network should not be null");
+            Objects.requireNonNull(workingStateId, "Parameters should not be null");
+            Objects.requireNonNull(factorsProvider, "Sensitivity factors provider should not be null");
+            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
+            Objects.requireNonNull(computationManager, "Computation manager should not be null");
+            return provider.run(network, workingStateId, factorsProvider,
+                contingenciesProvider == null ? new EmptyContingencyListProvider() : contingenciesProvider, parameters, computationManager);
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
@@ -95,40 +79,12 @@ public final class SensitivityAnalysis {
             return runAsync(network, factorsProvider, contingenciesProvider, SensitivityAnalysisParameters.load());
         }
 
-        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
-                                                                     String workingStateId,
-                                                                     SensitivityFactorsProvider factorsProvider,
-                                                                     SensitivityAnalysisParameters parameters,
-                                                                     ComputationManager computationManager) {
-            checkInputs(network, workingStateId, factorsProvider, parameters, computationManager);
-            return provider.run(network, workingStateId, factorsProvider, parameters, computationManager);
-        }
-
-        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
-                                                                     String workingStateId,
-                                                                     SensitivityFactorsProvider factorsProvider,
-                                                                     SensitivityAnalysisParameters parameters) {
-            return runAsync(network, workingStateId, factorsProvider, parameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
-        }
-
-        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
-                                                                     SensitivityFactorsProvider factorsProvider,
-                                                                     SensitivityAnalysisParameters parameters) {
-            return runAsync(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, parameters);
-        }
-
-        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
-                                                                     SensitivityFactorsProvider factorsProvider) {
-            return runAsync(network, factorsProvider, SensitivityAnalysisParameters.load());
-        }
-
         public SensitivityAnalysisResult run(Network network,
                                              String workingStateId,
                                              SensitivityFactorsProvider factorsProvider,
                                              ContingenciesProvider contingenciesProvider,
                                              SensitivityAnalysisParameters parameters,
                                              ComputationManager computationManager) {
-            checkInputs(network, workingStateId, factorsProvider, contingenciesProvider, parameters, computationManager);
             return runAsync(network, workingStateId, factorsProvider, contingenciesProvider, parameters, computationManager).join();
         }
 
@@ -137,47 +93,20 @@ public final class SensitivityAnalysis {
                                              SensitivityFactorsProvider factorsProvider,
                                              ContingenciesProvider contingenciesProvider,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, workingStateId, factorsProvider, contingenciesProvider, parameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
+            return runAsync(network, workingStateId, factorsProvider, contingenciesProvider, parameters).join();
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              SensitivityFactorsProvider factorsProvider,
                                              ContingenciesProvider contingenciesProvider,
                                              SensitivityAnalysisParameters parameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, contingenciesProvider, parameters);
+            return runAsync(network, factorsProvider, contingenciesProvider, parameters).join();
         }
 
         public SensitivityAnalysisResult run(Network network,
                                              SensitivityFactorsProvider factorsProvider,
                                              ContingenciesProvider contingenciesProvider) {
-            return run(network, factorsProvider, contingenciesProvider, SensitivityAnalysisParameters.load());
-        }
-
-        public SensitivityAnalysisResult run(Network network,
-                                             String workingStateId,
-                                             SensitivityFactorsProvider factorsProvider,
-                                             SensitivityAnalysisParameters parameters,
-                                             ComputationManager computationManager) {
-            checkInputs(network, workingStateId, factorsProvider, parameters, computationManager);
-            return runAsync(network, workingStateId, factorsProvider, parameters, computationManager).join();
-        }
-
-        public SensitivityAnalysisResult run(Network network,
-                                             String workingStateId,
-                                             SensitivityFactorsProvider factorsProvider,
-                                             SensitivityAnalysisParameters parameters) {
-            return run(network, workingStateId, factorsProvider, parameters, DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
-        }
-
-        public SensitivityAnalysisResult run(Network network,
-                                             SensitivityFactorsProvider factorsProvider,
-                                             SensitivityAnalysisParameters parameters) {
-            return run(network, network.getVariantManager().getWorkingVariantId(), factorsProvider, parameters);
-        }
-
-        public SensitivityAnalysisResult run(Network network,
-                                             SensitivityFactorsProvider factorsProvider) {
-            return run(network, factorsProvider, SensitivityAnalysisParameters.load());
+            return runAsync(network, factorsProvider, contingenciesProvider).join();
         }
 
         @Override
@@ -214,4 +143,24 @@ public final class SensitivityAnalysis {
         return find(null);
     }
 
+    public static SensitivityAnalysisResult run(Network network,
+                                                String workingStateId,
+                                                SensitivityFactorsProvider factorsProvider,
+                                                ContingenciesProvider contingenciesProvider,
+                                                SensitivityAnalysisParameters parameters) {
+        return find().run(network, workingStateId, factorsProvider, contingenciesProvider, parameters);
+    }
+
+    public static SensitivityAnalysisResult run(Network network,
+                                                SensitivityFactorsProvider factorsProvider,
+                                                ContingenciesProvider contingenciesProvider,
+                                                SensitivityAnalysisParameters parameters) {
+        return find().run(network, factorsProvider, contingenciesProvider, parameters);
+    }
+
+    public static SensitivityAnalysisResult run(Network network,
+                                                SensitivityFactorsProvider factorsProvider,
+                                                SensitivityAnalysisParameters parameters) {
+        return run(network, factorsProvider, null, parameters);
+    }
 }
