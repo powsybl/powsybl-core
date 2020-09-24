@@ -1040,70 +1040,22 @@ public class AmplNetworkWriter {
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
-            if (rtc1 != null) {
-                String id = twt.getId() + "_leg1_ratio_table";
-
-                Terminal t1 = twt.getLeg1().getTerminal();
-                double vb1 = t1.getVoltageLevel().getNominalV();
-                double zb1 = vb1 * vb1 / AmplConstants.SB;
-
-                writeRatioTapChanger(formatter, id, zb1, twt.getLeg1().getX(), rtc1);
-            }
-
-            PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
-            if (ptc1 != null) {
-                String id = twt.getId() + "_leg1_phase_table";
-
-                Terminal t1 = twt.getLeg1().getTerminal();
-                double vb1 = t1.getVoltageLevel().getNominalV();
-                double zb1 = vb1 * vb1 / AmplConstants.SB;
-
-                writePhaseTapChanger(formatter, id, zb1, twt.getLeg1().getX(), ptc1);
-            }
-
-            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            if (rtc2 != null) {
-                String id = twt.getId() + "_leg2_ratio_table";
-
-                Terminal t2 = twt.getLeg2().getTerminal();
-                double vb2 = t2.getVoltageLevel().getNominalV();
-                double zb2 = vb2 * vb2 / AmplConstants.SB;
-
-                writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2);
-            }
-
-            PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
-            if (ptc2 != null) {
-                String id = twt.getId() + "_leg2_phase_table";
-
-                Terminal t2 = twt.getLeg2().getTerminal();
-                double vb2 = t2.getVoltageLevel().getNominalV();
-                double zb2 = vb2 * vb2 / AmplConstants.SB;
-
-                writePhaseTapChanger(formatter, id, zb2, twt.getLeg2().getX(), ptc2);
-            }
-
-            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-            if (rtc3 != null) {
-                String id = twt.getId() + "_leg3_ratio_table";
-
-                Terminal t3 = twt.getLeg3().getTerminal();
-                double vb3 = t3.getVoltageLevel().getNominalV();
-                double zb3 = vb3 * vb3 / AmplConstants.SB;
-
-                writeRatioTapChanger(formatter, id, zb3, twt.getLeg3().getX(), rtc3);
-            }
-
-            PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
-            if (ptc3 != null) {
-                String id = twt.getId() + "_leg3_phase_table";
-
-                Terminal t3 = twt.getLeg3().getTerminal();
-                double vb3 = t3.getVoltageLevel().getNominalV();
-                double zb3 = vb3 * vb3 / AmplConstants.SB;
-
-                writePhaseTapChanger(formatter, id, zb3, twt.getLeg3().getX(), ptc3);
+            int legNumber = 0;
+            for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
+                legNumber++;
+                RatioTapChanger rtc = leg.getRatioTapChanger();
+                Terminal t = leg.getTerminal();
+                double vb = t.getVoltageLevel().getNominalV();
+                double zb = vb * vb / AmplConstants.SB;
+                if (rtc != null) {
+                    String id = twt.getId() + "_leg" + legNumber + "_ratio_table";
+                    writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
+                }
+                PhaseTapChanger ptc = leg.getPhaseTapChanger();
+                if (ptc != null) {
+                    String id = twt.getId() + "_leg" + legNumber + "_phase_table";
+                    writePhaseTapChanger(formatter, id, zb, leg.getX(), ptc);
+                }
             }
         }
     }
@@ -1766,7 +1718,7 @@ public class AmplNetworkWriter {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             if (twt.getLeg1().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG1_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, false, "");
+                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, true, "");
             }
             if (twt.getLeg2().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG2_SUFFIX;

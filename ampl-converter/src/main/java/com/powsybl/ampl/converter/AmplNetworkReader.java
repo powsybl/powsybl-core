@@ -213,28 +213,23 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt;
+            ThreeWindingsTransformer twt = null;
+            RatioTapChanger rtc = null;
             if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
                 twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
-                if (twt == null) {
-                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
-                }
-                RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
-                rtc1.setTapPosition(rtc1.getLowTapPosition() + tap - 1);
+                rtc = twt.getLeg1().getRatioTapChanger();
             } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
                 twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
-                if (twt == null) {
-                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
-                }
-                RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-                rtc2.setTapPosition(rtc2.getLowTapPosition() + tap - 1);
+                rtc = twt.getLeg2().getRatioTapChanger();
             } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
                 twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
-                if (twt == null) {
-                    throw new AmplException("Invalid three windings transformer id '" + id + "'");
-                }
-                RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-                rtc3.setTapPosition(rtc3.getLowTapPosition() + tap - 1);
+                rtc = twt.getLeg3().getRatioTapChanger();
+            }
+            if (twt == null) {
+                throw new AmplException("Invalid three windings transformer id '" + id + "'");
+            }
+            if (rtc != null) {
+                rtc.setTapPosition(rtc.getLowTapPosition() + tap - 1);
             }
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
@@ -259,19 +254,23 @@ public class AmplNetworkReader {
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG1_SUFFIX) || id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
+            ThreeWindingsTransformer twt = null;
+            PhaseTapChanger ptc = null;
+            if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG1_SUFFIX)));
+                ptc = twt.getLeg1().getPhaseTapChanger();
+            } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
+                ptc = twt.getLeg2().getPhaseTapChanger();
+            } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+                twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG3_SUFFIX)));
+                ptc = twt.getLeg3().getPhaseTapChanger();
+            }
             if (twt == null) {
                 throw new AmplException("Invalid three windings transformer id '" + id + "'");
             }
-            if (id.endsWith(AmplConstants.LEG1_SUFFIX)) {
-                PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
-                ptc1.setTapPosition(ptc1.getLowTapPosition() + tap - 1);
-            } else if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-                PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
-                ptc2.setTapPosition(ptc2.getLowTapPosition() + tap - 1);
-            } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-                PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
-                ptc3.setTapPosition(ptc3.getLowTapPosition() + tap - 1);
+            if (ptc != null) {
+                ptc.setTapPosition(ptc.getLowTapPosition() + tap - 1);
             }
         } else {
             TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);

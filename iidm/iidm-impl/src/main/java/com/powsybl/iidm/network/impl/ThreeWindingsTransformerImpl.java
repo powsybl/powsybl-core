@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.*;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  *
