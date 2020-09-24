@@ -37,6 +37,7 @@ public final class StateVariablesExport {
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
     private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
+    private static final boolean EXPORT_BRANCH_POWER_FLOWS = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
@@ -224,9 +225,14 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, writer, Network::getStaticVarCompensatorStream);
         writeInjectionsPowerFlows(network, writer, Network::getBatteryStream);
 
-        network.getDanglingLineStream().forEach(dl -> dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary")
-                .ifPresent(terminal -> writePowerFlow(terminal, dl.getP0(), dl.getQ0(), writer)));
-        // TODO what about flows of dl's generations?
+        network.getDanglingLineStream().forEach(dl -> {
+            if (EXPORT_BRANCH_POWER_FLOWS) {
+                dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary")
+                    .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), writer));
+            }
+            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal")
+                .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), writer));
+        });
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, XMLStreamWriter writer, Function<Network, Stream<I>> getInjectionStream) {
