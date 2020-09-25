@@ -6,7 +6,13 @@
  */
 package com.powsybl.sensitivity.converter;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.UncheckedIOException;
+import java.io.Writer;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -31,5 +37,10 @@ public class SensitivityAnalysisResultExportersTest {
     public void testExporterForUnavailableFormat() {
         SensitivityAnalysisResultExporter exporter = SensitivityAnalysisResultExporters.getExporter("Invalid");
         assertNull(exporter);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testExportersWithWrongFormat() {
+        SensitivityAnalysisResultExporters.export(Mockito.mock(SensitivityAnalysisResult.class), Mockito.mock(Writer.class), "JSON");
     }
 }

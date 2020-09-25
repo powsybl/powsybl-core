@@ -90,8 +90,20 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
+    public void testStaticSimpleRunMethodWithParameters() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider, parameters);
+        assertNotNull(result);
+    }
+
+    @Test
     public void testStaticSimpleRunMethod() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testStaticSimpleRunMethodWithNoContingencies() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, null);
         assertNotNull(result);
     }
 }
