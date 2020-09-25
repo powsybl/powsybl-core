@@ -19,6 +19,8 @@ import org.junit.Test;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -35,6 +37,7 @@ public class CgmesExportContextTest {
         CgmesExportContext context1 = new CgmesExportContext(network);
 
         assertEquals(16, context1.getCimVersion());
+        assertEquals(CIM_16_NAMESPACE, context1.getCimNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context1.getTopologyKind());
         assertEquals(network.getCaseDate(), context1.getScenarioTime());
         assertEquals("SV Model", context1.getSvDescription());
@@ -57,6 +60,7 @@ public class CgmesExportContextTest {
         CgmesExportContext context2 = new CgmesExportContext(network);
 
         assertEquals(14, context2.getCimVersion());
+        assertEquals(CIM_14_NAMESPACE, context2.getCimNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context2.getTopologyKind());
         assertEquals(network.getCaseDate(), context2.getScenarioTime());
         assertEquals("test", context2.getSvDescription());
@@ -72,6 +76,7 @@ public class CgmesExportContextTest {
     public void emptyConstructor() {
         CgmesExportContext context = new CgmesExportContext();
         assertEquals(16, context.getCimVersion());
+        assertEquals(CIM_16_NAMESPACE, context.getCimNamespace());
         assertEquals(CgmesTopologyKind.BUS_BRANCH, context.getTopologyKind());
         assertTrue(new Duration(DateTime.now(), context.getScenarioTime()).getStandardMinutes() < 1);
         assertEquals("SV Model", context.getSvDescription());
@@ -95,6 +100,7 @@ public class CgmesExportContextTest {
                 .setExportBoundaryPowerFlows(true);
 
         assertEquals(14, context.getCimVersion());
+        assertEquals(CIM_14_NAMESPACE, context.getCimNamespace());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
         assertEquals(DateTime.parse("2020-09-22T17:21:11.381+02:00"), context.getScenarioTime());
         assertEquals("test", context.getSvDescription());
