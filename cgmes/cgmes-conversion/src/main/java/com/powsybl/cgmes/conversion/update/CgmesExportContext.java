@@ -31,7 +31,7 @@ public class CgmesExportContext {
     private String svDescription = "SV Model";
     private int svVersion = 1;
     private final List<String> dependencies = new ArrayList<>();
-    private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
+    private String modelingAuthoritySet = "powsybl.org";
 
     private boolean exportBoundaryPowerFlows = false;
 
