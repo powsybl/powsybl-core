@@ -160,7 +160,7 @@ public final class SensitivityAnalysis {
 
     public static SensitivityAnalysisResult run(Network network,
                                                 SensitivityFactorsProvider factorsProvider,
-                                                SensitivityAnalysisParameters parameters) {
-        return run(network, factorsProvider, null, parameters);
+                                                ContingenciesProvider contingenciesProvider) {
+        return find().run(network, factorsProvider, contingenciesProvider);
     }
 }

@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
+import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -145,14 +146,12 @@ public class SensitivityAnalysisTool implements Tool {
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
-        SensitivityAnalysisResult result;
+        ContingenciesProvider contingenciesProvider = new EmptyContingencyListProvider();
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
-            ContingenciesProvider contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
-            result = SensitivityAnalysis.run(network, factorsProvider, contingenciesProvider, params);
-        } else {
-            result = SensitivityAnalysis.run(network, factorsProvider, params);
+            contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
         }
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingenciesProvider, params);
 
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");

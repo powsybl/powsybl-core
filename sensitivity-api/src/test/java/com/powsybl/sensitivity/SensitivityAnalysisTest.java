@@ -91,7 +91,7 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testStaticRunMethodNoContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, parameters);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider);
         assertNotNull(result);
     }
 }
