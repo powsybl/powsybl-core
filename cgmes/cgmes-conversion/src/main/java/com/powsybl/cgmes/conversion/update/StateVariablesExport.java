@@ -227,6 +227,8 @@ public final class StateVariablesExport {
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getBatteryStream);
 
         network.getDanglingLineStream().forEach(dl -> {
+            // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
+            // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (EXPORT_BRANCH_POWER_FLOWS) {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary")
                     .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
