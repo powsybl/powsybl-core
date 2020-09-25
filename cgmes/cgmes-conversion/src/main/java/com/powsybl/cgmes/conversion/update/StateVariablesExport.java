@@ -293,7 +293,7 @@ public final class StateVariablesExport {
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.ID, CgmesExport.getUniqueId());
             writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.ShuntCompensator");
             writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + s.getId());
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.continuousSections");
+            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SvShuntCompensatorSections.sections");
             writer.writeCharacters(CgmesExport.format(s.getSectionCount()));
             writer.writeEndElement();
             writer.writeEndElement();
