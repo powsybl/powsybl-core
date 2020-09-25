@@ -52,14 +52,62 @@ public class AmplNetworkReaderTest {
     @Test
     public void readThreeWindingTransformers() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+        twt.getLeg1().newPhaseTapChanger()
+                .setTapPosition(1)
+                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationValue(200)
+                .beginStep()
+                    .setAlpha(-20.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .beginStep()
+                    .setAlpha(20.0)
+                    .setRho(1.0)
+                    .setR(0.0)
+                    .setX(0.0)
+                    .setG(0.0)
+                    .setB(0.0)
+                .endStep()
+                .add();
+
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("3wt",
                 new ResourceSet("/outputs/",
-                        "3wt_branches.txt"));
+                        "3wt_branches.txt", "3wt_rtc.txt", "3wt_ptc.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
+
         testThreeWindingTransBranches(network, reader);
+
+        // Ratio tap changers
+        RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
+        RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+        assertEquals(2, rtc2.getTapPosition());
+        assertEquals(0, rtc3.getTapPosition());
+        reader.readRatioTapChangers();
+        assertEquals(0, rtc2.getTapPosition());
+        assertEquals(2, rtc3.getTapPosition());
+
+        // Phase tap changers
+        PhaseTapChanger ptc = twt.getLeg1().getPhaseTapChanger();
+        assertEquals(1, ptc.getTapPosition());
+        reader.readPhaseTapChangers();
+        assertEquals(0, ptc.getTapPosition());
     }
 
     @Test
@@ -73,6 +121,25 @@ public class AmplNetworkReaderTest {
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 2, mapper);
         testThreeWindingTransBranches(network, reader);
+    }
+
+    @Test
+    public void readShunt() throws IOException {
+        Network network = ShuntTestCaseFactory.createNonLinear();
+        ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+        sc.setSectionCount(2);
+        assertTrue(Double.isNaN(sc.getTerminal().getQ()));
+        StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource("shunt-test-case",
+                new ResourceSet("/outputs/",
+                        "shunt-test-case_shunts.txt"));
+
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 1, mapper);
+        reader.readShunts();
+
+        ShuntCompensator sc2 = network.getShuntCompensator("SHUNT");
+        assertEquals(30.0, sc2.getTerminal().getQ(), 0.0);
     }
 
     @Test
