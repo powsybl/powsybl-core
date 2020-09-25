@@ -220,4 +220,21 @@ public class SensitivityAnalysisResultTest {
         assertSame(factorOk, results.getSensitivityValue(factorOk, "Contingency").getFactor());
         assertSame(factorNok, results.getSensitivityValue(factorNok, "Contingency").getFactor());
     }
+
+    @Test
+    public void shortConstructor() {
+        SensitivityAnalysisResult result = new SensitivityAnalysisResult(true, new HashMap<>(),
+            "fake logs", new ArrayList<>());
+        assertTrue(result.getSensitivityValuesContingencies().isEmpty());
+    }
+
+    @Test
+    public void emptyMethod() {
+        SensitivityAnalysisResult result = SensitivityAnalysisResult.empty();
+        assertFalse(result.isOk());
+        assertTrue(result.getMetrics().isEmpty());
+        assertTrue(result.getLogs().isEmpty());
+        assertTrue(result.getSensitivityValues().isEmpty());
+        assertTrue(result.getSensitivityValuesContingencies().isEmpty());
+    }
 }
