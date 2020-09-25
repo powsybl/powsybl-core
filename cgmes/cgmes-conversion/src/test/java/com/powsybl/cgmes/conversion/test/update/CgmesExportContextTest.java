@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -78,20 +79,21 @@ public class CgmesExportContextTest {
         assertEquals(1, context.getSvVersion());
         assertTrue(context.getDependencies().isEmpty());
         assertEquals("powsybl.org", context.getModelingAuthoritySet());
+        assertFalse(context.exportBoundaryPowerFlows());
     }
 
     @Test
     public void getSet() {
-        CgmesExportContext context = new CgmesExportContext();
-
-        context.setCimVersion(14)
+        CgmesExportContext context = new CgmesExportContext()
+                .setCimVersion(14)
                 .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
                 .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
                 .setSvDescription("test")
                 .setSvVersion(2)
                 .addDependency("powsybl.test.org")
                 .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org");
+                .setModelingAuthoritySet("cgmes.org")
+                .setExportBoundaryPowerFlows(true);
 
         assertEquals(14, context.getCimVersion());
         assertEquals(CgmesTopologyKind.NODE_BREAKER, context.getTopologyKind());
@@ -102,6 +104,7 @@ public class CgmesExportContextTest {
         assertTrue(context.getDependencies().contains("powsybl.test.org"));
         assertTrue(context.getDependencies().contains("cgmes"));
         assertEquals("cgmes.org", context.getModelingAuthoritySet());
+        assertTrue(context.exportBoundaryPowerFlows());
 
         List<String> dependencies = Arrays.asList("test1", "test2", "test3");
         context.addDependencies(dependencies);

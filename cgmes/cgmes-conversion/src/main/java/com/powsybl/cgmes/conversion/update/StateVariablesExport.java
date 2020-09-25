@@ -37,7 +37,6 @@ public final class StateVariablesExport {
     private static final String SV_VOLTAGE_ANGLE = "SvVoltage.angle";
     private static final String SV_VOLTAGE_V = "SvVoltage.v";
     private static final String SV_VOLTAGE_TOPOLOGICAL_NODE = "SvVoltage.TopologicalNode";
-    private static final boolean EXPORT_BRANCH_POWER_FLOWS = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 
@@ -57,7 +56,7 @@ public final class StateVariablesExport {
 
             writeVoltagesForTopologicalNodes(network, cimNamespace, writer, context);
             writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
-            writePowerFlows(network, cimNamespace, writer);
+            writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
             writeStatus(network, cimNamespace, writer);
@@ -219,7 +218,7 @@ public final class StateVariablesExport {
         writer.writeEndElement();
     }
 
-    private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer) {
+    private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getLoadStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getGeneratorStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, Network::getShuntCompensatorStream);
@@ -229,7 +228,7 @@ public final class StateVariablesExport {
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
-            if (EXPORT_BRANCH_POWER_FLOWS) {
+            if (context.exportBoundaryPowerFlows()) {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary")
                     .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
             }

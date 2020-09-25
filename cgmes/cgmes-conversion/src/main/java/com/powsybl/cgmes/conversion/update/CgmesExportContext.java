@@ -33,6 +33,8 @@ public class CgmesExportContext {
     private final List<String> dependencies = new ArrayList<>();
     private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
 
+    private boolean exportBoundaryPowerFlows = false;
+
     public CgmesExportContext(Network network) {
         CimCharacteristics cimCharacteristics = network.getExtension(CimCharacteristics.class);
         if (cimCharacteristics != null) {
@@ -122,6 +124,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setModelingAuthoritySet(String modelingAuthoritySet) {
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
+        return this;
+    }
+
+    public boolean exportBoundaryPowerFlows() {
+        return exportBoundaryPowerFlows;
+    }
+
+    public CgmesExportContext setExportBoundaryPowerFlows(boolean exportBoundaryPowerFlows) {
+        this.exportBoundaryPowerFlows = exportBoundaryPowerFlows;
         return this;
     }
 
