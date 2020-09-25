@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.update;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
@@ -122,5 +123,9 @@ public class CgmesExportContext {
     public CgmesExportContext setModelingAuthoritySet(String modelingAuthoritySet) {
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
         return this;
+    }
+
+    public String getCimNamespace() {
+        return CgmesNamespace.getCimNamespace(cimVersion);
     }
 }

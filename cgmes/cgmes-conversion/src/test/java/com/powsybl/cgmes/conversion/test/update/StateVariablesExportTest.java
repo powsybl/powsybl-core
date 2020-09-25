@@ -7,13 +7,13 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.update.CgmesExportContext;
 import com.powsybl.cgmes.conversion.update.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -66,7 +66,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export SV
         Path test = tmpDir.resolve("test.xml");
         try (OutputStream os = Files.newOutputStream(test)) {
-            XMLStreamWriter writer = CgmesExport.initializeWriter(os);
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             StateVariablesExport.write(expected, writer, new CgmesExportContext(expected).setSvVersion(svVersion));
         }
 
