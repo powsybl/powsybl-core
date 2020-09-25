@@ -55,7 +55,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.1 t2wtSplitShuntAdmittance
     // VERSION = 1.2 twtSplitShuntAdmittance,
     // VERSION = 1.3 simulShunt, read/write slack bus
-    // VERSION = 1.4 voltageRemoteControl, dc, distributedSlack, balanceType
+    // VERSION = 1.4 dc, distributedSlack, balanceType
     public static final String VERSION = "1.4";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
@@ -66,9 +66,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_SIMUL_SHUNT = false;
     public static final boolean DEFAULT_READ_SLACK_BUS = false;
     public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
-    public static final boolean DEFAULT_VOLTAGE_REMOTE_CONTROL = false;
     public static final boolean DEFAULT_DC = false;
-    public static final boolean DEFAULT_DISTRIBUTED_SLACK = false;
+    public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -112,7 +111,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setSimulShunt(config.getBooleanProperty("simulShunt", DEFAULT_SIMUL_SHUNT));
                 parameters.setReadSlackBus(config.getBooleanProperty("readSlackBus", DEFAULT_READ_SLACK_BUS));
                 parameters.setWriteSlackBus(config.getBooleanProperty("writeSlackBus", DEFAULT_WRITE_SLACK_BUS));
-                parameters.setVoltageRemoteControl(config.getBooleanProperty("voltageRemoteControl", DEFAULT_VOLTAGE_REMOTE_CONTROL));
                 parameters.setDc(config.getBooleanProperty("dc", DEFAULT_DC));
                 parameters.setDistributedSlack(config.getBooleanProperty("distributedSlack", DEFAULT_DISTRIBUTED_SLACK));
                 parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
@@ -137,8 +135,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean dc;
 
-    private boolean voltageRemoteControl;
-
     private boolean distributedSlack;
 
     private BalanceType balanceType;
@@ -146,7 +142,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
-                              boolean voltageRemoteControl, boolean dc, boolean distributedSlack, BalanceType balanceType) {
+                              boolean dc, boolean distributedSlack, BalanceType balanceType) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
@@ -155,7 +151,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this.simulShunt = simulShunt;
         this.readSlackBus = readSlackBus;
         this.writeSlackBus = writeSlackBus;
-        this.voltageRemoteControl = voltageRemoteControl;
         this.dc = dc;
         this.distributedSlack = distributedSlack;
         this.balanceType = balanceType;
@@ -165,7 +160,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
         this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
-                DEFAULT_VOLTAGE_REMOTE_CONTROL, DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE);
+                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -190,7 +185,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         simulShunt = other.simulShunt;
         readSlackBus = other.readSlackBus;
         writeSlackBus = other.writeSlackBus;
-        voltageRemoteControl = other.voltageRemoteControl;
         dc = other.dc;
         distributedSlack = other.distributedSlack;
         balanceType = other.balanceType;
@@ -309,15 +303,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    public boolean hasVoltageRemoteControl() {
-        return voltageRemoteControl;
-    }
-
-    public LoadFlowParameters setVoltageRemoteControl(boolean voltageRemoteControl) {
-        this.voltageRemoteControl = voltageRemoteControl;
-        return this;
-    }
-
     public boolean isDistributedSlack() {
         return distributedSlack;
     }
@@ -347,7 +332,6 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("simulShunt", simulShunt)
                 .put("readSlackBus", readSlackBus)
                 .put("writeSlackBus", writeSlackBus)
-                .put("voltageRemoteControl", voltageRemoteControl)
                 .put("dc", dc)
                 .put("distributedSlack", distributedSlack)
                 .put("balanceType", balanceType);

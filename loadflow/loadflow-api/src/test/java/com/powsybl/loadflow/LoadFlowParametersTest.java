@@ -56,7 +56,7 @@ public class LoadFlowParametersTest {
                              boolean transformerVoltageControlOn, boolean noGeneratorReactiveLimits,
                              boolean phaseShifterRegulationOn, boolean twtSplitShuntAdmittance,
                              boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
-                             boolean voltageRemoteControl, boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType) {
+                             boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
@@ -65,7 +65,6 @@ public class LoadFlowParametersTest {
         assertEquals(parameters.isSimulShunt(), simulShunt);
         assertEquals(parameters.isReadSlackBus(), readSlackBus);
         assertEquals(parameters.isWriteSlackBus(), writeSlackBus);
-        assertEquals(parameters.hasVoltageRemoteControl(), voltageRemoteControl);
         assertEquals(parameters.isDc(), dc);
         assertEquals(parameters.isDistributedSlack(), distributedSlack);
         assertEquals(parameters.getBalanceType(), balanceType);
@@ -83,7 +82,6 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE);
@@ -122,7 +120,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
                     noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    voltageRemoteControl, dc, distributedSlack, balanceType);
+                    dc, distributedSlack, balanceType);
     }
 
     @Test
@@ -136,7 +134,7 @@ public class LoadFlowParametersTest {
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
     }
 
     @Test
@@ -147,7 +145,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
     }
 
     @Test
@@ -158,7 +156,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL, LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
     }
 
     @Test
@@ -172,7 +170,6 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE);
@@ -189,15 +186,13 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT,
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_VOLTAGE_REMOTE_CONTROL,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
                 LoadFlowParameters.DEFAULT_BALANCE_TYPE);
 
         LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
-        parameters1.setVoltageRemoteControl(true);
         parameters1.setDc(true);
-        parameters1.setDistributedSlack(true);
+        parameters1.setDistributedSlack(false);
         parameters1.setBalanceType(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
         checkValues(parameters1, voltageInitMode,
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON,
@@ -208,8 +203,7 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_READ_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 true,
-                true,
-                true,
+                false,
                 LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
     }
 
@@ -222,9 +216,8 @@ public class LoadFlowParametersTest {
         boolean simulShunt = true;
         boolean readSlackBus = true;
         boolean writeSlackBus = true;
-        boolean voltageRemoteControl = true;
         boolean dc = true;
-        boolean distributedSlack = true;
+        boolean distributedSlack = false;
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
 
@@ -238,14 +231,13 @@ public class LoadFlowParametersTest {
                 .setSimulShunt(simulShunt)
                 .setReadSlackBus(readSlackBus)
                 .setWriteSlackBus(writeSlackBus)
-                .setVoltageRemoteControl(voltageRemoteControl)
                 .setDc(dc)
                 .setDistributedSlack(distributedSlack)
                 .setBalanceType(balanceType);
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
                     phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    voltageRemoteControl, dc, distributedSlack, balanceType);
+                    dc, distributedSlack, balanceType);
     }
 
     @Test
@@ -257,19 +249,18 @@ public class LoadFlowParametersTest {
         boolean simulShunt = true;
         boolean readSlackBus = true;
         boolean writeSlackBus = true;
-        boolean voltageRemoteControl = true;
         boolean dc = true;
-        boolean distributedSlack = true;
+        boolean distributedSlack = false;
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
                                                                noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                                                               voltageRemoteControl, dc, distributedSlack, balanceType);
+                                                               dc, distributedSlack, balanceType);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isSimulShunt(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
-                parameters.hasVoltageRemoteControl(), parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType());
+                parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType());
     }
 
     @Test

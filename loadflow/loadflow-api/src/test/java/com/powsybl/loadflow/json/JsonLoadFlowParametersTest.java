@@ -96,7 +96,6 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void readJsonVersion14() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion14.json"));
-        assertTrue(parameters.hasVoltageRemoteControl());
         assertTrue(parameters.isDc());
         assertTrue(parameters.isDistributedSlack());
         assertEquals(LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD, parameters.getBalanceType());

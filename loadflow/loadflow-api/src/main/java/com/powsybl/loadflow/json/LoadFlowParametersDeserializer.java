@@ -104,12 +104,6 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
-                case "voltageRemoteControl":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: voltageRemoteControl", version, "1.3");
-                    parser.nextToken();
-                    parameters.setVoltageRemoteControl(parser.readValueAs(Boolean.class));
-                    break;
-
                 case "dc":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: dc", version, "1.3");
                     parser.nextToken();

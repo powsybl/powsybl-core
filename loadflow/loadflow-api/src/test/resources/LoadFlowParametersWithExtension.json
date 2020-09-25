@@ -8,9 +8,8 @@
   "simulShunt" : false,
   "readSlackBus" : false,
   "writeSlackBus" : false,
-  "voltageRemoteControl" : false,
   "dc" : false,
-  "distributedSlack" : false,
+  "distributedSlack" : true,
   "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
   "extensions" : {
     "dummy-extension" : { }
