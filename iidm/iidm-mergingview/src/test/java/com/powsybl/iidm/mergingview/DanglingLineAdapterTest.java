@@ -204,10 +204,10 @@ public class DanglingLineAdapterTest {
         t2.setP(p2);
         t2.setQ(q2);
         // Check P & Q are computed by Listener
-        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
-        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
-        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
-        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
+        assertEquals(p1 + (lossesP / 2.0), dl1.getBoundaryPoint().getP(), 0.0d);
+        assertEquals(q1 + (lossesQ / 2.0), dl1.getBoundaryPoint().getQ(), 0.0d);
+        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getBoundaryPoint().getP(), 0.0d);
+        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getBoundaryPoint().getQ(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());

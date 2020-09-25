@@ -188,10 +188,10 @@ public class LineAdapterTest {
         dl2.getTerminal().setP(p2);
         dl2.getTerminal().setQ(q2);
         // Check P & Q are updated
-        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
-        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
-        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
-        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
+        assertEquals(p1 + (lossesP / 2.0), dl1.getBoundaryPoint().getP(), 0.0d);
+        assertEquals(q1 + (lossesQ / 2.0), dl1.getBoundaryPoint().getQ(), 0.0d);
+        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getBoundaryPoint().getP(), 0.0d);
+        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getBoundaryPoint().getQ(), 0.0d);
     }
 
     @Test
