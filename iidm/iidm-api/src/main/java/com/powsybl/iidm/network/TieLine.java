@@ -289,4 +289,11 @@ public interface TieLine extends Line {
      */
     HalfLine getHalf(Side side);
 
+    default BoundaryPoint getBoundaryPoint1() {
+        throw new UnsupportedOperationException();
+    }
+
+    default BoundaryPoint getBoundaryPoint2() {
+        throw new UnsupportedOperationException();
+    }
 }
