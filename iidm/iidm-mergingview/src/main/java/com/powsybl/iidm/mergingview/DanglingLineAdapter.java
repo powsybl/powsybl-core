@@ -105,4 +105,9 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     public CurrentLimitsAdder newCurrentLimits() {
         return getDelegate().newCurrentLimits();
     }
+
+    @Override
+    public BoundaryPoint getBoundaryPoint() {
+        return getDelegate().getBoundaryPoint();
+    }
 }

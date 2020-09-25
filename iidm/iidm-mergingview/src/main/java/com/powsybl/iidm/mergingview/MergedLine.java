@@ -548,4 +548,14 @@ class MergedLine implements TieLine {
                 throw new AssertionError("Unknown branch side " + side);
         }
     }
+
+    @Override
+    public BoundaryPoint getBoundaryPoint1() {
+        return getDanglingLine1().getBoundaryPoint();
+    }
+
+    @Override
+    public BoundaryPoint getBoundaryPoint2() {
+        return getDanglingLine2().getBoundaryPoint();
+    }
 }
