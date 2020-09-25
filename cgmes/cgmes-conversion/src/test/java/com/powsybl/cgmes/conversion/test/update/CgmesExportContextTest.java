@@ -49,7 +49,6 @@ public class CgmesExportContextTest {
         network.newExtension(CgmesSvMetadataAdder.class)
                 .setDescription("test")
                 .setSvVersion(2)
-                .setScenarioTime(network.getCaseDate().toString())
                 .addDependency("powsybl.test.org")
                 .addDependency("cgmes")
                 .setModelingAuthoritySet("cgmes.org")

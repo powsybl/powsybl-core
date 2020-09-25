@@ -24,7 +24,6 @@ public class CgmesSvMetadataTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
         network.newExtension(CgmesSvMetadataAdder.class)
-                .setScenarioTime("2020-09-07T15:44:10.425+02:00")
                 .setDescription("test description")
                 .setModelingAuthoritySet("http://powsybl.org")
                 .setSvVersion(1)
@@ -33,7 +32,6 @@ public class CgmesSvMetadataTest {
                 .add();
         CgmesSvMetadata extension = network.getExtension(CgmesSvMetadata.class);
         assertNotNull(extension);
-        assertEquals("2020-09-07T15:44:10.425+02:00", extension.getScenarioTime());
         assertEquals("test description", extension.getDescription());
         assertEquals("http://powsybl.org", extension.getModelingAuthoritySet());
         assertEquals(1, extension.getSvVersion());

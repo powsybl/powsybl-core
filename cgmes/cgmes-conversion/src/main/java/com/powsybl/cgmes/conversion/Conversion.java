@@ -298,7 +298,6 @@ public class Conversion {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
-                    .setScenarioTime(svDescription.get(0).getId("scenarioTime"))
                     .setDescription(svDescription.get(0).getId("description"))
                     .setSvVersion(svDescription.get(0).asInt("version"))
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));

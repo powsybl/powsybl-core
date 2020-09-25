@@ -19,7 +19,6 @@ import java.util.Objects;
  */
 class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMetadata> implements CgmesSvMetadataAdder {
 
-    private String scenarioTime;
     private String description;
     private int svVersion = 0;
     private final List<String> dependencies = new ArrayList<>();
@@ -27,12 +26,6 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
 
     public CgmesSvMetadataAdderImpl(Network extendable) {
         super(extendable);
-    }
-
-    @Override
-    public CgmesSvMetadataAdder setScenarioTime(String scenarioTime) {
-        this.scenarioTime = scenarioTime;
-        return this;
     }
 
     @Override
@@ -61,9 +54,6 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
 
     @Override
     protected CgmesSvMetadata createExtension(Network extendable) {
-        if (scenarioTime == null) {
-            throw new PowsyblException("cgmesSvMetadata.scenarioTime is undefined");
-        }
         if (description == null) {
             throw new PowsyblException("cgmesSvMetadata.description is undefined");
         }
@@ -73,6 +63,6 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
         if (modelingAuthoritySet == null) {
             throw new PowsyblException("cgmesSvMetadata.modelingAuthoritySet is undefined");
         }
-        return new CgmesSvMetadataImpl(scenarioTime, description, svVersion, dependencies, modelingAuthoritySet);
+        return new CgmesSvMetadataImpl(description, svVersion, dependencies, modelingAuthoritySet);
     }
 }
