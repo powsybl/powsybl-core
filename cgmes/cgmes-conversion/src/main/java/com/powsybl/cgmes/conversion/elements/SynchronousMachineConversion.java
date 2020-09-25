@@ -54,6 +54,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        addAliases(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
         if (p.asInt("referencePriority", 0) > 0) {
