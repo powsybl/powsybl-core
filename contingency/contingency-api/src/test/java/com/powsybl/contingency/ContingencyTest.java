@@ -9,6 +9,7 @@ package com.powsybl.contingency;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
@@ -74,6 +75,16 @@ public class ContingencyTest {
         Contingency staticVarCompensatorInvalidContingency = new Contingency("SVC invalid contingency", new StaticVarCompensatorContingency("SVC"));
         List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency), network);
         assertEquals(Arrays.asList("SVC contingency"),
+                validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+    }
+
+    @Test
+    public void validationTestForDL() {
+        Network network = DanglingLineNetworkFactory.create();
+        Contingency danglingLineContingency = new Contingency("DL contingency", new DanglingLineContingency("DL"));
+        Contingency danglingLineInvalidContingency = new Contingency("DL invalid contingency", new DanglingLineContingency("DL_THAT_DO_NOT_EXIST"));
+        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network);
+        assertEquals(Arrays.asList("DL contingency"),
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
 }
