@@ -88,7 +88,7 @@ public class RegulatingControlMappingForShuntCompensators {
     private void setRegulatingControl(ShuntCompensator shuntCompensator, RegulatingControl rc) {
         shuntCompensator.setTargetV(rc.targetValue)
                 .setTargetDeadband(rc.targetDeadband);
-        if (rc.targetValue >= 0) {
+        if (rc.targetValue > 0) {
             shuntCompensator.setVoltageRegulatorOn(rc.enabled);
         } else  {
             shuntCompensator.setVoltageRegulatorOn(false);
