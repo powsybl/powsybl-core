@@ -232,6 +232,22 @@ public interface TieLine extends Line {
 
         String getName();
 
+        default double getXnodeV() {
+            return Double.NaN;
+        }
+
+        default HalfLine setXnodeV(double v) {
+            return this;
+        }
+
+        default double getXnodeAngle() {
+            return Double.NaN;
+        }
+
+        default HalfLine setXnodeAngle(double angle) {
+            return this;
+        }
+
         /**
          * Get Xnode active power consumption in MW.
          */
@@ -288,12 +304,4 @@ public interface TieLine extends Line {
      * Get a given side half of the line characteristics
      */
     HalfLine getHalf(Side side);
-
-    default BoundaryPoint getBoundaryPoint1() {
-        throw new UnsupportedOperationException();
-    }
-
-    default BoundaryPoint getBoundaryPoint2() {
-        throw new UnsupportedOperationException();
-    }
 }
