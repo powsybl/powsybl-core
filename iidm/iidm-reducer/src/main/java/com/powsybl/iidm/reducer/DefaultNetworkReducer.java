@@ -18,19 +18,26 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private final ReductionOptions options;
 
+    private final NamingStrategy namingStrategy;
+
     private final List<NetworkReducerObserver> observers = new ArrayList<>();
 
     public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options) {
-        this(predicate, options, Collections.emptyList());
+        this(predicate, options, new DefaultNamingStrategy(), Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NetworkReducerObserver... observers) {
-        this(predicate, options, Arrays.asList(observers));
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy) {
+        this(predicate, options, namingStrategy, Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, List<NetworkReducerObserver> observers) {
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy, NetworkReducerObserver... observers) {
+        this(predicate, options, namingStrategy, Arrays.asList(observers));
+    }
+
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy, List<NetworkReducerObserver> observers) {
         super(predicate);
         this.options = Objects.requireNonNull(options);
+        this.namingStrategy = Objects.requireNonNull(namingStrategy);
         this.observers.addAll(Objects.requireNonNull(observers));
     }
 
@@ -127,7 +134,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         Branch.Side side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
-                .setId(line.getId())
+                .setId(namingStrategy.getReplacementId(line.getId()))
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
@@ -154,7 +161,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
-                .setId(branch.getId())
+                .setId(namingStrategy.getReplacementId(branch.getId()))
                 .setName(branch.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
