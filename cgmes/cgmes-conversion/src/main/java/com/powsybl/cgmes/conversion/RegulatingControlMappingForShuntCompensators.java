@@ -87,8 +87,12 @@ public class RegulatingControlMappingForShuntCompensators {
 
     private void setRegulatingControl(ShuntCompensator shuntCompensator, RegulatingControl rc) {
         shuntCompensator.setTargetV(rc.targetValue)
-                .setTargetDeadband(rc.targetDeadband)
-                .setVoltageRegulatorOn(rc.enabled);
+                .setTargetDeadband(rc.targetDeadband);
+        if (rc.targetValue >= 0) {
+            shuntCompensator.setVoltageRegulatorOn(rc.enabled);
+        } else  {
+            shuntCompensator.setVoltageRegulatorOn(false);
+        }
         // Take default terminal if it has not been defined in CGMES files (it is never null)
         shuntCompensator.setRegulatingTerminal(parent.getRegulatingTerminal(shuntCompensator, rc.cgmesTerminal));
     }
