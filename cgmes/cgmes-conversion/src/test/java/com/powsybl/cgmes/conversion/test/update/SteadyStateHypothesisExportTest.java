@@ -60,8 +60,11 @@ import static org.junit.Assert.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
+
+    // FIXME(Luma) Pending output of StaticVarCompensator.q
 
     private static final String CONFORMITY_DIR = "/conformity/cas-1.1.3-data-4.0.3/";
 
