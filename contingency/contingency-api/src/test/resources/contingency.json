@@ -26,6 +26,9 @@
   }, {
     "id" : "BBS1",
     "type" : "BUSBAR_SECTION"
+  }, {
+    "id" : "DL1",
+    "type" : "DANGLING_LINE"
   } ],
   "extensions" : {
     "dummy-extension" : { }

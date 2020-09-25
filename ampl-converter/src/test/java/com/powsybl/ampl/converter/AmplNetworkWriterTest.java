@@ -11,6 +11,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.test.*;
 
 import org.junit.Assert;
@@ -51,9 +52,32 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_rtc", "inputs/eurostag-tutorial-example1-rtc.txt");
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/eurostag-tutorial-example1-ptc.txt");
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
-        assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
         assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+
+    @Test
+    public void writeShunt() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_shunts", "inputs/eurostag-tutorial-example1-shunts.txt");
+    }
+
+    @Test
+    public void writeShunt2() throws IOException {
+        Network network = ShuntTestCaseFactory.createNonLinear();
+        ShuntCompensator sc = network.getShuntCompensator("SHUNT");
+        sc.setSectionCount(2);
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "_network_shunts", "inputs/shunt-test-case-shunts.txt");
     }
 
     @Test
@@ -101,6 +125,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     @Test
     public void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
+        network.getThreeWindingsTransformer("3WT").getLeg1()
+                .newPhaseTapChanger()
+                .beginStep()
+                .setRho(1)
+                .setR(0.1)
+                .setX(1.)
+                .setB(0.)
+                .setG(0.)
+                .setAlpha(0)
+                .endStep()
+                .setTapPosition(0)
+                .setLowTapPosition(0)
+                .add();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);

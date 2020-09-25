@@ -8,8 +8,10 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This adaptation hide true implementation of {@link ThreeWindingsTransformer}.
@@ -156,6 +158,16 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     @Override
     public ThreeWindingsTransformer.Leg getLeg3() {
         return leg3;
+    }
+
+    @Override
+    public Stream<Leg> getLegStream() {
+        return Stream.of(leg1, leg2, leg3);
+    }
+
+    @Override
+    public List<Leg> getLegs() {
+        return Arrays.asList(leg1, leg2, leg3);
     }
 
     @Override
