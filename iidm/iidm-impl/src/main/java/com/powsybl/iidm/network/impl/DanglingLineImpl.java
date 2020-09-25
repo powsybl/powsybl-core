@@ -247,6 +247,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
+    private final BoundaryPointImpl boundaryPoint;
+
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
                      String ucteXnodeCode, GenerationImpl generation) {
         super(id, name, fictitious);
@@ -264,6 +266,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
         this.generation = generation != null ? generation.setDanglingLine(this) : null;
+        this.boundaryPoint = new BoundaryPointImpl(this, "", network);
     }
 
     @Override
@@ -395,6 +398,11 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
+    public BoundaryPoint getBoundaryPoint() {
+        return boundaryPoint;
+    }
+
+    @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
@@ -406,6 +414,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.extendVariantArraySize(number, sourceIndex);
         }
+        boundaryPoint.extendVariantArraySize(number, sourceIndex);
     }
 
     @Override
@@ -416,6 +425,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.reduceVariantArraySize(number);
         }
+        boundaryPoint.reduceVariantArraySize(number);
     }
 
     @Override
@@ -434,5 +444,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
+        boundaryPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 }
