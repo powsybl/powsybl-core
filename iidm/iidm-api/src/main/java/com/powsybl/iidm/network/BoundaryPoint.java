@@ -25,5 +25,5 @@ public interface BoundaryPoint {
 
     double getQ();
 
-    BoundaryPoint setQ();
+    BoundaryPoint setQ(double q);
 }
