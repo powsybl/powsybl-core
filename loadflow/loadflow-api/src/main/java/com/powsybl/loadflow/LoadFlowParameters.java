@@ -45,7 +45,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     }
 
     public enum BalanceType {
-        PROPORTIONAL_TO_GENERATION_P, // Not implemented yet.
+        PROPORTIONAL_TO_GENERATION_P,
         PROPORTIONAL_TO_GENERATION_P_MAX,
         PROPORTIONAL_TO_LOAD,
         PROPORTIONAL_TO_CONFORM_LOAD,
