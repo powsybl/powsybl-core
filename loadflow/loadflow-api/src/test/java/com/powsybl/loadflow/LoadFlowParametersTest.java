@@ -114,7 +114,7 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("voltageRemoteControl", Boolean.toString(voltageRemoteControl));
         moduleConfig.setStringProperty("dc", Boolean.toString(dc));
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(dc));
-        moduleConfig.setStringProperty("balanceType", "PROPORTIONAL_TO_LOAD");
+        moduleConfig.setStringProperty("balanceType", balanceType.name());
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
