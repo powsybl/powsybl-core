@@ -84,6 +84,8 @@ class ContingencyDslLoader extends DslLoader {
                     elements.add(new ShuntCompensatorContingency(equipment))
                 } else if (identifiable instanceof StaticVarCompensator) {
                     elements.add(new StaticVarCompensatorContingency(equipment))
+                } else if (identifiable instanceof DanglingLine) {
+                    elements.add(new DanglingLineContingency(equipment))
                 } else {
                     LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
                     valid = false

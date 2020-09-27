@@ -154,4 +154,14 @@ public class LimitViolationBuilderTest {
         assertTrue(LimitViolations.comparator().compare(violation1, violation2) < 0);
     }
 
+    @Test
+    public void testLimitNameInVoltageLimitViolation() {
+        LimitViolationBuilder builder = LimitViolations.highVoltage()
+                .subject("id")
+                .type(LimitViolationType.HIGH_VOLTAGE)
+                .limit(420)
+                .value(500)
+                .limitName("high");
+        assertEquals("high", builder.build().getLimitName());
+    }
 }

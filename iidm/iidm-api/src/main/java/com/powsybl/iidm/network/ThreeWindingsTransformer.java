@@ -6,6 +6,10 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
+
 /**
  * A Three Windings Power Transformer.
  * <p>
@@ -316,6 +320,20 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the leg at the tertiary side.
      */
     Leg getLeg3();
+
+    /**
+     * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
+     */
+    default Stream<Leg> getLegStream() {
+        return Stream.of(getLeg1(), getLeg2(), getLeg3());
+    }
+
+    /**
+     * Return the legs of this transformer, in the natural order (leg1, leg2 and leg3)
+     */
+    default List<Leg> getLegs() {
+        return Arrays.asList(getLeg1(), getLeg2(), getLeg3());
+    }
 
     /**
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
