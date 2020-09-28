@@ -25,7 +25,6 @@ import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -241,14 +240,7 @@ public final class NetworkXml {
 
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer;
-        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
-        if (options.isIndent()) {
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
-            indentingWriter.setIndent(INDENT);
-            writer = indentingWriter;
-        }
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
         writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI());
         writer.writeStartElement(version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI());
