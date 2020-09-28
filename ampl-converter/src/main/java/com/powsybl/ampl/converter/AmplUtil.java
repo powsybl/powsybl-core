@@ -157,6 +157,10 @@ public final class AmplUtil {
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG1_SUFFIX);
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG2_SUFFIX);
             mapper.newInt(AmplSubset.BRANCH, twt.getId() + AmplConstants.LEG3_SUFFIX);
+            if (twt.getLeg1().hasRatioTapChanger()) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg1_ratio_table");
+                mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG1_SUFFIX);
+            }
             if (twt.getLeg2().hasRatioTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg2_ratio_table");
                 mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG2_SUFFIX);
@@ -164,6 +168,18 @@ public final class AmplUtil {
             if (twt.getLeg3().hasRatioTapChanger()) {
                 mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg3_ratio_table");
                 mapper.newInt(AmplSubset.RATIO_TAP_CHANGER, twt.getId() + AmplConstants.LEG3_SUFFIX);
+            }
+            if (twt.getLeg1().hasPhaseTapChanger()) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg1_phase_table");
+                mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId() + AmplConstants.LEG1_SUFFIX);
+            }
+            if (twt.getLeg2().hasPhaseTapChanger()) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg2_phase_table");
+                mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId() + AmplConstants.LEG2_SUFFIX);
+            }
+            if (twt.getLeg3().hasPhaseTapChanger()) {
+                mapper.newInt(AmplSubset.TAP_CHANGER_TABLE, twt.getId() + "_leg3_phase_table");
+                mapper.newInt(AmplSubset.PHASE_TAP_CHANGER, twt.getId() + AmplConstants.LEG3_SUFFIX);
             }
 
             // limits

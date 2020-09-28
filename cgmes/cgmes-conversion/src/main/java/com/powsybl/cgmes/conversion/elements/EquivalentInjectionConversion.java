@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.*;
@@ -90,10 +91,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.addAlias(this.id, "CGMES.EquivalentInjection");
+        dl.addAlias(this.id, Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjection");
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.addAlias(cgmesTerminal.id(), "CGMES.EquivalentInjectionTerminal");
+            dl.addAlias(cgmesTerminal.id(), Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal");
         }
         return dl;
     }
