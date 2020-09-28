@@ -6,12 +6,11 @@
  */
 package com.powsybl.iidm.reducer;
 
+import com.powsybl.iidm.network.Branch;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class DefaultNamingStrategy implements NamingStrategy {
-    @Override
-    public String getReplacementId(String id) {
-        return id;
-    }
+public interface ReducerNamingStrategy {
+    String getReplacementId(Branch<?> branch);
 }

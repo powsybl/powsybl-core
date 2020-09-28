@@ -18,26 +18,26 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private final ReductionOptions options;
 
-    private final NamingStrategy namingStrategy;
+    private final ReducerNamingStrategy reducerNamingStrategy;
 
     private final List<NetworkReducerObserver> observers = new ArrayList<>();
 
     public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options) {
-        this(predicate, options, new DefaultNamingStrategy(), Collections.emptyList());
+        this(predicate, options, new DefaultReducerNamingStrategy(), Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy) {
-        this(predicate, options, namingStrategy, Collections.emptyList());
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, ReducerNamingStrategy reducerNamingStrategy) {
+        this(predicate, options, reducerNamingStrategy, Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy, NetworkReducerObserver... observers) {
-        this(predicate, options, namingStrategy, Arrays.asList(observers));
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, ReducerNamingStrategy reducerNamingStrategy, NetworkReducerObserver... observers) {
+        this(predicate, options, reducerNamingStrategy, Arrays.asList(observers));
     }
 
-    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NamingStrategy namingStrategy, List<NetworkReducerObserver> observers) {
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, ReducerNamingStrategy reducerNamingStrategy, List<NetworkReducerObserver> observers) {
         super(predicate);
         this.options = Objects.requireNonNull(options);
-        this.namingStrategy = Objects.requireNonNull(namingStrategy);
+        this.reducerNamingStrategy = Objects.requireNonNull(reducerNamingStrategy);
         this.observers.addAll(Objects.requireNonNull(observers));
     }
 
@@ -134,7 +134,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         Branch.Side side = line.getSide(terminal);
 
         DanglingLineAdder dlAdder = vl.newDanglingLine()
-                .setId(namingStrategy.getReplacementId(line.getId()))
+                .setId(reducerNamingStrategy.getReplacementId(line))
                 .setName(line.getOptionalName().orElse(null))
                 .setR(line.getR() / 2)
                 .setX(line.getX() / 2)
@@ -150,6 +150,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         dl.getTerminal()
                 .setP(terminal.getP())
                 .setQ(terminal.getQ());
+        dl.addAlias(line.getId());
+        line.getAliases().forEach(dl::addAlias);
 
         observers.forEach(o -> o.lineReplaced(line, dl));
     }
@@ -161,7 +163,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {
         LoadAdder loadAdder = vl.newLoad()
-                .setId(namingStrategy.getReplacementId(branch.getId()))
+                .setId(reducerNamingStrategy.getReplacementId(branch))
                 .setName(branch.getOptionalName().orElse(null))
                 .setLoadType(LoadType.FICTITIOUS)
                 .setP0(checkP(terminal))
@@ -174,6 +176,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         load.getTerminal()
                 .setP(terminal.getP())
                 .setQ(terminal.getQ());
+        load.addAlias(branch.getId());
+        branch.getAliases().forEach(load::addAlias);
 
         return load;
     }
