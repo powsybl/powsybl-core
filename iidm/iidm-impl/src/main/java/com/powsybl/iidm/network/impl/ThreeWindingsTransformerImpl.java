@@ -8,10 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Stream;
 
 /**
  *
@@ -295,6 +293,16 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public LegImpl getLeg3() {
         return leg3;
+    }
+
+    @Override
+    public Stream<Leg> getLegStream() {
+        return Stream.of(leg1, leg2, leg3);
+    }
+
+    @Override
+    public List<Leg> getLegs() {
+        return Arrays.asList(leg1, leg2, leg3);
     }
 
     @Override

@@ -11,6 +11,8 @@ import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.model.CgmesNamespace;
+
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
@@ -26,18 +28,19 @@ public class CgmesExportContext {
 
     private int cimVersion = 16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
-
     private DateTime scenarioTime = DateTime.now();
 
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesExport.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesExport.SSH_PROFILE);
 
+    private boolean exportBoundaryPowerFlows = false;
+
     public static final class ModelDescription {
 
-        private String description = "SV Model";
+        private String description = "Model";
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
-        private String modelingAuthoritySet = "powsybl.org"; //FIXME is it an okay default value?
+        private String modelingAuthoritySet = "powsybl.org";
         // TODO Each model may have a list of profiles, not only one
         private String profile;
 
@@ -115,10 +118,10 @@ public class CgmesExportContext {
         }
         CgmesSshMetadata sshMetadata = network.getExtension(CgmesSshMetadata.class);
         if (sshMetadata != null) {
-            sshModelDescription.setDescription(svMetadata.getDescription());
-            sshModelDescription.setVersion(svMetadata.getSvVersion() + 1);
-            sshModelDescription.addDependencies(svMetadata.getDependencies());
-            sshModelDescription.setModelingAuthoritySet(svMetadata.getModelingAuthoritySet());
+            sshModelDescription.setDescription(sshMetadata.getDescription());
+            sshModelDescription.setVersion(sshMetadata.getSshVersion() + 1);
+            sshModelDescription.addDependencies(sshMetadata.getDependencies());
+            sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
     }
 
@@ -158,5 +161,18 @@ public class CgmesExportContext {
 
     public ModelDescription getSshModelDescription() {
         return sshModelDescription;
+    }
+
+    public boolean exportBoundaryPowerFlows() {
+        return exportBoundaryPowerFlows;
+    }
+
+    public CgmesExportContext setExportBoundaryPowerFlows(boolean exportBoundaryPowerFlows) {
+        this.exportBoundaryPowerFlows = exportBoundaryPowerFlows;
+        return this;
+    }
+
+    public String getCimNamespace() {
+        return CgmesNamespace.getCimNamespace(cimVersion);
     }
 }

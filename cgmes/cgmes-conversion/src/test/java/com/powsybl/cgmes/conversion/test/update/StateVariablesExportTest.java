@@ -7,13 +7,13 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.update.CgmesExportContext;
 import com.powsybl.cgmes.conversion.update.StateVariablesExport;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -39,12 +39,12 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.*;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -52,81 +52,17 @@ import static org.junit.Assert.assertEquals;
  */
 public class StateVariablesExportTest extends AbstractConverterTest {
 
-    private static final String CONFORMITY_DIR = "/conformity/cas-1.1.3-data-4.0.3/";
-
     @Test
     public void microGridBE() throws IOException, XMLStreamException {
-        String microGridDir = "MicroGrid/BaseCase/";
-        String microGridBeDir = microGridDir + "CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
-        String microGridBd = microGridDir + "CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(),
-                CONFORMITY_DIR + microGridBeDir + "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                CONFORMITY_DIR + microGridBeDir + "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
-                CONFORMITY_DIR + microGridBeDir + "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
-                CONFORMITY_DIR + microGridBd + "MicroGridTestConfiguration_EQ_BD.xml",
-                CONFORMITY_DIR + microGridBd + "MicroGridTestConfiguration_TP_BD.xml",
-                2);
+        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2);
     }
 
     @Test
     public void smallGrid() throws IOException, XMLStreamException {
-        String smallGridDir = "SmallGrid/BusBranch/";
-        String smallGridBaseDir = smallGridDir + "CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
-        String smallGridBd = smallGridDir + "CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(),
-                CONFORMITY_DIR + smallGridBaseDir + "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                CONFORMITY_DIR + smallGridBaseDir + "SmallGridTestConfiguration_BC_TP_v3.0.0.xml",
-                CONFORMITY_DIR + smallGridBaseDir + "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                CONFORMITY_DIR + smallGridBd + "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
-                CONFORMITY_DIR + smallGridBd + "SmallGridTestConfiguration_TP_BD_v3.0.0.xml",
-                4);
+        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
     }
 
-    private void test(ReadOnlyDataSource ds, String eq, String tp, String ssh, String eqBd, String tpBd, int svVersion) throws IOException, XMLStreamException {
-        check(eq, getName(ds, this::eq));
-        check(tp, getName(ds, this::tp));
-        check(ssh, getName(ds, this::ssh));
-        check(eqBd, getName(ds, this::eqBd));
-        check(tpBd, getName(ds, this::tpBd));
-        testxxx(ds, eq, tp, ssh, eqBd, tpBd, svVersion);
-    }
-
-    private void check(String expectedPathname, String actual) {
-        Path expectedPath = Paths.get(expectedPathname);
-        String expected = expectedPath.getName(expectedPath.getNameCount() - 1).toString();
-        assertEquals(expected, actual);
-    }
-
-    private boolean eq(String name) {
-        return !name.contains("_BD") && name.contains("_EQ");
-    }
-
-    private boolean tp(String name) {
-        return !name.contains("_BD") && name.contains("_TP");
-    }
-
-    private boolean ssh(String name) {
-        return name.contains("_SSH");
-    }
-
-    private boolean eqBd(String name) {
-        return name.contains("_EQ") && name.contains("_BD");
-    }
-
-    private boolean tpBd(String name) {
-        return name.contains("_TP") && name.contains("_BD");
-    }
-
-    private String getName(ReadOnlyDataSource ds, Predicate<String> file) {
-        CgmesOnDataSource ns = new CgmesOnDataSource(ds);
-        return ns.names().stream().filter(n -> file.test(n)).findFirst().get();
-    }
-
-    private InputStream newInputStream(ReadOnlyDataSource ds, Predicate<String> file) throws IOException {
-        return ds.newInputStream(getName(ds, file));
-    }
-
-    private void testxxx(ReadOnlyDataSource dataSource, String eq, String tp, String ssh, String eqBd, String tpBd, int svVersion) throws IOException, XMLStreamException {
+    private void test(ReadOnlyDataSource dataSource, int svVersion) throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
 
@@ -136,7 +72,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export SV
         Path test = tmpDir.resolve("test.xml");
         try (OutputStream os = Files.newOutputStream(test)) {
-            XMLStreamWriter writer = CgmesExport.initializeWriter(os);
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
             context.getSvModelDescription().setVersion(svVersion);
             StateVariablesExport.write(expected, writer, context);
@@ -178,6 +114,35 @@ public class StateVariablesExportTest extends AbstractConverterTest {
              InputStream actIs = Files.newInputStream(tmpDir.resolve("actual.xml"))) {
             compareXmlWithDelta(expIs, actIs);
         }
+    }
+
+    private InputStream newInputStream(ReadOnlyDataSource ds, Predicate<String> file) throws IOException {
+        return ds.newInputStream(getName(ds, file));
+    }
+
+    private String getName(ReadOnlyDataSource ds, Predicate<String> file) {
+        CgmesOnDataSource ns = new CgmesOnDataSource(ds);
+        return ns.names().stream().filter(n -> file.test(n)).findFirst().get();
+    }
+
+    private boolean eq(String name) {
+        return !name.contains("_BD") && name.contains("_EQ");
+    }
+
+    private boolean tp(String name) {
+        return !name.contains("_BD") && name.contains("_TP");
+    }
+
+    private boolean ssh(String name) {
+        return name.contains("_SSH");
+    }
+
+    private boolean eqBd(String name) {
+        return name.contains("_EQ") && name.contains("_BD");
+    }
+
+    private boolean tpBd(String name) {
+        return name.contains("_TP") && name.contains("_BD");
     }
 
     private static void zipFile(String entryName, InputStream toZip, ZipOutputStream zipOut) throws IOException {
@@ -244,8 +209,8 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     private static void debugAttributes(Node n, String indent) {
         if (n.getAttributes() != null) {
-            debugAttribute(n, CgmesExport.RDF_NAMESPACE, "resource", indent);
-            debugAttribute(n, CgmesExport.RDF_NAMESPACE, "about", indent);
+            debugAttribute(n, RDF_NAMESPACE, "resource", indent);
+            debugAttribute(n, RDF_NAMESPACE, "about", indent);
         }
     }
 

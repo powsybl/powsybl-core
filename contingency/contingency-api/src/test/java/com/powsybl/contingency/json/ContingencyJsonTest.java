@@ -47,6 +47,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         elements.add(new ShuntCompensatorContingency("SC"));
         elements.add(new StaticVarCompensatorContingency("SVC"));
         elements.add(new BusbarSectionContingency("BBS1"));
+        elements.add(new DanglingLineContingency("DL1"));
 
         Contingency contingency = new Contingency("contingency", elements);
 
