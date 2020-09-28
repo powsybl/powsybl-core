@@ -142,8 +142,12 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
             return;
         }
         double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
-                .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+                .mapToDouble(Double::doubleValue).max().orElse(0);
         tapChanger.getSteps().forEach(step -> {
+            if (alphaMax == 0 || xtx == 0) {
+                step.setX(0);
+                return;
+            }
             double alpha = step.getAngle();
             double x = getStepXforAsymmetrical(xMin, xMax, alpha, alphaMax, windingConnectionAngle);
             step.setX((x - xtx) / xtx * 100);
@@ -190,8 +194,12 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
             return;
         }
         double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
-            .mapToDouble(Double::doubleValue).max().orElse(Double.NaN);
+            .mapToDouble(Double::doubleValue).max().orElse(0);
         tapChanger.getSteps().forEach(step -> {
+            if (alphaMax == 0.0 || xtx == 0.0) {
+                step.setX(0);
+                return;
+            }
             double alpha = step.getAngle();
             double x = getStepXforLinearAndSymmetrical(xMin, xMax, alpha, alphaMax);
             step.setX(100 * (x - xtx) / xtx);
