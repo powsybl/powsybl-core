@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
-public class FourCountriesNetworkFactory {
+public final class FourCountriesNetworkFactory {
 
     private FourCountriesNetworkFactory() {
     }
