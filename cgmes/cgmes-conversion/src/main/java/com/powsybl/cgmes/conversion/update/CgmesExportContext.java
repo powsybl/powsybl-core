@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
@@ -30,8 +29,8 @@ public class CgmesExportContext {
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
-    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesExport.SV_PROFILE);
-    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesExport.SSH_PROFILE);
+    private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
+    private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
     private boolean exportBoundaryPowerFlows = false;
 

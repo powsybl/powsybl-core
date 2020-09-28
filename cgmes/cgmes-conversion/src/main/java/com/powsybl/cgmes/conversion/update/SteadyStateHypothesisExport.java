@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.update;
 
-import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreas;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreasImpl.ControlArea;
@@ -29,6 +28,8 @@ import java.util.Optional;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.*;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -42,23 +43,24 @@ public final class SteadyStateHypothesisExport {
 
     public static void write(Network network, XMLStreamWriter writer, CgmesExportContext context) {
         final Map<String, List<RegulatingControlView>> regulatingControlViews = new HashMap<>();
+        String cimNamespace = context.getCimNamespace();
 
         try {
-            CgmesExport.writeRdfRoot(writer);
+            CgmesExportUtil.writeRdfRoot(context.getCimVersion(), writer);
 
             if (context.getCimVersion() == 16) {
-                CgmesExport.writeModelDescription(writer, context.getSshModelDescription(), context);
+                CgmesExportUtil.writeModelDescription(writer, context.getSshModelDescription(), context);
             }
 
-            writeEnergyConsumers(network, writer);
-            writeEquivalentInjections(network, writer);
-            writeTapChangers(network, writer, regulatingControlViews);
-            writeShuntCompensators(network, writer, regulatingControlViews);
-            writeSynchronousMachines(network, writer, regulatingControlViews);
-            writeRegulatingControls(writer, regulatingControlViews);
-            writeGeneratingUnitsParticitationFactors(network, writer);
-            writeControlAreas(network, writer);
-            writeTerminals(network, writer);
+            writeEnergyConsumers(network, cimNamespace, writer);
+            writeEquivalentInjections(network, cimNamespace, writer);
+            writeTapChangers(network, cimNamespace, regulatingControlViews, writer);
+            writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer);
+            writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer);
+            writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
+            writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
+            writeControlAreas(network, cimNamespace, writer);
+            writeTerminals(network, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -66,45 +68,45 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminals(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
-                writeTerminal(t, c, writer);
+                writeTerminal(t, c, cimNamespace, writer);
             }
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal").ifPresent(tid -> {
-                writeTerminal(tid, true, writer);
+                writeTerminal(tid, true, cimNamespace, writer);
             });
             // Terminal for boundary side of original line/switch is always connected
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary").ifPresent(tid -> {
-                writeTerminal(tid, true, writer);
+                writeTerminal(tid, true, cimNamespace, writer);
             });
         }
     }
 
-    private static void writeEquivalentInjections(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEquivalentInjections(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // One equivalent injection for every dangling line
         for (DanglingLine dl : network.getDanglingLines()) {
-            writeEquivalentInjection(dl, writer);
+            writeEquivalentInjection(dl, cimNamespace, writer);
         }
     }
 
-    private static void writeTapChangers(Network network, XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
+    private static void writeTapChangers(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), writer);
+                writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), cimNamespace, writer);
                 addTapChangerControl(twt, ptcId, twt.getPhaseTapChanger(), regulatingControlViews);
-                writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
+                writeHiddenPhaseTapChangerAndControl(twt, ptcId, cimNamespace, regulatingControlViews, writer);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), writer);
+                writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), cimNamespace, writer);
                 addTapChangerControl(twt, rtcId, twt.getRatioTapChanger(), regulatingControlViews);
-                writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
+                writeHiddenRatioTapChangerAndControl(twt, rtcId, cimNamespace, regulatingControlViews, writer);
             }
         }
 
@@ -113,14 +115,14 @@ public final class SteadyStateHypothesisExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), writer);
+                    writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), cimNamespace, writer);
                     addTapChangerControl(twt, ptcId, leg.getPhaseTapChanger(), regulatingControlViews);
-                    writeHiddenPhaseTapChangerAndControl(twt, ptcId, regulatingControlViews, writer);
+                    writeHiddenPhaseTapChangerAndControl(twt, ptcId, cimNamespace, regulatingControlViews, writer);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeTapChanger(CgmesNames.RATIO_TAP_CHANGER, rtcId, leg.getRatioTapChanger(), writer);
+                    writeTapChanger(CgmesNames.RATIO_TAP_CHANGER, rtcId, leg.getRatioTapChanger(), cimNamespace, writer);
                     addTapChangerControl(twt, rtcId, leg.getRatioTapChanger(), regulatingControlViews);
-                    writeHiddenRatioTapChangerAndControl(twt, rtcId, regulatingControlViews, writer);
+                    writeHiddenRatioTapChangerAndControl(twt, rtcId, cimNamespace, regulatingControlViews, writer);
                 }
                 i++;
             }
@@ -136,7 +138,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeShuntCompensators(Network network, XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
+    private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             String linearNonlinear;
             switch (s.getModelType()) {
@@ -151,12 +153,12 @@ public final class SteadyStateHypothesisExport {
                     break;
             }
             boolean controlEnabled = s.isVoltageRegulatorOn();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, linearNonlinear + "ShuntCompensator");
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + s.getId());
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ShuntCompensator.sections");
-            writer.writeCharacters(CgmesExport.format(s.getSectionCount()));
+            writer.writeStartElement(cimNamespace, linearNonlinear + "ShuntCompensator");
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + s.getId());
+            writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
+            writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeEndElement();
@@ -186,27 +188,27 @@ public final class SteadyStateHypothesisExport {
         return s.getTargetDeadband();
     }
 
-    private static void writeSynchronousMachines(Network network, XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
+    private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
             boolean controlEnabled = g.isVoltageRegulatorOn();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine");
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + g.getId());
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingCondEq.controlEnabled");
+            writer.writeStartElement(cimNamespace, "SynchronousMachine");
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + g.getId());
+            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExport.format(g.getTerminal().getP()));
+            writer.writeStartElement(cimNamespace, "RotatingMachine.p");
+            writer.writeCharacters(CgmesExportUtil.format(g.getTerminal().getP()));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExport.format(g.getTerminal().getQ()));
+            writer.writeStartElement(cimNamespace, "RotatingMachine.q");
+            writer.writeCharacters(CgmesExportUtil.format(g.getTerminal().getQ()));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine.referencePriority");
+            writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
             writer.writeCharacters(isInSlackBus(g) ? "1" : "0");
             writer.writeEndElement();
-            writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "SynchronousMachine.operatingMode");
+            writer.writeEmptyElement(cimNamespace, "SynchronousMachine.operatingMode");
             // All generators in PowSyBl are considered as generator, not motor
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, CgmesNames.RESOURCE, CgmesExport.CIM_NAMESPACE + "SynchronousMachineOperatingMode.generator");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "SynchronousMachineOperatingMode.generator");
             writer.writeEndElement();
 
             if (g.hasProperty("RegulatingControl")) {
@@ -233,18 +235,18 @@ public final class SteadyStateHypothesisExport {
         return false;
     }
 
-    private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), writer);
+    private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition(), cimNamespace, writer);
     }
 
-    private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, type);
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "TapChanger.controlEnabled");
+    private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, type);
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
+        writer.writeStartElement(cimNamespace, "TapChanger.controlEnabled");
         writer.writeCharacters(Boolean.toString(controlEnabled));
         writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "TapChanger.step");
-        writer.writeCharacters(CgmesExport.format(step));
+        writer.writeStartElement(cimNamespace, "TapChanger.step");
+        writer.writeCharacters(CgmesExportUtil.format(step));
         writer.writeEndElement();
         writer.writeEndElement();
     }
@@ -273,7 +275,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeHiddenRatioTapChangerAndControl(Identifiable<?> eq, String rtcId, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeHiddenRatioTapChangerAndControl(Identifiable<?> eq, String rtcId, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         String key = String.format("RatioTapChanger.%s.hiddenTapChangerId", rtcId);
         if (!eq.hasProperty(key)) {
             return;
@@ -281,12 +283,12 @@ public final class SteadyStateHypothesisExport {
         String hiddenRtcId = eq.getProperty(key);
         writeTapChanger("RatioTapChanger", hiddenRtcId,
             hiddenTapChangerControlEnabled(eq, "RatioTapChanger", hiddenRtcId),
-            hiddenTapChangerStep(eq, "RatioTapChanger", hiddenRtcId), writer);
+            hiddenTapChangerStep(eq, "RatioTapChanger", hiddenRtcId), cimNamespace, writer);
 
         addHiddenTapChangerControl(eq, "RatioTapChanger", hiddenRtcId, "k", regulatingControlViews);
     }
 
-    private static void writeHiddenPhaseTapChangerAndControl(Identifiable<?> eq, String ptcId, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeHiddenPhaseTapChangerAndControl(Identifiable<?> eq, String ptcId, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         String key = String.format("PhaseTapChanger.%s.hiddenTapChangerId", ptcId);
         if (!eq.hasProperty(key)) {
             return;
@@ -294,7 +296,7 @@ public final class SteadyStateHypothesisExport {
         String hiddenPtcId = eq.getProperty(key);
         writeTapChanger(phaseTapChangerType(eq, hiddenPtcId), hiddenPtcId,
             hiddenTapChangerControlEnabled(eq, "PhaseTapChanger", hiddenPtcId),
-            hiddenTapChangerStep(eq, "PhaseTapChanger", hiddenPtcId), writer);
+            hiddenTapChangerStep(eq, "PhaseTapChanger", hiddenPtcId), cimNamespace, writer);
 
         addHiddenTapChangerControl(eq, "PhaseTapChanger", hiddenPtcId, "M", regulatingControlViews);
     }
@@ -337,9 +339,9 @@ public final class SteadyStateHypothesisExport {
         return Double.valueOf(eq.getProperty(key));
     }
 
-    private static void writeRegulatingControls(XMLStreamWriter writer, Map<String, List<RegulatingControlView>> regulatingControlViews) throws XMLStreamException {
+    private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (List<RegulatingControlView> views : regulatingControlViews.values()) {
-            writeRegulatingControl(combineRegulatingControlViews(views), writer);
+            writeRegulatingControl(combineRegulatingControlViews(views), cimNamespace, writer);
         }
     }
 
@@ -347,23 +349,23 @@ public final class SteadyStateHypothesisExport {
         return rcs.get(0); // TODO
     }
 
-    private static void writeRegulatingControl(RegulatingControlView rc, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, regulatingControlClassname(rc.type));
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + rc.id);
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.discrete");
+    private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, regulatingControlClassname(rc.type));
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + rc.id);
+        writer.writeStartElement(cimNamespace, "RegulatingControl.discrete");
         writer.writeCharacters(Boolean.toString(rc.discrete));
         writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.enabled");
+        writer.writeStartElement(cimNamespace, "RegulatingControl.enabled");
         writer.writeCharacters(Boolean.toString(rc.controlEnabled));
         writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetDeadband");
-        writer.writeCharacters(CgmesExport.format(rc.targetDeadband));
+        writer.writeStartElement(cimNamespace, "RegulatingControl.targetDeadband");
+        writer.writeCharacters(CgmesExportUtil.format(rc.targetDeadband));
         writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetValue");
-        writer.writeCharacters(CgmesExport.format(rc.targetValue));
+        writer.writeStartElement(cimNamespace, "RegulatingControl.targetValue");
+        writer.writeCharacters(CgmesExportUtil.format(rc.targetValue));
         writer.writeEndElement();
-        writer.writeEmptyElement(CgmesExport.CIM_NAMESPACE, "RegulatingControl.targetValueUnitMultiplier");
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "resource", CgmesExport.CIM_NAMESPACE + "UnitMultiplier." + rc.targetValueUnitMultiplier);
+        writer.writeEmptyElement(cimNamespace, "RegulatingControl.targetValueUnitMultiplier");
+        writer.writeAttribute(RDF_NAMESPACE, "resource", cimNamespace + "UnitMultiplier." + rc.targetValueUnitMultiplier);
         writer.writeEndElement();
     }
 
@@ -375,7 +377,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminal(Terminal t, Connectable<?> c, XMLStreamWriter writer) {
+    private static void writeTerminal(Terminal t, Connectable<?> c, String cimNamespace, XMLStreamWriter writer) {
         Optional<String> tid = Optional.empty();
         if (c instanceof DanglingLine) {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Network");
@@ -414,17 +416,17 @@ public final class SteadyStateHypothesisExport {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + numt);
         }
         if (tid.isPresent()) {
-            writeTerminal(tid.get(), t.isConnected(), writer);
+            writeTerminal(tid.get(), t.isConnected(), cimNamespace, writer);
         } else {
             LOG.error("Alias not found for terminal {} in connectable {}", t, c.getId());
         }
     }
 
-    private static void writeTerminal(String terminalId, boolean connected, XMLStreamWriter writer) {
+    private static void writeTerminal(String terminalId, boolean connected, String cimNamespace, XMLStreamWriter writer) {
         try {
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, CgmesNames.TERMINAL);
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + terminalId);
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ACDCTerminal.connected");
+            writer.writeStartElement(cimNamespace, CgmesNames.TERMINAL);
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + terminalId);
+            writer.writeStartElement(cimNamespace, "ACDCTerminal.connected");
             writer.writeCharacters(Boolean.toString(connected));
             writer.writeEndElement();
             writer.writeEndElement();
@@ -433,16 +435,16 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeEquivalentInjection(DanglingLine dl, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEquivalentInjection(DanglingLine dl, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Optional<String> ei = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjection");
         if (ei.isPresent()) {
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection");
-            writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + ei.get());
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.p");
-            writer.writeCharacters(CgmesExport.format(dl.getP0()));
+            writer.writeStartElement(cimNamespace, "EquivalentInjection");
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + ei.get());
+            writer.writeStartElement(cimNamespace, "EquivalentInjection.p");
+            writer.writeCharacters(CgmesExportUtil.format(dl.getP0()));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.q");
-            writer.writeCharacters(CgmesExport.format(dl.getQ0()));
+            writer.writeStartElement(cimNamespace, "EquivalentInjection.q");
+            writer.writeCharacters(CgmesExportUtil.format(dl.getQ0()));
             writer.writeEndElement();
             // regulationStatus and regulationTarget are optional,
             // but test cases contain the attributes with disabled and 0
@@ -452,35 +454,35 @@ public final class SteadyStateHypothesisExport {
                 regulationStatus = dl.getGeneration().isVoltageRegulationOn();
                 regulationTarget = dl.getGeneration().getTargetV();
             }
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.regulationStatus");
+            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
             writer.writeCharacters(Boolean.toString(regulationStatus));
             writer.writeEndElement();
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EquivalentInjection.regulationTarget");
-            writer.writeCharacters(CgmesExport.format(regulationTarget));
+            writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
+            writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
             writer.writeEndElement();
             writer.writeEndElement();
         }
     }
 
-    private static void writeEnergyConsumers(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            writeSshEnergyConsumer(writer, load.getId(), load.getP0(), load.getQ0());
+            writeSshEnergyConsumer(load.getId(), load.getP0(), load.getQ0(), cimNamespace, writer);
         }
     }
 
-    private static void writeSshEnergyConsumer(XMLStreamWriter writer, String id, double p, double q) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EnergyConsumer");
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EnergyConsumer.p");
-        writer.writeCharacters(CgmesExport.format(p));
+    private static void writeSshEnergyConsumer(String id, double p, double q, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "EnergyConsumer");
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
+        writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
+        writer.writeCharacters(CgmesExportUtil.format(p));
         writer.writeEndElement();
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "EnergyConsumer.q");
-        writer.writeCharacters(CgmesExport.format(q));
+        writer.writeStartElement(cimNamespace, "EnergyConsumer.q");
+        writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();
     }
 
-    private static void writeGeneratingUnitsParticitationFactors(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // Multiple generators may share the same generation unit,
         // we will choose the last generator that references the generating unit
         Map<String, Generator> generatingUnits = new HashMap<>();
@@ -490,15 +492,15 @@ public final class SteadyStateHypothesisExport {
             }
         }
         for (Generator g : generatingUnits.values()) {
-            writeGeneratingUnitParticipationFactor(g, writer);
+            writeGeneratingUnitParticipationFactor(g, cimNamespace, writer);
         }
     }
 
-    private static void writeGeneratingUnitParticipationFactor(Generator g, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, generatingUnitClassname(g));
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + generatingUnitId(g));
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "GeneratingUnit.normalPF");
-        writer.writeCharacters(CgmesExport.format(Double.valueOf(g.getProperty("GeneratingUnit.normalPF"))));
+    private static void writeGeneratingUnitParticipationFactor(Generator g, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, generatingUnitClassname(g));
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + generatingUnitId(g));
+        writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
+        writer.writeCharacters(CgmesExportUtil.format(Double.valueOf(g.getProperty("GeneratingUnit.normalPF"))));
         writer.writeEndElement();
         writer.writeEndElement();
     }
@@ -526,26 +528,26 @@ public final class SteadyStateHypothesisExport {
         return g.getProperty("GeneratingUnit");
     }
 
-    private static void writeControlAreas(Network network, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         CgmesSshControlAreas sshControlAreas = network.getExtension(CgmesSshControlAreas.class);
         if (sshControlAreas == null) {
             return;
         }
         for (ControlArea controlArea : sshControlAreas.getControlAreas()) {
-            writeControlArea(controlArea.getId(), controlArea.getNetInterchange(), controlArea.getPTolerance(), writer);
+            writeControlArea(controlArea.getId(), controlArea.getNetInterchange(), controlArea.getPTolerance(), cimNamespace, writer);
         }
     }
 
-    private static void writeControlArea(String id, double netInterchange, double pTolerance, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ControlArea");
-        writer.writeAttribute(CgmesExport.RDF_NAMESPACE, "about", "#" + id);
-        writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "ControlArea.netInterchange");
-        writer.writeCharacters(CgmesExport.format(netInterchange));
+    private static void writeControlArea(String id, double netInterchange, double pTolerance, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "ControlArea");
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
+        writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
+        writer.writeCharacters(CgmesExportUtil.format(netInterchange));
         writer.writeEndElement();
         // pTolerance is optional
         if (!Double.isNaN(pTolerance)) {
-            writer.writeStartElement(CgmesExport.CIM_NAMESPACE, "pTolerance");
-            writer.writeCharacters(CgmesExport.format(pTolerance));
+            writer.writeStartElement(cimNamespace, "pTolerance");
+            writer.writeCharacters(CgmesExportUtil.format(pTolerance));
             writer.writeEndElement();
         }
         writer.writeEndElement();
