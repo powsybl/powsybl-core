@@ -7,15 +7,11 @@
 package com.powsybl.cgmes.conversion.test.update;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Properties;
 
-import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,20 +22,17 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -62,11 +55,7 @@ public class StateVariablesAdderTest {
         importExportTest(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource());
     }
 
-    void importExportTest(ReadOnlyDataSource ds) throws IOException {
-        importExportTest(ds, TripleStoreFactory.defaultImplementation());
-    }
-
-    private void importExportTest(ReadOnlyDataSource ds, String impl) throws IOException {
+    private void importExportTest(ReadOnlyDataSource ds) throws IOException {
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), importParameters("false"));
         CgmesModelExtension ext0 = network0.getExtension(CgmesModelExtension.class);
         if (ext0 == null) {
@@ -78,8 +67,8 @@ public class StateVariablesAdderTest {
         PropertyBags fullModel0 = cgmes0.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         NetworkChanges.modifyStateVariables(network0);
 
-        // Export modified network to new cgmes
-        DataSource tmp = tmpDataSource(impl);
+        // Export modified network to new CGMES
+        DataSource tmp = ExportTest.tmpDataSource(fileSystem, "export-modified");
         CgmesExport e = new CgmesExport();
         e.export(network0, new Properties(), tmp);
 
@@ -96,7 +85,7 @@ public class StateVariablesAdderTest {
         // Compare
         assertEquals(topologicalIslands0, topologicalIslands1);
         assertEquals(fullModel0, fullModel1);
-        assertTrue(networkVoltagesChangesInCgmes(network0, cgmes1));
+        compareVoltages(network0, network1);
     }
 
     private Properties importParameters(String convertBoundary) {
@@ -105,26 +94,8 @@ public class StateVariablesAdderTest {
         return importParameters;
     }
 
-    private boolean networkVoltagesChangesInCgmes(Network network0, CgmesModel cgmes1) {
-        for (PropertyBag tn : cgmes1.topologicalNodes()) {
-            Bus b = network0.getBusBreakerView().getBus(tn.getId(CgmesNames.TOPOLOGICAL_NODE));
-            if (b != null) {
-                String.valueOf(b.getV()).equals(tn.getId(CgmesNames.VOLTAGE));
-                String.valueOf(b.getAngle()).equals(tn.getId(CgmesNames.ANGLE));
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private DataSource tmpDataSource(String impl) throws IOException {
-        Path exportFolder = fileSystem.getPath("impl-" + impl);
-        if (Files.exists(exportFolder)) {
-            FileUtils.cleanDirectory(exportFolder.toFile());
-        }
-        Files.createDirectories(exportFolder);
-        DataSource tmpDataSource = new FileDataSource(exportFolder, "");
-        return tmpDataSource;
+    private void compareVoltages(Network network0, Network network1) {
+        new Comparison(network0, network1, new ComparisonConfig()).compareBuses();
     }
 
     private FileSystem fileSystem;

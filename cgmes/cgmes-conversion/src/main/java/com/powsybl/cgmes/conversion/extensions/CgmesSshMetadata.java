@@ -17,8 +17,6 @@ import java.util.List;
  */
 public interface CgmesSshMetadata extends Extension<Network> {
 
-    String getScenarioTime();
-
     String getDescription();
 
     int getSshVersion();

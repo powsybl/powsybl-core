@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import java.util.List;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
@@ -101,6 +103,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx);
 
         setRegulatingControlContext(convertedT3xModel, tx);
+        setThreeWindingsTransformerLegTapChangerControlProperties(tx, convertedT3xModel.winding1.end1.ratioTapChanger, convertedT3xModel.winding1.end1.phaseTapChanger);
+        setThreeWindingsTransformerLegTapChangerControlProperties(tx, convertedT3xModel.winding2.end1.ratioTapChanger, convertedT3xModel.winding2.end1.phaseTapChanger);
+        setThreeWindingsTransformerLegTapChangerControlProperties(tx, convertedT3xModel.winding3.end1.ratioTapChanger, convertedT3xModel.winding3.end1.phaseTapChanger);
     }
 
     private static void setToIidmWindingAdder(ConvertedT3xModel.ConvertedWinding convertedModelWinding, LegAdder ladder) {
@@ -170,5 +175,10 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         CgmesRegulatingControlPhase rcPtc3 = setContextRegulatingDataPhase(convertedT3xModel.winding3.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc1, rcPtc1, rcRtc2, rcPtc2, rcRtc3, rcPtc3);
+    }
+
+    private void setThreeWindingsTransformerLegTapChangerControlProperties(ThreeWindingsTransformer twt, TapChanger rtc, TapChanger ptc) {
+        List<Property> properties = defineRatioPhaseTapChangerProperties(context, rtc, ptc);
+        properties.forEach(property -> twt.setProperty(property.getKey(), property.getValue()));
     }
 }

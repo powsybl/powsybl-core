@@ -117,6 +117,9 @@ public class RegulatingControlMappingForGenerators {
                     .add();
         }
 
+        gen.setProperty("RegulatingControl", controlId);
+        gen.setProperty("targetDeadBand", String.valueOf(control.getTargetDeadBand()));
+
         return true;
     }
 

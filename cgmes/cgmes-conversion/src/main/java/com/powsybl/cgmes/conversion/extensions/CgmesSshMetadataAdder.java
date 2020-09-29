@@ -15,8 +15,6 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesSshMetadataAdder extends ExtensionAdder<Network, CgmesSshMetadata> {
 
-    CgmesSshMetadataAdder setScenarioTime(String scenarioTime);
-
     CgmesSshMetadataAdder setDescription(String description);
 
     CgmesSshMetadataAdder setSshVersion(int sshVersion);

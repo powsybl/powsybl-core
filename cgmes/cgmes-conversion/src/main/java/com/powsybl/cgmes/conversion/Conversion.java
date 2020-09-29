@@ -315,7 +315,6 @@ public class Conversion {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
-                    .setScenarioTime(sshDescription.get(0).getId("scenarioTime"))
                     .setDescription(sshDescription.get(0).getId("description"))
                     .setSshVersion(sshDescription.get(0).asInt("version"))
                     .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));

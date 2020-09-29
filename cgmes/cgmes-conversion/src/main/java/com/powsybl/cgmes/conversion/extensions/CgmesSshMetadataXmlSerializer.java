@@ -37,7 +37,6 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesSshMetadata extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("scenarioTime", extension.getScenarioTime());
         writer.writeAttribute("description", extension.getDescription());
         XmlUtil.writeInt("sshVersion", extension.getSshVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
@@ -53,8 +52,7 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XMLStreamReader reader = networkContext.getReader();
         CgmesSshMetadataAdder adder = extendable.newExtension(CgmesSshMetadataAdder.class);
-        adder.setScenarioTime(reader.getAttributeValue(null, "scenarioTime"))
-                .setDescription(reader.getAttributeValue(null, "description"))
+        adder.setDescription(reader.getAttributeValue(null, "description"))
                 .setSshVersion(XmlUtil.readIntAttribute(reader, "sshVersion"))
                 .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
         XmlUtil.readUntilEndElement("cgmesSshMetadata", reader, () -> {

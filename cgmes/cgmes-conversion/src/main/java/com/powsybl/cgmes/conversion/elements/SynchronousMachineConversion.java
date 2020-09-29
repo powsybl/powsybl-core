@@ -60,6 +60,13 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (p.asInt("referencePriority", 0) > 0) {
             SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
         }
+        if (p.containsKey("normalPF")) {
+            g.setProperty("GeneratingUnit.normalPF", p.get("normalPF"));
+        }
+        String generatingUnit = p.getId("GeneratingUnit");
+        if (generatingUnit != null) {
+            g.setProperty("GeneratingUnit", generatingUnit);
+        }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }

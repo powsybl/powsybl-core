@@ -7,15 +7,26 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Objects;
 import java.util.Properties;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
 import com.google.auto.service.AutoService;
+import com.powsybl.cgmes.conversion.update.CgmesExportContext;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
+import com.powsybl.cgmes.conversion.update.StateVariablesExport;
+import com.powsybl.cgmes.conversion.update.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 
@@ -27,22 +38,50 @@ public class CgmesExport implements Exporter {
 
     @Override
     public void export(Network network, Properties params, DataSource ds) {
-
-        // Right now the network must contain the original CgmesModel
-        // In the future it should be possible to export to CGMES
-        // directly from an IIDM Network,
-        // without the need for the original CgmesModel
+        Objects.requireNonNull(network);
         CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
-        if (ext == null) {
-            throw new CgmesModelException("No extension for CGMES model found in Network");
+        if (params != null && Boolean.valueOf(params.getProperty("cgmes.export.usingOnlyNetwork"))) {
+            if (ext != null) {
+                CgmesModel cgmesSource = ext.getCgmesModel();
+                if (cgmesSource != null) {
+                    throw new CgmesModelException("CGMES model should not be available as Network extension");
+                }
+            }
+            exportUsingOnlyNetwork(network, ds);
+        } else {
+            if (ext == null) {
+                throw new CgmesModelException("CGMES model is required and not found in Network extension");
+            }
+            exportUsingOriginalCgmesModel(network, ds, ext);
         }
-        CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
+    }
 
+    private void exportUsingOnlyNetwork(Network network, DataSource ds) {
+        // At this point only SSH, SV can be exported when relying only in Network data
+        // (minimum amount of CGMES references are expected as aliases/properties/extensions)
+        String baseName = network.getProperty("baseName");
+        String filenameSv = baseName + "_SV.xml";
+        String filenameSsh = baseName + "_SSH.xml";
+        CgmesExportContext context = new CgmesExportContext(network);
+        try (OutputStream os = ds.newOutputStream(filenameSv, false)) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            StateVariablesExport.write(network, writer, context);
+        } catch (IOException | XMLStreamException x) {
+            throw new PowsyblException("Exporting to CGMES using only Network");
+        }
+        try (OutputStream os = ds.newOutputStream(filenameSsh, false)) {
+            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            SteadyStateHypothesisExport.write(network, writer, context);
+        } catch (IOException | XMLStreamException x) {
+            throw new PowsyblException("Exporting to CGMES using only Network");
+        }
+    }
+
+    private void exportUsingOriginalCgmesModel(Network network, DataSource ds, CgmesModelExtension ext) {
+        CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
-
         String variantId = network.getVariantManager().getWorkingVariantId();
-
         cgmesUpdate.update(cgmes, variantId);
         // Fill the State Variables data with the Network current state values
         StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);

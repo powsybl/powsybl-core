@@ -20,7 +20,6 @@ import java.util.Objects;
  */
 class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSshMetadata> implements CgmesSshMetadataAdder {
 
-    private String scenarioTime;
     private String description;
     private int sshVersion = 0;
     private final List<String> dependencies = new ArrayList<>();
@@ -28,12 +27,6 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
 
     public CgmesSshMetadataAdderImpl(Network extendable) {
         super(extendable);
-    }
-
-    @Override
-    public CgmesSshMetadataAdder setScenarioTime(String scenarioTime) {
-        this.scenarioTime = scenarioTime;
-        return this;
     }
 
     @Override
@@ -62,9 +55,6 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
 
     @Override
     protected CgmesSshMetadata createExtension(Network extendable) {
-        if (scenarioTime == null) {
-            throw new PowsyblException("cgmesSshMetadata.scenarioTime is undefined");
-        }
         if (description == null) {
             throw new PowsyblException("cgmesSshMetadata.description is undefined");
         }
@@ -74,6 +64,6 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
         if (modelingAuthoritySet == null) {
             throw new PowsyblException("cgmesSshMetadata.modelingAuthoritySet is undefined");
         }
-        return new CgmesSshMetadataImpl(scenarioTime, description, sshVersion, dependencies, modelingAuthoritySet);
+        return new CgmesSshMetadataImpl(description, sshVersion, dependencies, modelingAuthoritySet);
     }
 }
