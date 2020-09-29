@@ -14,7 +14,6 @@ import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -514,9 +513,9 @@ public class ExportTest {
     }
 
     public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
-        //Path exportFolder = fileSystem.getPath(name);
+        Path exportFolder = fileSystem.getPath(name);
         // XXX (local testing)
-        Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
+        //Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
