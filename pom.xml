@@ -72,7 +72,7 @@
         <module>psse</module>
         <module>scripting</module>
         <module>security-analysis</module>
-        <module>sensitivity-api</module>
+        <module>sensitivity-analysis-api</module>
         <module>simulation-api</module>
         <module>time-series</module>
         <module>tools</module>

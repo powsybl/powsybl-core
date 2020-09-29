@@ -190,7 +190,7 @@ public interface PlatformConfigNamedProvider {
                 provider = providers.stream()
                         .filter(p -> p.getPlatformConfigName().equals(finalName)).findFirst()
                         .orElseThrow(() -> new PowsyblException(
-                                "Loadflow '" + finalName + "' not found"));
+                                clazz.getSimpleName() + finalName + "' not found"));
             }
 
             return provider;
