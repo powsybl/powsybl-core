@@ -47,10 +47,6 @@ public abstract class AbstractConverterTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-        if (Files.exists(tmpDir)) {
-            FileUtils.cleanDirectory(tmpDir.toFile());
-        }
-        Files.createDirectories(tmpDir);
     }
 
     @After
