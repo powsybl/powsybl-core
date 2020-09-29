@@ -144,7 +144,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
                 .mapToDouble(Double::doubleValue).max().orElse(0);
         tapChanger.getSteps().forEach(step -> {
-            if (alphaMax == 0 || xtx == 0) {
+            if (alphaMax == 0) { // all angles are equal to 0: x is considered equal to 0
                 step.setX(0);
                 return;
             }
@@ -196,7 +196,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         double alphaMax = tapChanger.getSteps().stream().map(TapChanger.Step::getAngle)
             .mapToDouble(Double::doubleValue).max().orElse(0);
         tapChanger.getSteps().forEach(step -> {
-            if (alphaMax == 0.0 || xtx == 0.0) {
+            if (alphaMax == 0.0) { // all angles are equal to 0: x is considered equal to 0
                 step.setX(0);
                 return;
             }
