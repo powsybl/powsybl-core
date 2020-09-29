@@ -98,6 +98,18 @@ public class ExportTest {
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
     }
 
+    @Test
+    public void testExportAlternativesBusBranchMicroT4() throws IOException {
+        DifferenceEvaluator knownDiffs =
+                DifferenceEvaluators.chain(
+                        ExportTest::ensuringIncreasedModelVersion,
+                        ExportTest::ignoringStaticVarCompensatorDiffq,
+                        ExportTest::ignoringMissingTopologicalIslandInControl,
+                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband,
+                        ExportTest::ignoringJunctionOrBusbarTerminals);
+        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridType4BE().dataSource(), knownDiffs);
+    }
+
     @Ignore("not yet implemented")
     @Test
     public void testExportAlternativesNodeBreakerSmall() throws IOException {
@@ -113,13 +125,34 @@ public class ExportTest {
     private static ComparisonResult ensuringIncreasedModelVersion(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
-            Node test = comparison.getTestDetails().getTarget();
             if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("Model.version")) {
+                Node test = comparison.getTestDetails().getTarget();
                 int vcontrol = Integer.valueOf(control.getTextContent());
                 int vtest = Integer.valueOf(test.getTextContent());
                 if (vtest == vcontrol + 1) {
                     return ComparisonResult.EQUAL;
                 }
+            }
+        }
+        return result;
+    }
+
+    private static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("StaticVarCompensator.q")) {
+                Node test = comparison.getTestDetails().getTarget();
+                // Both elements must exist and have valid numeric values
+                double qcontrol = Double.valueOf(control.getTextContent());
+                double qtest = Double.valueOf(test.getTextContent());
+                // But they could be different
+                // When we export we save in SSH.q the value of the SVC.terminal.q
+                // It would be the result of the power flow calculation
+                // or the value originally seen in the import in SV.q
+                if (qcontrol != qtest) {
+                    LOG.warn("Different values for StaticVarCompensator.q: control {}, test {}", qcontrol, qtest);
+                }
+                return ComparisonResult.EQUAL;
             }
         }
         return result;
@@ -132,6 +165,7 @@ public class ExportTest {
             Node control = comparison.getControlDetails().getTarget();
             Node test = comparison.getTestDetails().getTarget();
             if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH
+                    && control.getNodeType() == Node.ELEMENT_NODE
                     && control.getLocalName().equals("RDF")) {
                 return ComparisonResult.EQUAL;
             } else if (comparison.getType() == ComparisonType.CHILD_LOOKUP
@@ -357,6 +391,9 @@ public class ExportTest {
     private static void debugNode(Node n) {
         if (n != null) {
             debugAttributes(n, "            ");
+            if (n.getNodeType() == Node.TEXT_NODE) {
+                LOG.error("            {}", n.getTextContent());
+            }
             int maxNodes = 5;
             for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
                 Node n1 = n.getChildNodes().item(k);
@@ -401,7 +438,7 @@ public class ExportTest {
                     || name.startsWith("SvStatus")
                     || name.startsWith("SvPowerFlow")
                     || name.equals("FullModel")
-                    || name.startsWith("Model.") && !name.equals("Model.created")
+                    || name.startsWith("Model.") && !(name.equals("Model.created") || name.equals("Model.Supersedes"))
                     || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode"));
         }
         return false;
@@ -420,13 +457,14 @@ public class ExportTest {
                     || name.startsWith("RotatingMachine")
                     || name.startsWith("RegulatingCondEq")
                     || name.startsWith("RegulatingControl")
+                    || name.startsWith("StaticVarCompensator")
                     // Previous condition includes this one
                     // but we state explicitly that we consider tap changer control objects
                     || name.startsWith("TapChangerControl")
                     || name.startsWith("ControlArea")
                     || name.contains("GeneratingUnit")
                     || name.equals("FullModel")
-                    || name.startsWith("Model.") && !name.equals("Model.created");
+                    || name.startsWith("Model.") && !(name.equals("Model.created") || name.equals("Model.Supersedes"));
         }
         return false;
     }
@@ -514,8 +552,7 @@ public class ExportTest {
 
     public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
         Path exportFolder = fileSystem.getPath(name);
-        // XXX (local testing)
-        //Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
+        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }

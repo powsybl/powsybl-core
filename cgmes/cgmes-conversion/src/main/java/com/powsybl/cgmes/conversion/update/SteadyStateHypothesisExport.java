@@ -57,6 +57,7 @@ public final class SteadyStateHypothesisExport {
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer);
             writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer);
+            writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
             writeControlAreas(network, cimNamespace, writer);
@@ -146,7 +147,7 @@ public final class SteadyStateHypothesisExport {
                     linearNonlinear = "Linear";
                     break;
                 case NON_LINEAR:
-                    linearNonlinear = "NonLinear";
+                    linearNonlinear = "Nonlinear";
                     break;
                 default:
                     linearNonlinear = "";
@@ -218,6 +219,45 @@ public final class SteadyStateHypothesisExport {
                 double targetDeadBand = Double.parseDouble(g.getProperty("targetDeadBand"));
                 RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
                     g.isVoltageRegulatorOn(), targetDeadBand, g.getTargetV(), "k");
+                regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
+            }
+        }
+    }
+
+    private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
+            boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
+            writer.writeStartElement(cimNamespace, "StaticVarCompensator");
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + svc.getId());
+            writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
+            writer.writeCharacters(Boolean.toString(controlEnabled));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "StaticVarCompensator.q");
+            writer.writeCharacters(CgmesExportUtil.format(svc.getTerminal().getQ()));
+            writer.writeEndElement();
+            writer.writeEndElement();
+
+            if (svc.hasProperty("RegulatingControl")) {
+                String rcid = svc.getProperty("RegulatingControl");
+                double targetDeadBand = Double.parseDouble(svc.getProperty("targetDeadBand"));
+                // XXX(Luma) Regulating control could be reactive power or voltage
+                // But if we only read from current IIDM, control may be disabled, so we will not get any data
+                double targetValue;
+                String multiplier;
+                if (regulationMode  == StaticVarCompensator.RegulationMode.VOLTAGE) {
+                    targetValue = svc.getVoltageSetpoint();
+                    multiplier = "k";
+                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+                    targetValue = svc.getReactivePowerSetpoint();
+                    multiplier = "M";
+                } else {
+                    // XXX(Luma) have we stored these attributes during conversion?
+                    targetValue = Double.parseDouble(svc.getProperty("targetValue"));
+                    multiplier = svc.getProperty("multiplier");
+                }
+                RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
+                        controlEnabled, targetDeadBand, targetValue, multiplier);
                 regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
             }
         }
