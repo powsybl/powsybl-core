@@ -19,7 +19,6 @@ import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -129,96 +128,75 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return context.regulatingControlMapping().cachedRegulatingControls().get(regulatingControlId);
     }
 
-    protected List<Property> defineRatioPhaseTapChangerProperties(Context context, TapChanger rtc, TapChanger ptc) {
-        List<Property> properties = new ArrayList<>();
-
-        addRatioTapChangerProperties(context, rtc, properties);
-        addPhaseTapChangerProperties(context, ptc, properties);
-        return properties;
+    protected void addCgmesDataAsProperties(Identifiable<?> transformer, TapChanger rtc, TapChanger ptc, Context context) {
+        addRatioTapChangerProperties(transformer, rtc, context);
+        addPhaseTapChangerProperties(transformer, ptc, context);
     }
 
-    private static void  addRatioTapChangerProperties(Context context, TapChanger rtc, List<Property> properties) {
+    private static void  addRatioTapChangerProperties(Identifiable<?> transformer, TapChanger rtc, Context context) {
         if (rtc == null || rtc.getId() == null) {
             return;
         }
 
         if (rtc.getRegulatingControlId() != null) {
             String key = String.format("RatioTapChanger.%s.TapChangerControl", rtc.getId());
-            properties.add(new Property(key, rtc.getRegulatingControlId()));
+            transformer.setProperty(key, rtc.getRegulatingControlId());
         }
 
         if (rtc.getHiddenCombinedTapChanger() != null) {
-            defineHiddenTapChangerProperties(context, rtc, rtc.getHiddenCombinedTapChanger(), "RatioTapChanger", properties);
+            defineHiddenTapChangerProperties(transformer, rtc, rtc.getHiddenCombinedTapChanger(), "RatioTapChanger", context);
         }
     }
 
-    private static void  addPhaseTapChangerProperties(Context context, TapChanger ptc, List<Property> properties) {
+    private static void  addPhaseTapChangerProperties(Identifiable<?> transformer, TapChanger ptc, Context context) {
         if (ptc == null || ptc.getId() == null) {
             return;
         }
 
         if (ptc.getRegulatingControlId() != null) {
             String key = String.format("PhaseTapChanger.%s.TapChangerControl", ptc.getId());
-            properties.add(new Property(key, ptc.getRegulatingControlId()));
+            transformer.setProperty(key, ptc.getRegulatingControlId());
         }
         if (ptc.getType() != null) {
             String key = String.format("PhaseTapChanger.%s.type", ptc.getId());
-            properties.add(new Property(key, ptc.getType()));
+            transformer.setProperty(key, ptc.getType());
         }
 
         if (ptc.getHiddenCombinedTapChanger() != null) {
-            defineHiddenTapChangerProperties(context, ptc, ptc.getHiddenCombinedTapChanger(), "PhaseTapChanger", properties);
+            defineHiddenTapChangerProperties(transformer, ptc, ptc.getHiddenCombinedTapChanger(), "PhaseTapChanger", context);
 
             String key = String.format("PhaseTapChanger.%s.type", ptc.getHiddenCombinedTapChanger().getId());
-            properties.add(new Property(key, ptc.getHiddenCombinedTapChanger().getType()));
+            transformer.setProperty(key, ptc.getHiddenCombinedTapChanger().getType());
         }
     }
 
-    private static void defineHiddenTapChangerProperties(Context context, TapChanger tc, TapChanger hiddenTc, String propertyTag, List<Property> properties) {
+    private static void defineHiddenTapChangerProperties(Identifiable<?> transformer, TapChanger tc, TapChanger hiddenTc, String propertyTag, Context context) {
 
         String key = String.format("%s.%s.hiddenTapChangerId", propertyTag, tc.getId());
-        properties.add(new Property(key, hiddenTc.getId()));
+        transformer.setProperty(key, hiddenTc.getId());
 
         key = String.format("%s.%s.controlEnabled", propertyTag, hiddenTc.getId());
-        properties.add(new Property(key, String.valueOf(hiddenTc.isTapChangerControlEnabled())));
+        transformer.setProperty(key, String.valueOf(hiddenTc.isTapChangerControlEnabled()));
 
         key = String.format("%s.%s.step", propertyTag, hiddenTc.getId());
-        properties.add(new Property(key, String.valueOf(hiddenTc.getTapPosition())));
+        transformer.setProperty(key, String.valueOf(hiddenTc.getTapPosition()));
 
         if (hiddenTc.getRegulatingControlId() != null) {
             key = String.format("%s.%s.tapChangerControl", propertyTag, hiddenTc.getId());
-            properties.add(new Property(key, hiddenTc.getRegulatingControlId()));
+            transformer.setProperty(key, hiddenTc.getRegulatingControlId());
 
             RegulatingControl rc = getRegulatingControl(context, hiddenTc.getRegulatingControlId());
             if (rc != null) {
                 // isRegulating always false in hidden tapChangers
                 key = String.format("%s.%s.isRegulating", propertyTag, hiddenTc.getId());
-                properties.add(new Property(key, "false"));
+                transformer.setProperty(key, "false");
 
                 key = String.format("%s.%s.targetValue", propertyTag, hiddenTc.getId());
-                properties.add(new Property(key, String.valueOf(rc.getTargetValue())));
+                transformer.setProperty(key, String.valueOf(rc.getTargetValue()));
 
                 key = String.format("%s.%s.targetDeadBand", propertyTag, hiddenTc.getId());
-                properties.add(new Property(key, String.valueOf(rc.getTargetDeadBand())));
+                transformer.setProperty(key, String.valueOf(rc.getTargetDeadBand()));
             }
-        }
-    }
-
-    static class Property {
-        String key;
-        String value;
-
-        Property(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        protected String getKey() {
-            return key;
-        }
-
-        protected String getValue() {
-            return value;
         }
     }
 }

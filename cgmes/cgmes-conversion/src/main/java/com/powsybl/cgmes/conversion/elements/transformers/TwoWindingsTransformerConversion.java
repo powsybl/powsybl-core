@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
-import java.util.List;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
@@ -101,8 +99,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         setToIidmPhaseTapChanger(convertedT2xModel, tx);
 
         setRegulatingControlContext(convertedT2xModel, tx);
-        setTwoWindingsTransformerTapChangerControlProperties(tx, convertedT2xModel.end1.ratioTapChanger,
-            convertedT2xModel.end1.phaseTapChanger);
+        addCgmesDataAsProperties(tx, convertedT2xModel.end1.ratioTapChanger, convertedT2xModel.end1.phaseTapChanger, context);
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
@@ -138,10 +135,5 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
-    }
-
-    private void setTwoWindingsTransformerTapChangerControlProperties(TwoWindingsTransformer twt, TapChanger rtc, TapChanger ptc) {
-        List<Property> properties = defineRatioPhaseTapChangerProperties(context, rtc, ptc);
-        properties.forEach(property -> twt.setProperty(property.getKey(), property.getValue()));
     }
 }

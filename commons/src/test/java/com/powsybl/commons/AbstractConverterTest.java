@@ -25,7 +25,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
@@ -48,8 +47,6 @@ public abstract class AbstractConverterTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-        // XXX (local testing)
-        tmpDir = Paths.get("/", "Users", "zamarrenolm", "work", "temp", "powsybl");
         if (Files.exists(tmpDir)) {
             FileUtils.cleanDirectory(tmpDir.toFile());
         }
