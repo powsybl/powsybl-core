@@ -41,7 +41,7 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
     }
 
     @Override
-    public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) throws XMLStreamException {
+    public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
         String side = networkContext.getReader().getAttributeValue(null, "side");
@@ -51,8 +51,13 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
         return voltageLevel.getExtension(SlackTerminal.class);
     }
 
+    /**
+     * A {@link SlackTerminal} extension is serializable if the terminal for the current variant is not null
+     * @param slackTerminal The extension to check
+     * @return true if the terminal for the current variant is not null, false otherwise
+     */
     @Override
-    public boolean isEmptySerialization(SlackTerminal slackTerminal) {
-        return slackTerminal.isEmpty();
+    public boolean isSerializable(SlackTerminal slackTerminal) {
+        return slackTerminal.getTerminal() != null;
     }
 }

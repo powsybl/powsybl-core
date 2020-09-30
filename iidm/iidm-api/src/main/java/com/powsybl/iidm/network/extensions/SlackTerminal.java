@@ -23,7 +23,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
 
     /**
      * Set the terminal of all SlackTerminal extensions from the given network to null. If the extension is empty,
-     * this method automatically remove the extension.
+     * meaning that for each variant the terminal is null, this method automatically remove the extension.
      *
      * @param network A network to cleanup
      */

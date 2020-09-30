@@ -81,11 +81,11 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
     }
 
     /**
-     * Returns if the serialization of the extension is empty
-     * @param extension the extension to serialize
-     * @return true if the serialization of the extension is empty, false otherwise
+     * Check if an extension can be serialized or not.
+     * @param extension the extension to check
+     * @return true if the extension can be serialized, false otherwise
      */
-    default boolean isEmptySerialization(E extension) {
-        return false;
+    default boolean isSerializable(E extension) {
+        return true;
     }
 }

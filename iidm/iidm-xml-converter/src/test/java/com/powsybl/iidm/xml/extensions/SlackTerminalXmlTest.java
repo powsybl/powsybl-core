@@ -7,15 +7,13 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -95,6 +93,25 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         assertNotNull(vl2);
         SlackTerminal s = vl2.getExtension(SlackTerminal.class);
         assertNull(s);
+    }
+
+    @Test
+    public void testBadVariant() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        VoltageLevel vl = network.getVoltageLevel("VLHV2");
+        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(Branch.Side.TWO);
+        vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
+
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "test");
+        network.getVariantManager().setWorkingVariant("test");
+        vl.getExtension(SlackTerminal.class).setTerminal(null);
+
+        Network clone = NetworkXml.copy(network);
+        VoltageLevel vlClone = clone.getVoltageLevel("VLHV2");
+        Assert.assertNull(vlClone.getExtension(SlackTerminal.class));
+
     }
 
 }

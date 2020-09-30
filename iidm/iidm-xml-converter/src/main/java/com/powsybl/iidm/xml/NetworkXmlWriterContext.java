@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.export.BusFilter;
@@ -15,7 +13,10 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,16 +24,13 @@ import java.util.*;
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
-    private final Map<Identifiable<?>, Map<Extension<? extends Identifiable<?>>, ExtensionXmlSerializer>> extensionSerializers;
     private XMLStreamWriter extensionsWriter;
     private final ExportOptions options;
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Map<Identifiable<?>, Map<Extension<? extends Identifiable<?>>, ExtensionXmlSerializer>> extensionSerializers,
-                            Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter, IidmXmlVersion version) {
         super(anonymizer, version);
-        this.extensionSerializers = extensionSerializers;
         this.writer = writer;
         this.options = options;
         this.filter = filter;
@@ -40,9 +38,8 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
         this.exportedEquipments = new HashSet<>();
     }
 
-    NetworkXmlWriterContext(Map<Identifiable<?>, Map<Extension<? extends Identifiable<?>>, ExtensionXmlSerializer>> extensionSerializers,
-                            Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
-        this(extensionSerializers, anonymizer, writer, options, filter, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
+        this(anonymizer, writer, options, filter, IidmXmlConstants.CURRENT_IIDM_XML_VERSION);
     }
 
     @Override
@@ -81,9 +78,5 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
 
     public Optional<String> getExtensionVersion(String extensionName) {
         return options.getExtensionVersion(extensionName);
-    }
-
-    public Map<Identifiable<?>, Map<Extension<? extends Identifiable<?>>, ExtensionXmlSerializer>> getExtensionXmlSerializers() {
-        return this.extensionSerializers;
     }
 }
