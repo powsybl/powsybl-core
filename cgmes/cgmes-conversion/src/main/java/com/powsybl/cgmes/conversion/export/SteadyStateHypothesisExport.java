@@ -241,8 +241,7 @@ public final class SteadyStateHypothesisExport {
             if (svc.hasProperty("RegulatingControl")) {
                 String rcid = svc.getProperty("RegulatingControl");
                 double targetDeadBand = Double.parseDouble(svc.getProperty("targetDeadBand"));
-                // XXX(Luma) Regulating control could be reactive power or voltage
-                // But if we only read from current IIDM, control may be disabled, so we will not get any data
+                // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
                 if (regulationMode  == StaticVarCompensator.RegulationMode.VOLTAGE) {
@@ -252,9 +251,12 @@ public final class SteadyStateHypothesisExport {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {
-                    // XXX(Luma) have we stored these attributes during conversion?
-                    targetValue = Double.parseDouble(svc.getProperty("targetValue"));
-                    multiplier = svc.getProperty("multiplier");
+                    // TODO Consider storing targetValue and targetValueUnitMultiplier as properties
+                    // during conversion of StaticVarCompensator,
+                    // even if the regulating control is not active.
+                    // Then obtain here the original values from properties
+                    targetValue = 0;
+                    multiplier = "k";
                 }
                 RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
                         controlEnabled, targetDeadBand, targetValue, multiplier);

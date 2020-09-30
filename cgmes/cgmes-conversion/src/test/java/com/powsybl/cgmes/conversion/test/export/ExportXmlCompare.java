@@ -202,7 +202,7 @@ public final class ExportXmlCompare {
                 String about = rccontrol.getAttributes().getNamedItemNS(RDF_NAMESPACE, "about").getTextContent();
                 if (about.equals("#_84bf5be8-eb59-4555-b131-fce4d2d7775d")
                         || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")) {
-                    // FIXME(Luma) The regulating control _6ba406ce-78cf-4485-9b01-a34e584f1a8d
+                    // The regulating control _6ba406ce-78cf-4485-9b01-a34e584f1a8d
                     // is shared between a synchronous machine and a tap changer
                     // In PowSyBl, from the point of view of the generator,
                     // we consider the regulating control without deadband

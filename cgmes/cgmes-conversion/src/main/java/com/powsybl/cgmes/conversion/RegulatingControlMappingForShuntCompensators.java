@@ -57,18 +57,11 @@ public class RegulatingControlMappingForShuntCompensators {
         if (cgmesRc == null) {
             return;
         }
-
-        // FIXME(Luma) We are saving the relationship with the
-        // original regulating control even if it is not enabled
-        // or if we are not able to set it properly in IIDM
-        // In micro grid we discard information about two regulating controls:
-        // _4d50f86d-0d12-4ca3-9430-56bb05f9eee6,
-        // _67971e8d-518a-408f-9e59-c7601da9a989
-        // just because they are not enabled
-        // If we alter the conversion to try to convert
-        // if controlEnabled is false, we get errors in unit tests
         String rcId = cgmesRc.regulatingControlId;
 
+        // We are saving the relationship with the
+        // original regulating control even if it is not enabled
+        // or if we are not able to set it properly in IIDM
         if (!cgmesRc.controlEnabled) {
             setAdditionalProperties(shuntCompensator, rcId);
             return;
