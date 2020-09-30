@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 
 import org.slf4j.Logger;
@@ -508,12 +509,12 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeEnergyConsumers(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Load load : network.getLoads()) {
-            writeSshEnergyConsumer(load.getId(), load.getP0(), load.getQ0(), cimNamespace, writer);
+            writeSshEnergyConsumer(load.getId(), load.getP0(), load.getQ0(), load.getExtension(LoadDetail.class), cimNamespace, writer);
         }
     }
 
-    private static void writeSshEnergyConsumer(String id, double p, double q, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "EnergyConsumer");
+    private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, loadClassName(loadDetail));
         writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -522,6 +523,22 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();
+    }
+
+    private static String loadClassName(LoadDetail loadDetail) {
+        if (loadDetail != null) {
+            // Conform load if fixed part is zero and variable part is non-zero
+            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
+                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableActivePower() != 0)) {
+                return "ConformLoad";
+            }
+            // NonConform load if fixed part is non-zero and variable part is all zero
+            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedActivePower() != 0)) {
+                return "NonConformLoad";
+            }
+        }
+        return "EnergyConsumer";
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -588,7 +605,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeEndElement();
         // pTolerance is optional
         if (!Double.isNaN(pTolerance)) {
-            writer.writeStartElement(cimNamespace, "pTolerance");
+            writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
             writer.writeCharacters(CgmesExportUtil.format(pTolerance));
             writer.writeEndElement();
         }

@@ -82,6 +82,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             es = EnergySource.THERMAL;
         } else if (gut.contains("WindGeneratingUnit")) {
             es = EnergySource.WIND;
+        } else if (gut.contains("SolarGeneratingUnit")) {
+            es = EnergySource.SOLAR;
         }
         return es;
     }

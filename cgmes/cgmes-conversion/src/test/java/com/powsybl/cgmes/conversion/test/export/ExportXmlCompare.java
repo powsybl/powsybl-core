@@ -306,7 +306,10 @@ public final class ExportXmlCompare {
             String name = n.getLocalName();
             return name.endsWith(".p") || name.endsWith(".q")
                     || name.endsWith(".v") || name.endsWith(".angle")
+                    || name.endsWith(".sections")
+                    || name.endsWith("TapChanger.step")
                     || name.endsWith(".regulationTarget") || name.endsWith(".targetValue") || name.endsWith(".targetDeadband")
+                    || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             // DanglingLine p, q attributes in IIDM Network
@@ -396,9 +399,8 @@ public final class ExportXmlCompare {
                     || name.startsWith("SvTapStep")
                     || name.startsWith("SvStatus")
                     || name.startsWith("SvPowerFlow")
-                    || name.equals("FullModel")
-                    || name.startsWith("Model.") && !(name.equals("Model.created") || name.equals("Model.Supersedes"))
-                    || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode"));
+                    || name.startsWith("TopologicalIsland") && !name.equals("TopologicalIsland.AngleRefTopologicalNode")
+                    || isConsideredModelElementName(name));
         }
         return false;
     }
@@ -406,8 +408,17 @@ public final class ExportXmlCompare {
     private static boolean isConsideredSshNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
+            // Optional attributes with default values
+            // targetDeadband is optional, explicit value 0 can be ignored
+            if (name.equals("RegulatingControl.targetDeadband") && n.getTextContent().equals("0")) {
+                return false;
+            } else if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
+                return false;
+            } else if (name.equals("EquivalentInjection.regulationTarget") && n.getTextContent().equals("0")) {
+                return false;
+            }
             return name.equals("RDF")
-                    || name.startsWith("EnergyConsumer")
+                    || name.startsWith("EnergyConsumer") || name.startsWith("ConformLoad") || name.startsWith("NonConformLoad")
                     || name.startsWith("Terminal")
                     || name.startsWith("EquivalentInjection")
                     || name.contains("TapChanger")
@@ -422,10 +433,17 @@ public final class ExportXmlCompare {
                     || name.startsWith("TapChangerControl")
                     || name.startsWith("ControlArea")
                     || name.contains("GeneratingUnit")
-                    || name.equals("FullModel")
-                    || name.startsWith("Model.") && !(name.equals("Model.created") || name.equals("Model.Supersedes"));
+                    || isConsideredModelElementName(name);
         }
         return false;
+    }
+
+    private static boolean isConsideredModelElementName(String name) {
+        return name.equals("FullModel")
+                || name.startsWith("Model.")
+                && !(name.equals("Model.created")
+                        || name.equals("Model.Supersedes")
+                        || name.equals("Model.createdBy"));
     }
 
     private static DiffBuilder ignoringNonPersistentSvIds(DiffBuilder diffBuilder) {
