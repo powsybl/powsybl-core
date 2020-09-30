@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion.update;
+package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
@@ -25,7 +25,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.update.CgmesExportUtil.complexVoltage;
+import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.complexVoltage;
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
 /**

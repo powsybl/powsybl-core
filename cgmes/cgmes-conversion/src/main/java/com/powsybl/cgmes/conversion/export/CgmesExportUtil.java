@@ -4,9 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion.update;
+package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conversion.update.CgmesExportContext.ModelDescription;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;

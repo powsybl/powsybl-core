@@ -16,11 +16,11 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.update.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
+import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
-import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
-import com.powsybl.cgmes.conversion.update.StateVariablesExport;
-import com.powsybl.cgmes.conversion.update.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
