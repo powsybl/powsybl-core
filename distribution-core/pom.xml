@@ -330,7 +330,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-sensitivity-api</artifactId>
+            <artifactId>powsybl-sensitivity-analysis-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 
