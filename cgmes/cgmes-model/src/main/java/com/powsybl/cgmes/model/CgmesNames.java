@@ -14,6 +14,7 @@ public final class CgmesNames {
 
     public static final String RDF = "RDF";
     public static final String ABOUT = "about";
+    public static final String ID = "ID";
     public static final String RESOURCE = "resource";
 
     public static final String NAME = "IdentifiedObject.name";

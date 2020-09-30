@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface CgmesSvMetadata extends Extension<Network> {
 
-    String getScenarioTime();
-
     String getDescription();
 
     int getSvVersion();
