@@ -37,7 +37,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ExportTest {
+public class ExportAlternativesTest {
 
     @Before
     public void setUp() {

@@ -69,7 +69,7 @@ public class StateVariablesAdderTest {
         NetworkChanges.modifyStateVariables(network0);
 
         // Export modified network to new CGMES
-        DataSource tmp = ExportTest.tmpDataSource(fileSystem, "export-modified");
+        DataSource tmp = ExportAlternativesTest.tmpDataSource(fileSystem, "export-modified");
         CgmesExport e = new CgmesExport();
         e.export(network0, new Properties(), tmp);
 

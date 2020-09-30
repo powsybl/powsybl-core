@@ -59,7 +59,7 @@ public class CgmesExport implements Exporter {
     private void exportUsingOnlyNetwork(Network network, DataSource ds) {
         // At this point only SSH, SV can be exported when relying only in Network data
         // (minimum amount of CGMES references are expected as aliases/properties/extensions)
-        String baseName = network.getProperty("baseName");
+        String baseName = network.hasProperty("baseName") ? network.getProperty("baseName") : network.getNameOrId();
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
         CgmesExportContext context = new CgmesExportContext(network);

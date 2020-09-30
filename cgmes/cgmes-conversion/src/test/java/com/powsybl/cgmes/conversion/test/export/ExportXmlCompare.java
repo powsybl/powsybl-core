@@ -240,13 +240,17 @@ public final class ExportXmlCompare {
         }
     }
 
-    private static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
         // If both control and test nodes are text that can be converted to a number
         // check that they represent the same number
-        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
-            // If different result for control and test,
-            // node must have a parent
-            Node n = comparison.getControlDetails().getTarget().getParentNode();
+        if (result == ComparisonResult.DIFFERENT
+                && (comparison.getType() == ComparisonType.TEXT_VALUE || comparison.getType() == ComparisonType.ATTR_VALUE)) {
+            // If different result for control and test values, check node
+            // (parent for elements, target for attributes)
+            Node n = comparison.getControlDetails().getTarget();
+            if (n.getNodeType() == Node.TEXT_NODE) {
+                n = n.getParentNode();
+            }
             if (isTextContentNumeric(n)) {
                 try {
                     double control = Double.parseDouble(comparison.getControlDetails().getTarget().getTextContent());
@@ -273,6 +277,10 @@ public final class ExportXmlCompare {
                     || name.endsWith(".v") || name.endsWith(".angle")
                     || name.endsWith(".regulationTarget") || name.endsWith(".targetValue") || name.endsWith(".targetDeadband")
                     || name.endsWith(".normalPF");
+        } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
+            // DanglingLine p, q attributes in IIDM Network
+            String name = n.getLocalName();
+            return name.equals("p") || name.equals("q");
         }
         return false;
     }
@@ -280,6 +288,8 @@ public final class ExportXmlCompare {
     private static double toleranceForNumericContent(Node n) {
         if (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q")) {
             return 1e-5;
+        } else if (n.getLocalName().equals("p") || n.getLocalName().equals("q")) {
+            return 1e-1;
         }
         return 1e-10;
     }

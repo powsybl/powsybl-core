@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,10 +23,11 @@ import javax.xml.stream.XMLStreamWriter;
 import javax.xml.transform.Source;
 
 import org.junit.Test;
+import org.w3c.dom.Attr;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
 import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -59,7 +60,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
     }
 
-    private void test(ReadOnlyDataSource dataSource, int sshVersion) throws IOException, XMLStreamException {
+    private void test(ReadOnlyDataSource dataSource, int version) throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
 
@@ -71,7 +72,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         try (OutputStream os = Files.newOutputStream(test)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
-            context.getSshModelDescription().setVersion(sshVersion);
+            context.getSshModelDescription().setVersion(version);
             SteadyStateHypothesisExport.write(expected, writer, context);
         }
 
@@ -113,7 +114,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         // Compare
         try (InputStream expIs = Files.newInputStream(tmpDir.resolve("expected.xml"));
              InputStream actIs = Files.newInputStream(tmpDir.resolve("actual.xml"))) {
-            compareXmlWithDelta(expIs, actIs);
+            compareNetworkXml(expIs, actIs);
         }
     }
 
@@ -161,29 +162,24 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         }
     }
 
-    private static void compareXmlWithDelta(InputStream expected, InputStream actual) {
+    private static void compareNetworkXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
-        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
-        for (Difference diff : myDiff.getDifferences()) {
-            if (diff.getComparison().getControlDetails().getXPath().endsWith("forecastDistance")) {
-                continue;
-            }
-            ExportXmlCompare.debugComparison(diff.getComparison(), diff.getResult());
-            double exp = Double.parseDouble((String) diff.getComparison().getControlDetails().getValue());
-            double act = Double.parseDouble((String) diff.getComparison().getTestDetails().getValue());
-            assertEquals(exp, act, getDelta(diff.getComparison().getControlDetails().getXPath()));
-        }
+        Diff diff = DiffBuilder
+            .compare(control)
+            .withTest(test)
+            .ignoreWhitespace()
+            .ignoreComments()
+            .withAttributeFilter(SteadyStateHypothesisExportTest::isConsidered)
+            .withDifferenceEvaluator(DifferenceEvaluators.chain(
+                    DifferenceEvaluators.Default,
+                    ExportXmlCompare::numericDifferenceEvaluator))
+            .withComparisonListeners(ExportXmlCompare::debugComparison)
+            .build();
+        assertTrue(!diff.hasDifferences());
     }
 
-    private static double getDelta(String xPath) {
-        if (xPath.contains("danglingLine")) {
-            if (xPath.endsWith("p") || xPath.endsWith("q")) {
-                return 1e-1;
-            }
-            return 1e-5;
-        }
-        return 0.0;
+    private static boolean isConsidered(Attr attr) {
+        return !(attr.getLocalName().equals("forecastDistance"));
     }
-
 }

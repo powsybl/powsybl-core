@@ -21,15 +21,11 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Node;
+import org.w3c.dom.Attr;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Comparison;
-import org.xmlunit.diff.ComparisonResult;
 import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.Difference;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -44,8 +40,7 @@ import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -112,7 +107,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Compare
         try (InputStream expIs = Files.newInputStream(tmpDir.resolve("expected.xml"));
              InputStream actIs = Files.newInputStream(tmpDir.resolve("actual.xml"))) {
-            compareXmlWithDelta(expIs, actIs);
+            compareNetworkXml(expIs, actIs);
         }
     }
 
@@ -156,70 +151,24 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         }
     }
 
-    private static void compareXmlWithDelta(InputStream expected, InputStream actual) {
+    private static void compareNetworkXml(InputStream expected, InputStream actual) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
-        Diff myDiff = DiffBuilder.compare(control).withTest(test).ignoreWhitespace().ignoreComments().build();
-        for (Difference diff : myDiff.getDifferences()) {
-            if (diff.getComparison().getControlDetails().getXPath().endsWith("forecastDistance")) {
-                continue;
-            }
-            debugComparison(diff.getComparison(), diff.getResult());
-            double exp = Double.parseDouble((String) diff.getComparison().getControlDetails().getValue());
-            double act = Double.parseDouble((String) diff.getComparison().getTestDetails().getValue());
-            assertEquals(exp, act, getDelta(diff.getComparison().getControlDetails().getXPath()));
-        }
+        Diff diff = DiffBuilder
+            .compare(control)
+            .withTest(test)
+            .ignoreWhitespace()
+            .ignoreComments()
+            .withAttributeFilter(StateVariablesExportTest::isConsidered)
+            .withDifferenceEvaluator(DifferenceEvaluators.chain(
+                    DifferenceEvaluators.Default,
+                    ExportXmlCompare::numericDifferenceEvaluator))
+            .withComparisonListeners(ExportXmlCompare::debugComparison)
+            .build();
+        assertTrue(!diff.hasDifferences());
     }
 
-    private static double getDelta(String xPath) {
-        if (xPath.contains("danglingLine")) {
-            if (xPath.endsWith("p") || xPath.endsWith("q")) {
-                return 1e-1;
-            }
-            return 1e-5;
-        }
-        return 0.0;
+    private static boolean isConsidered(Attr attr) {
+        return !(attr.getLocalName().equals("forecastDistance"));
     }
-
-    private static void debugComparison(Comparison comparison, ComparisonResult comparisonResult) {
-        if (comparisonResult.equals(ComparisonResult.DIFFERENT)) {
-            LOG.error("comparison {}", comparison.getType());
-            LOG.error("    control {}", comparison.getControlDetails().getXPath());
-            debugNode(comparison.getControlDetails().getTarget());
-            LOG.error("    test    {}", comparison.getTestDetails().getXPath());
-            debugNode(comparison.getTestDetails().getTarget());
-            LOG.error("    result  {}", comparisonResult);
-        }
-    }
-
-    private static void debugNode(Node n) {
-        if (n != null) {
-            debugAttributes(n, "            ");
-            int maxNodes = 5;
-            for (int k = 0; k < maxNodes && k < n.getChildNodes().getLength(); k++) {
-                Node n1 = n.getChildNodes().item(k);
-                LOG.error("            {} {}", n1.getLocalName(), n1.getTextContent());
-                debugAttributes(n1, "                ");
-            }
-            if (n.getChildNodes().getLength() > maxNodes) {
-                LOG.error("            ...");
-            }
-        }
-    }
-
-    private static void debugAttributes(Node n, String indent) {
-        if (n.getAttributes() != null) {
-            debugAttribute(n, RDF_NAMESPACE, "resource", indent);
-            debugAttribute(n, RDF_NAMESPACE, "about", indent);
-        }
-    }
-
-    private static void debugAttribute(Node n, String namespace, String localName, String indent) {
-        Node a = n.getAttributes().getNamedItemNS(namespace, localName);
-        if (a != null) {
-            LOG.error("{}{} = {}", indent, localName, a.getTextContent());
-        }
-    }
-
-    private static final Logger LOG = LoggerFactory.getLogger(StateVariablesExport.class);
 }

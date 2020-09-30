@@ -61,7 +61,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
         }
         if (p.containsKey("normalPF")) {
-            g.setProperty("GeneratingUnit.normalPF", p.get("normalPF"));
+            // Convert to double then to string to have canonical representation of number
+            g.setProperty("GeneratingUnit.normalPF", Double.valueOf(p.get("normalPF")).toString());
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
