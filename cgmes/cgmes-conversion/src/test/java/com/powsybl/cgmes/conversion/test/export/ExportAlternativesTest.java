@@ -114,7 +114,6 @@ public class ExportAlternativesTest {
 
     public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
         Path exportFolder = fileSystem.getPath(name);
-        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
         if (Files.exists(exportFolder)) {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
