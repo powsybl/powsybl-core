@@ -4,20 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.cgmes.conversion.test.update;
+package com.powsybl.cgmes.conversion.test.export;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,11 +23,6 @@ import java.util.stream.Stream;
 import javax.xml.namespace.QName;
 import javax.xml.transform.Source;
 
-import org.apache.commons.io.FileUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -46,83 +39,66 @@ import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelector;
 import org.xmlunit.diff.ElementSelectors;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ExportTest {
+public final class ExportXmlCompare {
 
-    @Before
-    public void setUp() {
-        fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        cgmesImport = new CgmesImport(new InMemoryPlatformConfig(fileSystem));
+    private ExportXmlCompare() {
     }
 
-    @After
-    public void tearDown() throws IOException {
-        fileSystem.close();
+    static interface DifferenceBuilder {
+        DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
     }
 
-    @Test
-    public void testExportAlternativesBusBranchSmall() throws IOException {
+    static DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
+        return selectingEquivalentSvObjects(ignoringNonPersistentSvIds(withSelectedSvNodes(diff(expected, actual, de))));
+    }
+
+    static DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
+        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
+    }
+
+    static void compareSSH(InputStream expected, InputStream actual) throws IOException {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
-                        ExportTest::ensuringIncreasedModelVersion,
-                        ExportTest::ignoringJunctionOrBusbarTerminals);
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
+                        ExportXmlCompare::ensuringIncreasedModelVersion,
+                        ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
+                        ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
+                        ExportXmlCompare::ignoringSynchronousMachinesWithTargetDeadband,
+                        ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
-    @Test
-    public void testExportAlternativesBusBranchMicro() throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportTest::ensuringIncreasedModelVersion,
-                        ExportTest::ignoringMissingTopologicalIslandInControl,
-                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband,
-                        ExportTest::ignoringJunctionOrBusbarTerminals);
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
+    static void compare(ReadOnlyDataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
+            throws IOException {
+        String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
+        String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
+        LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
+        LOG.debug("   using CGMES        {}", svExpected);
+        LOG.debug("   using Network only {}", svActual);
+        assertTrue(svExpected.contains(originalBaseName));
+        assertTrue(svActual.contains(originalBaseName));
+        // Check that files are similar according to the diff function given
+        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
+            isOk(compare(diff.build(expected, actual, knownDiffs).checkForSimilar()));
+        }
+        // Check again that only differences reported when checking for identical contents are the order of elements
+        try (InputStream expected = dsExpected.newInputStream(svExpected); InputStream actual = dsActual.newInputStream(svActual)) {
+            onlyNodeListSequenceDiffs(compare(diff.build(expected, actual, knownDiffs).checkForIdentical()));
+        }
     }
 
-    @Test
-    public void testExportAlternativesBusBranchMicroT4() throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportTest::ensuringIncreasedModelVersion,
-                        ExportTest::ignoringStaticVarCompensatorDiffq,
-                        ExportTest::ignoringMissingTopologicalIslandInControl,
-                        ExportTest::ignoringSynchronousMachinesWithTargetDeadband,
-                        ExportTest::ignoringJunctionOrBusbarTerminals);
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridType4BE().dataSource(), knownDiffs);
-    }
-
-    @Ignore("not yet implemented")
-    @Test
-    public void testExportAlternativesNodeBreakerSmall() throws IOException {
-        DifferenceEvaluator knownDiffs = ExportTest::ignoringJunctionOrBusbarTerminals;
-        exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), knownDiffs);
-    }
-
-    ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult noKnownDiffs(Comparison comparison, ComparisonResult result) {
         // No previously known differences that should be filtered
         return result;
     }
 
-    private static ComparisonResult ensuringIncreasedModelVersion(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ensuringIncreasedModelVersion(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
             if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("Model.version")) {
@@ -137,7 +113,7 @@ public class ExportTest {
         return result;
     }
 
-    private static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringStaticVarCompensatorDiffq(Comparison comparison, ComparisonResult result) {
         if (result == ComparisonResult.DIFFERENT) {
             Node control = comparison.getControlDetails().getTarget();
             if (comparison.getType() == ComparisonType.TEXT_VALUE && control.getParentNode().getLocalName().equals("StaticVarCompensator.q")) {
@@ -158,7 +134,7 @@ public class ExportTest {
         return result;
     }
 
-    private static ComparisonResult ignoringMissingTopologicalIslandInControl(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringMissingTopologicalIslandInControl(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
         if (result == ComparisonResult.DIFFERENT) {
@@ -178,7 +154,7 @@ public class ExportTest {
         return result;
     }
 
-    private static ComparisonResult ignoringSynchronousMachinesWithTargetDeadband(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringSynchronousMachinesWithTargetDeadband(Comparison comparison, ComparisonResult result) {
         // In micro grid there are two regulating controls for synchronous machines
         // that have a target deadband of 0.5
         // PowSyBl does not allow deadband for generator regulation
@@ -207,7 +183,7 @@ public class ExportTest {
         return result;
     }
 
-    private static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringJunctionOrBusbarTerminals(Comparison comparison, ComparisonResult result) {
         // If control node is a terminal of a junction, ignore the difference
         // Means that we also have to ignore length of children of RDF element
         if (result == ComparisonResult.DIFFERENT) {
@@ -253,76 +229,18 @@ public class ExportTest {
         return false;
     }
 
-    private void exportUsingCgmesModelUsingOnlyNetworkAndCompare(ReadOnlyDataSource ds, DifferenceEvaluator knownDiffs) throws IOException {
-        Properties ip = new Properties();
-        ip.setProperty(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
-        Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), ip);
-        NetworkChanges.modifyStateVariables(network0);
-        network0.setProperty("baseName", ds.getBaseName());
-
-        CgmesExport e = new CgmesExport();
-
-        // Export modified network to new CGMES using two alternatives
-        DataSource tmpUsingCgmes = tmpDataSource(fileSystem, "usingCgmes");
-        DataSource tmpUsingOnlyNetwork = tmpDataSource(fileSystem, "usingOnlyNetwork");
-        Properties ep = new Properties();
-        e.export(network0, ep, tmpUsingCgmes);
-        ep.setProperty("cgmes.export.usingOnlyNetwork", "true");
-        network0.removeExtension(CgmesModelExtension.class);
-        e.export(network0, ep, tmpUsingOnlyNetwork);
-
-        // Check resulting SV and SSH of both variants
-        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SV", this::diffSV, knownDiffs, ds.getBaseName());
-        compare(tmpUsingCgmes, tmpUsingOnlyNetwork, "SSH", this::diffSSH, knownDiffs, ds.getBaseName());
-    }
-
-    static interface DifferenceBuilder {
-        DiffBuilder build(InputStream control, InputStream test, DifferenceEvaluator de);
-    }
-
-    private void compare(ReadOnlyDataSource dsExpected, DataSource dsActual, String profile, DifferenceBuilder diff, DifferenceEvaluator knownDiffs, String originalBaseName)
-            throws IOException {
-        String svExpected = dsExpected.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        String svActual = dsActual.listNames(".*" + profile + ".*").stream().findFirst().orElse("-");
-        LOG.debug("Compare {} export using CGMES original model and using only Network. Files:", profile);
-        LOG.debug("   using CGMES        {}", svExpected);
-        LOG.debug("   using Network only {}", svActual);
-        assertTrue(svExpected.contains(originalBaseName));
-        assertTrue(svActual.contains(originalBaseName));
-        // Check that files are similar according to the diff function given
-        try (InputStream expected = dsExpected.newInputStream(svExpected)) {
-            try (InputStream actual = dsActual.newInputStream(svActual)) {
-                isOk(compare(diff.build(expected, actual, knownDiffs).checkForSimilar()));
-            }
-        }
-        // Check again that only differences reported when checking for identical contents are the order of elements
-        try (InputStream expected = dsExpected.newInputStream(svExpected)) {
-            try (InputStream actual = dsActual.newInputStream(svActual)) {
-                onlyNodeListSequenceDiffs(compare(diff.build(expected, actual, knownDiffs).checkForIdentical()));
-            }
-        }
-    }
-
-    DiffBuilder diffSV(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSvObjects(ignoringNonPersistentSvIds(withSelectedSvNodes(diff(expected, actual, de))));
-    }
-
-    DiffBuilder diffSSH(InputStream expected, InputStream actual, DifferenceEvaluator de) {
-        return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
-    }
-
-    private void isOk(Diff diff) {
+    private static void isOk(Diff diff) {
         assertTrue(!diff.hasDifferences());
     }
 
-    private void onlyNodeListSequenceDiffs(Diff diff) {
+    private static void onlyNodeListSequenceDiffs(Diff diff) {
         for (Difference d : diff.getDifferences()) {
             assertEquals(ComparisonType.CHILD_NODELIST_SEQUENCE, d.getComparison().getType());
             assertEquals(ComparisonResult.SIMILAR, d.getResult());
         }
     }
 
-    ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
+    private static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
         // If both control and test nodes are text that can be converted to a number
         // check that they represent the same number
         if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
@@ -348,7 +266,7 @@ public class ExportTest {
         return result;
     }
 
-    private boolean isTextContentNumeric(Node n) {
+    private static boolean isTextContentNumeric(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
             return name.endsWith(".p") || name.endsWith(".q")
@@ -359,25 +277,25 @@ public class ExportTest {
         return false;
     }
 
-    private double toleranceForNumericContent(Node n) {
+    private static double toleranceForNumericContent(Node n) {
         if (n.getLocalName().endsWith(".p") || n.getLocalName().endsWith(".q")) {
             return 1e-5;
         }
         return 1e-10;
     }
 
-    private DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator user) {
+    private static DiffBuilder diff(InputStream expected, InputStream actual, DifferenceEvaluator user) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         return DiffBuilder.compare(control).withTest(test)
                 .ignoreWhitespace()
                 .ignoreComments()
                 .withDifferenceEvaluator(
-                        DifferenceEvaluators.chain(DifferenceEvaluators.Default, this::numericDifferenceEvaluator, user))
-                .withComparisonListeners(ExportTest::debugComparison);
+                        DifferenceEvaluators.chain(DifferenceEvaluators.Default, ExportXmlCompare::numericDifferenceEvaluator, user))
+                .withComparisonListeners(ExportXmlCompare::debugComparison);
     }
 
-    private static void debugComparison(Comparison comparison, ComparisonResult comparisonResult) {
+    static void debugComparison(Comparison comparison, ComparisonResult comparisonResult) {
         if (comparisonResult.equals(ComparisonResult.DIFFERENT)) {
             LOG.error("comparison {}", comparison.getType());
             LOG.error("    control {}", comparison.getControlDetails().getXPath());
@@ -420,11 +338,11 @@ public class ExportTest {
         }
     }
 
-    private DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
+    private static DiffBuilder withSelectedSvNodes(DiffBuilder diffBuilder) {
         return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSvNode(n));
     }
 
-    private DiffBuilder withSelectedSshNodes(DiffBuilder diffBuilder) {
+    private static DiffBuilder withSelectedSshNodes(DiffBuilder diffBuilder) {
         return diffBuilder.withNodeFilter(n -> n.getNodeType() == Node.TEXT_NODE || isConsideredSshNode(n));
     }
 
@@ -550,19 +468,5 @@ public class ExportTest {
         return diff;
     }
 
-    public static DataSource tmpDataSource(FileSystem fileSystem, String name) throws IOException {
-        Path exportFolder = fileSystem.getPath(name);
-        // XXX (local testing) Path exportFolder = Paths.get("/", "Users", "zamarrenolm", "work", "temp", name);
-        if (Files.exists(exportFolder)) {
-            FileUtils.cleanDirectory(exportFolder.toFile());
-        }
-        Files.createDirectories(exportFolder);
-        DataSource tmpDataSource = new FileDataSource(exportFolder, "");
-        return tmpDataSource;
-    }
-
-    private FileSystem fileSystem;
-    private CgmesImport cgmesImport;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ExportTest.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExportXmlCompare.class);
 }
