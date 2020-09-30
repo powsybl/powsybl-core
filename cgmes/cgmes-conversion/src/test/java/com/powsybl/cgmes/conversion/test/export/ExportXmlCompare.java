@@ -13,6 +13,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -25,6 +27,7 @@ import javax.xml.transform.Source;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Attr;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.builder.Input;
@@ -49,6 +52,34 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 public final class ExportXmlCompare {
 
     private ExportXmlCompare() {
+    }
+
+    static void compareNetworks(Path expected, Path actual) throws IOException {
+        try (InputStream expectedIs = Files.newInputStream(expected);
+            InputStream actualIs = Files.newInputStream(actual)) {
+            compareNetworks(expectedIs, actualIs);
+        }
+    }
+
+    static void compareNetworks(InputStream expected, InputStream actual) {
+        Source control = Input.fromStream(expected).build();
+        Source test = Input.fromStream(actual).build();
+        Diff diff = DiffBuilder
+                .compare(control)
+                .withTest(test)
+                .ignoreWhitespace()
+                .ignoreComments()
+                .withAttributeFilter(ExportXmlCompare::isConsideredForNetwork)
+                .withDifferenceEvaluator(DifferenceEvaluators.chain(
+                        DifferenceEvaluators.Default,
+                        ExportXmlCompare::numericDifferenceEvaluator))
+                .withComparisonListeners(ExportXmlCompare::debugComparison)
+                .build();
+        assertTrue(!diff.hasDifferences());
+    }
+
+    static boolean isConsideredForNetwork(Attr attr) {
+        return !(attr.getLocalName().equals("forecastDistance"));
     }
 
     static interface DifferenceBuilder {
