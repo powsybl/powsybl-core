@@ -529,12 +529,12 @@ public final class SteadyStateHypothesisExport {
         if (loadDetail != null) {
             // Conform load if fixed part is zero and variable part is non-zero
             if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
-                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableActivePower() != 0)) {
+                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
                 return "ConformLoad";
             }
             // NonConform load if fixed part is non-zero and variable part is all zero
             if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedActivePower() != 0)) {
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
                 return "NonConformLoad";
             }
         }
