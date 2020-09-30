@@ -410,11 +410,11 @@ public final class ExportXmlCompare {
             String name = n.getLocalName();
             // Optional attributes with default values
             // targetDeadband is optional, explicit value 0 can be ignored
-            if (name.equals("RegulatingControl.targetDeadband") && n.getTextContent().equals("0")) {
+            if (name.equals("RegulatingControl.targetDeadband") && Double.valueOf(n.getTextContent()) == 0) {
                 return false;
             } else if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
                 return false;
-            } else if (name.equals("EquivalentInjection.regulationTarget") && n.getTextContent().equals("0")) {
+            } else if (name.equals("EquivalentInjection.regulationTarget") && Double.valueOf(n.getTextContent()) == 0) {
                 return false;
             }
             return name.equals("RDF")
