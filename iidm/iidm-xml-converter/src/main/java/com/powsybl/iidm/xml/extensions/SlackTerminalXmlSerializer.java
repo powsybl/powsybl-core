@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.xml.extensions;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
+import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Terminal;
@@ -22,8 +24,7 @@ import javax.xml.stream.XMLStreamException;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-// FIXME(floriand-e2r): uncomment line below once extension export is done only if exportable (that is, non-cleanable for the SlackTerminal)
-// @AutoService(ExtensionXmlSerializer.class)
+@AutoService(ExtensionXmlSerializer.class)
 public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
     public SlackTerminalXmlSerializer() {
@@ -40,7 +41,7 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
     }
 
     @Override
-    public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) throws XMLStreamException {
+    public SlackTerminal read(VoltageLevel voltageLevel, XmlReaderContext context) {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
         String side = networkContext.getReader().getAttributeValue(null, "side");
@@ -50,4 +51,13 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
         return voltageLevel.getExtension(SlackTerminal.class);
     }
 
+    /**
+     * A {@link SlackTerminal} extension is serializable if the terminal for the current variant is not null
+     * @param slackTerminal The extension to check
+     * @return true if the terminal for the current variant is not null, false otherwise
+     */
+    @Override
+    public boolean isSerializable(SlackTerminal slackTerminal) {
+        return slackTerminal.getTerminal() != null;
+    }
 }
