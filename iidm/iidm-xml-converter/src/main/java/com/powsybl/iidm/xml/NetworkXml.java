@@ -221,9 +221,7 @@ public final class NetworkXml {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
                 context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
-                    if (options.withExtension(extension.getName())) {
-                        writeExtension(extension, context);
-                    }
+                    writeExtension(extension, context);
                 }
                 context.getExtensionsWriter().writeEndElement();
             }
