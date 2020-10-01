@@ -12,6 +12,11 @@ package com.powsybl.cgmes.model;
  */
 public final class CgmesNames {
 
+    public static final String RDF = "RDF";
+    public static final String ABOUT = "about";
+    public static final String ID = "ID";
+    public static final String RESOURCE = "resource";
+
     public static final String NAME = "IdentifiedObject.name";
     public static final String GRAPH = "graph";
 
@@ -22,6 +27,7 @@ public final class CgmesNames {
     public static final String VERSION = "Model.version";
     public static final String DEPENDENT_ON = "Model.DependentOn";
     public static final String PROFILE = "Model.profile";
+    public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
     public static final String SUBSTATION = "Substation";
@@ -32,6 +38,7 @@ public final class CgmesNames {
     public static final String SERIES_COMPENSATOR = "SeriesCompensator";
     public static final String TOPOLOGICAL_NODE = "TopologicalNode";
     public static final String CONDUCTING_EQUIPMENT = "ConductingEquipment";
+    public static final String SWITCH = "Switch";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";

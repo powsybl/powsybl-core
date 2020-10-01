@@ -570,7 +570,8 @@ public final class CgmesConformity1NetworkCatalog {
             }
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(false)
-                    .setTargetV(Float.NaN)
+                    .setTargetV(0.0)
+                    .setTargetDeadband(0.5)
                     .setRegulationTerminal(txBE22.getTerminal2());
             rtca.add();
         }
@@ -753,7 +754,8 @@ public final class CgmesConformity1NetworkCatalog {
             }
             rtca.setLoadTapChangingCapabilities(true)
                 .setRegulating(false)
-                .setTargetV(Float.NaN);
+                .setTargetV(0.0)
+                .setTargetDeadband(0.5);
             rtca.add();
         }
         return network;

@@ -13,8 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.jgrapht.UndirectedGraph;
-import org.jgrapht.alg.ConnectivityInspector;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +57,7 @@ public class SubstationIdMapping {
         // that is, when there are at least one power transformer that has terminals on both
         // substations
 
-        UndirectedGraph<String, Object> g = graphSubstationsTransformers();
+        Graph<String, Object> g = graphSubstationsTransformers();
         new ConnectivityInspector<>(g).connectedSets().stream()
                 .filter(substationIds -> substationIds.size() > 1)
                 .forEach(substationIds -> {
@@ -84,8 +84,8 @@ public class SubstationIdMapping {
                 .orElse(substationIds.iterator().next());
     }
 
-    private UndirectedGraph<String, Object> graphSubstationsTransformers() {
-        UndirectedGraph<String, Object> graph = new Pseudograph<>(Object.class);
+    private Graph<String, Object> graphSubstationsTransformers() {
+        Graph<String, Object> graph = new Pseudograph<>(Object.class);
         for (PropertyBag s : context.cgmes().substations()) {
             String id = s.getId(CgmesNames.SUBSTATION);
             String iid = context.namingStrategy().getId(CgmesNames.SUBSTATION, id);

@@ -17,5 +17,6 @@ public enum ContingencyElementType {
     SHUNT_COMPENSATOR,
     BRANCH,
     HVDC_LINE,
-    BUSBAR_SECTION
+    BUSBAR_SECTION,
+    DANGLING_LINE
 }

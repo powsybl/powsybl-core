@@ -9,6 +9,7 @@ package com.powsybl.commons.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -62,15 +63,18 @@ public class WeakListenerList<L> {
     public void notify(Consumer<L> notifier) {
         Objects.requireNonNull(notifier);
         lock.lock();
-        HashSet<L> cachedListeners;
+        HashSet<WeakReference<L>> cachedListeners;
         try {
-            cachedListeners = new HashSet<>(listeners.keySet());
+            cachedListeners = listeners.keySet().stream().map(WeakReference::new).collect(Collectors.toCollection(HashSet::new));
         } finally {
             lock.unlock();
         }
 
-        for (L listener : cachedListeners) {
-            notifier.accept(listener);
+        for (WeakReference<L> listenerRef : cachedListeners) {
+            L listener = listenerRef.get();
+            if (listener != null) {
+                notifier.accept(listener);
+            }
         }
     }
 
