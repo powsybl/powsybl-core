@@ -220,18 +220,18 @@ public class SlackTerminalTest {
         assertNull(stGen.getTerminal());
         stGen.setTerminal(tGen);
 
-        // Testing the cleanable property of the slackTerminal
+        // Testing the empty property of the slackTerminal
         variantManager.setWorkingVariant(INITIAL_VARIANT_ID);
-        assertFalse(stGen.setTerminal(null).isCleanable());
+        assertFalse(stGen.setTerminal(null).isEmpty());
 
         variantManager.setWorkingVariant(variant2);
-        assertFalse(stGen.setTerminal(null).isCleanable());
+        assertFalse(stGen.setTerminal(null).isEmpty());
 
         variantManager.setWorkingVariant(variant1);
-        assertTrue(stGen.setTerminal(null).isCleanable());
-        assertFalse(stGen.setTerminal(tGen).isCleanable());
+        assertTrue(stGen.setTerminal(null).isEmpty());
+        assertFalse(stGen.setTerminal(tGen).isEmpty());
 
-        // Testing the cleanIfCleanable boolean
+        // Testing the cleanIfEmpty boolean
         stGen.setTerminal(null, false);
         assertNotNull(vlgen.getExtension(SlackTerminal.class));
         stGen.setTerminal(null, true);
@@ -243,7 +243,7 @@ public class SlackTerminalTest {
         SlackTerminal stLoad = vlhv1.getExtension(SlackTerminal.class);
         assertNotNull(stLoad);
         assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
-        assertFalse(stLoad.isCleanable());
+        assertFalse(stLoad.isEmpty());
 
          // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
         SlackTerminal.reset(vlgen, tGen);
