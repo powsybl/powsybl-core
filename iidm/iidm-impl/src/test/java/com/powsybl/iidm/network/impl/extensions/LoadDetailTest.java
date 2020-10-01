@@ -4,10 +4,12 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -24,7 +26,7 @@ import static org.junit.Assert.fail;
  */
 public class LoadDetailTest {
 
-    static Network createTestNetwork() {
+    private static Network createTestNetwork() {
         Network network = NetworkFactory.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
