@@ -7,16 +7,19 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.XMLExporter;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Properties;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -111,7 +114,26 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
         Network clone = NetworkXml.copy(network);
         VoltageLevel vlClone = clone.getVoltageLevel("VLHV2");
         Assert.assertNull(vlClone.getExtension(SlackTerminal.class));
+    }
 
+    @Test
+    public void testExtensionFiltering() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        VoltageLevel vl = network.getVoltageLevel("VLHV2");
+        Terminal terminal = network.getLine("NHV1_NHV2_1").getTerminal(Branch.Side.TWO);
+        vl.newExtension(SlackTerminalAdder.class).withTerminal(terminal).add();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.xml.extensions", "none");
+
+        MemDataSource ds = new MemDataSource();
+
+        XMLExporter exporter = new XMLExporter();
+        exporter.export(network, properties, ds);
+
+        String data = new String(ds.getData("", "xiidm"));
+        assertFalse(data.contains(new SlackTerminalXmlSerializer().getNamespaceUri()));
     }
 
 }

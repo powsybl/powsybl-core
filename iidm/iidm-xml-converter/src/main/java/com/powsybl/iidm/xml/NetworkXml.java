@@ -167,19 +167,23 @@ public final class NetworkXml {
     }
 
     private static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, Extension<? extends Identifiable<?>> extension) {
-        ExtensionXmlSerializer extensionXmlSerializer = options.isThrowExceptionIfExtensionNotFound()
-                ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
-                : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
-        if (extensionXmlSerializer == null) {
-            if (options.isThrowExceptionIfExtensionNotFound()) {
-                throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
-            } else {
-                LOGGER.warn("No Extension XML Serializer for {}", extension.getName());
+        if (options.withExtension(extension.getName())) {
+            ExtensionXmlSerializer extensionXmlSerializer = options.isThrowExceptionIfExtensionNotFound()
+                    ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName())
+                    : EXTENSIONS_SUPPLIER.get().findProvider(extension.getName());
+            if (extensionXmlSerializer == null) {
+                if (options.isThrowExceptionIfExtensionNotFound()) {
+                    throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
+                } else {
+                    LOGGER.warn("No Extension XML Serializer for {}", extension.getName());
+                }
+            } else if (!extensionXmlSerializer.isSerializable(extension)) {
+                return null;
             }
-        } else if (!extensionXmlSerializer.isSerializable(extension)) {
-            return null;
+            return extensionXmlSerializer;
         }
-        return extensionXmlSerializer;
+
+        return null;
     }
 
     private static String getNamespaceUri(ExtensionXmlSerializer extensionXmlSerializer, ExportOptions options) {
@@ -211,7 +215,6 @@ public final class NetworkXml {
             }
 
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
-                    .filter(e -> options.withExtension(e.getName()))
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
