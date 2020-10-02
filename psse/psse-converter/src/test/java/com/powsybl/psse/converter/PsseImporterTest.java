@@ -36,7 +36,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
         assertEquals(1, importer.getParameters().size());
-        assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }
 
     private void testNetwork(Network network) throws IOException {
