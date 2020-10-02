@@ -44,7 +44,7 @@ public class PsseImporter implements Importer {
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("psse.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
             "Ignore base voltage specified in the file",
-            Boolean.TRUE).addAdditionalNames("ignore-base-voltage");
+            Boolean.FALSE).addAdditionalNames("ignore-base-voltage");
 
     private static final String V_PROPERTY = "v";
 
