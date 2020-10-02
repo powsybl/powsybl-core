@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -27,7 +28,7 @@ import java.util.Objects;
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
-    private static final String VERSION = "1.0";
+    private static final String VERSION = "1.1";
 
     LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
@@ -39,6 +40,24 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
         jsonGenerator.writeObjectField("metrics", result.getMetrics());
+        List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
+        if (!componentResults.isEmpty()) {
+            jsonGenerator.writeFieldName("componentResults");
+            jsonGenerator.writeStartArray();
+            for (LoadFlowResult.ComponentResult componentResult : componentResults) {
+                serialize(componentResult, jsonGenerator);
+            }
+            jsonGenerator.writeEndArray();
+        }
+        jsonGenerator.writeEndObject();
+    }
+
+    public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator) throws IOException {
+        jsonGenerator.writeStartObject();
+        jsonGenerator.writeStringField("status", componentResult.getStatus());
+        jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
+        jsonGenerator.writeStringField("slackBusId", componentResult.getSlackBusId());
+        jsonGenerator.writeNumberField("slackBusActivePowerMismatch", componentResult.getSlackBusActivePowerMismatch());
         jsonGenerator.writeEndObject();
     }
 

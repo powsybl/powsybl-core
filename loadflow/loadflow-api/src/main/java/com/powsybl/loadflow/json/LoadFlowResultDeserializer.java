@@ -21,39 +21,45 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> {
 
+    private static final String CONTEXT_NAME = "LoadFlowResult";
+
     LoadFlowResultDeserializer() {
         super(LoadFlowResult.class);
     }
 
-    @Override
-    public LoadFlowResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        Boolean isOK = null;
-        Map<String, String> metrics = null;
-        String log = null;
+    public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser) throws IOException {
+        String status = null;
+        Integer iterationCount = null;
+        String slackBusId = null;
+        Double slackBusActivePowerMismatch = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); // skip
+                case "status":
+                    parser.nextToken();
+                    status = parser.getValueAsString();
                     break;
 
-                case "isOK":
+                case "iterationCount":
                     parser.nextToken();
-                    isOK = parser.readValueAs(Boolean.class);
+                    iterationCount = parser.getValueAsInt();
                     break;
 
-                case "metrics":
+                case "slackBusId":
                     parser.nextToken();
-                    metrics = parser.readValueAs(HashMap.class);
+                    slackBusId = parser.getValueAsString();
+                    break;
+
+                case "slackBusActivePowerMismatch":
+                    parser.nextToken();
+                    slackBusActivePowerMismatch = parser.getValueAsDouble();
                     break;
 
                 default:
@@ -61,7 +67,63 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             }
         }
 
-        return new LoadFlowResultImpl(isOK, metrics, log);
+        if (iterationCount == null) {
+            throw new IllegalStateException("Iteration count field not found");
+        }
+        if (slackBusActivePowerMismatch == null) {
+            throw new IllegalStateException("Slack bus active power mismatch field not found");
+        }
+
+        return new LoadFlowResultImpl.ComponentResultImpl(status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+    }
+
+    public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            componentResults.add(deserializeComponentResult(parser));
+        }
+    }
+
+    @Override
+    public LoadFlowResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        String version = null;
+        Boolean ok = null;
+        Map<String, String> metrics = null;
+        String log = null;
+        List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
+
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    version = parser.getValueAsString();
+                    break;
+
+                case "isOK":
+                    parser.nextToken();
+                    ok = parser.readValueAs(Boolean.class);
+                    break;
+
+                case "metrics":
+                    parser.nextToken();
+                    metrics = parser.readValueAs(HashMap.class);
+                    break;
+
+                case "componentResults":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
+                    parser.nextToken();
+                    deserializeComponentResults(parser, componentResults);
+                    break;
+
+                default:
+                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
+            }
+        }
+
+        if (ok == null) {
+            throw new IllegalStateException("Ok field not found");
+        }
+
+        return new LoadFlowResultImpl(ok, metrics, log, componentResults);
     }
 
     public static LoadFlowResult read(InputStream is) throws IOException {

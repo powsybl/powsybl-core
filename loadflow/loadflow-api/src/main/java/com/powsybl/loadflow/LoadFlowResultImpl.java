@@ -6,6 +6,8 @@
  */
 package com.powsybl.loadflow;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -14,19 +16,70 @@ import java.util.Objects;
  */
 public class LoadFlowResultImpl implements LoadFlowResult {
 
-    private final boolean status;
+    public static class ComponentResultImpl implements ComponentResult {
+
+        private final String status;
+
+        private final int iterationCount;
+
+        private final String slackBusId;
+
+        private final double slackBusActivePowerMismatch;
+
+        public ComponentResultImpl(String status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
+            this.status = Objects.requireNonNull(status);
+            this.iterationCount = checkIterationCount(iterationCount);
+            this.slackBusId = Objects.requireNonNull(slackBusId);
+            this.slackBusActivePowerMismatch = slackBusActivePowerMismatch;
+        }
+
+        private static int checkIterationCount(int iterationCount) {
+            if (iterationCount < 0) { // 0 is ok if not relevant for a particular implementation
+                throw new IllegalArgumentException("Invalid iteration count: " + iterationCount);
+            }
+            return iterationCount;
+        }
+
+        @Override
+        public String getStatus() {
+            return status;
+        }
+
+        @Override
+        public int getIterationCount() {
+            return iterationCount;
+        }
+
+        @Override
+        public String getSlackBusId() {
+            return slackBusId;
+        }
+
+        @Override
+        public double getSlackBusActivePowerMismatch() {
+            return slackBusActivePowerMismatch;
+        }
+    }
+
+    private final boolean ok;
     private final Map<String, String> metrics;
     private final String logs;
+    private final List<ComponentResult> componentResults;
 
-    public LoadFlowResultImpl(boolean status, Map<String, String> metrics, String logs) {
-        this.status = status;
+    public LoadFlowResultImpl(boolean ok, Map<String, String> metrics, String logs) {
+        this(ok, metrics, logs, Collections.emptyList());
+    }
+
+    public LoadFlowResultImpl(boolean ok, Map<String, String> metrics, String logs, List<ComponentResult> componentResults) {
+        this.ok = ok;
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = logs;
+        this.componentResults = Objects.requireNonNull(componentResults);
     }
 
     @Override
     public boolean isOk() {
-        return status;
+        return ok;
     }
 
     @Override
@@ -39,4 +92,8 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         return logs;
     }
 
+    @Override
+    public List<ComponentResult> getComponentResults() {
+        return Collections.unmodifiableList(componentResults);
+    }
 }

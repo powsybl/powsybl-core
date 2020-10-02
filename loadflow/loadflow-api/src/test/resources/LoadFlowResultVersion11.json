@@ -1,0 +1,18 @@
+{
+  "version" : "1.1",
+  "isOK" : true,
+  "metrics" : {
+    "nbiter" : "4",
+    "dureeCalcul" : "0.02",
+    "cause" : "0",
+    "contraintes" : "0",
+    "statut" : "OK",
+    "csprMarcheForcee" : "0"
+  },
+  "componentResults" : [ {
+    "status" : "CONV",
+    "iterationCount" : 7,
+    "slackBusId" : "bus1",
+    "slackBusActivePowerMismatch" : 235.3
+  } ]
+}
