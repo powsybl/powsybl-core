@@ -143,19 +143,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
-            if (legNumber == 1) {
-                voltageLevel1 = checkAndGetVoltageLevel();
-                terminal1 = checkAndGetTerminal();
-                leg1 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
-            } else if (legNumber == 2) {
-                voltageLevel2 = checkAndGetVoltageLevel();
-                terminal2 = checkAndGetTerminal();
-                leg2 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
-            } else {
-                voltageLevel3 = checkAndGetVoltageLevel();
-                terminal3 = checkAndGetTerminal();
-                leg3 = new LegImpl(r, x, g, b, ratedU, ratedS, legNumber);
-            }
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -167,11 +154,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private final SubstationImpl substation;
 
-    private ThreeWindingsTransformerImpl.LegImpl leg1;
+    private LegAdderImpl legAdder1;
 
-    private ThreeWindingsTransformerImpl.LegImpl leg2;
+    private LegAdderImpl legAdder2;
 
-    private ThreeWindingsTransformerImpl.LegImpl leg3;
+    private LegAdderImpl legAdder3;
 
     private VoltageLevelExt voltageLevel1;
 
@@ -203,27 +190,27 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public LegAdder newLeg1() {
-        LegAdderImpl legAdderImp = new LegAdderImpl();
-        legAdderImp.legNumber = 1;
-        return legAdderImp;
+        legAdder1 = new LegAdderImpl();
+        legAdder1.legNumber = 1;
+        return legAdder1;
     }
 
     @Override
     public LegAdder newLeg2() {
-        LegAdderImpl legAdderImp = new LegAdderImpl();
-        legAdderImp.g = 0.0;
-        legAdderImp.b = 0.0;
-        legAdderImp.legNumber = 2;
-        return legAdderImp;
+        legAdder2 = new LegAdderImpl();
+        legAdder2.g = 0.0;
+        legAdder2.b = 0.0;
+        legAdder2.legNumber = 2;
+        return legAdder2;
     }
 
     @Override
     public LegAdder newLeg3() {
-        LegAdderImpl legAdderImp = new LegAdderImpl();
-        legAdderImp.g = 0.0;
-        legAdderImp.b = 0.0;
-        legAdderImp.legNumber = 3;
-        return legAdderImp;
+        legAdder3 = new LegAdderImpl();
+        legAdder3.g = 0.0;
+        legAdder3.b = 0.0;
+        legAdder3.legNumber = 3;
+        return legAdder3;
     }
 
     @Override
@@ -236,13 +223,31 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     public ThreeWindingsTransformerImpl add() {
         String id = checkAndGetUniqueId();
 
-        if (leg1 == null || voltageLevel1 == null || terminal1 == null) {
+        ThreeWindingsTransformerImpl.LegImpl leg1 = null;
+        ThreeWindingsTransformerImpl.LegImpl leg2 = null;
+        ThreeWindingsTransformerImpl.LegImpl leg3 = null;
+
+        if (legAdder1 != null) {
+            voltageLevel1 = legAdder1.checkAndGetVoltageLevel();
+            terminal1 = legAdder1.checkAndGetTerminal();
+            leg1 = new LegImpl(legAdder1.r, legAdder1.x, legAdder1.g, legAdder1.b, legAdder1.ratedU, legAdder1.ratedS, legAdder1.legNumber);
+        } else {
             throw new ValidationException(this, "Leg1 is not set");
         }
-        if (leg2 == null || voltageLevel2 == null || terminal2 == null) {
+
+        if (legAdder2 != null) {
+            voltageLevel2 = legAdder2.checkAndGetVoltageLevel();
+            terminal2 = legAdder2.checkAndGetTerminal();
+            leg2 = new LegImpl(legAdder2.r, legAdder2.x, legAdder2.g, legAdder2.b, legAdder2.ratedU, legAdder2.ratedS, legAdder2.legNumber);
+        } else {
             throw new ValidationException(this, "Leg2 is not set");
         }
-        if (leg3 == null || voltageLevel3 == null || terminal3 == null) {
+
+        if (legAdder3 != null) {
+            voltageLevel3 = legAdder3.checkAndGetVoltageLevel();
+            terminal3 = legAdder3.checkAndGetTerminal();
+            leg3 = new LegImpl(legAdder3.r, legAdder3.x, legAdder3.g, legAdder3.b, legAdder3.ratedU, legAdder3.ratedS, legAdder3.legNumber);
+        } else {
             throw new ValidationException(this, "Leg3 is not set");
         }
 

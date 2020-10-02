@@ -36,7 +36,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     @Test
     public void baseTests() {
-        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
 
         assertEquals("twt", transformer.getId());
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
@@ -156,6 +157,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
         assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
+
+        // Reuse adder
+        ThreeWindingsTransformer transformer2 = transformerAdder.setId(transformer.getId() + "_2").add();
+        assertNotSame(transformer.getLeg1(), transformer2.getLeg1());
+        assertNotSame(transformer.getLeg2(), transformer2.getLeg2());
+        assertNotSame(transformer.getLeg3(), transformer2.getLeg3());
 
         int count = network.getThreeWindingsTransformerCount();
         transformer.remove();
@@ -434,6 +441,10 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     }
 
     private ThreeWindingsTransformer createThreeWindingsTransformer() {
+        return createThreeWindingsTransformerAdder().add();
+    }
+
+    private ThreeWindingsTransformerAdder createThreeWindingsTransformerAdder() {
         return substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
@@ -467,7 +478,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedS(3.6)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
-            .add()
             .add();
     }
 
