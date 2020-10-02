@@ -38,7 +38,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     private static LoadFlowResult createVersion11() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl("CONV", 7, "bus1", 235.3)));
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, "CONV", 7, "bus1", 235.3)));
     }
 
     @Test

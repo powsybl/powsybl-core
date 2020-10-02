@@ -35,6 +35,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
     }
 
     public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser) throws IOException {
+        Integer componentNum = null;
         String status = null;
         Integer iterationCount = null;
         String slackBusId = null;
@@ -42,6 +43,11 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "componentNum":
+                    parser.nextToken();
+                    componentNum = parser.getValueAsInt();
+                    break;
+
                 case "status":
                     parser.nextToken();
                     status = parser.getValueAsString();
@@ -67,6 +73,9 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             }
         }
 
+        if (componentNum == null) {
+            throw new IllegalStateException("Component number field not found");
+        }
         if (iterationCount == null) {
             throw new IllegalStateException("Iteration count field not found");
         }
@@ -74,7 +83,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             throw new IllegalStateException("Slack bus active power mismatch field not found");
         }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+        return new LoadFlowResultImpl.ComponentResultImpl(componentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults) throws IOException {

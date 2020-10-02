@@ -23,6 +23,12 @@ public interface LoadFlowResult {
     interface ComponentResult {
 
         /**
+         * Get component number.
+         * @return component number
+         */
+        int getComponentNum();
+
+        /**
          * Get detailed status of the computation on this component.
          * @return the detailed status of the computation on this component
          */

@@ -18,6 +18,8 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
     public static class ComponentResultImpl implements ComponentResult {
 
+        private final int componentNum;
+
         private final String status;
 
         private final int iterationCount;
@@ -26,11 +28,19 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final double slackBusActivePowerMismatch;
 
-        public ComponentResultImpl(String status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
+        public ComponentResultImpl(int componentNum, String status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
+            this.componentNum = checkComponentNum(componentNum);
             this.status = Objects.requireNonNull(status);
             this.iterationCount = checkIterationCount(iterationCount);
             this.slackBusId = Objects.requireNonNull(slackBusId);
             this.slackBusActivePowerMismatch = slackBusActivePowerMismatch;
+        }
+
+        private static int checkComponentNum(int componentNum) {
+            if (componentNum < 0) {
+                throw new IllegalArgumentException("Invalid component number: " + componentNum);
+            }
+            return componentNum;
         }
 
         private static int checkIterationCount(int iterationCount) {
@@ -38,6 +48,11 @@ public class LoadFlowResultImpl implements LoadFlowResult {
                 throw new IllegalArgumentException("Invalid iteration count: " + iterationCount);
             }
             return iterationCount;
+        }
+
+        @Override
+        public int getComponentNum() {
+            return componentNum;
         }
 
         @Override

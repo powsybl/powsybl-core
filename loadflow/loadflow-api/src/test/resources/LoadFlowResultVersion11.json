@@ -10,6 +10,7 @@
     "csprMarcheForcee" : "0"
   },
   "componentResults" : [ {
+    "componentNum" : 0,
     "status" : "CONV",
     "iterationCount" : 7,
     "slackBusId" : "bus1",
