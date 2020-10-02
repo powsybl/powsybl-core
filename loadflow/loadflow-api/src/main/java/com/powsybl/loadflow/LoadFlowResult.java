@@ -18,7 +18,7 @@ import java.util.Map;
 public interface LoadFlowResult {
 
     /**
-     * Results per component
+     * Result for one component
      */
     interface ComponentResult {
 
@@ -54,7 +54,7 @@ public interface LoadFlowResult {
     }
 
     /**
-     * Get the global status. It is expected to be ok if at least mean component has converged.
+     * Get the global status. It is expected to be ok if at least one component has converged.
      * @return the global status
      */
     boolean isOk();
