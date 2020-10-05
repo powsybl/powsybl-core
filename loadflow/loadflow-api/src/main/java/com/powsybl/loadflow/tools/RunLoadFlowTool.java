@@ -187,14 +187,34 @@ public class RunLoadFlowTool implements Tool {
     private void printLoadFlowResult(LoadFlowResult result, Writer writer, TableFormatterFactory formatterFactory,
                                      TableFormatterConfig formatterConfig) {
         try (TableFormatter formatter = formatterFactory.create(writer,
-                "loadflow results",
+                "Loadflow result",
                 formatterConfig,
-                new Column("Result"),
+                new Column("Ok"),
                 new Column("Metrics"))) {
             formatter.writeCell(result.isOk());
             formatter.writeCell(result.getMetrics().toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+        if (!result.getComponentResults().isEmpty()) {
+            try (TableFormatter formatter = formatterFactory.create(writer,
+                    "Components result",
+                    formatterConfig,
+                    new Column("Component number"),
+                    new Column("Status"),
+                    new Column("Iteration count"),
+                    new Column("Slack bus ID"),
+                    new Column("Slack bus mismatch"))) {
+                for (LoadFlowResult.ComponentResult componentResult : result.getComponentResults()) {
+                    formatter.writeCell(componentResult.getComponentNum());
+                    formatter.writeCell(componentResult.getStatus());
+                    formatter.writeCell(componentResult.getIterationCount());
+                    formatter.writeCell(componentResult.getSlackBusId());
+                    formatter.writeCell(componentResult.getSlackBusActivePowerMismatch());
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 
