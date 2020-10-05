@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.tools;
 
-import com.google.common.io.CharStreams;
+import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -14,18 +14,15 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Collections;
 import java.util.Locale;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RunLoadFlowToolTest {
+public class RunLoadFlowToolTest extends AbstractConverterTest {
 
     @Test
     public void printLoadFlowResultTest() throws IOException {
@@ -34,8 +31,7 @@ public class RunLoadFlowToolTest {
         try (StringWriter writer = new StringWriter()) {
             RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig(Locale.US, "inv"));
             writer.flush();
-            String ref = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/LoadFlowResultResult.txt")));
-            assertEquals(ref, writer.toString());
+            compareTxt(getClass().getResourceAsStream("/LoadFlowResultResult.txt"), writer.toString());
         }
     }
 }
