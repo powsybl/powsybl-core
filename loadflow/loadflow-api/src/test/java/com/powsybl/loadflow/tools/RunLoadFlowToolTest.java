@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.Collections;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +32,7 @@ public class RunLoadFlowToolTest {
         LoadFlowResult result = new LoadFlowResultImpl(true, Collections.emptyMap(), "",
                 Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, "CONVERGE", 8, "mySlack", 0.01)));
         try (StringWriter writer = new StringWriter()) {
-            RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig());
+            RunLoadFlowTool.printLoadFlowResult(result, writer, new AsciiTableFormatterFactory(), new TableFormatterConfig(Locale.US, "inv"));
             writer.flush();
             String ref = CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/LoadFlowResultResult.txt")));
             assertEquals(ref, writer.toString());
