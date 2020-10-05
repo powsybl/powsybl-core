@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,7 +19,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private final VoltageLevelExt voltageLevel;
 
-    private ShuntCompensatorModelWrapper model;
+    private ShuntCompensatorNonLinearModelAdderImpl shuntCompensatorNonLinearModelAdder;
+
+    private ShuntCompensatorLinearModelAdderImpl shuntCompensatorLinearModelAdder;
 
     private int sectionCount = -1;
 
@@ -74,7 +77,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         public ShuntCompensatorAdder add() {
             ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
-            model = new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
             return ShuntCompensatorAdderImpl.this;
         }
     }
@@ -128,19 +130,20 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             if (sections.isEmpty()) {
                 throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
             }
-            model = new ShuntCompensatorNonLinearModelImpl(sections);
             return ShuntCompensatorAdderImpl.this;
         }
     }
 
     @Override
     public ShuntCompensatorLinearModelAdder newLinearModel() {
-        return new ShuntCompensatorLinearModelAdderImpl();
+        shuntCompensatorLinearModelAdder = new ShuntCompensatorLinearModelAdderImpl();
+        return shuntCompensatorLinearModelAdder;
     }
 
     @Override
     public ShuntCompensatorNonLinearModelAdder newNonLinearModel() {
-        return new ShuntCompensatorNonLinearModelAdderImpl();
+        shuntCompensatorNonLinearModelAdder = new ShuntCompensatorNonLinearModelAdderImpl();
+        return shuntCompensatorNonLinearModelAdder;
     }
 
     @Override
@@ -177,6 +180,17 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
+        ShuntCompensatorModelWrapper model = null;
+        if (shuntCompensatorLinearModelAdder != null) {
+            model = new ShuntCompensatorLinearModelImpl(shuntCompensatorLinearModelAdder.bPerSection,
+                                                        shuntCompensatorLinearModelAdder.gPerSection,
+                                                        shuntCompensatorLinearModelAdder.maximumSectionCount);
+        } else if (shuntCompensatorNonLinearModelAdder != null) {
+            model = new ShuntCompensatorNonLinearModelImpl(shuntCompensatorNonLinearModelAdder.sections.stream()
+                                                                                                       .map(ShuntCompensatorNonLinearModelImpl.SectionImpl::copy)
+                                                                                                       .collect(Collectors.toList()));
+        }
+
         if (model == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }

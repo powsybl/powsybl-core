@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
-
 import java.util.Objects;
 
 /**
@@ -19,9 +17,6 @@ abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModelWra
 
     @Override
     public void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
-        if (this.shuntCompensator != null) {
-            throw new PowsyblException("Owner (shunt compensator) already defined");
-        }
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
     }
 }

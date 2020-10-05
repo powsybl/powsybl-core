@@ -60,6 +60,10 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
             return this;
         }
 
+        public SectionImpl copy() {
+            return new SectionImpl(index, b, g);
+        }
+
         private static String notifyUpdateSection(int sectionNum, String attribute) {
             return "section" + sectionNum + "." + attribute;
         }
