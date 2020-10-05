@@ -160,18 +160,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private LegAdderImpl legAdder3;
 
-    private VoltageLevelExt voltageLevel1;
-
-    private VoltageLevelExt voltageLevel2;
-
-    private VoltageLevelExt voltageLevel3;
-
-    private TerminalExt terminal1;
-
-    private TerminalExt terminal2;
-
-    private TerminalExt terminal3;
-
     private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
@@ -223,9 +211,15 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     public ThreeWindingsTransformerImpl add() {
         String id = checkAndGetUniqueId();
 
-        ThreeWindingsTransformerImpl.LegImpl leg1 = null;
-        ThreeWindingsTransformerImpl.LegImpl leg2 = null;
-        ThreeWindingsTransformerImpl.LegImpl leg3 = null;
+        ThreeWindingsTransformerImpl.LegImpl leg1;
+        ThreeWindingsTransformerImpl.LegImpl leg2;
+        ThreeWindingsTransformerImpl.LegImpl leg3;
+        VoltageLevelExt voltageLevel1;
+        VoltageLevelExt voltageLevel2;
+        VoltageLevelExt voltageLevel3;
+        TerminalExt terminal1;
+        TerminalExt terminal2;
+        TerminalExt terminal3;
 
         if (legAdder1 != null) {
             voltageLevel1 = legAdder1.checkAndGetVoltageLevel();
