@@ -184,8 +184,8 @@ public class RunLoadFlowTool implements Tool {
         }
     }
 
-    private void printLoadFlowResult(LoadFlowResult result, Writer writer, TableFormatterFactory formatterFactory,
-                                     TableFormatterConfig formatterConfig) {
+    static void printLoadFlowResult(LoadFlowResult result, Writer writer, TableFormatterFactory formatterFactory,
+                                    TableFormatterConfig formatterConfig) {
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Loadflow result",
                 formatterConfig,
