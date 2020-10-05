@@ -277,7 +277,7 @@ public abstract class AbstractDanglingLineTest {
 
         // Test if new Generation is instantiate at each add
         DanglingLine dl2 = adder.setId(id + "_2").add();
-        assertNotEquals(dl.getGeneration(), dl2.getGeneration());
+        assertNotSame(dl.getGeneration(), dl2.getGeneration());
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,

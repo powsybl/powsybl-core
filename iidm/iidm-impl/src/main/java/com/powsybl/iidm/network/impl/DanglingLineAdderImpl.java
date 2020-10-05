@@ -64,6 +64,9 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         @Override
         public DanglingLineAdder add() {
+            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
             return DanglingLineAdderImpl.this;
         }
     }
@@ -162,9 +165,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         DanglingLineImpl.GenerationImpl generation = null;
         if (generationAdder != null) {
-            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, generationAdder.minP, generationAdder.maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, generationAdder.targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, generationAdder.voltageRegulationOn, generationAdder.targetV, generationAdder.targetQ);
             generation = new DanglingLineImpl.GenerationImpl(generationAdder.minP,
                                                              generationAdder.maxP,
                                                              generationAdder.targetP,
