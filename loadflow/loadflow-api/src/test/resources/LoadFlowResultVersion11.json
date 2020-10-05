@@ -11,7 +11,7 @@
   },
   "componentResults" : [ {
     "componentNum" : 0,
-    "status" : "CONV",
+    "status" : "CONVERGED",
     "iterationCount" : 7,
     "slackBusId" : "bus1",
     "slackBusActivePowerMismatch" : 235.3

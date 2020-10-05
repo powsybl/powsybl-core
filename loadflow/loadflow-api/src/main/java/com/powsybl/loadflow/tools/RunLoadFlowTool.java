@@ -207,7 +207,7 @@ public class RunLoadFlowTool implements Tool {
                     new Column("Slack bus mismatch (MW)"))) {
                 for (LoadFlowResult.ComponentResult componentResult : result.getComponentResults()) {
                     formatter.writeCell(componentResult.getComponentNum());
-                    formatter.writeCell(componentResult.getStatus());
+                    formatter.writeCell(componentResult.getStatus().name());
                     formatter.writeCell(componentResult.getIterationCount());
                     formatter.writeCell(componentResult.getSlackBusId());
                     formatter.writeCell(componentResult.getSlackBusActivePowerMismatch());

@@ -55,7 +55,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
     public void serialize(LoadFlowResult.ComponentResult componentResult, JsonGenerator jsonGenerator) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeNumberField("componentNum", componentResult.getComponentNum());
-        jsonGenerator.writeStringField("status", componentResult.getStatus());
+        jsonGenerator.writeStringField("status", componentResult.getStatus().name());
         jsonGenerator.writeNumberField("iterationCount", componentResult.getIterationCount());
         jsonGenerator.writeStringField("slackBusId", componentResult.getSlackBusId());
         jsonGenerator.writeNumberField("slackBusActivePowerMismatch", componentResult.getSlackBusActivePowerMismatch());

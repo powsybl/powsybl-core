@@ -36,7 +36,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
     public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser) throws IOException {
         Integer componentNum = null;
-        String status = null;
+        LoadFlowResult.ComponentResult.Status status = null;
         Integer iterationCount = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
@@ -50,7 +50,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
                 case "status":
                     parser.nextToken();
-                    status = parser.getValueAsString();
+                    status = LoadFlowResult.ComponentResult.Status.valueOf(parser.getValueAsString());
                     break;
 
                 case "iterationCount":

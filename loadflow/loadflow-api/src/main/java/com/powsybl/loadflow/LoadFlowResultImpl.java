@@ -20,7 +20,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final int componentNum;
 
-        private final String status;
+        private final Status status;
 
         private final int iterationCount;
 
@@ -28,7 +28,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
 
         private final double slackBusActivePowerMismatch;
 
-        public ComponentResultImpl(int componentNum, String status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
+        public ComponentResultImpl(int componentNum, Status status, int iterationCount, String slackBusId, double slackBusActivePowerMismatch) {
             this.componentNum = checkComponentNum(componentNum);
             this.status = Objects.requireNonNull(status);
             this.iterationCount = checkIterationCount(iterationCount);
@@ -56,7 +56,7 @@ public class LoadFlowResultImpl implements LoadFlowResult {
         }
 
         @Override
-        public String getStatus() {
+        public Status getStatus() {
             return status;
         }
 

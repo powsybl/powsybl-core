@@ -22,6 +22,13 @@ public interface LoadFlowResult {
      */
     interface ComponentResult {
 
+        enum Status {
+            CONVERGED,
+            MAX_ITERATION_REACHED,
+            SOLVER_FAILED,
+            FAILED
+        }
+
         /**
          * Get component number.
          * @return component number
@@ -32,7 +39,7 @@ public interface LoadFlowResult {
          * Get detailed status of the computation on this component.
          * @return the detailed status of the computation on this component
          */
-        String getStatus();
+        Status getStatus();
 
         /**
          * Get iteration count.
