@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl.extensions;
+package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class SlackTerminalTest {
+public abstract class AbstractSlackTerminalTest {
 
     static Network createBusBreakerNetwork() {
         Network network = Network.create("test", "test");
