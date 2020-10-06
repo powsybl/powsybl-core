@@ -21,6 +21,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         TieLineImpl parent;
         String id;
         String name;
+        boolean fictitious = false;
         double xnodeP = Double.NaN;
         double xnodeQ = Double.NaN;
         double r = Double.NaN;
@@ -29,7 +30,20 @@ class TieLineImpl extends LineImpl implements TieLine {
         double g2 = Double.NaN;
         double b1 = Double.NaN;
         double b2 = Double.NaN;
-        boolean fictitious = false;
+
+        HalfLineImpl(String id, String name, boolean fictitious, double xnodeP, double xnodeQ, double r, double x, double g1, double g2, double b1, double b2) {
+            this.id = id;
+            this.name = name;
+            this.fictitious = fictitious;
+            this.xnodeP = xnodeP;
+            this.xnodeQ = xnodeQ;
+            this.r = r;
+            this.x = x;
+            this.g1 = g1;
+            this.g2 = g2;
+            this.b1 = b1;
+            this.b2 = b2;
+        }
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -46,21 +60,9 @@ class TieLineImpl extends LineImpl implements TieLine {
             return id;
         }
 
-        void setId(String id) {
-            String oldValue = this.id;
-            this.id = id;
-            notifyUpdate("id", oldValue, id);
-        }
-
         @Override
         public String getName() {
             return name == null ? id : name;
-        }
-
-        void setName(String name) {
-            String oldValue = this.name;
-            this.name = name;
-            notifyUpdate("name", oldValue, name);
         }
 
         @Override

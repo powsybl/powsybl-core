@@ -11,27 +11,54 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
-    TieLineAdder setR(double r);
+    interface HalfLineAdder {
 
-    TieLineAdder setX(double x);
+        TieLineAdder.HalfLineAdder setId(String id);
 
-    TieLineAdder setG1(double g1);
+        TieLineAdder.HalfLineAdder setName(String name);
 
-    TieLineAdder setB1(double b1);
+        TieLineAdder.HalfLineAdder setFictitious(boolean fictitious);
 
-    TieLineAdder setG2(double g2);
+        TieLineAdder.HalfLineAdder setXnodeP(double xnodeP);
 
-    TieLineAdder setB2(double b2);
+        TieLineAdder.HalfLineAdder setXnodeQ(double xnodeQ);
 
-    TieLineAdder setXnodeP(double xnodeP);
+        TieLineAdder.HalfLineAdder setR(double r);
 
-    TieLineAdder setXnodeQ(double xnodeQ);
+        TieLineAdder.HalfLineAdder setX(double x);
+
+        TieLineAdder.HalfLineAdder setG1(double g1);
+
+        TieLineAdder.HalfLineAdder setG2(double g2);
+
+        TieLineAdder.HalfLineAdder setB1(double b1);
+
+        TieLineAdder.HalfLineAdder setB2(double b2);
+
+        TieLineAdder add();
+    }
 
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
-    TieLineAdder line1();
+    TieLineAdder.HalfLineAdder newHalfLine1();
 
-    TieLineAdder line2();
+    TieLineAdder.HalfLineAdder newHalfLine2();
+
+    /**
+     * @deprecated Use {@link #newHalfLine1()} and {@link TieLineAdder#add()} instead.
+     */
+    @Deprecated
+    default TieLineAdder line1() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link #newHalfLine2()} and {@link TieLineAdder#add()} instead.
+     */
+    @Deprecated
+    default TieLineAdder line2() {
+        throw new UnsupportedOperationException();
+    }
 
     TieLine add();
 

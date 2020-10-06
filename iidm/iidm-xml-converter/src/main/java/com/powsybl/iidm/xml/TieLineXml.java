@@ -79,7 +79,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return n.newTieLine();
     }
 
-    private static void readHalf(TieLineAdder adder, NetworkXmlReaderContext context, int side) {
+    private static void readHalf(TieLineAdder.HalfLineAdder adder, NetworkXmlReaderContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
@@ -109,8 +109,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
-        readHalf(adder.line1(), context, 1);
-        readHalf(adder.line2(), context, 2);
+        readHalf(adder.newHalfLine1(), context, 1);
+        readHalf(adder.newHalfLine2(), context, 2);
         readNodeOrBus(adder, context);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)
