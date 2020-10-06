@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,20 +81,34 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void addAlias(String alias) {
-        addAlias(alias, null);
+        addAlias(alias, false);
+    }
+
+    @Override
+    public void addAlias(String alias, boolean ensureAliasUnicity) {
+        addAlias(alias, null, ensureAliasUnicity);
     }
 
     @Override
     public void addAlias(String alias, String aliasType) {
+        addAlias(alias, aliasType, false);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
+        String checkedAlias = alias;
+        if (ensureAliasUnicity) {
+            checkedAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
+        }
         if (aliasType != null && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
-        if (getNetwork().getIndex().addAlias(this, alias)) {
+        if (getNetwork().getIndex().addAlias(this, checkedAlias)) {
             if (aliasType != null) {
-                aliasesByType.put(aliasType, alias);
+                aliasesByType.put(aliasType, checkedAlias);
             } else {
-                aliasesWithoutType.add(alias);
+                aliasesWithoutType.add(checkedAlias);
             }
         }
     }
