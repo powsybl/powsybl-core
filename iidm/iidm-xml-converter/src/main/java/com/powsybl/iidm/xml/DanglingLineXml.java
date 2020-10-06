@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  *
@@ -31,7 +33,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl) {
-        return dl.getCurrentLimits() != null || dl.getGeneration() != null;
+        return dl.getCurrentLimits() != null || dl.getGeneration() != null || hasDefinedBoundaryPoint(dl);
     }
 
     @Override
@@ -77,12 +79,24 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (hasDefinedBoundaryPoint(dl)) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "boundaryPoint", IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            writeBoundaryPoint(dl.getBoundaryPoint(), context.getWriter(), context.getVersion().getNamespaceURI());
+        }
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
         }
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
         }
+    }
+
+    private static void writeBoundaryPoint(BoundaryPoint boundaryPoint, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
+        writer.writeEmptyElement(namespaceUri, "boundaryPoint");
+        XmlUtil.writeDouble("p", boundaryPoint.getP(), writer);
+        XmlUtil.writeDouble("q", boundaryPoint.getQ(), writer);
+        XmlUtil.writeDouble("v", boundaryPoint.getV(), writer);
+        XmlUtil.writeDouble("angle", boundaryPoint.getAngle(), writer);
     }
 
     @Override
@@ -135,6 +149,10 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
+                case "boundaryPoint":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "boundaryPoint", IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    readBoundaryPoint(dl.getBoundaryPoint(), context.getReader());
+                    break;
                 case "currentLimits":
                     readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
                     break;
@@ -147,5 +165,18 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                     super.readSubElements(dl, context);
             }
         });
+    }
+
+    private static void readBoundaryPoint(BoundaryPoint boundaryPoint, XMLStreamReader reader) {
+        boundaryPoint.setP(XmlUtil.readOptionalDoubleAttribute(reader, "p"))
+                .setQ(XmlUtil.readOptionalDoubleAttribute(reader, "q"))
+                .setV(XmlUtil.readOptionalDoubleAttribute(reader, "v"))
+                .setAngle(XmlUtil.readOptionalDoubleAttribute(reader, "angle"));
+    }
+
+    private static boolean hasDefinedBoundaryPoint(DanglingLine dl) {
+        BoundaryPoint boundaryPoint = dl.getBoundaryPoint();
+        return !Double.isNaN(boundaryPoint.getP()) || !Double.isNaN(boundaryPoint.getQ()) ||
+                !Double.isNaN(boundaryPoint.getV()) || !Double.isNaN(boundaryPoint.getAngle());
     }
 }

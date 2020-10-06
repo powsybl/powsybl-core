@@ -313,10 +313,17 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
+    <xs:complexType name="BoundaryPoint">
+        <xs:attribute name="p" use="optional" type="xs:double"/>
+        <xs:attribute name="q" use="optional" type="xs:double"/>
+        <xs:attribute name="v" use="optional" type="xs:double"/>
+        <xs:attribute name="angle" use="optional" type="xs:double"/>
+    </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
+                    <xs:element name="boundaryPoint" minOccurs="0" maxOccurs="1" type="iidm:BoundaryPoint"/>
                     <xs:choice minOccurs="0">
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
@@ -540,8 +547,10 @@
                 <xs:attribute name="g2_1" use="required" type="xs:double"/>
                 <xs:attribute name="b1_1" use="required" type="xs:double"/>
                 <xs:attribute name="b2_1" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeP_1" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeQ_1" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeP_1" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeQ_1" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeV_1" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeAngle_1" use="optional" type="xs:double"/>
                 <xs:attribute name="fictitious_1" use="optional" type="xs:boolean"/>
                 <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="name_2" use="optional" type="xs:string"/>
@@ -551,8 +560,10 @@
                 <xs:attribute name="g2_2" use="required" type="xs:double"/>
                 <xs:attribute name="b1_2" use="required" type="xs:double"/>
                 <xs:attribute name="b2_2" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeP_2" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeQ_2" use="required" type="xs:double"/>
+                <xs:attribute name="xnodeP_2" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeQ_2" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeV_2" use="optional" type="xs:double"/>
+                <xs:attribute name="xnodeAngle_2" use="optional" type="xs:double"/>
                 <xs:attribute name="fictitious_2" use="optional" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
