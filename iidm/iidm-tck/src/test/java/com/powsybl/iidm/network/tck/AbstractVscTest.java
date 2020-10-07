@@ -27,9 +27,13 @@ public abstract class AbstractVscTest {
     protected VscConverterStation cs1;
     private VscConverterStation cs2;
 
+    protected Network createNetwork() {
+        return HvdcTestNetwork.createVsc();
+    }
+
     @Before
     public void setUp() {
-        network = HvdcTestNetwork.createVsc();
+        network = createNetwork();
         hvdcLine = network.getHvdcLine("L");
         cs1 = network.getVscConverterStation("C1");
         cs2 = network.getVscConverterStation("C2");

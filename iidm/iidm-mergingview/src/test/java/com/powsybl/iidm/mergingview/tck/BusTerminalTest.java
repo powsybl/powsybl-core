@@ -6,9 +6,21 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractBusTerminalTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusTerminalTest extends AbstractBusTerminalTest { }
+public class BusTerminalTest extends AbstractBusTerminalTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merged", "merged");
+        network.merge(EurostagTutorialExample1Factory.create());
+        return network;
+    }
+
+}

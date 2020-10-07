@@ -37,9 +37,13 @@ public abstract class AbstractCalculatedTopologyTest {
         assertSame(n, ma.getNetwork());
     }
 
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
     private Network createBusBreaker() {
         // For the buses to be valid they have to be connected to at least one branch
-        Network network = Network.create("test", "test");
+        Network network = createNetwork();
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.ES)
@@ -112,7 +116,7 @@ public abstract class AbstractCalculatedTopologyTest {
 
     private Network createNodeBreaker() {
         // For the buses to be valid they have to be connected to at least one branch
-        Network network = Network.create("test", "test");
+        Network network = createNetwork();
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.ES)

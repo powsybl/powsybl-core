@@ -13,9 +13,13 @@ import static org.junit.Assert.*;
 
 public abstract class AbstractBusTest {
 
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
     @Test
     public void testSetterGetter() {
-        Network network = Network.create("test", "test");
+        Network network = createNetwork();
         Substation substation = network.newSubstation()
                                     .setCountry(Country.AF)
                                     .setTso("tso")

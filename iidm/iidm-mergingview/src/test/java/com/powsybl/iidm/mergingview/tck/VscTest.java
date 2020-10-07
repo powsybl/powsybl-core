@@ -6,9 +6,35 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractVscTest;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class VscTest extends AbstractVscTest { }
+public class VscTest extends AbstractVscTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merge", "test");
+        network.merge(HvdcTestNetwork.createVsc());
+        return network;
+    }
+
+    @Test
+    public void testRemove() {
+        try {
+            super.testRemove();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+}

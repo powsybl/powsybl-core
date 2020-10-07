@@ -6,9 +6,17 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractEmptyCalculatedBusBugTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest { }
+public class EmptyCalculatedBusBugTest extends AbstractEmptyCalculatedBusBugTest {
+
+    @Override
+    protected Network createBaseNetwork() {
+        return MergingView.create("test", "test");
+    }
+}

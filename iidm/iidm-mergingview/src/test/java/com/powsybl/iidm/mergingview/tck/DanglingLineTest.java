@@ -6,9 +6,31 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.AbstractDanglingLineTest;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class DanglingLineTest extends AbstractDanglingLineTest { }
+public class DanglingLineTest extends AbstractDanglingLineTest {
+
+    @Override
+    protected Network createNetwork() {
+        return MergingView.create("test", "test");
+    }
+
+    @Test
+    public void testRemove() {
+        try {
+            super.testRemove();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+}

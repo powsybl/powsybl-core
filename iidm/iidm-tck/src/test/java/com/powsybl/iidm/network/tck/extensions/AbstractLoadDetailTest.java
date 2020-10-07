@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import org.joda.time.DateTime;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -26,8 +27,14 @@ import static org.junit.Assert.fail;
  */
 public abstract class AbstractLoadDetailTest {
 
-    private static Network createTestNetwork() {
-        Network network = Network.create("test", "test");
+    protected Network network;
+
+    @Before
+    public void setUp() {
+        network = Network.create("test", "test");
+    }
+
+    private static void createTestNetwork(Network network) {
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
@@ -58,12 +65,11 @@ public abstract class AbstractLoadDetailTest {
                 .withVariableActivePower(60f)
                 .withVariableReactivePower(30f)
                 .add();
-        return network;
     }
 
     @Test
     public void test() {
-        Network network = createTestNetwork();
+        createTestNetwork(network);
 
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(detail);
@@ -89,7 +95,7 @@ public abstract class AbstractLoadDetailTest {
         String variant3 = "variant3";
 
         // Creates the extension
-        Network network = createTestNetwork();
+        createTestNetwork(network);
         LoadDetail ld = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(ld);
 

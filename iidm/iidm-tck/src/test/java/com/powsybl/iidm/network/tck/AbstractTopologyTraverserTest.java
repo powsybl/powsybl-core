@@ -21,8 +21,12 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractTopologyTraverserTest {
 
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
     private Network createNodeBreakerNetwork() {
-        Network network = Network.create("test", "test");
+        Network network = createNetwork();
         Substation s1 = network.newSubstation()
                 .setId("S1")
                 .setCountry(Country.FR)

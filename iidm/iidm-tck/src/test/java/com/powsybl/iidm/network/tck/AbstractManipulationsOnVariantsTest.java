@@ -38,9 +38,13 @@ public abstract class AbstractManipulationsOnVariantsTest {
     private Network network;
     private VariantManager variantManager;
 
+    protected Network createNetwork() {
+        return NoEquipmentNetworkFactory.create();
+    }
+
     @Before
     public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
+        network = createNetwork();
         variantManager = network.getVariantManager();
     }
 

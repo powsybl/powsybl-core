@@ -6,9 +6,55 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLoadTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LoadTest extends AbstractLoadTest { }
+public class LoadTest extends AbstractLoadTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(FictitiousSwitchFactory.create());
+        return network;
+    }
+
+    @Test
+    public void testChangesNotification() {
+        try {
+            super.testChangesNotification();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        try {
+            super.testSetterGetterInMultiVariants();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testRemove() {
+        try {
+            super.testRemove();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+}

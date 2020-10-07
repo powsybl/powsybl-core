@@ -33,9 +33,13 @@ public abstract class AbstractGeneratorTest {
     private Network network;
     private VoltageLevel voltageLevel;
 
+    protected Network createNetwork() {
+        return FictitiousSwitchFactory.create();
+    }
+
     @Before
     public void initNetwork() {
-        network = FictitiousSwitchFactory.create();
+        network = createNetwork();
         voltageLevel = network.getVoltageLevel("C");
     }
 

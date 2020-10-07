@@ -27,9 +27,13 @@ public abstract class AbstractReactiveCapabilityCurveTest {
 
     private Generator generator;
 
+    protected Network createNetwork() {
+        return FictitiousSwitchFactory.create();
+    }
+
     @Before
     public void setUp() {
-        Network network = FictitiousSwitchFactory.create();
+        Network network = createNetwork();
         generator = network.getGenerator("CB");
     }
 

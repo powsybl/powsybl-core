@@ -26,9 +26,13 @@ public abstract class AbstractMinMaxReactiveLimitsTest {
 
     private Generator generator;
 
+    protected Network createNetwork() {
+        return FictitiousSwitchFactory.create();
+    }
+
     @Before
     public void setUp() {
-        Network network = FictitiousSwitchFactory.create();
+        Network network = createNetwork();
         generator = network.getGenerator("CB");
     }
 
@@ -36,9 +40,9 @@ public abstract class AbstractMinMaxReactiveLimitsTest {
     public void testAdder() {
         // adder
         MinMaxReactiveLimits minMaxReactiveLimits = generator.newMinMaxReactiveLimits()
-                                                        .setMaxQ(100.0)
-                                                        .setMinQ(10.0)
-                                                    .add();
+                .setMaxQ(100.0)
+                .setMinQ(10.0)
+                .add();
         assertEquals(100.0, minMaxReactiveLimits.getMaxQ(), 0.0);
         assertEquals(100.0, minMaxReactiveLimits.getMaxQ(1.0), 0.0);
         assertEquals(10.0, minMaxReactiveLimits.getMinQ(), 0.0);
@@ -71,6 +75,6 @@ public abstract class AbstractMinMaxReactiveLimitsTest {
         generator.newMinMaxReactiveLimits()
                 .setMaxQ(maxQ)
                 .setMinQ(minQ)
-            .add();
+                .add();
     }
 }

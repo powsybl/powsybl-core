@@ -22,10 +22,14 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractNetworksTest {
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+    }
+
     @Test
     public void printBalanceSummaryTest() throws IOException {
         try (Writer writer = new StringWriter()) {
-            Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+            Network network = createNetwork();
             Networks.printBalanceSummary("", network, writer);
             assertEquals("Active balance at step '':" + System.lineSeparator() +
                             "+-----------------------+--------------------------------+----------------------------------+\n" +

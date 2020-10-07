@@ -36,9 +36,13 @@ public abstract class AbstractBatteryTest {
     private Network network;
     private VoltageLevel voltageLevel;
 
+    protected Network createNetwork() {
+        return BatteryNetworkFactory.create();
+    }
+
     @Before
     public void initNetwork() {
-        network = BatteryNetworkFactory.create();
+        network = createNetwork();
         voltageLevel = network.getVoltageLevel("VLBAT");
     }
 
@@ -213,7 +217,7 @@ public abstract class AbstractBatteryTest {
         }
     }
 
-    private void createBattery(String id, double p0, double q0, double minP, double maxP) {
+    protected void createBattery(String id, double p0, double q0, double minP, double maxP) {
         voltageLevel.newBattery()
                 .setId(id)
                 .setP0(p0)

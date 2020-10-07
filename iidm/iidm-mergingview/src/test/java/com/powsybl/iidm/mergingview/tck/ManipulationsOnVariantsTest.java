@@ -6,9 +6,35 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractManipulationsOnVariantsTest;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest { }
+public class ManipulationsOnVariantsTest extends AbstractManipulationsOnVariantsTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merged", "test");
+        network.merge(NoEquipmentNetworkFactory.create());
+        return network;
+    }
+
+    @Test
+    public void baseTests() {
+        try {
+            super.baseTests();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+}

@@ -28,9 +28,13 @@ public abstract class AbstractMultiVariantNetworkTest {
     private static final String NLOAD2 = "NLOAD";
     private static final String SECOND_VARIANT = "SecondVariant";
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
     @Test
     public void singleThreadTest() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         final VariantManager manager = network.getVariantManager();
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
         manager.setWorkingVariant(SECOND_VARIANT);
@@ -43,7 +47,7 @@ public abstract class AbstractMultiVariantNetworkTest {
 
     @Test
     public void multiThreadTest() throws InterruptedException {
-        final Network network = EurostagTutorialExample1Factory.create();
+        final Network network = createNetwork();
         final VariantManager manager = network.getVariantManager();
         manager.allowVariantMultiThreadAccess(true);
 
@@ -85,7 +89,7 @@ public abstract class AbstractMultiVariantNetworkTest {
 
     @Test
     public void multiVariantTopologyTest() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         VariantManager manager = network.getVariantManager();
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "NEW_VARIANT");
         VoltageLevel vlload = network.getVoltageLevel("VLLOAD");
@@ -112,7 +116,7 @@ public abstract class AbstractMultiVariantNetworkTest {
 
     @Test
     public void variantNotSetTest() throws InterruptedException {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         VariantManager manager = network.getVariantManager();
         manager.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
@@ -131,7 +135,7 @@ public abstract class AbstractMultiVariantNetworkTest {
 
     @Test
     public void variantSetTest() throws InterruptedException {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         VariantManager manager = network.getVariantManager();
         manager.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());

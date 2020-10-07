@@ -27,12 +27,16 @@ public abstract class AbstractLoadTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    Network network;
-    VoltageLevel voltageLevel;
+    private Network network;
+    private VoltageLevel voltageLevel;
+
+    protected Network createNetwork() {
+        return FictitiousSwitchFactory.create();
+    }
 
     @Before
     public void initNetwork() {
-        network = FictitiousSwitchFactory.create();
+        network = createNetwork();
         voltageLevel = network.getVoltageLevel("C");
     }
 

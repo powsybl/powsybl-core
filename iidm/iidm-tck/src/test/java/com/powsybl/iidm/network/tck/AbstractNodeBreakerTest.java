@@ -10,12 +10,18 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
+import java.util.function.Supplier;
+
 import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractNodeBreakerTest {
+
+    protected Network createNetwork(Supplier<Network> supplier) {
+        return supplier.get();
+    }
 
     private Network createNetwork() {
         Network network = Network.create("test", "test");
@@ -163,7 +169,7 @@ public abstract class AbstractNodeBreakerTest {
 
     @Test
     public void connectDisconnectRemove() {
-        Network network = createNetwork();
+        Network network = createNetwork(this::createNetwork);
         VoltageLevel.NodeBreakerView topo = network.getVoltageLevel("VL").getNodeBreakerView();
         Load l = network.getLoad("L");
         Generator g = network.getGenerator("G");
@@ -210,7 +216,7 @@ public abstract class AbstractNodeBreakerTest {
 
     @Test
     public void replaceLoad() {
-        Network network = NetworkTest1Factory.create();
+        Network network = createNetwork(NetworkTest1Factory::create);
         VoltageLevel vl = network.getVoltageLevel("voltageLevel1");
 
         Load l1 = network.getLoad("load1");
@@ -244,7 +250,7 @@ public abstract class AbstractNodeBreakerTest {
 
     @Test
     public void testIsolatedLoadBusBranch() {
-        Network network = createIsolatedLoadNetwork();
+        Network network = createNetwork(AbstractNodeBreakerTest::createIsolatedLoadNetwork);
         assertEquals(2, network.getBusView().getBusStream().count());
 
         // load "L0" is connected to bus "VL_0"

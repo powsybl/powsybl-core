@@ -9,7 +9,7 @@ package com.powsybl.iidm.mergingview.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
+import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 import org.junit.Test;
 
 import java.util.function.Supplier;
@@ -18,9 +18,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class NodeBreakerTest extends AbstractNodeBreakerTest {
+public class TerminalFinderTest extends AbstractTerminalFinderTest {
 
     @Override
     protected Network createNetwork(Supplier<Network> supplier) {
@@ -30,9 +30,9 @@ public class NodeBreakerTest extends AbstractNodeBreakerTest {
     }
 
     @Test
-    public void connectDisconnectRemove() {
+    public void testLineTerminal1() {
         try {
-            super.connectDisconnectRemove();
+            super.testLineTerminal1();
             fail();
         } catch (PowsyblException e) {
             assertEquals("Not implemented exception", e.getMessage());
@@ -40,9 +40,29 @@ public class NodeBreakerTest extends AbstractNodeBreakerTest {
     }
 
     @Test
-    public void replaceLoad() {
+    public void testLineTerminal2() {
         try {
-            super.replaceLoad();
+            super.testLineTerminal2();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testBbsTerminal() {
+        try {
+            super.testBbsTerminal();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testNoTerminal() {
+        try {
+            super.testNoTerminal();
             fail();
         } catch (PowsyblException e) {
             assertEquals("Not implemented exception", e.getMessage());

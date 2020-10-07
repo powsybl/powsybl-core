@@ -22,7 +22,7 @@ public abstract class AbstractLineTest {
 
     private static final String HALF1_NAME = "half1_name";
 
-    private static final String INVALID = "invalid";
+    protected static final String INVALID = "invalid";
 
     private static final String LINE_NAME = "lineName";
 
@@ -37,9 +37,13 @@ public abstract class AbstractLineTest {
     private VoltageLevel voltageLevelA;
     private VoltageLevel voltageLevelB;
 
+    protected Network createNetwork() {
+        return NoEquipmentNetworkFactory.create();
+    }
+
     @Before
     public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
+        network = createNetwork();
         voltageLevelA = network.getVoltageLevel("vl1");
         voltageLevelB = network.getVoltageLevel("vl2");
     }
@@ -565,7 +569,7 @@ public abstract class AbstractLineTest {
             .add();
     }
 
-    private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
+    protected void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
                                                      double g1, double g2, double b1, double b2,
                                                      double xnodeP, double xnodeQ, String code) {
         network.newTieLine()

@@ -16,9 +16,13 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractConnectedComponentWithTieLineBugTest {
 
+    protected Network createNetwork() {
+        return Network.create("n", "test");
+    }
+
     @Test
     public void test() {
-        Network n = Network.create("n", "test");
+        Network n = createNetwork();
         Substation s1 = n.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)

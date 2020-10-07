@@ -6,9 +6,17 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractBusTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusTest extends AbstractBusTest { }
+public class BusTest extends AbstractBusTest {
+
+    @Override
+    protected Network createNetwork() {
+        return MergingView.create("test", "test");
+    }
+}

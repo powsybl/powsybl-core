@@ -30,9 +30,13 @@ public abstract class AbstractNetworkRemoveTest {
     private static final String VLLOAD = "VLLOAD";
     private Network network;
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
     @Before
     public void setUp() {
-        network = EurostagTutorialExample1Factory.create();
+        network = createNetwork();
     }
 
     @After

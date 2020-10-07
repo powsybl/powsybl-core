@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractReactiveCapabilityCurveTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest { }
+public class ReactiveCapabilityCurveTest extends AbstractReactiveCapabilityCurveTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merge", "test");
+        network.merge(FictitiousSwitchFactory.create());
+        return network;
+    }
+}

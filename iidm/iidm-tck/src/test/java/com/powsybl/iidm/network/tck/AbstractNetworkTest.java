@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,9 +52,17 @@ public abstract class AbstractNetworkTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    protected Network createNetwork(String id, String format) {
+        return Network.create(id, format);
+    }
+
+    protected Network createNetwork(Supplier<Network> supplier) {
+        return supplier.get();
+    }
+
     @Test
     public void testNetwork1() {
-        Network network = NetworkTest1Factory.create();
+        Network network = createNetwork(NetworkTest1Factory::create);
         assertSame(network, network.getNetwork());
         assertEquals(1, Iterables.size(network.getCountries()));
         assertEquals(1, network.getCountryCount());
@@ -200,7 +209,7 @@ public abstract class AbstractNetworkTest {
 
     @Test
     public void testNetwork1WithoutCountry() {
-        Network network = NetworkTest1Factory.create();
+        Network network = createNetwork(NetworkTest1Factory::create);
 
         Substation substation1 = network.getSubstation(SUBSTATION12);
         substation1.setCountry(null);
@@ -213,7 +222,7 @@ public abstract class AbstractNetworkTest {
 
     @Test
     public void testNetworkWithBattery() {
-        Network network = BatteryNetworkFactory.create();
+        Network network = createNetwork(BatteryNetworkFactory::create);
         assertEquals(1, Iterables.size(network.getCountries()));
         assertEquals(1, network.getCountryCount());
         Country country1 = network.getCountries().iterator().next();
@@ -325,7 +334,7 @@ public abstract class AbstractNetworkTest {
         Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
         Function<Stream<? extends Identifiable>, Set<String>> mapperSet = stream -> stream.map(Identifiable::getId).collect(Collectors.toSet());
 
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork(EurostagTutorialExample1Factory::create);
         String nhv1nhv1 = "NHV1_NHV1";
         network.getVoltageLevel(VLHV1).getBusBreakerView()
                 .newBus()
@@ -413,7 +422,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(network.getConnectableCount(), network.getConnectableStream().count());
 
         // SVC
-        network = SvcTestCaseFactory.create();
+        network = createNetwork(SvcTestCaseFactory::create);
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getStaticVarCompensatorStream()));
         assertEquals(network.getStaticVarCompensatorCount(), network.getStaticVarCompensatorStream().count());
         assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorStream()));
@@ -425,7 +434,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(network.getConnectableCount(StaticVarCompensator.class), network.getConnectableStream(StaticVarCompensator.class).count());
 
         // HVDC
-        network = HvdcTestNetwork.createLcc();
+        network = createNetwork(HvdcTestNetwork::createLcc);
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
         assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getLccConverterStationStream()));
@@ -440,7 +449,7 @@ public abstract class AbstractNetworkTest {
 
         assertEquals(Arrays.asList("BK1", "BK2", "BK3"), mapper.apply(network.getBusBreakerView().getSwitchStream()));
 
-        network = HvdcTestNetwork.createVsc();
+        network = createNetwork(HvdcTestNetwork::createVsc);
         assertEquals(Collections.singletonList("L"), mapper.apply(network.getHvdcLineStream()));
         assertEquals(network.getHvdcLineCount(), network.getHvdcLineStream().count());
         assertEquals(Arrays.asList("C1", "C2"), mapper.apply(network.getVscConverterStationStream()));
@@ -454,7 +463,7 @@ public abstract class AbstractNetworkTest {
         assertEquals(Collections.singletonList("C2"), mapper.apply(bus.getVscConverterStationStream()));
 
         // Topology
-        network = NetworkTest1Factory.create();
+        network = createNetwork(NetworkTest1Factory::create);
         assertEquals(Arrays.asList(VOLTAGE_LEVEL1_BUSBAR_SECTION1, VOLTAGE_LEVEL1_BUSBAR_SECTION2),
                 mapper.apply(network.getVoltageLevel(VOLTAGE_LEVEL1).getNodeBreakerView().getBusbarSectionStream()));
         assertEquals(Collections.singletonList(VOLTAGE_LEVEL1_BREAKER1),
@@ -475,7 +484,7 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testSetterGetter() {
         String sourceFormat = "test_sourceFormat";
-        Network network = Network.create("test", sourceFormat);
+        Network network = createNetwork("test", sourceFormat);
         DateTime caseDate = new DateTime();
         network.setCaseDate(caseDate);
         assertEquals(caseDate, network.getCaseDate());
@@ -487,10 +496,10 @@ public abstract class AbstractNetworkTest {
 
     @Test
     public void getSwitchTerminalTest() {
-        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        Network busViewNetwork = createNetwork(EurostagTutorialExample1Factory::create);
         busViewNetwork.getVoltageLevel(VLGEN);
 
-        Network nodeViewNetwork = NetworkTest1Factory.create();
+        Network nodeViewNetwork = createNetwork(NetworkTest1Factory::create);
         VoltageLevel voltageLevel = nodeViewNetwork.getVoltageLevel(VOLTAGE_LEVEL1);
         NodeBreakerView topology = voltageLevel.getNodeBreakerView();
         assertEquals(topology.getTerminal(topology.getNode1(VOLTAGE_LEVEL1_BREAKER1)),
@@ -501,7 +510,7 @@ public abstract class AbstractNetworkTest {
 
     @Test
     public void testExceptionGetSwitchTerminal1() {
-        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        Network busViewNetwork = createNetwork(EurostagTutorialExample1Factory::create);
         VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel(VLGEN);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Not supported in a bus breaker topology");
@@ -510,7 +519,7 @@ public abstract class AbstractNetworkTest {
 
     @Test
     public void testExceptionGetSwitchTerminal2() {
-        Network busViewNetwork = EurostagTutorialExample1Factory.create();
+        Network busViewNetwork = createNetwork(EurostagTutorialExample1Factory::create);
         VoltageLevel voltageLevel = busViewNetwork.getVoltageLevel(VLGEN);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Not supported in a bus breaker topology");
@@ -520,7 +529,7 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testCreate() {
         // check default implementation is used
-        Network.create("test", "test");
+        createNetwork("test", "test");
     }
 
     @Test

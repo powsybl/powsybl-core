@@ -6,9 +6,35 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLccTest;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LccTest extends AbstractLccTest { }
+public class LccTest extends AbstractLccTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(HvdcTestNetwork.createLcc());
+        return network;
+    }
+
+    @Test
+    public void testHvdcLineRemove() {
+        try {
+            super.testHvdcLineRemove();
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Not implemented exception", e.getMessage());
+        }
+    }
+}

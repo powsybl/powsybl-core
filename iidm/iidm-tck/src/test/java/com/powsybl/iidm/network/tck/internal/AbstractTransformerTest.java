@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.network.tck.internal;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -20,9 +21,13 @@ public abstract class AbstractTransformerTest {
     protected Network network;
     protected Substation substation;
 
+    protected Network createNetwork() {
+        return NoEquipmentNetworkFactory.create();
+    }
+
     @Before
     public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
+        network = createNetwork();
         substation = network.getSubstation("sub");
     }
 

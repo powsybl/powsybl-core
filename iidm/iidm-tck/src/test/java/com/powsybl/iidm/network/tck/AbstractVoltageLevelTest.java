@@ -27,9 +27,13 @@ public abstract class AbstractVoltageLevelTest {
 
     private Substation substation;
 
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
     @Before
     public void setUp() {
-        Network network = Network.create("test", "test");
+        Network network = createNetwork();
         substation = network.newSubstation()
                                 .setCountry(Country.AF)
                                 .setTso("tso")

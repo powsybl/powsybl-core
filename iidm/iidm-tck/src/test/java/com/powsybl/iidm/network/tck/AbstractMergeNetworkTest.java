@@ -27,9 +27,17 @@ public abstract class AbstractMergeNetworkTest {
     Network n1;
     Network n2;
 
+    protected Network createNetwork(String id, String format) {
+        return Network.create(id, format);
+    }
+
+    protected String thrownMessage() {
+        return "The following object(s) of type SubstationImpl exist(s) in both networks: [P1]";
+    }
+
     @Before
     public void setup() {
-        merge = Network.create(MERGE2, "asdf");
+        merge = createNetwork(MERGE2, "asdf");
         n1 = Network.create("n1", "asdf");
         n2 = Network.create("n2", "qwer");
     }
@@ -48,7 +56,7 @@ public abstract class AbstractMergeNetworkTest {
         addSubstation(n2, "P1");
         merge.merge(n1);
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]");
+        thrown.expectMessage(thrownMessage());
         merge.merge(n2);
     }
 

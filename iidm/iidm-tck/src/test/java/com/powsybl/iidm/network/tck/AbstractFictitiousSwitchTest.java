@@ -18,9 +18,13 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class AbstractFictitiousSwitchTest {
 
+    protected Network createNetwork() {
+        return FictitiousSwitchFactory.create();
+    }
+
     @Test
     public void test() {
-        Network network = FictitiousSwitchFactory.create();
+        Network network = createNetwork();
 
         assertTrue(network.getSwitch("F").isFictitious());
         assertFalse(network.getSwitch("R").isFictitious());
