@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -124,7 +123,6 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     private static RegulatingControl getRegulatingControl(Context context, String regulatingControlId) {
-        Objects.requireNonNull(regulatingControlId);
         return context.regulatingControlMapping().cachedRegulatingControls().get(regulatingControlId);
     }
 

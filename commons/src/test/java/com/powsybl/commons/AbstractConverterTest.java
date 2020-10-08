@@ -9,7 +9,6 @@ package com.powsybl.commons;
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
