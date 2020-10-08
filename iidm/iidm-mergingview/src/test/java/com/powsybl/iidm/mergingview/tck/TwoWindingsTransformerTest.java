@@ -26,9 +26,8 @@ public class TwoWindingsTransformerTest extends AbstractTwoWindingsTransformerTe
     }
 
     @Test
-    @Ignore
+    @Ignore("FIXME (?) when new substation is created in merging view, it is not found when a branch is created linking a previously existing voltage level and a voltage level of this new substation")
     public void transformerNotInSameSubstation() {
-        // FIXME (?) when new substation is created in merging view, it is not found when a branch is created linking a previously existing voltage level and a voltage level of this new substation
-        super.transformerNotInSameSubstation();
+        super.transformerNotInSameSubstation(); // FIXME (?) see ignore comment
     }
 }

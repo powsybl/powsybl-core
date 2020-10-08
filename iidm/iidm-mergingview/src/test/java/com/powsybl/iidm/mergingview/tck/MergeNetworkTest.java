@@ -28,8 +28,8 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("In merging view, a merged line is NOT composed of two dangling lines with the same ID")
     public void xnodeNonCompatible() {
-        super.xnodeNonCompatible(); // In merging view, a merged line is NOT composed of two dangling lines with the same ID
+        super.xnodeNonCompatible();
     }
 }
