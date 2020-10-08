@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
@@ -108,14 +109,14 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         if (ptcs != null) {
             for (int  i = 0; i < ptcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, "CGMES." + CgmesNames.PHASE_TAP_CHANGER + index));
+                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + index));
             }
         }
         List<String> rtcs = context.cgmes().ratioTapChangerListForPowerTransformer(identifiable.getId());
         if (rtcs != null) {
             for (int i = 0; i < rtcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, "CGMES." + CgmesNames.RATIO_TAP_CHANGER + index));
+                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + index));
             }
         }
     }

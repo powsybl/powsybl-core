@@ -14,8 +14,6 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesSvMetadataAdder extends ExtensionAdder<Network, CgmesSvMetadata> {
 
-    CgmesSvMetadataAdder setScenarioTime(String scenarioTime);
-
     CgmesSvMetadataAdder setDescription(String description);
 
     CgmesSvMetadataAdder setSvVersion(int svVersion);

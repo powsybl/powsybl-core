@@ -69,6 +69,9 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case BUSBAR_SECTION:
                     return new BusbarSectionContingency(id);
 
+                case DANGLING_LINE:
+                    return new DanglingLineContingency(id);
+
                 default:
                     throw new AssertionError("Unexpected ContingencyElementType value: " + type);
             }

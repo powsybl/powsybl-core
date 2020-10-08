@@ -46,7 +46,7 @@ public class SlackTerminalImpl extends AbstractMultiVariantIdentifiableExtension
     }
 
     @Override
-    public boolean isCleanable() {
+    public boolean isEmpty() {
         return terminals.stream().noneMatch(Objects::nonNull);
     }
 

@@ -157,7 +157,6 @@ public class Comparison {
                 diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
                 return;
             }
-            compare("scenarioTime", expected.getScenarioTime(), actual.getScenarioTime());
             compare("description", expected.getDescription(), actual.getDescription());
             compare("svVersion", expected.getSvVersion(), actual.getSvVersion());
             compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());

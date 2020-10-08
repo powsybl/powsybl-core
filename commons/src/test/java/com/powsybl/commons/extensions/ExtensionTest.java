@@ -15,12 +15,14 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
+import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -130,5 +132,17 @@ public class ExtensionTest extends AbstractConverterTest {
         assertTrue(foo.getExtension(FooExt.class).getValue());
         assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
         assertFalse(foo.getExtension(BarExt.class).getValue());
+    }
+
+    @Test
+    public void testProviderConflict() {
+        ExtensionXmlSerializer<?, ?> mock1 = Mockito.mock(ExtensionXmlSerializer.class);
+        Mockito.when(mock1.getExtensionName()).thenReturn("mock");
+        ExtensionXmlSerializer<?, ?> mock2 = Mockito.mock(ExtensionXmlSerializer.class);
+        Mockito.when(mock2.getExtensionName()).thenReturn("mock");
+
+        ExtensionXmlSerializer<?, ?>[] mocks = {mock1, mock2};
+
+        Assert.assertThrows(IllegalStateException.class, () -> Arrays.stream(mocks).collect(Collectors.toMap(ExtensionXmlSerializer::getExtensionName, e -> e)));
     }
 }
