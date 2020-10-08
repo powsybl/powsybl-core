@@ -516,10 +516,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     public PropertyBags query(String queryText) {
-        int hashQuery = Objects.hash(queryText);
-        if (useCache) {
-            return cachedPropertyBags.computeIfAbsent(hashQuery, hash -> tripleStore.query(queryText));
-        }
         return tripleStore.query(queryText);
     }
 
@@ -665,9 +661,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
-
-    private final Map<Integer, PropertyBags> cachedPropertyBags = new HashMap<>();
-    private final boolean useCache = true;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
