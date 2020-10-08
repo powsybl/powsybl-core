@@ -49,16 +49,10 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
-        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
         if (params != null && ConversionParameters.readBooleanParameter(USING_ONLY_NETWORK, params, USING_ONLY_NETWORK_PARAMETER)) {
-            if (ext != null) {
-                CgmesModel cgmesSource = ext.getCgmesModel();
-                if (cgmesSource != null) {
-                    throw new CgmesModelException("CGMES model should not be available as Network extension");
-                }
-            }
             exportUsingOnlyNetwork(network, ds);
         } else {
+            CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
             if (ext == null) {
                 throw new CgmesModelException("CGMES model is required and not found in Network extension");
             }
