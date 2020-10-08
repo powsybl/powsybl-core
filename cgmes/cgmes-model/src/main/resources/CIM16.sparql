@@ -293,37 +293,18 @@ SELECT *
 WHERE
 { GRAPH ?graph {
     ?OperationalLimit
+        a $OperationalLimitSubclass ;
+        cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
-        cim:IdentifiedObject.name ?name .
-        {
-            ?OperationalLimit a $OperationalLimitSubclass;
-            {
-                ?OperationalLimit a cim:CurrentLimit ;
-                cim:CurrentLimit.value ?value .
-            }
-            UNION
-            {
-                ?OperationalLimit a cim:ApparentPowerLimit ;
-                cim:ApparentPowerLimit.value ?value .
-            }
-            UNION
-            {
-                ?OperationalLimit a cim:VoltageLimit ;
-                cim:VoltageLimit.value ?value .
-            }
-            {
-                ?Terminal a cim:Terminal .
-                ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
-            }
-            # operational limit sets can also be attached directly to equipments
-            UNION
-            {
-                ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-                ?Equipment a ?EquipmentClass .
-            }
-        }
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+    # operational limit sets can be attached to terminals or equipments
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment }
     ?OperationalLimitType
+        a cim:OperationalLimitType ;
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
