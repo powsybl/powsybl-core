@@ -6,13 +6,19 @@
  */
 package com.powsybl.computation;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-
 import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -22,29 +28,22 @@ public class DefaultExecutionReport implements ExecutionReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExecutionReport.class);
 
-    private static final ExecutionReport OK = new DefaultExecutionReport();
+    private final Path workingDirectory;
 
     private final List<ExecutionError> errors;
 
     /**
-     * An execution report with no execution error.
-     * @return an execution report with no execution error.
-     */
-    public static ExecutionReport ok() {
-        return OK;
-    }
-
-    /**
      * Create an execution report with no execution error.
      */
-    public DefaultExecutionReport() {
-        this(Collections.emptyList());
+    public DefaultExecutionReport(Path workingDirectory) {
+        this(workingDirectory, Collections.emptyList());
     }
 
     /**
      * Create an execution report with the specified list of execution errors.
      */
-    public DefaultExecutionReport(List<ExecutionError> errors) {
+    public DefaultExecutionReport(Path workingDirectory, List<ExecutionError> errors) {
+        this.workingDirectory = Objects.requireNonNull(workingDirectory);
         this.errors = ImmutableList.copyOf(Objects.requireNonNull(errors));
     }
 
@@ -65,4 +64,29 @@ public class DefaultExecutionReport implements ExecutionReport {
         }
     }
 
+    @Override
+    public Optional<InputStream> getStdOut(Command command, int index) {
+        return getOutputFile(command, index, ".out");
+    }
+
+    @Override
+    public Optional<InputStream> getStdErr(Command command, int index) {
+        return getOutputFile(command, index, ".err");
+    }
+
+    private Optional<InputStream> getOutputFile(Command command, int index, String extension) {
+        Objects.requireNonNull(command);
+        if (index < 0) {
+            throw new IllegalArgumentException("Invalid index: " + index);
+        }
+
+        Path path = workingDirectory.resolve(command.getId() + "_" + index + extension);
+        try {
+            return Optional.of(Files.newInputStream(path, StandardOpenOption.READ));
+        } catch (IOException e) {
+            LOGGER.warn("Unable to read {}: {}", path, e);
+        }
+
+        return Optional.empty();
+    }
 }
