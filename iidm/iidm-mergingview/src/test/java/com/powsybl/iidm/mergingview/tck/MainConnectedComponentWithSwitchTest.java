@@ -9,8 +9,6 @@ package com.powsybl.iidm.mergingview.tck;
 import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractMainConnectedComponentWithSwitchTest;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -20,11 +18,5 @@ public class MainConnectedComponentWithSwitchTest extends AbstractMainConnectedC
     @Override
     protected Network createNetwork() {
         return MergingView.create("test_mcc", "test");
-    }
-
-    @Test
-    @Ignore
-    public void test() {
-        super.test(); // FIXME fix component manager for merging view
     }
 }
