@@ -9,7 +9,6 @@ package com.powsybl.computation;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -20,7 +19,14 @@ import java.io.InputStreamReader;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileAttribute;
+import java.nio.file.attribute.PosixFileAttributeView;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
+import java.util.Collections;
 import java.util.Optional;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -41,16 +47,23 @@ public class DefaultExecutionReportTest {
             Mockito.when(command.getId()).thenReturn("command");
 
             Optional<InputStream> stdout = report.getStdOut(command, 0);
-            Assert.assertTrue(stdout.isPresent());
+            assertTrue(stdout.isPresent());
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(stdout.get()))) {
-                Assert.assertEquals("stdout", reader.readLine());
+                assertEquals("stdout", reader.readLine());
             }
 
             Optional<InputStream> stderr = report.getStdErr(command, 0);
-            Assert.assertTrue(stderr.isPresent());
+            assertTrue(stderr.isPresent());
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(stderr.get()))) {
-                Assert.assertEquals("stderr", reader.readLine());
+                assertEquals("stderr", reader.readLine());
             }
+
+            Mockito.when(command.getId()).thenReturn("unknown");
+            stdout = report.getStdOut(command, 0);
+            assertFalse(stdout.isPresent());
+
+            stderr = report.getStdErr(command, 0);
+            assertFalse(stderr.isPresent());
         }
     }
 }
