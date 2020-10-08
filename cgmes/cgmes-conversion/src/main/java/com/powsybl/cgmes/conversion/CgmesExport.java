@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +30,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
@@ -72,17 +74,17 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
         CgmesExportContext context = new CgmesExportContext(network);
-        try (OutputStream os = ds.newOutputStream(filenameSv, false)) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+        try (OutputStream osv = ds.newOutputStream(filenameSv, false);
+                OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
+            XMLStreamWriter writer;
+            writer = XmlUtil.initializeWriter(true, "    ", osv);
             StateVariablesExport.write(network, writer, context);
-        } catch (IOException | XMLStreamException x) {
-            throw new PowsyblException("Exporting to CGMES using only Network");
-        }
-        try (OutputStream os = ds.newOutputStream(filenameSsh, false)) {
-            XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+            writer = XmlUtil.initializeWriter(true, "    ", ossh);
             SteadyStateHypothesisExport.write(network, writer, context);
-        } catch (IOException | XMLStreamException x) {
-            throw new PowsyblException("Exporting to CGMES using only Network");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
