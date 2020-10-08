@@ -94,7 +94,6 @@ public class ExportAlternativesTest {
         ip.setProperty(CgmesImport.STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, "true");
         Network network0 = cgmesImport.importData(ds, NetworkFactory.findDefault(), ip);
         NetworkChanges.modifyStateVariables(network0);
-        network0.setProperty("baseName", ds.getBaseName());
 
         CgmesExport e = new CgmesExport();
 
@@ -104,6 +103,7 @@ public class ExportAlternativesTest {
         Properties ep = new Properties();
         e.export(network0, ep, tmpUsingCgmes);
         ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
+        ep.setProperty(CgmesExport.BASE_NAME, ds.getBaseName());
         network0.removeExtension(CgmesModelExtension.class);
         e.export(network0, ep, tmpUsingOnlyNetwork);
 

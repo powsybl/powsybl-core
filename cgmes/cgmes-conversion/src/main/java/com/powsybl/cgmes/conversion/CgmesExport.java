@@ -49,8 +49,8 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
-        if (params != null && ConversionParameters.readBooleanParameter(USING_ONLY_NETWORK, params, USING_ONLY_NETWORK_PARAMETER)) {
-            exportUsingOnlyNetwork(network, ds);
+        if (params != null && ConversionParameters.readBooleanParameter(getFormat(), params, USING_ONLY_NETWORK_PARAMETER)) {
+            exportUsingOnlyNetwork(network, params, ds);
         } else {
             CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
             if (ext == null) {
@@ -60,10 +60,15 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private void exportUsingOnlyNetwork(Network network, DataSource ds) {
+    private String baseName(Network network, Properties params) {
+        String baseName = ConversionParameters.readStringParameter(getFormat(), params, BASE_NAME_PARAMETER);
+        return baseName != null ? baseName : network.getNameOrId();
+    }
+
+    private void exportUsingOnlyNetwork(Network network, Properties params, DataSource ds) {
         // At this point only SSH, SV can be exported when relying only in Network data
         // (minimum amount of CGMES references are expected as aliases/properties/extensions)
-        String baseName = network.hasProperty("baseName") ? network.getProperty("baseName") : network.getNameOrId();
+        String baseName = baseName(network, params);
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
         CgmesExportContext context = new CgmesExportContext(network);
@@ -104,13 +109,20 @@ public class CgmesExport implements Exporter {
     }
 
     public static final String USING_ONLY_NETWORK = "iidm.export.cgmes.using-only-network";
+    public static final String BASE_NAME = "iidm.export.cgmes.base-name";
 
     private static final Parameter USING_ONLY_NETWORK_PARAMETER = new Parameter(
             USING_ONLY_NETWORK,
             ParameterType.BOOLEAN,
             "Export to CGMES using only information present in IIDM Network (including extensions and aliases)",
             Boolean.FALSE);
+    private static final Parameter BASE_NAME_PARAMETER = new Parameter(
+            BASE_NAME,
+            ParameterType.STRING,
+            "Basename for output files",
+            null);
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
-            USING_ONLY_NETWORK_PARAMETER);
+            USING_ONLY_NETWORK_PARAMETER,
+            BASE_NAME_PARAMETER);
 }
