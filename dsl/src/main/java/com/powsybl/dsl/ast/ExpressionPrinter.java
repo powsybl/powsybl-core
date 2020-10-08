@@ -7,6 +7,7 @@
 package com.powsybl.dsl.ast;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
@@ -38,12 +39,25 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
     }
 
     /**
-     * Printer with system's default charset.
+     * Create an ExpressionPrinter that uses the default character encoding.
      *
-     * @param out
+     * @param out The {@link OutputStream} used by this printer
      */
     public ExpressionPrinter(OutputStream out) {
         this.out = new PrintWriter(Objects.requireNonNull(out));
+    }
+
+    /**
+     * Create an ExpressionPrinter that uses the given charset.
+     *
+     * @param out The {@link OutputStream} used by this printer
+     * @param cs Charset to use by the {@link OutputStreamWriter} instance
+     */
+    public ExpressionPrinter(OutputStream out, Charset cs) {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(cs);
+
+        this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, cs)));
     }
 
     public ExpressionPrinter(Writer writer) {

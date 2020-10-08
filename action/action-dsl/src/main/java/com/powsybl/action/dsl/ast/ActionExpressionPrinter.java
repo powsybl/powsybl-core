@@ -10,6 +10,7 @@ import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.dsl.ast.ExpressionPrinter;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
 /**
@@ -44,6 +45,10 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
 
     public ActionExpressionPrinter(OutputStream out) {
         super(out);
+    }
+
+    public ActionExpressionPrinter(OutputStream out, Charset cs) {
+        super(out, cs);
     }
 
     @Override
