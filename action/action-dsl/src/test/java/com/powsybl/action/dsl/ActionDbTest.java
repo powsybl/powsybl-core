@@ -10,6 +10,7 @@ import com.powsybl.contingency.Contingency;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
@@ -34,6 +35,17 @@ public class ActionDbTest {
             fail();
         } catch (RuntimeException ignored) {
         }
+    }
+
+    @Test
+    public void testDuplicateContingency() {
+        ActionDb actionDb = new ActionDb();
+        Contingency c1 = new Contingency("c1");
+        actionDb.addContingency(c1);
+
+        assertThatExceptionOfType(ActionDslException.class)
+                .isThrownBy(() -> actionDb.addContingency(c1))
+                .withMessage("Contingency 'c1' is defined several times");
     }
 
     @Test
