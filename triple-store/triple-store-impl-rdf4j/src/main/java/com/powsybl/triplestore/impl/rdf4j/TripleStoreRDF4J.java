@@ -170,7 +170,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // Explaining queries take some time, so we change the execution timeout
             if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
                 Explanation explanation = q.explain(Explanation.Level.Timed);
-                LOGGER.debug("Query explanation:\n{}\n{}", query, explanation.toString());
+                LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
             }
 
             // Duplicated triplets are returned in queries
