@@ -24,7 +24,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractCgmesModel implements CgmesModel {
 
-    public AbstractCgmesModel() {
+    protected AbstractCgmesModel() {
         this.properties = new Properties();
     }
 
