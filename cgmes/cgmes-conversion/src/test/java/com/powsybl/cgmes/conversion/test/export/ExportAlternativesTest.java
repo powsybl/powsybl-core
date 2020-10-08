@@ -103,7 +103,7 @@ public class ExportAlternativesTest {
         DataSource tmpUsingOnlyNetwork = tmpDataSource(fileSystem, "usingOnlyNetwork");
         Properties ep = new Properties();
         e.export(network0, ep, tmpUsingCgmes);
-        ep.setProperty("cgmes.export.usingOnlyNetwork", "true");
+        ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
         network0.removeExtension(CgmesModelExtension.class);
         e.export(network0, ep, tmpUsingOnlyNetwork);
 

@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -16,6 +18,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -27,8 +30,11 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterType;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -36,11 +42,15 @@ import com.powsybl.iidm.network.Network;
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
+    public List<Parameter> getParameters() {
+        return Collections.unmodifiableList(STATIC_PARAMETERS);
+    }
+
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
         CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
-        if (params != null && Boolean.valueOf(params.getProperty("cgmes.export.usingOnlyNetwork"))) {
+        if (params != null && ConversionParameters.readBooleanParameter(USING_ONLY_NETWORK, params, USING_ONLY_NETWORK_PARAMETER)) {
             if (ext != null) {
                 CgmesModel cgmesSource = ext.getCgmesModel();
                 if (cgmesSource != null) {
@@ -98,4 +108,15 @@ public class CgmesExport implements Exporter {
     public String getFormat() {
         return "CGMES";
     }
+
+    public static final String USING_ONLY_NETWORK = "iidm.export.cgmes.using-only-network";
+
+    private static final Parameter USING_ONLY_NETWORK_PARAMETER = new Parameter(
+            USING_ONLY_NETWORK,
+            ParameterType.BOOLEAN,
+            "Export to CGMES using only information present in IIDM Network (including extensions and aliases)",
+            Boolean.FALSE);
+
+    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+            USING_ONLY_NETWORK_PARAMETER);
 }
