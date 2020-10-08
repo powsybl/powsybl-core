@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Collections;
@@ -85,7 +84,7 @@ public class DefaultExecutionReport implements ExecutionReport {
         try {
             return Optional.of(Files.newInputStream(path, StandardOpenOption.READ));
         } catch (IOException e) {
-            LOGGER.warn("Unable to read {}: {}", path, e.getMessage());
+            LOGGER.warn("Unable to read {}: {}", path, e);
         }
 
         return Optional.empty();
