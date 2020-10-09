@@ -246,29 +246,9 @@ public interface TieLine extends Line {
         double getXnodeP();
 
         /**
-         * Set Xnode active power consumption in MW.
-         *
-         * @deprecated This should not be used anymore, p of X-Node's terminals should be only calculated.
-         */
-        @Deprecated
-        default HalfLine setXnodeP(double p) {
-            return this;
-        }
-
-        /**
          * Get Xnode reactive power consumption in MVar.
          */
         double getXnodeQ();
-
-        /**
-         * Set Xnode reactive power consumption in MVar.
-         *
-         * @deprecated This should not be used anymore, q of X-Node's terminals should be only calculated.
-         */
-        @Deprecated
-        default HalfLine setXnodeQ(double q) {
-            return this;
-        }
 
         /**
          * Get the fictitious status

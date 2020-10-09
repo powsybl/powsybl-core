@@ -73,10 +73,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
         return danglingLine.getBoundaryPoint().getP();
     }
 
-    @Override
-    public TieLine.HalfLine setXnodeP(double p) {
+    void setXnodeP(double p) {
         danglingLine.getBoundaryPoint().setP(p);
-        return this;
     }
 
     @Override
@@ -84,10 +82,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
         return danglingLine.getBoundaryPoint().getQ();
     }
 
-    @Override
-    public TieLine.HalfLine setXnodeQ(double q) {
+    void setXnodeQ(double q) {
         danglingLine.getBoundaryPoint().setQ(q);
-        return this;
     }
 
     @Override
