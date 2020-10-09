@@ -20,6 +20,9 @@ import javax.xml.stream.XMLStreamException;
  */
 class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
 
+    private static final String XNODE_P = "xnodeP_";
+    private static final String XNODE_Q = "xnodeQ_";
+
     static final TieLineXml INSTANCE = new TieLineXml();
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
@@ -45,8 +48,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
         XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
-        XmlUtil.writeDouble("xnodeP_" + side, halfLine.getXnodeP(), context.getWriter());
-        XmlUtil.writeDouble("xnodeQ_" + side, halfLine.getXnodeQ(), context.getWriter());
+        XmlUtil.writeDouble(XNODE_P + side, halfLine.getXnodeP(), context.getWriter());
+        XmlUtil.writeDouble(XNODE_Q + side, halfLine.getXnodeQ(), context.getWriter());
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "xnodeV_" + side, halfLine.getXnodeV(),
                 IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
         IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "xnodeAngle_" + side, halfLine.getXnodeAngle(),
@@ -93,11 +96,11 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> adder
-                .setXnodeP(XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP_" + side))
-                .setXnodeQ(XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ_" + side)));
+                .setXnodeP(XmlUtil.readDoubleAttribute(context.getReader(), XNODE_P + side))
+                .setXnodeQ(XmlUtil.readDoubleAttribute(context.getReader(), XNODE_Q + side)));
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> adder
-                .setXnodeP(XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_" + side))
-                .setXnodeQ(XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_" + side)));
+                .setXnodeP(XmlUtil.readOptionalDoubleAttribute(context.getReader(), XNODE_P + side))
+                .setXnodeQ(XmlUtil.readOptionalDoubleAttribute(context.getReader(), XNODE_Q + side)));
         adder.setId(id)
                 .setName(name)
                 .setR(r)

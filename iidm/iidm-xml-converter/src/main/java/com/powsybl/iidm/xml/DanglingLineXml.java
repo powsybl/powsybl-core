@@ -21,6 +21,7 @@ import javax.xml.stream.XMLStreamWriter;
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
 
     private static final String GENERATION = "generation";
+    private static final String BOUNDARY_POINT = "boundaryPoint";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
@@ -80,7 +81,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (hasDefinedBoundaryPoint(dl)) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "boundaryPoint", IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BOUNDARY_POINT, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
             writeBoundaryPoint(dl.getBoundaryPoint(), context.getWriter(), context.getVersion().getNamespaceURI());
         }
         if (dl.getGeneration() != null) {
@@ -92,7 +93,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     private static void writeBoundaryPoint(BoundaryPoint boundaryPoint, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
-        writer.writeEmptyElement(namespaceUri, "boundaryPoint");
+        writer.writeEmptyElement(namespaceUri, BOUNDARY_POINT);
         XmlUtil.writeDouble("p", boundaryPoint.getP(), writer);
         XmlUtil.writeDouble("q", boundaryPoint.getQ(), writer);
         XmlUtil.writeDouble("v", boundaryPoint.getV(), writer);
@@ -149,8 +150,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case "boundaryPoint":
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "boundaryPoint", IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                case BOUNDARY_POINT:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BOUNDARY_POINT, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
                     readBoundaryPoint(dl.getBoundaryPoint(), context.getReader());
                     break;
                 case "currentLimits":
