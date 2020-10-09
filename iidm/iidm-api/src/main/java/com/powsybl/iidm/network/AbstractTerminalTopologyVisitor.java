@@ -28,6 +28,11 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
+    public void visitBusbarSection(BusbarSection busbarSection) {
+        visitInjection(busbarSection);
+    }
+
+    @Override
     public void visitLine(Line line, Branch.Side side) {
         visitBranch(line, side);
     }
