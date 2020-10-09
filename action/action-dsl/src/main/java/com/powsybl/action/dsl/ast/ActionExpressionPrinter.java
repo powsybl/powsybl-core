@@ -39,6 +39,10 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         node.accept(new ActionExpressionPrinter(out), null);
     }
 
+    public static void print(ExpressionNode node, OutputStream out, Charset cs) {
+        node.accept(new ActionExpressionPrinter(out, cs), null);
+    }
+
     public ActionExpressionPrinter(Writer out) {
         super(out);
     }
@@ -78,6 +82,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         out.write("('");
         out.write(node.getComponentId());
         out.write("')");
+        out.flush();
         return null;
     }
 
@@ -86,6 +91,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         node.getParent().accept(this, arg);
         out.write(".");
         out.write(node.getPropertyName());
+        out.flush();
         return null;
     }
 
@@ -103,6 +109,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
             }
         }
         out.write(")");
+        out.flush();
         return null;
     }
 
@@ -111,6 +118,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         out.write("actionTaken('");
         out.write(node.getActionId());
         out.write("')");
+        out.flush();
         return null;
     }
 
@@ -123,6 +131,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
             out.write("'");
         }
         out.write(")");
+        out.flush();
         return null;
     }
 
@@ -141,6 +150,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
             }
         }
         out.write("])");
+        out.flush();
         return null;
     }
 
@@ -150,6 +160,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         out.write("['");
         out.write(String.join("', '", node.getBranchIds()));
         out.write("'])");
+        out.flush();
         return null;
     }
 
@@ -159,6 +170,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         out.write("['");
         out.write(String.join("', '", node.getBranchIds()));
         out.write("'])");
+        out.flush();
         return null;
     }
 
@@ -168,6 +180,7 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         out.write("['");
         out.write(String.join("', '", node.getBranchIds()));
         out.write("'])");
+        out.flush();
         return null;
     }
 

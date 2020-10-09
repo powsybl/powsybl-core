@@ -8,7 +8,6 @@ package com.powsybl.dsl.ast;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -44,7 +43,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
      * @param out The {@link OutputStream} used by this printer
      */
     public ExpressionPrinter(OutputStream out) {
-        this.out = new PrintWriter(Objects.requireNonNull(out));
+        this.out = new PrintWriter(out);
     }
 
     /**
@@ -54,19 +53,17 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
      * @param cs Charset to use by the {@link OutputStreamWriter} instance
      */
     public ExpressionPrinter(OutputStream out, Charset cs) {
-        Objects.requireNonNull(out);
-        Objects.requireNonNull(cs);
-
         this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, cs)));
     }
 
     public ExpressionPrinter(Writer writer) {
-        out = new PrintWriter(Objects.requireNonNull(writer));
+        out = new PrintWriter(writer);
     }
 
     @Override
     public Void visitLiteral(AbstractLiteralNode node, Void arg) {
         out.write(node.getValue().toString());
+        out.flush();
         return null;
     }
 
@@ -88,6 +85,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         out.write(" ");
         node.getRight().accept(this, arg);
         out.write(")");
+        out.flush();
         return null;
     }
 
@@ -115,6 +113,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         out.write(" ");
         node.getRight().accept(this, arg);
         out.write(")");
+        out.flush();
         return null;
     }
 
@@ -123,6 +122,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         out.write("!(");
         node.getChild().accept(this, arg);
         out.write(")");
+        out.flush();
         return null;
     }
 
@@ -156,6 +156,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         out.write(" ");
         node.getRight().accept(this, arg);
         out.write(")");
+        out.flush();
         return null;
     }
 
