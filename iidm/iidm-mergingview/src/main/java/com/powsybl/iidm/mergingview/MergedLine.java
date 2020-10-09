@@ -93,7 +93,29 @@ class MergedLine implements TieLine {
         });
     }
 
-    void computeAndSetP0() {
+    void computeAndSetXnodeV() {
+        // TODO(MRA): depending on the b/g in the middle of the TieLine, this computation is not correct
+        Bus b1 = getTerminal1().getBusView().getBus();
+        Bus b2 = getTerminal2().getBusView().getBus();
+        if (b1 != null && b2 != null && !Double.isNaN(b1.getV()) && !Double.isNaN(b2.getV())) {
+            double v = (b1.getV() + b2.getV()) / 2.0;
+            half1.setXnodeV(v);
+            half2.setXnodeV(v);
+        }
+    }
+
+    void computeAndSetXnodeAngle() {
+        // TODO(MRA): depending on the b/g in the middle of the TieLine, this computation is not correct
+        Bus b1 = getTerminal1().getBusView().getBus();
+        Bus b2 = getTerminal2().getBusView().getBus();
+        if (b1 != null && b2 != null && !Double.isNaN(b1.getAngle()) && !Double.isNaN(b2.getAngle())) {
+            double angle = (b1.getAngle() + b2.getAngle()) / 2.0;
+            half1.setXnodeAngle(angle);
+            half2.setXnodeAngle(angle);
+        }
+    }
+
+    void computeAndSetXnodeP() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
         double p1 = getTerminal1().getP();
         double p2 = getTerminal2().getP();
@@ -104,7 +126,7 @@ class MergedLine implements TieLine {
         }
     }
 
-    void computeAndSetQ0() {
+    void computeAndSetXnodeQ() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
         double q1 = getTerminal1().getQ();
         double q2 = getTerminal2().getQ();

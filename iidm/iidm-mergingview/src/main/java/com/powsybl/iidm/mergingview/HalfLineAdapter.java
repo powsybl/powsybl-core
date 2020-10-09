@@ -55,10 +55,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
         return danglingLine.getBoundaryPoint().getV();
     }
 
-    @Override
-    public TieLine.HalfLine setXnodeV(double v) {
+    void setXnodeV(double v) {
         danglingLine.getBoundaryPoint().setV(v);
-        return this;
     }
 
     @Override
@@ -66,10 +64,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
         return danglingLine.getBoundaryPoint().getAngle();
     }
 
-    @Override
-    public TieLine.HalfLine setXnodeAngle(double angle) {
+    void setXnodeAngle(double angle) {
         danglingLine.getBoundaryPoint().setAngle(angle);
-        return this;
     }
 
     @Override

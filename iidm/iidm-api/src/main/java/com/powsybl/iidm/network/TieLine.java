@@ -236,16 +236,8 @@ public interface TieLine extends Line {
             return Double.NaN;
         }
 
-        default HalfLine setXnodeV(double v) {
-            return this;
-        }
-
         default double getXnodeAngle() {
             return Double.NaN;
-        }
-
-        default HalfLine setXnodeAngle(double angle) {
-            return this;
         }
 
         /**
@@ -255,8 +247,13 @@ public interface TieLine extends Line {
 
         /**
          * Set Xnode active power consumption in MW.
+         *
+         * @deprecated This should not be used anymore, p of X-Node's terminals should be only calculated.
          */
-        HalfLine setXnodeP(double p);
+        @Deprecated
+        default HalfLine setXnodeP(double p) {
+            return this;
+        }
 
         /**
          * Get Xnode reactive power consumption in MVar.
@@ -265,8 +262,13 @@ public interface TieLine extends Line {
 
         /**
          * Set Xnode reactive power consumption in MVar.
+         *
+         * @deprecated This should not be used anymore, q of X-Node's terminals should be only calculated.
          */
-        HalfLine setXnodeQ(double q);
+        @Deprecated
+        default HalfLine setXnodeQ(double q) {
+            return this;
+        }
 
         /**
          * Get the fictitious status

@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -29,11 +30,31 @@ public class DanglingLinePowerListener extends DefaultMergingViewListener {
             final MergedLine mergedLine = index.getMergedLineByCode(ucteCode);
             if (mergedLine != null) {
                 if (attribute.contains("p")) {
-                    mergedLine.computeAndSetP0();
+                    mergedLine.computeAndSetXnodeP();
                 } else if (attribute.contains("q")) {
-                    mergedLine.computeAndSetQ0();
+                    mergedLine.computeAndSetXnodeQ();
                 }
             }
+        }
+        if (identifiable instanceof Bus && attribute.contains("v")) {
+            Bus b = (Bus) identifiable;
+            b.getConnectedTerminalStream()
+                    .filter(t -> t.getConnectable() instanceof DanglingLine)
+                    .map(t -> (DanglingLine) t.getConnectable())
+                    .map(DanglingLine::getUcteXnodeCode)
+                    .map(index::getMergedLineByCode)
+                    .filter(Objects::nonNull)
+                    .forEach(MergedLine::computeAndSetXnodeV);
+        }
+        if (identifiable instanceof Bus && attribute.contains("angle")) {
+            Bus b = (Bus) identifiable;
+            b.getConnectedTerminalStream()
+                    .filter(t -> t.getConnectable() instanceof DanglingLine)
+                    .map(t -> (DanglingLine) t.getConnectable())
+                    .map(DanglingLine::getUcteXnodeCode)
+                    .map(index::getMergedLineByCode)
+                    .filter(Objects::nonNull)
+                    .forEach(MergedLine::computeAndSetXnodeAngle);
         }
     }
 }
