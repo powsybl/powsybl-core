@@ -16,7 +16,7 @@ import java.util.Objects;
 class TieLineImplListener extends DefaultNetworkListener {
 
     @Override
-    public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
+    public void onUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         Objects.requireNonNull(identifiable, "identifiable is null");
         if (identifiable instanceof TieLine) {
             final TieLineImpl l = (TieLineImpl) identifiable;
