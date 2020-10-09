@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -22,6 +24,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     private static final String XNODE_P = "xnodeP_";
     private static final String XNODE_Q = "xnodeQ_";
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 
     static final TieLineXml INSTANCE = new TieLineXml();
 
@@ -129,7 +133,25 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)
                 .add();
+        double p1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p1");
+        double p2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p2");
+        double pLosses = p1 + p2;
+        if (!Double.isNaN(pLosses) && tl.getHalf1().getXnodeP() != (p1 + pLosses / 2) * (p2 >= 0 ? 1 : -1)) {
+            LOGGER.warn("xnodeP1 of TieLine {} is not consistent with p1 and p2 values. xnodeP1 value of the file is ignored and calculated from p1 and p2.", tl.getId());
+        }
+        if (!Double.isNaN(pLosses) && tl.getHalf2().getXnodeP() != (p2 + pLosses / 2) * (p1 >= 0 ? 1 : -1)) {
+            LOGGER.warn("xnodeP2 of TieLine {} is not consistent with p1 and p2 values. xnodeP2 value of the file is ignored and calculated from p1 and p2.", tl.getId());
+        }
         readPQ(1, tl.getTerminal1(), context.getReader());
+        double q1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q1");
+        double q2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q2");
+        double qLosses = q1 + q2;
+        if (!Double.isNaN(qLosses) && tl.getHalf1().getXnodeQ() != (q1 + pLosses / 2) * (q2 >= 0 ? 1 : -1)) {
+            LOGGER.warn("xnodeQ1 of TieLine {} is not consistent with q1 and q2 values. xnodeQ1 value of the file is ignored and calculated from q1 and q2.", tl.getId());
+        }
+        if (!Double.isNaN(qLosses) && tl.getHalf2().getXnodeQ() != (q2 + pLosses / 2) * (q1 >= 0 ? 1 : -1)) {
+            LOGGER.warn("xnodeQ2 of TieLine {} is not consistent with q1 and q2 values. xnodeQ2 value of the file is ignored and calculated from q1 and q2.", tl.getId());
+        }
         readPQ(2, tl.getTerminal2(), context.getReader());
         return tl;
     }
