@@ -15,7 +15,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     class HalfLineAdderImpl implements Validable, TieLineAdder.HalfLineAdder {
 
-        protected int num;
+        private final int num;
 
         protected String id;
 
@@ -38,6 +38,10 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         protected double b1 = Double.NaN;
 
         protected double b2 = Double.NaN;
+
+        HalfLineAdderImpl(int num) {
+            this.num = num;
+        }
 
         @Override
         public HalfLineAdderImpl setId(String id) {
@@ -172,15 +176,13 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     @Override
     public HalfLineAdderImpl newHalfLine1() {
-        halfLineAdder1 = new HalfLineAdderImpl();
-        halfLineAdder1.num = 1;
+        halfLineAdder1 = new HalfLineAdderImpl(1);
         return halfLineAdder1;
     }
 
     @Override
     public HalfLineAdderImpl newHalfLine2() {
-        halfLineAdder2 = new HalfLineAdderImpl();
-        halfLineAdder2.num = 2;
+        halfLineAdder2 = new HalfLineAdderImpl(2);
         return halfLineAdder2;
     }
 
@@ -196,39 +198,37 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             throw new ValidationException(this, "ucteXnodeCode is not set");
         }
 
-        TieLineImpl.HalfLineImpl half1;
         if (halfLineAdder1 == null) {
             throw new ValidationException(this, "half line 1 is not set");
-        } else {
-            half1 = new TieLineImpl.HalfLineImpl(halfLineAdder1.id,
-                                                 halfLineAdder1.name,
-                                                 halfLineAdder1.fictitious,
-                                                 halfLineAdder1.xnodeP,
-                                                 halfLineAdder1.xnodeQ,
-                                                 halfLineAdder1.r,
-                                                 halfLineAdder1.x,
-                                                 halfLineAdder1.g1,
-                                                 halfLineAdder1.g2,
-                                                 halfLineAdder1.b1,
-                                                 halfLineAdder1.b2);
         }
 
-        TieLineImpl.HalfLineImpl half2;
         if (halfLineAdder2 == null) {
             throw new ValidationException(this, "half line 2 is not set");
-        } else {
-            half2 = new TieLineImpl.HalfLineImpl(halfLineAdder2.id,
-                                                 halfLineAdder2.name,
-                                                 halfLineAdder2.fictitious,
-                                                 halfLineAdder2.xnodeP,
-                                                 halfLineAdder2.xnodeQ,
-                                                 halfLineAdder2.r,
-                                                 halfLineAdder2.x,
-                                                 halfLineAdder2.g1,
-                                                 halfLineAdder2.g2,
-                                                 halfLineAdder2.b1,
-                                                 halfLineAdder2.b2);
         }
+
+        TieLineImpl.HalfLineImpl half1 = new TieLineImpl.HalfLineImpl(halfLineAdder1.id,
+                                                                      halfLineAdder1.name,
+                                                                      halfLineAdder1.fictitious,
+                                                                      halfLineAdder1.xnodeP,
+                                                                      halfLineAdder1.xnodeQ,
+                                                                      halfLineAdder1.r,
+                                                                      halfLineAdder1.x,
+                                                                      halfLineAdder1.g1,
+                                                                      halfLineAdder1.g2,
+                                                                      halfLineAdder1.b1,
+                                                                      halfLineAdder1.b2);
+
+        TieLineImpl.HalfLineImpl half2 = new TieLineImpl.HalfLineImpl(halfLineAdder2.id,
+                                                                      halfLineAdder2.name,
+                                                                      halfLineAdder2.fictitious,
+                                                                      halfLineAdder2.xnodeP,
+                                                                      halfLineAdder2.xnodeQ,
+                                                                      halfLineAdder2.r,
+                                                                      halfLineAdder2.x,
+                                                                      halfLineAdder2.g1,
+                                                                      halfLineAdder2.g2,
+                                                                      halfLineAdder2.b1,
+                                                                      halfLineAdder2.b2);
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);
