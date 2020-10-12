@@ -23,4 +23,16 @@ public final class CgmesNamespace {
     public static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
+
+    public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
+
+    public static String getCimNamespace(int cimVersion) {
+        if (cimVersion == 14) {
+            return CIM_14_NAMESPACE;
+        }
+        if (cimVersion == 16) {
+            return CIM_16_NAMESPACE;
+        }
+        throw new AssertionError("Unsupported CIM version " + cimVersion);
+    }
 }

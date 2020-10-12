@@ -44,6 +44,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         LoadAdder adder = voltageLevel.newLoad()
                 .setP0(p0)
                 .setQ0(q0)
+                .setFictitious(true)
                 .setLoadType(LoadType.FICTITIOUS);
         identify(adder);
         connect(adder);

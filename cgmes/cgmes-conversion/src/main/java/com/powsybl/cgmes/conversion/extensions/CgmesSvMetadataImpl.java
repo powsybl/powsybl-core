@@ -19,23 +19,16 @@ import java.util.Objects;
  */
 class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvMetadata {
 
-    private final String scenarioTime;
     private final String description;
     private final int svVersion;
     private final List<String> dependencies = new ArrayList<>();
     private final String modelingAuthoritySet;
 
-    public CgmesSvMetadataImpl(String scenarioTime, String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this.scenarioTime = Objects.requireNonNull(scenarioTime);
+    public CgmesSvMetadataImpl(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
         this.description = Objects.requireNonNull(description);
         this.svVersion = svVersion;
         this.dependencies.addAll(Objects.requireNonNull(dependencies));
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
-    }
-
-    @Override
-    public String getScenarioTime() {
-        return scenarioTime;
     }
 
     @Override

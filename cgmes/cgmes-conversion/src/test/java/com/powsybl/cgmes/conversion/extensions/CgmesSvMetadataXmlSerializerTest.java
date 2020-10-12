@@ -25,7 +25,6 @@ public class CgmesSvMetadataXmlSerializerTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2020-09-07T15:44:10.209+02:00"));
         network.newExtension(CgmesSvMetadataAdder.class)
-                .setScenarioTime("2020-09-07T15:44:10.425+02:00")
                 .setDescription("test description")
                 .setModelingAuthoritySet("http://powsybl.org")
                 .setSvVersion(1)

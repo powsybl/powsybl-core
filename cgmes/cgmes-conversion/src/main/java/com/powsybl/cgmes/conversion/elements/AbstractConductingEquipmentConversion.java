@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -446,7 +447,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (td == null) {
                 return;
             }
-            identifiable.addAlias(td.t.id(), "CGMES." + CgmesNames.TERMINAL + i);
+            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + i);
             i++;
         }
     }

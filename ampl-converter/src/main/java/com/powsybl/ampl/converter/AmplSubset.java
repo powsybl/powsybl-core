@@ -14,6 +14,7 @@ import com.powsybl.commons.util.IntCounter;
  */
 public enum AmplSubset implements IntCounter {
 
+    NETWORK(1),
     BUS(1),
     VOLTAGE_LEVEL(1),
     BRANCH(1),
