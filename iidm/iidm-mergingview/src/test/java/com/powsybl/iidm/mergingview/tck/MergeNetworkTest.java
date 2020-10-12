@@ -9,8 +9,6 @@ package com.powsybl.iidm.mergingview.tck;
 import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
-import org.junit.Ignore;
-import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -25,11 +23,5 @@ public class MergeNetworkTest extends AbstractMergeNetworkTest {
     @Override
     protected String thrownMessage() {
         return "The object 'P1' already exists into merging view";
-    }
-
-    @Test
-    @Ignore("In merging view, a merged line is NOT composed of two dangling lines with the same ID")
-    public void xnodeNonCompatible() {
-        super.xnodeNonCompatible();
     }
 }
