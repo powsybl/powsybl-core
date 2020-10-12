@@ -180,7 +180,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        ShuntCompensatorModelWrapper model = null;
+        AbstractShuntCompensatorModel model = null;
         if (shuntCompensatorLinearModelAdder != null) {
             model = new ShuntCompensatorLinearModelImpl(shuntCompensatorLinearModelAdder.bPerSection,
                                                         shuntCompensatorLinearModelAdder.gPerSection,
