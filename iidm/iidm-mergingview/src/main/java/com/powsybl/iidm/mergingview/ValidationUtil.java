@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
@@ -36,9 +37,20 @@ public final class ValidationUtil {
         final Collection<String> otherIds = other.getIdentifiables().stream()
                                                                     .map(Identifiable::getId)
                                                                     .collect(Collectors.toSet());
-        index.getIdentifiableStream().map(Identifiable::getId).forEach(id -> {
+        index.getIdentifiableStream().forEach(identifiable -> {
+            String id = identifiable.getId();
             if (otherIds.contains(id)) {
-                throw new PowsyblException("The object '" + id + "' already exists into merging view");
+                if (other.getIdentifiable(id) instanceof DanglingLine && identifiable instanceof DanglingLine) {
+                    String xnodeCode1 = ((DanglingLine) identifiable).getUcteXnodeCode();
+                    String xnodeCode2 = other.getDanglingLine(id).getUcteXnodeCode();
+                    if (xnodeCode1 != null && xnodeCode2 != null) {
+                        if (!xnodeCode1.equals(xnodeCode2)) {
+                            throw new PowsyblException(String.format("Dangling line couple %s have inconsistent Xnodes (%s!=%s)", id, xnodeCode1, xnodeCode2));
+                        }
+                        return;
+                    }
+                }
+                throw new PowsyblException("The object '" + identifiable + "' already exists into merging view");
             }
         });
     }
