@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -79,7 +80,11 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
     private final List<SectionImpl> sections;
 
     ShuntCompensatorNonLinearModelImpl(List<SectionImpl> sections) {
-        this.sections = sections;
+        // Deep copy of section list
+        // Ensure sections will not be shared with other instance of ShuntCompensatorNonLinearModel
+        this.sections = sections.stream()
+                        .map(ShuntCompensatorNonLinearModelImpl.SectionImpl::copy)
+                        .collect(Collectors.toList());
     }
 
     @Override

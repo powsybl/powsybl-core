@@ -10,7 +10,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -186,9 +185,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                                                         shuntCompensatorLinearModelAdder.gPerSection,
                                                         shuntCompensatorLinearModelAdder.maximumSectionCount);
         } else if (shuntCompensatorNonLinearModelAdder != null) {
-            model = new ShuntCompensatorNonLinearModelImpl(shuntCompensatorNonLinearModelAdder.sections.stream()
-                                                                                                       .map(ShuntCompensatorNonLinearModelImpl.SectionImpl::copy)
-                                                                                                       .collect(Collectors.toList()));
+            model = new ShuntCompensatorNonLinearModelImpl(shuntCompensatorNonLinearModelAdder.sections);
         }
 
         if (model == null) {
