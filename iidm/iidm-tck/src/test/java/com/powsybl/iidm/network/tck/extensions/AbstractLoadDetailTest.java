@@ -11,30 +11,25 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import org.joda.time.DateTime;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public abstract class AbstractLoadDetailTest {
 
-    protected Network network;
-
-    @Before
-    public void setUp() {
-        network = Network.create("test", "test");
+    protected Network createNetwork() {
+        return Network.create("test", "test");
     }
 
-    private static void createTestNetwork(Network network) {
+    private Network createTestNetwork() {
+        Network network = createNetwork();
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
@@ -65,11 +60,12 @@ public abstract class AbstractLoadDetailTest {
                 .withVariableActivePower(60f)
                 .withVariableReactivePower(30f)
                 .add();
+        return network;
     }
 
     @Test
     public void test() {
-        createTestNetwork(network);
+        Network network = createTestNetwork();
 
         LoadDetail detail = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(detail);
@@ -95,7 +91,7 @@ public abstract class AbstractLoadDetailTest {
         String variant3 = "variant3";
 
         // Creates the extension
-        createTestNetwork(network);
+        Network network = createTestNetwork();
         LoadDetail ld = network.getLoad("L").getExtension(LoadDetail.class);
         assertNotNull(ld);
 
