@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractNetworkRemoveTest;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -30,42 +31,22 @@ public class NetworkRemoveTest extends AbstractNetworkRemoveTest {
 
     @Test
     public void removeLineTest() {
-        try {
-            super.removeLineTest();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::removeLineTest);
     }
 
     @Test
     public void removeAll() {
-        try {
-            super.removeAll();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::removeAll);
     }
 
     @Test
     public void removeBus() {
-        try {
-            super.removeBus();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::removeBus);
     }
 
     @Test
     public void removeBusFailureBecauseOfSwitch() {
-        try {
-            super.removeBusFailureBecauseOfSwitch();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::removeBusFailureBecauseOfSwitch);
     }
 
     @Test

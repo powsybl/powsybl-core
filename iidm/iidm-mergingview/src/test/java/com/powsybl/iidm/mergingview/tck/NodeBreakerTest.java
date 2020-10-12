@@ -6,16 +6,13 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
 import org.junit.Test;
 
 import java.util.function.Supplier;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -31,21 +28,11 @@ public class NodeBreakerTest extends AbstractNodeBreakerTest {
 
     @Test
     public void connectDisconnectRemove() {
-        try {
-            super.connectDisconnectRemove();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::connectDisconnectRemove);
     }
 
     @Test
     public void replaceLoad() {
-        try {
-            super.replaceLoad();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::replaceLoad);
     }
 }

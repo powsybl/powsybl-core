@@ -6,14 +6,12 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractBatteryTest;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -29,11 +27,6 @@ public class BatteryTest extends AbstractBatteryTest {
 
     @Test
     public void testRemove() {
-        try {
-            super.testRemove();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testRemove);
     }
 }

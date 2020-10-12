@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractStaticVarCompensatorTest;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -30,21 +27,11 @@ public class StaticVarCompensatorTest extends AbstractStaticVarCompensatorTest {
 
     @Test
     public void removeTest() {
-        try {
-            super.removeTest();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::removeTest);
     }
 
     @Test
     public void regulatingTerminalTest() {
-        try {
-            super.regulatingTerminalTest();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::regulatingTerminalTest);
     }
 }

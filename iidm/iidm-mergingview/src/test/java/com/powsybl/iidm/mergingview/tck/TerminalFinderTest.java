@@ -6,16 +6,13 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 import org.junit.Test;
 
 import java.util.function.Supplier;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -31,41 +28,21 @@ public class TerminalFinderTest extends AbstractTerminalFinderTest {
 
     @Test
     public void testLineTerminal1() {
-        try {
-            super.testLineTerminal1();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testLineTerminal1);
     }
 
     @Test
     public void testLineTerminal2() {
-        try {
-            super.testLineTerminal2();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testLineTerminal2);
     }
 
     @Test
     public void testBbsTerminal() {
-        try {
-            super.testBbsTerminal();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testBbsTerminal);
     }
 
     @Test
     public void testNoTerminal() {
-        try {
-            super.testNoTerminal();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testNoTerminal);
     }
 }

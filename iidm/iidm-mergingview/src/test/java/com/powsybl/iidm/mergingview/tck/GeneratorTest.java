@@ -6,15 +6,12 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -30,21 +27,11 @@ public class GeneratorTest extends AbstractGeneratorTest {
 
     @Test
     public void invalidPowerBounds() {
-        try {
-            super.invalidPowerBounds();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::invalidPowerBounds);
     }
 
     @Test
     public void testRemove() {
-        try {
-            super.testRemove();
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Not implemented exception", e.getMessage());
-        }
+        TestUtil.notImplemented(super::testRemove);
     }
 }
