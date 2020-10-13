@@ -76,6 +76,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         public ShuntCompensatorAdder add() {
             ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
+            shuntCompensatorLinearModelAdder = this;
             return ShuntCompensatorAdderImpl.this;
         }
     }
@@ -129,20 +130,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             if (sections.isEmpty()) {
                 throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
             }
+            shuntCompensatorNonLinearModelAdder = this;
             return ShuntCompensatorAdderImpl.this;
         }
     }
 
     @Override
     public ShuntCompensatorLinearModelAdder newLinearModel() {
-        shuntCompensatorLinearModelAdder = new ShuntCompensatorLinearModelAdderImpl();
-        return shuntCompensatorLinearModelAdder;
+        return new ShuntCompensatorLinearModelAdderImpl();
     }
 
     @Override
     public ShuntCompensatorNonLinearModelAdder newNonLinearModel() {
-        shuntCompensatorNonLinearModelAdder = new ShuntCompensatorNonLinearModelAdderImpl();
-        return shuntCompensatorNonLinearModelAdder;
+        return new ShuntCompensatorNonLinearModelAdderImpl();
     }
 
     @Override
