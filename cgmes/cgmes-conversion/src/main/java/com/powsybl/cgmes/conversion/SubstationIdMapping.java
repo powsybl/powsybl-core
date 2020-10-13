@@ -220,13 +220,13 @@ public class SubstationIdMapping {
     private static void addAdjacency(Map<String, List<String>> adjacency, String id1, String id2) {
         List<String> ad1 = adjacency.get(id1);
         if (ad1 == null) {
-            throw new PowsyblException("Unexpected Substation or voltageLevel " + id1
-                + ". It has not been defined in cgmes substations / voltageLevels.");
+            throw new PowsyblException("Unexpected reference to Substation or voltageLevel " + id1
+                + ". It has not been defined in CGMES substations / voltageLevels.");
         }
         List<String> ad2 = adjacency.get(id2);
         if (ad2 == null) {
-            throw new PowsyblException("Unexpected Substation or voltageLevel " + id2
-                + ". It has not been defined in cgmes substations / voltageLevels.");
+            throw new PowsyblException("Unexpected reference to Substation or voltageLevel " + id2
+                + ". It has not been defined in CGMES substations / voltageLevels.");
         }
 
         ad1.add(id2);
