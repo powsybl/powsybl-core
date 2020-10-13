@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -48,21 +49,21 @@ public abstract class AbstractLineTest {
     public void baseAcLineTests() {
         // adder
         Line acLine = network.newLine()
-            .setId("line")
-            .setName(LINE_NAME)
-            .setR(1.0)
-            .setX(2.0)
-            .setG1(3.0)
-            .setG2(3.5)
-            .setB1(4.0)
-            .setB2(4.5)
-            .setVoltageLevel1("vl1")
-            .setVoltageLevel2("vl2")
-            .setBus1("busA")
-            .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
-            .add();
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
         assertEquals(LINE_NAME, acLine.getNameOrId());
@@ -107,21 +108,21 @@ public abstract class AbstractLineTest {
         assertFalse(acLine.isTieLine());
 
         CurrentLimits currentLimits1 = acLine.newCurrentLimits1()
-            .setPermanentLimit(100)
-            .beginTemporaryLimit()
-            .setName("5'")
-            .setAcceptableDuration(5 * 60)
-            .setValue(1400)
-            .endTemporaryLimit()
-            .add();
+                .setPermanentLimit(100)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400)
+                .endTemporaryLimit()
+                .add();
         CurrentLimits currentLimits2 = acLine.newCurrentLimits2()
-            .setPermanentLimit(50)
-            .beginTemporaryLimit()
-            .setName("20'")
-            .setAcceptableDuration(20 * 60)
-            .setValue(1200)
-            .endTemporaryLimit()
-            .add();
+                .setPermanentLimit(50)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .add();
         assertSame(currentLimits1, acLine.getCurrentLimits1());
         assertSame(currentLimits2, acLine.getCurrentLimits2());
         assertSame(currentLimits1, acLine.getCurrentLimits(Branch.Side.ONE));
@@ -166,21 +167,21 @@ public abstract class AbstractLineTest {
 
         // Tested instance
         Line acLine = network.newLine()
-            .setId("line")
-            .setName(LINE_NAME)
-            .setR(1.0)
-            .setX(2.0)
-            .setG1(3.0)
-            .setG2(3.5)
-            .setB1(4.0)
-            .setB2(4.5)
-            .setVoltageLevel1("vl1")
-            .setVoltageLevel2("vl2")
-            .setBus1("busA")
-            .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
-            .add();
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
         verify(mockedListener, times(1)).onCreation(acLine);
         // Get initial values
         double p0OldValue = acLine.getTerminal1().getP();
@@ -199,7 +200,7 @@ public abstract class AbstractLineTest {
 
         // Simulate exception for onUpdate calls
         doThrow(new PowsyblException())
-               .when(mockedListener)
+                .when(mockedListener)
                 .onUpdate(any(Line.class), anyString(), anyDouble(), anyDouble());
         // Change P1 value
         try {
@@ -304,15 +305,15 @@ public abstract class AbstractLineTest {
 
         // adder
         TieLineAdder adder = network.newTieLine().setId("testTie")
-            .setName("testNameTie")
-            .setVoltageLevel1("vl1")
-            .setBus1("busA")
-            .setConnectableBus1("busA")
-            .setVoltageLevel2("vl2")
-            .setBus2("busB")
-            .setConnectableBus2("busB")
-            .setUcteXnodeCode("ucte")
-            .newHalfLine1()
+                .setName("testNameTie")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setUcteXnodeCode("ucte")
+                .newHalfLine1()
                 .setId("hl1")
                 .setName(HALF1_NAME)
                 .setR(r)
@@ -324,7 +325,7 @@ public abstract class AbstractLineTest {
                 .setXnodeQ(xnodeQ)
                 .setXnodeP(xnodeP)
                 .add()
-            .newHalfLine2()
+                .newHalfLine2()
                 .setId("hl2")
                 .setR(r2)
                 .setX(x2)
@@ -455,16 +456,16 @@ public abstract class AbstractLineTest {
         thrown.expectMessage("half line 1 is not set");
         // adder
         network.newTieLine()
-                   .setId("testTie")
-                   .setName("testNameTie")
-                   .setVoltageLevel1("vl1")
-                   .setBus1("busA")
-                   .setConnectableBus1("busA")
-                   .setVoltageLevel2("vl2")
-                   .setBus2("busB")
-                   .setConnectableBus2("busB")
-                   .setUcteXnodeCode("ucte")
-                 .add();
+                .setId("testTie")
+                .setName("testNameTie")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setUcteXnodeCode("ucte")
+                .add();
     }
 
     @Test
@@ -483,17 +484,17 @@ public abstract class AbstractLineTest {
                 .setConnectableBus2("busB")
                 .setUcteXnodeCode("ucte")
                 .newHalfLine1()
-                    .setId("hl1")
-                    .setName(HALF1_NAME)
-                    .setR(10.0)
-                    .setX(20.0)
-                    .setB1(40.0)
-                    .setB2(45.0)
-                    .setG1(30.0)
-                    .setG2(35.0)
-                    .setXnodeQ(60.0)
-                    .setXnodeP(50.0)
-                    .add()
+                .setId("hl1")
+                .setName(HALF1_NAME)
+                .setR(10.0)
+                .setX(20.0)
+                .setB1(40.0)
+                .setB2(45.0)
+                .setG1(30.0)
+                .setG2(35.0)
+                .setXnodeQ(60.0)
+                .setXnodeP(50.0)
+                .add()
                 .add();
     }
 
@@ -502,7 +503,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, Double.NaN, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -510,7 +511,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, Double.NaN,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -518,7 +519,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g1 is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            Double.NaN, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
+                Double.NaN, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -526,7 +527,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g2 is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, Double.NaN, 4.0, 4.5, 5.0, 6.0, "code");
+                3.0, Double.NaN, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -534,7 +535,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b1 is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, 3.5, Double.NaN, 4.5, 5.0, 6.0, "code");
+                3.0, 3.5, Double.NaN, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -542,7 +543,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b2 is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, 3.5, 4.0, Double.NaN, 5.0, 6.0, "code");
+                3.0, 3.5, 4.0, Double.NaN, 5.0, 6.0, "code");
     }
 
     @Test
@@ -550,7 +551,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeP is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, Double.NaN, 6.0, "code");
+                3.0, 3.5, 4.0, 4.5, Double.NaN, 6.0, "code");
     }
 
     @Test
@@ -558,7 +559,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("xnodeQ is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, Double.NaN, "code");
+                3.0, 3.5, 4.0, 4.5, 5.0, Double.NaN, "code");
     }
 
     @Test
@@ -566,7 +567,7 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("id is not set for half line 1");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, null, 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
 
     @Test
@@ -574,22 +575,22 @@ public abstract class AbstractLineTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("ucteXnodeCode is not set");
         createTieLineWithHalfline2ByDefault(INVALID, INVALID, INVALID, 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, null);
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, null);
     }
 
     @Test
     public void duplicate() {
         createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
         thrown.expect(PowsyblException.class);
         createTieLineWithHalfline2ByDefault(DUPLICATE, DUPLICATE, "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, DUPLICATE);
     }
 
     @Test
     public void testRemove() {
         createTieLineWithHalfline2ByDefault(TO_REMOVE, TO_REMOVE, "id1", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, TO_REMOVE);
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, TO_REMOVE);
         Line line = network.getLine(TO_REMOVE);
         assertNotNull(line);
         assertTrue(line.isTieLine());
@@ -600,33 +601,126 @@ public abstract class AbstractLineTest {
         assertEquals(count - 1L, network.getLineCount());
     }
 
+    @Test
+    public void testDeprecatedAPI() {
+        double r = 10.0;
+        double r2 = 1.0;
+        double x = 20.0;
+        double x2 = 2.0;
+        double hl1g1 = 30.0;
+        double hl1g2 = 35.0;
+        double hl1b1 = 40.0;
+        double hl1b2 = 45.0;
+        double hl2g1 = 130.0;
+        double hl2g2 = 135.0;
+        double hl2b1 = 140.0;
+        double hl2b2 = 145.0;
+        double xnodeP = 50.0;
+        double xnodeQ = 60.0;
+
+        // adder
+        final TieLineAdder adder = network.newTieLine()
+                .setId("testTie")
+                .setName("testNameTie")
+                .setFictitious(false)
+                .line1()
+                .setId("hl1")
+                .setName(HALF1_NAME)
+                .setFictitious(false)
+                .setR(r)
+                .setX(x)
+                .setB1(hl1b1)
+                .setB2(hl1b2)
+                .setG1(hl1g1)
+                .setG2(hl1g2)
+                .setXnodeQ(xnodeQ)
+                .setXnodeP(xnodeP)
+                .line2()
+                .setId("hl2")
+                .setR(r2)
+                .setX(x2)
+                .setB1(hl2b1)
+                .setB2(hl2b2)
+                .setG1(hl2g1)
+                .setG2(hl2g2)
+                .setXnodeP(xnodeP)
+                .setXnodeQ(xnodeQ)
+                .setEnsureIdUnicity(true)
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setUcteXnodeCode("ucte");
+        TieLine tieLine = adder.add();
+        assertTrue(tieLine.isTieLine());
+        assertEquals(ConnectableType.LINE, tieLine.getType());
+        assertEquals("ucte", tieLine.getUcteXnodeCode());
+        assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
+        assertEquals("hl2", tieLine.getHalf2().getId());
+        assertEquals(r + r2, tieLine.getR(), 0.0);
+        assertEquals(x + x2, tieLine.getX(), 0.0);
+        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
+        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
+        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
+        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+
+        TieLine.HalfLine half1 = tieLine.getHalf1();
+        assertEquals(xnodeP, half1.getXnodeP(), 0.0);
+        assertEquals(xnodeQ, half1.getXnodeQ(), 0.0);
+
+        TieLine.HalfLine half2 = tieLine.getHalf2();
+        assertEquals(xnodeP, half2.getXnodeP(), 0.0);
+        assertEquals(xnodeQ, half2.getXnodeQ(), 0.0);
+
+        // Reuse adder
+        TieLine tieLine2 = adder.setId("testTie2")
+                                .setName("testNameTie2")
+                                .setFictitious(true)
+                                .add();
+        assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
+        assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
+
+        // Invalid cases
+        Assert.assertThrows(ValidationException.class, () -> adder.setR(12.0));
+        TieLineAdder adder2 = network.newTieLine();
+        adder2 = adder2.line1();
+        Assert.assertThrows(ValidationException.class, adder2::add);
+        adder2 = network.newTieLine();
+        adder2 = adder2.line2();
+        Assert.assertThrows(ValidationException.class, adder2::add);
+        Assert.assertThrows(UnsupportedOperationException.class, adder2::newHalfLine1);
+        Assert.assertThrows(UnsupportedOperationException.class, adder2::newHalfLine2);
+    }
+
     private void createLineBetweenVoltageAB(String id, String name, double r, double x,
                                             double g1, double g2, double b1, double b2) {
         network.newLine()
-            .setId(id)
-            .setName(name)
-            .setR(r)
-            .setX(x)
-            .setG1(g1)
-            .setG2(g2)
-            .setB1(b1)
-            .setB2(b2)
-            .setVoltageLevel1("vl1")
-            .setVoltageLevel2("vl2")
-            .setBus1("busA")
-            .setBus2("busB")
-            .setConnectableBus1("busA")
-            .setConnectableBus2("busB")
-            .add();
+                .setId(id)
+                .setName(name)
+                .setR(r)
+                .setX(x)
+                .setG1(g1)
+                .setG2(g2)
+                .setB1(b1)
+                .setB2(b2)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
     }
 
     private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
                                                      double g1, double g2, double b1, double b2,
                                                      double xnodeP, double xnodeQ, String code) {
         network.newTieLine()
-            .setId(id)
-            .setName(name)
-            .newHalfLine1()
+                .setId(id)
+                .setName(name)
+                .newHalfLine1()
                 .setId(halfLineId)
                 .setName(HALF1_NAME)
                 .setR(r)
@@ -638,7 +732,7 @@ public abstract class AbstractLineTest {
                 .setXnodeQ(xnodeQ)
                 .setXnodeP(xnodeP)
                 .add()
-            .newHalfLine2()
+                .newHalfLine2()
                 .setId("hl2")
                 .setName("half2_name")
                 .setR(1.0)
@@ -650,13 +744,13 @@ public abstract class AbstractLineTest {
                 .setXnodeP(5.0)
                 .setXnodeQ(6.0)
                 .add()
-            .setVoltageLevel1("vl1")
-            .setBus1("busA")
-            .setConnectableBus1("busA")
-            .setVoltageLevel2("vl2")
-            .setBus2("busB")
-            .setConnectableBus2("busB")
-            .setUcteXnodeCode(code)
-            .add();
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setUcteXnodeCode(code)
+                .add();
     }
 }

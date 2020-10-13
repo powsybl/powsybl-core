@@ -11,6 +11,86 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
+    /**
+     * @deprecated Use {@link HalfLineAdder#setR(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setR(double r) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setX(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setX(double x) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setG1(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setG1(double g1) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setB1(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setB1(double b1) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setG2(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setG2(double g2) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setB2(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setB2(double b2) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setXnodeP(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setXnodeP(double xnodeP) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link HalfLineAdder#setXnodeQ(double)} instead.
+     */
+    @Deprecated
+    default TieLineAdder setXnodeQ(double xnodeQ) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link #newHalfLine1()} and {@link HalfLineAdder#add()} instead.
+     */
+    @Deprecated
+    default TieLineAdder line1() {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * @deprecated Use {@link #newHalfLine2()} and {@link HalfLineAdder#add()} instead.
+     */
+    @Deprecated
+    default TieLineAdder line2() {
+        throw new UnsupportedOperationException();
+    }
+
     interface HalfLineAdder {
 
         TieLineAdder.HalfLineAdder setId(String id);
@@ -43,22 +123,6 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     TieLineAdder.HalfLineAdder newHalfLine1();
 
     TieLineAdder.HalfLineAdder newHalfLine2();
-
-    /**
-     * @deprecated Use {@link #newHalfLine1()} and {@link TieLineAdder#add()} instead.
-     */
-    @Deprecated
-    default TieLineAdder line1() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated Use {@link #newHalfLine2()} and {@link TieLineAdder#add()} instead.
-     */
-    @Deprecated
-    default TieLineAdder line2() {
-        throw new UnsupportedOperationException();
-    }
 
     TieLine add();
 

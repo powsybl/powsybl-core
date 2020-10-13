@@ -160,8 +160,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     private HalfLineAdderImpl halfLineAdder2;
 
+    // Wrapper in order to keep API compatibility
+    private final TieLineAdderProxy proxy;
+
     TieLineAdderImpl(NetworkImpl network) {
         this.network = network;
+        this.proxy = new TieLineAdderProxy(this);
     }
 
     @Override
@@ -178,6 +182,18 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     public TieLineAdderImpl setUcteXnodeCode(String ucteXnodeCode) {
         this.ucteXnodeCode = ucteXnodeCode;
         return this;
+    }
+
+    @Override
+    public TieLineAdder line1() {
+        proxy.line1();
+        return proxy;
+    }
+
+    @Override
+    public TieLineAdder line2() {
+        proxy.line2();
+        return proxy;
     }
 
     @Override
