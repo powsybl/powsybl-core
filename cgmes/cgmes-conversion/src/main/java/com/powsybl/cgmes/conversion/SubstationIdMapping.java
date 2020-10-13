@@ -13,7 +13,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -220,10 +219,15 @@ public class SubstationIdMapping {
     // Record in the adjacency Map that "id1 is adjacent to id2" and "id2 is adjacent to id1"
     private static void addAdjacency(Map<String, List<String>> adjacency, String id1, String id2) {
         List<String> ad1 = adjacency.get(id1);
+        if (ad1 == null) {
+            throw new PowsyblException("Unexpected Substation or voltageLevel " + id1
+                + ". It has not been defined in cgmes substations / voltageLevels.");
+        }
         List<String> ad2 = adjacency.get(id2);
-
-        Objects.requireNonNull(ad1);
-        Objects.requireNonNull(ad2);
+        if (ad2 == null) {
+            throw new PowsyblException("Unexpected Substation or voltageLevel " + id2
+                + ". It has not been defined in cgmes substations / voltageLevels.");
+        }
 
         ad1.add(id2);
         ad2.add(id1);
