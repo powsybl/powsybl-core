@@ -105,6 +105,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
+        adder.add();
     }
 
     @Override

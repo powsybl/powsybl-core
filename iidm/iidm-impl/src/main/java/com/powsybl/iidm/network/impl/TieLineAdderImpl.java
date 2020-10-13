@@ -137,6 +137,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             if (Double.isNaN(xnodeQ)) {
                 throw new ValidationException(this, String.format("xnodeQ is not set for half line %d", num));
             }
+            if (num == 1) {
+                TieLineAdderImpl.this.halfLineAdder1 = this;
+            }
+            if (num == 2) {
+                TieLineAdderImpl.this.halfLineAdder2 = this;
+            }
             return TieLineAdderImpl.this;
         }
 
@@ -176,14 +182,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     @Override
     public HalfLineAdderImpl newHalfLine1() {
-        halfLineAdder1 = new HalfLineAdderImpl(1);
-        return halfLineAdder1;
+        return new HalfLineAdderImpl(1);
     }
 
     @Override
     public HalfLineAdderImpl newHalfLine2() {
-        halfLineAdder2 = new HalfLineAdderImpl(2);
-        return halfLineAdder2;
+        return new HalfLineAdderImpl(2);
     }
 
     @Override
