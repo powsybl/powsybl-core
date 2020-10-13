@@ -67,6 +67,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
             ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
             ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            generationAdder = this;
             return DanglingLineAdderImpl.this;
         }
     }
@@ -147,8 +148,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     @Override
     public GenerationAdder newGeneration() {
-        generationAdder = new GenerationAdderImpl();
-        return generationAdder;
+        return new GenerationAdderImpl();
     }
 
     @Override
