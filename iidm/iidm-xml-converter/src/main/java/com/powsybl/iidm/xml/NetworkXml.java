@@ -216,7 +216,6 @@ public final class NetworkXml {
 
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions().stream()
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
-                    .filter(e -> context.getOptions().withExtension(e.getName()))
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
                 context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
