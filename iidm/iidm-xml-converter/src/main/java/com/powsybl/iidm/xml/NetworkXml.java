@@ -150,7 +150,10 @@ public final class NetworkXml {
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getExtensionsWriter();
-        ExtensionXmlSerializer extensionXmlSerializer = Objects.requireNonNull(getExtensionXmlSerializer(context.getOptions(), extension));
+        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
+        if (extensionXmlSerializer == null) {
+            throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
+        }
 
         String namespaceUri = getNamespaceUri(extensionXmlSerializer, context.getOptions(), context.getVersion());
 
