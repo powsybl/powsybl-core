@@ -102,6 +102,7 @@ class TieLineAdderProxy implements TieLineAdder, Validable {
         return this;
     }
 
+    @Override
     public TieLineAdder setXnodeP(double xnodeP) {
         getActiveHalf().setXnodeP(xnodeP);
         return this;
