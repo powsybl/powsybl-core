@@ -46,7 +46,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double ratedS = Double.NaN;
 
-        protected int legNumber = 0;
+        private final int legNumber;
+
+        LegAdderImpl(int legNumber) {
+            this.legNumber = legNumber;
+        }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
             this.voltageLevelId = voltageLevelId;
@@ -143,6 +147,19 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
+            switch (legNumber) {
+                case 1:
+                    legAdder1 = this;
+                    break;
+                case 2:
+                    legAdder2 = this;
+                    break;
+                case 3:
+                    legAdder3 = this;
+                    break;
+                default:
+                    throw new IllegalStateException("Unexpected value: " + legNumber);
+            }
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -178,27 +195,23 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     @Override
     public LegAdder newLeg1() {
-        legAdder1 = new LegAdderImpl();
-        legAdder1.legNumber = 1;
-        return legAdder1;
+        return new LegAdderImpl(1);
     }
 
     @Override
     public LegAdder newLeg2() {
-        legAdder2 = new LegAdderImpl();
-        legAdder2.g = 0.0;
-        legAdder2.b = 0.0;
-        legAdder2.legNumber = 2;
-        return legAdder2;
+        LegAdderImpl legAdder = new LegAdderImpl(2);
+        legAdder.g = 0.0;
+        legAdder.b = 0.0;
+        return legAdder;
     }
 
     @Override
     public LegAdder newLeg3() {
-        legAdder3 = new LegAdderImpl();
-        legAdder3.g = 0.0;
-        legAdder3.b = 0.0;
-        legAdder3.legNumber = 3;
-        return legAdder3;
+        LegAdderImpl legAdder = new LegAdderImpl(3);
+        legAdder.g = 0.0;
+        legAdder.b = 0.0;
+        return legAdder;
     }
 
     @Override
