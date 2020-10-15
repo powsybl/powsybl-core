@@ -173,16 +173,16 @@ OPTIONAL { GRAPH ?graphSV2 {
     ?SvStatus
         a cim:SvStatus ;
         cim:SvStatus.ConductingEquipment ?ConductingEquipment ;
-        cim:SvStatus.inService ?inService . 
+        cim:SvStatus.inService ?inService .
 }}
 OPTIONAL { GRAPH ?graphCN {
         ?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
-		OPTIONAL { GRAPH ?graphTPCN {
-			?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeConnectivityNode .
-		}}
+        OPTIONAL { GRAPH ?graphTPCN {
+            ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeConnectivityNode .
+        }}
 }}
 OPTIONAL { GRAPH ?graphTPT {
-		?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal .
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeTerminal .
 }}
 }
 
@@ -292,38 +292,19 @@ SELECT *
 SELECT *
 WHERE
 { GRAPH ?graph {
-    {
-        ?Terminal a cim:Terminal .
-        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
-    }
-    # operational limit sets can also be attached directly to equipments
-    UNION
-    {
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-        ?Equipment a ?EquipmentClass .
-    }
     ?OperationalLimit
+        a $OperationalLimitSubclass ;
+        cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
-        cim:IdentifiedObject.name ?name .
-        {
-            ?OperationalLimit a $OperationalLimitSubclass;
-            {
-                ?OperationalLimit a cim:CurrentLimit ;
-                cim:CurrentLimit.value ?value .
-            }
-            UNION
-            {
-                ?OperationalLimit a cim:ApparentPowerLimit ;
-                cim:ApparentPowerLimit.value ?value .
-            }
-            UNION
-            {
-                ?OperationalLimit a cim:VoltageLimit ;
-                cim:VoltageLimit.value ?value .
-            }
-        }
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.value ?value }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
+    # operational limit sets can be attached to terminals or equipments
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment }
     ?OperationalLimitType
+        a cim:OperationalLimitType ;
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
@@ -352,11 +333,12 @@ WHERE {
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch .
+        cim:Terminal.ConductingEquipment ?Switch ;
+        cim:ACDCTerminal.sequenceNumber "1" .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch .
-    FILTER ( STR(?Terminal1) < STR(?Terminal2) )
+        cim:Terminal.ConductingEquipment ?Switch ;
+        cim:ACDCTerminal.sequenceNumber "2" .
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Switch cim:Switch.open ?open
@@ -379,12 +361,11 @@ WHERE {
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber ?sequenceNumber1 .
+        cim:ACDCTerminal.sequenceNumber "1" .
     ?Terminal2
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber ?sequenceNumber2 .
-    FILTER ( ?sequenceNumber1 < ?sequenceNumber2 )
+        cim:ACDCTerminal.sequenceNumber "2" .
 }}
 }
 
@@ -425,11 +406,12 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
+        cim:ACDCTerminal.sequenceNumber "1" .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?SeriesCompensator .
-    FILTER ( STR (?Terminal1) < STR (?Terminal2) )
+        cim:Terminal.ConductingEquipment ?SeriesCompensator ;
+        cim:ACDCTerminal.sequenceNumber "2" .
 }}
 }
 
@@ -557,7 +539,7 @@ WHERE {
         ?PhaseTapChanger
             cim:PhaseTapChangerLinear.xMax ?xMax ;
             cim:PhaseTapChangerLinear.xMin ?xMin ;
-        	cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
+            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
     }
     OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerAsymmetrical.windingConnectionAngle ?windingConnectionAngle
@@ -733,7 +715,7 @@ WHERE {
         cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
     OPTIONAL {
         ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
-   	}
+       }
     ?GeneratingUnit
         a ?generatingUnitType ;
         cim:GeneratingUnit.minOperatingP ?minP ;
@@ -905,7 +887,7 @@ OPTIONAL {
     ?ACDCConverter
         cim:CsConverter.operatingMode ?operatingMode ;
         cim:CsConverter.pPccControl ?controlMode .
-   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+       OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
 }
 # For Voltage Source Converter
 OPTIONAL {
