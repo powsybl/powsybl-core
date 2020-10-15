@@ -914,12 +914,12 @@ public final class CgmesConformity1NetworkCatalog {
                 .setG1(0)
                 .setB2(0)
                 .setG2(0)
-                .setConnectableBus1(busAnvers225.getId())
-                .setBus1(busAnvers225.getId())
-                .setVoltageLevel1(vlAnvers225.getId())
-                .setConnectableBus2(busAnvers220.getId())
-                .setBus2(busAnvers220.getId())
-                .setVoltageLevel2(vlAnvers220.getId())
+                .setConnectableBus1(busAnvers220.getId())
+                .setBus1(busAnvers220.getId())
+                .setVoltageLevel1(vlAnvers220.getId())
+                .setConnectableBus2(busAnvers225.getId())
+                .setBus2(busAnvers225.getId())
+                .setVoltageLevel2(vlAnvers225.getId())
                 .add();
 
         network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957")
