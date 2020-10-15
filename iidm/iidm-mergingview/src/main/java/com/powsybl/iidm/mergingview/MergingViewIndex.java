@@ -84,14 +84,7 @@ class MergingViewIndex {
         for (DanglingLine dll1 : danglingLines) {
             if (dll1 != dll2) {
                 // Create MergedLine from 2 dangling lines
-                mergedLineCached.computeIfAbsent(code, key -> {
-                    MergedLine mergedLine = new MergedLine(this, dll1, dll2);
-                    if (!dll1.getId().equals(dll2.getId())) {
-                        mergedLine.addAlias(dll1.getId(), "dl1Id");
-                        mergedLine.addAlias(dll2.getId(), "dl2Id");
-                    }
-                    return mergedLine;
-                });
+                mergedLineCached.computeIfAbsent(code, key -> new MergedLine(this, dll1, dll2));
             }
         }
     }
