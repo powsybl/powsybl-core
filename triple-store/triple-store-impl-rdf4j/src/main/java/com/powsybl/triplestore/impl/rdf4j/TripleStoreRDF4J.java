@@ -7,35 +7,15 @@
 
 package com.powsybl.triplestore.impl.rdf4j;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.*;
 import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
-import org.eclipse.rdf4j.model.IRI;
-import org.eclipse.rdf4j.model.Literal;
-import org.eclipse.rdf4j.model.Model;
-import org.eclipse.rdf4j.model.Namespace;
-import org.eclipse.rdf4j.model.NamespaceAware;
-import org.eclipse.rdf4j.model.Resource;
-import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.*;
 import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
-import org.eclipse.rdf4j.query.BindingSet;
-import org.eclipse.rdf4j.query.MalformedQueryException;
-import org.eclipse.rdf4j.query.QueryLanguage;
-import org.eclipse.rdf4j.query.QueryResults;
-import org.eclipse.rdf4j.query.TupleQuery;
-import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.UpdateExecutionException;
+import org.eclipse.rdf4j.query.*;
+import org.eclipse.rdf4j.query.explanation.Explanation;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryException;
@@ -51,13 +31,12 @@ import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintStream;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -68,7 +47,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     public TripleStoreRDF4J() {
         repo = new SailRepository(new MemoryStore());
-        repo.initialize();
+        repo.init();
     }
 
     @Override
@@ -186,8 +165,16 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         try (RepositoryConnection conn = repo.getConnection()) {
             // Default language is SPARQL
             TupleQuery q = conn.prepareTupleQuery(query1);
+
+            // Print the optimization plan for the query
+            // Explaining queries take some time, so we change the execution timeout
+            if (EXPLAIN_QUERIES && LOGGER.isDebugEnabled()) {
+                Explanation explanation = q.explain(Explanation.Level.Timed);
+                LOGGER.debug("Query explanation:\n{}\n{}", query, explanation);
+            }
+
             // Duplicated triplets are returned in queries
-            // when an object is defined in a file and referrenced in another (rdf:ID and
+            // when an object is defined in a file and referenced in another (rdf:ID and
             // rdf:about)
             // and data has been added to repository with contexts
             // and we query without using explicit GRAPH clauses
@@ -429,6 +416,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     private final Repository repo;
     private boolean writeBySubject = true;
+
+    private static final boolean EXPLAIN_QUERIES = false;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
 }
