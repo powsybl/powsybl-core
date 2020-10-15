@@ -155,7 +155,7 @@ class LineAdderAdapter implements LineAdder {
             adder.setNode1(node1);
         }
         if (node2 != null) {
-            adder.setNode1(node2);
+            adder.setNode2(node2);
         }
         return adder.add();
     }
