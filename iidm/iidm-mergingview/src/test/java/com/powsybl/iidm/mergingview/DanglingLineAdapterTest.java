@@ -98,6 +98,13 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
         assertEquals(1, danglingLine.getTerminals().size());
+
+        try {
+            createDanglingLine(mergingView, voltageLevelId, id, name, r, x, g, b, p0, q0, ucteXnodeCode, busId);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'DanglingLineAdapter' with the id 'danglingId'", e.getMessage());
+        }
     }
 
     @Test
@@ -220,6 +227,22 @@ public class DanglingLineAdapterTest {
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
+
+        // Exceptions when creating dangling lines with mergedline ids
+
+        try {
+            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'MergedLine' with the id 'dl1'", e.getMessage());
+        }
+
+        try {
+            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'MergedLine' with the id 'dl1 + dl2'", e.getMessage());
+        }
 
         // Not implemented yet !
         TestUtil.notImplemented(mergedLine::remove);

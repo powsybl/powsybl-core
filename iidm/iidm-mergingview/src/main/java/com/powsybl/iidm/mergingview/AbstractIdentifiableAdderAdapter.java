@@ -10,8 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.util.Identifiables;
 
-import java.util.function.UnaryOperator;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -69,7 +67,7 @@ abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> 
             // Check Id is unique in all merging view
             if (getIndex().contains(id)) {
                 throw new PowsyblException("The network already contains an object '"
-                                           + getIndex().get(n -> n.getIdentifiable(id), UnaryOperator.identity()).getClass().getSimpleName()
+                                           + getIndex().getView().getIdentifiable(id).getClass().getSimpleName()
                                            + "' with the id '"
                                            + id
                                            + "'");
