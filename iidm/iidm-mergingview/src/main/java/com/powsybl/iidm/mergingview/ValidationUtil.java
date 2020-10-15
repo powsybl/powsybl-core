@@ -45,7 +45,7 @@ public final class ValidationUtil {
         });
     }
 
-    private static void checkValidDanglingLines(Identifiable origin, Identifiable other) {
+    private static void checkValidDanglingLines(Identifiable<?> origin, Identifiable<?> other) {
         if (other instanceof DanglingLine && origin instanceof DanglingLine) {
             String xnodeCode1 = ((DanglingLine) origin).getUcteXnodeCode();
             String xnodeCode2 = ((DanglingLine) other).getUcteXnodeCode();
