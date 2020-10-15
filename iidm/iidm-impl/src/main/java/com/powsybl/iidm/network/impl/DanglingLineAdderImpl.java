@@ -67,7 +67,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
             ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
             ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
-            generation = new DanglingLineImpl.GenerationImpl(minP, maxP, targetP, targetQ, voltageRegulationOn, targetV);
+            generationAdder = this;
             return DanglingLineAdderImpl.this;
         }
     }
@@ -88,7 +88,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     private String ucteXnodeCode;
 
-    private DanglingLineImpl.GenerationImpl generation;
+    private GenerationAdderImpl generationAdder;
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -162,6 +162,16 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
+
+        DanglingLineImpl.GenerationImpl generation = null;
+        if (generationAdder != null) {
+            generation = new DanglingLineImpl.GenerationImpl(generationAdder.minP,
+                                                             generationAdder.maxP,
+                                                             generationAdder.targetP,
+                                                             generationAdder.targetQ,
+                                                             generationAdder.voltageRegulationOn,
+                                                             generationAdder.targetV);
+        }
 
         DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
