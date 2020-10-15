@@ -77,6 +77,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
             shuntCompensatorLinearModelAdder = this;
+            // Only one model is available at once
+            shuntCompensatorNonLinearModelAdder = null;
             return ShuntCompensatorAdderImpl.this;
         }
     }
@@ -131,6 +133,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                 throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
             }
             shuntCompensatorNonLinearModelAdder = this;
+            // Only one model is available at once
+            shuntCompensatorLinearModelAdder = null;
             return ShuntCompensatorAdderImpl.this;
         }
     }

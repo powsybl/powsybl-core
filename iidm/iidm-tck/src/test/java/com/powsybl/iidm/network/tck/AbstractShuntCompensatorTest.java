@@ -172,8 +172,22 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(count - 1L, network.getShuntCompensatorCount());
 
         // Reuse adder tests
+        // Create second model from same adder
+        adder.setSectionCount(2)
+             .newNonLinearModel()
+                .beginSection()
+                .setB(5.0)
+                .setG(2.0)
+                .endSection()
+                .beginSection()
+                .setB(6.0)
+                .setG(2.0)
+                .endSection()
+                .add();
+        // Create second ShuntCompensator from same adder
         ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
         assertNotSame(shuntCompensator.getModel(), shuntCompensator2.getModel());
+        assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator2.getModelType());
     }
 
     @Test
