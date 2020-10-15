@@ -7,6 +7,49 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.ComponentConstants;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.util.ConnectedComponents;
+import com.powsybl.iidm.network.util.SV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
@@ -20,23 +63,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.TableFormatter;
-import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 import static com.powsybl.ampl.converter.AmplConstants.VARIANT;
@@ -410,6 +436,11 @@ public class AmplNetworkWriter {
             extList.add(new AmplExtension(extendedNum, extendable, ext));
             extensionMap.put(ext.getName(), extList);
         }
+    }
+
+    private void addNetworkExtensions() {
+        int networkNum = mapper.getInt(AmplSubset.NETWORK, network.getId());
+        addExtensions(networkNum, network);
     }
 
     private void exportExtensions() throws IOException {
@@ -1919,6 +1950,8 @@ public class AmplNetworkWriter {
         writeVscConverterStations();
         writeLccConverterStations();
         writeHvdcLines();
+
+        addNetworkExtensions();
         exportExtensions();
     }
 }
