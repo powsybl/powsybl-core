@@ -13,6 +13,7 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.XnodeValuesComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,54 +95,19 @@ class MergedLine implements TieLine {
     }
 
     void computeAndSetXnodeV() {
-        // TODO(MRA): depending on the b/g in the middle of the TieLine, this computation is not correct
-        Bus b1 = getTerminal1().getBusView().getBus();
-        Bus b2 = getTerminal2().getBusView().getBus();
-        if (b1 != null && b2 != null && !Double.isNaN(b1.getV()) && !Double.isNaN(b2.getV())) {
-            double v = (b1.getV() + b2.getV()) / 2.0;
-            half1.setXnodeV(v);
-            half2.setXnodeV(v);
-        }
+        XnodeValuesComputation.computeAndSetXnodeV(this, (half, v) -> ((HalfLineAdapter) half).setXnodeV(v));
     }
 
     void computeAndSetXnodeAngle() {
-        // TODO(MRA): depending on the b/g in the middle of the TieLine, this computation is not correct
-        Bus b1 = getTerminal1().getBusView().getBus();
-        Bus b2 = getTerminal2().getBusView().getBus();
-        if (b1 != null && b2 != null && !Double.isNaN(b1.getAngle()) && !Double.isNaN(b2.getAngle())) {
-            double angle = (b1.getAngle() + b2.getAngle()) / 2.0;
-            half1.setXnodeAngle(angle);
-            half2.setXnodeAngle(angle);
-        }
+        XnodeValuesComputation.computeAndSetXnodeAngle(this, (half, angle) -> ((HalfLineAdapter) half).setXnodeAngle(angle));
     }
 
     void computeAndSetXnodeP() {
-        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
-        double p1 = getTerminal1().getP();
-        double p2 = getTerminal2().getP();
-        if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
-            double losses = p1 + p2;
-            half1.setXnodeP((p1 + losses / 2.0) * sign(p2));
-            half2.setXnodeP((p2 + losses / 2.0) * sign(p1));
-        }
+        XnodeValuesComputation.computeAndSetXnodeP(this, (half, p) -> ((HalfLineAdapter) half).setXnodeP(p));
     }
 
     void computeAndSetXnodeQ() {
-        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
-        double q1 = getTerminal1().getQ();
-        double q2 = getTerminal2().getQ();
-        if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
-            double losses = q1 + q2;
-            half1.setXnodeQ((q1 + losses / 2.0) * sign(q2));
-            half2.setXnodeQ((q2 + losses / 2.0) * sign(q1));
-        }
-    }
-
-    private static int sign(double value) {
-        // Sign depends on the transit flow:
-        // P1 ---->-----DL1.P0 ---->----- DL2.P0 ---->---- P2
-        // The sign of DL1.P0 is the same as P2, and respectively the sign of DL2.P0 is the same than P1
-        return (value >= 0) ? 1 : -1;
+        XnodeValuesComputation.computeAndSetXnodeQ(this, (half, q) -> ((HalfLineAdapter) half).setXnodeQ(q));
     }
 
     @Override
