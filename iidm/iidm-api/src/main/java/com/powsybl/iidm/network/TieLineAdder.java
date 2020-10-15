@@ -15,81 +15,61 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
      * @deprecated Use {@link HalfLineAdder#setR(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setR(double r) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setR(double r);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setX(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setX(double x) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setX(double x);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setG1(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setG1(double g1) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setG1(double g1);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setB1(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setB1(double b1) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setB1(double b1);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setG2(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setG2(double g2) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setG2(double g2);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setB2(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setB2(double b2) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setB2(double b2);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setXnodeP(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setXnodeP(double xnodeP) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setXnodeP(double xnodeP);
 
     /**
      * @deprecated Use {@link HalfLineAdder#setXnodeQ(double)} instead.
      */
     @Deprecated
-    default TieLineAdder setXnodeQ(double xnodeQ) {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder setXnodeQ(double xnodeQ);
 
     /**
      * @deprecated Use {@link #newHalfLine1()} and {@link HalfLineAdder#add()} instead.
      */
     @Deprecated
-    default TieLineAdder line1() {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder line1();
 
     /**
      * @deprecated Use {@link #newHalfLine2()} and {@link HalfLineAdder#add()} instead.
      */
     @Deprecated
-    default TieLineAdder line2() {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder line2();
 
     interface HalfLineAdder {
 

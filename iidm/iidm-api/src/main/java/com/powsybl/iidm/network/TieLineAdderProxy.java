@@ -4,9 +4,8 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.*;
 import java.util.Objects;
 
 /**
@@ -15,21 +14,23 @@ import java.util.Objects;
  * @deprecated Use {@link TieLineAdder#newHalfLine1()} or {@link TieLineAdder#newHalfLine2()} instead.
  */
 @Deprecated
-class TieLineAdderProxy implements TieLineAdder, Validable {
+public class TieLineAdderProxy implements TieLineAdder, Validable {
 
-    private final TieLineAdderImpl delegate;
+    private final TieLineAdder delegate;
 
-    private TieLineAdderImpl.HalfLineAdderImpl halfLine1;
+    private TieLineAdder.HalfLineAdder halfLine1;
 
-    private TieLineAdderImpl.HalfLineAdderImpl halfLine2;
+    private TieLineAdder.HalfLineAdder halfLine2;
 
-    private TieLineAdderImpl.HalfLineAdderImpl activeHalf;
+    private TieLineAdder.HalfLineAdder activeHalf;
 
-    TieLineAdderProxy(TieLineAdderImpl delegate) {
+    private String id;
+
+    public TieLineAdderProxy(TieLineAdder delegate) {
         this.delegate = Objects.requireNonNull(delegate);
     }
 
-    private TieLineAdderImpl.HalfLineAdderImpl getActiveHalf() {
+    private TieLineAdder.HalfLineAdder getActiveHalf() {
         if (activeHalf == null) {
             throw new ValidationException(this, "No active half of the line");
         }
@@ -40,6 +41,7 @@ class TieLineAdderProxy implements TieLineAdder, Validable {
     public TieLineAdder setId(String id) {
         if (activeHalf == null) {
             delegate.setId(id);
+            this.id = id;
         } else {
             activeHalf.setId(id);
         }
@@ -149,12 +151,12 @@ class TieLineAdderProxy implements TieLineAdder, Validable {
     }
 
     @Override
-    public TieLineAdderImpl.HalfLineAdderImpl newHalfLine1() {
+    public TieLineAdder.HalfLineAdder newHalfLine1() {
         throw new UnsupportedOperationException("Use line1() instead");
     }
 
     @Override
-    public TieLineAdderImpl.HalfLineAdderImpl newHalfLine2() {
+    public TieLineAdder.HalfLineAdder newHalfLine2() {
         throw new UnsupportedOperationException("Use line2() instead");
     }
 
@@ -222,6 +224,6 @@ class TieLineAdderProxy implements TieLineAdder, Validable {
 
     @Override
     public String getMessageHeader() {
-        return delegate.getMessageHeader();
+        return "AC tie Line" + " '" + id + "': ";
     }
 }

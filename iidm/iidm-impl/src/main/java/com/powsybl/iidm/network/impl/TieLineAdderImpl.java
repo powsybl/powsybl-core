@@ -185,15 +185,53 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
+    public TieLineAdder setR(double r) {
+        return proxy.setR(r);
+    }
+
+    @Override
+    public TieLineAdder setX(double x) {
+        return proxy.setX(x);
+    }
+
+    @Override
+    public TieLineAdder setG1(double g1) {
+        return proxy.setG1(g1);
+    }
+
+    @Override
+    public TieLineAdder setB1(double b1) {
+        return proxy.setB1(b1);
+    }
+
+    @Override
+    public TieLineAdder setG2(double g2) {
+        return proxy.setG2(g2);
+    }
+
+    @Override
+    public TieLineAdder setB2(double b2) {
+        return proxy.setB2(b2);
+    }
+
+    @Override
+    public TieLineAdder setXnodeP(double xnodeP) {
+        return proxy.setXnodeP(xnodeP);
+    }
+
+    @Override
+    public TieLineAdder setXnodeQ(double xnodeQ) {
+        return proxy.setXnodeQ(xnodeQ);
+    }
+
+    @Override
     public TieLineAdder line1() {
-        proxy.line1();
-        return proxy;
+        return proxy.line1();
     }
 
     @Override
     public TieLineAdder line2() {
-        proxy.line2();
-        return proxy;
+        return proxy.line2();
     }
 
     @Override
