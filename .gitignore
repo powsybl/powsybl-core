@@ -4,6 +4,8 @@ target/
 # IntelliJ
 /.idea
 *.iml
+*.ipr
+*.iws
 
 # Compilation settings
 install.cfg
