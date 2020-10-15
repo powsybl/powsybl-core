@@ -40,6 +40,9 @@ class MergedLine implements TieLine {
 
     private final Properties properties = new Properties();
 
+    private final Set<String> aliasesWithoutType = new HashSet<>();
+    private final Map<String, String> aliasesByType = new HashMap<>();
+
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.half1 = new HalfLineAdapter(dl1);
@@ -47,6 +50,12 @@ class MergedLine implements TieLine {
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
+        mergeAliases(dl1, dl2);
+        if (!dl1.getId().equals(dl2.getId())) {
+            aliasesByType.put("dl1Id", dl1.getId());
+            aliasesByType.put("dl2Id", dl2.getId());
+        }
+        aliasesByType.put("ucteXnodeCode", dl1.getUcteXnodeCode());
     }
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2) {
@@ -99,6 +108,26 @@ class MergedLine implements TieLine {
                 properties.setProperty(prop, dl1.getProperty(prop));
             } else {
                 LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
+            }
+        });
+    }
+
+    private void mergeAliases(DanglingLine dl1, DanglingLine dl2) {
+        dl1.getAliases().stream().filter(alias -> !getAliasType(alias).isPresent()).forEach(aliasesWithoutType::add);
+        dl2.getAliases().stream().filter(alias -> !getAliasType(alias).isPresent()).forEach(aliasesWithoutType::add);
+
+        Set<String> dl1AliasesTypes = dl1.getAliases().stream().map(alias -> getAliasType(alias).orElse(null)).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> dl2AliasesTypes = dl2.getAliases().stream().map(alias -> getAliasType(alias).orElse(null)).filter(Objects::nonNull).collect(Collectors.toSet());
+        Set<String> commonAliasesTypes = Sets.intersection(dl1AliasesTypes, dl2AliasesTypes);
+        Sets.difference(dl1AliasesTypes, commonAliasesTypes).forEach(aliasType -> aliasesByType.put(aliasType, dl1.getAliasFromType(aliasType).orElseThrow(PowsyblException::new)));
+        Sets.difference(dl2AliasesTypes, commonAliasesTypes).forEach(aliasType -> aliasesByType.put(aliasType, dl2.getAliasFromType(aliasType).orElseThrow(PowsyblException::new)));
+        commonAliasesTypes.forEach(aliasType -> {
+            String dl1Alias = dl1.getAliasFromType(aliasType).orElseThrow(PowsyblException::new);
+            String dl2Alias = dl2.getAliasFromType(aliasType).orElseThrow(PowsyblException::new);
+            if (dl1Alias.equals(dl2Alias)) {
+                aliasesByType.put(aliasType, dl1Alias);
+            } else {
+                LOGGER.error("Inconsistencies of alias of type '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the alias of merged line", aliasType, dl1Alias, dl2Alias);
             }
         });
     }
@@ -557,5 +586,48 @@ class MergedLine implements TieLine {
             default:
                 throw new AssertionError("Unknown branch side " + side);
         }
+    }
+
+    @Override
+    public boolean hasAliases() {
+        return !aliasesByType.isEmpty() || !aliasesWithoutType.isEmpty();
+    }
+
+    @Override
+    public Set<String> getAliases() {
+        Set<String> aliases = new HashSet<>();
+        aliases.addAll(aliasesWithoutType);
+        aliases.addAll(aliasesByType.values());
+        return Collections.unmodifiableSet(aliases);
+    }
+
+    @Override
+    public Optional<String> getAliasType(String alias) {
+        Objects.requireNonNull(alias);
+        if (aliasesWithoutType.contains(alias)) {
+            return Optional.empty();
+        }
+        return aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).findFirst();
+    }
+
+    @Override
+    public Optional<String> getAliasFromType(String aliasType) {
+        Objects.requireNonNull(aliasType);
+        return Optional.ofNullable(aliasesByType.get(aliasType));
+    }
+
+    @Override
+    public void addAlias(String alias) {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType) {
+        throw MergingView.createNotImplementedException();
+    }
+
+    @Override
+    public void removeAlias(String alias) {
+        throw MergingView.createNotImplementedException();
     }
 }
