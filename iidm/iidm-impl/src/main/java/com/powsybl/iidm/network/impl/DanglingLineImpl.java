@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -58,9 +57,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         }
 
         GenerationImpl setDanglingLine(DanglingLineImpl danglingLine) {
-            if (this.danglingLine != null) {
-                throw new PowsyblException("DanglingLine " + this.danglingLine.getId() + " set twice for its generation object");
-            }
             this.danglingLine = Objects.requireNonNull(danglingLine);
             int variantArraySize = danglingLine.network.get().getVariantManager().getVariantArraySize();
             this.targetP = new TDoubleArrayList(variantArraySize);
