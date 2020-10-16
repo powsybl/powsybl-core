@@ -19,7 +19,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final Ref<? extends VariantManagerHolder> network;
 
-    private final ShuntCompensatorModelWrapper model;
+    private final AbstractShuntCompensatorModel model;
 
     /* the regulating terminal */
     private TerminalExt regulatingTerminal;
@@ -39,7 +39,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, boolean fictitious, ShuntCompensatorModelWrapper model,
+                         String id, String name, boolean fictitious, AbstractShuntCompensatorModel model,
                          int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
@@ -59,7 +59,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         }
     }
 
-    private ShuntCompensatorModelWrapper attach(ShuntCompensatorModelWrapper model) {
+    private AbstractShuntCompensatorModel attach(AbstractShuntCompensatorModel model) {
         model.setShuntCompensator(this);
         return model;
     }
