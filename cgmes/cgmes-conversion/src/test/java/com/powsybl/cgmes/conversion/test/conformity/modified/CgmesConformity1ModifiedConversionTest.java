@@ -533,10 +533,16 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(1732, tx1.getCurrentLimits2().getPermanentLimit(), tol);
 
         // 4 - PATL Current defined for Switch, will be ignored
+        // The transformer that had the original limit will lose it
+        // Switches in IIDM do not have limits, so simply check that switch that receives the limit exists in both Networks
         TwoWindingsTransformer tx0s = network0.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
         TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
+        Switch sw0 = network0.getSwitch("_d0119330-220f-4ed3-ad3c-f893ad0534fb");
+        Switch sw1 = network0.getSwitch("_d0119330-220f-4ed3-ad3c-f893ad0534fb");
         assertEquals(1732, tx0s.getCurrentLimits2().getPermanentLimit(), tol);
         assertNull(tx1s.getCurrentLimits2());
+        assertNotNull(sw0);
+        assertNotNull(sw1);
     }
 
     @Test
@@ -656,14 +662,14 @@ public class CgmesConformity1ModifiedConversionTest {
         Bus bus2 = line.getTerminal2().getBusView().getBus();
         assertNull(bus1);
         assertNull(bus2);
-        // End2 must have a connectable bus
-        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
-        assertNotNull(cbus2);
-        assertTrue(cbus2.getConnectedTerminalCount() > 1);
-        // End1 may or may not have a bus defined in BusView,
+        // End1 must have a connectable bus
+        Bus cbus1 = line.getTerminal1().getBusView().getConnectableBus();
+        assertNotNull(cbus1);
+        assertTrue(cbus1.getConnectedTerminalCount() > 1);
+        // End2 may or may not have a bus defined in BusView,
         // Depending on the definition of a bus,
         // that is under review (PR #1316)
-        // The end1 will only be connectable to one end
+        // The end2 will only be connectable to one end
         // of a real line segment
     }
 

@@ -71,7 +71,7 @@
         <module>matpower</module>
         <module>psse</module>
         <module>scripting</module>
-        <module>security-analysis</module>
+        <module>security-analysis-api</module>
         <module>sensitivity-analysis-api</module>
         <module>simulation-api</module>
         <module>time-series</module>
@@ -108,7 +108,7 @@
         <jimfs.version>1.1</jimfs.version>
         <jline2.version>3.5.1</jline2.version>
         <jodatime.version>2.9.7</jodatime.version>
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
         <logback.version>1.1.8</logback.version>
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
@@ -116,7 +116,7 @@
         <mockito.version>3.3.3</mockito.version>
         <nativelibloader.version>2.3.4</nativelibloader.version>
         <poi.version>3.15</poi.version>
-        <rdf4j.version>2.4.4</rdf4j.version>
+        <rdf4j.version>3.3.0</rdf4j.version>
         <sirocco.version>1.0</sirocco.version>
         <slf4j.version>1.7.22</slf4j.version>
         <snakeyaml.version>1.26</snakeyaml.version>
