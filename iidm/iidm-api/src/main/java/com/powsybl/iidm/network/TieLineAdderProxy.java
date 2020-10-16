@@ -16,7 +16,7 @@ import java.util.Objects;
 @Deprecated
 public class TieLineAdderProxy implements TieLineAdder, Validable {
 
-    private final TieLineAdder delegate;
+    private TieLineAdder delegate;
 
     private TieLineAdder.HalfLineAdder halfLine1;
 
@@ -26,8 +26,12 @@ public class TieLineAdderProxy implements TieLineAdder, Validable {
 
     private String id;
 
-    public TieLineAdderProxy(TieLineAdder delegate) {
+    public TieLineAdderProxy() {
+    }
+
+    public TieLineAdderProxy setDelegate(TieLineAdder delegate) {
         this.delegate = Objects.requireNonNull(delegate);
+        return this;
     }
 
     private TieLineAdder.HalfLineAdder getActiveHalf() {

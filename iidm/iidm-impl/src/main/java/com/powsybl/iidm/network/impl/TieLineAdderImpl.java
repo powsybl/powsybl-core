@@ -160,12 +160,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     private HalfLineAdderImpl halfLineAdder2;
 
-    // Wrapper in order to keep API compatibility
-    private final TieLineAdderProxy proxy;
-
     TieLineAdderImpl(NetworkImpl network) {
         this.network = network;
-        this.proxy = new TieLineAdderProxy(this);
     }
 
     @Override
@@ -182,56 +178,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     public TieLineAdderImpl setUcteXnodeCode(String ucteXnodeCode) {
         this.ucteXnodeCode = ucteXnodeCode;
         return this;
-    }
-
-    @Override
-    public TieLineAdder setR(double r) {
-        return proxy.setR(r);
-    }
-
-    @Override
-    public TieLineAdder setX(double x) {
-        return proxy.setX(x);
-    }
-
-    @Override
-    public TieLineAdder setG1(double g1) {
-        return proxy.setG1(g1);
-    }
-
-    @Override
-    public TieLineAdder setB1(double b1) {
-        return proxy.setB1(b1);
-    }
-
-    @Override
-    public TieLineAdder setG2(double g2) {
-        return proxy.setG2(g2);
-    }
-
-    @Override
-    public TieLineAdder setB2(double b2) {
-        return proxy.setB2(b2);
-    }
-
-    @Override
-    public TieLineAdder setXnodeP(double xnodeP) {
-        return proxy.setXnodeP(xnodeP);
-    }
-
-    @Override
-    public TieLineAdder setXnodeQ(double xnodeQ) {
-        return proxy.setXnodeQ(xnodeQ);
-    }
-
-    @Override
-    public TieLineAdder line1() {
-        return proxy.line1();
-    }
-
-    @Override
-    public TieLineAdder line2() {
-        return proxy.line2();
     }
 
     @Override
@@ -264,29 +210,31 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             throw new ValidationException(this, "half line 2 is not set");
         }
 
-        TieLineImpl.HalfLineImpl half1 = new TieLineImpl.HalfLineImpl(halfLineAdder1.id,
-                                                                      halfLineAdder1.name,
-                                                                      halfLineAdder1.fictitious,
-                                                                      halfLineAdder1.xnodeP,
-                                                                      halfLineAdder1.xnodeQ,
-                                                                      halfLineAdder1.r,
-                                                                      halfLineAdder1.x,
-                                                                      halfLineAdder1.g1,
-                                                                      halfLineAdder1.g2,
-                                                                      halfLineAdder1.b1,
-                                                                      halfLineAdder1.b2);
+        TieLineImpl.HalfLineImpl half1 = new TieLineImpl.HalfLineImpl();
+        half1.id = halfLineAdder1.id;
+        half1.name = halfLineAdder1.name;
+        half1.fictitious = halfLineAdder1.fictitious;
+        half1.xnodeP = halfLineAdder1.xnodeP;
+        half1.xnodeQ = halfLineAdder1.xnodeQ;
+        half1.r = halfLineAdder1.r;
+        half1.x = halfLineAdder1.x;
+        half1.g1 = halfLineAdder1.g1;
+        half1.g2 = halfLineAdder1.g2;
+        half1.b1 = halfLineAdder1.b1;
+        half1.b2 = halfLineAdder1.b2;
 
-        TieLineImpl.HalfLineImpl half2 = new TieLineImpl.HalfLineImpl(halfLineAdder2.id,
-                                                                      halfLineAdder2.name,
-                                                                      halfLineAdder2.fictitious,
-                                                                      halfLineAdder2.xnodeP,
-                                                                      halfLineAdder2.xnodeQ,
-                                                                      halfLineAdder2.r,
-                                                                      halfLineAdder2.x,
-                                                                      halfLineAdder2.g1,
-                                                                      halfLineAdder2.g2,
-                                                                      halfLineAdder2.b1,
-                                                                      halfLineAdder2.b2);
+        TieLineImpl.HalfLineImpl half2 = new TieLineImpl.HalfLineImpl();
+        half2.id = halfLineAdder2.id;
+        half2.name = halfLineAdder2.name;
+        half2.fictitious = halfLineAdder2.fictitious;
+        half2.xnodeP = halfLineAdder2.xnodeP;
+        half2.xnodeQ = halfLineAdder2.xnodeQ;
+        half2.r = halfLineAdder2.r;
+        half2.x = halfLineAdder2.x;
+        half2.g1 = halfLineAdder2.g1;
+        half2.g2 = halfLineAdder2.g2;
+        half2.b1 = halfLineAdder2.b1;
+        half2.b2 = halfLineAdder2.b2;
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);

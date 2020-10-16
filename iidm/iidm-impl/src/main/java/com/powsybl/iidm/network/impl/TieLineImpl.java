@@ -31,20 +31,6 @@ class TieLineImpl extends LineImpl implements TieLine {
         double b1 = Double.NaN;
         double b2 = Double.NaN;
 
-        HalfLineImpl(String id, String name, boolean fictitious, double xnodeP, double xnodeQ, double r, double x, double g1, double g2, double b1, double b2) {
-            this.id = id;
-            this.name = name;
-            this.fictitious = fictitious;
-            this.xnodeP = xnodeP;
-            this.xnodeQ = xnodeQ;
-            this.r = r;
-            this.x = x;
-            this.g1 = g1;
-            this.g2 = g2;
-            this.b1 = b1;
-            this.b2 = b2;
-        }
-
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
         }

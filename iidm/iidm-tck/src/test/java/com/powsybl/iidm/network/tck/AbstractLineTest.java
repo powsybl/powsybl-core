@@ -619,33 +619,32 @@ public abstract class AbstractLineTest {
         double xnodeQ = 60.0;
 
         // adder
-        final TieLineAdder adder = network.newTieLine()
+        TieLineAdder adder = network.newTieLine()
                 .setId("testTie")
                 .setName("testNameTie")
                 .setFictitious(false)
                 .line1()
-                .setId("hl1")
-                .setName(HALF1_NAME)
-                .setFictitious(false)
-                .setR(r)
-                .setX(x)
-                .setB1(hl1b1)
-                .setB2(hl1b2)
-                .setG1(hl1g1)
-                .setG2(hl1g2)
-                .setXnodeQ(xnodeQ)
-                .setXnodeP(xnodeP)
+                    .setId("hl1")
+                    .setName(HALF1_NAME)
+                    .setFictitious(false)
+                    .setR(r)
+                    .setX(x)
+                    .setB1(hl1b1)
+                    .setB2(hl1b2)
+                    .setG1(hl1g1)
+                    .setG2(hl1g2)
+                    .setXnodeQ(xnodeQ)
+                    .setXnodeP(xnodeP)
                 .line2()
-                .setId("hl2")
-                .setR(r2)
-                .setX(x2)
-                .setB1(hl2b1)
-                .setB2(hl2b2)
-                .setG1(hl2g1)
-                .setG2(hl2g2)
-                .setXnodeP(xnodeP)
-                .setXnodeQ(xnodeQ)
-                .setEnsureIdUnicity(true)
+                    .setId("hl2")
+                    .setR(r2)
+                    .setX(x2)
+                    .setB1(hl2b1)
+                    .setB2(hl2b2)
+                    .setG1(hl2g1)
+                    .setG2(hl2g2)
+                    .setXnodeP(xnodeP)
+                    .setXnodeQ(xnodeQ)
                 .setVoltageLevel1("vl1")
                 .setBus1("busA")
                 .setConnectableBus1("busA")
@@ -666,6 +665,49 @@ public abstract class AbstractLineTest {
         assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
         assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
 
+        // invalid set line characteristics on tieLine
+        try {
+            tieLine.setR(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            tieLine.setX(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            tieLine.setB1(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            tieLine.setB2(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            tieLine.setG1(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            tieLine.setG2(1.0);
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
         TieLine.HalfLine half1 = tieLine.getHalf1();
         assertEquals(xnodeP, half1.getXnodeP(), 0.0);
         assertEquals(xnodeQ, half1.getXnodeQ(), 0.0);
@@ -673,6 +715,50 @@ public abstract class AbstractLineTest {
         TieLine.HalfLine half2 = tieLine.getHalf2();
         assertEquals(xnodeP, half2.getXnodeP(), 0.0);
         assertEquals(xnodeQ, half2.getXnodeQ(), 0.0);
+
+        // Check notification on HalfLine changes
+        NetworkListener mockedListener = mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        // Apply changes on Half lines
+        half1.setXnodeP(xnodeP + 1);
+        half1.setXnodeQ(xnodeQ + 1);
+        half1.setR(r + 1);
+        half1.setX(x + 1);
+        half1.setG1(hl1g1 + 1);
+        half1.setG2(hl1g2 + 1);
+        half1.setB1(hl1b1 + 1);
+        half1.setB2(hl1b2 + 1);
+        half2.setXnodeP(xnodeP + 1);
+        half2.setXnodeQ(xnodeQ + 1);
+        half2.setR(r + 1);
+        half2.setX(x + 1);
+        half2.setG1(hl2g1 + 1);
+        half2.setG2(hl2g2 + 1);
+        half2.setB1(hl2b1 + 1);
+        half2.setB2(hl2b2 + 1);
+        verify(mockedListener, times(16)).onUpdate(any(TieLine.class), anyString(), any(), any());
+        // Remove observer
+        network.removeListener(mockedListener);
+        // Cancel changes on Half lines
+        half1.setXnodeP(xnodeP);
+        half1.setXnodeQ(xnodeQ);
+        half1.setR(r);
+        half1.setX(x);
+        half1.setG1(hl1g1);
+        half1.setG2(hl1g2);
+        half1.setB1(hl1b1);
+        half1.setB2(hl1b2);
+        half2.setXnodeP(xnodeP);
+        half2.setXnodeQ(xnodeQ);
+        half2.setR(r);
+        half2.setX(x);
+        half2.setG1(hl2g1);
+        half2.setG2(hl2g2);
+        half2.setB1(hl2b1);
+        half2.setB2(hl2b2);
+        // Check no notification
+        verifyNoMoreInteractions(mockedListener);
 
         // Reuse adder
         TieLine tieLine2 = adder.setId("testTie2")
