@@ -205,9 +205,13 @@ public class DanglingLineAdapterTest {
         t2.setQ(q2);
         // Check P & Q are computed by Listener
         assertEquals(p1 + (lossesP / 2.0), dl1.getBoundaryPoint().getP(), 0.0d);
+        assertEquals(p1 + (lossesP / 2.0), mergedLine.getHalf1().getXnodeP(), 0.0d);
         assertEquals(q1 + (lossesQ / 2.0), dl1.getBoundaryPoint().getQ(), 0.0d);
+        assertEquals(q1 + (lossesQ / 2.0), mergedLine.getHalf1().getXnodeQ(), 0.0d);
         assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getBoundaryPoint().getP(), 0.0d);
+        assertEquals((p2 + (lossesP / 2.0)) * -1, mergedLine.getHalf2().getXnodeP(), 0.0d);
         assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getBoundaryPoint().getQ(), 0.0d);
+        assertEquals((q2 + (lossesQ / 2.0)) * -1, mergedLine.getHalf2().getXnodeQ(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
@@ -225,6 +229,23 @@ public class DanglingLineAdapterTest {
             assertTrue(t instanceof TerminalAdapter);
             assertNotNull(t);
         });
+
+        // Update V & Angle
+        double v1 = 420.0;
+        double v2 = 380.0;
+        double angle1 = -1e-4;
+        double angle2 = -1.7e-3;
+        t1.getBusView().getBus().setV(v1).setAngle(angle1);
+        t2.getBusView().getBus().setV(v2).setAngle(angle2);
+        // Check V & Angle are computed by Listener
+        assertEquals((v1 + v2) / 2.0, dl1.getBoundaryPoint().getV(), 0.0d);
+        assertEquals((v1 + v2) / 2.0, mergedLine.getHalf1().getXnodeV(), 0.0d);
+        assertEquals((angle1 + angle2) / 2.0, dl1.getBoundaryPoint().getAngle(), 0.0d);
+        assertEquals((angle1 + angle2) / 2.0, mergedLine.getHalf1().getXnodeAngle(), 0.0d);
+        assertEquals((v1 + v2) / 2.0, dl2.getBoundaryPoint().getV(), 0.0d);
+        assertEquals((v1 + v2) / 2.0, mergedLine.getHalf2().getXnodeV(), 0.0d);
+        assertEquals((angle1 + angle2) / 2.0, dl2.getBoundaryPoint().getAngle(), 0.0d);
+        assertEquals((angle1 + angle2) / 2.0, mergedLine.getHalf2().getXnodeAngle(), 0.0d);
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
