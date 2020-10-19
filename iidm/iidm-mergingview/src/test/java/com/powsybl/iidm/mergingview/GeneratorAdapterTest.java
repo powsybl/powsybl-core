@@ -30,7 +30,6 @@ public class GeneratorAdapterTest {
         double delta = 0.0;
         String id = "GENTEST";
         String name = "generator";
-        String busId = "busA";
         double maxP = 9999.99;
         double minP = -9999.99;
         double targetV = 25.5;
@@ -108,6 +107,20 @@ public class GeneratorAdapterTest {
         assertEquals(ratedS, generator.getRatedS(), delta);
         assertTrue(generator.setRatedS(++ratedS) instanceof GeneratorAdapter);
         assertEquals(ratedS, generator.getRatedS(), delta);
+
+        assertTrue(generator.getAliases().isEmpty());
+        generator.addAlias("alias");
+        generator.addAlias("typedAlias", "type");
+        assertEquals(2, generator.getAliases().size());
+        assertTrue(generator.getAliases().contains("alias"));
+        assertTrue(generator.getAliases().contains("typedAlias"));
+        assertFalse(generator.getAliasType("alias").isPresent());
+        assertEquals("type", generator.getAliasType("typedAlias").orElse(null));
+        assertEquals("typedAlias", generator.getAliasFromType("type").orElse(null));
+        generator.removeAlias("alias");
+        assertEquals(1, generator.getAliases().size());
+        assertFalse(generator.getAliases().contains("alias"));
+        assertTrue(generator.getAliases().contains("typedAlias"));
 
         // Not implemented yet !
         TestUtil.notImplemented(generator::remove);
