@@ -20,25 +20,21 @@ class TieLineImplListener extends DefaultNetworkListener {
         Objects.requireNonNull(identifiable, "identifiable is null");
         if (identifiable instanceof TieLine) {
             final TieLineImpl l = (TieLineImpl) identifiable;
-            if (attribute.contains("p")) {
-                l.computeAndSetXnodeP();
-            } else if (attribute.contains("q")) {
-                l.computeAndSetXnodeQ();
+            if (attribute.contains("half1") || attribute.contains("p1") || attribute.contains("q1")) {
+                l.computeAndSetXnodeHalf1();
+            } else if (attribute.contains("half2") || attribute.contains("p2") || attribute.contains("q2")) {
+                l.computeAndSetXnodeHalf2();
             }
         }
-        if (identifiable instanceof Bus && attribute.contains("v")) {
+        if (identifiable instanceof Bus && (attribute.contains("v") || attribute.contains("angle"))) {
             Bus b = (Bus) identifiable;
             b.getConnectedTerminalStream()
                     .filter(t -> t.getConnectable() instanceof TieLineImpl)
                     .map(t -> (TieLineImpl) t.getConnectable())
-                    .forEach(TieLineImpl::computeAndSetXnodeV);
-        }
-        if (identifiable instanceof Bus && attribute.contains("angle")) {
-            Bus b = (Bus) identifiable;
-            b.getConnectedTerminalStream()
-                    .filter(t -> t.getConnectable() instanceof TieLineImpl)
-                    .map(t -> (TieLineImpl) t.getConnectable())
-                    .forEach(TieLineImpl::computeAndSetXnodeAngle);
+                    .forEach(tl -> {
+                        tl.computeAndSetXnodeHalf1();
+                        tl.computeAndSetXnodeHalf2();
+                    });
         }
     }
 }

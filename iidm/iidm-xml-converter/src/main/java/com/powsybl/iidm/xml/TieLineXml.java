@@ -54,10 +54,10 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         XmlUtil.writeDouble(XNODE_P + side, halfLine.getXnodeP(), context.getWriter());
         XmlUtil.writeDouble(XNODE_Q + side, halfLine.getXnodeQ(), context.getWriter());
-        IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "xnodeV_" + side, halfLine.getXnodeV(),
-                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-        IidmXmlUtil.writeDoubleAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "xnodeAngle_" + side, halfLine.getXnodeAngle(),
-                IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            XmlUtil.writeDouble("xnodeV_" + side, halfLine.getXnodeV(), context.getWriter());
+            XmlUtil.writeDouble("xnodeAngle_" + side, halfLine.getXnodeAngle(), context.getWriter());
+        });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
     }

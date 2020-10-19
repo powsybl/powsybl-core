@@ -29,14 +29,11 @@ public class DanglingLinePowerListener extends DefaultMergingViewListener {
             final String ucteCode = dl.getUcteXnodeCode();
             final MergedLine mergedLine = index.getMergedLineByCode(ucteCode);
             if (mergedLine != null) {
-                if (attribute.contains("p")) {
-                    mergedLine.computeAndSetXnodeP();
-                } else if (attribute.contains("q")) {
-                    mergedLine.computeAndSetXnodeQ();
-                }
+                mergedLine.computeAndSetXnodeHalf1();
+                mergedLine.computeAndSetXnodeHalf2();
             }
         }
-        if (identifiable instanceof Bus && attribute.contains("v")) {
+        if (identifiable instanceof Bus && (attribute.contains("v") || attribute.contains("angle"))) {
             Bus b = (Bus) identifiable;
             b.getConnectedTerminalStream()
                     .filter(t -> t.getConnectable() instanceof DanglingLine)
@@ -44,17 +41,10 @@ public class DanglingLinePowerListener extends DefaultMergingViewListener {
                     .map(DanglingLine::getUcteXnodeCode)
                     .map(index::getMergedLineByCode)
                     .filter(Objects::nonNull)
-                    .forEach(MergedLine::computeAndSetXnodeV);
-        }
-        if (identifiable instanceof Bus && attribute.contains("angle")) {
-            Bus b = (Bus) identifiable;
-            b.getConnectedTerminalStream()
-                    .filter(t -> t.getConnectable() instanceof DanglingLine)
-                    .map(t -> (DanglingLine) t.getConnectable())
-                    .map(DanglingLine::getUcteXnodeCode)
-                    .map(index::getMergedLineByCode)
-                    .filter(Objects::nonNull)
-                    .forEach(MergedLine::computeAndSetXnodeAngle);
+                    .forEach(ml -> {
+                        ml.computeAndSetXnodeHalf1();
+                        ml.computeAndSetXnodeHalf2();
+                    });
         }
     }
 }
