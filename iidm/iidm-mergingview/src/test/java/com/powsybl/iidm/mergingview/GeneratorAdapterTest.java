@@ -117,10 +117,12 @@ public class GeneratorAdapterTest {
         assertFalse(generator.getAliasType("alias").isPresent());
         assertEquals("type", generator.getAliasType("typedAlias").orElse(null));
         assertEquals("typedAlias", generator.getAliasFromType("type").orElse(null));
+        generator.addAlias("alias", true);
+        assertEquals(3, generator.getAliases().size());
+        assertTrue(generator.getAliases().contains("alias#0"));
         generator.removeAlias("alias");
-        assertEquals(1, generator.getAliases().size());
+        assertEquals(2, generator.getAliases().size());
         assertFalse(generator.getAliases().contains("alias"));
-        assertTrue(generator.getAliases().contains("typedAlias"));
 
         // Not implemented yet !
         TestUtil.notImplemented(generator::remove);
