@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.BoundaryPoint;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.XnodeValuesComputation;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
@@ -105,6 +106,15 @@ class BoundaryPointImpl implements BoundaryPoint {
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.notifyUpdate(() -> BOUNDARY_POINT + side + ".q", variantId, oldValue, q);
         return this;
+    }
+
+    void computeAndSetBoundaryPoint() {
+        XnodeValuesComputation.computeAndSetXnodeValues(parent, sv -> {
+            setP(sv.getP());
+            setQ(sv.getQ());
+            setV(sv.getU());
+            setAngle(sv.getA());
+        });
     }
 
     void extendVariantArraySize(int number, int sourceIndex) {

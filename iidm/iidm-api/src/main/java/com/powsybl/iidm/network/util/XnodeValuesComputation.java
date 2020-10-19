@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
 
@@ -21,6 +22,14 @@ public final class XnodeValuesComputation {
         Bus b = t.getBusView().getBus();
         SV networkSV = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN);
         SV boundarySV = networkSV.otherSide(halfLine.getR(), halfLine.getX(), halfLine.getG1(), halfLine.getB1(), halfLine.getG2(), halfLine.getB2(), 1.0);
+        setter.accept(boundarySV);
+    }
+
+    public static void computeAndSetXnodeValues(DanglingLine dl, Consumer<SV> setter) {
+        Terminal t = dl.getTerminal();
+        Bus b = t.getBusView().getBus();
+        SV networkSV = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN);
+        SV boundarySV = networkSV.otherSide(dl);
         setter.accept(boundarySV);
     }
 

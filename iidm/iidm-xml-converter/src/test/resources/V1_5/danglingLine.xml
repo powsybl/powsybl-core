@@ -5,8 +5,12 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
             </iidm:busBreakerTopology>
-            <iidm:danglingLine id="NHV1_NHV2_1" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
-            <iidm:danglingLine id="NHV1_NHV2_2" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906"/>
+            <iidm:danglingLine id="NHV1_NHV2_1" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906">
+                <iidm:boundaryPoint p="301.4723196251838" q="118.76748245598358" v="396.4812704659528" angle="-1.73712975974"/>
+            </iidm:danglingLine>
+            <iidm:danglingLine id="NHV1_NHV2_2" p0="-300.43389892578125" q0="-137.18849182128906" r="1.5" x="16.5" g="0.0" b="1.93E-4" bus="NHV2" connectableBus="NHV2" p="-300.43389892578125" q="-137.18849182128906">
+                <iidm:boundaryPoint p="301.4723196251838" q="118.76748245598358" v="396.4812704659528" angle="-1.73712975974"/>
+            </iidm:danglingLine>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD" nominalV="150.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -15,7 +19,7 @@
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="true" targetV="158.0" targetDeadband="0.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" targetV="158.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>

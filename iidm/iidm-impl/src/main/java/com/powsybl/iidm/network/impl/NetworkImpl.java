@@ -127,6 +127,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         // the variant array is requested
         index.checkAndAdd(this);
         listeners.add(new TieLineImplListener());
+        listeners.add(new DanglingLineImplListener());
     }
 
     @Override

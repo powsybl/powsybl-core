@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamWriter;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DanglingLineXml.class);
 
     private static final String GENERATION = "generation";
     private static final String BOUNDARY_POINT = "boundaryPoint";
@@ -34,7 +38,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl) {
-        return dl.getCurrentLimits() != null || dl.getGeneration() != null || hasDefinedBoundaryPoint(dl);
+        return dl.getCurrentLimits() != null || dl.getGeneration() != null;
+    }
+
+    @Override
+    protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
+        return hasSubElements(dl) || (hasDefinedBoundaryPoint(dl) && context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0);
     }
 
     @Override
@@ -81,8 +90,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (hasDefinedBoundaryPoint(dl)) {
-            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BOUNDARY_POINT, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            writeBoundaryPoint(dl.getBoundaryPoint(), context.getWriter(), context.getVersion().getNamespaceURI());
+            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> LOG.warn("Boundary Point values of dangling line {} are defined but are not serializable for XIIDM version < 1.5", dl.getId()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeBoundaryPoint(dl.getBoundaryPoint(), context.getWriter(), context.getVersion().getNamespaceURI()));
         }
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
