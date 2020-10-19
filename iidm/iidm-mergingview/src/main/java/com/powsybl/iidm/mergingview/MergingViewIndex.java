@@ -66,6 +66,7 @@ class MergingViewIndex {
         ValidationUtil.checkSingleVariant(other);
         // Check unique identifiable network
         ValidationUtil.checkUniqueIds(other, this);
+        ValidationUtil.checkUniqueAliases(other, this);
         // Local storage for mergeable network
         networks.add(other);
         // Manage DanglingLines

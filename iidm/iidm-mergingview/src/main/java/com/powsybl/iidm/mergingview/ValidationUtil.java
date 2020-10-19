@@ -6,12 +6,15 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collection;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 /**
@@ -40,12 +43,33 @@ public final class ValidationUtil {
         index.getIdentifiableStream().forEach(identifiable -> {
             String id = identifiable.getId();
             if (otherIds.contains(id)) {
-                checkValidDanglingLines(identifiable, other.getIdentifiable(id));
+                checkValidDanglingLines(identifiable, other.getIdentifiable(id), () -> "The object '" + identifiable.getId() + "' already exists into merging view");
             }
         });
     }
 
-    private static void checkValidDanglingLines(Identifiable<?> origin, Identifiable<?> other) {
+    static void checkUniqueAliases(final Network other, final MergingViewIndex index) {
+        // check mergeability
+        final Set<String> otherIds = other.getIdentifiables().stream()
+                .flatMap(i -> i.getAliases().stream())
+                .collect(Collectors.toSet());
+        index.getIdentifiableStream().forEach(identifiable -> {
+            Set<String> aliases = identifiable.getAliases();
+            Set<String> commons = Sets.intersection(aliases, otherIds);
+            if (!commons.isEmpty()) {
+                for (String alias : commons) {
+                    Identifiable<?> otherIdentifiable = other.getIdentifiable(alias);
+                    checkValidDanglingLines(identifiable, otherIdentifiable, () -> String.format("Object (%s) with alias '%s' cannot be created because alias already refers to object (%s) with ID '%s'",
+                            otherIdentifiable.getClass(),
+                            alias,
+                            index.getIdentifiable(identifiable).getClass(),
+                            identifiable.getId()));
+                }
+            }
+        });
+    }
+
+    private static void checkValidDanglingLines(Identifiable<?> origin, Identifiable<?> other, Supplier<String> exceptionMessage) {
         if (other instanceof DanglingLine && origin instanceof DanglingLine) {
             String xnodeCode1 = ((DanglingLine) origin).getUcteXnodeCode();
             String xnodeCode2 = ((DanglingLine) other).getUcteXnodeCode();
@@ -56,6 +80,6 @@ public final class ValidationUtil {
                 return;
             }
         }
-        throw new PowsyblException("The object '" + origin.getId() + "' already exists into merging view");
+        throw new PowsyblException(exceptionMessage.get());
     }
 }
