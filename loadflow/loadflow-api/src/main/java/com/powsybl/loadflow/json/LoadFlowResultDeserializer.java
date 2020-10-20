@@ -30,7 +30,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
     private static final String CONTEXT_NAME = "LoadFlowResult";
 
-    LoadFlowResultDeserializer() {
+    public LoadFlowResultDeserializer() {
         super(LoadFlowResult.class);
     }
 
@@ -97,7 +97,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         String version = null;
         Boolean ok = null;
         Map<String, String> metrics = null;
-        String log = null;
+        String logs = null;
         List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -117,6 +117,11 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                     metrics = parser.readValueAs(HashMap.class);
                     break;
 
+                case "logs":
+                    parser.nextToken();
+                    logs = parser.getValueAsString();
+                    break;
+
                 case "componentResults":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
                     parser.nextToken();
@@ -132,7 +137,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             throw new IllegalStateException("Ok field not found");
         }
 
-        return new LoadFlowResultImpl(ok, metrics, log, componentResults);
+        return new LoadFlowResultImpl(ok, metrics, logs, componentResults);
     }
 
     public static LoadFlowResult read(InputStream is) throws IOException {

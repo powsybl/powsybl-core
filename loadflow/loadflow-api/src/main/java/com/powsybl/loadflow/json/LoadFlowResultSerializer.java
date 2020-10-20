@@ -30,7 +30,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
     private static final String VERSION = "1.1";
 
-    LoadFlowResultSerializer() {
+    public LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
     }
 
