@@ -59,8 +59,7 @@ class BoundaryPointImpl implements BoundaryPoint {
         return v.get(network.get().getVariantIndex());
     }
 
-    @Override
-    public BoundaryPoint setV(double v) {
+    void setV(double v) {
         if (v < 0) {
             throw new ValidationException(parent, "voltage of boundary point cannot be < 0");
         }
@@ -68,7 +67,6 @@ class BoundaryPointImpl implements BoundaryPoint {
         double oldValue = this.v.set(variantIndex, v);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.notifyUpdate(() -> BOUNDARY_POINT + side + ".v", variantId, oldValue, v);
-        return this;
     }
 
     @Override
@@ -76,13 +74,11 @@ class BoundaryPointImpl implements BoundaryPoint {
         return angle.get(network.get().getVariantIndex());
     }
 
-    @Override
-    public BoundaryPoint setAngle(double angle) {
+    void setAngle(double angle) {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.angle.set(variantIndex, angle);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.notifyUpdate(() -> BOUNDARY_POINT + side + ".angle", variantId, oldValue, angle);
-        return this;
     }
 
     @Override
@@ -90,13 +86,11 @@ class BoundaryPointImpl implements BoundaryPoint {
         return p.get(network.get().getVariantIndex());
     }
 
-    @Override
-    public BoundaryPoint setP(double p) {
+    void setP(double p) {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p.set(variantIndex, p);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.notifyUpdate(() -> BOUNDARY_POINT + side + ".p", variantId, oldValue, p);
-        return this;
     }
 
     @Override
@@ -104,13 +98,11 @@ class BoundaryPointImpl implements BoundaryPoint {
         return q.get(network.get().getVariantIndex());
     }
 
-    @Override
-    public BoundaryPoint setQ(double q) {
+    void setQ(double q) {
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q.set(variantIndex, q);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.notifyUpdate(() -> BOUNDARY_POINT + side + ".q", variantId, oldValue, q);
-        return this;
     }
 
     void computeAndSetBoundaryPoint() {

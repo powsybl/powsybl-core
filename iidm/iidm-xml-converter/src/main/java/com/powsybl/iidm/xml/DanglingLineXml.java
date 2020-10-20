@@ -161,7 +161,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
             switch (context.getReader().getLocalName()) {
                 case BOUNDARY_POINT:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BOUNDARY_POINT, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    readBoundaryPoint(dl.getBoundaryPoint(), context.getReader());
+                    readBoundaryPoint(dl.getId(), dl.getBoundaryPoint(), context);
                     break;
                 case "currentLimits":
                     readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
@@ -177,11 +177,24 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         });
     }
 
-    private static void readBoundaryPoint(BoundaryPoint boundaryPoint, XMLStreamReader reader) {
-        boundaryPoint.setP(XmlUtil.readOptionalDoubleAttribute(reader, "p"))
-                .setQ(XmlUtil.readOptionalDoubleAttribute(reader, "q"))
-                .setV(XmlUtil.readOptionalDoubleAttribute(reader, "v"))
-                .setAngle(XmlUtil.readOptionalDoubleAttribute(reader, "angle"));
+    private static void readBoundaryPoint(String dlId, BoundaryPoint boundaryPoint, NetworkXmlReaderContext context) {
+        XMLStreamReader reader = context.getReader();
+        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
+        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
+        double v = XmlUtil.readOptionalDoubleAttribute(reader, "v");
+        double angle = XmlUtil.readOptionalDoubleAttribute(reader, "angle");
+        context.getEndTasks().add(() -> {
+            checkBoundaryValue(p, boundaryPoint.getP(), "p", dlId);
+            checkBoundaryValue(q, boundaryPoint.getQ(), "q", dlId);
+            checkBoundaryValue(v, boundaryPoint.getV(), "v", dlId);
+            checkBoundaryValue(angle, boundaryPoint.getAngle(), "angle", dlId);
+        });
+    }
+
+    private static void checkBoundaryValue(double imported, double calculated, String name, String dlId) {
+        if (!Double.isNaN(imported) && imported != calculated) {
+            LOG.info("boundaryPoint.{} of DanglingLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, dlId, imported, calculated);
+        }
     }
 
     private static boolean hasDefinedBoundaryPoint(DanglingLine dl) {

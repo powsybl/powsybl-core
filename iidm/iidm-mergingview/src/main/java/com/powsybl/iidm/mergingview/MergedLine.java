@@ -13,7 +13,6 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
-import com.powsybl.iidm.network.util.XnodeValuesComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,24 +90,6 @@ class MergedLine implements TieLine {
             } else {
                 LOGGER.error("Inconsistencies of property '{}' between both sides of merged line. '{}' on side 1 and '{}' on side 2. Removing the property of merged line", prop, dl1.getProperty(prop), dl2.getProperty(prop));
             }
-        });
-    }
-
-    void computeAndSetXnodeHalf1() {
-        XnodeValuesComputation.computeAndSetXnodeValues(half1, getTerminal1(), sv -> {
-            half1.setXnodeP(sv.getP());
-            half1.setXnodeQ(sv.getQ());
-            half1.setXnodeV(sv.getU());
-            half1.setXnodeAngle(sv.getA());
-        });
-    }
-
-    void computeAndSetXnodeHalf2() {
-        XnodeValuesComputation.computeAndSetXnodeValues(half2, getTerminal2(), sv -> {
-            half2.setXnodeP(sv.getP());
-            half2.setXnodeQ(sv.getQ());
-            half2.setXnodeV(sv.getU());
-            half2.setXnodeAngle(sv.getA());
         });
     }
 

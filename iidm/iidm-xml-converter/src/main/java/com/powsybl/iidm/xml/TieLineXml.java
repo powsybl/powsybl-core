@@ -158,7 +158,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     private static void checkXnodeValue(double imported, double calculated, String name, String tlId) {
         if (!Double.isNaN(imported) && imported != calculated) {
-            LOGGER.warn("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
+            LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
         }
     }
 

@@ -13,17 +13,9 @@ public interface BoundaryPoint {
 
     double getV();
 
-    BoundaryPoint setV(double v);
-
     double getAngle();
-
-    BoundaryPoint setAngle(double angle);
 
     double getP();
 
-    BoundaryPoint setP(double p);
-
     double getQ();
-
-    BoundaryPoint setQ(double q);
 }
