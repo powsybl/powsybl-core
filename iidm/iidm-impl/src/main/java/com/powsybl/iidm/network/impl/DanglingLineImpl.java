@@ -269,6 +269,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.boundaryPoint = new BoundaryPointImpl(this, "", network);
     }
 
+    void initBoundaryPoint() {
+        boundaryPoint.initBoundaryPoint();
+    }
+
     @Override
     public ConnectableType getType() {
         return ConnectableType.DANGLING_LINE;

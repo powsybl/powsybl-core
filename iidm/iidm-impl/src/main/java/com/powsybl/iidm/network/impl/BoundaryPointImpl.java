@@ -41,12 +41,17 @@ class BoundaryPointImpl implements BoundaryPoint {
         angle = new TDoubleArrayList(variantArraySize);
         p = new TDoubleArrayList(variantArraySize);
         q = new TDoubleArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            v.add(Double.NaN);
-            angle.add(Double.NaN);
-            p.add(Double.NaN);
-            q.add(Double.NaN);
-        }
+    }
+
+    void initBoundaryPoint() {
+        XnodeValuesComputation.computeAndSetXnodeValues(parent, sv -> {
+            for (int i = 0; i < network.get().getVariantManager().getVariantArraySize(); i++) {
+                v.add(sv.getU());
+                angle.add(sv.getA());
+                p.add(sv.getP());
+                q.add(sv.getQ());
+            }
+        });
     }
 
     @Override
