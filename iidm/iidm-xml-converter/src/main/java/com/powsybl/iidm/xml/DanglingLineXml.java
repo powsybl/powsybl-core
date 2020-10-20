@@ -24,6 +24,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     private static final Logger LOG = LoggerFactory.getLogger(DanglingLineXml.class);
 
+    private static final String ANGLE = "angle";
     private static final String GENERATION = "generation";
     private static final String BOUNDARY_POINT = "boundaryPoint";
 
@@ -106,7 +107,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         XmlUtil.writeDouble("p", boundaryPoint.getP(), writer);
         XmlUtil.writeDouble("q", boundaryPoint.getQ(), writer);
         XmlUtil.writeDouble("v", boundaryPoint.getV(), writer);
-        XmlUtil.writeDouble("angle", boundaryPoint.getAngle(), writer);
+        XmlUtil.writeDouble(ANGLE, boundaryPoint.getAngle(), writer);
     }
 
     @Override
@@ -182,12 +183,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
         double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
         double v = XmlUtil.readOptionalDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readOptionalDoubleAttribute(reader, "angle");
+        double angle = XmlUtil.readOptionalDoubleAttribute(reader, ANGLE);
         context.getEndTasks().add(() -> {
             checkBoundaryValue(p, boundaryPoint.getP(), "p", dlId);
             checkBoundaryValue(q, boundaryPoint.getQ(), "q", dlId);
             checkBoundaryValue(v, boundaryPoint.getV(), "v", dlId);
-            checkBoundaryValue(angle, boundaryPoint.getAngle(), "angle", dlId);
+            checkBoundaryValue(angle, boundaryPoint.getAngle(), ANGLE, dlId);
         });
     }
 
