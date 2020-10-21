@@ -103,7 +103,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
-        // LOG for xnodeP/Q
         adder.setId(id)
                 .setName(name)
                 .setR(r)
@@ -112,9 +111,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setB1(b1)
                 .setG2(g2)
                 .setB2(b2);
-
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> { // LOG for xnodeV/Angle)
-        });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
