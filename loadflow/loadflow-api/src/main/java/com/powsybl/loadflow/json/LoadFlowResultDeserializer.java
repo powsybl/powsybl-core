@@ -97,7 +97,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         String version = null;
         Boolean ok = null;
         Map<String, String> metrics = null;
-        String logs = null;
+        String log = null;
         List<LoadFlowResult.ComponentResult> componentResults = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
@@ -132,7 +132,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             throw new IllegalStateException("Ok field not found");
         }
 
-        return new LoadFlowResultImpl(ok, metrics, logs, componentResults);
+        return new LoadFlowResultImpl(ok, metrics, log, componentResults);
     }
 
     public static LoadFlowResult read(InputStream is) throws IOException {
