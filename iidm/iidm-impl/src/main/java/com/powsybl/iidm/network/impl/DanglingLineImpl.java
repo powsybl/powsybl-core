@@ -266,11 +266,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
         this.generation = generation != null ? generation.setDanglingLine(this) : null;
-        this.boundaryPoint = new BoundaryPointImpl(this, "", network);
-    }
-
-    void initBoundaryPoint() {
-        boundaryPoint.initBoundaryPoint();
+        this.boundaryPoint = new BoundaryPointImpl(this);
     }
 
     @Override
@@ -418,7 +414,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.extendVariantArraySize(number, sourceIndex);
         }
-        boundaryPoint.extendVariantArraySize(number, sourceIndex);
     }
 
     @Override
@@ -429,7 +424,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.reduceVariantArraySize(number);
         }
-        boundaryPoint.reduceVariantArraySize(number);
     }
 
     @Override
@@ -448,6 +442,5 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         if (generation != null) {
             generation.allocateVariantArrayElement(indexes, sourceIndex);
         }
-        boundaryPoint.allocateVariantArrayElement(indexes, sourceIndex);
     }
 }
