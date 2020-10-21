@@ -30,7 +30,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
     private static final String CONTEXT_NAME = "LoadFlowResult";
 
-    public LoadFlowResultDeserializer() {
+    LoadFlowResultDeserializer() {
         super(LoadFlowResult.class);
     }
 
@@ -115,11 +115,6 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 case "metrics":
                     parser.nextToken();
                     metrics = parser.readValueAs(HashMap.class);
-                    break;
-
-                case "logs":
-                    parser.nextToken();
-                    logs = parser.getValueAsString();
                     break;
 
                 case "componentResults":

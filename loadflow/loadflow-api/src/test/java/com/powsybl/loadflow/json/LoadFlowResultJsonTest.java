@@ -6,13 +6,18 @@
  */
 package com.powsybl.loadflow.json;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
@@ -60,6 +65,19 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: alienAttribute");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json"));
+    }
+
+    @Test
+    public void loadFlowResultJsonModuleTest() throws IOException {
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new LoadFlowResultJsonModule());
+        ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        writer.writeValue(os, createVersion11());
+        String result = new String(os.toByteArray(), StandardCharsets.UTF_8);
+
+        compareTxt(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"), result);
     }
 
 }
