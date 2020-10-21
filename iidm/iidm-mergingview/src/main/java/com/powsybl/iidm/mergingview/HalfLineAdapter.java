@@ -51,26 +51,6 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     }
 
     @Override
-    public double getXnodeV() {
-        return danglingLine.getBoundaryPoint().getV();
-    }
-
-    @Override
-    public double getXnodeAngle() {
-        return danglingLine.getBoundaryPoint().getAngle();
-    }
-
-    @Override
-    public double getXnodeP() {
-        return danglingLine.getBoundaryPoint().getP();
-    }
-
-    @Override
-    public double getXnodeQ() {
-        return danglingLine.getBoundaryPoint().getQ();
-    }
-
-    @Override
     public double getR() {
         return danglingLine.getR();
     }

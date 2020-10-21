@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.network.BoundaryPoint;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
@@ -15,6 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
+
+import static com.powsybl.iidm.network.Branch.Side.ONE;
+import static com.powsybl.iidm.network.Branch.Side.TWO;
 
 /**
  *
@@ -41,7 +45,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
-    private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
+    private static void writeHalf(BoundaryPoint boundaryPoint, TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (!halfLine.getId().equals(halfLine.getName())) {
             context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
@@ -52,11 +56,11 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
         XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
-        XmlUtil.writeDouble(XNODE_P + side, halfLine.getXnodeP(), context.getWriter());
-        XmlUtil.writeDouble(XNODE_Q + side, halfLine.getXnodeQ(), context.getWriter());
+        XmlUtil.writeDouble(XNODE_P + side, boundaryPoint.getP(), context.getWriter());
+        XmlUtil.writeDouble(XNODE_Q + side, boundaryPoint.getQ(), context.getWriter());
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            XmlUtil.writeDouble("xnodeV_" + side, halfLine.getXnodeV(), context.getWriter());
-            XmlUtil.writeDouble("xnodeAngle_" + side, halfLine.getXnodeAngle(), context.getWriter());
+            XmlUtil.writeDouble("xnodeV_" + side, boundaryPoint.getV(), context.getWriter());
+            XmlUtil.writeDouble("xnodeAngle_" + side, boundaryPoint.getAngle(), context.getWriter());
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
@@ -71,8 +75,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
             writePQ(1, tl.getTerminal1(), context.getWriter());
             writePQ(2, tl.getTerminal2(), context.getWriter());
         }
-        writeHalf(tl.getHalf1(), context, 1);
-        writeHalf(tl.getHalf2(), context, 2);
+        writeHalf(tl.getBoundaryPoint(ONE), tl.getHalf1(), context, 1);
+        writeHalf(tl.getBoundaryPoint(TWO), tl.getHalf2(), context, 2);
     }
 
     @Override
@@ -99,12 +103,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
         double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
         double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> adder
-                .setXnodeP(XmlUtil.readDoubleAttribute(context.getReader(), XNODE_P + side))
-                .setXnodeQ(XmlUtil.readDoubleAttribute(context.getReader(), XNODE_Q + side)));
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> adder
-                .setXnodeP(XmlUtil.readOptionalDoubleAttribute(context.getReader(), XNODE_P + side))
-                .setXnodeQ(XmlUtil.readOptionalDoubleAttribute(context.getReader(), XNODE_Q + side)));
+        // LOG for xnodeP/Q
         adder.setId(id)
                 .setName(name)
                 .setR(r)
@@ -114,9 +113,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .setG2(g2)
                 .setB2(b2);
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> adder
-                .setXnodeV(XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeV_" + side))
-                .setXnodeAngle(XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeAngle_" + side)));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> { // LOG for xnodeV/Angle)
+        });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
@@ -144,14 +142,14 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         double xnodeQ1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
         double xnodeQ2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
         context.getEndTasks().add(() -> {
-            checkXnodeValue(xnodeV1, tl.getHalf1().getXnodeV(), "xnodeV1", tl.getId());
-            checkXnodeValue(xnodeV2, tl.getHalf2().getXnodeV(), "xnodeV2", tl.getId());
-            checkXnodeValue(xnodeAngle1, tl.getHalf1().getXnodeAngle(), "xnodeAngle1", tl.getId());
-            checkXnodeValue(xnodeAngle2, tl.getHalf2().getXnodeAngle(), "xnodeAngle2", tl.getId());
-            checkXnodeValue(xnodeP1, tl.getHalf1().getXnodeP(), "xnodeP1", tl.getId());
-            checkXnodeValue(xnodeP2, tl.getHalf2().getXnodeP(), "xnodeP2", tl.getId());
-            checkXnodeValue(xnodeQ1, tl.getHalf1().getXnodeQ(), "xnodeQ1", tl.getId());
-            checkXnodeValue(xnodeQ2, tl.getHalf2().getXnodeQ(), "xnodeQ2", tl.getId());
+            checkXnodeValue(xnodeV1, tl.getBoundaryPoint(ONE).getV(), "xnodeV1", tl.getId());
+            checkXnodeValue(xnodeV2, tl.getBoundaryPoint(TWO).getV(), "xnodeV2", tl.getId());
+            checkXnodeValue(xnodeAngle1, tl.getBoundaryPoint(ONE).getAngle(), "xnodeAngle1", tl.getId());
+            checkXnodeValue(xnodeAngle2, tl.getBoundaryPoint(TWO).getAngle(), "xnodeAngle2", tl.getId());
+            checkXnodeValue(xnodeP1, tl.getBoundaryPoint(ONE).getP(), "xnodeP1", tl.getId());
+            checkXnodeValue(xnodeP2, tl.getBoundaryPoint(TWO).getP(), "xnodeP2", tl.getId());
+            checkXnodeValue(xnodeQ1, tl.getBoundaryPoint(ONE).getQ(), "xnodeQ1", tl.getId());
+            checkXnodeValue(xnodeQ2, tl.getBoundaryPoint(TWO).getQ(), "xnodeQ2", tl.getId());
         });
         return tl;
     }

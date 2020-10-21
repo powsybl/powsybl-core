@@ -184,8 +184,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 .setG2(boundaryLine1.g / 2)
                 .setB1(boundaryLine1.b / 2)
                 .setB2(boundaryLine1.b / 2)
-                .setXnodeP(0)
-                .setXnodeQ(0)
                 .add()
             .newHalfLine2()
                 .setId(boundaryLine2.id)
@@ -196,8 +194,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 .setG2(boundaryLine2.g / 2)
                 .setB1(boundaryLine2.b / 2)
                 .setB2(boundaryLine2.b / 2)
-                .setXnodeP(0)
-                .setXnodeQ(0)
                 .add()
             .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
         identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);

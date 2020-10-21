@@ -639,9 +639,9 @@ public class AmplNetworkWriter {
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
                         .writeCell(t1.getP())
-                        .writeCell(-tl.getHalf1().getXnodeP()) // xnode node flow side 1
+                        .writeCell(-tl.getBoundaryPoint(Branch.Side.ONE).getP()) // xnode node flow side 1
                         .writeCell(t1.getQ())
-                        .writeCell(-tl.getHalf1().getXnodeQ()) // xnode node flow side 1
+                        .writeCell(-tl.getBoundaryPoint(Branch.Side.ONE).getQ()) // xnode node flow side 1
                         .writeCell(getPermanentLimit(l.getCurrentLimits1()))
                         .writeCell(Float.NaN)
                         .writeCell(merged)
@@ -665,9 +665,9 @@ public class AmplNetworkWriter {
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
-                        .writeCell(-tl.getHalf2().getXnodeP()) // xnode node flow side 2
+                        .writeCell(-tl.getBoundaryPoint(Branch.Side.TWO).getP()) // xnode node flow side 2
                         .writeCell(t2.getP())
-                        .writeCell(-tl.getHalf2().getXnodeQ()) // xnode node flow side 2
+                        .writeCell(-tl.getBoundaryPoint(Branch.Side.TWO).getQ()) // xnode node flow side 2
                         .writeCell(t2.getQ())
                         .writeCell(Float.NaN)
                         .writeCell(getPermanentLimit(l.getCurrentLimits2()))

@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -148,6 +149,10 @@ public class SV {
         return otherSideP(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
+    public double otherSideP(TieLine.HalfLine hl) {
+        return otherSideP(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0);
+    }
+
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
@@ -165,6 +170,10 @@ public class SV {
         Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
 
         return -s2.getImaginary();
+    }
+
+    public double otherSideQ(TieLine.HalfLine hl) {
+        return otherSideQ(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0);
     }
 
     public double otherSideQ(DanglingLine dl) {
@@ -188,6 +197,10 @@ public class SV {
         return u2.abs();
     }
 
+    public double otherSideU(TieLine.HalfLine hl) {
+        return otherSideU(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 1.0);
+    }
+
     public double otherSideU(DanglingLine dl) {
         return otherSideU(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
@@ -207,6 +220,10 @@ public class SV {
 
         Complex u2 = v2.multiply(Math.sqrt(3f));
         return Math.toDegrees(u2.getArgument());
+    }
+
+    public double otherSideA(TieLine.HalfLine hl) {
+        return otherSideA(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 1.0);
     }
 
     public double otherSideA(DanglingLine dl) {

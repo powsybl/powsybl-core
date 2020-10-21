@@ -232,22 +232,22 @@ public class DanglingLineAdapterTest {
         SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
         SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
         assertEquals(expectedSV1.getP(), dl1.getBoundaryPoint().getP(), 0.0d);
-        assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getXnodeP(), 0.0d);
+        assertEquals(expectedSV1.getP(), mergedLine.getBoundaryPoint(Branch.Side.ONE).getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundaryPoint().getQ(), 0.0d);
-        assertEquals(expectedSV1.getQ(), mergedLine.getHalf1().getXnodeQ(), 0.0d);
+        assertEquals(expectedSV1.getQ(), mergedLine.getBoundaryPoint(Branch.Side.ONE).getQ(), 0.0d);
         assertEquals(expectedSV2.getP(), dl2.getBoundaryPoint().getP(), 0.0d);
-        assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getXnodeP(), 0.0d);
+        assertEquals(expectedSV2.getP(), mergedLine.getBoundaryPoint(Branch.Side.TWO).getP(), 0.0d);
         assertEquals(expectedSV2.getQ(), dl2.getBoundaryPoint().getQ(), 0.0d);
-        assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getXnodeQ(), 0.0d);
+        assertEquals(expectedSV2.getQ(), mergedLine.getBoundaryPoint(Branch.Side.TWO).getQ(), 0.0d);
         // Check V & Angle are computed by Listener
         assertEquals(expectedSV1.getU(), dl1.getBoundaryPoint().getV(), 0.0d);
-        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getXnodeV(), 0.0d);
+        assertEquals(expectedSV1.getU(), mergedLine.getBoundaryPoint(Branch.Side.ONE).getV(), 0.0d);
         assertEquals(expectedSV1.getA(), dl1.getBoundaryPoint().getAngle(), 0.0d);
-        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getXnodeAngle(), 0.0d);
+        assertEquals(expectedSV1.getA(), mergedLine.getBoundaryPoint(Branch.Side.ONE).getAngle(), 0.0d);
         assertEquals(expectedSV2.getU(), dl2.getBoundaryPoint().getV(), 0.0d);
-        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getXnodeV(), 0.0d);
+        assertEquals(expectedSV2.getU(), mergedLine.getBoundaryPoint(Branch.Side.TWO).getV(), 0.0d);
         assertEquals(expectedSV2.getA(), dl2.getBoundaryPoint().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getXnodeAngle(), 0.0d);
+        assertEquals(expectedSV2.getA(), mergedLine.getBoundaryPoint(Branch.Side.TWO).getAngle(), 0.0d);
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
