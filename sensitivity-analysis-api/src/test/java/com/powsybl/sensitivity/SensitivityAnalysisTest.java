@@ -60,10 +60,26 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
+    public void testAsyncDefaultProviderWithoutContingencies() throws InterruptedException, ExecutionException {
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
+        CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network, "v", new SensitivityAnalysisParameters(),
+                sensitivityFactorsProvider, computationManager);
+        assertNotNull(result.get());
+    }
+
+    @Test
     public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
         SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network,
-            sensitivityFactorsProvider, contingenciesProvider);
+                sensitivityFactorsProvider, contingenciesProvider);
+        assertNotNull(result.get());
+    }
+
+    @Test
+    public void testAsyncDefaultProviderWithMinimumArgumentsWithoutContingencies() throws InterruptedException, ExecutionException {
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
+        CompletableFuture<SensitivityAnalysisResult> result = defaultSensitivityAnalysisRunner.runAsync(network,
+                sensitivityFactorsProvider);
         assertNotNull(result.get());
     }
 
@@ -71,7 +87,15 @@ public class SensitivityAnalysisTest {
     public void testSyncDefaultProvider() {
         SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
         SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, "v", sensitivityFactorsProvider,
-            contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
+                contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testSyncDefaultProviderWithoutContingencies() {
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
+        SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, "v", new SensitivityAnalysisParameters(),
+                sensitivityFactorsProvider, computationManager);
         assertNotNull(result);
     }
 
@@ -83,15 +107,35 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
+    public void testSyncDefaultProviderWithMinimumArgumentsWithoutContingencies() {
+        SensitivityAnalysis.Runner defaultSensitivityAnalysisRunner = SensitivityAnalysis.find();
+        SensitivityAnalysisResult result = defaultSensitivityAnalysisRunner.run(network, sensitivityFactorsProvider);
+        assertNotNull(result);
+    }
+
+    @Test
     public void testStaticRunMethodWithContingencies() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
-            network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingenciesProvider, parameters);
+                network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingenciesProvider, parameters);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testStaticRunMethodWithoutContingencies() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
+                network.getVariantManager().getWorkingVariantId(), parameters, sensitivityFactorsProvider);
         assertNotNull(result);
     }
 
     @Test
     public void testStaticSimpleRunMethodWithParameters() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider, parameters);
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testStaticSimpleRunMethodWithParametersWithoutContingencies() {
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, parameters, sensitivityFactorsProvider);
         assertNotNull(result);
     }
 
@@ -104,6 +148,8 @@ public class SensitivityAnalysisTest {
     @Test
     public void testStaticSimpleRunMethodWithNoContingencies() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, null);
+        assertNotNull(result);
+        result = SensitivityAnalysis.run(network, sensitivityFactorsProvider);
         assertNotNull(result);
     }
 }
