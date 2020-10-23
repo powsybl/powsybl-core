@@ -91,21 +91,8 @@ public class SV {
     }
 
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s1 = new Complex(p, q); // s1=p1+jq1
-        Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-        Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
-
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
-        Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
-
+        Complex v2 = calculateV2(r, x, g1, b1, ratio); // v2p=v1p-z*i2
+        Complex s2 = calculateS2(r, x, g1, b1, g2, b2, ratio); // s2=3*v2*conj(i2)
         Complex u2 = v2.multiply(Math.sqrt(3f));
         return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
     }
@@ -126,10 +113,8 @@ public class SV {
         return otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
-    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
-        Complex z = new Complex(r, x); // z=r+jx
+    private Complex calculateI2p(double g1, double b1, double ratio) {
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
         Complex s1 = new Complex(p, q); // s1=p1+jq1
         Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
         Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
@@ -137,12 +122,30 @@ public class SV {
         Complex v1p = v1.multiply(ratio); // v1p=v1*rho
         Complex i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
         Complex i1p = i1.divide(ratio); // i1p=i1/rho
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
-        Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
+        return i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
+    }
 
-        return -s2.getReal();
+    private Complex calculateV2(double r, double x, double g1, double b1, double ratio) {
+        Complex z = new Complex(r, x); // z=r+jx
+        Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
+        Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
+
+        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
+        Complex i2p = calculateI2p(g1, b1, ratio); // i2p=i1p-y1*v1p
+        return v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
+    }
+
+    private Complex calculateS2(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
+        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
+
+        Complex i2p = calculateI2p(g1, b1, ratio); // i2p=i1p-y1*v1p
+        Complex v2 = calculateV2(r, x, g1, b1, ratio); // v2p=v1p-z*i2
+        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
+        return v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
+    }
+
+    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
+        return -calculateS2(r, x, g1, b1, g2, b2, ratio).getReal();
     }
 
     public double otherSideP(DanglingLine dl) {
@@ -154,22 +157,7 @@ public class SV {
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s1 = new Complex(p, q); // s1=p1+jq1
-        Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-        Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
-
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
-        Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
-
-        return -s2.getImaginary();
+        return -calculateS2(r, x, g1, b1, g2, b2, ratio).getImaginary();
     }
 
     public double otherSideQ(TieLine.HalfLine hl) {
@@ -181,19 +169,7 @@ public class SV {
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double ratio) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex s1 = new Complex(p, q); // s1=p1+jq1
-        Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-        Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
-
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-
-        Complex u2 = v2.multiply(Math.sqrt(3f));
+        Complex u2 = calculateV2(r, x, g1, b1, ratio).multiply(Math.sqrt(3f));
         return u2.abs();
     }
 
@@ -206,19 +182,7 @@ public class SV {
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double ratio) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex s1 = new Complex(p, q); // s1=p1+jq1
-        Complex u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-        Complex v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
-
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-
-        Complex u2 = v2.multiply(Math.sqrt(3f));
+        Complex u2 = calculateV2(r, x, g1, b1, ratio).multiply(Math.sqrt(3f));
         return Math.toDegrees(u2.getArgument());
     }
 
