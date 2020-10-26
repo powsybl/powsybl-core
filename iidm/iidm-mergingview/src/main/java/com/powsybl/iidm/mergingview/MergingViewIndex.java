@@ -76,6 +76,9 @@ class MergingViewIndex {
         Objects.requireNonNull(dll2, "DanglingLine is null");
         // Manage DanglingLines
         final String code = dll2.getUcteXnodeCode();
+        if (code == null) {
+            return;
+        }
         // Find other DanglingLine if exist
         final Set<DanglingLine> danglingLines = getNetworkStream().flatMap(Network::getDanglingLineStream).filter(d -> d.getUcteXnodeCode().equals(code)).collect(Collectors.toSet());
         for (DanglingLine dll1 : danglingLines) {

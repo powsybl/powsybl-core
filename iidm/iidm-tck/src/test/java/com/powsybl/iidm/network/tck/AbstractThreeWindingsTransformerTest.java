@@ -28,6 +28,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private static final String ERROR_R_IS_NOT_SET = "r is not set";
 
+    private static final String ERROR_LEG1_IS_NOT_SET = "Leg1 is not set";
+
+    private static final String ERROR_LEG2_IS_NOT_SET = "Leg2 is not set";
+
+    private static final String ERROR_LEG3_IS_NOT_SET = "Leg3 is not set";
+
     private static final String ERROR_TRANSFORMER_LEG3_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg3 'twt': Only one regulating control enabled is allowed";
 
     private static final String ERROR_LEG1_ONLY_ONE_REGULATING_CONTROL_ENABLED_IS_ALLOWED = "3 windings transformer leg1 'twt': Only one regulating control enabled is allowed";
@@ -36,7 +42,8 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     @Test
     public void baseTests() {
-        ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
+        ThreeWindingsTransformerAdder transformerAdder = createThreeWindingsTransformerAdder();
+        ThreeWindingsTransformer transformer = transformerAdder.add();
 
         assertEquals("twt", transformer.getId());
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
@@ -156,6 +163,12 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             transformer.getTerminal(ThreeWindingsTransformer.Side.THREE));
         assertTrue(leg3.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg3, leg3.getPhaseTapChanger());
+
+        // Reuse adder
+        ThreeWindingsTransformer transformer2 = transformerAdder.setId(transformer.getId() + "_2").add();
+        assertNotSame(transformer.getLeg1(), transformer2.getLeg1());
+        assertNotSame(transformer.getLeg2(), transformer2.getLeg2());
+        assertNotSame(transformer.getLeg3(), transformer2.getLeg3());
 
         int count = network.getThreeWindingsTransformerCount();
         transformer.remove();
@@ -433,7 +446,139 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         leg1.setRatedS(0.0);
     }
 
+    @Test
+    public void invalidLeg1NotSet() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage(ERROR_LEG1_IS_NOT_SET);
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .add();
+    }
+
+    @Test
+    public void invalidLeg1ArgumentVoltageLevelNotSet() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer leg1: voltage level is not set");
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .add();
+    }
+
+    @Test
+    public void invalidLeg1ArgumentVoltageLevelNotFound() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("3 windings transformer leg1: voltage level 'invalid' not found");
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("invalid")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .add();
+    }
+
+    @Test
+    public void invalidLeg1ArgumentConnectableBusNotSet() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("connectable bus is not set");
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .add()
+                .add();
+    }
+
+    @Test
+    public void invalidLeg2NotSet() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage(ERROR_LEG2_IS_NOT_SET);
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .add();
+    }
+
+    @Test
+    public void invalidLeg3NotSet() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage(ERROR_LEG3_IS_NOT_SET);
+
+        substation.newThreeWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .setConnectableBus("busA")
+                .setBus("busA")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setRatedS(2.06)
+                .setVoltageLevel("vl2")
+                .setConnectableBus("busB")
+                .add()
+                .add();
+    }
+
     private ThreeWindingsTransformer createThreeWindingsTransformer() {
+        return createThreeWindingsTransformerAdder().add();
+    }
+
+    private ThreeWindingsTransformerAdder createThreeWindingsTransformerAdder() {
         return substation.newThreeWindingsTransformer()
             .setId("twt")
             .setName(TWT_NAME)
@@ -467,7 +612,6 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setRatedS(3.6)
             .setVoltageLevel("vl2")
             .setConnectableBus("busB")
-            .add()
             .add();
     }
 

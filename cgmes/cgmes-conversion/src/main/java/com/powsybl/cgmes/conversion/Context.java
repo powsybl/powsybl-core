@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -204,27 +203,6 @@ public class Context {
         return phaseTapChangerTables.get(tableId);
     }
 
-    public void startLinesConversion() {
-        countLines = 0;
-        countLinesWithSvPowerFlowsAtEnds = 0;
-    }
-
-    public void anotherLineConversion(ACLineSegmentConversion c) {
-        Objects.requireNonNull(c);
-        countLines++;
-        if (c.stateVariablesPowerFlow(1).defined() && c.stateVariablesPowerFlow(2).defined()) {
-            countLinesWithSvPowerFlowsAtEnds++;
-        }
-    }
-
-    public void endLinesConversion() {
-        String enough = countLinesWithSvPowerFlowsAtEnds < countLines ? "FEW" : "ENOUGH";
-        LOG.info("{} lines with SvPowerFlow values at ends: {} / {}",
-                enough,
-                countLinesWithSvPowerFlowsAtEnds,
-                countLines);
-    }
-
     public void invalid(String what, String reason) {
         LOG.warn(INVALID_REASON, what, reason);
     }
@@ -303,9 +281,6 @@ public class Context {
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
     private final Map<String, PropertyBag> powerTransformerRatioTapChangers;
     private final Map<String, PropertyBag> powerTransformerPhaseTapChangers;
-
-    private int countLines;
-    private int countLinesWithSvPowerFlowsAtEnds;
 
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

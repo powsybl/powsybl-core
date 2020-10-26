@@ -46,14 +46,45 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     }
 
     /**
+     * Get the alias of the object with a given alias type if it exists. Else return an empty optional.
+     */
+    default Optional<String> getAliasFromType(String aliasType) {
+        return Optional.empty();
+    }
+
+    /**
+     * Get the alias type of an alias if it exists, an empty optional otherwise.
+     * If the alias does not exist, return an empty optional.
+     */
+    default Optional<String> getAliasType(String alias) {
+        return Optional.empty();
+    }
+
+    /**
      * Add an alias to the object. Aliases must be unique in associated Network, and different
-     * from any identifiable ID.
+     * from any identifiable ID. No alias type is associated to this alias.
+     *
+     * If the alias already exists (i.e. is not unique) or equals an identifiable ID, throw a {@link com.powsybl.commons.PowsyblException}
      */
     default void addAlias(String alias) {
     }
 
     /**
+     * Add an alias to the object. Aliases must be unique in associated Network, and different
+     * from any identifiable ID. This alias is associated to a given alias type.
+     * If the given alias type is null, no alias type is considered associated to the alias.
+     * Only one alias can be associated to a non null given alias type for one object.
+     *
+     * If the alias already exists (i.e. is not unique) or equals an identifiable ID, throw a {@link com.powsybl.commons.PowsyblException}
+     * If a given non null type already has an associated alias for this object, throw a {@link com.powsybl.commons.PowsyblException}
+     */
+    default void addAlias(String alias, String aliasType) {
+    }
+
+    /**
      * Remove an alias of the object.
+     *
+     * If the alias does not exist for this object, throw a {@link com.powsybl.commons.PowsyblException}
      */
     default void removeAlias(String alias) {
     }
