@@ -7,23 +7,16 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * CGMES standard: <br>
@@ -168,13 +161,10 @@ public class SubstationIdMapping {
         Map<String, Set<String>> substationAdjacency, PropertyBag sw) {
 
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
-        String node1 = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
-        String voltageLevelId1 = getVoltageLevelFromNode(node1, t1);
-
         CgmesTerminal t2 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 2));
-        String node2 = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
-        String voltageLevelId2 = getVoltageLevelFromNode(node2, t2);
 
+        String voltageLevelId1 = context.cgmes().voltageLevel(t1, context.nodeBreaker());
+        String voltageLevelId2 = context.cgmes().voltageLevel(t2, context.nodeBreaker());
         // Null could be received as voltageLevel at the boundary
         if (voltageLevelId1 == null || voltageLevelId2 == null || voltageLevelId1.equals(voltageLevelId2)) {
             return;
@@ -183,20 +173,11 @@ public class SubstationIdMapping {
 
         String substationId1 = context.cgmes().substation(t1, context.nodeBreaker());
         String substationId2 = context.cgmes().substation(t2, context.nodeBreaker());
-
         // Null could be received as substation at the boundary
         if (substationId1 == null || substationId2 == null || substationId1.equals(substationId2)) {
             return;
         }
         addAdjacency(substationAdjacency, substationId1, substationId2);
-    }
-
-    private String getVoltageLevelFromNode(String node, CgmesTerminal t) {
-        String voltageLevelId = null;
-        if (node != null && !context.boundary().containsNode(node)) {
-            voltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
-        }
-        return voltageLevelId;
     }
 
     // Two different substations are adjacent if they are connected by a transformer
