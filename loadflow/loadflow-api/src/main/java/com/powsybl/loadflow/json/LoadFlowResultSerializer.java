@@ -28,7 +28,7 @@ import java.util.Objects;
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
-    private static final String VERSION = "1.1";
+    private static final String VERSION = "1.2";
 
     LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
@@ -40,6 +40,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
         jsonGenerator.writeObjectField("metrics", result.getMetrics());
+        jsonGenerator.writeObjectField("logs", result.getLogs());
         List<LoadFlowResult.ComponentResult> componentResults = result.getComponentResults();
         if (!componentResults.isEmpty()) {
             jsonGenerator.writeFieldName("componentResults");

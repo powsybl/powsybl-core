@@ -8,6 +8,7 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Test;
@@ -41,9 +42,13 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
     }
 
+    private static LoadFlowResult createVersion12() {
+        return new LoadFlowResultImpl(true, createMetrics(), "logs", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
+    }
+
     @Test
-    public void roundTripVersion11Test() throws IOException {
-        roundTripTest(createVersion11(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion11.json");
+    public void roundTripVersion12Test() throws IOException {
+        roundTripTest(createVersion12(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion12.json");
     }
 
     @Test
@@ -56,10 +61,26 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readJsonVersion11() throws IOException {
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"));
+        assertTrue(result.isOk());
+        assertEquals(createMetrics(), result.getMetrics());
+        assertNull(result.getLogs());
+        assertFalse(result.getComponentResults().isEmpty());
+    }
+
+    @Test
     public void handleErrorTest() throws IOException {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: alienAttribute");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json"));
+    }
+
+    @Test
+    public void handleErrorTest12() throws IOException {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("LoadFlowResult. Tag: logs is not valid for version 1.1. Version should be > 1.1");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Error.json"));
     }
 
 }
