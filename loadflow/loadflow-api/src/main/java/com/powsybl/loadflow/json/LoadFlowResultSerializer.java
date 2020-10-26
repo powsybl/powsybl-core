@@ -67,7 +67,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-                objectMapper.registerModule(new LoadFlowResultJsonModule());
+            objectMapper.registerModule(new LoadFlowResultJsonModule());
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, result);
         } catch (IOException e) {
