@@ -6,22 +6,27 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.ShuntCompensatorModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
 
 import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModelWrapper {
+abstract class AbstractShuntCompensatorModel implements ShuntCompensatorModel {
 
     protected ShuntCompensatorImpl shuntCompensator;
 
-    @Override
     public void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
-        if (this.shuntCompensator != null) {
-            throw new PowsyblException("Owner (shunt compensator) already defined");
-        }
         this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
     }
+
+    public abstract ShuntCompensatorModelType getType();
+
+    public abstract int getMaximumSectionCount();
+
+    public abstract double getB(int sectionCount);
+
+    public abstract double getG(int sectionCount);
 }
