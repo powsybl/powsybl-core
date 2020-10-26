@@ -26,8 +26,8 @@ import static com.powsybl.iidm.network.Branch.Side.TWO;
  */
 class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
 
-    private static final String XNODE_P = "xnodeP_";
-    private static final String XNODE_Q = "xnodeQ_";
+    private static final String BOUNDARY_POINT_P = "boundaryPointP_";
+    private static final String BOUNDARY_POINT_Q = "boundaryPointQ_";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 
@@ -56,11 +56,15 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("b1_" + side, halfLine.getB1(), context.getWriter());
         XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
-        XmlUtil.writeDouble(XNODE_P + side, boundaryPoint.getP(), context.getWriter());
-        XmlUtil.writeDouble(XNODE_Q + side, boundaryPoint.getQ(), context.getWriter());
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
+            XmlUtil.writeDouble("xnodeP_" + side, boundaryPoint.getP(), context.getWriter());
+            XmlUtil.writeDouble("xnodeQ_" + side, boundaryPoint.getQ(), context.getWriter());
+        });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            XmlUtil.writeDouble("xnodeV_" + side, boundaryPoint.getV(), context.getWriter());
-            XmlUtil.writeDouble("xnodeAngle_" + side, boundaryPoint.getAngle(), context.getWriter());
+            XmlUtil.writeDouble(BOUNDARY_POINT_P + side, boundaryPoint.getP(), context.getWriter());
+            XmlUtil.writeDouble(BOUNDARY_POINT_Q + side, boundaryPoint.getQ(), context.getWriter());
+            XmlUtil.writeDouble("boundaryPointV_" + side, boundaryPoint.getV(), context.getWriter());
+            XmlUtil.writeDouble("boundaryPointAngle_" + side, boundaryPoint.getAngle(), context.getWriter());
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
@@ -129,28 +133,40 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());
-        double xnodeV1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeV_1");
-        double xnodeV2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeV_2");
-        double xnodeAngle1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeAngle_1");
-        double xnodeAngle2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeAngle_2");
-        double xnodeP1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-        double xnodeP2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-        double xnodeQ1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-        double xnodeQ2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+        double boundaryPointV1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointV_1");
+        double boundaryPointV2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointV_2");
+        double boundaryPointAngle1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointAngle_1");
+        double boundaryPointAngle2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointAngle_2");
+        double[] boundaryPointP1 = new double[1];
+        double[] boundaryPointP2 = new double[1];
+        double[] boundaryPointQ1 = new double[1];
+        double[] boundaryPointQ2 = new double[1];
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
+            boundaryPointP1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
+            boundaryPointP2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
+            boundaryPointQ1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
+            boundaryPointQ2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+        });
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            boundaryPointP1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointP_1");
+            boundaryPointP2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointP_2");
+            boundaryPointQ1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointQ_1");
+            boundaryPointQ2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointQ_2");
+        });
         context.getEndTasks().add(() -> {
-            checkXnodeValue(xnodeV1, tl.getBoundaryPoint(ONE).getV(), "xnodeV1", tl.getId());
-            checkXnodeValue(xnodeV2, tl.getBoundaryPoint(TWO).getV(), "xnodeV2", tl.getId());
-            checkXnodeValue(xnodeAngle1, tl.getBoundaryPoint(ONE).getAngle(), "xnodeAngle1", tl.getId());
-            checkXnodeValue(xnodeAngle2, tl.getBoundaryPoint(TWO).getAngle(), "xnodeAngle2", tl.getId());
-            checkXnodeValue(xnodeP1, tl.getBoundaryPoint(ONE).getP(), "xnodeP1", tl.getId());
-            checkXnodeValue(xnodeP2, tl.getBoundaryPoint(TWO).getP(), "xnodeP2", tl.getId());
-            checkXnodeValue(xnodeQ1, tl.getBoundaryPoint(ONE).getQ(), "xnodeQ1", tl.getId());
-            checkXnodeValue(xnodeQ2, tl.getBoundaryPoint(TWO).getQ(), "xnodeQ2", tl.getId());
+            checkBoundaryPointValue(boundaryPointV1, tl.getBoundaryPoint(ONE).getV(), "boundaryPointV1", tl.getId());
+            checkBoundaryPointValue(boundaryPointV2, tl.getBoundaryPoint(TWO).getV(), "boundaryPointV2", tl.getId());
+            checkBoundaryPointValue(boundaryPointAngle1, tl.getBoundaryPoint(ONE).getAngle(), "boundaryPointAngle1", tl.getId());
+            checkBoundaryPointValue(boundaryPointAngle2, tl.getBoundaryPoint(TWO).getAngle(), "boundaryPointAngle2", tl.getId());
+            checkBoundaryPointValue(boundaryPointP1[0], tl.getBoundaryPoint(ONE).getP(), "boundaryPointP1", tl.getId());
+            checkBoundaryPointValue(boundaryPointP2[0], tl.getBoundaryPoint(TWO).getP(), "boundaryPointP2", tl.getId());
+            checkBoundaryPointValue(boundaryPointQ1[0], tl.getBoundaryPoint(ONE).getQ(), "boundaryPointQ1", tl.getId());
+            checkBoundaryPointValue(boundaryPointQ2[0], tl.getBoundaryPoint(TWO).getQ(), "boundaryPointQ2", tl.getId());
         });
         return tl;
     }
 
-    private static void checkXnodeValue(double imported, double calculated, String name, String tlId) {
+    private static void checkBoundaryPointValue(double imported, double calculated, String name, String tlId) {
         if (!Double.isNaN(imported) && imported != calculated) {
             LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
         }
