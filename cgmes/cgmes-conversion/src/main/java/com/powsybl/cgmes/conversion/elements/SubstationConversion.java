@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.List;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.iidm.network.Country;
@@ -61,10 +59,10 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void addAliases(Substation s) {
-        List<String> mergedSubstations = context.substationIdMapping().mergedSubstations(s.getId());
-        for (int i = 0; i < mergedSubstations.size(); i++) {
-            int index = i + 1;
-            s.addAlias(mergedSubstations.get(i), "MergedSubstation" + index);
+        int index = 0;
+        for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
+            index++;
+            s.addAlias(mergedSub, "MergedSubstation" + index);
         }
     }
 }

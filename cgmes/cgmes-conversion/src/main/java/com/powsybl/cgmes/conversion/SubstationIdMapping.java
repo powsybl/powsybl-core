@@ -106,10 +106,10 @@ public class SubstationIdMapping {
     }
 
     // All the keys for a given value, all the merged substations that have cgmesIdentifier as representative
-    public List<String> mergedSubstations(String cgmesIdentifier) {
+    public Set<String> mergedSubstations(String cgmesIdentifier) {
         String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
         return substationMapping.entrySet().stream().filter(record -> record.getValue().equals(sid))
-            .map(Map.Entry::getKey).collect(Collectors.toList());
+            .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public boolean voltageLevelIsMapped(String cgmesIdentifier) {
@@ -126,23 +126,23 @@ public class SubstationIdMapping {
     }
 
     // All the keys for a given value, all the merged voltageLevels that have cgmesIdentifier as representative
-    public List<String> mergedVoltageLevels(String cgmesIdentifier) {
+    public Set<String> mergedVoltageLevels(String cgmesIdentifier) {
         String vlid = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesIdentifier);
         return voltageLevelMapping.entrySet().stream().filter(record -> record.getValue().equals(vlid))
-            .map(Map.Entry::getKey).collect(Collectors.toList());
+            .map(Map.Entry::getKey).collect(Collectors.toSet());
     }
 
     public void build() {
-        Map<String, List<String>> voltageLevelAdjacency = new HashMap<>();
-        Map<String, List<String>> substationAdjacency = new HashMap<>();
+        Map<String, Set<String>> voltageLevelAdjacency = new HashMap<>();
+        Map<String, Set<String>> substationAdjacency = new HashMap<>();
 
         buildAdjacency(voltageLevelAdjacency, substationAdjacency);
         buildVoltageLevel(voltageLevelAdjacency);
         buildSubstation(substationAdjacency);
     }
 
-    private void buildAdjacency(Map<String, List<String>> voltageLevelAdjacency,
-        Map<String, List<String>> substationAdjacency) {
+    private void buildAdjacency(Map<String, Set<String>> voltageLevelAdjacency,
+        Map<String, Set<String>> substationAdjacency) {
         context.cgmes().voltageLevels().forEach(vl -> addVoltageLevel(voltageLevelAdjacency, vl));
         context.cgmes().substations().forEach(st -> addSubstation(substationAdjacency, st));
 
@@ -150,22 +150,22 @@ public class SubstationIdMapping {
         context.cgmes().groupedTransformerEnds().forEach((t, tends) -> addEnds(substationAdjacency, tends));
     }
 
-    private void addVoltageLevel(Map<String, List<String>> voltageLevelAdjacency, PropertyBag vl) {
+    private void addVoltageLevel(Map<String, Set<String>> voltageLevelAdjacency, PropertyBag vl) {
         String voltageLevelId = vl.getId(CgmesNames.VOLTAGE_LEVEL);
         String vId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, voltageLevelId);
-        voltageLevelAdjacency.computeIfAbsent(vId, k -> new ArrayList<>());
+        voltageLevelAdjacency.put(vId, new HashSet<>());
     }
 
-    private void addSubstation(Map<String, List<String>> substationAdjacency, PropertyBag sub) {
+    private void addSubstation(Map<String, Set<String>> substationAdjacency, PropertyBag sub) {
         String substationlId = sub.getId(CgmesNames.SUBSTATION);
         String subId = context.namingStrategy().getId(CgmesNames.SUBSTATION, substationlId);
-        substationAdjacency.computeIfAbsent(subId, k -> new ArrayList<>());
+        substationAdjacency.put(subId, new HashSet<>());
     }
 
     // Two different voltageLevels are adjacent if they are connected by a switch
     // If the corresponding substations are different they are also adjacent
-    private void addSwitch(Map<String, List<String>> voltageLevelAdjacency,
-        Map<String, List<String>> substationAdjacency, PropertyBag sw) {
+    private void addSwitch(Map<String, Set<String>> voltageLevelAdjacency,
+        Map<String, Set<String>> substationAdjacency, PropertyBag sw) {
 
         CgmesTerminal t1 = context.cgmes().terminal(sw.getId(CgmesNames.TERMINAL + 1));
         String node1 = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
@@ -200,7 +200,7 @@ public class SubstationIdMapping {
     }
 
     // Two different substations are adjacent if they are connected by a transformer
-    private void addEnds(Map<String, List<String>> substationAdjacency, PropertyBags tends) {
+    private void addEnds(Map<String, Set<String>> substationAdjacency, PropertyBags tends) {
         List<String> substationsIds = substationsIds(tends);
         if (substationsIds.size() <= 1) {
             return;
@@ -217,13 +217,13 @@ public class SubstationIdMapping {
     }
 
     // Record in the adjacency Map that "id1 is adjacent to id2" and "id2 is adjacent to id1"
-    private static void addAdjacency(Map<String, List<String>> adjacency, String id1, String id2) {
-        List<String> ad1 = adjacency.get(id1);
+    private static void addAdjacency(Map<String, Set<String>> adjacency, String id1, String id2) {
+        Set<String> ad1 = adjacency.get(id1);
         if (ad1 == null) {
             throw new PowsyblException("Unexpected reference to Substation or voltageLevel " + id1
                 + ". It has not been defined in CGMES substations / voltageLevels.");
         }
-        List<String> ad2 = adjacency.get(id2);
+        Set<String> ad2 = adjacency.get(id2);
         if (ad2 == null) {
             throw new PowsyblException("Unexpected reference to Substation or voltageLevel " + id2
                 + ". It has not been defined in CGMES substations / voltageLevels.");
@@ -233,48 +233,39 @@ public class SubstationIdMapping {
         ad2.add(id1);
     }
 
-    private void buildVoltageLevel(Map<String, List<String>> voltageLevelAdjacency) {
+    private void buildVoltageLevel(Map<String, Set<String>> voltageLevelAdjacency) {
         Set<String> visitedVoltageLevels = new HashSet<>();
-        voltageLevelAdjacency.keySet().forEach(vl -> {
+        for (String vl : voltageLevelAdjacency.keySet()) {
             if (!visitedVoltageLevels.contains(vl)) {
-                ArrayList<String> vlAds = allConnected(voltageLevelAdjacency, visitedVoltageLevels, vl);
+                Set<String> vlAds = allConnected(voltageLevelAdjacency, visitedVoltageLevels, vl);
                 String selectedVoltageLevelId = representativeVoltageLevelId(vlAds);
-                for (String voltageLevelId : vlAds) {
-                    if (!voltageLevelId.equals(selectedVoltageLevelId)) {
-                        voltageLevelMapping.put(voltageLevelId, selectedVoltageLevelId);
-                    }
-                }
+                recordMergedIds(voltageLevelMapping, vlAds, selectedVoltageLevelId);
             }
-        });
+        }
         if (!voltageLevelMapping.isEmpty()) {
             LOG.warn("VoltageLevel id mapping needed for {} voltageLevels: {}",
                 voltageLevelMapping.size(), voltageLevelMapping);
         }
     }
 
-    private void buildSubstation(Map<String, List<String>> substationAdjacency) {
+    private void buildSubstation(Map<String, Set<String>> substationAdjacency) {
         Set<String> visitedSubstations = new HashSet<>();
-        substationAdjacency.keySet().forEach(sub -> {
+        for (String sub : substationAdjacency.keySet()) {
             if (!visitedSubstations.contains(sub)) {
-                ArrayList<String> subAds = allConnected(substationAdjacency, visitedSubstations, sub);
-
+                Set<String> subAds = allConnected(substationAdjacency, visitedSubstations, sub);
                 String selectedSubstationId = representativeSubstationId(subAds);
-                for (String substationId : subAds) {
-                    if (!substationId.equals(selectedSubstationId)) {
-                        substationMapping.put(substationId, selectedSubstationId);
-                    }
-                }
+                recordMergedIds(substationMapping, subAds, selectedSubstationId);
             }
-        });
+        }
         if (!substationMapping.isEmpty()) {
             LOG.warn("Substation id mapping needed for {} substations: {}",
-                    substationMapping.size(), substationMapping);
+                substationMapping.size(), substationMapping);
         }
     }
 
     // Given an id (substation / voltageLevel) returns all connected ids (substations / voltageLevels)
     // Two ids are connected if they are adjacent in the adjacency Map
-    private static ArrayList<String> allConnected(Map<String, List<String>> adjacency, Set<String> visited, String id) {
+    private static Set<String> allConnected(Map<String, Set<String>> adjacency, Set<String> visited, String id) {
         ArrayList<String> allConnected = new ArrayList<>();
 
         // Insert id in the allConnected list and record it as visited
@@ -296,14 +287,14 @@ public class SubstationIdMapping {
             }
             k++;
         }
-        return allConnected;
+        return new HashSet<>(allConnected);
     }
 
     private static String representativeVoltageLevelId(Collection<String> voltageLevelIds) {
         return voltageLevelIds.stream()
                 .sorted()
                 .findFirst()
-                .orElseThrow(() -> new PowsyblException("Unexpected: voltageLevelIds list is empty"));
+                .orElseThrow(() -> new AssertionError("Unexpected: voltageLevelIds list is empty"));
     }
 
     private String representativeSubstationId(Collection<String> substationIds) {
@@ -314,6 +305,17 @@ public class SubstationIdMapping {
                 .sorted()
                 .findFirst()
                 .orElse(substationIds.iterator().next());
+    }
+
+    // For each merged substation a record (merged substation, representative substation) is added
+    // For each merged voltageLevel a record (merged voltageLevel, representative voltageLevel) is added
+    private static void recordMergedIds(Map<String, String> mapping, Collection<String> mergedIds,
+        String representativeId) {
+        for (String id : mergedIds) {
+            if (!id.equals(representativeId)) {
+                mapping.put(id, representativeId);
+            }
+        }
     }
 
     private List<String> substationsIds(PropertyBags tends) {

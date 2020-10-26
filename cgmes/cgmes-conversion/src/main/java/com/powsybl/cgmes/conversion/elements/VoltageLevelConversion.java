@@ -7,8 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.List;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Substation;
@@ -71,10 +69,10 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void addAliases(VoltageLevel vl) {
-        List<String> mergedVoltageLevels = context.substationIdMapping().mergedVoltageLevels(vl.getId());
-        for (int i = 0; i < mergedVoltageLevels.size(); i++) {
-            int index = i + 1;
-            vl.addAlias(mergedVoltageLevels.get(i), "MergedVoltageLevel" + index);
+        int index = 0;
+        for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
+            index++;
+            vl.addAlias(mergedVl, "MergedVoltageLevel" + index);
         }
     }
 
