@@ -133,13 +133,13 @@ public final class ValidationUtil {
 
     public static void checkP0(Validable validable, double p0) {
         if (Double.isNaN(p0)) {
-            throw new ValidationException(validable, "p0 is invalid");
+            //throw new ValidationException(validable, "p0 is invalid");
         }
     }
 
     public static void checkQ0(Validable validable, double q0) {
         if (Double.isNaN(q0)) {
-            throw new ValidationException(validable, "q0 is invalid");
+            //throw new ValidationException(validable, "q0 is invalid");
         }
     }
 

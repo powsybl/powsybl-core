@@ -244,7 +244,7 @@ public abstract class AbstractDanglingLineTest {
         String id = "danglingId";
         String name = "danlingName";
         String ucteXnodeCode = "code";
-        DanglingLine dl = voltageLevel.newDanglingLine()
+        DanglingLineAdder adder = voltageLevel.newDanglingLine()
                 .setId(id)
                 .setName(name)
                 .setR(r)
@@ -262,8 +262,8 @@ public abstract class AbstractDanglingLineTest {
                     .setMinP(0)
                     .setTargetV(400)
                     .setVoltageRegulationOn(true)
-                .add()
                 .add();
+        DanglingLine dl = adder.add();
 
         DanglingLine.Generation generation = dl.getGeneration();
         assertNotNull(generation);
@@ -278,6 +278,10 @@ public abstract class AbstractDanglingLineTest {
                 .add();
         assertNotNull(generation.getReactiveLimits());
         assertTrue(generation.getReactiveLimits() instanceof MinMaxReactiveLimits);
+
+        // Test if new Generation is instantiate at each add
+        DanglingLine dl2 = adder.setId(id + "_2").add();
+        assertNotSame(dl.getGeneration(), dl2.getGeneration());
     }
 
     private void createDanglingLine(String id, String name, double r, double x, double g, double b,
