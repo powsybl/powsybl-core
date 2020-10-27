@@ -573,7 +573,7 @@ public final class SteadyStateHypothesisExport {
         writer.writeStartElement(cimNamespace, gu.className);
         writer.writeAttribute(RDF_NAMESPACE, "about", "#" + gu.id);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
-        writer.writeCharacters(CgmesExportUtil.format(Double.valueOf(gu.participationFactor)));
+        writer.writeCharacters(CgmesExportUtil.format(gu.participationFactor));
         writer.writeEndElement();
         writer.writeEndElement();
     }
