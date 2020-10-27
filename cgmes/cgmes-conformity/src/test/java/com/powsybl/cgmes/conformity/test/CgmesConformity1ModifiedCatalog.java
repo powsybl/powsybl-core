@@ -767,7 +767,7 @@ public final class CgmesConformity1ModifiedCatalog {
                 new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
-  
+
     public static TestGridModelResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/SmallGrid/HVDC_dcLine2_targetPpcc_for_1inverter_2rectifier";
