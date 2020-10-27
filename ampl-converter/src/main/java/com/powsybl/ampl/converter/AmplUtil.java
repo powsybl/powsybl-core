@@ -8,11 +8,18 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class AmplUtil {
@@ -64,6 +71,9 @@ public final class AmplUtil {
     }
 
     public static void fillMapper(StringToIntMapper<AmplSubset> mapper, Network network) {
+        // Network
+        mapper.newInt(AmplSubset.NETWORK, network.getId());
+
         // Voltage levels
         network.getVoltageLevelStream().forEach(vl -> mapper.newInt(AmplSubset.VOLTAGE_LEVEL, vl.getId()));
 
@@ -102,7 +112,7 @@ public final class AmplUtil {
 
         // HvdcConverterStations
         network.getHvdcConverterStations().forEach(conv ->
-                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION,  conv.getId()));
+                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION, conv.getId()));
 
     }
 
@@ -187,10 +197,10 @@ public final class AmplUtil {
                 createLimitsIds(mapper, twt.getLeg1().getCurrentLimits(), twt.getId() + AmplConstants.LEG1_SUFFIX, "");
             }
             if (twt.getLeg2().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg2().getCurrentLimits(),  twt.getId() + AmplConstants.LEG2_SUFFIX, "");
+                createLimitsIds(mapper, twt.getLeg2().getCurrentLimits(), twt.getId() + AmplConstants.LEG2_SUFFIX, "");
             }
             if (twt.getLeg3().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(),  twt.getId() + AmplConstants.LEG3_SUFFIX, "");
+                createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(), twt.getId() + AmplConstants.LEG3_SUFFIX, "");
             }
         }
     }
@@ -210,6 +220,7 @@ public final class AmplUtil {
     }
 
     public static void resetNetworkMapping(StringToIntMapper<AmplSubset> mapper) {
+        mapper.reset(AmplSubset.NETWORK);
         mapper.reset(AmplSubset.BUS);
         mapper.reset(AmplSubset.VOLTAGE_LEVEL);
         mapper.reset(AmplSubset.BRANCH);

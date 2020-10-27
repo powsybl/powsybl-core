@@ -6,133 +6,157 @@
  */
 package com.powsybl.dsl.ast;
 
-import org.apache.commons.io.output.WriterOutputStream;
-
-import java.io.PrintStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+import java.io.*;
+import java.nio.charset.Charset;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
 
-    protected final PrintStream out;
+    protected final PrintWriter out;
 
     public static String toString(ExpressionNode node) {
-        StringWriter writer = new StringWriter();
-        try (PrintStream os = new PrintStream(new WriterOutputStream(writer, StandardCharsets.UTF_8))) {
-            print(node, os);
+        try (StringWriter writer = new StringWriter()) {
+            write(node, writer);
+            return writer.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-
-        return writer.toString();
     }
 
     public static void print(ExpressionNode node) {
         print(node, System.out);
     }
 
-    public static void print(ExpressionNode node, PrintStream out) {
+    public static void print(ExpressionNode node, OutputStream out) {
         node.accept(new ExpressionPrinter(out), null);
     }
 
-    public ExpressionPrinter(PrintStream out) {
-        this.out = Objects.requireNonNull(out);
+    private static void write(ExpressionNode node, StringWriter out) {
+        node.accept(new ExpressionPrinter(out), null);
+    }
+
+    /**
+     * Create an ExpressionPrinter that uses the default character encoding.
+     *
+     * @param out The {@link OutputStream} used by this printer
+     */
+    public ExpressionPrinter(OutputStream out) {
+        this.out = new PrintWriter(out);
+    }
+
+    /**
+     * Create an ExpressionPrinter that uses the given charset.
+     *
+     * @param out The {@link OutputStream} used by this printer
+     * @param cs Charset to use by the {@link OutputStreamWriter} instance
+     */
+    public ExpressionPrinter(OutputStream out, Charset cs) {
+        this.out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(out, cs)));
+    }
+
+    public ExpressionPrinter(Writer writer) {
+        out = new PrintWriter(writer);
     }
 
     @Override
     public Void visitLiteral(AbstractLiteralNode node, Void arg) {
-        out.print(node.getValue().toString());
+        out.write(node.getValue().toString());
+        out.flush();
         return null;
     }
 
     @Override
     public Void visitLogicalOperator(LogicalBinaryOperatorNode node, Void arg) {
-        out.print("(");
+        out.write("(");
         node.getLeft().accept(this, arg);
-        out.print(" ");
+        out.write(" ");
         switch (node.getOperator()) {
             case AND:
-                out.print("&&");
+                out.write("&&");
                 break;
             case OR:
-                out.print("||");
+                out.write("||");
                 break;
             default:
                 throw createUnexpectedOperatorException(node.getOperator().name());
         }
-        out.print(" ");
+        out.write(" ");
         node.getRight().accept(this, arg);
-        out.print(")");
+        out.write(")");
+        out.flush();
         return null;
     }
 
     @Override
     public Void visitArithmeticOperator(ArithmeticBinaryOperatorNode node, Void arg) {
-        out.print("(");
+        out.write("(");
         node.getLeft().accept(this, arg);
-        out.print(" ");
+        out.write(" ");
         switch (node.getOperator()) {
             case PLUS:
-                out.print("+");
+                out.write("+");
                 break;
             case MINUS:
-                out.print("-");
+                out.write("-");
                 break;
             case MULTIPLY:
-                out.print("*");
+                out.write("*");
                 break;
             case DIVIDE:
-                out.print("/");
+                out.write("/");
                 break;
             default:
                 throw createUnexpectedOperatorException(node.getOperator().name());
         }
-        out.print(" ");
+        out.write(" ");
         node.getRight().accept(this, arg);
-        out.print(")");
+        out.write(")");
+        out.flush();
         return null;
     }
 
     @Override
     public Void visitNotOperator(LogicalNotOperator node, Void arg) {
-        out.print("!(");
+        out.write("!(");
         node.getChild().accept(this, arg);
-        out.print(")");
+        out.write(")");
+        out.flush();
         return null;
     }
 
     @Override
     public Void visitComparisonOperator(ComparisonOperatorNode node, Void arg) {
-        out.print("(");
+        out.write("(");
         node.getLeft().accept(this, arg);
-        out.print(" ");
+        out.write(" ");
         switch (node.getOperator()) {
             case EQUALS:
-                out.print("==");
+                out.write("==");
                 break;
             case NOT_EQUALS:
-                out.print("!=");
+                out.write("!=");
                 break;
             case GREATER_THAN:
-                out.print(">");
+                out.write(">");
                 break;
             case LESS_THAN:
-                out.print("<");
+                out.write("<");
                 break;
             case GREATER_THAN_OR_EQUALS_TO:
-                out.print(">=");
+                out.write(">=");
                 break;
             case LESS_THAN_OR_EQUALS_TO:
-                out.print("<=");
+                out.write("<=");
                 break;
             default:
                 throw createUnexpectedOperatorException(node.getOperator().name());
         }
-        out.print(" ");
+        out.write(" ");
         node.getRight().accept(this, arg);
-        out.print(")");
+        out.write(")");
+        out.flush();
         return null;
     }
 

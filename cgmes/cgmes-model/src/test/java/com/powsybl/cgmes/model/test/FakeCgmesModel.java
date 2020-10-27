@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
@@ -554,6 +555,12 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public Properties getProperties() {
         return properties;
+    }
+
+    @Override
+    public Collection<CgmesTerminal> computedTerminals() {
+        // FakeCgmesModel does not provide info on terminals
+        return Collections.emptyList();
     }
 
     @Override

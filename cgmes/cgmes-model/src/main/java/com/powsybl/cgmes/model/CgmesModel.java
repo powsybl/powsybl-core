@@ -48,6 +48,8 @@ public interface CgmesModel {
 
     CgmesTerminal terminal(String terminalId);
 
+    Collection<CgmesTerminal> computedTerminals();
+
     PropertyBags numObjectsByType();
 
     PropertyBags allObjectsOfType(String type);

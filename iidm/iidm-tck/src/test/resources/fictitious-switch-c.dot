@@ -1,26 +1,26 @@
 digraph G {
 	node [shape=box];
 	compound=true;
+	n6 [label="4\lLINE\lCJ",shape="ellipse",style="filled",fillcolor="#B2F37A"];
 	n5 [label="3",shape="ellipse",style="filled",fillcolor="#7AF385"];
 	n3 [label="2\lTWO_WINDINGS_TRANSFORMER\lCI",shape="ellipse",style="filled",fillcolor="#F37AE1"];
 	n2 [label="1",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n0 [label="0\lBUSBAR_SECTION\lD",shape="ellipse",style="filled",fillcolor="#7AF385"];
-	n6 [label="4\lLINE\lCJ",shape="ellipse",style="filled",fillcolor="#B2F37A"];
-	n0 -> n2 [label="DISCONNECTOR\lF",fontsize="10",style="solid"];
-	n0 -> n5 [label="DISCONNECTOR\lH",fontsize="10",style="solid"];
-	n2 -> n3 [label="BREAKER\lJ",fontsize="10",style="solid"];
-	n5 -> n6 [label="BREAKER\lL",fontsize="10",style="solid"];
+	n0 [label="0\lBUSBAR_SECTION\lD\lE",shape="ellipse",style="filled",fillcolor="#7AF385"];
+	n0 -> n2 [label="DISCONNECTOR\lF\lG",fontsize="10",style="solid"];
+	n0 -> n5 [label="DISCONNECTOR\lH\lI",fontsize="10",style="solid"];
+	n2 -> n3 [label="BREAKER\lJ\lK",fontsize="10",style="solid"];
+	n5 -> n6 [label="BREAKER\lL\lM",fontsize="10",style="solid"];
+	subgraph cluster_c4 {
+		cluster_c4 [label="",shape=point,style=invis];
+		pencolor="transparent";
+		n3;
+	}
 	subgraph cluster_c1 {
 		cluster_c1 [label="",shape=point,style=invis];
 		pencolor="transparent";
 		n5;
 		n2;
 		n0;
-	}
-	subgraph cluster_c4 {
-		cluster_c4 [label="",shape=point,style=invis];
-		pencolor="transparent";
-		n3;
 	}
 	subgraph cluster_c7 {
 		cluster_c7 [label="",shape=point,style=invis];

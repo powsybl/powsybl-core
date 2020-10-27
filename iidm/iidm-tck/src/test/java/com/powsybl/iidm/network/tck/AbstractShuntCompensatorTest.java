@@ -55,8 +55,13 @@ public abstract class AbstractShuntCompensatorTest {
     @Test
     public void baseLinearShuntTest() {
         // adder
-        ShuntCompensator shuntCompensator = createLinearShunt(SHUNT, "shuntName", 5.0, 4.0,
-                6, 10, terminal, true, 200, 10);
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+                .setBPerSection(5.0)
+                .setGPerSection(4.0)
+                .setMaximumSectionCount(10)
+                .add();
+        ShuntCompensator shuntCompensator = adder.add();
 
         assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
@@ -165,6 +170,24 @@ public abstract class AbstractShuntCompensatorTest {
         assertNull(network.getShuntCompensator(SHUNT));
         assertNotNull(shuntCompensator);
         assertEquals(count - 1L, network.getShuntCompensatorCount());
+
+        // Reuse adder tests
+        // Create second model from same adder
+        adder.setSectionCount(2)
+             .newNonLinearModel()
+                .beginSection()
+                .setB(5.0)
+                .setG(2.0)
+                .endSection()
+                .beginSection()
+                .setB(6.0)
+                .setG(2.0)
+                .endSection()
+                .add();
+        // Create second ShuntCompensator from same adder
+        ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
+        assertNotSame(shuntCompensator.getModel(), shuntCompensator2.getModel());
+        assertEquals(ShuntCompensatorModelType.NON_LINEAR, shuntCompensator2.getModelType());
     }
 
     @Test
@@ -286,6 +309,10 @@ public abstract class AbstractShuntCompensatorTest {
         } catch (PowsyblException ignored) {
             // ignore
         }
+
+        // Reuse adder tests
+        ShuntCompensator shuntCompensator2 = adder.setId(SHUNT + "_2").add();
+        assertNotSame(shuntCompensator.getModel(), shuntCompensator2.getModel());
     }
 
     @Test

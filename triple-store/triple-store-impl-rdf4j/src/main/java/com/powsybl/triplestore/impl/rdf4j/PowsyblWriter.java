@@ -42,9 +42,7 @@ public class PowsyblWriter extends RDFXMLWriter {
 
     @Override
     public void handleStatement(Statement st) {
-        if (!writingStarted) {
-            throw new RDFHandlerException("Document writing has not yet been started");
-        }
+        checkWritingStarted();
 
         Resource subj = st.getSubject();
         IRI pred = st.getPredicate();
