@@ -6,9 +6,17 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractCurrentLimitsTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class CurrentLimitsTest extends AbstractCurrentLimitsTest { }
+public class CurrentLimitsTest extends AbstractCurrentLimitsTest {
+
+    @Override
+    protected Network createBaseNetwork() {
+        return MergingView.create("test", "test");
+    }
+}

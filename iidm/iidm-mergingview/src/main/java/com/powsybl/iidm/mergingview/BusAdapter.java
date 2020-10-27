@@ -8,9 +8,13 @@ package com.powsybl.iidm.mergingview;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 /**
@@ -19,28 +23,48 @@ import java.util.stream.Stream;
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     private final List<TerminalAdapter> terminals = new ArrayList<>();
+    private final TerminalAdapter terminalRef;
 
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
 
-        delegate.visitConnectedEquipments(new AbstractTerminalTopologyVisitor() {
-            @Override
-            public void visitTerminal(Terminal t) {
-                terminals.add(getIndex().getTerminal(t));
-            }
-        });
+        delegate.getConnectedTerminalStream()
+                .map(t -> getIndex().getTerminal(t))
+                .forEach(terminals::add);
+        if (terminals.isEmpty() && delegate.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            // If we are in this case, the bus in a calculated Bus-Breaker bus which is between two retained switches
+            terminalRef = findTerminalRef(delegate, getIndex(), (s, v) -> v.getBusBreakerView().getBus1(s.getId()), (s, v) -> v.getNodeBreakerView().getNode1(s.getId()))
+                    .orElseGet(() ->
+                            findTerminalRef(delegate, getIndex(), (s, v) -> v.getBusBreakerView().getBus2(s.getId()), (s, v) -> v.getNodeBreakerView().getNode2(s.getId()))
+                                    .orElse(null));
+        } else {
+            terminalRef = terminals.isEmpty() ? null : terminals.get(0);
+        }
+    }
+
+    private static Optional<TerminalAdapter> findTerminalRef(Bus delegate, MergingViewIndex index,
+                                                             BiFunction<Switch, VoltageLevel, Bus> busGetter, BiFunction<Switch, VoltageLevel, Integer> nodeGetter) {
+        VoltageLevel vl = delegate.getVoltageLevel();
+        return vl.getNodeBreakerView().getSwitchStream()
+                .filter(Switch::isRetained)
+                .filter(s -> busGetter.apply(s, vl).equals(delegate))
+                .map(s -> nodeGetter.apply(s, vl))
+                .map(i -> Networks.getEquivalentTerminal(vl, i))
+                .filter(Objects::nonNull)
+                .map(index::getTerminal)
+                .findFirst();
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Iterables.transform(getDelegate().getTwoWindingsTransformers(),
-                                   getIndex()::getTwoWindingsTransformer);
+                getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         return getDelegate().getTwoWindingsTransformerStream()
-                            .map(getIndex()::getTwoWindingsTransformer);
+                .map(getIndex()::getTwoWindingsTransformer);
     }
 
     @Override
@@ -52,31 +76,31 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getDelegate().getThreeWindingsTransformerStream()
-                            .map(getIndex()::getThreeWindingsTransformer);
+                .map(getIndex()::getThreeWindingsTransformer);
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
         return Iterables.transform(getDelegate().getGenerators(),
-                                   getIndex()::getGenerator);
+                getIndex()::getGenerator);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
         return getDelegate().getGeneratorStream()
-                            .map(getIndex()::getGenerator);
+                .map(getIndex()::getGenerator);
     }
 
     @Override
     public Iterable<Battery> getBatteries() {
         return Iterables.transform(getDelegate().getBatteries(),
-                                   getIndex()::getBattery);
+                getIndex()::getBattery);
     }
 
     @Override
     public Stream<Battery> getBatteryStream() {
         return getDelegate().getBatteryStream()
-                            .map(getIndex()::getBattery);
+                .map(getIndex()::getBattery);
     }
 
     @Override
@@ -102,61 +126,61 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     @Override
     public Iterable<Load> getLoads() {
         return Iterables.transform(getDelegate().getLoads(),
-                                   getIndex()::getLoad);
+                getIndex()::getLoad);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
         return getDelegate().getLoadStream()
-                            .map(getIndex()::getLoad);
+                .map(getIndex()::getLoad);
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         return Iterables.transform(getDelegate().getShuntCompensators(),
-                                   getIndex()::getShuntCompensator);
+                getIndex()::getShuntCompensator);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return getDelegate().getShuntCompensatorStream()
-                            .map(getIndex()::getShuntCompensator);
+                .map(getIndex()::getShuntCompensator);
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return Iterables.transform(getDelegate().getStaticVarCompensators(),
-                                   getIndex()::getStaticVarCompensator);
+                getIndex()::getStaticVarCompensator);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         return getDelegate().getStaticVarCompensatorStream()
-                            .map(getIndex()::getStaticVarCompensator);
+                .map(getIndex()::getStaticVarCompensator);
     }
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
         return Iterables.transform(getDelegate().getLccConverterStations(),
-                                   getIndex()::getLccConverterStation);
+                getIndex()::getLccConverterStation);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
         return getDelegate().getLccConverterStationStream()
-                            .map(getIndex()::getLccConverterStation);
+                .map(getIndex()::getLccConverterStation);
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
         return Iterables.transform(getDelegate().getVscConverterStations(),
-                                   getIndex()::getVscConverterStation);
+                getIndex()::getVscConverterStation);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
         return getDelegate().getVscConverterStationStream()
-                            .map(getIndex()::getVscConverterStation);
+                .map(getIndex()::getVscConverterStation);
     }
 
     @Override
@@ -214,7 +238,13 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
         ccm.update();
 
-        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+        if (terminals.isEmpty()) {
+            if (terminalRef == null) {
+                return null;
+            }
+            return ccm.getComponent(terminalRef.getConnectedComponentNumber());
+        }
+        return ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
     }
 
     @Override
@@ -242,7 +272,13 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
         ccm.update();
 
-        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+        if (terminals.isEmpty()) {
+            if (terminalRef == null) {
+                return null;
+            }
+            return ccm.getComponent(terminalRef.getSynchronousComponentNumber());
+        }
+        return ccm.getComponent(terminals.get(0).getSynchronousComponentNumber());
     }
 
     void setSynchronousComponentNumber(int synchronousComponentNumber) {

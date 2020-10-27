@@ -38,9 +38,13 @@ public abstract class AbstractShuntCompensatorTest {
     private VoltageLevel voltageLevel;
     private Terminal terminal;
 
+    protected Network createNetwork() {
+        return NoEquipmentNetworkFactory.create();
+    }
+
     @Before
     public void setUp() {
-        network = NoEquipmentNetworkFactory.create();
+        network = createNetwork();
         network.getVoltageLevel("vl2").newLoad()
                 .setId("load")
                 .setBus("busB")

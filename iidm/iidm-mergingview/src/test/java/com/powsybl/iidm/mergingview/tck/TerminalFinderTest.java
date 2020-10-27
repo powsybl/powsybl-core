@@ -9,15 +9,15 @@ package com.powsybl.iidm.mergingview.tck;
 import com.powsybl.iidm.mergingview.MergingView;
 import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tck.AbstractNodeBreakerTest;
+import com.powsybl.iidm.network.tck.AbstractTerminalFinderTest;
 import org.junit.Test;
 
 import java.util.function.Supplier;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class NodeBreakerTest extends AbstractNodeBreakerTest {
+public class TerminalFinderTest extends AbstractTerminalFinderTest {
 
     @Override
     protected Network createNetwork(Supplier<Network> supplier) {
@@ -27,12 +27,22 @@ public class NodeBreakerTest extends AbstractNodeBreakerTest {
     }
 
     @Test
-    public void connectDisconnectRemove() {
-        TestUtil.notImplemented(super::connectDisconnectRemove);
+    public void testLineTerminal1() {
+        TestUtil.notImplemented(super::testLineTerminal1);
     }
 
     @Test
-    public void replaceLoad() {
-        TestUtil.notImplemented(super::replaceLoad);
+    public void testLineTerminal2() {
+        TestUtil.notImplemented(super::testLineTerminal2);
+    }
+
+    @Test
+    public void testBbsTerminal() {
+        TestUtil.notImplemented(super::testBbsTerminal);
+    }
+
+    @Test
+    public void testNoTerminal() {
+        TestUtil.notImplemented(super::testNoTerminal);
     }
 }

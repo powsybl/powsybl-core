@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractMinMaxReactiveLimitsTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest { }
+public class MinMaxReactiveLimitsTest extends AbstractMinMaxReactiveLimitsTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(FictitiousSwitchFactory.create());
+        return network;
+    }
+}

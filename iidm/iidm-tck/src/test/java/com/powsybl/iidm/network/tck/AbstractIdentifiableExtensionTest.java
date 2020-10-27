@@ -33,12 +33,16 @@ public abstract class AbstractIdentifiableExtensionTest {
         }
     }
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
     @Test
     public void test() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         Load load = network.getLoad("LOAD");
         assertTrue(load.getExtensions().isEmpty());
-        LoadZipModel zipModel = new LoadZipModel(load, 1, 2, 3, 4, 5, 6, 380);
+        LoadZipModel zipModel = new LoadZipModel(null, 1, 2, 3, 4, 5, 6, 380);
         load.addExtension(LoadZipModel.class, zipModel);
         assertNotNull(zipModel);
         assertSame(zipModel, load.getExtension(LoadZipModel.class));

@@ -18,7 +18,7 @@ public final class TestUtil {
     private TestUtil() {
     }
 
-    static void notImplemented(final Runnable execute) {
+    public static void notImplemented(final Runnable execute) {
         // Using Try/catch in order to make sure executed code is covered by test
         try {
             execute.run();

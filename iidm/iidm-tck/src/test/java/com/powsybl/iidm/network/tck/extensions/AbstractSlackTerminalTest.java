@@ -27,65 +27,73 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractSlackTerminalTest {
 
-    static Network createBusBreakerNetwork() {
-        Network network = Network.create("test", "test");
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
+    protected Network createEurostag() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
+    private Network createBusBreakerNetwork() {
+        Network network = createNetwork();
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
-            .setId("S")
-            .setCountry(Country.FR)
-            .add();
+                .setId("S")
+                .setCountry(Country.FR)
+                .add();
         VoltageLevel vl = s.newVoltageLevel()
-            .setId("VL")
-            .setNominalV(400)
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .add();
+                .setId("VL")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
         vl.getBusBreakerView().newBus()
-            .setId("B")
-            .add();
+                .setId("B")
+                .add();
         vl.newLoad()
-            .setId("L")
-            .setBus("B")
-            .setConnectableBus("B")
-            .setP0(100)
-            .setQ0(50)
-            .add();
+                .setId("L")
+                .setBus("B")
+                .setConnectableBus("B")
+                .setP0(100)
+                .setQ0(50)
+                .add();
 
         Substation s1 = network.newSubstation()
-            .setId("S1")
-            .setCountry(Country.FR)
-            .add();
-        VoltageLevel vl1 = s.newVoltageLevel()
-            .setId("VL1")
-            .setNominalV(400)
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .add();
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
         vl1.getBusBreakerView().newBus()
-            .setId("B1")
-            .add();
+                .setId("B1")
+                .add();
         vl1.newGenerator()
-            .setId("GE")
-            .setBus("B1")
-            .setConnectableBus("B1")
-            .setTargetP(100)
-            .setMinP(0)
-            .setMaxP(110)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
-            .add();
+                .setId("GE")
+                .setBus("B1")
+                .setConnectableBus("B1")
+                .setTargetP(100)
+                .setMinP(0)
+                .setMaxP(110)
+                .setTargetV(380)
+                .setVoltageRegulatorOn(true)
+                .add();
 
         network.newLine()
-            .setId("LI")
-            .setR(0.05)
-            .setX(1.)
-            .setG1(0.)
-            .setG2(0.)
-            .setB1(0.)
-            .setB2(0.)
-            .setVoltageLevel1("VL")
-            .setVoltageLevel2("VL1")
-            .setBus1("B")
-            .setBus2("B1")
-            .add();
+                .setId("LI")
+                .setR(0.05)
+                .setX(1.)
+                .setG1(0.)
+                .setG2(0.)
+                .setB1(0.)
+                .setB2(0.)
+                .setVoltageLevel1("VL")
+                .setVoltageLevel2("VL1")
+                .setBus1("B")
+                .setBus2("B1")
+                .add();
 
         return network;
     }
@@ -126,7 +134,7 @@ public abstract class AbstractSlackTerminalTest {
         String variant3 = "variant3";
 
         // Creates the extension
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createEurostag();
         VoltageLevel vl = network.getVoltageLevel("VLLOAD");
         SlackTerminal.attach(network.getBusBreakerView().getBus("NLOAD"));
         SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
@@ -163,7 +171,7 @@ public abstract class AbstractSlackTerminalTest {
 
     @Test
     public void vlErrorTest() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createEurostag();
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
 
         // Adding a terminal in the wrong voltage level
@@ -198,7 +206,7 @@ public abstract class AbstractSlackTerminalTest {
         String variant2 = "variant2";
 
         // Creates 2 variants before creating the extension
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createEurostag();
         VariantManager variantManager = network.getVariantManager();
         List<String> targetVariantIds = Arrays.asList(variant1, variant2);
         variantManager.cloneVariant(INITIAL_VARIANT_ID, targetVariantIds);
@@ -245,7 +253,7 @@ public abstract class AbstractSlackTerminalTest {
         assertEquals("NLOAD", stLoad.getTerminal().getBusBreakerView().getBus().getId());
         assertFalse(stLoad.isEmpty());
 
-         // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
+        // Reset the SlackTerminal of VLGEN voltageLevel to its previous value
         SlackTerminal.reset(vlgen, tGen);
         stGen = vlgen.getExtension(SlackTerminal.class);
         assertNotNull(stGen);

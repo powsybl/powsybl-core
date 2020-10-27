@@ -17,8 +17,12 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class AbstractNodeBreakerDisconnectionDoublePathBugTest {
 
+    protected Network createBaseNetwork() {
+        return Network.create("test", "test");
+    }
+
     private Network createNetwork() {
-        Network network = Network.create("test", "test");
+        Network network = createBaseNetwork();
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

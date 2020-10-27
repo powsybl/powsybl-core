@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest { }
+public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest extends AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(EurostagTutorialExample1Factory.create());
+        return network;
+    }
+}

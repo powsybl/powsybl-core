@@ -18,8 +18,12 @@ import static org.junit.Assert.assertNotNull;
  */
 public abstract class AbstractEmptyCalculatedBusBugTest {
 
+    protected Network createBaseNetwork() {
+        return Network.create("test", "test");
+    }
+
     private Network createNetwork(boolean retained) {
-        Network network = Network.create("test", "test");
+        Network network = createBaseNetwork();
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

@@ -6,9 +6,32 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractGeneratorTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class GeneratorTest extends AbstractGeneratorTest { }
+public class GeneratorTest extends AbstractGeneratorTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(FictitiousSwitchFactory.create());
+        return network;
+    }
+
+    @Test
+    public void invalidPowerBounds() {
+        TestUtil.notImplemented(super::invalidPowerBounds);
+    }
+
+    @Test
+    public void testRemove() {
+        TestUtil.notImplemented(super::testRemove);
+    }
+}

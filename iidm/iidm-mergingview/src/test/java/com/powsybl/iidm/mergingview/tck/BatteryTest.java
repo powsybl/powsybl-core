@@ -6,9 +6,27 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractBatteryTest;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BatteryTest extends AbstractBatteryTest { }
+public class BatteryTest extends AbstractBatteryTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merged", "merged");
+        network.merge(BatteryNetworkFactory.create());
+        return network;
+    }
+
+    @Test
+    public void testRemove() {
+        TestUtil.notImplemented(super::testRemove);
+    }
+}

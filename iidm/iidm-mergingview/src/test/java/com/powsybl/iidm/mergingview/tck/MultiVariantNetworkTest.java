@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractMultiVariantNetworkTest;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest { }
+public class MultiVariantNetworkTest extends AbstractMultiVariantNetworkTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(EurostagTutorialExample1Factory.create());
+        return network;
+    }
+}

@@ -18,9 +18,13 @@ import org.junit.Test;
  */
 public abstract class AbstractBusTerminalTest {
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
     @Test
     public void testSetInvalidConnectableBus() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         try {
             network.getLoad("LOAD").getTerminal().getBusBreakerView().setConnectableBus("UNKNOWN");
         } catch (PowsyblException e) {

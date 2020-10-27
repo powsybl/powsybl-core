@@ -4,26 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.mergingview.tck;
+package com.powsybl.iidm.mergingview.tck.extensions;
 
 import com.powsybl.iidm.mergingview.MergingView;
-import com.powsybl.iidm.mergingview.TestUtil;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.tck.AbstractSubstationTest;
-import org.junit.Test;
+import com.powsybl.iidm.network.tck.extensions.AbstractLoadDetailTest;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class SubstationTest extends AbstractSubstationTest {
+public class LoadDetailTest extends AbstractLoadDetailTest {
 
-    @Override
     protected Network createNetwork() {
         return MergingView.create("test", "test");
-    }
-
-    @Test
-    public void baseTests() {
-        TestUtil.notImplemented(super::baseTests);
     }
 }

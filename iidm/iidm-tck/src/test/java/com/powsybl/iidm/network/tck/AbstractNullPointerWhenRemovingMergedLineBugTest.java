@@ -16,9 +16,13 @@ import static org.junit.Assert.assertEquals;
  */
 public abstract class AbstractNullPointerWhenRemovingMergedLineBugTest {
 
+    protected Network createNetwork() {
+        return Network.create("n1", "test");
+    }
+
     @Test
     public void test() {
-        Network n1 = Network.create("n1", "test");
+        Network n1 = createNetwork();
         Substation s1 = n1.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)

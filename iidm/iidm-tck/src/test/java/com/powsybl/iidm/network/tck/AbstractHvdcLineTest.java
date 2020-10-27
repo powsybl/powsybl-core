@@ -36,11 +36,15 @@ public abstract class AbstractHvdcLineTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    Network network;
+    private Network network;
+
+    protected Network createNetwork() {
+        return HvdcTestNetwork.createLcc();
+    }
 
     @Before
     public void initNetwork() {
-        network = HvdcTestNetwork.createLcc();
+        network = createNetwork();
     }
 
     @Test

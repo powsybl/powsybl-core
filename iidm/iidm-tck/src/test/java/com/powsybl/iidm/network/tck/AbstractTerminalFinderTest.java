@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.util.TerminalFinder;
 import org.junit.Test;
 
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
@@ -22,9 +23,13 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractTerminalFinderTest {
 
+    protected Network createNetwork(Supplier<Network> supplier) {
+        return supplier.get();
+    }
+
     @Test
     public void testBbsTerminal() {
-        Network network = FictitiousSwitchFactory.create();
+        Network network = createNetwork(FictitiousSwitchFactory::create);
         VoltageLevel vlN = network.getVoltageLevel("N");
         Optional<Terminal> optTerminalN0 = vlN.getNodeBreakerView().getOptionalTerminal(0);
         assertTrue(optTerminalN0.isPresent());
@@ -41,7 +46,7 @@ public abstract class AbstractTerminalFinderTest {
 
     @Test
     public void testNoTerminal() {
-        Network network = FictitiousSwitchFactory.create();
+        Network network = createNetwork(FictitiousSwitchFactory::create);
         VoltageLevel vlN = network.getVoltageLevel("N");
 
         TerminalFinder slackTerminalFinder = TerminalFinder.getDefault();
@@ -55,7 +60,7 @@ public abstract class AbstractTerminalFinderTest {
 
     @Test
     public void testLineTerminal1() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork(EurostagTutorialExample1Factory::create);
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV1");
 
         Bus bus = vlhv2.getBusBreakerView().getBus("NHV1");
@@ -73,7 +78,7 @@ public abstract class AbstractTerminalFinderTest {
 
     @Test
     public void testLineTerminal2() {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork(EurostagTutorialExample1Factory::create);
         VoltageLevel vlhv2 = network.getVoltageLevel("VLHV2");
 
         Bus bus = vlhv2.getBusBreakerView().getBus("NHV2");

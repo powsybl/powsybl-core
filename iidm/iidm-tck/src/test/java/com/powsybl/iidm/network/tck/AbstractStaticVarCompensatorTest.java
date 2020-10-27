@@ -23,9 +23,13 @@ public abstract class AbstractStaticVarCompensatorTest {
 
     private Network network;
 
+    protected Network createNetwork() {
+        return SvcTestCaseFactory.create();
+    }
+
     @Before
     public void setUp() {
-        network = SvcTestCaseFactory.create();
+        network = createNetwork();
     }
 
     @Test

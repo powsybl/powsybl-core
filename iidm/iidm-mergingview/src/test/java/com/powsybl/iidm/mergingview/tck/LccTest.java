@@ -6,9 +6,27 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractLccTest;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class LccTest extends AbstractLccTest { }
+public class LccTest extends AbstractLccTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(HvdcTestNetwork.createLcc());
+        return network;
+    }
+
+    @Test
+    public void testHvdcLineRemove() {
+        TestUtil.notImplemented(super::testHvdcLineRemove);
+    }
+}

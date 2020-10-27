@@ -34,9 +34,13 @@ public abstract class AbstractLccTest {
     private LccConverterStation cs1;
     private LccConverterStation cs2;
 
+    protected Network createNetwork() {
+        return HvdcTestNetwork.createLcc();
+    }
+
     @Before
     public void setUp() {
-        network = HvdcTestNetwork.createLcc();
+        network = createNetwork();
         hvdcLine = network.getHvdcLine("L");
         cs1 = network.getLccConverterStation("C1");
         cs2 = network.getLccConverterStation("C2");

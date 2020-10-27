@@ -22,9 +22,13 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class AbstractExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 
+    protected Network createNetwork() {
+        return EurostagTutorialExample1Factory.create();
+    }
+
     @Test
     public void test() throws InterruptedException {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = createNetwork();
         network.getVariantManager().allowVariantMultiThreadAccess(true);
         network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "s");
         ExecutorService executorService = Executors.newSingleThreadExecutor();

@@ -17,17 +17,19 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public abstract class AbstractLoadDetailTest {
 
-    private static Network createTestNetwork() {
-        Network network = Network.create("test", "test");
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
+    private Network createTestNetwork() {
+        Network network = createNetwork();
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")

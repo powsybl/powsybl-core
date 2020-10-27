@@ -6,9 +6,24 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractNullPointerWhenRemovingMergedLineBugTest;
+import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest { }
+public class NullPointerWhenRemovingMergedLineBugTest extends AbstractNullPointerWhenRemovingMergedLineBugTest {
+
+    @Override
+    protected Network createNetwork() {
+        return MergingView.create("n1", "test");
+    }
+
+    @Test
+    public void test() {
+        TestUtil.notImplemented(super::test);
+    }
+}

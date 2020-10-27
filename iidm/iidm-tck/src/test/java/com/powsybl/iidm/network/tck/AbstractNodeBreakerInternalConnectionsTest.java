@@ -27,9 +27,13 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
     private static final String S5_10K_V = "S5 10kV";
 
+    protected Network createNetwork(String id, String format) {
+        return Network.create(id, format);
+    }
+
     @Test
     public void testTraversalInternalConnections() {
-        Network network = Network.create("testTraversalInternalConnections", "test");
+        Network network = createNetwork("testTraversalInternalConnections", "test");
         InternalConnections all = new InternalConnections();
         createNetwork(network, all);
         VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
@@ -63,7 +67,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
     @Test
     public void testRemoveInternalConnections() {
-        Network network = Network.create("testTraversalInternalConnections", "test");
+        Network network = createNetwork("testTraversalInternalConnections", "test");
         createNetwork(network, new InternalConnections());
         VoltageLevel vl = network.getVoltageLevel(S5_10K_V);
 
@@ -94,7 +98,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
 
     @Test
     public void testRemoveVoltageLevelWithInternalConnectionsIssue() {
-        Network network = Network.create("testRemoveVoltageLevelWithInternalConnectionsIssue", "test");
+        Network network = createNetwork("testRemoveVoltageLevelWithInternalConnectionsIssue", "test");
         InternalConnections all = new InternalConnections();
         createNetwork(network, all);
         network.getLine("L6").remove(); // needed to be allowed to remove the voltage level

@@ -28,7 +28,7 @@ public abstract class AbstractDanglingLineTest {
 
     private static final String TO_REMOVE = "toRemove";
 
-    private static final String BUS_VL_ID = "bus_vl";
+    protected static final String BUS_VL_ID = "bus_vl";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -36,9 +36,13 @@ public abstract class AbstractDanglingLineTest {
     private Network network;
     private VoltageLevel voltageLevel;
 
+    protected Network createNetwork() {
+        return Network.create("test", "test");
+    }
+
     @Before
     public void initNetwork() {
-        network = Network.create("test", "test");
+        network = createNetwork();
         Substation substation = network.newSubstation()
                 .setId("sub")
                 .setCountry(Country.FR)

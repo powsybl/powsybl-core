@@ -6,9 +6,27 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.mergingview.TestUtil;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractTapChangerTest;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import org.junit.Test;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class TapChangerTest extends AbstractTapChangerTest { }
+public class TapChangerTest extends AbstractTapChangerTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("merge", "test");
+        network.merge(NoEquipmentNetworkFactory.create());
+        return network;
+    }
+
+    @Test
+    public void baseTestsPhaseTapChanger() {
+        TestUtil.notImplemented(super::baseTestsPhaseTapChanger);
+    }
+}

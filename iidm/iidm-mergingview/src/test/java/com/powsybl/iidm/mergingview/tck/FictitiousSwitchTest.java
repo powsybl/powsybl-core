@@ -6,9 +6,20 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractFictitiousSwitchTest;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest { }
+public class FictitiousSwitchTest extends AbstractFictitiousSwitchTest {
+
+    @Override
+    protected Network createNetwork() {
+        Network network = MergingView.create("test", "test");
+        network.merge(FictitiousSwitchFactory.create());
+        return network;
+    }
+}

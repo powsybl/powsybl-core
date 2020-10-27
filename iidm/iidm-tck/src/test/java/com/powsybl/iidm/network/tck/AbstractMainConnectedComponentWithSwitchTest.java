@@ -18,10 +18,14 @@ import static org.junit.Assert.assertTrue;
  */
 public abstract class AbstractMainConnectedComponentWithSwitchTest {
 
+    protected Network createNetwork() {
+        return Network.create("test_mcc", "test");
+    }
+
     @Test
     public void test() {
 
-        Network network = Network.create("test_mcc", "test");
+        Network network = createNetwork();
 
         Substation s1 = network.newSubstation()
                 .setId("A")

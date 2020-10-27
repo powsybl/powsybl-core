@@ -6,9 +6,22 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
+import com.powsybl.iidm.mergingview.MergingView;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.tck.AbstractMergeNetworkTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class MergeNetworkTest extends AbstractMergeNetworkTest { }
+public class MergeNetworkTest extends AbstractMergeNetworkTest {
+
+    @Override
+    protected Network createNetwork(String id, String format) {
+        return MergingView.create(id, format);
+    }
+
+    @Override
+    protected String thrownMessage() {
+        return "The object 'P1' already exists into merging view";
+    }
+}
