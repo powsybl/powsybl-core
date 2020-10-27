@@ -635,5 +635,15 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment().dataSource(), null));
     }
 
+    @Test
+    public void miniNodeBreakerInternalLineZ0() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), null);
+        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
+        Switch sw = network.getSwitch("_fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
+        assertNotNull(sw);
+        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
+    }
+
     private FileSystem fileSystem;
 }

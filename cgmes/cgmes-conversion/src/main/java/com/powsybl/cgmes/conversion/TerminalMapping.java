@@ -15,7 +15,6 @@ import java.util.Map;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -44,10 +43,10 @@ public class TerminalMapping {
         return terminalNumbers.get(cgmesTerminalId);
     }
 
-    public void buildTopologicalNodesMapping(PropertyBag p) {
-        String tp = CgmesTerminal.topologicalNode(p);
+    public void buildTopologicalNodesMapping(CgmesTerminal t) {
+        String tp = t.topologicalNode();
         if (tp != null) {
-            topologicalNodesMapping.computeIfAbsent(tp, t -> new ArrayList<>()).add(p.getId("Terminal"));
+            topologicalNodesMapping.computeIfAbsent(tp, tpnode -> new ArrayList<>()).add(t.id());
         }
     }
 
