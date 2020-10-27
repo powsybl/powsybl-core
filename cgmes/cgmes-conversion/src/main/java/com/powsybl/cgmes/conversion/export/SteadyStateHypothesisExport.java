@@ -7,29 +7,20 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreas;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreasImpl.ControlArea;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.util.*;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -61,7 +52,7 @@ public final class SteadyStateHypothesisExport {
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
-            writeControlAreas(network, cimNamespace, writer);
+            // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer);
 
             writer.writeEndDocument();
@@ -585,16 +576,6 @@ public final class SteadyStateHypothesisExport {
         // The generator id is the SyncrhonousMachine.id,
         // different from the GeneratingUnit.id
         return g.getProperty("GeneratingUnit");
-    }
-
-    private static void writeControlAreas(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        CgmesSshControlAreas sshControlAreas = network.getExtension(CgmesSshControlAreas.class);
-        if (sshControlAreas == null) {
-            return;
-        }
-        for (ControlArea controlArea : sshControlAreas.getControlAreas()) {
-            writeControlArea(controlArea.getId(), controlArea.getNetInterchange(), controlArea.getPTolerance(), cimNamespace, writer);
-        }
     }
 
     private static void writeControlArea(String id, double netInterchange, double pTolerance, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {

@@ -6,11 +6,19 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Node;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.*;
 
+import javax.xml.namespace.QName;
+import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -22,29 +30,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.namespace.QName;
-import javax.xml.transform.Source;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Node;
-import org.xmlunit.builder.DiffBuilder;
-import org.xmlunit.builder.Input;
-import org.xmlunit.diff.Comparison;
-import org.xmlunit.diff.ComparisonResult;
-import org.xmlunit.diff.ComparisonType;
-import org.xmlunit.diff.DefaultNodeMatcher;
-import org.xmlunit.diff.Diff;
-import org.xmlunit.diff.Difference;
-import org.xmlunit.diff.DifferenceEvaluator;
-import org.xmlunit.diff.DifferenceEvaluators;
-import org.xmlunit.diff.ElementSelector;
-import org.xmlunit.diff.ElementSelectors;
-
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -431,7 +420,7 @@ public final class ExportXmlCompare {
                     // Previous condition includes this one
                     // but we state explicitly that we consider tap changer control objects
                     || name.startsWith("TapChangerControl")
-                    || name.startsWith("ControlArea")
+                    // TODO include control areas
                     || name.contains("GeneratingUnit")
                     || isConsideredModelElementName(name);
         }

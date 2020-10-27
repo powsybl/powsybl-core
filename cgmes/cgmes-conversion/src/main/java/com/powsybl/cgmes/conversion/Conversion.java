@@ -11,11 +11,9 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreasAdder;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshControlAreasImpl.ControlArea;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -154,7 +152,7 @@ public class Conversion {
         assignNetworkProperties(context);
         addCgmesSvMetadata(network);
         addCgmesSshMetadata(network);
-        addCgmesSshControlAreas(network);
+        addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
@@ -323,19 +321,10 @@ public class Conversion {
         }
     }
 
-    private void addCgmesSshControlAreas(Network network) {
+    private void addCgmesSshControlAreas(Network network, Context context) {
         PropertyBags sshControlAreas = cgmes.controlAreas();
         if (sshControlAreas != null && !sshControlAreas.isEmpty()) {
-            CgmesSshControlAreasAdder adder = network.newExtension(CgmesSshControlAreasAdder.class);
-
-            sshControlAreas.forEach(sshControlArea -> {
-                String id = sshControlArea.getId("ControlArea");
-                double netInterchange = sshControlArea.asDouble("netInterchange");
-                double pTolerance = sshControlArea.asDouble("pTolerance");
-                ControlArea controlArea = new ControlArea(id, netInterchange, pTolerance);
-                adder.addControlArea(controlArea);
-            });
-            adder.add();
+            context.ignored("ControlAreas", "Unsupported in current version");
         }
     }
 
