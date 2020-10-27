@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -61,8 +62,13 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
         }
         if (p.containsKey("normalPF")) {
-            // Convert to double then to string to have canonical representation of number
-            g.setProperty("GeneratingUnit.normalPF", Double.valueOf(p.get("normalPF")).toString());
+            // Extension power control adder attribute "droop"
+            // is documented as the participation factor when distributed slack is enabled
+            // We map the normal participation factor from CGMES to droop
+            g.newExtension(ActivePowerControlAdder.class)
+                    .withParticipate(true)
+                    .withDroop((float) p.asDouble("normalPF"))
+                    .add();
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {

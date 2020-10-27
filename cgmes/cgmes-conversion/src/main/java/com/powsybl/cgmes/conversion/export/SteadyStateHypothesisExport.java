@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.slf4j.Logger;
@@ -532,25 +533,47 @@ public final class SteadyStateHypothesisExport {
         return "EnergyConsumer";
     }
 
+    private static class GeneratingUnit {
+        String id;
+        String className;
+        double participationFactor;
+    }
+
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         // Multiple generators may share the same generation unit,
-        // we will choose the last generator that references the generating unit
-        Map<String, Generator> generatingUnits = new HashMap<>();
+        // we will choose the participation factor from the last generator that references the generating unit
+        // We only consider generators that have participation factors
+        Map<String, GeneratingUnit> generatingUnits = new HashMap<>();
         for (Generator g : network.getGenerators()) {
-            if (g.hasProperty("GeneratingUnit") && g.hasProperty("GeneratingUnit.normalPF")) {
-                generatingUnits.put(g.getProperty("GeneratingUnit"), g);
+            GeneratingUnit gu = generatingUnitForGenerator(g);
+            if (gu != null) {
+                generatingUnits.put(gu.id, gu);
             }
         }
-        for (Generator g : generatingUnits.values()) {
-            writeGeneratingUnitParticipationFactor(g, cimNamespace, writer);
+        for (GeneratingUnit gu : generatingUnits.values()) {
+            writeGeneratingUnitParticipationFactor(gu, cimNamespace, writer);
         }
     }
 
-    private static void writeGeneratingUnitParticipationFactor(Generator g, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, generatingUnitClassname(g));
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + generatingUnitId(g));
+    private static GeneratingUnit generatingUnitForGenerator(Generator g) {
+        if (g.hasProperty("GeneratingUnit")) {
+            ActivePowerControl apc = g.getExtension(ActivePowerControl.class);
+            if (apc != null) {
+                GeneratingUnit gu = new GeneratingUnit();
+                gu.id = g.getProperty("GeneratingUnit");
+                gu.participationFactor = apc.getDroop();
+                gu.className = generatingUnitClassname(g);
+                return gu;
+            }
+        }
+        return null;
+    }
+
+    private static void writeGeneratingUnitParticipationFactor(GeneratingUnit gu, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, gu.className);
+        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + gu.id);
         writer.writeStartElement(cimNamespace, "GeneratingUnit.normalPF");
-        writer.writeCharacters(CgmesExportUtil.format(Double.valueOf(g.getProperty("GeneratingUnit.normalPF"))));
+        writer.writeCharacters(CgmesExportUtil.format(Double.valueOf(gu.participationFactor)));
         writer.writeEndElement();
         writer.writeEndElement();
     }
