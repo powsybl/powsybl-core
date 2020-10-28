@@ -63,7 +63,7 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(context.getScenarioTime().toString("yyyy-MM-dd'T'HH:mm:ss"));
+        writer.writeCharacters(context.getScenarioTime().toString());
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(DateTime.now().toString());
