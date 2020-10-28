@@ -53,6 +53,7 @@ public class ExportAlternativesTest {
     public void testExportAlternativesBusBranchSmall() throws IOException {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
+                        ExportXmlCompare::sameScenarioTime,
                         ExportXmlCompare::ensuringIncreasedModelVersion,
                         ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
@@ -62,6 +63,7 @@ public class ExportAlternativesTest {
     public void testExportAlternativesBusBranchMicro() throws IOException {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
+                        ExportXmlCompare::sameScenarioTime,
                         ExportXmlCompare::ensuringIncreasedModelVersion,
                         ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
                         ExportXmlCompare::ignoringSynchronousMachinesWithTargetDeadband,
@@ -73,6 +75,7 @@ public class ExportAlternativesTest {
     public void testExportAlternativesBusBranchMicroT4() throws IOException {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
+                        ExportXmlCompare::sameScenarioTime,
                         ExportXmlCompare::ensuringIncreasedModelVersion,
                         ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
                         ExportXmlCompare::ignoringMissingTopologicalIslandInControl,

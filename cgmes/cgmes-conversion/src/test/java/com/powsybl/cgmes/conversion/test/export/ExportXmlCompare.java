@@ -9,6 +9,8 @@ package com.powsybl.cgmes.conversion.test.export;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Attr;
@@ -86,6 +88,7 @@ public final class ExportXmlCompare {
     static void compareSSH(InputStream expected, InputStream actual) throws IOException {
         DifferenceEvaluator knownDiffs =
                 DifferenceEvaluators.chain(
+                        ExportXmlCompare::sameScenarioTime,
                         ExportXmlCompare::ensuringIncreasedModelVersion,
                         ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
                         ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
@@ -126,6 +129,23 @@ public final class ExportXmlCompare {
                 int vcontrol = Integer.valueOf(control.getTextContent());
                 int vtest = Integer.valueOf(test.getTextContent());
                 if (vtest == vcontrol + 1) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
+    static ComparisonResult sameScenarioTime(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT && comparison.getType() == ComparisonType.TEXT_VALUE) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (test != null && control != null && control.getParentNode().getLocalName().equals("Model.scenarioTime")) {
+                String scontrol = control.getTextContent();
+                String stest = test.getTextContent();
+                DateTime dcontrol = DateTime.parse(scontrol, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                DateTime dtest = DateTime.parse(stest, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                if (dcontrol.equals(dtest)) {
                     return ComparisonResult.EQUAL;
                 }
             }
