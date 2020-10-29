@@ -30,8 +30,8 @@ public class ContingencyTest {
     @Test
     public void test() {
         Contingency contingency = Contingency.builder("contingency")
-                .branch("line")
-                .generator("generator")
+                .addBranch("line")
+                .addGenerator("generator")
                 .build();
 
         assertEquals("contingency", contingency.getId());
@@ -50,10 +50,10 @@ public class ContingencyTest {
     @Test
     public void validationTest() {
         Network network = EurostagTutorialExample1Factory.create();
-        Contingency generatorContingency = Contingency.builder("GEN contingency").generator("GEN").build();
-        Contingency generatorInvalidContingency = Contingency.builder("GEN invalid contingency").generator("GE").build();
-        Contingency lineContingency = Contingency.builder("NHV1_NHV2_1 contingency").line("NHV1_NHV2_1", "VLHV1").build();
-        Contingency lineInvalidContingency = Contingency.builder("NHV1_NHV2_1 invalid contingency").line("NHV1_NHV2_1", "VLHV").build();
+        Contingency generatorContingency = Contingency.builder("GEN contingency").addGenerator("GEN").build();
+        Contingency generatorInvalidContingency = Contingency.builder("GEN invalid contingency").addGenerator("GE").build();
+        Contingency lineContingency = Contingency.builder("NHV1_NHV2_1 contingency").addLine("NHV1_NHV2_1", "VLHV1").build();
+        Contingency lineInvalidContingency = Contingency.builder("NHV1_NHV2_1 invalid contingency").addLine("NHV1_NHV2_1", "VLHV").build();
 
         List<Contingency> validContingencies = ContingencyList.of(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency)
                 .getContingencies(network);
@@ -65,8 +65,8 @@ public class ContingencyTest {
     @Test
     public void validationTestForShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        Contingency shuntCompensatorContingency = Contingency.builder("Shunt contingency").shuntCompensator("C1_Filter1").build();
-        Contingency shuntCompensatorInvalidContingency = Contingency.builder("Shunt invalid contingency").shuntCompensator("C_Filter").build();
+        Contingency shuntCompensatorContingency = Contingency.builder("Shunt contingency").addShuntCompensator("C1_Filter1").build();
+        Contingency shuntCompensatorInvalidContingency = Contingency.builder("Shunt invalid contingency").addShuntCompensator("C_Filter").build();
 
         List<Contingency> validContingencies = ContingencyList.of(shuntCompensatorContingency, shuntCompensatorInvalidContingency)
                 .getContingencies(network);
@@ -78,8 +78,8 @@ public class ContingencyTest {
     @Test
     public void validationTestForSVC() {
         Network network = SvcTestCaseFactory.create();
-        Contingency staticVarCompensatorContingency = Contingency.builder("SVC contingency").staticVarCompensator("SVC2").build();
-        Contingency staticVarCompensatorInvalidContingency = Contingency.builder("SVC invalid contingency").staticVarCompensator("SVC").build();
+        Contingency staticVarCompensatorContingency = Contingency.builder("SVC contingency").addStaticVarCompensator("SVC2").build();
+        Contingency staticVarCompensatorInvalidContingency = Contingency.builder("SVC invalid contingency").addStaticVarCompensator("SVC").build();
         List<Contingency> validContingencies = ContingencyList.of(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency)
                 .getContingencies(network);
 
@@ -90,8 +90,8 @@ public class ContingencyTest {
     @Test
     public void validationTestForDL() {
         Network network = DanglingLineNetworkFactory.create();
-        Contingency danglingLineContingency = new Contingency("DL contingency", new DanglingLineContingency("DL"));
-        Contingency danglingLineInvalidContingency = new Contingency("DL invalid contingency", new DanglingLineContingency("DL_THAT_DO_NOT_EXIST"));
+        Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
+        Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
         List<Contingency> validContingencies = ContingencyList.of(danglingLineContingency, danglingLineInvalidContingency)
                 .getContingencies(network);
 

@@ -29,67 +29,67 @@ public class ContingencyBuilder {
         return new Contingency(id, elements);
     }
 
-    public ContingencyBuilder branch(String id) {
+    public ContingencyBuilder addBranch(String id) {
         elements.add(new BranchContingency(id));
         return this;
     }
 
-    public ContingencyBuilder branch(String id, String voltageLevelId) {
+    public ContingencyBuilder addBranch(String id, String voltageLevelId) {
         elements.add(new BranchContingency(id, voltageLevelId));
         return this;
     }
 
-    public ContingencyBuilder busbarSection(String id) {
+    public ContingencyBuilder addBusbarSection(String id) {
         elements.add(new BusbarSectionContingency(id));
         return this;
     }
 
-    public ContingencyBuilder generator(String id) {
+    public ContingencyBuilder addGenerator(String id) {
         elements.add(new GeneratorContingency(id));
         return this;
     }
 
-    public ContingencyBuilder hvdcLine(String id) {
+    public ContingencyBuilder addHvdcLine(String id) {
         elements.add(new HvdcLineContingency(id));
         return this;
     }
 
-    public ContingencyBuilder hvdcLine(String id, String voltageLevel) {
+    public ContingencyBuilder addHvdcLine(String id, String voltageLevel) {
         elements.add(new HvdcLineContingency(id, voltageLevel));
         return this;
     }
 
-    public ContingencyBuilder line(String id) {
+    public ContingencyBuilder addLine(String id) {
         elements.add(new LineContingency(id));
         return this;
     }
 
-    public ContingencyBuilder line(String id, String voltageLevelId) {
+    public ContingencyBuilder addLine(String id, String voltageLevelId) {
         elements.add(new LineContingency(id, voltageLevelId));
         return this;
     }
 
-    public ContingencyBuilder shuntCompensator(String id) {
+    public ContingencyBuilder addShuntCompensator(String id) {
         elements.add(new ShuntCompensatorContingency(id));
         return this;
     }
 
-    public ContingencyBuilder staticVarCompensator(String id) {
+    public ContingencyBuilder addStaticVarCompensator(String id) {
         elements.add(new StaticVarCompensatorContingency(id));
         return this;
     }
 
-    public ContingencyBuilder twoWindingsTransformer(String id) {
+    public ContingencyBuilder addTwoWindingsTransformer(String id) {
         elements.add(new TwoWindingsTransformerContingency(id));
         return this;
     }
 
-    public ContingencyBuilder twoWindingsTransformer(String id, String voltageLevelId) {
+    public ContingencyBuilder addTwoWindingsTransformer(String id, String voltageLevelId) {
         elements.add(new TwoWindingsTransformerContingency(id, voltageLevelId));
         return this;
     }
 
-    public ContingencyBuilder danglingLine(String id) {
+    public ContingencyBuilder addDanglingLine(String id) {
         elements.add(new DanglingLineContingency(id));
         return this;
     }
