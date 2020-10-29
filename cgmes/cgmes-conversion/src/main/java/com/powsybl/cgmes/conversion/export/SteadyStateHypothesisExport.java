@@ -62,7 +62,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
                 writeTerminal(t, c, cimNamespace, writer);
@@ -70,13 +70,11 @@ public final class SteadyStateHypothesisExport {
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal").ifPresent(tid -> {
-                writeTerminal(tid, true, cimNamespace, writer);
-            });
+            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal")
+                    .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
             // Terminal for boundary side of original line/switch is always connected
-            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary").ifPresent(tid -> {
-                writeTerminal(tid, true, cimNamespace, writer);
-            });
+            dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary")
+                    .ifPresent(tid -> writeTerminal(tid, true, cimNamespace, writer));
         }
     }
 
@@ -92,15 +90,15 @@ public final class SteadyStateHypothesisExport {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, twt.getPhaseTapChanger(), cimNamespace, writer);
+                writeTapChanger(ratioPhaseTapChangerType(twt, "PhaseTapChanger", ptcId), ptcId, twt.getPhaseTapChanger(), cimNamespace, writer);
                 addTapChangerControl(twt, ptcId, twt.getPhaseTapChanger(), regulatingControlViews);
-                writeHiddenPhaseTapChangerAndControl(twt, ptcId, cimNamespace, regulatingControlViews, writer);
+                writeHiddenTapChanger(twt, "PhaseTapChanger", ptcId, cimNamespace, writer);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + 1)
                         .orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
                 writeTapChanger("RatioTapChanger", rtcId, twt.getRatioTapChanger(), cimNamespace, writer);
                 addTapChangerControl(twt, rtcId, twt.getRatioTapChanger(), regulatingControlViews);
-                writeHiddenRatioTapChangerAndControl(twt, rtcId, cimNamespace, regulatingControlViews, writer);
+                writeHiddenTapChanger(twt, "RatioTapChanger", rtcId, cimNamespace, writer);
             }
         }
 
@@ -109,26 +107,26 @@ public final class SteadyStateHypothesisExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeTapChanger(phaseTapChangerType(twt, ptcId), ptcId, leg.getPhaseTapChanger(), cimNamespace, writer);
+                    writeTapChanger(ratioPhaseTapChangerType(twt, "PhaseTapChanger", ptcId), ptcId, leg.getPhaseTapChanger(), cimNamespace, writer);
                     addTapChangerControl(twt, ptcId, leg.getPhaseTapChanger(), regulatingControlViews);
-                    writeHiddenPhaseTapChangerAndControl(twt, ptcId, cimNamespace, regulatingControlViews, writer);
+                    writeHiddenTapChanger(twt, "PhaseTapChanger", ptcId, cimNamespace, writer);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
                     writeTapChanger(CgmesNames.RATIO_TAP_CHANGER, rtcId, leg.getRatioTapChanger(), cimNamespace, writer);
                     addTapChangerControl(twt, rtcId, leg.getRatioTapChanger(), regulatingControlViews);
-                    writeHiddenRatioTapChangerAndControl(twt, rtcId, cimNamespace, regulatingControlViews, writer);
+                    writeHiddenTapChanger(twt, "RatioTapChanger", rtcId, cimNamespace, writer);
                 }
                 i++;
             }
         }
     }
 
-    private static String phaseTapChangerType(Identifiable<?> eq, String ptcId) {
-        String key = String.format("PhaseTapChanger.%s.type", ptcId);
+    private static String ratioPhaseTapChangerType(Identifiable<?> eq, String tagRatioPhase, String ptcId) {
+        String key = String.format("%s.%s.type", tagRatioPhase, ptcId);
         if (eq.hasProperty(key)) {
             return eq.getProperty(key);
-        }        else  {
-            return "PhaseTapChanger";
+        } else {
+            return tagRatioPhase;
         }
     }
 
@@ -310,68 +308,16 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeHiddenRatioTapChangerAndControl(Identifiable<?> eq, String rtcId, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
-        String key = String.format("RatioTapChanger.%s.hiddenTapChangerId", rtcId);
+    private static void writeHiddenTapChanger(Identifiable<?> eq, String tagRatioPhase, String tcId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        String key = String.format("%s.%s.hiddenTapChangerId", tagRatioPhase, tcId);
         if (!eq.hasProperty(key)) {
             return;
         }
-        String hiddenRtcId = eq.getProperty(key);
-        writeTapChanger("RatioTapChanger", hiddenRtcId,
-            hiddenTapChangerControlEnabled(eq, "RatioTapChanger", hiddenRtcId),
-            hiddenTapChangerStep(eq, "RatioTapChanger", hiddenRtcId), cimNamespace, writer);
-
-        addHiddenTapChangerControl(eq, "RatioTapChanger", hiddenRtcId, "k", regulatingControlViews);
-    }
-
-    private static void writeHiddenPhaseTapChangerAndControl(Identifiable<?> eq, String ptcId, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
-        String key = String.format("PhaseTapChanger.%s.hiddenTapChangerId", ptcId);
-        if (!eq.hasProperty(key)) {
-            return;
-        }
-        String hiddenPtcId = eq.getProperty(key);
-        writeTapChanger(phaseTapChangerType(eq, hiddenPtcId), hiddenPtcId,
-            hiddenTapChangerControlEnabled(eq, "PhaseTapChanger", hiddenPtcId),
-            hiddenTapChangerStep(eq, "PhaseTapChanger", hiddenPtcId), cimNamespace, writer);
-
-        addHiddenTapChangerControl(eq, "PhaseTapChanger", hiddenPtcId, "M", regulatingControlViews);
-    }
-
-    private static void addHiddenTapChangerControl(Identifiable<?> eq, String tag, String hiddenTcId, String unit, Map<String, List<RegulatingControlView>> regulatingControlViews) {
-        String key = String.format("%s.%s.TapChangerControl", tag, hiddenTcId);
-        if (eq.hasProperty(key)) {
-            String controlId = eq.getProperty(key);
-
-            RegulatingControlView rcv = new RegulatingControlView(controlId, RegulatingControlType.TAP_CHANGER_CONTROL, true,
-                hiddenTapChangerControlIsRegulating(eq, tag, hiddenTcId),
-                hiddenTapChangerControlTargetDeadBand(eq, tag, hiddenTcId),
-                hiddenTapChangerControlTargetValue(eq, tag, hiddenTcId), unit);
-            regulatingControlViews.computeIfAbsent(controlId, k -> new ArrayList<>()).add(rcv);
-        }
-    }
-
-    private static boolean hiddenTapChangerControlEnabled(Identifiable<?> eq, String tag, String hiddenTcId) {
-        String key = String.format("%s.%s.controlEnabled", tag, hiddenTcId);
-        return Boolean.valueOf(eq.getProperty(key));
-    }
-
-    private static int hiddenTapChangerStep(Identifiable<?> eq, String tag, String hiddenTcId) {
-        String key = String.format("%s.%s.step", tag, hiddenTcId);
-        return Integer.valueOf(eq.getProperty(key));
-    }
-
-    private static boolean hiddenTapChangerControlIsRegulating(Identifiable<?> eq, String tag, String hiddenTcId) {
-        String key = String.format("%s.%s.isRegulating", tag, hiddenTcId);
-        return Boolean.valueOf(eq.getProperty(key));
-    }
-
-    private static double hiddenTapChangerControlTargetDeadBand(Identifiable<?> eq, String tag, String hiddenTcId) {
-        String key = String.format("%s.%s.targetDeadBand", tag, hiddenTcId);
-        return Double.valueOf(eq.getProperty(key));
-    }
-
-    private static double hiddenTapChangerControlTargetValue(Identifiable<?> eq, String tag, String hiddenTcId) {
-        String key = String.format("%s.%s.targetValue", tag, hiddenTcId);
-        return Double.valueOf(eq.getProperty(key));
+        String hiddenTcId = eq.getProperty(key);
+        key = String.format("%s.%s.step", tagRatioPhase, hiddenTcId);
+        int step = Integer.parseInt(eq.getProperty(key));
+        String type = ratioPhaseTapChangerType(eq, tagRatioPhase, hiddenTcId);
+        writeTapChanger(type, hiddenTcId, false, step, cimNamespace, writer);
     }
 
     private static void writeRegulatingControls(Map<String, List<RegulatingControlView>> regulatingControlViews, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -413,7 +359,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTerminal(Terminal t, Connectable<?> c, String cimNamespace, XMLStreamWriter writer) {
-        Optional<String> tid = Optional.empty();
+        Optional<String> tid;
         if (c instanceof DanglingLine) {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + "Terminal_Network");
         } else {
@@ -593,27 +539,6 @@ public final class SteadyStateHypothesisExport {
         } else {
             return "GeneratingUnit";
         }
-    }
-
-    private static String generatingUnitId(Generator g) {
-        // The generator id is the SyncrhonousMachine.id,
-        // different from the GeneratingUnit.id
-        return g.getProperty("GeneratingUnit");
-    }
-
-    private static void writeControlArea(String id, double netInterchange, double pTolerance, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "ControlArea");
-        writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
-        writer.writeStartElement(cimNamespace, "ControlArea.netInterchange");
-        writer.writeCharacters(CgmesExportUtil.format(netInterchange));
-        writer.writeEndElement();
-        // pTolerance is optional
-        if (!Double.isNaN(pTolerance)) {
-            writer.writeStartElement(cimNamespace, "ControlArea.pTolerance");
-            writer.writeCharacters(CgmesExportUtil.format(pTolerance));
-            writer.writeEndElement();
-        }
-        writer.writeEndElement();
     }
 
     private enum RegulatingControlType {

@@ -126,74 +126,32 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         return context.regulatingControlMapping().cachedRegulatingControls().get(regulatingControlId);
     }
 
-    protected void addCgmesDataAsProperties(Identifiable<?> transformer, TapChanger rtc, TapChanger ptc, Context context) {
-        addRatioTapChangerProperties(transformer, rtc, context);
-        addPhaseTapChangerProperties(transformer, ptc, context);
+    protected void addCgmesReferences(Identifiable<?> transformer, TapChanger rtc, TapChanger ptc, Context context) {
+        addCgmesReferences(transformer, rtc, "RatioTapChanger", context);
+        addCgmesReferences(transformer, ptc, "PhaseTapChanger", context);
     }
 
-    private static void  addRatioTapChangerProperties(Identifiable<?> transformer, TapChanger rtc, Context context) {
-        if (rtc == null || rtc.getId() == null) {
+    private static void addCgmesReferences(Identifiable<?> transformer, TapChanger tc, String ratioPhaseTag, Context context) {
+        if (tc == null || tc.getId() == null) {
             return;
         }
-
-        if (rtc.getRegulatingControlId() != null) {
-            String key = String.format("RatioTapChanger.%s.TapChangerControl", rtc.getId());
-            transformer.setProperty(key, rtc.getRegulatingControlId());
+        if (tc.getRegulatingControlId() != null) {
+            String key = String.format("%s.%s.TapChangerControl", ratioPhaseTag, tc.getId());
+            transformer.setProperty(key, tc.getRegulatingControlId());
         }
-
-        if (rtc.getHiddenCombinedTapChanger() != null) {
-            defineHiddenTapChangerProperties(transformer, rtc, rtc.getHiddenCombinedTapChanger(), "RatioTapChanger", context);
+        if (tc.getType() != null) {
+            String key = String.format("%s.%s.type", ratioPhaseTag, tc.getId());
+            transformer.setProperty(key, tc.getType());
         }
-    }
-
-    private static void  addPhaseTapChangerProperties(Identifiable<?> transformer, TapChanger ptc, Context context) {
-        if (ptc == null || ptc.getId() == null) {
-            return;
-        }
-
-        if (ptc.getRegulatingControlId() != null) {
-            String key = String.format("PhaseTapChanger.%s.TapChangerControl", ptc.getId());
-            transformer.setProperty(key, ptc.getRegulatingControlId());
-        }
-        if (ptc.getType() != null) {
-            String key = String.format("PhaseTapChanger.%s.type", ptc.getId());
-            transformer.setProperty(key, ptc.getType());
-        }
-
-        if (ptc.getHiddenCombinedTapChanger() != null) {
-            defineHiddenTapChangerProperties(transformer, ptc, ptc.getHiddenCombinedTapChanger(), "PhaseTapChanger", context);
-
-            String key = String.format("PhaseTapChanger.%s.type", ptc.getHiddenCombinedTapChanger().getId());
-            transformer.setProperty(key, ptc.getHiddenCombinedTapChanger().getType());
-        }
-    }
-
-    private static void defineHiddenTapChangerProperties(Identifiable<?> transformer, TapChanger tc, TapChanger hiddenTc, String propertyTag, Context context) {
-
-        String key = String.format("%s.%s.hiddenTapChangerId", propertyTag, tc.getId());
-        transformer.setProperty(key, hiddenTc.getId());
-
-        key = String.format("%s.%s.controlEnabled", propertyTag, hiddenTc.getId());
-        transformer.setProperty(key, String.valueOf(hiddenTc.isTapChangerControlEnabled()));
-
-        key = String.format("%s.%s.step", propertyTag, hiddenTc.getId());
-        transformer.setProperty(key, String.valueOf(hiddenTc.getTapPosition()));
-
-        if (hiddenTc.getRegulatingControlId() != null) {
-            key = String.format("%s.%s.tapChangerControl", propertyTag, hiddenTc.getId());
-            transformer.setProperty(key, hiddenTc.getRegulatingControlId());
-
-            RegulatingControl rc = getRegulatingControl(context, hiddenTc.getRegulatingControlId());
-            if (rc != null) {
-                // isRegulating always false in hidden tapChangers
-                key = String.format("%s.%s.isRegulating", propertyTag, hiddenTc.getId());
-                transformer.setProperty(key, "false");
-
-                key = String.format("%s.%s.targetValue", propertyTag, hiddenTc.getId());
-                transformer.setProperty(key, String.valueOf(rc.getTargetValue()));
-
-                key = String.format("%s.%s.targetDeadBand", propertyTag, hiddenTc.getId());
-                transformer.setProperty(key, String.valueOf(rc.getTargetDeadBand()));
+        TapChanger tch = tc.getHiddenCombinedTapChanger();
+        if (tch != null) {
+            String key = String.format("%s.%s.hiddenTapChangerId", ratioPhaseTag, tc.getId());
+            transformer.setProperty(key, tch.getId());
+            key = String.format("%s.%s.step", ratioPhaseTag, tch.getId());
+            transformer.setProperty(key, String.valueOf(tch.getTapPosition()));
+            if (tch.getType() != null) {
+                key = String.format("%s.%s.type", ratioPhaseTag, tch.getId());
+                transformer.setProperty(key, tch.getType());
             }
         }
     }

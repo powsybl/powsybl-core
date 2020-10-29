@@ -101,9 +101,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx);
 
         setRegulatingControlContext(convertedT3xModel, tx);
-        addCgmesDataAsProperties(tx, convertedT3xModel.winding1.end1.ratioTapChanger, convertedT3xModel.winding1.end1.phaseTapChanger, context);
-        addCgmesDataAsProperties(tx, convertedT3xModel.winding2.end1.ratioTapChanger, convertedT3xModel.winding2.end1.phaseTapChanger, context);
-        addCgmesDataAsProperties(tx, convertedT3xModel.winding3.end1.ratioTapChanger, convertedT3xModel.winding3.end1.phaseTapChanger, context);
+        addCgmesReferences(tx, convertedT3xModel.winding1.end1.ratioTapChanger, convertedT3xModel.winding1.end1.phaseTapChanger, context);
+        addCgmesReferences(tx, convertedT3xModel.winding2.end1.ratioTapChanger, convertedT3xModel.winding2.end1.phaseTapChanger, context);
+        addCgmesReferences(tx, convertedT3xModel.winding3.end1.ratioTapChanger, convertedT3xModel.winding3.end1.phaseTapChanger, context);
     }
 
     private static void setToIidmWindingAdder(ConvertedT3xModel.ConvertedWinding convertedModelWinding, LegAdder ladder) {
