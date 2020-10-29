@@ -7,6 +7,7 @@
 
 package com.powsybl.contingency;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.iidm.network.Network;
 
 import java.util.*;
@@ -26,12 +27,12 @@ public class DefaultContingencyList implements ContingencyList {
     }
 
     public DefaultContingencyList(String name, Contingency... contingencies) {
-        this(name, Arrays.asList(contingencies));
+        this(name, ImmutableList.copyOf(contingencies));
     }
 
     public DefaultContingencyList(String name, List<Contingency> contingencies) {
         this.name = Objects.requireNonNull(name);
-        this.contingencies = new ArrayList<>(contingencies);
+        this.contingencies = ImmutableList.copyOf(contingencies);
     }
 
     @Override
@@ -40,7 +41,7 @@ public class DefaultContingencyList implements ContingencyList {
     }
 
     public List<Contingency> getContingencies() {
-        return Collections.unmodifiableList(contingencies);
+        return contingencies;
     }
 
     @Override

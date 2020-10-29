@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
@@ -31,12 +32,12 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     public Contingency(String id, ContingencyElement... elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = Arrays.asList(elements);
+        this.elements = ImmutableList.copyOf(elements);
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = new ArrayList<>(elements);
+        this.elements = ImmutableList.copyOf(elements);
     }
 
     public String getId() {
@@ -44,7 +45,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     public List<ContingencyElement> getElements() {
-        return Collections.unmodifiableList(elements);
+        return elements;
     }
 
     @Override
