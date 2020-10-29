@@ -253,4 +253,8 @@ public class Contingency extends AbstractExtendable<Contingency> {
     public static Contingency twoWindingsTransformer(String id, String voltageLevelId) {
         return builder(id).addTwoWindingsTransformer(id, voltageLevelId).build();
     }
+
+    public static Contingency danglingLine(String id) {
+        return builder(id).addDanglingLine(id).build();
+    }
 }

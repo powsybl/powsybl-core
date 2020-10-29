@@ -18,12 +18,16 @@ import static org.junit.Assert.*;
 public class DanglingLineContingencyTest {
     @Test
     public void test() {
-        DanglingLineContingency contingency = new DanglingLineContingency("id");
+        Contingency contingency = Contingency.danglingLine("id");
         assertEquals("id", contingency.getId());
-        assertEquals(ContingencyElementType.DANGLING_LINE, contingency.getType());
+        assertEquals(1, contingency.getElements().size());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof DanglingLineTripping);
+        DanglingLineContingency dlContingency = new DanglingLineContingency("id");
+        assertEquals("id", dlContingency.getId());
+        assertEquals(ContingencyElementType.DANGLING_LINE, dlContingency.getType());
+
+        assertNotNull(dlContingency.toTask());
+        assertTrue(dlContingency.toTask() instanceof DanglingLineTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new DanglingLineContingency("dl1"), new DanglingLineContingency("dl1"))
