@@ -8,7 +8,11 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.DanglingLineTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -33,5 +37,16 @@ public class DanglingLineContingencyTest {
                 .addEqualityGroup(new DanglingLineContingency("dl1"), new DanglingLineContingency("dl1"))
                 .addEqualityGroup(new DanglingLineContingency("dl2"), new DanglingLineContingency("dl2"))
                 .testEquals();
+    }
+
+    @Test
+    public void test2() {
+        Network network = DanglingLineNetworkFactory.create();
+        ContingencyList contingencyList = ContingencyList.of(Contingency.danglingLine("DL"), Contingency.danglingLine("unknown"));
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+
+        DanglingLineContingency dlCtg = (DanglingLineContingency) contingencies.get(0).getElements().get(0);
+        assertEquals("DL", dlCtg.getId());
     }
 }

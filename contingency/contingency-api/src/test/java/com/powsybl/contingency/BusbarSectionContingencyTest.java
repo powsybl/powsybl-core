@@ -8,7 +8,11 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.BusbarSectionTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -35,5 +39,16 @@ public class BusbarSectionContingencyTest {
                 .addEqualityGroup(new BusbarSectionContingency("bbs2"), new BusbarSectionContingency("bbs2"))
                 .testEquals();
 
+    }
+
+    @Test
+    public void test2() {
+        Network network = HvdcTestNetwork.createLcc();
+        ContingencyList contingencyList = ContingencyList.of(Contingency.busbarSection("BBS1"), Contingency.busbarSection("bbs2"));
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+
+        BusbarSectionContingency bbsCtg = (BusbarSectionContingency) contingencies.get(0).getElements().get(0);
+        assertEquals("BBS1", bbsCtg.getId());
     }
 }
