@@ -59,7 +59,7 @@ public interface ContingencyList {
      */
     static ContingencyList load(String filename, InputStream stream) {
         try {
-            ContingencyListLoader loader = ContingencyLists.getLoader(FilenameUtils.getExtension(filename));
+            ContingencyListLoader loader = ContingencyListLoaderProvider.getLoader(FilenameUtils.getExtension(filename));
             return loader.load(filename, stream);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -14,11 +14,11 @@ import java.util.Objects;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-final class ContingencyLists {
+final class ContingencyListLoaderProvider {
 
     private static final ServiceLoaderCache<ContingencyListLoader> LOADERS = new ServiceLoaderCache<>(ContingencyListLoader.class);
 
-    private ContingencyLists() {
+    private ContingencyListLoaderProvider() {
     }
 
     static ContingencyListLoader getLoader(String format) {
