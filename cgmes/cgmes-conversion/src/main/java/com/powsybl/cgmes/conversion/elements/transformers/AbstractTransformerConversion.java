@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.elements.transformers;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
@@ -122,37 +121,29 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         }
     }
 
-    private static RegulatingControl getRegulatingControl(Context context, String regulatingControlId) {
-        return context.regulatingControlMapping().cachedRegulatingControls().get(regulatingControlId);
-    }
-
-    protected void addCgmesReferences(Identifiable<?> transformer, TapChanger rtc, TapChanger ptc, Context context) {
-        addCgmesReferences(transformer, rtc, "RatioTapChanger", context);
-        addCgmesReferences(transformer, ptc, "PhaseTapChanger", context);
-    }
-
-    private static void addCgmesReferences(Identifiable<?> transformer, TapChanger tc, String ratioPhaseTag, Context context) {
+    protected static void addCgmesReferences(Identifiable<?> transformer, TapChanger tc) {
         if (tc == null || tc.getId() == null) {
             return;
         }
         if (tc.getRegulatingControlId() != null) {
-            String key = String.format("%s.%s.TapChangerControl", ratioPhaseTag, tc.getId());
-            transformer.setProperty(key, tc.getRegulatingControlId());
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "TapChangerControl"), tc.getRegulatingControlId());
         }
         if (tc.getType() != null) {
-            String key = String.format("%s.%s.type", ratioPhaseTag, tc.getId());
-            transformer.setProperty(key, tc.getType());
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "type"), tc.getType());
         }
         TapChanger tch = tc.getHiddenCombinedTapChanger();
         if (tch != null) {
-            String key = String.format("%s.%s.hiddenTapChangerId", ratioPhaseTag, tc.getId());
-            transformer.setProperty(key, tch.getId());
-            key = String.format("%s.%s.step", ratioPhaseTag, tch.getId());
-            transformer.setProperty(key, String.valueOf(tch.getTapPosition()));
+            // All the tap changers have already been added as aliases,
+            // Through properties we only label which one has been combined and kept hidden
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "hiddenTapChangerId"), tch.getId());
+            transformer.setProperty(cgmesReferenceKey(tch.getId(), "step"), String.valueOf(tch.getTapPosition()));
             if (tch.getType() != null) {
-                key = String.format("%s.%s.type", ratioPhaseTag, tch.getId());
-                transformer.setProperty(key, tch.getType());
+                transformer.setProperty(cgmesReferenceKey(tch.getId(), "type"), tch.getType());
             }
         }
+    }
+
+    private static String cgmesReferenceKey(String id, String property) {
+        return String.format("%s%s.%s", Conversion.CGMES_PREFIX_ALIAS, id, property);
     }
 }
