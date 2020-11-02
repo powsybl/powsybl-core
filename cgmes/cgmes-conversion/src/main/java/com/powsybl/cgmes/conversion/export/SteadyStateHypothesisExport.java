@@ -317,7 +317,7 @@ public final class SteadyStateHypothesisExport {
         }
         String hiddenTcId = eq.getProperty(key);
         int step = Integer.parseInt(eq.getProperty(cgmesTapChangerReferenceKey(hiddenTcId, "step")));
-        String type = eq.getProperty(cgmesTapChangerReferenceKey(hiddenTcId,"type"), defaultType);
+        String type = eq.getProperty(cgmesTapChangerReferenceKey(hiddenTcId, "type"), defaultType);
         writeTapChanger(type, hiddenTcId, false, step, cimNamespace, writer);
     }
 
