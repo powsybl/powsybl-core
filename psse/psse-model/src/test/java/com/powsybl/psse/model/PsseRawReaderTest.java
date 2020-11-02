@@ -101,13 +101,7 @@ public class PsseRawReaderTest {
     }
 
     private boolean compareReadFields(String[] expected, String[] actual) {
-        if (actual != null && expected != null && actual.length == expected.length) {
-            for (int i = 0; i < expected.length; i++) {
-                if (!expected[i].equals(actual[i])) {
-                    logReadFields(expected, actual);
-                    return false;
-                }
-            }
+        if (Arrays.equals(expected, actual)) {
             return true;
         }
         logReadFields(expected, actual);

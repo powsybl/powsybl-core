@@ -84,7 +84,8 @@ public class PsseImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new PsseRawReader().checkCaseIdentification(reader);
+                    new PsseRawReader().checkCaseIdentification(reader);
+                    return true;
                 }
             }
         } catch (IOException e) {

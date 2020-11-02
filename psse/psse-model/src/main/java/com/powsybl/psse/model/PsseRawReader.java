@@ -35,7 +35,7 @@ public class PsseRawReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseRawReader.class);
 
-    public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
+    public void checkCaseIdentification(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
 
         // just check the first record if this file is in PSS/E format
@@ -43,7 +43,7 @@ public class PsseRawReader {
         try {
             caseIdentification = readCaseIdentificationData(reader);
         } catch (PsseException e) {
-            return false; // invalid PSS/E content
+            throw new PsseException("Invalid PSS/E content");
         }
 
         int ic = caseIdentification.getIc();
@@ -51,11 +51,18 @@ public class PsseRawReader {
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        if (ic == 0 && sbase > 0. && rev <= PsseConstants.SUPPORTED_VERSION && basfrq > 0.) {
-            return true;
+        if (ic == 1) {
+            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
         }
-
-        return false;
+        if (rev > PsseConstants.SUPPORTED_VERSION) {
+            throw new PsseException("PSS/E version higher than " + PsseConstants.SUPPORTED_VERSION + " not supported");
+        }
+        if (sbase <= 0.) {
+            throw new PsseException("PSS/E Unexpected System MVA base " + sbase);
+        }
+        if (basfrq <= 0.) {
+            throw new PsseException("PSS/E Unexpected System base frequency " + basfrq);
+        }
     }
 
     public PsseRawModel read(BufferedReader reader) throws IOException {
@@ -109,7 +116,7 @@ public class PsseRawReader {
         readRecordBlock(reader); // TODO
 
         // q record (nothing to do)
-        readRecordBlock(reader);
+        readLineAndRemoveComment(reader);
 
         return model;
     }
@@ -118,7 +125,6 @@ public class PsseRawReader {
 
     private static PsseCaseIdentification readCaseIdentificationData(BufferedReader reader, PsseContext context) throws IOException {
         String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
 
         context.setDelimiter(detectDelimiter(line));
 
@@ -133,7 +139,6 @@ public class PsseRawReader {
 
     private static PsseCaseIdentification readCaseIdentificationData(BufferedReader reader) throws IOException {
         String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
 
         String[] headers = caseIdentificationDataHeaders();
         PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
@@ -259,25 +264,14 @@ public class PsseRawReader {
         return parseRecordsHeader(records, PsseSwitchedShunt.class, headers);
     }
 
-    // Parse
-
     private static <T> T parseRecordHeader(String record, Class<T> aClass, String[] headers) {
         List<T> beans = parseRecordsHeader(Collections.singletonList(record), aClass, headers);
         return beans.get(0);
     }
 
     private static <T> List<T> parseRecordsHeader(List<String> records, Class<T> aClass, String[] headers) {
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.setHeaderExtractionEnabled(false);
-        settings.setQuoteDetectionEnabled(true);
-        settings.setDelimiterDetectionEnabled(true, ',', ' '); // sequence order is relevant
+        CsvParserSettings settings = setParserBaseSettings();
         settings.setHeaders(headers);
-        settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
-            @Override
-            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error(error.getMessage());
-            }
-        });
         BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
@@ -292,6 +286,13 @@ public class PsseRawReader {
     }
 
     private static String detectDelimiter(String record) {
+        CsvParserSettings settings = setParserBaseSettings();
+        CsvParser parser = new CsvParser(settings);
+        parser.parseLine(record);
+        return parser.getDetectedFormat().getDelimiterString();
+    }
+
+    private static CsvParserSettings setParserBaseSettings() {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
         settings.setQuoteDetectionEnabled(true);
@@ -302,9 +303,8 @@ public class PsseRawReader {
                 LOGGER.error(error.getMessage());
             }
         });
-        CsvParser parser = new CsvParser(settings);
-        parser.parseLine(record);
-        return parser.getDetectedFormat().getDelimiterString();
+
+        return settings;
     }
 
     // Read
@@ -312,7 +312,8 @@ public class PsseRawReader {
     private static List<String> readRecordBlock(BufferedReader reader) throws IOException {
         String line;
         List<String> records = new ArrayList<>();
-        while ((line = readLineAndRemoveComment(reader)) != null) {
+        while (true) {
+            line = readLineAndRemoveComment(reader);
             if (line.trim().equals("0")) {
                 break;
             }
@@ -322,7 +323,7 @@ public class PsseRawReader {
     }
 
     private static String removeComment(String line) {
-        int slashIndex = line.lastIndexOf('/');
+        int slashIndex = line.indexOf('/');
         if (slashIndex == -1) {
             return line;
         }
@@ -332,7 +333,7 @@ public class PsseRawReader {
     private static String readLineAndRemoveComment(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            return null;
+            throw new PsseException("PSSE. Unexpected end of file");
         }
         StringBuffer newLine = new StringBuffer();
         Pattern p = Pattern.compile("('[^']+')|( )+");
@@ -352,7 +353,8 @@ public class PsseRawReader {
 
     private static String[] readFields(List<String> records, String[] headers, String delimiter) {
         if (records.isEmpty()) {
-            return new String[] {};
+            return ArrayUtils.EMPTY_STRING_ARRAY;
+            //return new String[] {};
         }
         String record = records.get(0);
         return ArrayUtils.subarray(headers, 0, record.split(delimiter).length);

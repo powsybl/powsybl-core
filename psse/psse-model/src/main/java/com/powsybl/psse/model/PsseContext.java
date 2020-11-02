@@ -11,7 +11,7 @@ package com.powsybl.psse.model;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseContext {
+class PsseContext {
 
     private String delimiter;
 
