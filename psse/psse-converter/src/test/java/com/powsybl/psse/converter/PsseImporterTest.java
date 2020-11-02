@@ -61,13 +61,16 @@ public class PsseImporterTest extends AbstractConverterTest {
 
         // test with not supported content
         PsseImporter psseImporterCaseFlag = new PsseImporter();
-        Assert.assertThrows(PsseException.class, () -> psseImporterCaseFlag.exists(new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"))));
+        ResourceDataSource dsCaseFlag = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
+        Assert.assertThrows(PsseException.class, () -> psseImporterCaseFlag.exists(dsCaseFlag));
         PsseImporter psseImporterCaseVersion = new PsseImporter();
-        Assert.assertThrows(PsseException.class, () -> psseImporterCaseVersion.exists(new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"))));
+        ResourceDataSource dsCaseVersion = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        Assert.assertThrows(PsseException.class, () -> psseImporterCaseVersion.exists(dsCaseVersion));
 
         // test with a valid extension and an invalid content
         PsseImporter psseImporterCaseInvalid = new PsseImporter();
-        Assert.assertThrows(PsseException.class, () -> psseImporterCaseInvalid.exists(new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"))));
+        ResourceDataSource dsCaseInvalid = new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"));
+        Assert.assertThrows(PsseException.class, () -> psseImporterCaseInvalid.exists(dsCaseInvalid));
     }
 
     public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
