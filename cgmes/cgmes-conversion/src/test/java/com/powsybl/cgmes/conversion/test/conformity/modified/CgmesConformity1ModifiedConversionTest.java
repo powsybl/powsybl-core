@@ -662,15 +662,25 @@ public class CgmesConformity1ModifiedConversionTest {
         Bus bus2 = line.getTerminal2().getBusView().getBus();
         assertNull(bus1);
         assertNull(bus2);
-        // End2 must have a connectable bus
-        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
-        assertNotNull(cbus2);
-        assertTrue(cbus2.getConnectedTerminalCount() > 1);
-        // End1 may or may not have a bus defined in BusView,
+        // End1 must have a connectable bus
+        Bus cbus1 = line.getTerminal1().getBusView().getConnectableBus();
+        assertNotNull(cbus1);
+        assertTrue(cbus1.getConnectedTerminalCount() > 1);
+        // End2 may or may not have a bus defined in BusView,
         // Depending on the definition of a bus,
         // that is under review (PR #1316)
-        // The end1 will only be connectable to one end
+        // The end2 will only be connectable to one end
         // of a real line segment
+    }
+
+    @Test
+    public void miniNodeBreakerInternalLineZ0() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), null);
+        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
+        Switch sw = network.getSwitch("_fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
+        assertNotNull(sw);
+        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
     }
 
     private FileSystem fileSystem;

@@ -44,7 +44,7 @@ class MergedLine implements TieLine {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.half1 = new HalfLineAdapter(dl1);
         this.half2 = new HalfLineAdapter(dl2);
-        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildId(dl1, dl2), index::contains) : buildId(dl1, dl2);
+        this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildIdOrName(dl1.getId(), dl2.getId()), index::contains) : buildIdOrName(dl1.getId(), dl2.getId());
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
     }
@@ -53,32 +53,22 @@ class MergedLine implements TieLine {
         this(index, dl1, dl2, false);
     }
 
-    private static String buildId(final DanglingLine dl1, final DanglingLine dl2) {
-        String id;
-        if (dl1.getId().compareTo(dl2.getId()) < 0) {
-            id = dl1.getId() + " + " + dl2.getId();
-        } else {
-            id = dl2.getId() + " + " + dl1.getId();
-        }
-        return id;
-    }
-
     private static String buildName(final DanglingLine dl1, final DanglingLine dl2) {
         return dl1.getOptionalName()
                 .map(name1 -> dl2.getOptionalName()
-                        .map(name2 -> buildName(name1, name2))
+                        .map(name2 -> buildIdOrName(name1, name2))
                         .orElse(name1))
                 .orElseGet(() -> dl2.getOptionalName().orElse(null));
     }
 
-    private static String buildName(String name1, String name2) {
-        int compareResult = name1.compareTo(name2);
+    private static String buildIdOrName(String idOrName1, String idOrName2) {
+        int compareResult = idOrName1.compareTo(idOrName2);
         if (compareResult == 0) {
-            return name1;
+            return idOrName1;
         } else if (compareResult < 0) {
-            return name1 + " + " + name2;
+            return idOrName1 + " + " + idOrName2;
         } else {
-            return name2 + " + " + name1;
+            return idOrName2 + " + " + idOrName1;
         }
     }
 
