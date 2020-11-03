@@ -79,14 +79,7 @@ public final class IidmXmlUtil {
     }
 
     private static void createExceptionOrLogError(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion refVersion, String reason, NetworkXmlWriterContext context) {
-        if (context.getOptions().getIidmVersionIncompatibilityBehavior() == ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION) {
-            throw createException(rootElementName, elementName, type, refVersion, context.getVersion(), reason);
-        } else if (context.getOptions().getIidmVersionIncompatibilityBehavior() == ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR) {
-            Supplier<String> message = () -> message(rootElementName + "." + elementName, type, refVersion, context.getVersion(), reason);
-            LOGGER.error(message.get());
-        } else {
-            throw new AssertionError("Unexpected behavior: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
-        }
+        createExceptionOrLogError(rootElementName + "." + elementName, type, refVersion, reason, context);
     }
 
     private static void createExceptionOrLogError(String elementName, ErrorMessage type, IidmXmlVersion refVersion, String reason, NetworkXmlWriterContext context) {
