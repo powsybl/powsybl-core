@@ -40,7 +40,6 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
-        jsonGenerator.writeStringField("logs", result.getLogs());
         jsonGenerator.writeEndObject();
     }
 

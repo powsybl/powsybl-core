@@ -6,6 +6,10 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Map;
+
+import com.powsybl.timeseries.TimeSeries;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -14,4 +18,12 @@ public interface DynamicSimulationResult {
     boolean isOk();
 
     String getLogs();
+
+    Map<String, TimeSeries> getCurves();
+
+    TimeSeries getCurve(String curve);
+
+    Map<String, TimeSeries> getTimeLine();
+
+    TimeSeries getTimeLine(String field);
 }

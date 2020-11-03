@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -48,17 +49,12 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     isOK = parser.readValueAs(Boolean.class);
                     break;
 
-                case "logs":
-                    parser.nextToken();
-                    logs = parser.readValueAs(String.class);
-                    break;
-
                 default:
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new DynamicSimulationResultImpl(isOK, logs);
+        return new DynamicSimulationResultImpl(isOK, null, Collections.emptyMap(), Collections.emptyMap());
     }
 
     public static DynamicSimulationResult read(InputStream is) throws IOException {
