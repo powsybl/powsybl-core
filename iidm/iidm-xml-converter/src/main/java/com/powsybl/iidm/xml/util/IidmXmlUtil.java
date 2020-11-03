@@ -34,7 +34,10 @@ import java.util.stream.StreamSupport;
  */
 public final class IidmXmlUtil {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(IidmXmlUtil.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IidmXmlUtil.class);
+
+    private static final String MAXIMUM_REASON = "IIDM-XML version should be <= ";
+    private static final String MINIMUM_REASON = "IIDM-XML version should be >= ";
 
     public interface IidmXmlRunnable extends Runnable {
 
@@ -103,13 +106,13 @@ public final class IidmXmlUtil {
      */
     public static void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
-            throw createException(rootElementName, elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be <= ");
+            throw createException(rootElementName, elementName, type, maxVersion, context.getVersion(), MAXIMUM_REASON);
         }
     }
 
     public static void assertMaximumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
-            createExceptionOrLogError(rootElementName, elementName, type, maxVersion, "IIDM-XML version should be <= ", context);
+            createExceptionOrLogError(rootElementName, elementName, type, maxVersion, MAXIMUM_REASON, context);
         }
     }
 
@@ -119,13 +122,13 @@ public final class IidmXmlUtil {
      */
     public static void assertMaximumVersion(String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
-            throw createException(elementName, type, maxVersion, context.getVersion(), "IIDM-XML version should be <= ");
+            throw createException(elementName, type, maxVersion, context.getVersion(), MAXIMUM_REASON);
         }
     }
 
     public static void assertMaximumVersion(String elementName, ErrorMessage type, IidmXmlVersion maxVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(maxVersion) > 0) {
-            createExceptionOrLogError(elementName, type, maxVersion, "IIDM-XML version should be <= ", context);
+            createExceptionOrLogError(elementName, type, maxVersion, MAXIMUM_REASON, context);
         }
     }
 
@@ -135,13 +138,13 @@ public final class IidmXmlUtil {
      */
     public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
+            throw createException(rootElementName, elementName, type, minVersion, context.getVersion(), MINIMUM_REASON);
         }
     }
 
     public static void assertMinimumVersion(String rootElementName, String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            createExceptionOrLogError(rootElementName, elementName, type, minVersion, "IIDM-XML version should be >= ", context);
+            createExceptionOrLogError(rootElementName, elementName, type, minVersion, MINIMUM_REASON, context);
         }
     }
 
@@ -151,13 +154,13 @@ public final class IidmXmlUtil {
      */
     public static void assertMinimumVersion(String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlReaderContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            throw createException(elementName, type, minVersion, context.getVersion(), "IIDM-XML version should be >= ");
+            throw createException(elementName, type, minVersion, context.getVersion(), MINIMUM_REASON);
         }
     }
 
     public static void assertMinimumVersion(String elementName, ErrorMessage type, IidmXmlVersion minVersion, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(minVersion) < 0) {
-            createExceptionOrLogError(elementName, type, minVersion, "IIDM-XML version should be >= ", context);
+            createExceptionOrLogError(elementName, type, minVersion, MINIMUM_REASON, context);
         }
     }
 
