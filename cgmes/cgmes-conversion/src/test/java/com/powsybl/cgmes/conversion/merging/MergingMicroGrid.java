@@ -6,18 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.merging;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.ExpectedFlows;
 import com.powsybl.cgmes.conformity.test.ExpectedFlows.ExpectedFlow;
@@ -30,6 +18,15 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Properties;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -87,12 +84,6 @@ public class MergingMicroGrid {
 
     private static void checkFlows(Network network, boolean mustContainMergedLines) {
         ConversionTester.invalidateFlows(network);
-        // XXX LUMA Missing BusAdapter getLines in MergingView
-        // When flows are completed in a MergingView Network
-        // an exception is thrown during z0 analysis
-        // because BusAdapter does not implement getLinesStream
-        // For MicroGrid analysis it can be safely ignored
-        // as we do not have z0 branches
         ConversionTester.computeMissingFlows(network);
         assertEquals(0, calcDiffExpectedFlows(network, mustContainMergedLines), TOLERANCE);
     }

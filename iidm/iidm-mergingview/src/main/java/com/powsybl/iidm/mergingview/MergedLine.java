@@ -101,11 +101,10 @@ class MergedLine implements TieLine {
 
     void computeAndSetP0() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        // The calculation must take into account impedances of each half
         double p1 = getTerminal1().getP();
         double p2 = getTerminal2().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
-            // XXX LUMA Must be reviewed,
-            // It should take into account impedances of each dangling line
             double losses = p1 + p2;
             half1.setXnodeP((p1 + losses / 2.0) * sign(p2));
             half2.setXnodeP((p2 + losses / 2.0) * sign(p1));
@@ -114,11 +113,10 @@ class MergedLine implements TieLine {
 
     void computeAndSetQ0() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        // The calculation must take into account impedances of each half
         double q1 = getTerminal1().getQ();
         double q2 = getTerminal2().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
-            // XXX LUMA Must be reviewed,
-            // It should take into account impedances of each dangling line
             double losses = q1 + q2;
             half1.setXnodeQ((q1 + losses / 2.0) * sign(q2));
             half2.setXnodeQ((q2 + losses / 2.0) * sign(q1));
