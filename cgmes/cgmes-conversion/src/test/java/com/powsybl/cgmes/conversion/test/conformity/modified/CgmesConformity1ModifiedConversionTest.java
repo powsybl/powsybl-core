@@ -356,10 +356,10 @@ public class CgmesConformity1ModifiedConversionTest {
         Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
-        assertEquals(0.00003, m.getG1(), tolerance);
-        assertEquals(0.0, m.getG2(), tolerance);
-        assertEquals(0.0001413717, m.getB1(), tolerance);
-        assertEquals(0.0, m.getB2(), tolerance);
+        assertEquals(0.00003 / 2, m.getG1(), tolerance);
+        assertEquals(0.00003 / 2, m.getG2(), tolerance);
+        assertEquals(0.0001413717 / 2, m.getB1(), tolerance);
+        assertEquals(0.0001413717 / 2, m.getB2(), tolerance);
 
         InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")

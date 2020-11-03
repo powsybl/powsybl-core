@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.util.Quadripole;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -237,7 +239,11 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        return equivalent(half1, half2).r;
+    }
+
+    private PiModel equivalent(HalfLineImpl h1, HalfLineImpl h2) {
+        return Quadripole.from(PiModel.from(h1)).cascade(Quadripole.from(PiModel.from(h2))).toPiModel();
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -251,7 +257,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        return equivalent(half1, half2).x;
     }
 
     @Override
@@ -261,7 +267,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half1.getG2();
+        return equivalent(half1, half2).g1;
     }
 
     @Override
@@ -271,7 +277,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half1.getB2();
+        return equivalent(half1, half2).b1;
     }
 
     @Override
@@ -281,7 +287,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half2.getG1() + half2.getG2();
+        return equivalent(half1, half2).g2;
     }
 
     @Override
@@ -291,7 +297,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half2.getB1() + half2.getB2();
+        return equivalent(half1, half2).b2;
     }
 
     @Override

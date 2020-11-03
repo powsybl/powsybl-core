@@ -184,6 +184,13 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- To validate merging view against assembled reference cases -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-mergingview</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-test</artifactId>

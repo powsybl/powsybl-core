@@ -13,6 +13,9 @@ import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util.Quadripole;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,12 +43,15 @@ class MergedLine implements TieLine {
 
     private final Properties properties = new Properties();
 
+    private final PiModel equivalent;
+
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
         this.half1 = new HalfLineAdapter(dl1);
         this.half2 = new HalfLineAdapter(dl2);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildIdOrName(dl1.getId(), dl2.getId()), index::contains) : buildIdOrName(dl1.getId(), dl2.getId());
         this.name = buildName(dl1, dl2);
+        equivalent = Quadripole.from(PiModel.from(dl1)).cascade(Quadripole.from(PiModel.from(dl2))).toPiModel();
         mergeProperties(dl1, dl2);
     }
 
@@ -95,6 +101,7 @@ class MergedLine implements TieLine {
 
     void computeAndSetP0() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        // The calculation must take into account impedances of each half
         double p1 = getTerminal1().getP();
         double p2 = getTerminal2().getP();
         if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
@@ -106,6 +113,7 @@ class MergedLine implements TieLine {
 
     void computeAndSetQ0() {
         // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
+        // The calculation must take into account impedances of each half
         double q1 = getTerminal1().getQ();
         double q2 = getTerminal2().getQ();
         if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
@@ -212,70 +220,62 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        return equivalent.r;
     }
 
     @Override
     public Line setR(final double r) {
-        half1.setR(r / 2);
-        half2.setR(r / 2);
-        return this;
+        throw new PowsyblException("R of merged line cannot be modified");
     }
 
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        return equivalent.x;
     }
 
     @Override
     public Line setX(final double x) {
-        half1.setX(x / 2);
-        half2.setX(x / 2);
-        return this;
+        throw new PowsyblException("X of merged line cannot be modified");
     }
 
     @Override
     public double getG1() {
-        return getDanglingLine1().getG();
+        return equivalent.g1;
     }
 
     @Override
     public Line setG1(final double g1) {
-        half1.setG(g1);
-        return this;
+        throw new PowsyblException("G1 of merged line cannot be modified");
     }
 
     @Override
     public double getG2() {
-        return getDanglingLine2().getG();
+        return equivalent.g2;
     }
 
     @Override
     public Line setG2(final double g2) {
-        half2.setG(g2);
-        return this;
+        throw new PowsyblException("G2 of merged line cannot be modified");
     }
 
     @Override
     public double getB1() {
-        return getDanglingLine1().getB();
+        return equivalent.b1;
     }
 
     @Override
     public Line setB1(final double b1) {
-        half1.setB(b1);
-        return this;
+        throw new PowsyblException("B1 of merged line cannot be modified");
     }
 
     @Override
     public double getB2() {
-        return getDanglingLine2().getB();
+        return equivalent.b2;
     }
 
     @Override
     public Line setB2(final double b2) {
-        half2.setB(b2);
-        return this;
+        throw new PowsyblException("B2 of merged line cannot be modified");
     }
 
     @Override

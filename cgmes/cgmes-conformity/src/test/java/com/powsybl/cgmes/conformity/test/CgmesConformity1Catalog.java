@@ -1105,5 +1105,88 @@ public final class CgmesConformity1Catalog {
         return m;
     }
 
+    public static ExpectedFlows expectedFlowsMicroGridBaseCase() {
+        ExpectedFlows expectedFlows = new ExpectedFlows();
+        expectedFlows.add("Transformer", "NL-TR2_1", 400, "_e8a7eaec-51d6-4571-b3d9-c36d52073c33",
+                "_e3e0c496-5837-4f0f-a596-cc421940f73f", -298.48054, 110.59767);
+        expectedFlows.add("Transformer", "NL-TR2_1", 220, "_e8a7eaec-51d6-4571-b3d9-c36d52073c33",
+                "_baa7aef1-afcd-4981-97c0-ccec7b5ad4e0", 299.368951, -93.41822);
+        expectedFlows.add("Transformer", "NL_TR2_2", 220, "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4",
+                "_1128e664-0653-448a-9068-e37f1a097c05", -288.96389, 69.868572);
+        expectedFlows.add("Transformer", "NL_TR2_2", 15.75, "_2184f365-8cd5-4b5d-8a28-9d68603bb6a4",
+                "_da232169-1c36-495a-8af6-a0d7d2b39f52", 290, -53.361224);
+        expectedFlows.add("Transformer", "NL_TR2_3", 220, "_80016742-31b3-432a-b00a-300667a1e572",
+                "_bd61b1f9-474d-424e-9709-42f75337c477", -555.34324, -202.6106);
+        expectedFlows.add("Transformer", "NL_TR2_3", 15.75, "_80016742-31b3-432a-b00a-300667a1e572",
+                "_4f1c405f-07c9-4fb0-b64e-551896a29aa8", 556.713871, 249.198058);
+        expectedFlows.add("Transformer", "BE-TR2_1", 400, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0",
+                "_c3774d3f-f48c-4954-a0cf-b4572eb714fd", 55.890119, -217.56609);
+        expectedFlows.add("Transformer", "BE-TR2_1", 110, "_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0",
+                "_2cd21c77-b8b1-4896-95fb-240f45b9ac89", -55.08795, 221.867401);
+        expectedFlows.add("Transformer", "BE-TR2_2", 220, "_b94318f6-6d24-4f56-96b9-df2531ad6543",
+                "_4c19ace6-c825-4c5b-87d9-031e6e6a3379", 55.29592, 39.191817);
+        expectedFlows.add("Transformer", "BE-TR2_2", 110, "_b94318f6-6d24-4f56-96b9-df2531ad6543",
+                "_ab7ece75-d726-48c8-a924-b0a9325e6d51", -55.226337, -38.249825);
+        expectedFlows.add("Transformer", "BE-TR2_3", 110.34375, "_e482b89a-fa84-4ea9-8e70-a83d44790957",
+                "_ca7974cf-b25e-4898-9221-7154233e5eb2", -89.685711, 57.132424);
+        expectedFlows.add("Transformer", "BE-TR2_3", 10.5, "_e482b89a-fa84-4ea9-8e70-a83d44790957",
+                "_1182d878-2eaa-4eec-91be-ce7b2b1e7f9a", 90, -51.115627);
+        expectedFlows.add("Transformer 3W", "BE-TR3_1", 400, "_84ed55f4-61f5-4d9d-8755-bba7b877a246",
+                "_76e9ca77-f805-40ea-8120-5a6d58416d34", 99.218431, 3.304328);
+        expectedFlows.add("Transformer 3W", "BE-TR3_1", 220, "_84ed55f4-61f5-4d9d-8755-bba7b877a246",
+                "_53fd6693-57e6-482e-8fbe-dcf3531a7ce0", -216.19819, -85.36818);
+        expectedFlows.add("Transformer 3W", "BE-TR3_1", 21, "_84ed55f4-61f5-4d9d-8755-bba7b877a246",
+                "_ca0f7e2e-3442-4ada-a704-91f319c0ebe3", -216.19819, -85.36818);
+        expectedFlows.add("Line", "NL-Line_5", -1, "_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                "_757d4f50-707b-47a0-891c-cbaefd649631", 95.993937, -158.28717);
+        expectedFlows.add("Line", "NL-Line_5", -1, "_e8acf6b6-99cb-45ad-b8dc-16c7866a4ddc",
+                "_ae588863-b154-451d-978a-7ab08ac50fb6", -90.037004, 148.603742);
+        expectedFlows.add("Line", "NL-Line_4", -1, "_8fdc7abd-3746-481a-a65e-3df56acd8b13",
+                "_653bc4b8-518b-4adc-9d68-012fb641fb1d", 28.627938, -3.961153);
+        expectedFlows.add("Line", "NL-Line_4", -1, "_8fdc7abd-3746-481a-a65e-3df56acd8b13",
+                "_57979d14-d1d8-4311-ae53-aa8890423885", -27.365225, 0.425626);
+        expectedFlows.add("Line", "NL-Line_3", -1, "_a279a3dc-550b-426c-af3a-61b7be508dcc",
+                "_5dfee914-a4fd-4bde-a5b4-c4caa6378d10", 28.045252, -1.486467);
+        expectedFlows.add("Line", "NL-Line_3", -1, "_a279a3dc-550b-426c-af3a-61b7be508dcc",
+                "_6aecb9ba-5835-4b70-89bc-96d687e45779", -26.805005, 1.489867);
+        expectedFlows.add("Line", "NL-Line_2", -1, "_dad02278-bd25-476f-8f58-dbe44be72586",
+                "_c557146e-dfc4-4020-9738-d592b188338b", 50.564954, -87.950365);
+        expectedFlows.add("Line", "NL-Line_2", -1, "_dad02278-bd25-476f-8f58-dbe44be72586",
+                "_8f308117-8bbd-4798-b145-4e78f7d049e7", -43.687227, 84.876604);
+        expectedFlows.add("Line", "NL-Line_1", -1, "_7f43f508-2496-4b64-9146-0a40406cbe49",
+                "_357e3e14-c38e-4a7e-9c95-b3dbe158f5f3", 51.92165, -102.18259);
+        expectedFlows.add("Line", "NL-Line_1", -1, "_7f43f508-2496-4b64-9146-0a40406cbe49",
+                "_6b1cd30c-19ba-44e1-9447-d01db6b1ef9d", -46.816624, 79.193778);
+        expectedFlows.add("Line", "BE-Line_7", -1, "_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4",
+                "_57ae9251-c022-4c67-a8eb-611ad54c963c", 26.805006, -1.489867);
+        expectedFlows.add("Line", "BE-Line_7", -1, "_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4",
+                "_5b2c65b0-68ce-4530-85b7-385346a3b5e1", -23.837678, 1.270601);
+        expectedFlows.add("Line", "BE-Line_6", -1, "_ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                "_05a17350-55f5-4a00-9a50-8c0048a25495", -11.222366, -1.075569);
+        expectedFlows.add("Line", "BE-Line_6", -1, "_ffbabc27-1ccd-4fdc-b037-e341706c8d29",
+                "_a4d42d33-ae54-4fe9-ad59-f30da0dfb809", 17.296446, 0.352767);
+        expectedFlows.add("Line", "BE-Line_5", -1, "_b18cd1aa-7808-49b9-a7cf-605eaf07b006",
+                "_051d49ba-4360-4372-86bf-50eb8cf29778", -82.840439, 138.451217);
+        expectedFlows.add("Line", "BE-Line_5", -1, "_b18cd1aa-7808-49b9-a7cf-605eaf07b006",
+                "_02a244ca-8bcb-4e25-8613-e948b8ba1f22", 90.037005, -148.60374);
+        expectedFlows.add("Line", "BE-Line_4", -1, "_ed0c5d75-4a54-43c8-b782-b20d7431630b",
+                "_c14d2036-72ec-4df3-b1b7-75d8afd9a1fe", -36.85913, 80.682646);
+        expectedFlows.add("Line", "BE-Line_4", -1, "_ed0c5d75-4a54-43c8-b782-b20d7431630b",
+                "_f9f29835-8a31-4310-9780-b1ad26f3cbb0", 43.687227, -84.876604);
+        expectedFlows.add("Line", "BE-Line_3", -1, "_78736387-5f60-4832-b3fe-d50daf81b0a6",
+                "_231a4cf8-5069-4d53-96e4-e839f073f1ea", -36.590143, 54.186048);
+        expectedFlows.add("Line", "BE-Line_3", -1, "_78736387-5f60-4832-b3fe-d50daf81b0a6",
+                "_f3b56334-4638-49d3-a6a0-3f417422b8f5", 46.816625, -79.193778);
+        expectedFlows.add("Line", "BE-Line_2", -1, "_b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                "_699545b9-82b9-4331-bc80-538d73b4ba56", -27.875359, -2.748067);
+        expectedFlows.add("Line", "BE-Line_2", -1, "_b58bf21a-096a-4dae-9a01-3f03b60c24c7",
+                "_77f04391-aa23-49b6-b3e9-6089130bb5d5", 31.313956, 1.205104);
+        expectedFlows.add("Line", "BE-Line_1", -1, "_17086487-56ba-4979-b8de-064025a6b4da",
+                "_1ef0715a-d5a9-477b-b6e7-b635529ac140", 27.365225, -0.425626);
+        expectedFlows.add("Line", "BE-Line_1", -1, "_17086487-56ba-4979-b8de-064025a6b4da",
+                "_70d962fb-a492-4c36-8cad-b5c584df53bd", -25.772723, -2.828472);
+        return expectedFlows;
+    }
+
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
 }

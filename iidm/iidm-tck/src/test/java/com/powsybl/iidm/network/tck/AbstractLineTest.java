@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.Quadripole;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -339,12 +342,15 @@ public abstract class AbstractLineTest {
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        PiModel equivalent = Quadripole.from(PiModel.from(tieLine.getHalf1()))
+                .cascade(Quadripole.from(PiModel.from(tieLine.getHalf2())))
+                .toPiModel();
+        assertEquals(equivalent.r, tieLine.getR(), 0.0);
+        assertEquals(equivalent.x, tieLine.getX(), 0.0);
+        assertEquals(equivalent.g1, tieLine.getG1(), 0.0);
+        assertEquals(equivalent.g2, tieLine.getG2(), 0.0);
+        assertEquals(equivalent.b1, tieLine.getB1(), 0.0);
+        assertEquals(equivalent.b2, tieLine.getB2(), 0.0);
 
         // invalid set line characteristics on tieLine
         try {
