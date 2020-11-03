@@ -7,11 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.iidm.network.*;
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Quadripole;
+import com.powsybl.iidm.network.util.Quadripole.PiModel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -206,20 +207,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
     }
 
     private Line createQuadripole(BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        PiModel pi1 = new PiModel();
-        pi1.r = boundaryLine1.r;
-        pi1.x = boundaryLine1.x;
-        pi1.g1 = boundaryLine1.g / 2.0;
-        pi1.b1 = boundaryLine1.b / 2.0;
-        pi1.g2 = pi1.g1;
-        pi1.b2 = pi1.b1;
-        PiModel pi2 = new PiModel();
-        pi2.r = boundaryLine2.r;
-        pi2.x = boundaryLine2.x;
-        pi2.g1 = boundaryLine2.g / 2.0;
-        pi2.b1 = boundaryLine2.b / 2.0;
-        pi2.g2 = pi2.g1;
-        pi2.b2 = pi2.b1;
+        PiModel pi1 = PiModel.from(boundaryLine1);
+        PiModel pi2 = PiModel.from(boundaryLine2);
         PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
         LineAdder adder = context.network().newLine()
             .setR(pim.r)
@@ -278,7 +267,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         return boundaryLine;
     }
 
-    static class BoundaryLine {
+    static class BoundaryLine implements LineCharacteristics<BoundaryLine> {
         String id;
         String name;
         String modelIidmVoltageLevelId;
@@ -289,73 +278,67 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x;
         double g;
         double b;
-    }
 
-    static class PiModel {
-        double r;
-        double x;
-        double g1;
-        double b1;
-        double g2;
-        double b2;
-    }
-
-    static class Quadripole {
-        Complex a;
-        Complex b;
-        Complex c;
-        Complex d;
-
-        public static Quadripole from(PiModel pi) {
-            Quadripole y1 = Quadripole.fromShuntAdmittance(pi.g1, pi.b1);
-            Quadripole z = Quadripole.fromSeriesImpedance(pi.r, pi.x);
-            Quadripole y2 = Quadripole.fromShuntAdmittance(pi.g2, pi.b2);
-            return y1.cascade(z).cascade(y2);
+        @Override
+        public double getR() {
+            return r;
         }
 
-        public static Quadripole fromSeriesImpedance(double r, double x) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(r, x);
-            q.c = new Complex(0);
-            q.d = new Complex(1);
-            return q;
+        @Override
+        public BoundaryLine setR(double r) {
+            this.r = r;
+            return this;
         }
 
-        public static Quadripole fromShuntAdmittance(double g, double b) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(0);
-            q.c = new Complex(g, b);
-            q.d = new Complex(1);
-            return q;
+        @Override
+        public double getX() {
+            return x;
         }
 
-        public Quadripole cascade(Quadripole q2) {
-            Quadripole q1 = this;
-            Quadripole qr = new Quadripole();
-            qr.a = q1.a.multiply(q2.a).add(q1.b.multiply(q2.c));
-            qr.b = q1.a.multiply(q2.b).add(q1.b.multiply(q2.d));
-            qr.c = q1.c.multiply(q2.a).add(q1.d.multiply(q2.c));
-            qr.d = q1.c.multiply(q2.b).add(q1.d.multiply(q2.d));
-            return qr;
+        @Override
+        public BoundaryLine setX(double x) {
+            this.x = x;
+            return this;
         }
 
-        public PiModel toPiModel() {
-            PiModel pi = new PiModel();
+        @Override
+        public double getG1() {
+            return this.g / 2;
+        }
 
-            // Y2 = (A - 1)/B
-            // Y1 = (D - 1)/B
-            Complex y1 = d.add(-1).divide(b);
-            Complex y2 = a.add(-1).divide(b);
+        @Override
+        public BoundaryLine setG1(double g1) {
+            throw new PowsyblException("setG1 not supported on BoundaryLine for ACLineSegmentConversion");
+        }
 
-            pi.r = b.getReal();
-            pi.x = b.getImaginary();
-            pi.g1 = y1.getReal();
-            pi.b1 = y1.getImaginary();
-            pi.g2 = y2.getReal();
-            pi.b2 = y2.getImaginary();
-            return pi;
+        @Override
+        public double getG2() {
+            return this.g / 2;
+        }
+
+        @Override
+        public BoundaryLine setG2(double g2) {
+            throw new PowsyblException("setG2 not supported on BoundaryLine for ACLineSegmentConversion");
+        }
+
+        @Override
+        public double getB1() {
+            return this.b / 2;
+        }
+
+        @Override
+        public BoundaryLine setB1(double b1) {
+            throw new PowsyblException("setB1 not supported on BoundaryLine for ACLineSegmentConversion");
+        }
+
+        @Override
+        public double getB2() {
+            return this.b / 2;
+        }
+
+        @Override
+        public BoundaryLine setB2(double b2) {
+            throw new PowsyblException("setB2 not supported on BoundaryLine for ACLineSegmentConversion");
         }
     }
 }
