@@ -30,7 +30,7 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
             @Override
             public String getLogs() {
-                return "";
+                return null;
             }
 
             @Override
