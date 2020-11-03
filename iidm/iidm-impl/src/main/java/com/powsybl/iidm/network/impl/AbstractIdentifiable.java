@@ -117,7 +117,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
-        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().contains(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
         if (type != null) {
             aliasesByType.remove(type);
         } else {
