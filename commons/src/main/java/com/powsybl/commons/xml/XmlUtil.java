@@ -6,16 +6,23 @@
  */
 package com.powsybl.commons.xml;
 
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.PowsyblException;
+
+import javanet.staxutils.IndentingXMLStreamWriter;
+
+import javax.xml.stream.*;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class XmlUtil {
+
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private XmlUtil() {
     }
@@ -31,6 +38,55 @@ public final class XmlUtil {
     public interface XmlEventHandlerWithDepth {
 
         void onStartElement(int elementDepth) throws XMLStreamException;
+    }
+
+    public static void readUntilStartElement(String path, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+        Objects.requireNonNull(path);
+        String[] elements = path.split("/");
+        readUntilStartElement(elements, reader, handler);
+    }
+
+    public static void readUntilStartElement(String[] elements, XMLStreamReader reader, XmlEventHandler handler) throws XMLStreamException {
+        Objects.requireNonNull(elements);
+        if (elements.length == 0) {
+            throw new PowsyblException("Empty element list");
+        }
+        StringBuilder currentPath = new StringBuilder();
+        for (int i = 1; i < elements.length; ++i) {
+            currentPath.append("/").append(elements[i]);
+            if (!readUntilStartElement(elements[i], elements[i - 1], reader)) {
+                throw new PowsyblException("Unable to find " + currentPath.toString() + ": parent element " + elements[i - 1] + " has been closed");
+            }
+        }
+        if (handler != null) {
+            handler.onStartElement();
+        }
+    }
+
+    private static boolean readUntilStartElement(String startElement, String endElement, XMLStreamReader reader) throws XMLStreamException {
+        int event;
+        while ((event = reader.next()) != XMLStreamConstants.END_DOCUMENT) {
+            switch (event) {
+                case XMLStreamConstants.START_ELEMENT:
+                    if (reader.getLocalName().equals(startElement)) {
+                        return true;
+                    } else {
+                        // Skip the current element
+                        readUntilEndElement(reader.getLocalName(), reader, null);
+                    }
+                    break;
+
+                case XMLStreamConstants.END_ELEMENT:
+                    if (reader.getLocalName().equals(endElement)) {
+                        return false;
+                    }
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        throw new PowsyblException("Unable to find " + startElement + ": end of document has been reached");
     }
 
     public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
@@ -77,6 +133,10 @@ public final class XmlUtil {
             }
         }
         return text;
+    }
+
+    public static String readText(String endElementName, XMLStreamReader reader) throws XMLStreamException {
+        return readUntilEndElement(endElementName, reader, () -> { });
     }
 
     public static void writeOptionalBoolean(String name, boolean value, boolean absentValue, XMLStreamWriter writer) throws XMLStreamException {
@@ -172,5 +232,17 @@ public final class XmlUtil {
     public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
+        XMLStreamWriter writer;
+        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        if (indent) {
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
+            indentingWriter.setIndent(indentString);
+            writer = indentingWriter;
+        }
+        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        return writer;
     }
 }

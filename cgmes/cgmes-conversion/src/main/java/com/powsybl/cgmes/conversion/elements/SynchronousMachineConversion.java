@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -53,8 +54,12 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        addAliases(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+        if (p.asInt("referencePriority", 0) > 0) {
+            SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
+        }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }

@@ -87,6 +87,11 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
+    public Generation getGeneration() {
+        return getDelegate().getGeneration();
+    }
+
+    @Override
     public String getUcteXnodeCode() {
         return getDelegate().getUcteXnodeCode();
     }

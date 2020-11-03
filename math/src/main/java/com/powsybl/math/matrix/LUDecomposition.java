@@ -35,11 +35,25 @@ public interface LUDecomposition extends AutoCloseable {
     void solve(double[] b);
 
     /**
+     * Solve AT * x = b where b is a column vector.
+     *
+     * @param b a column vector
+     */
+    void solveTransposed(double[] b);
+
+    /**
      * Solve A * x = b where b is a dense matrix.
      *
      * @param b a matrix
      */
     void solve(DenseMatrix b);
+
+    /**
+     * Solve AT * x = b where b is a dense matrix.
+     *
+     * @param b a matrix
+     */
+    void solveTransposed(DenseMatrix b);
 
     /**
      * {@inheritDoc}

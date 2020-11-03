@@ -18,6 +18,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -126,6 +127,10 @@ public class UcteImporter implements Importer {
 
             if (ucteNode.isGenerator()) {
                 createGenerator(ucteNode, voltageLevel, bus);
+            }
+
+            if (ucteNode.getTypeCode() == UcteNodeTypeCode.UT) {
+                SlackTerminal.attach(bus);
             }
         }
     }
@@ -255,20 +260,10 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
-        float p0 = 0;
-        if (isValueValid(xnode.getActiveLoad())) {
-            p0 += xnode.getActiveLoad();
-        }
-        if (isValueValid(xnode.getActivePowerGeneration())) {
-            p0 += xnode.getActivePowerGeneration();
-        }
-        float q0 = 0;
-        if (isValueValid(xnode.getReactiveLoad())) {
-            q0 += xnode.getReactiveLoad();
-        }
-        if (isValueValid(xnode.getReactivePowerGeneration())) {
-            q0 += xnode.getReactivePowerGeneration();
-        }
+        float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
+        float q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
+        float targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
+        float targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
@@ -283,7 +278,24 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
+                .newGeneration()
+                    .setTargetP(-targetP)
+                    .setTargetQ(-targetQ)
+                .add()
                 .add();
+
+        if (xnode.isRegulatingVoltage()) {
+            dl.getGeneration()
+                    .setTargetV(xnode.getVoltageReference())
+                    .setVoltageRegulationOn(true)
+                    .setMaxP(-xnode.getMaximumPermissibleActivePowerGeneration())
+                    .setMinP(-xnode.getMinimumPermissibleActivePowerGeneration());
+            dl.getGeneration().newMinMaxReactiveLimits()
+                    .setMinQ(-xnode.getMinimumPermissibleReactivePowerGeneration())
+                    .setMaxQ(-xnode.getMaximumPermissibleReactivePowerGeneration())
+                    .add();
+        }
+
         dl.newExtension(XnodeAdder.class).withCode(xnode.getCode().toString()).add();
 
         if (ucteLine.getCurrentLimit() != null) {

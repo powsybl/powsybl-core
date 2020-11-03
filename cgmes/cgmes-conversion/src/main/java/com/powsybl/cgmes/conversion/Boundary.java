@@ -47,7 +47,8 @@ public class Boundary {
         } else {
             nodes = Collections.emptySet();
         }
-        nodesLines = new HashMap<>();
+        nodesEquipment = new HashMap<>();
+        nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
     }
@@ -64,10 +65,14 @@ public class Boundary {
         return nodesPowerFlow.get(node);
     }
 
-    public void addLineAtNode(PropertyBag line, String node) {
-        List<PropertyBag> lines;
-        lines = nodesLines.computeIfAbsent(node, ls -> new ArrayList<>(2));
-        lines.add(line);
+    public void addEquipmentAtNode(PropertyBag line, String node) {
+        List<PropertyBag> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(line);
+    }
+
+    public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
+        nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
 
     public void addPowerFlowAtNode(String node, PowerFlow f) {
@@ -93,8 +98,12 @@ public class Boundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    public List<PropertyBag> linesAtNode(String node) {
-        return nodesLines.getOrDefault(node, Collections.emptyList());
+    public List<PropertyBag> equipmentAtNode(String node) {
+        return nodesEquipment.getOrDefault(node, Collections.emptyList());
+    }
+
+    public List<PropertyBag> equivalentInjectionsAtNode(String node) {
+        return nodesEquivalentInjections.getOrDefault(node, Collections.emptyList());
     }
 
     public String nameAtBoundary(String node) {
@@ -107,7 +116,8 @@ public class Boundary {
     }
 
     private final Set<String> nodes;
-    private final Map<String, List<PropertyBag>> nodesLines;
+    private final Map<String, List<PropertyBag>> nodesEquipment;
+    private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;

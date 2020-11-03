@@ -16,6 +16,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -163,7 +164,6 @@ public class UcteExporter implements Exporter {
         String geographicalName = bus.getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         // FIXME(mathbagu): how to initialize active/reactive load and generation: 0 vs NaN vs DEFAULT_MAX_POWER?
-        // FIXME(mathbagu): how to find the slack node?
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
                 geographicalName,
@@ -188,6 +188,10 @@ public class UcteExporter implements Exporter {
 
         convertLoads(ucteNode, bus);
         convertGenerators(ucteNode, bus);
+
+        if (isSlackBus(bus)) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.UT);
+        }
     }
 
     /**
@@ -282,6 +286,30 @@ public class UcteExporter implements Exporter {
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
         ucteNode.setActiveLoad((float) danglingLine.getP0());
         ucteNode.setReactiveLoad((float) danglingLine.getQ0());
+        double generatorTargetP = danglingLine.getGeneration().getTargetP();
+        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : (float) -generatorTargetP);
+        double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
+        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
+        if (danglingLine.getGeneration().isVoltageRegulationOn()) {
+            ucteNode.setTypeCode(UcteNodeTypeCode.PU);
+            ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
+            float minP = (float) danglingLine.getGeneration().getMinP();
+            float maxP = (float) danglingLine.getGeneration().getMaxP();
+            float minQ = (float) danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            float maxQ = (float) danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            if (minP != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
+            }
+            if (maxP != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleActivePowerGeneration(-maxP);
+            }
+            if (minQ != -DEFAULT_POWER_LIMIT) {
+                ucteNode.setMinimumPermissibleReactivePowerGeneration(-minQ);
+            }
+            if (maxQ != DEFAULT_POWER_LIMIT) {
+                ucteNode.setMaximumPermissibleReactivePowerGeneration(-maxQ);
+            }
+        }
     }
 
     /**
@@ -396,7 +424,7 @@ public class UcteExporter implements Exporter {
                 (float) line.getR(),
                 (float) line.getX(),
                 (float) line.getB1() + (float) line.getB2(),
-                (int) getPermanentLimit(line),
+                getPermanentLimit(line),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -524,7 +552,6 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
         String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         UcteElementStatus ucteElementStatus = getStatus(danglingLine);
-        double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
 
         UcteLine ucteLine = new UcteLine(
                 elementId,
@@ -532,7 +559,7 @@ public class UcteExporter implements Exporter {
                 (float) danglingLine.getR(),
                 (float) danglingLine.getX(),
                 (float) danglingLine.getB(),
-                (int) permanentLimit,
+                danglingLine.getCurrentLimits() == null ? null : (int) danglingLine.getCurrentLimits().getPermanentLimit(),
                 elementName);
         ucteNetwork.addLine(ucteLine);
     }
@@ -634,6 +661,16 @@ public class UcteExporter implements Exporter {
         }
     }
 
+    private static boolean isSlackBus(Bus bus) {
+        VoltageLevel vl = bus.getVoltageLevel();
+        SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
+        if (slackTerminal != null) {
+            Terminal terminal = slackTerminal.getTerminal();
+            return terminal.getBusBreakerView().getBus() == bus;
+        }
+        return false;
+    }
+
     /**
      * Converts the {@link TwoWindingsTransformer} into a {@link UcteTransformer} and adds it to the ucteNetwork.
      * Also creates the adds the linked {@link UcteRegulation}
@@ -647,7 +684,6 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        double currentLimits = getPermanentLimit(twoWindingsTransformer);
         float nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
 
         UcteTransformer ucteTransformer = new UcteTransformer(
@@ -656,7 +692,7 @@ public class UcteExporter implements Exporter {
                 (float) twoWindingsTransformer.getR(),
                 (float) twoWindingsTransformer.getX(),
                 (float) twoWindingsTransformer.getB(),
-                (int) currentLimits,
+                getPermanentLimit(twoWindingsTransformer),
                 elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
@@ -774,12 +810,12 @@ public class UcteExporter implements Exporter {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit((int) DEFAULT_MAX_CURRENT);
-                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
+                ucteLine.setCurrentLimit(null);
+                LOGGER.warn("Switch {}: No current limit provided", sw.getId());
             }
         } else {
-            ucteLine.setCurrentLimit((int) DEFAULT_MAX_CURRENT);
-            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
+            ucteLine.setCurrentLimit(null);
+            LOGGER.warn("Switch {}: No current limit provided", sw.getId());
         }
     }
 
@@ -801,11 +837,14 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private static double getPermanentLimit(Branch<?> branch) {
-        double permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
-        double permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit).orElse(DEFAULT_MAX_CURRENT);
-
-        return Double.min(permanentLimit1, permanentLimit2);
+    private static Integer getPermanentLimit(Branch<?> branch) {
+        Optional<Double> permanentLimit1 = Optional.ofNullable(branch.getCurrentLimits1()).map(CurrentLimits::getPermanentLimit);
+        Optional<Double> permanentLimit2 = Optional.ofNullable(branch.getCurrentLimits2()).map(CurrentLimits::getPermanentLimit);
+        if (permanentLimit1.isPresent() && permanentLimit2.isPresent()) {
+            return (int) Double.min(permanentLimit1.get(), permanentLimit2.get());
+        } else  {
+            return permanentLimit1.map(Double::intValue).orElseGet(() -> permanentLimit2.isPresent() ? permanentLimit2.get().intValue() : null);
+        }
     }
 
     static NamingStrategy findNamingStrategy(String name, List<NamingStrategy> namingStrategies) {

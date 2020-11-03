@@ -926,6 +926,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         graph.setVertexObject(node, null);
 
+        invalidateCache();
+
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
         clean();
@@ -1053,21 +1055,25 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         variants.push(number, VariantImpl::new);
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         variants.pop(number);
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         variants.delete(index);
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         variants.allocate(indexes, VariantImpl::new);
     }
 
@@ -1142,12 +1148,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         for (int n = 0; n < graph.getVertexCount(); n++) {
+            if (!graph.vertexExists(n)) {
+                continue;
+            }
             Bus bus = getCalculatedBusBreakerTopology().getBus(n);
             String label = "" + n;
             TerminalExt terminal = graph.getVertexObject(n);
             if (terminal != null) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                label += System.lineSeparator() + connectable.getType().toString() + System.lineSeparator() + connectable.getId();
+                label += System.lineSeparator() + connectable.getType().toString()
+                        + System.lineSeparator() + connectable.getId()
+                        + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
             }
             GraphVizNode gvNode = gvGraph.node(scope, n)
                     .label(label)
@@ -1167,7 +1178,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
                 if (DRAW_SWITCH_ID) {
-                    edge.label(aSwitch.getKind().toString() + System.lineSeparator() + aSwitch.getId())
+                    edge.label(aSwitch.getKind().toString()
+                            + System.lineSeparator() + aSwitch.getId()
+                            + aSwitch.getOptionalName().map(n -> System.lineSeparator() + n).orElse(""))
                             .attr(GraphVizAttribute.fontsize, "10");
                 }
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");

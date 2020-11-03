@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -98,6 +99,13 @@ public class DanglingLineAdapterTest {
             assertNotNull(t);
         });
         assertEquals(1, danglingLine.getTerminals().size());
+
+        try {
+            createDanglingLine(mergingView, voltageLevelId, id, name, r, x, g, b, p0, q0, ucteXnodeCode, busId);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'DanglingLineAdapter' with the id 'danglingId'", e.getMessage());
+        }
     }
 
     @Test
@@ -128,7 +136,7 @@ public class DanglingLineAdapterTest {
         // MergedLine
         final MergedLine mergedLine = (MergedLine) line;
         assertEquals(ConnectableType.LINE, mergedLine.getType());
-        assertFalse(mergedLine.isTieLine());
+        assertTrue(mergedLine.isTieLine());
         assertSame(mergingView, mergedLine.getNetwork());
         assertSame(dl1.getTerminal(), mergedLine.getTerminal(Branch.Side.ONE));
         assertSame(dl1.getTerminal(), mergedLine.getTerminal1());
@@ -223,13 +231,30 @@ public class DanglingLineAdapterTest {
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
 
+        // Exceptions when creating dangling lines with mergedline ids
+
+        try {
+            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'MergedLine' with the id 'dl1'", e.getMessage());
+        }
+
+        try {
+            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The network already contains an object 'MergedLine' with the id 'dl1 + dl2'", e.getMessage());
+        }
+
         // Not implemented yet !
         TestUtil.notImplemented(mergedLine::remove);
         TestUtil.notImplemented(() -> mergedLine.addExtension(null, null));
-        TestUtil.notImplemented(() -> mergedLine.getExtension(null));
-        TestUtil.notImplemented(() -> mergedLine.getExtensionByName(""));
+        assertNull(mergedLine.getExtension(null));
+        assertNull(mergedLine.getExtensionByName(""));
         TestUtil.notImplemented(() -> mergedLine.removeExtension(null));
-        TestUtil.notImplemented(mergedLine::getExtensions);
+        assertNotNull(mergedLine.getExtensions());
+        assertEquals(0, mergedLine.getExtensions().size());
 
         // Exception(s)
         thrown.expect(PowsyblException.class);
@@ -284,10 +309,53 @@ public class DanglingLineAdapterTest {
 
     }
 
-    private static DanglingLine createDanglingLine(Network n, String vlId, String id, String name, double r, double x, double g, double b,
-                                            double p0, double q0, String ucteCode, String busId) {
+    @Test
+    public void mergedDanglingLineWithSameId() {
+        double p0 = 1.0;
+        double q0 = 1.0;
+        Network network = EurostagTutorialExample1Factory.create();
+        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "NGEN");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+        mergingView.merge(network, noEquipNetwork);
+        assertNull(mergingView.getDanglingLine("dl"));
+        Line merged = mergingView.getLine("dl");
+        assertNotNull(merged);
+    }
 
-        DanglingLine dl = n.getVoltageLevel(vlId).newDanglingLine()
+    @Test
+    public void failDanglingLinesWithSameIdAndNullXnodeCode() {
+        double p0 = 1.0;
+        double q0 = 1.0;
+        Network network = EurostagTutorialExample1Factory.create();
+        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "NGEN");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, null, "busA");
+        try {
+            mergingView.merge(network, noEquipNetwork);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("The object 'dl' already exists into merging view", e.getMessage());
+        }
+    }
+
+    @Test
+    public void failDanglingLinesWithSameIdAndDifferentXnodeCode() {
+        double p0 = 1.0;
+        double q0 = 1.0;
+        Network network = EurostagTutorialExample1Factory.create();
+        createDanglingLine(network, "VLGEN", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "NGEN");
+        createDanglingLine(noEquipNetwork, "vl1", "dl", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code2", "busA");
+        try {
+            mergingView.merge(network, noEquipNetwork);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Dangling line couple dl have inconsistent Xnodes (code!=code2)", e.getMessage());
+        }
+    }
+
+    private static DanglingLine createDanglingLine(Network n, String vlId, String id, String name, double r, double x, double g, double b,
+                                                   double p0, double q0, String ucteCode, String busId) {
+
+        return n.getVoltageLevel(vlId).newDanglingLine()
                                                      .setId(id)
                                                      .setName(name)
                                                      .setR(r)
@@ -301,6 +369,5 @@ public class DanglingLineAdapterTest {
                                                      .setConnectableBus(busId)
                                                      .setEnsureIdUnicity(false)
                                                  .add();
-        return dl;
     }
 }

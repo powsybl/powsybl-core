@@ -6,13 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.TopologyVisitor;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Network.BusBreakerView;
 import com.powsybl.iidm.network.Network.BusView;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -21,6 +15,10 @@ import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.Collection;
+
+import java.util.stream.StreamSupport;
 
 import static org.junit.Assert.*;
 
@@ -73,21 +71,119 @@ public class BusAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(bus::getConnectedTerminalCount);
-        TestUtil.notImplemented(bus::getLines);
-        TestUtil.notImplemented(bus::getLineStream);
-        TestUtil.notImplemented(bus::getDanglingLines);
-        TestUtil.notImplemented(bus::getDanglingLineStream);
     }
 
     @Test
-    public void testComponentSetterGetter() {
-        // Not implemented yet !
-        TestUtil.notImplemented(bus::getSynchronousComponent);
-        TestUtil.notImplemented(bus::getConnectedComponent);
-        // XXX LUMA implemented returning default value true
-        // to be able to check flows against Conformity test case
-        // TestUtil.notImplemented(bus::isInMainConnectedComponent);
-        TestUtil.notImplemented(bus::isInMainSynchronousComponent);
+    public void testSynchronousComponentSetterGetter() {
+        MergingView view = MergingView.create("testSynchronousComponentSetterGetter", "iidm");
+        view.merge(HvdcTestNetwork.createVsc());
+        HvdcLine l = view.getHvdcLine("L");
+        assertNotNull(l);
+        VscConverterStation cs1 = view.getVscConverterStation("C1");
+        VscConverterStation cs2 = view.getVscConverterStation("C2");
+        cs1.setLossFactor(0.022f);
+        cs1.setVoltageSetpoint(406.0);
+        cs2.setReactivePowerSetpoint(124.0);
+        cs2.setVoltageSetpoint(405);
+        cs2.setVoltageRegulatorOn(true);
+        Bus bus1 = l.getConverterStation1().getTerminal().getBusView().getBus();
+        Bus bus2 = l.getConverterStation2().getTerminal().getBusView().getBus();
+        assertTrue(bus1.isInMainConnectedComponent());
+        assertTrue(bus2.isInMainConnectedComponent());
+        assertTrue(bus1.isInMainSynchronousComponent());
+        assertFalse(bus2.isInMainSynchronousComponent());
+        int num1 = bus1.getSynchronousComponent().getNum();
+        int num2 = bus2.getSynchronousComponent().getNum();
+        assertNotEquals(num1, num2);
+    }
+
+    @Test
+    public void testGetMergedLine() {
+        // Networks creation
+        Network network1 = NoEquipmentNetworkFactory.create();
+        Network network2 = NetworkFactory.findDefault().createNetwork("test2", "test");
+        Substation s2 = network2.newSubstation()
+                .setId("sub2")
+                .setCountry(Country.FR)
+                .setTso("RTE")
+                .add();
+        VoltageLevel vl3 = s2.newVoltageLevel()
+                .setId("vl3")
+                .setName("vl3")
+                .setNominalV(440.0)
+                .setHighVoltageLimit(400.0)
+                .setLowVoltageLimit(200.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl3.getBusBreakerView().newBus()
+                .setId("busC")
+                .setName("busC")
+                .add();
+
+        VoltageLevel vl1 = network1.getVoltageLevel("vl1");
+
+        double r = 10.0;
+        double x = 20.0;
+        double g = 30.0;
+        double b = 40.0;
+        double p0 = 50.0;
+        double q0 = 60.0;
+        String baseId = "DL";
+        String baseName = "DanglingLine";
+        String ucteXnodeCode = "code";
+        createDanglingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, "busA");
+        createDanglingLine(vl3, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, "busC");
+        createDanglingLine(vl1, baseId + "3", baseName + "3", r, x, g, b, p0, q0, "", "busA");
+        network1.newLine()
+                .setId("L")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setR(3.0)
+                .setX(33.0)
+                .setG1(0.0)
+                .setB1(386E-6 / 2)
+                .setG2(0.0)
+                .setB2(386E-6 / 2)
+                .add();
+
+        // Check that dangling lines are present in networks and that merged line doesn't exist
+        Bus busA = network1.getBusBreakerView().getBus("busA");
+        assertFalse(busA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertTrue(busA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertTrue(StreamSupport.stream(busA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        Bus busC = network2.getBusBreakerView().getBus("busC");
+        assertFalse(busC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(StreamSupport.stream(busC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertTrue(busC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertTrue(StreamSupport.stream(busC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        // Merge networks
+        MergingView mergingView = MergingView.create("merge", "test");
+        mergingView.merge(network1, network2);
+
+        // Check that methods returning lines and dangling lines return adapters (wrapped objects)
+        Bus mergedBusA = mergingView.getBusBreakerView().getBus("busA");
+
+        assertTrue(mergedBusA.getLineStream().allMatch(l -> l instanceof LineAdapter || l instanceof MergedLine));
+        assertTrue(mergedBusA.getDanglingLineStream().allMatch(dl -> dl instanceof DanglingLineAdapter));
+
+        // Check that merged dangling lines are not present anymore and that merged line exist
+        assertTrue(mergedBusA.getDanglingLineStream().noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertTrue(StreamSupport.stream(mergedBusA.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL1".equals(dl.getId())));
+        assertFalse(mergedBusA.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(StreamSupport.stream(mergedBusA.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+
+        Bus mergedBusC = mergingView.getBusBreakerView().getBus("busC");
+        assertTrue(mergedBusC.getDanglingLineStream().noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertTrue(StreamSupport.stream(mergedBusC.getDanglingLines().spliterator(), false).noneMatch(dl -> "DL2".equals(dl.getId())));
+        assertFalse(mergedBusC.getLineStream().noneMatch(l -> "DL1 + DL2".equals(l.getId())));
+        assertFalse(StreamSupport.stream(mergedBusC.getLines().spliterator(), false).noneMatch(l -> "DL1 + DL2".equals(l.getId())));
     }
 
     @Test
@@ -109,7 +205,7 @@ public class BusAdapterTest {
         String baseId = "DL";
         String baseName = "DanglingLine";
         String ucteXnodeCode = "code";
-        DanglingLine dl1 = createDangingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, busId1);
+        DanglingLine dl1 = createDanglingLine(vl1, baseId + "1", baseName + "1", r, x, g, b, p0, q0, ucteXnodeCode, busId1);
 
         // Create MergingView with Network with one DanglingLine
         MergingView view = MergingView.create("testComponentVisitor", "test");
@@ -129,7 +225,7 @@ public class BusAdapterTest {
         Mockito.verify(visitor1, Mockito.never()).visitLine(Mockito.any(Line.class), Mockito.any(Branch.Side.class));
 
         // Add second DanglingLine -> Creation of MergedLine
-        DanglingLine dl2 = createDangingLine(vl2, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, busId2);
+        DanglingLine dl2 = createDanglingLine(vl2, baseId + "2", baseName + "2", r, x, g, b, p0, q0, ucteXnodeCode, busId2);
 
         // Mock TopologyVisitor
         TopologyVisitor visitor2 = Mockito.mock(TopologyVisitor.class);
@@ -146,35 +242,135 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testBusViewSetterGetter() {
-        final BusView busView = mergingView.getBusView();
-        assertNotNull(busView);
+    public void testConnectedComponentSetterGetter() {
+        Network network1 = createGeneratorNetwork();
+        Network network2 = createLoadNetwork();
 
-        assertTrue(busView.getBuses().iterator().hasNext());
-        busView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
-        final Bus bus = busView.getBus("VLHV1_0");
-        assertNotNull(bus);
-        assertSame(mergingView, bus.getNetwork());
+        Load load = network2.getLoad("LOAD");
 
-        // Not implemented yet !
-        TestUtil.notImplemented(busView::getConnectedComponents);
+        VoltageLevel vl1 = network1.getVoltageLevel("S1_VL");
+        Bus b1 = vl1.getBusBreakerView().getBus("B1");
+        Bus b2 = vl1.getBusBreakerView().getBus("B2");
+
+        VoltageLevel vl2 = network2.getVoltageLevel("S2_VL");
+        Bus b3 = vl2.getBusBreakerView().getBus("B3");
+
+        assertTrue(b1.isInMainConnectedComponent());
+        assertTrue(b2.isInMainConnectedComponent());
+        assertTrue(b3.isInMainConnectedComponent());
+        assertEquals(0, b1.getConnectedComponent().getNum());
+        assertEquals(0, b2.getConnectedComponent().getNum());
+
+        // Merge
+        MergingView view = MergingView.create("MergingView", "test");
+        // + Network1
+        view.merge(network1);
+        vl1 = view.getVoltageLevel("S1_VL");
+        b1 = vl1.getBusBreakerView().getBus("B1");
+        b2 = vl1.getBusBreakerView().getBus("B2");
+
+        assertTrue(b1.isInMainConnectedComponent());
+        assertTrue(b2.isInMainConnectedComponent());
     }
 
-    @Test
-    public void testBusBreakerViewSetterGetter() {
-        final BusBreakerView busBreakerView = mergingView.getBusBreakerView();
-        assertNotNull(busBreakerView);
+    private static Network createGeneratorNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("WithGen", "test");
 
-        assertTrue(busBreakerView.getBuses().iterator().hasNext());
-        busBreakerView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
-        assertTrue(busBreakerView.getSwitches().iterator().hasNext());
-        busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter));
-        assertEquals(1, busBreakerView.getSwitchCount());
+        Substation substation = network.newSubstation()
+                .setId("S1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("S1_VL")
+                .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B1")
+                .add();
+        vl.newGenerator()
+                .setId("GEN")
+                .setMinP(0.0)
+                .setMaxP(100.0)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(100.0)
+                .setTargetP(50.0)
+                .setTargetQ(30.0)
+                .setBus("B1")
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B2")
+                .add();
+        network.newLine()
+                .setId("L")
+                .setVoltageLevel1("S1_VL")
+                .setBus1("B1")
+                .setVoltageLevel2("S1_VL")
+                .setBus2("B2")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .add();
+        vl.newDanglingLine()
+                .setId("S2_DL")
+                .setBus("B2")
+                .setUcteXnodeCode("XNode")
+                .setR(10.0)
+                .setX(1.0)
+                .setB(10e-6)
+                .setG(10e-5)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .add();
+        return network;
     }
 
-    private DanglingLine createDangingLine(VoltageLevel vl, String id, String name,
-                                           double r, double x, double g, double b, double p0, double q0,
-                                           String ucteXnodeCode, String busId)  {
+    private static Network createLoadNetwork() {
+        Network network = NetworkFactory.findDefault().createNetwork("WithLoad", "test");
+
+        Substation substation = network.newSubstation()
+                .setId("S2")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl = substation.newVoltageLevel()
+                .setId("S2_VL")
+                .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B3")
+                .add();
+        vl.newLoad()
+                .setId("LOAD")
+                .setConnectableBus("B3")
+                .setBus("B3")
+                .setP0(100.0)
+                .setQ0(1.0)
+                .add();
+        vl.newDanglingLine()
+                .setId("S2_DL")
+                .setBus("B3")
+                .setUcteXnodeCode("XNode")
+                .setR(10.0)
+                .setX(1.0)
+                .setB(10e-6)
+                .setG(10e-5)
+                .setP0(50.0)
+                .setQ0(30.0)
+                .add();
+        return network;
+    }
+
+    private DanglingLine createDanglingLine(VoltageLevel vl, String id, String name,
+                                            double r, double x, double g, double b, double p0, double q0,
+                                            String ucteXnodeCode, String busId)  {
         return vl.newDanglingLine()
                 .setId(id)
                 .setName(name)
@@ -188,5 +384,32 @@ public class BusAdapterTest {
                 .setBus(busId)
                 .setConnectableBus(busId)
                 .add();
+    }
+
+    @Test
+    public void testBusViewSetterGetter() {
+        final BusView busView = mergingView.getBusView();
+        assertNotNull(busView);
+
+        assertTrue(busView.getBuses().iterator().hasNext());
+        busView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
+        final Bus bus = busView.getBus("VLHV1_0");
+        assertNotNull(bus);
+        assertSame(mergingView, bus.getNetwork());
+
+        Collection<Component> components = busView.getConnectedComponents();
+        assertTrue(components.iterator().hasNext());
+    }
+
+    @Test
+    public void testBusBreakerViewSetterGetter() {
+        final BusBreakerView busBreakerView = mergingView.getBusBreakerView();
+        assertNotNull(busBreakerView);
+
+        assertTrue(busBreakerView.getBuses().iterator().hasNext());
+        busBreakerView.getBuses().forEach(b -> assertTrue(b instanceof AbstractAdapter));
+        assertTrue(busBreakerView.getSwitches().iterator().hasNext());
+        busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter));
+        assertEquals(1, busBreakerView.getSwitchCount());
     }
 }

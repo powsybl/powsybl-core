@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collections;
 import java.util.stream.Stream;
 
 /**
- * A bus is a set of equipemnts connected together through a closed switch.
+ * A bus is a set of equipments connected together through a closed switch.
  *
  * It could be a configured object ot a result of a computation depending of the
  * context.
@@ -239,5 +240,19 @@ public interface Bus extends Identifiable<Bus> {
      * @param visitor a handler to be notified for each equipment
      */
     void visitConnectedOrConnectableEquipments(TopologyVisitor visitor);
+
+    /**
+     * Get an iterable of the terminals connected to the bus.
+     */
+    default Iterable<? extends Terminal> getConnectedTerminals() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Get a stream of the terminals connected to the bus.
+     */
+    default Stream<? extends Terminal> getConnectedTerminalStream() {
+        return Stream.empty();
+    }
 
 }

@@ -14,6 +14,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
+import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -86,9 +87,38 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "simulShunt":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.1");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.2");
                     parser.nextToken();
                     parameters.setSimulShunt(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "readSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setReadSlackBus(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "writeSlackBus":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.2");
+                    parser.nextToken();
+                    parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "dc":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: dc", version, "1.3");
+                    parser.nextToken();
+                    parameters.setDc(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "distributedSlack":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.3");
+                    parser.nextToken();
+                    parameters.setDistributedSlack(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "balanceType":
+                    parser.nextToken();
+                    parameters.setBalanceType(parser.readValueAs(BalanceType.class));
                     break;
 
                 case "extensions":
