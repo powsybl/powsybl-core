@@ -239,4 +239,162 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     Overload checkTemporaryLimits2(float limitReduction);
 
     Overload checkTemporaryLimits2();
+
+    /**
+     * Get the active power in MW injected at side one of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getP1() {
+        return getTerminal1().getP();
+    }
+
+    /**
+     * Set the active power in MW injected at side one of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Branch<I> setP1(double p) {
+        getTerminal1().setP(p);
+        return this;
+    }
+
+    /**
+     * Get the reactive power in MVAR injected at side one of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getQ1() {
+        return getTerminal1().getQ();
+    }
+
+    /**
+     * Set the reactive power in MVAR injected at side one of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Branch<I> setQ1(double q) {
+        getTerminal1().setQ(q);
+        return this;
+    }
+
+    /**
+     * Get the current in A at side one of this equipment.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getI1() {
+        return getTerminal1().getI();
+    }
+
+    /**
+     * Try to connect this equipment at side one.
+     * <p>Depends on the working variant.
+     * @return true if the side one terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    default boolean connect1() {
+        return getTerminal1().connect();
+    }
+
+    /**
+     * Disconnect this equipment at side one.
+     * <p>Depends on the working variant.
+     * @return true if the side one terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    default boolean disconnect1() {
+        return getTerminal1().disconnect();
+    }
+
+    /**
+     * Test if this equipment is connected at side one.
+     * @return true if the side one terminal is connected, false otherwise
+     */
+    default boolean isConnected1() {
+        return getTerminal1().isConnected();
+    }
+
+    /**
+     * Get the active power in MW injected at side two of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getP2() {
+        return getTerminal2().getP();
+    }
+
+    /**
+     * Set the active power in MW injected at side two of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Branch<I> setP2(double p) {
+        getTerminal2().setP(p);
+        return this;
+    }
+
+    /**
+     * Get the reactive power in MVAR injected at side two of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getQ2() {
+        return getTerminal2().getQ();
+    }
+
+    /**
+     * Set the reactive power in MVAR injected at side two of this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Branch<I> setQ2(double q) {
+        getTerminal2().setQ(q);
+        return this;
+    }
+
+    /**
+     * Get the current in A at side two of this equipment.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getI2() {
+        return getTerminal2().getI();
+    }
+
+    /**
+     * Try to connect this equipment at side two.
+     * <p>Depends on the working variant.
+     * @return true if the side two terminal has been connected, false otherwise
+     * @see VariantManager
+     */
+    default boolean connect2() {
+        return getTerminal2().connect();
+    }
+
+    /**
+     * Disconnect this equipment at side two.
+     * <p>Depends on the working variant.
+     * @return true if the side two terminal has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    default boolean disconnect2() {
+        return getTerminal2().disconnect();
+    }
+
+    /**
+     * Test if this equipment is connected at side two.
+     * @return true if the side two terminal is connected, false otherwise
+     */
+    default boolean isConnected2() {
+        return getTerminal2().isConnected();
+    }
 }

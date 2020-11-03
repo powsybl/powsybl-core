@@ -17,4 +17,84 @@ public interface Injection<I extends Injection<I>> extends Connectable<I> {
      * Get the terminal.
      */
     Terminal getTerminal();
+
+    /**
+     * Get the active power in MW injected at this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getP() {
+        return getTerminal().getP();
+    }
+
+    /**
+     * Set the active power in MW injected at this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Injection<I> setP(double p) {
+        getTerminal().setP(p);
+        return this;
+    }
+
+    /**
+     * Get the reactive power in MVAR injected at this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getQ() {
+        return getTerminal().getQ();
+    }
+
+    /**
+     * Set the reactive power in MVAR injected at this equipment.
+     * <p>
+     * Depends on the working variant.
+     * @see VariantManager
+     */
+    default Injection<I> setQ(double q) {
+        getTerminal().setQ(q);
+        return this;
+    }
+
+    /**
+     * Get the current in A at this equipment.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
+    default double getI() {
+        return getTerminal().getI();
+    }
+
+    /**
+     * Try to connect this equipment.
+     * <p>Depends on the working variant.
+     * @return true if this equipment has been connected, false otherwise
+     * @see VariantManager
+     */
+    default boolean connect() {
+        return getTerminal().connect();
+    }
+
+    /**
+     * Disconnect this equipment.
+     * <p>Depends on the working variant.
+     * @return true if this equipment has been disconnected, false otherwise
+     * @see VariantManager
+     */
+    default boolean disconnect() {
+        return getTerminal().disconnect();
+    }
+
+    /**
+     * Test if this equipment is connected.
+     * @return true if this equipment is connected, false otherwise
+     */
+    default boolean isConnected() {
+        return getTerminal().isConnected();
+    }
+
 }
