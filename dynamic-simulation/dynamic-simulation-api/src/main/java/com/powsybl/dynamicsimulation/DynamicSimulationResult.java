@@ -23,6 +23,12 @@ public interface DynamicSimulationResult {
 
     TimeSeries getCurve(String curve);
 
+    /**
+     * The Timeline contains information about relevant events that may have happened during the time domain simulation.
+     * Each dynamic simulation engine could provide a set of fields that describe the event: as an example, an identifier 
+     *  of the model where the event happened and a description of the kind of event.
+     * The fields that describe the event would be available as a collection of TimeSeries.
+     */
     Map<String, TimeSeries> getTimeLine();
 
     TimeSeries getTimeLine(String field);
