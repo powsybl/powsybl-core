@@ -78,7 +78,8 @@ public class MatpowerImporter implements Importer {
     }
 
     private static boolean isTransformer(MBranch branch) {
-        return branch.getRatio() != 0;
+        // 0 is a special value to indicate lines but a unit ratio also means we have to create a line
+        return branch.getRatio() != 0 && branch.getRatio() != 1;
     }
 
     private static String getId(String prefix, int num) {
