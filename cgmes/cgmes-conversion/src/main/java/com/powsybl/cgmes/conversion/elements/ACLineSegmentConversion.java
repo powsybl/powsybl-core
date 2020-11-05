@@ -77,6 +77,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                         .setKind(SwitchKind.BREAKER)
+                        .setRetained(true)
                         .setFictitious(true);
                 identify(adder);
                 connect(adder, open);
