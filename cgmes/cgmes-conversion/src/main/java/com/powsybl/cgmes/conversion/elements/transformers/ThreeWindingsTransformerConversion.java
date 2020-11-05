@@ -90,7 +90,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         l3adder.add();
 
         ThreeWindingsTransformer tx = txadder.add();
-        addAliases(tx);
+        addAliasesAndProperties(tx);
         convertedTerminals(
             tx.getLeg1().getTerminal(),
             tx.getLeg2().getTerminal(),

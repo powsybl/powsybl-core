@@ -34,7 +34,7 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         identify(adder);
         connect(adder);
         Load load = adder.add();
-        addAliases(load);
+        addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
     }

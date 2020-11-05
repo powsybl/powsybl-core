@@ -30,6 +30,7 @@ public final class CgmesNames {
     public static final String SUPERSEDES = "Model.Supersedes";
     public static final String MODELING_AUTHORITY_SET = "Model.modelingAuthoritySet";
 
+    public static final String CONNECTIVITY_NODE = "ConnectivityNode";
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";

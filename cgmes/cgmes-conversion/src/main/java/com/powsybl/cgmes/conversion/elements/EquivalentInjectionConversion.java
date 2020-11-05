@@ -84,7 +84,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .add()
                     .add();
         }
-        // We do not call addAliases(dl) !
+        // We do not call addAliasesAndProperties(dl) !
         // Because we do not want to add this equivalent injection
         // terminal id as a generic "Terminal" alias of the dangling line,
         // Terminal1 and Terminal2 aliases should be used for
@@ -116,7 +116,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         identify(adder);
         connect(adder);
         Generator g = adder.add();
-        addAliases(g);
+        addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
     }

@@ -35,7 +35,7 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         identify(adder);
         connect(adder);
         Load load = adder.add();
-        addAliases(load);
+        addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
     }
 }

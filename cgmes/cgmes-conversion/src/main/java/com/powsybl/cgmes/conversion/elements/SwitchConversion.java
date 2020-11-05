@@ -70,7 +70,7 @@ public class SwitchConversion extends AbstractConnectorConversion {
         boolean open = p.asBoolean("open", normalOpen);
         Switch s;
         if (context.nodeBreaker()) {
-            VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
+            VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setRetained(true).setKind(kind());
             identify(adder);
             connect(adder, open);
             s = adder.add();
@@ -80,7 +80,7 @@ public class SwitchConversion extends AbstractConnectorConversion {
             connect(adder, open);
             s = adder.add();
         }
-        addAliases(s);
+        addAliasesAndProperties(s);
     }
 
     private SwitchKind kind() {

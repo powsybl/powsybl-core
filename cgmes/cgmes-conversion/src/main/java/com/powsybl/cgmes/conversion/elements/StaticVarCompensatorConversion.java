@@ -37,7 +37,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
         RegulatingControlMappingForStaticVarCompensators.initialize(adder);
 
         StaticVarCompensator svc = adder.add();
-        addAliases(svc);
+        addAliasesAndProperties(svc);
         convertedTerminals(svc.getTerminal());
         if (slope >= 0) {
             svc.newExtension(VoltagePerReactivePowerControlAdder.class).withSlope(slope).add();
