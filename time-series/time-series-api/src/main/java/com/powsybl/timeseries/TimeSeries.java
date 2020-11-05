@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -154,16 +155,21 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     class CsvParsingContext {
         final List<String> names;
+        final boolean hasVersion;
+        final int noParseableColumns;
 
         final TimeSeriesDataType[] dataTypes;
         final Object[] values;
 
-        final List<ZonedDateTime> times = new ArrayList<>();
+        final List<ZonedDateTime> zonedDateTimes = new ArrayList<>();
+        final List<Long> times = new ArrayList<>();
 
         TimeSeriesIndex refIndex;
 
-        CsvParsingContext(List<String> names) {
+        CsvParsingContext(List<String> names, boolean hasVersion) {
             this.names = names;
+            this.hasVersion = hasVersion;
+            this.noParseableColumns = hasVersion ? 2 : 1;
             dataTypes = new TimeSeriesDataType[names.size()];
             values = new Object[names.size()];
         }
@@ -174,6 +180,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private TDoubleArrayList createDoubleValues() {
             TDoubleArrayList doubleValues = new TDoubleArrayList();
+            if (!zonedDateTimes.isEmpty()) {
+                doubleValues.fill(0, zonedDateTimes.size(), Double.NaN);
+            }
             if (!times.isEmpty()) {
                 doubleValues.fill(0, times.size(), Double.NaN);
             }
@@ -182,6 +191,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private List<String> createStringValues() {
             List<String> stringValues = new ArrayList<>();
+            if (!zonedDateTimes.isEmpty()) {
+                for (int j = 0; j < zonedDateTimes.size(); j++) {
+                    stringValues.add(null);
+                }
+            }
             if (!times.isEmpty()) {
                 for (int j = 0; j < times.size(); j++) {
                     stringValues.add(null);
@@ -190,46 +204,60 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             return stringValues;
         }
 
+        int getVersion(List<String> tokens) {
+            return hasVersion ? Integer.parseInt(tokens.get(1)) : 0;
+        }
+
+        int timesSize() {
+            return zonedDateTimes.size() + times.size();
+        }
+
+        int expectedTokens() {
+            return names.size() + noParseableColumns;
+        }
+
         void parseToken(int i, String token) {
-            if (dataTypes[i - 2] == null) {
+            if (dataTypes[i - noParseableColumns] == null) {
                 // test double parsing, in case of error we consider it a string time series
                 if (Doubles.tryParse(token) != null) {
-                    dataTypes[i - 2] = TimeSeriesDataType.DOUBLE;
+                    dataTypes[i - noParseableColumns] = TimeSeriesDataType.DOUBLE;
                     TDoubleArrayList doubleValues = createDoubleValues();
                     doubleValues.add(parseDouble(token));
-                    values[i - 2] = doubleValues;
+                    values[i - noParseableColumns] = doubleValues;
                 } else {
-                    dataTypes[i - 2] = TimeSeriesDataType.STRING;
+                    dataTypes[i - noParseableColumns] = TimeSeriesDataType.STRING;
                     List<String> stringValues = createStringValues();
                     stringValues.add(checkString(token));
-                    values[i - 2] = stringValues;
+                    values[i - noParseableColumns] = stringValues;
                 }
             } else {
-                if (dataTypes[i - 2] == TimeSeriesDataType.DOUBLE) {
-                    ((TDoubleArrayList) values[i - 2]).add(parseDouble(token));
-                } else if (dataTypes[i - 2] == TimeSeriesDataType.STRING) {
-                    ((List<String>) values[i - 2]).add(checkString(token));
+                if (dataTypes[i - noParseableColumns] == TimeSeriesDataType.DOUBLE) {
+                    ((TDoubleArrayList) values[i - noParseableColumns]).add(parseDouble(token));
+                } else if (dataTypes[i - noParseableColumns] == TimeSeriesDataType.STRING) {
+                    ((List<String>) values[i - noParseableColumns]).add(checkString(token));
                 } else {
-                    throw assertDataType(dataTypes[i - 2]);
+                    throw assertDataType(dataTypes[i - noParseableColumns]);
                 }
             }
         }
 
         void parseLine(List<String> tokens) {
-            for (int i = 2; i < tokens.size(); i++) {
+            for (int i = noParseableColumns; i < tokens.size(); i++) {
                 String token = tokens.get(i) != null ? tokens.get(i).trim() : "";
                 parseToken(i, token);
             }
-            // empty last cell case
-            if (tokens.size() == names.size() + 1) {
-                parseToken(tokens.size(), "");
-            }
 
-            times.add(ZonedDateTime.parse(tokens.get(0)));
+            try {
+                Double time = Double.parseDouble(tokens.get(0)) * 1000;
+                times.add(time.longValue());
+            } catch (NumberFormatException e) {
+                zonedDateTimes.add(ZonedDateTime.parse(tokens.get(0)));
+            }
         }
 
         void reInit() {
             // re-init
+            zonedDateTimes.clear();
             times.clear();
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
@@ -242,32 +270,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
-        private Duration checkRegularSpacing() {
-            if (times.size() < 2) {
-                throw new TimeSeriesException("At least 2 rows are expected");
-            }
-
-            Duration spacing = null;
-            for (int i = 1; i < times.size(); i++) {
-                Duration duration = Duration.between(times.get(i - 1), times.get(i));
-                if (spacing == null) {
-                    spacing = duration;
-                } else {
-                    if (!duration.equals(spacing)) {
-                        throw new TimeSeriesException("Time spacing has to be regular");
-                    }
-                }
-            }
-
-            return spacing;
-        }
-
         List<TimeSeries> createTimeSeries() {
             // check time spacing is regular
-            Duration spacing = checkRegularSpacing();
-
-            Interval interval = Interval.of(times.get(0).toInstant(), times.get(times.size() - 1).toInstant());
-            TimeSeriesIndex index = RegularTimeSeriesIndex.create(interval, spacing);
+            TimeSeriesIndex index = getTimeSeriesIndex();
 
             // check all data version have the same index
             if (this.refIndex != null && !index.equals(refIndex)) {
@@ -288,10 +293,78 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     StringDataChunk chunk = new UncompressedStringDataChunk(0, stringValues.toArray(new String[0])).tryToCompress();
                     timeSeriesList.add(new StringTimeSeries(metadata, chunk));
                 } else {
-                    throw assertDataType(dataTypes[i - 2]);
+                    throw assertDataType(dataTypes[i - noParseableColumns]);
                 }
             }
             return timeSeriesList;
+        }
+
+        private TimeSeriesIndex getTimeSeriesIndex() {
+            if (!zonedDateTimes.isEmpty()) {
+                return getZonedDateTimeSeriesIndex();
+            } else {
+                return getLongTimeSeriesIndex();
+            }
+        }
+
+        private TimeSeriesIndex getLongTimeSeriesIndex() {
+            Long spacing = checkLongRegularSpacing(times);
+            if (spacing != Long.MIN_VALUE) {
+                return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
+            } else {
+                return new IrregularTimeSeriesIndex(times.stream().mapToLong(l -> l).toArray());
+            }
+        }
+
+        private long checkLongRegularSpacing(List<Long> times) {
+            if (times.size() < 2) {
+                throw new TimeSeriesException("At least 2 rows are expected");
+            }
+
+            long spacing = Long.MIN_VALUE;
+            for (int i = 1; i < times.size(); i++) {
+                long duration = times.get(i) - times.get(i - 1);
+                if (spacing == Long.MIN_VALUE) {
+                    spacing = duration;
+                } else {
+                    if (1e-4 < Math.abs(duration - spacing)) {
+                        return Long.MIN_VALUE;
+                    }
+                }
+            }
+
+            return spacing;
+        }
+
+        private TimeSeriesIndex getZonedDateTimeSeriesIndex() {
+            Duration spacing = checkZonedDateRegularSpacing(zonedDateTimes);
+            if (spacing != null) {
+                Interval interval = Interval.of(zonedDateTimes.get(0).toInstant(), zonedDateTimes.get(zonedDateTimes.size() - 1).toInstant());
+                return RegularTimeSeriesIndex.create(interval, spacing);
+            } else {
+                List<Instant> instants = zonedDateTimes.stream().map(t -> t.toInstant()).collect(Collectors.toList());
+                return  IrregularTimeSeriesIndex.create(instants);
+            }
+        }
+
+        private Duration checkZonedDateRegularSpacing(List<ZonedDateTime> times) {
+            if (times.size() < 2) {
+                throw new TimeSeriesException("At least 2 rows are expected");
+            }
+
+            Duration spacing = null;
+            for (int i = 1; i < times.size(); i++) {
+                Duration duration = Duration.between(times.get(i - 1), times.get(i));
+                if (spacing == null) {
+                    spacing = duration;
+                } else {
+                    if (!duration.equals(spacing)) {
+                        return null;
+                    }
+                }
+            }
+
+            return spacing;
         }
     }
 
@@ -301,11 +374,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         int currentVersion = Integer.MIN_VALUE;
         while ((tokens = reader.read()) != null) {
 
-            if (tokens.size() != context.names.size() + 2 && tokens.size() != context.names.size() + 1) {
-                throw new TimeSeriesException("Columns of line " + context.times.size() + " are inconsistent with header");
+            if (tokens.size() != context.expectedTokens()) {
+                throw new TimeSeriesException("Columns of line " + context.timesSize() + " are inconsistent with header");
             }
 
-            int version = Integer.parseInt(tokens.get(1));
+            int version = context.getVersion(tokens);
             if (currentVersion == Integer.MIN_VALUE) {
                 currentVersion = version;
             } else if (version != currentVersion) {
@@ -325,9 +398,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             throw new TimeSeriesException("CSV header is missing");
         }
 
-        if (tokens.length < 2 || !"Time".equals(tokens[0]) || !"Version".equals(tokens[1])) {
-            throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "Version" + separatorStr + "...");
+        if (tokens.length < 2 || !"Time".equals(tokens[0])) {
+            throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "...");
         }
+
         List<String> duplicates = new ArrayList<>();
         Set<String> namesWithoutDuplicates = new HashSet<>();
         for (String token : tokens) {
@@ -338,8 +412,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (!duplicates.isEmpty()) {
             throw new TimeSeriesException("Bad CSV header, there are duplicates in time series names " + duplicates);
         }
-        List<String> names = Arrays.asList(tokens).subList(2, tokens.length);
-        return new CsvParsingContext(names);
+        List<String> names = Arrays.asList(tokens).subList("Version".equals(tokens[1]) ? 2 : 1, tokens.length);
+        return new CsvParsingContext(names, "Version".equals(tokens[1]));
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, char separator) {
