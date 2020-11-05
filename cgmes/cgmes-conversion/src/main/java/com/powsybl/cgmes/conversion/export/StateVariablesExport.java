@@ -7,7 +7,6 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -67,13 +65,8 @@ public final class StateVariablesExport {
     }
 
     private static void writeTopologicalIslands(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
-        Map<String, String> angleRefs = buildAngleRefs(network);
-        Map<String, List<String>> islands = buildIslands(network);
+        Map<String, String> angleRefs = buildAngleRefs(network, context);
+        Map<String, List<String>> islands = buildIslands(network, context);
         for (Map.Entry<String, List<String>> island : islands.entrySet()) {
             if (!angleRefs.containsKey(island.getKey())) {
                 Supplier<String> log = () -> String.format("Synchronous component  %s does not have a defined slack bus: it is ignored", island.getKey());
@@ -96,39 +89,66 @@ public final class StateVariablesExport {
         }
     }
 
-    private static Map<String, String> buildAngleRefs(Network network) {
+    private static Map<String, String> buildAngleRefs(Network network, CgmesExportContext context) {
         Map<String, String> angleRefs = new HashMap<>();
         for (VoltageLevel vl : network.getVoltageLevels()) {
             SlackTerminal slackTerminal = vl.getExtension(SlackTerminal.class);
-            if (slackTerminal != null && slackTerminal.getTerminal() != null) {
-                if (slackTerminal.getTerminal().getBusBreakerView().getBus() != null && slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent() != null) {
-                    String componentNum = String.valueOf(slackTerminal.getTerminal().getBusBreakerView().getBus().getSynchronousComponent().getNum());
-                    if (angleRefs.containsKey(componentNum)) {
-                        Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
-                                componentNum, angleRefs.get(componentNum));
-                        LOG.info(log.get());
-                        continue;
-                    }
-                    angleRefs.put(componentNum, slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
-                } else if (slackTerminal.getTerminal().getBusBreakerView().getBus() != null) {
-                    angleRefs.put(slackTerminal.getTerminal().getBusBreakerView().getBus().getId(),
-                            slackTerminal.getTerminal().getBusBreakerView().getBus().getId());
-                } else {
-                    Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
-                    LOG.info(message.get());
-                }
-            }
+            buildAngleRefs(slackTerminal, angleRefs, context);
         }
         return angleRefs;
     }
 
-    private static Map<String, List<String>> buildIslands(Network network) {
+    private static void buildAngleRefs(SlackTerminal slackTerminal, Map<String, String> angleRefs, CgmesExportContext context) {
+        if (slackTerminal != null && slackTerminal.getTerminal() != null) {
+            Bus bus = slackTerminal.getTerminal().getBusBreakerView().getBus();
+            if (bus != null && bus.getSynchronousComponent() != null) {
+                buildAngleRefs(bus.getSynchronousComponent().getNum(), bus.getId(), angleRefs, context);
+            } else if (bus != null) {
+                buildAngleRefs(bus.getId(), angleRefs, context);
+            } else {
+                Supplier<String> message = () -> String.format("Slack terminal at equipment %s is not connected and is not exported as slack terminal", slackTerminal.getTerminal().getConnectable().getId());
+                LOG.info(message.get());
+            }
+        }
+    }
+
+    private static void buildAngleRefs(int synchronousComponentNum, String busId, Map<String, String> angleRefs, CgmesExportContext context) {
+        String componentNum = String.valueOf(synchronousComponentNum);
+        if (angleRefs.containsKey(componentNum)) {
+            Supplier<String> log = () -> String.format("Several slack buses are defined for synchronous component %s: only first slack bus (%s) is taken into account",
+                    componentNum, angleRefs.get(componentNum));
+            LOG.info(log.get());
+            return;
+        }
+        Set<String> topologicalNodes = context.getTopologicalNodesByBusBreakerBus(busId);
+        if (topologicalNodes == null) {
+            return;
+        }
+        String topologicalNode = topologicalNodes.iterator().next();
+        angleRefs.put(componentNum, topologicalNode);
+    }
+
+    private static void buildAngleRefs(String busId, Map<String, String> angleRefs, CgmesExportContext context) {
+        Set<String> topologicalNodes = context.getTopologicalNodesByBusBreakerBus(busId);
+        if (topologicalNodes == null) {
+            return;
+        }
+        String topologicalNode = topologicalNodes.iterator().next();
+        angleRefs.put(topologicalNode,
+                topologicalNode);
+    }
+
+    private static Map<String, List<String>> buildIslands(Network network, CgmesExportContext context) {
         Map<String, List<String>> islands = new HashMap<>();
         for (Bus b : network.getBusBreakerView().getBuses()) {
             if (b.getSynchronousComponent() != null) {
                 int num = b.getSynchronousComponent().getNum();
+                Set<String> topologicalNodes = context.getTopologicalNodesByBusBreakerBus(b.getId());
+                if (topologicalNodes == null) {
+                    continue;
+                }
                 islands.computeIfAbsent(String.valueOf(num), i -> new ArrayList<>());
-                islands.get(String.valueOf(num)).add(b.getId());
+                islands.get(String.valueOf(num)).addAll(topologicalNodes);
             } else {
                 islands.put(b.getId(), Collections.singletonList(b.getId()));
             }
@@ -137,13 +157,14 @@ public final class StateVariablesExport {
     }
 
     private static void writeVoltagesForTopologicalNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        if (context.getTopologyKind() == CgmesTopologyKind.NODE_BREAKER) {
-            // TODO we need to export SV file data for NodeBraker
-            LOG.warn("NodeBreaker view require further investigation to map correctly Topological Nodes");
-            return;
-        }
         for (Bus b : network.getBusBreakerView().getBuses()) {
-            writeVoltage(b.getId(), b.getV(), b.getAngle(), cimNamespace, writer);
+            Set<String> topologicalNodes = context.getTopologicalNodesByBusBreakerBus(b.getId());
+            if (topologicalNodes == null) {
+                continue;
+            }
+            for (String topologicalNode : topologicalNodes) {
+                writeVoltage(topologicalNode, b.getV(), b.getAngle(), cimNamespace, writer);
+            }
         }
     }
 
@@ -201,10 +222,10 @@ public final class StateVariablesExport {
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                    .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
+                        .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
             }
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), cimNamespace, writer));
+                    .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), cimNamespace, writer));
         });
 
         // TODO: what about branches' power flows?
