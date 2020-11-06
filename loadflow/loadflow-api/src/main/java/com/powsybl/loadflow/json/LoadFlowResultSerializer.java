@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -68,9 +67,7 @@ public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(LoadFlowResult.class, new LoadFlowResultSerializer());
-            objectMapper.registerModule(module);
+            objectMapper.registerModule(new LoadFlowResultJsonModule());
             ObjectWriter writer = objectMapper.writerWithDefaultPrettyPrinter();
             writer.writeValue(os, result);
         } catch (IOException e) {
