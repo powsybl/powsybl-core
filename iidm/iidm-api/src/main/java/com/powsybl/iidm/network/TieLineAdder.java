@@ -11,92 +11,6 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
-    TieLineAdderProxy PROXY = new TieLineAdderProxy();
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setR(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setR(double r)  {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setX(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setX(double x) {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setG1(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setG1(double g1)  {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setB1(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setB1(double b1)  {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setG2(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setG2(double g2)  {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setB2(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setB2(double b2)  {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setXnodeP(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setXnodeP(double xnodeP) {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link HalfLineAdder#setXnodeQ(double)} instead.
-     */
-    @Deprecated
-    default TieLineAdder setXnodeQ(double xnodeQ) {
-        return this;
-    }
-
-    /**
-     * @deprecated Use {@link #newHalfLine1()} and {@link HalfLineAdder#add()} instead.
-     */
-    @Deprecated
-    default TieLineAdder line1() {
-        PROXY.setDelegate(this);
-        PROXY.line1();
-        return PROXY;
-    }
-
-    /**
-     * @deprecated Use {@link #newHalfLine2()} and {@link HalfLineAdder#add()} instead.
-     */
-    @Deprecated
-    default TieLineAdder line2() {
-        PROXY.setDelegate(this);
-        PROXY.line2();
-        return PROXY;
-    }
-
     interface HalfLineAdder {
 
         TieLineAdder.HalfLineAdder setId(String id);
@@ -126,13 +40,9 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
-    default TieLineAdder.HalfLineAdder newHalfLine1() {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder.HalfLineAdder newHalfLine1();
 
-    default TieLineAdder.HalfLineAdder newHalfLine2() {
-        throw new UnsupportedOperationException();
-    }
+    TieLineAdder.HalfLineAdder newHalfLine2();
 
     TieLine add();
 
