@@ -42,7 +42,10 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        return foundNamespaces.contains(CIM_16_NAMESPACE);
+        if (!foundNamespaces.contains(CIM_16_NAMESPACE)) {
+            return false;
+        }
+        return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
     }
 
     public boolean existsCim14() {
@@ -51,7 +54,10 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        return foundNamespaces.contains(CIM_14_NAMESPACE);
+        if (!foundNamespaces.contains(CIM_14_NAMESPACE)) {
+            return false;
+        }
+        return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
     }
 
     public String baseName() {
