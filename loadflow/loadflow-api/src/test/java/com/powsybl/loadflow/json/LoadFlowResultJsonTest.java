@@ -61,5 +61,4 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         expected.expectMessage("Unexpected field: alienAttribute");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json"));
     }
-
 }
