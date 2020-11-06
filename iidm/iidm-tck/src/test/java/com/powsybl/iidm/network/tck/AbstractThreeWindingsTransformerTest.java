@@ -460,7 +460,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotSet() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1: voltage level is not set");
+        thrown.expectMessage("3 windings transformer leg1 in substation sub: voltage level is not set");
 
         substation.newThreeWindingsTransformer()
                 .setId("twt")
@@ -481,7 +481,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotFound() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1: voltage level 'invalid' not found");
+        thrown.expectMessage("3 windings transformer leg1 in substation sub: voltage level 'invalid' not found");
 
         substation.newThreeWindingsTransformer()
                 .setId("twt")
