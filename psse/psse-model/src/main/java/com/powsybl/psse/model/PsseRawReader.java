@@ -270,7 +270,7 @@ public class PsseRawReader {
     }
 
     private static <T> List<T> parseRecordsHeader(List<String> records, Class<T> aClass, String[] headers) {
-        CsvParserSettings settings = setParserBaseSettings();
+        CsvParserSettings settings = createCsvParserSettings();
         settings.setHeaders(headers);
         BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
         settings.setProcessor(processor);
@@ -286,13 +286,13 @@ public class PsseRawReader {
     }
 
     private static String detectDelimiter(String record) {
-        CsvParserSettings settings = setParserBaseSettings();
+        CsvParserSettings settings = createCsvParserSettings();
         CsvParser parser = new CsvParser(settings);
         parser.parseLine(record);
         return parser.getDetectedFormat().getDelimiterString();
     }
 
-    private static CsvParserSettings setParserBaseSettings() {
+    private static CsvParserSettings createCsvParserSettings() {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
         settings.setQuoteDetectionEnabled(true);
@@ -310,15 +310,14 @@ public class PsseRawReader {
     // Read
 
     private static List<String> readRecordBlock(BufferedReader reader) throws IOException {
-        String line;
         List<String> records = new ArrayList<>();
-        while (true) {
-            line = readLineAndRemoveComment(reader);
-            if (line.trim().equals("0")) {
-                break;
-            }
+
+        String line = readLineAndRemoveComment(reader);
+        while (!line.trim().equals("0")) {
             records.add(line);
+            line = readLineAndRemoveComment(reader);
         }
+
         return records;
     }
 
@@ -354,7 +353,6 @@ public class PsseRawReader {
     private static String[] readFields(List<String> records, String[] headers, String delimiter) {
         if (records.isEmpty()) {
             return ArrayUtils.EMPTY_STRING_ARRAY;
-            //return new String[] {};
         }
         String record = records.get(0);
         return ArrayUtils.subarray(headers, 0, record.split(delimiter).length);
