@@ -67,7 +67,7 @@ abstract class AbstractIdentifiableAdderAdapter<I extends IdentifiableAdder<I>> 
             // Check Id is unique in all merging view
             if (getIndex().contains(id)) {
                 throw new PowsyblException("The network already contains an object '"
-                                           + getDelegate().getClass().getSimpleName()
+                                           + getIndex().getView().getIdentifiable(id).getClass().getSimpleName()
                                            + "' with the id '"
                                            + id
                                            + "'");
