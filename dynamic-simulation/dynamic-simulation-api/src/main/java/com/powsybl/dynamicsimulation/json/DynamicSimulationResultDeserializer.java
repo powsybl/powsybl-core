@@ -54,7 +54,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             }
         }
 
-        return new DynamicSimulationResultImpl(isOK, null, Collections.emptyMap(), Collections.emptyMap());
+        return new DynamicSimulationResultImpl(isOK, null, Collections.emptyMap(), null);
     }
 
     public static DynamicSimulationResult read(InputStream is) throws IOException {

@@ -44,12 +44,7 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public Map<String, TimeSeries> getTimeLine() {
-                return Collections.emptyMap();
-            }
-
-            @Override
-            public TimeSeries getTimeLine(String field) {
+            public TimeSeries getTimeLine() {
                 return null;
             }
         };

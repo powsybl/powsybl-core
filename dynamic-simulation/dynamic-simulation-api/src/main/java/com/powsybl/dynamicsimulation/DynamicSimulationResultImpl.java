@@ -19,9 +19,9 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     private final boolean status;
     private final String logs;
     private final Map<String, TimeSeries> curves;
-    private final Map<String, TimeSeries> timeLine;
+    private final TimeSeries timeLine;
 
-    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, Map<String, TimeSeries> timeLine) {
+    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, TimeSeries timeLine) {
         this.status = status;
         this.logs = logs;
         this.curves = curves;
@@ -49,12 +49,7 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     }
 
     @Override
-    public Map<String, TimeSeries> getTimeLine() {
-        return Collections.unmodifiableMap(timeLine);
-    }
-
-    @Override
-    public TimeSeries getTimeLine(String field) {
-        return timeLine.get(field);
+    public TimeSeries getTimeLine() {
+        return timeLine;
     }
 }

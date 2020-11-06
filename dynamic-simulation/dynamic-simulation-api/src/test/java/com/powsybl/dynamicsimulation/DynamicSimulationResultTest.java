@@ -34,10 +34,12 @@ public class DynamicSimulationResultTest {
         curves.put("NETWORK__BUS____2-BUS____5-1_AC_iSide2", TimeSeries.createDouble("NETWORK__BUS____2-BUS____5-1_AC_iSide2", index, 333.847331, 333.847321, 333.847300, 333.847259));
         curves.put("NETWORK__BUS____1_TN_Upu_value", TimeSeries.createDouble("NETWORK__BUS____1_TN_Upu_value", index, 1.059970, 1.059970, 1.059970, 1.059970));
 
-        Map <String, TimeSeries> timeLine = new HashMap<>();
         index = new IrregularTimeSeriesIndex(new long[] {102479, 102479, 102479, 104396});
-        timeLine.put("modelName", TimeSeries.createString("modelName", index, "CLA_2_5", "_BUS____2-BUS____5-1_AC", "CLA_2_5", "CLA_2_4"));
-        timeLine.put("message", TimeSeries.createString("message", index, "CLA : order to change topology", "LINE : opening both sides", "CLA : order to change topology", "CLA : arming by over-current constraint"));
+        TimeSeries timeLine = TimeSeries.createString("TimeLine", index,
+            "CLA_2_5 - CLA : order to change topology",
+            "_BUS____2-BUS____5-1_AC - LINE : opening both sides",
+            "CLA_2_5 - CLA : order to change topology",
+            "CLA_2_4 - CLA : arming by over-current constraint");
         DynamicSimulationResult result = new DynamicSimulationResultImpl(true, null, curves, timeLine);
 
         assertTrue(result.isOk());
@@ -48,10 +50,11 @@ public class DynamicSimulationResultTest {
         assertEquals(TimeSeriesDataType.DOUBLE, result.getCurve("NETWORK__BUS____1_TN_Upu_value").getMetadata().getDataType());
         assertArrayEquals(new double[] {1.059970, 1.059970, 1.059970, 1.059970}, ((DoubleTimeSeries) result.getCurve("NETWORK__BUS____1_TN_Upu_value")).toArray(), 0);
 
-        assertEquals(2, result.getTimeLine().size());
-        assertEquals(TimeSeriesDataType.STRING, result.getTimeLine("modelName").getMetadata().getDataType());
-        assertArrayEquals(new String[] {"CLA_2_5", "_BUS____2-BUS____5-1_AC", "CLA_2_5", "CLA_2_4"}, ((StringTimeSeries) result.getTimeLine("modelName")).toArray());
-        assertEquals(TimeSeriesDataType.STRING, result.getTimeLine("message").getMetadata().getDataType());
-        assertArrayEquals(new String[] {"CLA : order to change topology", "LINE : opening both sides", "CLA : order to change topology", "CLA : arming by over-current constraint"}, ((StringTimeSeries) result.getTimeLine("message")).toArray());
+        assertEquals(TimeSeriesDataType.STRING, result.getTimeLine().getMetadata().getDataType());
+        assertArrayEquals(new String[] {
+            "CLA_2_5 - CLA : order to change topology",
+            "_BUS____2-BUS____5-1_AC - LINE : opening both sides",
+            "CLA_2_5 - CLA : order to change topology",
+            "CLA_2_4 - CLA : arming by over-current constraint"}, ((StringTimeSeries) result.getTimeLine()).toArray());
     }
 }
