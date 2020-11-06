@@ -570,6 +570,14 @@ public abstract class AbstractLineTest {
     }
 
     @Test
+    public void halfLineIdEmpty() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("id is not set for half line 1");
+        createTieLineWithHalfline2ByDefault(INVALID, INVALID, "", 1.0, 2.0,
+                3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
+    }
+
+    @Test
     public void uctecodeNull() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("ucteXnodeCode is not set");
