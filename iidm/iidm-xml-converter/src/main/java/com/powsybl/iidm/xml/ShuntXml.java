@@ -56,7 +56,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
-            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
+            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(currentSectionCount));
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
