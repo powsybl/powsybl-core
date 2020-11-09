@@ -97,18 +97,18 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
-        String checkedAlias = alias;
+        String uniqueAlias = alias;
         if (ensureAliasUnicity) {
-            checkedAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
+            uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
         }
         if (aliasType != null && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
-        if (getNetwork().getIndex().addAlias(this, checkedAlias)) {
+        if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
             if (aliasType != null) {
-                aliasesByType.put(aliasType, checkedAlias);
+                aliasesByType.put(aliasType, uniqueAlias);
             } else {
-                aliasesWithoutType.add(checkedAlias);
+                aliasesWithoutType.add(uniqueAlias);
             }
         }
     }
