@@ -19,31 +19,51 @@ import static org.junit.Assert.*;
  */
 public class CgmesOnDataSourceTest {
 
-    private void doTestExists(String profile, String cimVersion, boolean expectedExists) {
+    private void doTestExists(String filename, String cimVersion, boolean expectedExists) {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
-                new ResourceSet("/", "empty_cim" + cimVersion + "_" + profile + ".xml"));
+                new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
         boolean exists = "14".equals(cimVersion) ? cgmesOnDataSource.existsCim14() : cgmesOnDataSource.exists();
         assertEquals(expectedExists, exists);
     }
 
+    private void doTestExistsEmpty(String profile, String cimVersion, boolean expectedExists) {
+        String filename = "empty_cim" + cimVersion + "_" + profile + ".xml";
+        doTestExists(filename, cimVersion, expectedExists);
+    }
+
     @Test
     public void testEQcim14() {
-        doTestExists("EQ", "14", true);
+        doTestExistsEmpty("EQ", "14", true);
     }
 
     @Test
     public void testEQcim16() {
-        doTestExists("EQ", "16", true);
+        doTestExistsEmpty("EQ", "16", true);
     }
 
     @Test
     public void testSVcim14() {
-        doTestExists("SV", "14", false);
+        doTestExistsEmpty("SV", "14", false);
     }
 
     @Test
-    public void testSVcim16() {
-        doTestExists("SV", "16", false);
+    public void testCimNoRdfcim16() {
+        doTestExists("validCim16InvalidContent_EQ.xml", "16", false);
+    }
+
+    @Test
+    public void testCimNoRdfcim14() {
+        doTestExists("validCimInvalidContent_EQ.xml", "14", false);
+    }
+
+    @Test
+    public void testRdfNoCim16() {
+        doTestExists("validRdfInvalidContent_EQ.xml", "16", false);
+    }
+
+    @Test
+    public void testRdfNoCim14() {
+        doTestExists("validRdfInvalidContent_EQ.xml", "14", false);
     }
 }
