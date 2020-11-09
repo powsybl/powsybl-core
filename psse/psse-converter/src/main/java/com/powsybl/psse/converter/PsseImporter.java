@@ -84,7 +84,10 @@ public class PsseImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new PsseRawReader().checkCaseIdentification(reader);
+                    new PsseRawReader().checkCaseIdentification(reader);
+                    return true;
+                } catch (PsseException e) {
+                    return false;
                 }
             }
         } catch (IOException e) {
@@ -387,35 +390,35 @@ public class PsseImporter implements Importer {
 
     private static void createTransformer(PsseTransformer psseTfo, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, Map<Integer, PsseBus> busNumToPsseBus, double sbase) {
 
-        String id = "T-" + psseTfo.getFirstRecord().getI() + "-" + psseTfo.getFirstRecord().getJ();
-        if (psseTfo.getFirstRecord().getK() == 0) {
-            id = id + "-" + psseTfo.getFirstRecord().getCkt();
+        String id = "T-" + psseTfo.getI() + "-" + psseTfo.getJ();
+        if (psseTfo.getK() == 0) {
+            id = id + "-" + psseTfo.getCkt();
         } else {
-            id = id + "-" + psseTfo.getFirstRecord().getK() + "-" + psseTfo.getFirstRecord().getCkt();
+            id = id + "-" + psseTfo.getK() + "-" + psseTfo.getCkt();
         }
 
-        String bus1Id = getBusId(psseTfo.getFirstRecord().getI());
-        String bus2Id = getBusId(psseTfo.getFirstRecord().getJ());
-        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getI());
-        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getJ());
+        String bus1Id = getBusId(psseTfo.getI());
+        String bus2Id = getBusId(psseTfo.getJ());
+        String voltageLevel1Id = containerMapping.getVoltageLevelId(psseTfo.getI());
+        String voltageLevel2Id = containerMapping.getVoltageLevelId(psseTfo.getJ());
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
-        double baskv1 = busNumToPsseBus.get(psseTfo.getFirstRecord().getI()).getBaskv();
-        double baskv2 = busNumToPsseBus.get(psseTfo.getFirstRecord().getJ()).getBaskv();
+        double baskv1 = busNumToPsseBus.get(psseTfo.getI()).getBaskv();
+        double baskv2 = busNumToPsseBus.get(psseTfo.getJ()).getBaskv();
         double zb2 = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getSb();
-        double sbase12 = psseTfo.getSecondRecord().getSbase12();
-        double nomV1 = psseTfo.getThirdRecord1().getNomv();
+        double sbase12 = psseTfo.getSbase12();
+        double nomV1 = psseTfo.getWindingRecord1().getNomv();
 
         //handling impedance and admittance
         // CZ = 1 the triangle values are already in right pu
-        double r12 = psseTfo.getSecondRecord().getR12();
-        double x12 = psseTfo.getSecondRecord().getX12();
+        double r12 = psseTfo.getR12();
+        double x12 = psseTfo.getX12();
 
-        if (psseTfo.getFirstRecord().getCz() == 2) {
+        if (psseTfo.getCz() == 2) {
             //CZ = 2 change to right Sbase pu
             r12 = r12 * sbase / sbase12;
             x12 = x12 * sbase / sbase12;
-        } else if (psseTfo.getFirstRecord().getCz() == 3) {
+        } else if (psseTfo.getCz() == 3) {
             //CZ = 3 convert load loss power and current into pu impedances
             r12 = r12 * sbase / (sbase12 * sbase12 * 1000000);
             double absZ12 = x12 * sbase / sbase12;
@@ -424,9 +427,9 @@ public class PsseImporter implements Importer {
 
         // Handling terminal ratios
         //default value when Cw = 1
-        double w1 = psseTfo.getThirdRecord1().getWindv();
-        double w2 = psseTfo.getThirdRecord2().getWindv();
-        if (psseTfo.getFirstRecord().getCw() == 2) {
+        double w1 = psseTfo.getWindingRecord1().getWindv();
+        double w2 = psseTfo.getWindingRecord2().getWindv();
+        if (psseTfo.getCw() == 2) {
             // case where Cw = 2
             w1 = w1 / baskv1;
             w2 = w2 / baskv2;
@@ -434,12 +437,12 @@ public class PsseImporter implements Importer {
 
         // Handling magnetizing admittance Gm and Bm
         // Case where Cm = 1
-        double mag1 = psseTfo.getFirstRecord().getMag1(); // admittance value when Cm = 1
-        double mag2 = psseTfo.getFirstRecord().getMag2(); // admittance value when Cm = 1
+        double mag1 = psseTfo.getMag1(); // admittance value when Cm = 1
+        double mag2 = psseTfo.getMag2(); // admittance value when Cm = 1
         double bmPu = mag2; //bmPu and gmPu represent the values of the magnetizing admittance at the i end in pu at 1/Zb1 base where Zb1 = Vb1*Vb1/Sb1
         double gmPu = mag1; //Vb1 is the bus i voltage base  (BASKV) and Sb1 is the system MVA base which is SBASE
         double ymPu = 0;
-        if (psseTfo.getFirstRecord().getCm() == 2) {
+        if (psseTfo.getCm() == 2) {
             // modification of value if Cm = 2
             gmPu = mag1 / (nomV1 * nomV1 * 1000000) * (baskv1 * baskv1 / sbase); // we need to convert mag1 and mag2 from a (NOMV1, Sbase12) to a (baskv1, Sbase) base so that it is expressed in pu admittance at i end.
             ymPu = mag2 / (nomV1 * nomV1) * sbase12 * (baskv1 * baskv1 / sbase);
@@ -452,7 +455,7 @@ public class PsseImporter implements Importer {
             }
         }
 
-        if (psseTfo.getFirstRecord().getK() == 0) {
+        if (psseTfo.getK() == 0) {
             // Case of a 2 windings Transformer
             TwoWindingsTransformer tfo2W = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                     .setId(id)
@@ -470,13 +473,13 @@ public class PsseImporter implements Importer {
                     .add();
 
             //Phase Shift Transformer
-            if (psseTfo.getThirdRecord1().getAng() != 0) {
+            if (psseTfo.getWindingRecord1().getAng() != 0) {
                 PhaseTapChangerAdder phaseTapChangerAdder = tfo2W.newPhaseTapChanger()
                         .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                         .setRegulating(false)
                         .setTapPosition(0);
                 List<Double> alphas = new ArrayList<>();
-                alphas.add(-psseTfo.getThirdRecord1().getAng());  //TODO : check angle and angle units (supposed in degrees)
+                alphas.add(-psseTfo.getWindingRecord1().getAng());  //TODO : check angle and angle units (supposed in degrees)
                 // TODO create full table
                 for (double alpha : alphas) {
                     phaseTapChangerAdder.beginStep()
@@ -492,42 +495,42 @@ public class PsseImporter implements Importer {
             }
 
             //TODO support phase shift on all ends of the Tfo
-            if (psseTfo.getThirdRecord2().getAng() != 0) {
+            if (psseTfo.getWindingRecord2().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 2 not yet supported  ", id);
             }
-            if (psseTfo.getFirstRecord().getK() != 0 && psseTfo.getThirdRecord3().getAng() != 0) {
+            if (psseTfo.getK() != 0 && psseTfo.getWindingRecord3().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
             }
 
-            if (psseTfo.getFirstRecord().getStat() == 1) {
+            if (psseTfo.getStat() == 1) {
                 tfo2W.getTerminal1().connect();
                 tfo2W.getTerminal2().connect();
             }
 
         } else {
             // case of a three windings transformer
-            String bus3Id = getBusId(psseTfo.getFirstRecord().getK());
-            String voltageLevel3Id = containerMapping.getVoltageLevelId(psseTfo.getFirstRecord().getK());
+            String bus3Id = getBusId(psseTfo.getK());
+            String voltageLevel3Id = containerMapping.getVoltageLevelId(psseTfo.getK());
             VoltageLevel voltageLevel3 = network.getVoltageLevel(voltageLevel3Id);
-            double baskv3 = busNumToPsseBus.get(psseTfo.getFirstRecord().getK()).getBaskv();
+            double baskv3 = busNumToPsseBus.get(psseTfo.getK()).getBaskv();
 
             // Cw = 1
-            double w3 = psseTfo.getThirdRecord3().getWindv();
-            if (psseTfo.getFirstRecord().getCw() == 2) {
+            double w3 = psseTfo.getWindingRecord3().getWindv();
+            if (psseTfo.getCw() == 2) {
                 // Cw = 2 : conversion of kV into ratio
                 w3 = w3 / baskv3;
             }
 
-            double sbase31 = psseTfo.getSecondRecord().getSbase31();
-            double sbase23 = psseTfo.getSecondRecord().getSbase23();
+            double sbase31 = psseTfo.getSbase31();
+            double sbase23 = psseTfo.getSbase23();
 
             //Get the triangle impedances (rij,xij) values in all Cz configurations
             // CZ = 1 the triangle values are already in right pu
-            double r23 = psseTfo.getSecondRecord().getR23();
-            double x23 = psseTfo.getSecondRecord().getX23();
-            double r31 = psseTfo.getSecondRecord().getR31();
-            double x31 = psseTfo.getSecondRecord().getX31();
-            if (psseTfo.getFirstRecord().getCz() == 2) {
+            double r23 = psseTfo.getR23();
+            double x23 = psseTfo.getX23();
+            double r31 = psseTfo.getR31();
+            double x31 = psseTfo.getX31();
+            if (psseTfo.getCz() == 2) {
                 //CZ = 2 change to right Sbase pu
                 r12 = r12 * sbase / sbase12;
                 x12 = x12 * sbase / sbase12;
@@ -535,7 +538,7 @@ public class PsseImporter implements Importer {
                 x23 = x23 * sbase / sbase23;
                 r31 = r31 * sbase / sbase31;
                 x31 = x31 * sbase / sbase31;
-            } else if (psseTfo.getFirstRecord().getCz() == 3) {
+            } else if (psseTfo.getCz() == 3) {
                 //CZ = 3 convert load loss power and current into pu impedances
                 r23 = r23 * sbase / (sbase23 * sbase23 * 1000000);
                 r31 = r31 * sbase / (sbase23 * sbase23 * 1000000);
@@ -608,15 +611,15 @@ public class PsseImporter implements Importer {
                     .add()
                  .add();
 
-            if (psseTfo.getFirstRecord().getStat() == 1) {
+            if (psseTfo.getStat() == 1) {
                 tfo3W.getLeg1().getTerminal().connect();
                 tfo3W.getLeg2().getTerminal().connect();
                 tfo3W.getLeg3().getTerminal().connect();
             }
 
             //set the init value at the star point
-            tfo3W.setProperty(V_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getVmstar())); //TODO: check the right base to put the voltage module
-            tfo3W.setProperty(ANGLE_PROPERTY, Float.toString((float) psseTfo.getSecondRecord().getAnstar()));
+            tfo3W.setProperty(V_PROPERTY, Float.toString((float) psseTfo.getVmstar())); //TODO: check the right base to put the voltage module
+            tfo3W.setProperty(ANGLE_PROPERTY, Float.toString((float) psseTfo.getAnstar()));
 
         }
     }
@@ -651,11 +654,11 @@ public class PsseImporter implements Importer {
                         .addAll(psseModel.getNonTransformerBranches())
                         .addAll(psseModel.getTransformers())
                         .build();
-                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getFirstRecord().getI();
-                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getFirstRecord().getJ();
-                ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getFirstRecord().getK();
-                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getSecondRecord().getR12();
-                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getSecondRecord().getX12();
+                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getI();
+                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getJ();
+                ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getK();
+                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getR12();
+                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
                 Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
                 ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
                     branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,

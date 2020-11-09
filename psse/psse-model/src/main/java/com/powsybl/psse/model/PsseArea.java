@@ -15,20 +15,20 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseArea {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private int isw = 0;
 
-    @Parsed(index = 2)
+    @Parsed
     private double pdes = 0;
 
-    @Parsed(index = 3)
+    @Parsed
     private double ptol = 10;
 
-    @Parsed(index = 4)
+    @Parsed
     private String arname = "            ";
 
     public int getI() {

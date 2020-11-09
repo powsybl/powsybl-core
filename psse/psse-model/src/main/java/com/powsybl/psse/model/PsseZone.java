@@ -15,11 +15,11 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseZone {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private String zoname = "            ";
 
     public int getI() {
