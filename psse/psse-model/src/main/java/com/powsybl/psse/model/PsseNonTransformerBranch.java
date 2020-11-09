@@ -15,80 +15,80 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseNonTransformerBranch {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     @Validate
     private int j;
 
-    @Parsed(index = 2)
+    @Parsed
     private String ckt = "1";
 
-    @Parsed(index = 3)
+    @Parsed
     @Validate
     private double r;
 
-    @Parsed(index = 4)
+    @Parsed
     @Validate
     private double x;
 
-    @Parsed(index = 5)
+    @Parsed
     private double b = 0;
 
-    @Parsed(index = 6)
+    @Parsed
     private double ratea = 0;
 
-    @Parsed(index = 7)
+    @Parsed
     private double rateb = 0;
 
-    @Parsed(index = 8)
+    @Parsed
     private double ratec = 0;
 
-    @Parsed(index = 9)
+    @Parsed
     private double gi = 0;
 
-    @Parsed(index = 10)
+    @Parsed
     private double bi = 0;
 
-    @Parsed(index = 11)
+    @Parsed
     private double gj = 0;
 
-    @Parsed(index = 12)
+    @Parsed
     private double bj = 0;
 
-    @Parsed(index = 13)
+    @Parsed
     private int st = 1;
 
-    @Parsed(index = 14)
+    @Parsed
     private int met = 1;
 
-    @Parsed(index = 15)
+    @Parsed
     private double len = 0;
 
-    @Parsed(index = 16)
+    @Parsed
     private int o1 = -1;
 
-    @Parsed(index = 17)
+    @Parsed
     private double f1 = 1;
 
-    @Parsed(index = 18)
+    @Parsed
     private int o2 = 0;
 
-    @Parsed(index = 19)
+    @Parsed
     private double f2 = 1;
 
-    @Parsed(index = 20)
+    @Parsed
     private int o3 = 0;
 
-    @Parsed(index = 21)
+    @Parsed
     private double f3 = 1;
 
-    @Parsed(index = 22)
+    @Parsed
     private int o4 = 0;
 
-    @Parsed(index = 23)
+    @Parsed
     private double f4 = 1;
 
     public int getI() {
