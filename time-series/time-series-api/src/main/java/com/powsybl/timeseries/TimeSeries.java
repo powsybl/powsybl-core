@@ -17,14 +17,11 @@ import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
-import org.threeten.extra.Interval;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Duration;
-import java.time.Instant;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -156,20 +153,23 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     class CsvParsingContext {
         final List<String> names;
         final boolean hasVersion;
-        final int noParseableColumns;
+        final int fixedColumns;
 
         final TimeSeriesDataType[] dataTypes;
         final Object[] values;
 
-        final List<ZonedDateTime> zonedDateTimes = new ArrayList<>();
         final List<Long> times = new ArrayList<>();
 
         TimeSeriesIndex refIndex;
 
+        CsvParsingContext(List<String> names) {
+            this(names, true);
+        }
+
         CsvParsingContext(List<String> names, boolean hasVersion) {
             this.names = names;
             this.hasVersion = hasVersion;
-            this.noParseableColumns = hasVersion ? 2 : 1;
+            this.fixedColumns = hasVersion ? 2 : 1;
             dataTypes = new TimeSeriesDataType[names.size()];
             values = new Object[names.size()];
         }
@@ -180,9 +180,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private TDoubleArrayList createDoubleValues() {
             TDoubleArrayList doubleValues = new TDoubleArrayList();
-            if (!zonedDateTimes.isEmpty()) {
-                doubleValues.fill(0, zonedDateTimes.size(), Double.NaN);
-            }
             if (!times.isEmpty()) {
                 doubleValues.fill(0, times.size(), Double.NaN);
             }
@@ -191,11 +188,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
         private List<String> createStringValues() {
             List<String> stringValues = new ArrayList<>();
-            if (!zonedDateTimes.isEmpty()) {
-                for (int j = 0; j < zonedDateTimes.size(); j++) {
-                    stringValues.add(null);
-                }
-            }
             if (!times.isEmpty()) {
                 for (int j = 0; j < times.size(); j++) {
                     stringValues.add(null);
@@ -209,40 +201,40 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
 
         int timesSize() {
-            return zonedDateTimes.size() + times.size();
+            return times.size();
         }
 
         int expectedTokens() {
-            return names.size() + noParseableColumns;
+            return names.size() + fixedColumns;
         }
 
         void parseToken(int i, String token) {
-            if (dataTypes[i - noParseableColumns] == null) {
+            if (dataTypes[i - fixedColumns] == null) {
                 // test double parsing, in case of error we consider it a string time series
                 if (Doubles.tryParse(token) != null) {
-                    dataTypes[i - noParseableColumns] = TimeSeriesDataType.DOUBLE;
+                    dataTypes[i - fixedColumns] = TimeSeriesDataType.DOUBLE;
                     TDoubleArrayList doubleValues = createDoubleValues();
                     doubleValues.add(parseDouble(token));
-                    values[i - noParseableColumns] = doubleValues;
+                    values[i - fixedColumns] = doubleValues;
                 } else {
-                    dataTypes[i - noParseableColumns] = TimeSeriesDataType.STRING;
+                    dataTypes[i - fixedColumns] = TimeSeriesDataType.STRING;
                     List<String> stringValues = createStringValues();
                     stringValues.add(checkString(token));
-                    values[i - noParseableColumns] = stringValues;
+                    values[i - fixedColumns] = stringValues;
                 }
             } else {
-                if (dataTypes[i - noParseableColumns] == TimeSeriesDataType.DOUBLE) {
-                    ((TDoubleArrayList) values[i - noParseableColumns]).add(parseDouble(token));
-                } else if (dataTypes[i - noParseableColumns] == TimeSeriesDataType.STRING) {
-                    ((List<String>) values[i - noParseableColumns]).add(checkString(token));
+                if (dataTypes[i - fixedColumns] == TimeSeriesDataType.DOUBLE) {
+                    ((TDoubleArrayList) values[i - fixedColumns]).add(parseDouble(token));
+                } else if (dataTypes[i - fixedColumns] == TimeSeriesDataType.STRING) {
+                    ((List<String>) values[i - fixedColumns]).add(checkString(token));
                 } else {
-                    throw assertDataType(dataTypes[i - noParseableColumns]);
+                    throw assertDataType(dataTypes[i - fixedColumns]);
                 }
             }
         }
 
         void parseLine(List<String> tokens) {
-            for (int i = noParseableColumns; i < tokens.size(); i++) {
+            for (int i = fixedColumns; i < tokens.size(); i++) {
                 String token = tokens.get(i) != null ? tokens.get(i).trim() : "";
                 parseToken(i, token);
             }
@@ -251,13 +243,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 Double time = Double.parseDouble(tokens.get(0)) * 1000;
                 times.add(time.longValue());
             } catch (NumberFormatException e) {
-                zonedDateTimes.add(ZonedDateTime.parse(tokens.get(0)));
+                times.add(ZonedDateTime.parse(tokens.get(0)).toInstant().toEpochMilli());
             }
         }
 
         void reInit() {
             // re-init
-            zonedDateTimes.clear();
             times.clear();
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
@@ -293,22 +284,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     StringDataChunk chunk = new UncompressedStringDataChunk(0, stringValues.toArray(new String[0])).tryToCompress();
                     timeSeriesList.add(new StringTimeSeries(metadata, chunk));
                 } else {
-                    throw assertDataType(dataTypes[i - noParseableColumns]);
+                    throw assertDataType(dataTypes[i - fixedColumns]);
                 }
             }
             return timeSeriesList;
         }
 
         private TimeSeriesIndex getTimeSeriesIndex() {
-            if (!zonedDateTimes.isEmpty()) {
-                return getZonedDateTimeSeriesIndex();
-            } else {
-                return getLongTimeSeriesIndex();
-            }
-        }
-
-        private TimeSeriesIndex getLongTimeSeriesIndex() {
-            Long spacing = checkLongRegularSpacing(times);
+            Long spacing = checkRegularSpacing();
             if (spacing != Long.MIN_VALUE) {
                 return new RegularTimeSeriesIndex(times.get(0), times.get(times.size() - 1), spacing);
             } else {
@@ -316,7 +299,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
-        private long checkLongRegularSpacing(List<Long> times) {
+        private long checkRegularSpacing() {
             if (times.size() < 2) {
                 throw new TimeSeriesException("At least 2 rows are expected");
             }
@@ -329,37 +312,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 } else {
                     if (1e-4 < Math.abs(duration - spacing)) {
                         return Long.MIN_VALUE;
-                    }
-                }
-            }
-
-            return spacing;
-        }
-
-        private TimeSeriesIndex getZonedDateTimeSeriesIndex() {
-            Duration spacing = checkZonedDateRegularSpacing(zonedDateTimes);
-            if (spacing != null) {
-                Interval interval = Interval.of(zonedDateTimes.get(0).toInstant(), zonedDateTimes.get(zonedDateTimes.size() - 1).toInstant());
-                return RegularTimeSeriesIndex.create(interval, spacing);
-            } else {
-                List<Instant> instants = zonedDateTimes.stream().map(t -> t.toInstant()).collect(Collectors.toList());
-                return  IrregularTimeSeriesIndex.create(instants);
-            }
-        }
-
-        private Duration checkZonedDateRegularSpacing(List<ZonedDateTime> times) {
-            if (times.size() < 2) {
-                throw new TimeSeriesException("At least 2 rows are expected");
-            }
-
-            Duration spacing = null;
-            for (int i = 1; i < times.size(); i++) {
-                Duration duration = Duration.between(times.get(i - 1), times.get(i));
-                if (spacing == null) {
-                    spacing = duration;
-                } else {
-                    if (!duration.equals(spacing)) {
-                        return null;
                     }
                 }
             }
