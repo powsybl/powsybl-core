@@ -173,6 +173,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         final List<Long> times = new ArrayList<>();
 
         TimeSeriesIndex refIndex;
+        boolean isDateTimeFormat = false;
 
         CsvParsingContext(List<String> names) {
             this(names, true);
@@ -251,17 +252,23 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 parseToken(i, token);
             }
 
-            try {
-                Double time = Double.parseDouble(tokens.get(0)) * 1000;
-                times.add(time.longValue());
-            } catch (NumberFormatException e) {
+            if (isDateTimeFormat) {
                 times.add(ZonedDateTime.parse(tokens.get(0)).toInstant().toEpochMilli());
+            } else {
+                try {
+                    Double time = Double.parseDouble(tokens.get(0)) * 1000;
+                    times.add(time.longValue());
+                } catch (NumberFormatException e) {
+                    times.add(ZonedDateTime.parse(tokens.get(0)).toInstant().toEpochMilli());
+                    isDateTimeFormat = true;
+                }
             }
         }
 
         void reInit() {
             // re-init
             times.clear();
+            isDateTimeFormat = false;
             for (int i = 0; i < dataTypes.length; i++) {
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     ((TDoubleArrayList) values[i]).clear();
