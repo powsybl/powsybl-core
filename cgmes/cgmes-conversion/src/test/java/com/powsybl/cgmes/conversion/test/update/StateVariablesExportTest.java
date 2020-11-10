@@ -74,22 +74,22 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         try (OutputStream fos = Files.newOutputStream(tmpDir.resolve("repackaged.zip"));
              ZipOutputStream zipOut = new ZipOutputStream(fos)) {
             try (InputStream eqIs = newInputStream(dataSource, this::eq)) {
-                zipFile("EQ.xml", eqIs, zipOut);
+                zipFile("test_EQ.xml", eqIs, zipOut);
             }
             try (InputStream tpIs = newInputStream(dataSource, this::tp)) {
-                zipFile("TP.xml", tpIs, zipOut);
+                zipFile("test_TP.xml", tpIs, zipOut);
             }
             try (InputStream sshIs = newInputStream(dataSource, this::ssh)) {
-                zipFile("SSH.xml", sshIs, zipOut);
+                zipFile("test_SSH.xml", sshIs, zipOut);
             }
             try (InputStream svIs = Files.newInputStream(test)) {
-                zipFile("SV.xml", svIs, zipOut);
+                zipFile("test_SV.xml", svIs, zipOut);
             }
             try (InputStream eqBdIs = newInputStream(dataSource, this::eqBd)) {
-                zipFile("EQ_BD.xml", eqBdIs, zipOut);
+                zipFile("test_EQ_BD.xml", eqBdIs, zipOut);
             }
             try (InputStream tpBdIs = newInputStream(dataSource, this::tpBd)) {
-                zipFile("TP_BD.xml", tpBdIs, zipOut);
+                zipFile("test_TP_BD.xml", tpBdIs, zipOut);
             }
         }
 
