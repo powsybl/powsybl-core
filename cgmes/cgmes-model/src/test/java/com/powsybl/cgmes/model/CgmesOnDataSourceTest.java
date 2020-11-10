@@ -68,8 +68,12 @@ public class CgmesOnDataSourceTest {
     }
 
     @Test
-    public void testRdfCim16NotExistsCim14() { doTestExists("empty_cim16_EQ.xml", "14", false); }
+    public void testRdfCim16NotExistsCim14() {
+        doTestExists("empty_cim16_EQ.xml", "14", false);
+    }
 
     @Test
-    public void testRdfCim14NotExistsCim16() { doTestExists("empty_cim14_EQ.xml", "16", false); }
+    public void testRdfCim14NotExistsCim16() {
+        doTestExists("empty_cim14_EQ.xml", "16", false);
+    }
 }
