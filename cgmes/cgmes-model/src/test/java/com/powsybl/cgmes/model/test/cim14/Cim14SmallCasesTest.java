@@ -7,19 +7,18 @@
 
 package com.powsybl.cgmes.model.test.cim14;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.cgmes.model.test.CgmesModelTester;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.junit.Test;
-
-import com.powsybl.cgmes.model.CgmesOnDataSource;
-import com.powsybl.cgmes.model.test.CgmesModelTester;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -62,7 +61,7 @@ public class Cim14SmallCasesTest {
         "invalidContent_EQ.notxml",
         "invalidContent_EQ.xml",
         "validRdfInvalidContent_EQ.xml",
-        "validCimInvalidContent_EQ.xml"
+        "validCim14InvalidContent_EQ.xml"
     };
     private static final Set<String> INVALID_CONTENT_FILES = new HashSet<>(Arrays.asList(INVALID_CONTENT_FILES_VALUES));
 
