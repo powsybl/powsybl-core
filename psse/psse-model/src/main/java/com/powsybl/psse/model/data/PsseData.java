@@ -8,6 +8,8 @@ package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -29,7 +31,7 @@ import com.powsybl.psse.model.PsseRawModel35;
  */
 public class PsseData {
 
-    public boolean checkCase(BufferedReader reader) throws IOException {
+    public void checkCase(BufferedReader reader) throws IOException {
 
      // CaseIdentification does not change, so it is read using version 33
         PsseVersion version = PsseVersion.VERSION_33;
@@ -39,12 +41,12 @@ public class PsseData {
         try {
             caseIdentification = new CaseIdentificationData(version).read(reader);
         } catch (PsseException e) {
-            return false; // invalid PSS/E content
+            throw new PsseException("Invalid PSS/E content");
         }
-        return checkCaseIdentification(caseIdentification);
+        checkCaseIdentification(caseIdentification);
     }
 
-    public boolean checkCasex(String jsonFile) throws IOException {
+    public void checkCasex(String jsonFile) throws IOException {
         PsseVersion version = PsseVersion.VERSION_35;
         PsseFileFormat format = PsseFileFormat.FORMAT_RAWX;
 
@@ -53,16 +55,28 @@ public class PsseData {
         JsonNode networkNode = rootNode.get("network");
 
         PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).readx(networkNode);
-        return checkCaseIdentification(caseIdentification);
+        checkCaseIdentification(caseIdentification);
     }
 
-    private boolean checkCaseIdentification(PsseCaseIdentification caseIdentification) {
+    private void checkCaseIdentification(PsseCaseIdentification caseIdentification) {
         int ic = caseIdentification.getIc();
         double sbase = caseIdentification.getSbase();
         int rev = caseIdentification.getRev();
         double basfrq = caseIdentification.getBasfrq();
 
-        return ic == 0 && sbase > 0. && ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev) && basfrq > 0.0;
+        if (ic == 1) {
+            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
+        }
+        if (!ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev)) {
+            String supportedVersions = IntStream.of(PsseConstants.SUPPORTED_VERSIONS).mapToObj(String::valueOf).collect(Collectors.joining(", "));
+            throw new PsseException("PSS/E version " + rev + " not supported. Supported Versions are: " + supportedVersions + ".");
+        }
+        if (sbase <= 0.) {
+            throw new PsseException("PSS/E Unexpected System MVA base " + sbase);
+        }
+        if (basfrq <= 0.) {
+            throw new PsseException("PSS/E Unexpected System base frequency " + basfrq);
+        }
     }
 
     public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {
@@ -89,7 +103,7 @@ public class PsseData {
         readBlocksB(reader, model, version, context);
 
         // q record (nothing to do)
-        BlockData.readDiscardedRecordBlock(reader);
+        BlockData.readDiscardedQBlock(reader);
 
         return model;
     }
@@ -112,7 +126,7 @@ public class PsseData {
         BlockData.readDiscardedRecordBlock(reader); // TODO
 
         // q record (nothing to do)
-        BlockData.readDiscardedRecordBlock(reader);
+        BlockData.readDiscardedQBlock(reader);
 
         return model;
     }

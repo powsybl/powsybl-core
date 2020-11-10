@@ -6,18 +6,23 @@
  */
 package com.powsybl.commons.xml;
 
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamWriter;
+import javanet.staxutils.IndentingXMLStreamWriter;
+
+import javax.xml.stream.*;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class XmlUtil {
+
+    private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private XmlUtil() {
     }
@@ -227,5 +232,17 @@ public final class XmlUtil {
     public static float readOptionalFloatAttribute(XMLStreamReader reader, String attributeName, float defaultValue) {
         String attributeValue = reader.getAttributeValue(null, attributeName);
         return attributeValue != null ? Float.valueOf(attributeValue) : defaultValue;
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
+        XMLStreamWriter writer;
+        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        if (indent) {
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
+            indentingWriter.setIndent(indentString);
+            writer = indentingWriter;
+        }
+        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        return writer;
     }
 }

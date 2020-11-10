@@ -11,11 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -333,6 +331,50 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBESwitchAtBoundary() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESwitchAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        DanglingLine dl = network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(0.0, dl.getR(), 0.0);
+        assertEquals(0.0, dl.getX(), 0.0);
+        assertEquals(0.0, dl.getG(), 0.0);
+        assertEquals(0.0, dl.getB(), 0.0);
+    }
+
+    @Test
+    public void microAssembledSwitchAtBoundary() {
+        final double tolerance = 1e-10;
+
+        InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigTieLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "true");
+
+        Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(1.02, m.getR(), tolerance);
+        assertEquals(12.0, m.getX(), tolerance);
+        assertEquals(0.00003, m.getG1(), tolerance);
+        assertEquals(0.0, m.getG2(), tolerance);
+        assertEquals(0.0001413717, m.getB1(), tolerance);
+        assertEquals(0.0, m.getB2(), tolerance);
+
+        InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "false");
+
+        network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(1.02, m.getR(), tolerance);
+        assertEquals(12.0, m.getX(), tolerance);
+        assertEquals(0.00003 / 2, m.getG1(), tolerance);
+        assertEquals(0.00003 / 2, m.getG2(), tolerance);
+        assertEquals(0.0001413717 / 2, m.getB1(), tolerance);
+        assertEquals(0.0001413717 / 2, m.getB2(), tolerance);
+    }
+
+    @Test
     public void microT4InvalidSvcMode() {
         Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
         StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
@@ -489,10 +531,16 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(1732, tx1.getCurrentLimits2().getPermanentLimit(), tol);
 
         // 4 - PATL Current defined for Switch, will be ignored
+        // The transformer that had the original limit will lose it
+        // Switches in IIDM do not have limits, so simply check that switch that receives the limit exists in both Networks
         TwoWindingsTransformer tx0s = network0.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
         TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
+        Switch sw0 = network0.getSwitch("_d0119330-220f-4ed3-ad3c-f893ad0534fb");
+        Switch sw1 = network0.getSwitch("_d0119330-220f-4ed3-ad3c-f893ad0534fb");
         assertEquals(1732, tx0s.getCurrentLimits2().getPermanentLimit(), tol);
         assertNull(tx1s.getCurrentLimits2());
+        assertNotNull(sw0);
+        assertNotNull(sw1);
     }
 
     @Test
@@ -588,39 +636,13 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
-        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
-
-        // Original CGMES equipment was a switch (a Breaker)
-        // It has been mapped to a low impedance line
-        Line line = n.getLine("_5e9f0079-647e-46da-b0ee-f5f24e127602");
-        assertNotNull(line);
-
-        // Terminals in original CGMES data were connected
-        CgmesTerminal t1 = cgmes.terminal("_ba0cc755-9201-4d57-8206-3fa57b147583");
-        CgmesTerminal t2 = cgmes.terminal("_43f700ce-3882-4906-b41f-b7c4eb2e74e0");
-        assertTrue(t1.connected());
-        assertTrue(t2.connected());
-        t1.conductingEquipmentType().endsWith("Breaker");
-
-        // But as the switch was open,
-        // the BusView for both ends of the Line
-        // must return a null bus
-        Bus bus1 = line.getTerminal1().getBusView().getBus();
-        Bus bus2 = line.getTerminal2().getBusView().getBus();
-        assertNull(bus1);
-        assertNull(bus2);
-        // End2 must have a connectable bus
-        Bus cbus2 = line.getTerminal2().getBusView().getConnectableBus();
-        assertNotNull(cbus2);
-        assertTrue(cbus2.getConnectedTerminalCount() > 1);
-        // End1 may or may not have a bus defined in BusView,
-        // Depending on the definition of a bus,
-        // that is under review (PR #1316)
-        // The end1 will only be connectable to one end
-        // of a real line segment
+    public void miniNodeBreakerInternalLineZ0() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), null);
+        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
+        Switch sw = network.getSwitch("_fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
+        assertNotNull(sw);
+        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
     }
 
     private FileSystem fileSystem;

@@ -181,7 +181,7 @@ public class LocalComputationManager implements ComputationManager {
             }
         }
 
-        return new DefaultExecutionReport(errors);
+        return new DefaultExecutionReport(workingDir, errors);
     }
 
     private void logExecutingCommand(Path workingDir, Command command, int executionIndex) {

@@ -94,17 +94,8 @@ class BlockData {
     }
 
     static <T> List<T> parseRecordsHeader(List<String> records, Class<T> aClass, String[] headers) {
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.setHeaderExtractionEnabled(false);
-        settings.setQuoteDetectionEnabled(true);
-        settings.setDelimiterDetectionEnabled(true, ',', ' '); // sequence order is relevant
+        CsvParserSettings settings = createCsvParserSettings();
         settings.setHeaders(headers);
-        settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
-            @Override
-            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error(error.getMessage());
-            }
-        });
         BeanListProcessor<T> processor = new BeanListProcessor<>(aClass);
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
@@ -119,6 +110,13 @@ class BlockData {
     }
 
     static String detectDelimiter(String record) {
+        CsvParserSettings settings = createCsvParserSettings();
+        CsvParser parser = new CsvParser(settings);
+        parser.parseLine(record);
+        return parser.getDetectedFormat().getDelimiterString();
+    }
+
+    private static CsvParserSettings createCsvParserSettings() {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
         settings.setQuoteDetectionEnabled(true);
@@ -129,9 +127,8 @@ class BlockData {
                 LOGGER.error(error.getMessage());
             }
         });
-        CsvParser parser = new CsvParser(settings);
-        parser.parseLine(record);
-        return parser.getDetectedFormat().getDelimiterString();
+
+        return settings;
     }
 
     // Read
@@ -140,20 +137,24 @@ class BlockData {
         readRecordBlock(reader);
     }
 
+    public static void readDiscardedQBlock(BufferedReader reader) throws IOException {
+        readLineAndRemoveComment(reader);
+    }
+
     static List<String> readRecordBlock(BufferedReader reader) throws IOException {
-        String line;
         List<String> records = new ArrayList<>();
-        while ((line = readLineAndRemoveComment(reader)) != null) {
-            if (line.trim().equals("0")) {
-                break;
-            }
+
+        String line = readLineAndRemoveComment(reader);
+        while (!line.trim().equals("0")) {
             records.add(line);
+            line = readLineAndRemoveComment(reader);
         }
+
         return records;
     }
 
     private static String removeComment(String line) {
-        int slashIndex = line.lastIndexOf('/');
+        int slashIndex = line.indexOf('/');
         if (slashIndex == -1) {
             return line;
         }
@@ -164,7 +165,7 @@ class BlockData {
     static String readLineAndRemoveComment(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line == null) {
-            return null;
+            throw new PsseException("PSSE. Unexpected end of file");
         }
         StringBuffer newLine = new StringBuffer();
         Pattern p = Pattern.compile("('[^']*')|( )+");
@@ -238,7 +239,7 @@ class BlockData {
 
     static String[] readFields(List<String> records, String[] headers, String delimiter) {
         if (records.isEmpty()) {
-            return new String[] {};
+            return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         String record = records.get(0);
         return ArrayUtils.subarray(headers, 0, record.split(delimiter).length);

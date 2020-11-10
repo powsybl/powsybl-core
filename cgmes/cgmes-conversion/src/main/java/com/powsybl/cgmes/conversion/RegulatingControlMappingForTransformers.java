@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
-import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
@@ -26,7 +25,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 public class RegulatingControlMappingForTransformers {
 
-    private static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
     private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
 
     RegulatingControlMappingForTransformers(RegulatingControlMapping parent, Context context) {
@@ -36,47 +34,11 @@ public class RegulatingControlMappingForTransformers {
         t3xMapping = new HashMap<>();
     }
 
-    public void add(String transformerId, String rtcId, PropertyBag rtc, PropertyBag ptc) {
-        if (t2xMapping.containsKey(transformerId)) {
-            throw new CgmesModelException("Transformer already added, Transformer id: " + transformerId);
-        }
-
-        CgmesRegulatingControlRatio rcRtc = null;
-        if (rtc != null) {
-            rcRtc = buildRegulatingControlRatio(rtcId, rtc);
-        }
-
-        CgmesRegulatingControlPhase rcPtc = null;
-        if (ptc != null) {
-            rcPtc = buildRegulatingControlPhase(ptc);
-        }
-
-        add(transformerId, rcRtc, rcPtc);
-    }
-
     public void add(String transformerId, CgmesRegulatingControlRatio rcRtc, CgmesRegulatingControlPhase rcPtc) {
         CgmesRegulatingControlForTwoWindingsTransformer rc = new CgmesRegulatingControlForTwoWindingsTransformer();
         rc.ratioTapChanger = rcRtc;
         rc.phaseTapChanger = rcPtc;
         t2xMapping.put(transformerId, rc);
-    }
-
-    public void add(String transformerId, String rtcId2, PropertyBag rtc2, String rtcId3, PropertyBag rtc3) {
-        if (t3xMapping.containsKey(transformerId)) {
-            throw new CgmesModelException("Transformer already added, Transformer id: " + transformerId);
-        }
-
-        CgmesRegulatingControlRatio rcRtc2 = null;
-        if (rtc2 != null) {
-            rcRtc2 = buildRegulatingControlRatio(rtcId2, rtc2);
-        }
-
-        CgmesRegulatingControlRatio rcRtc3 = null;
-        if (rtc3 != null) {
-            rcRtc3 = buildRegulatingControlRatio(rtcId3, rtc3);
-        }
-
-        add(transformerId, null, null, rcRtc2, null, rcRtc3, null);
     }
 
     public void add(String transformerId, CgmesRegulatingControlRatio rcRtc1, CgmesRegulatingControlPhase rcPtc1,
@@ -92,14 +54,6 @@ public class RegulatingControlMappingForTransformers {
         t3xMapping.put(transformerId, rc);
     }
 
-    private CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, PropertyBag tc) {
-        String regulatingControlId = getRegulatingControlId(tc);
-        String tculControlMode = tc.get("tculControlMode");
-        boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
-
-        return buildRegulatingControlRatio(id, regulatingControlId, tculControlMode, tapChangerControlEnabled);
-    }
-
     public CgmesRegulatingControlRatio buildRegulatingControlRatio(String id, String regulatingControlId,
                                                                    String tculControlMode, boolean tapChangerControlEnabled) {
         CgmesRegulatingControlRatio rtc = new CgmesRegulatingControlRatio();
@@ -110,16 +64,8 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    private CgmesRegulatingControlPhase buildRegulatingControlPhase(PropertyBag tc) {
-        String regulatingControlId = getRegulatingControlId(tc);
-        boolean tapChangerControlEnabled = tc.asBoolean(TAP_CHANGER_CONTROL_ENABLED, false);
-        boolean ltcFlag = tc.asBoolean("ltcFlag", false);
-
-        return buildRegulatingControlPhase(regulatingControlId, tapChangerControlEnabled, ltcFlag);
-    }
-
     public CgmesRegulatingControlPhase buildRegulatingControlPhase(String regulatingControlId,
-                                                                   boolean tapChangerControlEnabled, boolean ltcFlag) {
+        boolean tapChangerControlEnabled, boolean ltcFlag) {
         CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
@@ -249,18 +195,19 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        if (control.targetValue <= 0) {
-            context.ignored(rtcId,
+        // We always keep the targetValue
+        // It targetValue is not valid, emit a warning and deactivate regulating control
+        boolean validTargetValue = control.targetValue > 0;
+        if (!validTargetValue) {
+            context.invalid(rtcId,
                 "Regulating control has a bad target voltage " + control.targetValue);
-            return false;
         }
 
         // Order is important
         rtc.setRegulationTerminal(terminal)
                 .setTargetV(control.targetValue)
                 .setTargetDeadband(control.targetDeadband)
-                .setRegulating(regulating);
+                .setRegulating(regulating && validTargetValue);
 
         return true;
     }

@@ -20,14 +20,14 @@ import com.powsybl.psse.model.data.PsseData;
  */
 public class PsseRawReader {
 
-    public boolean checkCaseIdentification(BufferedReader reader) throws IOException {
+    public void checkCaseIdentification(BufferedReader reader) throws IOException {
         Objects.requireNonNull(reader);
-        return new PsseData().checkCase(reader);
+        new PsseData().checkCase(reader);
     }
 
-    public boolean checkCaseIdentificationx(String jsonFile) throws IOException {
+    public void checkCaseIdentificationx(String jsonFile) throws IOException {
         Objects.requireNonNull(jsonFile);
-        return new PsseData().checkCasex(jsonFile);
+        new PsseData().checkCasex(jsonFile);
     }
 
     public PsseRawModel read(BufferedReader reader) throws IOException {

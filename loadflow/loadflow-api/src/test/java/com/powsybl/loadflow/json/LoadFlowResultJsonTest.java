@@ -6,55 +6,59 @@
  */
 package com.powsybl.loadflow.json;
 
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
-    private static LoadFlowResult create() {
-        return new LoadFlowResult() {
-            @Override
-            public boolean isOk() {
-                return true;
-            }
+    private static Map<String, String> createMetrics() {
+        return ImmutableMap.<String, String>builder().put("nbiter", "4")
+                .put("dureeCalcul", "0.02")
+                .put("cause", "0")
+                .put("contraintes", "0")
+                .put("statut", "OK")
+                .put("csprMarcheForcee", "0")
+                .build();
+    }
 
-            @Override
-            public Map<String, String> getMetrics() {
-                Map<String, String> metrics = new HashMap<>();
-                metrics.put("nbiter", "4");
-                metrics.put("dureeCalcul", "0.02");
-                metrics.put("cause", "0");
-                metrics.put("contraintes", "0");
-                metrics.put("statut", "OK");
-                metrics.put("csprMarcheForcee", "0");
-                return metrics;
-            }
+    private static LoadFlowResult createVersion10() {
+        return new LoadFlowResultImpl(true, createMetrics(), "");
+    }
 
-            @Override
-            public String getLogs() {
-                return "";
-            }
-        };
+    private static LoadFlowResult createVersion11() {
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
     }
 
     @Test
-    public void roundTripTest() throws IOException {
-        roundTripTest(create(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResult.json");
+    public void roundTripVersion11Test() throws IOException {
+        roundTripTest(createVersion11(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion11.json");
+    }
+
+    @Test
+    public void readJsonVersion10() throws IOException {
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10.json"));
+        assertTrue(result.isOk());
+        assertEquals(createMetrics(), result.getMetrics());
+        assertNull(result.getLogs());
+        assertTrue(result.getComponentResults().isEmpty());
     }
 
     @Test
     public void handleErrorTest() throws IOException {
         expected.expect(AssertionError.class);
         expected.expectMessage("Unexpected field: alienAttribute");
-        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultError.json"));
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion10Error.json"));
     }
-
 }

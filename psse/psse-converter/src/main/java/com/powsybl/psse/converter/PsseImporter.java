@@ -45,10 +45,10 @@ public class PsseImporter implements Importer {
 
     private static final String[] EXTS = {"raw", "RAW", "rawx", "RAWX"};
 
-    private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
+    private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("psse.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
             "Ignore base voltage specified in the file",
-            Boolean.TRUE);
+            Boolean.FALSE);
 
     private static final String V_PROPERTY = "v";
 
@@ -98,11 +98,13 @@ public class PsseImporter implements Importer {
         }
         if (psseFileFormatFromExtension(ext) == PsseFileFormat.FORMAT_RAW) {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                return new PsseRawReader().checkCaseIdentification(reader);
+                new PsseRawReader().checkCaseIdentification(reader);
+                return true;
             }
         } else {
             String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-            return new PsseRawReader().checkCaseIdentificationx(jsonFile);
+            new PsseRawReader().checkCaseIdentificationx(jsonFile);
+            return true;
         }
     }
 

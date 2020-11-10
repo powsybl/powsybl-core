@@ -7,8 +7,52 @@
  */
 package com.powsybl.ampl.converter;
 
+import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.TableFormatter;
+import com.powsybl.commons.util.StringToIntMapper;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.ComponentConstants;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VscConverterStation;
+import com.powsybl.iidm.network.util.ConnectedComponents;
+import com.powsybl.iidm.network.util.SV;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,24 +63,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.extensions.Extendable;
-import com.powsybl.commons.extensions.Extension;
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.TableFormatter;
-import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
 
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 import static com.powsybl.ampl.converter.AmplConstants.VARIANT;
@@ -410,6 +436,11 @@ public class AmplNetworkWriter {
             extList.add(new AmplExtension(extendedNum, extendable, ext));
             extensionMap.put(ext.getName(), extList);
         }
+    }
+
+    private void addNetworkExtensions() {
+        int networkNum = mapper.getInt(AmplSubset.NETWORK, network.getId());
+        addExtensions(networkNum, network);
     }
 
     private void exportExtensions() throws IOException {
@@ -803,19 +834,36 @@ public class AmplNetworkWriter {
             double x1 = twt.getLeg1().getX() / zb1;
             double g1 = twt.getLeg1().getG() * zb1;
             double b1 = twt.getLeg1().getB() * zb1;
+
             double r2 = twt.getLeg2().getR() / zb2;
             double x2 = twt.getLeg2().getX() / zb2;
+            double g2 = twt.getLeg2().getG() * zb2;
+            double b2 = twt.getLeg2().getB() * zb2;
+
             double r3 = twt.getLeg3().getR() / zb3;
             double x3 = twt.getLeg3().getX() / zb3;
+            double g3 = twt.getLeg3().getG() * zb3;
+            double b3 = twt.getLeg3().getB() * zb3;
+
             double ratedU1 = twt.getLeg1().getRatedU();
             double ratedU2 = twt.getLeg2().getRatedU();
             double ratedU3 = twt.getLeg3().getRatedU();
-            double ratio2 = ratedU1 / ratedU2;
-            double ratio3 = ratedU1 / ratedU3;
+            double ratedU0 = twt.getRatedU0();
+            double ratio1 = ratedU0 / ratedU1;
+            double ratio2 = ratedU0 / ratedU2;
+            double ratio3 = ratedU0 / ratedU3;
+            RatioTapChanger rtc1 = twt.getLeg1().getRatioTapChanger();
             RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            RatioTapChanger rtc3 = twt.getLeg2().getRatioTapChanger();
+            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+            PhaseTapChanger ptc1 = twt.getLeg1().getPhaseTapChanger();
+            PhaseTapChanger ptc2 = twt.getLeg2().getPhaseTapChanger();
+            PhaseTapChanger ptc3 = twt.getLeg3().getPhaseTapChanger();
+            int rtc1Num = rtc1 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id1) : -1;
             int rtc2Num = rtc2 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id2) : -1;
             int rtc3Num = rtc3 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id3) : -1;
+            int ptc1Num = ptc1 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id1) : -1;
+            int ptc2Num = ptc2 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id2) : -1;
+            int ptc3Num = ptc3 != null ? mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, id3) : -1;
 
             int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, getThreeWindingsTransformerMiddleVoltageLevelId(twt));
             String middleBusId = getThreeWindingsTransformerMiddleBusId(twt);
@@ -835,9 +883,9 @@ public class AmplNetworkWriter {
                         .writeCell(0.0)
                         .writeCell(b1)
                         .writeCell(0.0)
-                        .writeCell(1f) // ratio is one at primary leg
-                        .writeCell(-1)
-                        .writeCell(-1)
+                        .writeCell(ratio1)
+                        .writeCell(rtc1Num)
+                        .writeCell(ptc1Num)
                         .writeCell(Double.NaN)
                         .writeCell(t1.getP())
                         .writeCell(Double.NaN)
@@ -861,13 +909,13 @@ public class AmplNetworkWriter {
                         .writeCell(middleVlNum)
                         .writeCell(r2)
                         .writeCell(x2)
+                        .writeCell(g2)
                         .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
+                        .writeCell(b2)
                         .writeCell(0.0)
                         .writeCell(ratio2)
                         .writeCell(rtc2Num)
-                        .writeCell(-1)
+                        .writeCell(ptc2Num)
                         .writeCell(t2.getP())
                         .writeCell(Double.NaN)
                         .writeCell(t2.getQ())
@@ -891,13 +939,13 @@ public class AmplNetworkWriter {
                         .writeCell(middleVlNum)
                         .writeCell(r3)
                         .writeCell(x3)
+                        .writeCell(g3)
                         .writeCell(0.0)
-                        .writeCell(0.0)
-                        .writeCell(0.0)
+                        .writeCell(b3)
                         .writeCell(0.0)
                         .writeCell(ratio3)
                         .writeCell(rtc3Num)
-                        .writeCell(-1)
+                        .writeCell(ptc3Num)
                         .writeCell(t3.getP())
                         .writeCell(Double.NaN)
                         .writeCell(t3.getQ())
@@ -1018,33 +1066,28 @@ public class AmplNetworkWriter {
             if (ptc != null) {
                 String id = twt.getId() + "_phase_table";
                 writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
-
             }
         }
     }
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            if (rtc2 != null) {
-                String id = twt.getId() + "_leg2_ratio_table";
-
-                Terminal t2 = twt.getLeg2().getTerminal();
-                double vb2 = t2.getVoltageLevel().getNominalV();
-                double zb2 = vb2 * vb2 / AmplConstants.SB;
-
-                writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2);
-            }
-
-            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-            if (rtc3 != null) {
-                String id = twt.getId() + "_leg3_ratio_table";
-
-                Terminal t3 = twt.getLeg3().getTerminal();
-                double vb3 = t3.getVoltageLevel().getNominalV();
-                double zb3 = vb3 * vb3 / AmplConstants.SB;
-
-                writeRatioTapChanger(formatter, id, zb3, twt.getLeg3().getX(), rtc3);
+            int legNumber = 0;
+            for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
+                legNumber++;
+                RatioTapChanger rtc = leg.getRatioTapChanger();
+                Terminal t = leg.getTerminal();
+                double vb = t.getVoltageLevel().getNominalV();
+                double zb = vb * vb / AmplConstants.SB;
+                if (rtc != null) {
+                    String id = twt.getId() + "_leg" + legNumber + "_ratio_table";
+                    writeRatioTapChanger(formatter, id, zb, leg.getX(), rtc);
+                }
+                PhaseTapChanger ptc = leg.getPhaseTapChanger();
+                if (ptc != null) {
+                    String id = twt.getId() + "_leg" + legNumber + "_phase_table";
+                    writePhaseTapChanger(formatter, id, zb, leg.getX(), ptc);
+                }
             }
         }
     }
@@ -1083,21 +1126,26 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeRatioTapChanger(TableFormatter formatter, String rtcId,
-                                      RatioTapChanger rtc, String tcsId) throws IOException {
-        int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
-        int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
-        formatter.writeCell(variantIndex)
-                .writeCell(rtcNum)
-                .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
-                .writeCell(tcsNum)
-                .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
-        if (config.isExportRatioTapChangerVoltageTarget()) {
-            formatter.writeCell(rtc.getTargetV());
+    private void writeRatioTapChanger(TableFormatter formatter, Identifiable<?> twt, RatioTapChanger rtc, String leg) {
+        try {
+            String rtcId = twt.getId() + leg;
+            String tcsId = twt.getId() + leg + "_ratio_table";
+            int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
+            int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
+            formatter.writeCell(variantIndex)
+                    .writeCell(rtcNum)
+                    .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
+                    .writeCell(tcsNum)
+                    .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
+            if (config.isExportRatioTapChangerVoltageTarget()) {
+                formatter.writeCell(rtc.getTargetV());
+            }
+            formatter.writeCell(faultNum)
+                    .writeCell(actionNum)
+                    .writeCell(rtcId);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-        formatter.writeCell(faultNum)
-                .writeCell(actionNum)
-                .writeCell(rtcId);
     }
 
     private void writeRatioTapChangers() throws IOException {
@@ -1121,27 +1169,31 @@ public class AmplNetworkWriter {
                      AmplConstants.LOCALE,
                      columns.toArray(new Column[columns.size()]))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-                RatioTapChanger rtc = twt.getRatioTapChanger();
-                if (rtc != null) {
-                    String rtcId = twt.getId();
-                    String tcsId = twt.getId() + "_ratio_table";
-                    writeRatioTapChanger(formatter, rtcId, rtc, tcsId);
-                }
+                twt.getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, ""));
             }
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-                RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-                if (rtc2 != null) {
-                    String rtc2Id = twt.getId() + AmplConstants.LEG2_SUFFIX;
-                    String tcs2Id = twt.getId() + "_leg2_ratio_table";
-                    writeRatioTapChanger(formatter, rtc2Id, rtc2, tcs2Id);
-                }
-                RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-                if (rtc3 != null) {
-                    String rtc3Id = twt.getId() + AmplConstants.LEG3_SUFFIX;
-                    String tcs3Id = twt.getId() + "_leg3_ratio_table";
-                    writeRatioTapChanger(formatter, rtc3Id, rtc3, tcs3Id);
-                }
+                twt.getLeg1().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG1_SUFFIX));
+                twt.getLeg2().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG2_SUFFIX));
+                twt.getLeg3().getOptionalRatioTapChanger().ifPresent(rtc -> writeRatioTapChanger(formatter, twt, rtc, AmplConstants.LEG3_SUFFIX));
             }
+        }
+    }
+
+    private void writePhaseTapChanger(TableFormatter formatter, Identifiable<?> twt, PhaseTapChanger ptc, String leg) {
+        try {
+            String ptcId = twt.getId() + leg;
+            String tcsId = twt.getId() + leg + "_phase_table";
+            int rtcNum = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
+            int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
+            formatter.writeCell(variantIndex)
+                    .writeCell(rtcNum)
+                    .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
+                    .writeCell(tcsNum)
+                    .writeCell(faultNum)
+                    .writeCell(actionNum)
+                    .writeCell(ptcId);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -1160,20 +1212,12 @@ public class AmplNetworkWriter {
                      new Column(config.getActionType().getLabel()),
                      new Column(ID))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-                PhaseTapChanger ptc = twt.getPhaseTapChanger();
-                if (ptc != null) {
-                    String ptcId = twt.getId();
-                    int num = mapper.getInt(AmplSubset.PHASE_TAP_CHANGER, ptcId);
-                    String tcsId = twt.getId() + "_phase_table";
-                    int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
-                    formatter.writeCell(variantIndex)
-                            .writeCell(num)
-                            .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
-                            .writeCell(tcsNum)
-                            .writeCell(faultNum)
-                            .writeCell(actionNum)
-                            .writeCell(ptcId);
-                }
+                twt.getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, ""));
+            }
+            for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+                twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG1_SUFFIX));
+                twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG2_SUFFIX));
+                twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(ptc -> writePhaseTapChanger(formatter, twt, ptc, AmplConstants.LEG3_SUFFIX));
             }
         }
     }
@@ -1311,9 +1355,6 @@ public class AmplNetworkWriter {
                      new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
             for (ShuntCompensator sc : network.getShuntCompensators()) {
-                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-                    throw new PowsyblException("Non linear shunt compensator not yet supported");
-                }
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
@@ -1340,11 +1381,23 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB;
                 double b1 = 0;
-                double b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
+                double b2;
+                int points = 0;
+                int sectionCount = 1;
+                if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+                    // TODO non linear shunt has to be converted as multiple sections shunt.
+                    if (sc.getSectionCount() > 1) {
+                        b1 = sc.getB(sc.getSectionCount() - 1) * zb;
+                    }
+                    b2 = sc.getB() * zb;
+                } else {
+                    b2 = sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection() * sc.getMaximumSectionCount() * zb;
+                    points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
+                    sectionCount = sc.getSectionCount();
+                }
+                double b = sc.getB() * zb;
                 double minB = Math.min(b1, b2);
                 double maxB = Math.max(b1, b2);
-                double b = sc.getB() * zb;
-                int points = sc.getMaximumSectionCount() < 1 ? 0 : sc.getMaximumSectionCount() - 1;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)
@@ -1360,7 +1413,7 @@ public class AmplNetworkWriter {
                         .writeCell(sc.getNameOrId())
                         .writeCell(t.getP())
                         .writeCell(t.getQ())
-                        .writeCell(sc.getSectionCount());
+                        .writeCell(sectionCount);
                 addExtensions(num, sc);
             }
             if (!skipped.isEmpty()) {
@@ -1667,7 +1720,7 @@ public class AmplNetworkWriter {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             if (twt.getLeg1().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG1_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, false, "");
+                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, true, "");
             }
             if (twt.getLeg2().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG2_SUFFIX;
@@ -1897,6 +1950,8 @@ public class AmplNetworkWriter {
         writeVscConverterStations();
         writeLccConverterStations();
         writeHvdcLines();
+
+        addNetworkExtensions();
         exportExtensions();
     }
 }

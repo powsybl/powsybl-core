@@ -22,8 +22,14 @@ public class ActionDb {
 
     private final Map<String, Action> actions = new LinkedHashMap<>();
 
+    private static final String EXCEPTION_MESSAGE = "' is defined several times";
+
     public void addContingency(Contingency contingency) {
         Objects.requireNonNull(contingency);
+        String id = contingency.getId();
+        if (contingencies.containsKey(id)) {
+            throw new ActionDslException("Contingency '" + id + EXCEPTION_MESSAGE);
+        }
         contingencies.put(contingency.getId(), contingency);
     }
 
@@ -48,7 +54,7 @@ public class ActionDb {
         Objects.requireNonNull(rule);
         String id = rule.getId();
         if (rules.containsKey(id)) {
-            throw new ActionDslException("Rule '" + id + "' is defined several times");
+            throw new ActionDslException("Rule '" + id + EXCEPTION_MESSAGE);
         }
         rules.put(id, rule);
     }
@@ -61,7 +67,7 @@ public class ActionDb {
         Objects.requireNonNull(action);
         String id = action.getId();
         if (actions.containsKey(id)) {
-            throw new ActionDslException("Action '" + id + "' is defined several times");
+            throw new ActionDslException("Action '" + id + EXCEPTION_MESSAGE);
         }
         actions.put(id, action);
     }

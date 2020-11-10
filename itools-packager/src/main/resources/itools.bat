@@ -4,19 +4,19 @@ REM This Source Code Form is subject to the terms of the Mozilla Public
 REM License, v. 2.0. If a copy of the MPL was not distributed with this
 REM file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+setlocal EnableDelayedExpansion
+
 if "%JAVA_HOME%" == "" (
   where /Q java.exe
   if %errorlevel% == 0 (
     set JAVA_BIN=java.exe
   ) else (
     echo "Unable to find java" >&2
-    exit -1
+    exit /B -1
   )
 ) else (
   set JAVA_BIN=%JAVA_HOME%\bin\java.exe
 )
-
-setlocal EnableDelayedExpansion
 
 set installBinDir=%~dp0
 set installDir=%installBinDir%..
