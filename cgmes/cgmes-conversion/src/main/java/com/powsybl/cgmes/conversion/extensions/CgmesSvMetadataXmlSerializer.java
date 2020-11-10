@@ -36,7 +36,6 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
     public void write(CgmesSvMetadata extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("scenarioTime", extension.getScenarioTime());
         writer.writeAttribute("description", extension.getDescription());
         XmlUtil.writeInt("svVersion", extension.getSvVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
@@ -52,8 +51,7 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XMLStreamReader reader = networkContext.getReader();
         CgmesSvMetadataAdder adder = extendable.newExtension(CgmesSvMetadataAdder.class);
-        adder.setScenarioTime(reader.getAttributeValue(null, "scenarioTime"))
-                .setDescription(reader.getAttributeValue(null, "description"))
+        adder.setDescription(reader.getAttributeValue(null, "description"))
                 .setSvVersion(XmlUtil.readIntAttribute(reader, "svVersion"))
                 .setModelingAuthoritySet(reader.getAttributeValue(null, "modelingAuthoritySet"));
         XmlUtil.readUntilEndElement("cgmesSvMetadata", reader, () -> {

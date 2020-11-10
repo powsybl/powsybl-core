@@ -16,12 +16,14 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.psse.model.PsseException;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -36,7 +38,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         assertEquals("PSS/E", importer.getFormat());
         assertEquals("PSS/E Format to IIDM converter", importer.getComment());
         assertEquals(1, importer.getParameters().size());
-        assertEquals("ignore-base-voltage", importer.getParameters().get(0).getName());
+        assertEquals("psse.import.ignore-base-voltage", importer.getParameters().get(0).getName());
     }
 
     private void testNetwork(Network network) throws IOException {
@@ -50,50 +52,59 @@ public class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     public void existsTest() {
+        PsseImporter importer = new PsseImporter();
+
         // test with a valid raw/RAW file
-        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"))));
-        assertTrue(new PsseImporter().exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
+        assertTrue(importer.exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"))));
+        assertTrue(importer.exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
 
         // test with an invalid extension
-        assertFalse(new PsseImporter().exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
-
-        // test with a valid extension and an invalid content
-        assertFalse(new PsseImporter().exists(new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"))));
+        assertFalse(importer.exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
 
         // test with not supported content
-        assertFalse(new PsseImporter().exists(new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"))));
-        assertFalse(new PsseImporter().exists(new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"))));
+        ResourceDataSource dsCaseFlag = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
+        Assert.assertFalse(importer.exists(dsCaseFlag));
+
+        ResourceDataSource dsCaseVersion = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        Assert.assertFalse(importer.exists(dsCaseVersion));
+
+        // test with a valid extension and an invalid content
+        ResourceDataSource dsCaseInvalid = new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"));
+        Assert.assertFalse(importer.exists(dsCaseInvalid));
     }
 
-    public void importTest(String basename, String filename) throws IOException {
+    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+        Properties properties = new Properties();
+        properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
+
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
-        Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
         testNetwork(network);
     }
 
     @Test
     public void importTest14() throws IOException {
-        importTest("IEEE_14_bus", "IEEE_14_bus.raw");
+        importTest("IEEE_14_bus", "IEEE_14_bus.raw", true);
     }
 
     @Test
     public void importTest24() throws IOException {
-        importTest("IEEE_24_bus", "IEEE_24_bus.RAW");
+        importTest("IEEE_24_bus", "IEEE_24_bus.RAW", true);
     }
 
     @Test
     public void importTest57() throws IOException {
-        importTest("IEEE_57_bus", "IEEE_57_bus.RAW");
+        importTest("IEEE_57_bus", "IEEE_57_bus.RAW", true);
     }
 
     @Test
     public void importTest118() throws IOException {
-        importTest("IEEE_118_bus", "IEEE_118_bus.RAW");
+        importTest("IEEE_118_bus", "IEEE_118_bus.RAW", true);
     }
 
     @Test
     public void importTestT3W() throws IOException {
-        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW");
+        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", true);
     }
 
     @Test(expected = PsseException.class)

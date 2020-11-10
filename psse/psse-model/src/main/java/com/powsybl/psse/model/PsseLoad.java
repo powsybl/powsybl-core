@@ -15,47 +15,47 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseLoad {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private String id = "1";
 
-    @Parsed(index = 2)
+    @Parsed
     private int status = 1;
 
-    @Parsed(index = 3)
+    @Parsed
     private int area = -1;
 
-    @Parsed(index = 4)
+    @Parsed
     private int zone = -1;
 
-    @Parsed(index = 5)
+    @Parsed
     private double pl = 0;
 
-    @Parsed(index = 6)
+    @Parsed
     private double ql = 0;
 
-    @Parsed(index = 7)
+    @Parsed
     private double ip = 0;
 
-    @Parsed(index = 8)
+    @Parsed
     private double iq = 0;
 
-    @Parsed(index = 9)
+    @Parsed
     private double yp = 0;
 
-    @Parsed(index = 10)
+    @Parsed
     private double yq = 0;
 
-    @Parsed(index = 11)
+    @Parsed
     private int owner = -1;
 
-    @Parsed(index = 12)
+    @Parsed
     private int scale = 1;
 
-    @Parsed(index = 13)
+    @Parsed
     private int intrpt = 0;
 
     public int getI() {

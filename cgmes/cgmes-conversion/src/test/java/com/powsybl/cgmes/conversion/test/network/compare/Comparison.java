@@ -16,10 +16,7 @@ import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.extensions.CoordinatedReactiveControl;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.extensions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -160,7 +157,6 @@ public class Comparison {
                 diff.missing(expected.getExtendable().getId() + "_cgmesSvMetadata_extension");
                 return;
             }
-            compare("scenarioTime", expected.getScenarioTime(), actual.getScenarioTime());
             compare("description", expected.getDescription(), actual.getDescription());
             compare("svVersion", expected.getSvVersion(), actual.getSvVersion());
             compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
@@ -234,10 +230,25 @@ public class Comparison {
                     expected.getHighVoltageLimit(),
                     actual.getHighVoltageLimit());
         }
+        SlackTerminal expectedSlackTerminal = expected.getExtension(SlackTerminal.class);
+        SlackTerminal actualSlackTerminal = actual.getExtension(SlackTerminal.class);
+        if (expectedSlackTerminal == null) {
+            if (actualSlackTerminal != null) {
+                diff.unexpected("slackTerminal");
+            }
+        } else {
+            if (actualSlackTerminal == null) {
+                diff.missing("slackTerminal");
+            } else {
+                equivalent("slackTerminal", expectedSlackTerminal.getTerminal().getConnectable(),
+                        actualSlackTerminal.getTerminal().getConnectable());
+            }
+        }
     }
 
     private void compareBuses(Bus expected, Bus actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
+        compareAliases(expected, actual);
         compare("v", expected.getV(), actual.getV());
         compare("angle", expected.getAngle(), actual.getAngle());
     }
@@ -246,6 +257,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
         // TODO Should we check terminals ? (we are not setting terminal id)
@@ -276,6 +288,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("sectionCount",
                 expected.getSectionCount(),
                 actual.getSectionCount());
@@ -340,6 +353,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("Bmin",
                 expected.getBmin(),
                 actual.getBmin());
@@ -364,6 +378,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
+        compareAliases(expected, actual);
         sameIdentifier("ConnectableBus",
                 expected.getTerminal().getBusBreakerView().getConnectableBus(),
                 actual.getTerminal().getBusBreakerView().getConnectableBus());
@@ -470,6 +485,7 @@ public class Comparison {
 
     private void compareSwitches(Switch expected, Switch actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
+        compareAliases(expected, actual);
         // No additional properties to check
     }
 
@@ -480,6 +496,7 @@ public class Comparison {
         equivalent("VoltageLevel2",
                 expected.getTerminal2().getVoltageLevel(),
                 actual.getTerminal2().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g1", expected.getG1(), actual.getG1());
@@ -498,6 +515,7 @@ public class Comparison {
         equivalent("VoltageLevel",
                 expected.getTerminal().getVoltageLevel(),
                 actual.getTerminal().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -541,6 +559,7 @@ public class Comparison {
         equivalent("VoltageLevel2",
                 expected.getTerminal2().getVoltageLevel(),
                 actual.getTerminal2().getVoltageLevel());
+        compareAliases(expected, actual);
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
         compare("g", expected.getG(), actual.getG());
@@ -575,6 +594,7 @@ public class Comparison {
 
     private void compareThreeWindingsTransformers(ThreeWindingsTransformer expected,
                                                   ThreeWindingsTransformer actual) {
+        compareAliases(expected, actual);
         compareLeg(expected.getLeg1(), actual.getLeg1(), expected, actual);
         compareLeg(expected.getLeg2(), actual.getLeg2(), expected, actual);
         compareLeg(expected.getLeg3(), actual.getLeg3(), expected, actual);
@@ -765,6 +785,29 @@ public class Comparison {
 
     private void compare(String context, Object expected, Object actual) {
         diff.compare(context, expected, actual);
+    }
+
+    private <I extends Identifiable<I>> void compareAliases(I expected, I actual) {
+        for (String alias : expected.getAliases()) {
+            if (!actual.getAliases().contains(alias)) {
+                diff.missing(alias);
+                break;
+            }
+            Optional<String> type = expected.getAliasType(alias);
+            if (!type.isPresent()) {
+                actual.getAliasType(alias).ifPresent(diff::unexpected);
+            } else {
+                if (!actual.getAliasType(alias).isPresent()) {
+                    diff.missing(type.get());
+                }
+                compare("alias", type.get(), actual.getAliasType(alias).get());
+            }
+        }
+        for (String alias : actual.getAliases()) {
+            if (!expected.getAliases().contains(alias)) {
+                diff.unexpected(alias);
+            }
+        }
     }
 
     private void equivalent(

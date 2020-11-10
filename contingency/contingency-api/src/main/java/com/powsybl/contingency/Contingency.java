@@ -81,6 +81,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkDanglingLineContingency(Contingency contingency, DanglingLineContingency element, Network network) {
+        if (network.getDanglingLine(element.getId()) == null) {
+            LOGGER.warn("Dangling line '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     private static boolean isValid(Contingency contingency, Network network) {
         Objects.requireNonNull(contingency);
         Objects.requireNonNull(network);
@@ -104,6 +112,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
                 case BUSBAR_SECTION:
                     valid = checkBusbarSectionContingency(contingency, (BusbarSectionContingency) element, network);
+                    break;
+
+                case DANGLING_LINE:
+                    valid = checkDanglingLineContingency(contingency, (DanglingLineContingency) element, network);
                     break;
 
                 default:

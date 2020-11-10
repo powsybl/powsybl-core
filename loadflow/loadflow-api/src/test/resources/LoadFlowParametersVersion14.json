@@ -1,0 +1,14 @@
+{
+  "version" : "1.4",
+  "voltageInitMode" : "PREVIOUS_VALUES",
+  "transformerVoltageControlOn" : true,
+  "phaseShifterRegulationOn" : false,
+  "noGeneratorReactiveLimits" : true,
+  "twtSplitShuntAdmittance" : true,
+  "simulShunt" : true,
+  "readSlackBus" : true,
+  "writeSlackBus" : true,
+  "dc" : true,
+  "distributedSlack" : true,
+  "balanceType" : "PROPORTIONAL_TO_LOAD"
+}

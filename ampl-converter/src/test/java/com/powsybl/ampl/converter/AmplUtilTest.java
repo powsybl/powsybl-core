@@ -58,6 +58,11 @@ public class AmplUtilTest {
 
     private void testEmptyMapper(StringToIntMapper<AmplSubset> mapper) {
         try {
+            mapper.getId(AmplSubset.NETWORK, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
             mapper.getId(AmplSubset.VOLTAGE_LEVEL, 1);
             fail();
         } catch (IllegalArgumentException ignored) {
@@ -109,6 +114,7 @@ public class AmplUtilTest {
         for (int i = 1; i <= 4; i++) {
             assertTrue(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2", "NGEN_NHV1", "NHV2_NLOAD").contains(mapper.getId(AmplSubset.BRANCH, i)));
         }
+        assertEquals("sim1", mapper.getId(AmplSubset.NETWORK, 1));
         assertEquals("LOAD", mapper.getId(AmplSubset.LOAD, 1));
         assertEquals("GEN", mapper.getId(AmplSubset.GENERATOR, 1));
         assertEquals("NHV2_NLOAD", mapper.getId(AmplSubset.RATIO_TAP_CHANGER, 1));

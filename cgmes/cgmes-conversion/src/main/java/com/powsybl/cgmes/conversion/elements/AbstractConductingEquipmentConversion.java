@@ -8,16 +8,13 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.BranchAdder;
-import com.powsybl.iidm.network.InjectionAdder;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -77,6 +74,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         steadyStatePowerFlow = PowerFlow.UNDEFINED;
     }
 
+    public String findUcteXnodeCode(String boundaryNode) {
+        return context.boundary().nameAtBoundary(boundaryNode);
+    }
+
     @Override
     public boolean insideBoundary() {
         // A conducting equipment is inside boundary if
@@ -118,6 +119,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     k,
                     cgmesVoltageLevelId(k),
                     iidmVoltageLevelId(k)));
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean validNodes() {
+        for (int k = 1; k <= numTerminals; k++) {
+            if (nodeId(k) == null) {
+                missing(nodeIdPropertyName() + k);
                 return false;
             }
         }
@@ -202,16 +213,24 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected VoltageLevel voltageLevel() {
-        return terminals[0].voltageLevel;
+        if (terminals[0].iidmVoltageLevelId != null) {
+            return context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
+        } else {
+            return terminals[0].voltageLevel;
+        }
     }
 
     VoltageLevel voltageLevel(int n) {
-        return terminals[n - 1].voltageLevel;
+        if (terminals[n - 1].iidmVoltageLevelId != null) {
+            return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
+        } else {
+            return terminals[n - 1].voltageLevel;
+        }
     }
 
     protected Substation substation() {
         String sid = context.cgmes().substation(terminals[0].t, context.nodeBreaker());
-        return context.network().getSubstation(context.substationIdMapping().iidm(sid));
+        return context.network().getSubstation(context.substationIdMapping().substationIidm(sid));
     }
 
     private PowerFlow stateVariablesPowerFlow() {
@@ -303,8 +322,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
             }
             if (cgmesVoltageLevelId != null) {
-                iidmVoltageLevelId = context.namingStrategy().getId("VoltageLevel",
-                    cgmesVoltageLevelId);
+                String iidmVl = context.namingStrategy().getId("VoltageLevel", cgmesVoltageLevelId);
+                iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
                 iidmVoltageLevelId = null;
@@ -419,6 +438,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 .setVoltageLevel(iidmVoltageLevelId(terminal))
                 .setBus(terminalConnected(terminal) ? busId(terminal) : null)
                 .setConnectableBus(busId(terminal));
+        }
+    }
+
+    protected void addAliases(Identifiable<?> identifiable) {
+        int i = 1;
+        for (TerminalData td : terminals) {
+            if (td == null) {
+                return;
+            }
+            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + i);
+            i++;
         }
     }
 
