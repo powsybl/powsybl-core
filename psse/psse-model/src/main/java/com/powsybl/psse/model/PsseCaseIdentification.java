@@ -130,13 +130,10 @@ public class PsseCaseIdentification {
 
         int index = 0;
         for (PsseVersion e : PsseVersion.values()) {
-            switch (e) {
-                case VERSION_33:
-                    sv[index] = 33;
-                    break;
-                case VERSION_35:
-                    sv[index] = 35;
-                    break;
+            if (e == PsseVersion.VERSION_35) {
+                sv[index] = 35;
+            } else {
+                sv[index] = 33;
             }
             index++;
         }
