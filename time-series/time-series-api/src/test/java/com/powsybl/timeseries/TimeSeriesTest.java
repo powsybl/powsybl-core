@@ -209,7 +209,7 @@ public class TimeSeriesTest {
             "1970-01-01T05:00:00.000+01:00;5.0;",
             "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';');
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', false);
 
         assertEquals(1, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(0).size());
@@ -231,15 +231,25 @@ public class TimeSeriesTest {
         String emptyCsv = "";
         assertThatCode(() -> TimeSeries.parseCsv(emptyCsv, ';')).hasMessage("CSV header is missing").isInstanceOf(TimeSeriesException.class);
 
-        String badHeader = String.join(System.lineSeparator(),
-            "Timed;Verison;ts1;ts2",
+        String badHeaderNoTime = String.join(System.lineSeparator(),
+            "NoTime;ts1;ts2",
+            "1970-01-01T01:00:00.000+01:00;1.0;",
+            "1970-01-01T02:00:00.000+01:00;;a",
+            "1970-01-01T03:00:00.000+01:00;3.0;b",
+            "1970-01-01T04:00:00.000+01:00;4.0;c",
+            "1970-01-01T05:00:00.000+01:00;5.0;",
+            "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, ';', false)).hasMessage("Bad CSV header, should be \nTime;...").isInstanceOf(TimeSeriesException.class);
+
+        String badHeaderNoVersion = String.join(System.lineSeparator(),
+            "Time;NoVersion;ts1;ts2",
             "1970-01-01T01:00:00.000+01:00;1;1.0;",
             "1970-01-01T02:00:00.000+01:00;1;;a",
             "1970-01-01T03:00:00.000+01:00;1;3.0;b",
             "1970-01-01T01:00:00.000+01:00;2;4.0;c",
             "1970-01-01T02:00:00.000+01:00;2;5.0;",
             "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(badHeader, ';')).hasMessage("Bad CSV header, should be \nTime;...").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoVersion, ';')).hasMessage("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
 
         String duplicates = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts1",
@@ -250,6 +260,28 @@ public class TimeSeriesTest {
                 "1970-01-01T02:00:00.000+01:00;2;5.0;",
                 "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
         assertThatCode(() -> TimeSeries.parseCsv(duplicates, ';')).hasMessageContaining("Bad CSV header, there are duplicates in time series names").isInstanceOf(TimeSeriesException.class);
+
+        String noData = String.join(System.lineSeparator(),
+            "Time;Version",
+            "1970-01-01T01:00:00.000+01:00;1",
+            "1970-01-01T02:00:00.000+01:00;1",
+            "1970-01-01T03:00:00.000+01:00;1",
+            "1970-01-01T01:00:00.000+01:00;2",
+            "1970-01-01T02:00:00.000+01:00;2",
+            "1970-01-01T03:00:00.000+01:00;2") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(noData, ';')).hasMessageContaining("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
+
+        String onlyOneTime = String.join(System.lineSeparator(),
+            "Time;ts1",
+            "1970-01-01T03:00:00.000+01:00;2.0") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(onlyOneTime, ';', false)).hasMessageContaining("At least 2 rows are expected").isInstanceOf(TimeSeriesException.class);
+
+        String unexpectedTokens = String.join(System.lineSeparator(),
+            "Time;ts1;ts2",
+            "1970-01-01T01:00:00.000+01:00;1.0;3.2",
+            "1970-01-01T02:00:00.000+01:00;2.0",
+            "1970-01-01T03:00:00.000+01:00;2.0;1.0") + System.lineSeparator();
+        assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, ';', false)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
     }
 
     @Test
