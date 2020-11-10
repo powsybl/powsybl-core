@@ -25,14 +25,21 @@ public class IidmXmlUtilTest {
 
     @Test
     public void testReadMaximumVersion() {
-        try {
-            NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
-            Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
+        NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
+        Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
+        try {
             IidmXmlUtil.assertMaximumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context);
             fail();
         } catch (PowsyblException e) {
             assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+        }
+
+        try {
+            IidmXmlUtil.assertMaximumVersion(ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
         }
     }
 
@@ -50,29 +57,44 @@ public class IidmXmlUtilTest {
             assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
         }
 
+        try {
+            IidmXmlUtil.assertMaximumVersion(ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("element is not supported for IIDM-XML version 1.1. IIDM-XML version should be <= 1.0", e.getMessage());
+        }
+
         options.setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR);
         IidmXmlUtil.assertMaximumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context); // check it doesn't fail when behavior is LOG_ERROR
+        IidmXmlUtil.assertMaximumVersion(ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_0, context); // check it doesn't fail when behavior is LOG_ERROR
     }
 
     @Test
     public void testMinimumVersion() {
-        try {
-            NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
-            Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_0);
+        NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
+        Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_0);
 
+        try {
             IidmXmlUtil.assertMinimumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
             fail();
         } catch (PowsyblException e) {
             assertEquals("root.element is not supported for IIDM-XML version 1.0. IIDM-XML version should be >= 1.1", e.getMessage());
         }
+
+        try {
+            IidmXmlUtil.assertMinimumVersion(ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("element is not supported for IIDM-XML version 1.0. IIDM-XML version should be >= 1.1", e.getMessage());
+        }
     }
 
     @Test
     public void testReadStrictMaximumVersion() {
-        try {
-            NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
-            Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
+        NetworkXmlReaderContext context = Mockito.mock(NetworkXmlReaderContext.class);
+        Mockito.when(context.getVersion()).thenReturn(IidmXmlVersion.V_1_1);
 
+        try {
             IidmXmlUtil.assertStrictMaximumVersion(ROOT, ELEMENT, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
         } catch (PowsyblException e) {
             assertEquals("root.element is not supported for IIDM-XML version 1.1. IIDM-XML version should be < 1.1", e.getMessage());
