@@ -36,7 +36,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class BlockData {
+abstract class AbstractBlockData {
 
     private static final String PSSE = "Psse: ";
     private static final String EXPECTED_FORMAT = ". Expected format ";
@@ -68,12 +68,12 @@ class BlockData {
     private final PsseVersion psseVersion;
     private final PsseFileFormat psseFileFormat;
 
-    BlockData(PsseVersion psseVersion) {
+    AbstractBlockData(PsseVersion psseVersion) {
         this.psseVersion = psseVersion;
         this.psseFileFormat = PsseFileFormat.FORMAT_RAW;
     }
 
-    BlockData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
+    AbstractBlockData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
         this.psseVersion = psseVersion;
         this.psseFileFormat = psseFileFormat;
     }
@@ -288,5 +288,5 @@ class BlockData {
             + psseVersion + EXPECTED_FORMAT + fileFormat + " actual format " + psseFileFormat);
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(BlockData.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractBlockData.class);
 }

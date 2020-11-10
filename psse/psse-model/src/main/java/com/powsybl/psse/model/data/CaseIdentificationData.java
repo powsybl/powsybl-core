@@ -24,7 +24,7 @@ import com.powsybl.psse.model.PsseException;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class CaseIdentificationData extends BlockData {
+class CaseIdentificationData extends AbstractBlockData {
 
     CaseIdentificationData(PsseVersion psseVersion) {
         super(psseVersion);

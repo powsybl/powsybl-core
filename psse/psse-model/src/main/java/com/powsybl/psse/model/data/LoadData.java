@@ -23,7 +23,7 @@ import com.powsybl.psse.model.PsseLoad35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class LoadData extends BlockData {
+class LoadData extends AbstractBlockData {
 
     LoadData(PsseVersion psseVersion) {
         super(psseVersion);

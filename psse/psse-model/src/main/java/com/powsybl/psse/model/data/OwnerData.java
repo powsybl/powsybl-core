@@ -22,7 +22,7 @@ import com.powsybl.psse.model.PsseOwner;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class OwnerData extends BlockData {
+class OwnerData extends AbstractBlockData {
 
     OwnerData(PsseVersion psseVersion) {
         super(psseVersion);

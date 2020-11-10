@@ -108,7 +108,7 @@ public class PsseData {
         readBlocksB(reader, model, version, context);
 
         // q record (nothing to do)
-        BlockData.readDiscardedQBlock(reader);
+        AbstractBlockData.readDiscardedQBlock(reader);
 
         return model;
     }
@@ -118,20 +118,20 @@ public class PsseData {
         PsseRawModel model = new PsseRawModel(caseIdentification);
 
         // System-Wide data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         readBlocksA(reader, model, version, context);
 
         // System Switching device data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         readBlocksB(reader, model, version, context);
 
         // Substation data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // q record (nothing to do)
-        BlockData.readDiscardedQBlock(reader);
+        AbstractBlockData.readDiscardedQBlock(reader);
 
         return model;
     }
@@ -153,37 +153,37 @@ public class PsseData {
         model.addAreas(new AreaInterchangeData(version).read(reader, context));
 
         // 2-terminal DC data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // voltage source converter data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // impedance correction data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // multi-terminal DC data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // multi-section line data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         model.addZones(new ZoneData(version).read(reader, context));
 
         // inter-area transfer data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         model.addOwners(new OwnerData(version).read(reader, context));
 
         // facts control device data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         model.addSwitchedShunts(new SwitchedShuntData(version).read(reader, context));
 
         // gne device data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
 
         // Induction Machine data
-        BlockData.readDiscardedRecordBlock(reader); // TODO
+        AbstractBlockData.readDiscardedRecordBlock(reader); // TODO
     }
 
     public PsseRawModel readx(String jsonFile, PsseContext context) throws IOException {

@@ -22,7 +22,7 @@ import com.powsybl.psse.model.PsseZone;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class ZoneData extends BlockData {
+class ZoneData extends AbstractBlockData {
 
     ZoneData(PsseVersion psseVersion) {
         super(psseVersion);

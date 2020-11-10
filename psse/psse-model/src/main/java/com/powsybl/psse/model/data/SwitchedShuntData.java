@@ -23,7 +23,7 @@ import com.powsybl.psse.model.PsseSwitchedShunt35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class SwitchedShuntData extends BlockData {
+class SwitchedShuntData extends AbstractBlockData {
 
     SwitchedShuntData(PsseVersion psseVersion) {
         super(psseVersion);

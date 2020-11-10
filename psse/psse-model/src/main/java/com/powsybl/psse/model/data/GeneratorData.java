@@ -23,7 +23,7 @@ import com.powsybl.psse.model.PsseGenerator35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class GeneratorData extends BlockData {
+class GeneratorData extends AbstractBlockData {
 
     GeneratorData(PsseVersion psseVersion) {
         super(psseVersion);

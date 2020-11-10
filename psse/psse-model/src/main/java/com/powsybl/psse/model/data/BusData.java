@@ -22,7 +22,7 @@ import com.powsybl.psse.model.PsseContext;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class BusData extends BlockData {
+class BusData extends AbstractBlockData {
 
     BusData(PsseVersion psseVersion) {
         super(psseVersion);

@@ -22,7 +22,7 @@ import com.powsybl.psse.model.PsseFixedShunt;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class FixedBusShuntData extends BlockData {
+class FixedBusShuntData extends AbstractBlockData {
 
     public FixedBusShuntData(PsseVersion psseVersion) {
         super(psseVersion);

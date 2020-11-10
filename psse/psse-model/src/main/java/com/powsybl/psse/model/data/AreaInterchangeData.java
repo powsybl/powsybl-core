@@ -22,7 +22,7 @@ import com.powsybl.psse.model.PsseContext;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class AreaInterchangeData extends BlockData {
+class AreaInterchangeData extends AbstractBlockData {
 
     AreaInterchangeData(PsseVersion psseVersion) {
         super(psseVersion);

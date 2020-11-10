@@ -25,7 +25,7 @@ import com.powsybl.psse.model.PsseTransformer35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TransformerData extends BlockData {
+class TransformerData extends AbstractBlockData {
 
     TransformerData(PsseVersion psseVersion) {
         super(psseVersion);

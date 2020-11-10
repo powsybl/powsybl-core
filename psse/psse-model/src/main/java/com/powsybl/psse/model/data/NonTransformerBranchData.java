@@ -23,7 +23,7 @@ import com.powsybl.psse.model.PsseNonTransformerBranch35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class NonTransformerBranchData extends BlockData {
+class NonTransformerBranchData extends AbstractBlockData {
 
     NonTransformerBranchData(PsseVersion psseVersion) {
         super(psseVersion);

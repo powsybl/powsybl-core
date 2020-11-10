@@ -12,7 +12,8 @@ import com.univocity.parsers.annotations.Parsed;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 
 //order using alphabetic order
