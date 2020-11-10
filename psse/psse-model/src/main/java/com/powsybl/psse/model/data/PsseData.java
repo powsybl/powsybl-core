@@ -41,7 +41,7 @@ public class PsseData {
         try {
             caseIdentification = new CaseIdentificationData(version).read(reader);
         } catch (PsseException e) {
-            throw new PsseException("Invalid PSS/E content");
+            throw new PsseException("Invalid PSS/E RAW content");
         }
         checkCaseIdentification(caseIdentification);
     }
@@ -50,11 +50,16 @@ public class PsseData {
         PsseVersion version = PsseVersion.VERSION_35;
         PsseFileFormat format = PsseFileFormat.FORMAT_RAWX;
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonFile);
-        JsonNode networkNode = rootNode.get("network");
+        PsseCaseIdentification caseIdentification;
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode rootNode = objectMapper.readTree(jsonFile);
+            JsonNode networkNode = rootNode.get("network");
 
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData(version, format).readx(networkNode);
+            caseIdentification = new CaseIdentificationData(version, format).readx(networkNode);
+        } catch (IOException e) {
+            throw new PsseException("Invalid PSS/E RAWX content");
+        }
         checkCaseIdentification(caseIdentification);
     }
 

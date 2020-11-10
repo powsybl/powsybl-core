@@ -9,7 +9,6 @@ package com.powsybl.psse.model.data;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -39,8 +38,6 @@ class CaseIdentificationData extends BlockData {
         assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_33);
 
         String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
-
         context.setDelimiter(detectDelimiter(line));
 
         String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
@@ -56,7 +53,6 @@ class CaseIdentificationData extends BlockData {
         assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_33);
 
         String line = readLineAndRemoveComment(reader);
-        Objects.requireNonNull(line);
 
         String[] headers = caseIdentificationDataHeaders();
         PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);

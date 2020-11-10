@@ -100,11 +100,17 @@ public class PsseImporter implements Importer {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
                 new PsseRawReader().checkCaseIdentification(reader);
                 return true;
+            } catch (PsseException e) {
+                return false;
             }
         } else {
-            String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-            new PsseRawReader().checkCaseIdentificationx(jsonFile);
-            return true;
+            try {
+                String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
+                new PsseRawReader().checkCaseIdentificationx(jsonFile);
+                return true;
+            } catch (PsseException e) {
+                return false;
+            }
         }
     }
 

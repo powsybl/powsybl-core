@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.psse.model.PsseException;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -59,24 +60,21 @@ public class PsseImporterTest extends AbstractConverterTest {
 
         // test with an invalid extension
         assertFalse(importer.exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
-    }
 
-    @Test(expected = PsseException.class)
-    public void existsNotSupportedContentTest() {
+        // test with not supported content
         ResourceDataSource dsCaseFlag = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
-        new PsseImporter().exists(dsCaseFlag);
-    }
+        Assert.assertFalse(importer.exists(dsCaseFlag));
 
-    @Test(expected = PsseException.class)
-    public void existsNotSupportedVersionTest() {
         ResourceDataSource dsCaseVersion = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
-        new PsseImporter().exists(dsCaseVersion);
-    }
+        Assert.assertFalse(importer.exists(dsCaseVersion));
 
-    @Test(expected = PsseException.class)
-    public void existsValidExtensionInvalidContentTest() {
+        // test with a valid extension and an invalid content
         ResourceDataSource dsCaseInvalid = new ResourceDataSource("fake", new ResourceSet("/", "fake.raw"));
-        new PsseImporter().exists(dsCaseInvalid);
+        Assert.assertFalse(importer.exists(dsCaseInvalid));
+
+        // test with a valid extension and an invalid content
+        ResourceDataSource dsCaseInvalidx = new ResourceDataSource("fake", new ResourceSet("/", "fake.rawx"));
+        Assert.assertFalse(importer.exists(dsCaseInvalidx));
     }
 
     public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
