@@ -24,6 +24,4 @@ public final class PsseConstants {
         FORMAT_RAW,
         FORMAT_RAWX
     }
-
-    public static final int[] SUPPORTED_VERSIONS = new int[]{33, 35};
 }

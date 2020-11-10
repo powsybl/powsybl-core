@@ -6,6 +6,12 @@
  */
 package com.powsybl.psse.model;
 
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+
+import org.apache.commons.lang3.ArrayUtils;
+
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -100,5 +106,40 @@ public class PsseCaseIdentification {
 
     public void setTitle2(String title2) {
         this.title2 = title2;
+    }
+
+    public void check() {
+        if (ic == 1) {
+            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
+        }
+        int[] supportedVersionsInt = createSupportedVersions();
+        if (!ArrayUtils.contains(supportedVersionsInt, rev)) {
+            String supportedVersions = IntStream.of(supportedVersionsInt).mapToObj(String::valueOf).collect(Collectors.joining(", "));
+            throw new PsseException("PSS/E version " + rev + " not supported. Supported Versions are: " + supportedVersions + ".");
+        }
+        if (sbase <= 0.) {
+            throw new PsseException("PSS/E Unexpected System MVA base " + sbase);
+        }
+        if (basfrq <= 0.) {
+            throw new PsseException("PSS/E Unexpected System base frequency " + basfrq);
+        }
+    }
+
+    private static int[] createSupportedVersions() {
+        int[] sv = new int[PsseVersion.values().length];
+
+        int index = 0;
+        for (PsseVersion e : PsseVersion.values()) {
+            switch (e) {
+                case VERSION_33:
+                    sv[index] = 33;
+                    break;
+                case VERSION_35:
+                    sv[index] = 35;
+                    break;
+            }
+            index++;
+        }
+        return sv;
     }
 }

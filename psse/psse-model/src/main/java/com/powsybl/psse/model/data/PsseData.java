@@ -8,15 +8,10 @@ package com.powsybl.psse.model.data;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.apache.commons.lang3.ArrayUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants;
 import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
@@ -43,7 +38,7 @@ public class PsseData {
         } catch (PsseException e) {
             throw new PsseException("Invalid PSS/E RAW content");
         }
-        checkCaseIdentification(caseIdentification);
+        caseIdentification.check();
     }
 
     public void checkCasex(String jsonFile) throws IOException {
@@ -60,28 +55,7 @@ public class PsseData {
         } catch (IOException e) {
             throw new PsseException("Invalid PSS/E RAWX content");
         }
-        checkCaseIdentification(caseIdentification);
-    }
-
-    private void checkCaseIdentification(PsseCaseIdentification caseIdentification) {
-        int ic = caseIdentification.getIc();
-        double sbase = caseIdentification.getSbase();
-        int rev = caseIdentification.getRev();
-        double basfrq = caseIdentification.getBasfrq();
-
-        if (ic == 1) {
-            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
-        }
-        if (!ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, rev)) {
-            String supportedVersions = IntStream.of(PsseConstants.SUPPORTED_VERSIONS).mapToObj(String::valueOf).collect(Collectors.joining(", "));
-            throw new PsseException("PSS/E version " + rev + " not supported. Supported Versions are: " + supportedVersions + ".");
-        }
-        if (sbase <= 0.) {
-            throw new PsseException("PSS/E Unexpected System MVA base " + sbase);
-        }
-        if (basfrq <= 0.) {
-            throw new PsseException("PSS/E Unexpected System base frequency " + basfrq);
-        }
+        caseIdentification.check();
     }
 
     public PsseRawModel read(BufferedReader reader, PsseContext context) throws IOException {

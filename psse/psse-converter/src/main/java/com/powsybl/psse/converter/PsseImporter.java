@@ -22,7 +22,6 @@ import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
 import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -739,14 +738,8 @@ public class PsseImporter implements Importer {
             psseModel = new PsseRawReader().readx(jsonFile);
         }
 
-        // check version
-        if (!ArrayUtils.contains(PsseConstants.SUPPORTED_VERSIONS, psseModel.getCaseIdentification().getRev())) {
-            throw new PsseException("PSS/E version " + psseModel.getCaseIdentification().getRev()
-                + " not supported. Supported Versions " + ArrayUtils.toString(PsseConstants.SUPPORTED_VERSIONS));
-        }
-        if (psseModel.getCaseIdentification().getIc() == 1) {
-            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
-        }
+        // Check caseIdentification
+        psseModel.getCaseIdentification().check();
 
         return psseModel;
     }

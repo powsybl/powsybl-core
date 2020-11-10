@@ -58,8 +58,4 @@ public class PsseLoad35 extends PsseLoad {
     public void setLoadtype(String loadtype) {
         this.loadtype = loadtype;
     }
-
-    public void print() {
-        System.err.printf("Ibus %d loadId %s p %f q %f %n", this.getI(), this.getId(), this.getPl(), this.getQl());
-    }
 }
