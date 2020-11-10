@@ -8,6 +8,8 @@ package com.powsybl.timeseries;
 
 import org.junit.Test;
 
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -127,7 +129,7 @@ public class TimeSeriesTest {
                 "0.001;2;5.0;",
                 "0.002;2;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';');
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', true, TimeFormat.FRACTIONS_OF_SECOND);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
@@ -168,7 +170,7 @@ public class TimeSeriesTest {
                 "0.001;2;5.0;",
                 "0.004;2;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';');
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', true, TimeFormat.FRACTIONS_OF_SECOND);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
@@ -209,7 +211,7 @@ public class TimeSeriesTest {
             "1970-01-01T05:00:00.000+01:00;5.0;",
             "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', false);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', false, TimeFormat.DATE_TIME);
 
         assertEquals(1, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(0).size());
@@ -239,7 +241,7 @@ public class TimeSeriesTest {
             "1970-01-01T04:00:00.000+01:00;4.0;c",
             "1970-01-01T05:00:00.000+01:00;5.0;",
             "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, ';', false)).hasMessage("Bad CSV header, should be \nTime;...").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, ';', false, TimeFormat.DATE_TIME)).hasMessage("Bad CSV header, should be \nTime;...").isInstanceOf(TimeSeriesException.class);
 
         String badHeaderNoVersion = String.join(System.lineSeparator(),
             "Time;NoVersion;ts1;ts2",
@@ -252,13 +254,13 @@ public class TimeSeriesTest {
         assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoVersion, ';')).hasMessage("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
 
         String duplicates = String.join(System.lineSeparator(),
-                "Time;Version;ts1;ts1",
-                "1970-01-01T01:00:00.000+01:00;1;1.0;",
-                "1970-01-01T02:00:00.000+01:00;1;;a",
-                "1970-01-01T03:00:00.000+01:00;1;3.0;b",
-                "1970-01-01T01:00:00.000+01:00;2;4.0;c",
-                "1970-01-01T02:00:00.000+01:00;2;5.0;",
-                "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
+            "Time;Version;ts1;ts1",
+            "1970-01-01T01:00:00.000+01:00;1;1.0;",
+            "1970-01-01T02:00:00.000+01:00;1;;a",
+            "1970-01-01T03:00:00.000+01:00;1;3.0;b",
+            "1970-01-01T01:00:00.000+01:00;2;4.0;c",
+            "1970-01-01T02:00:00.000+01:00;2;5.0;",
+            "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
         assertThatCode(() -> TimeSeries.parseCsv(duplicates, ';')).hasMessageContaining("Bad CSV header, there are duplicates in time series names").isInstanceOf(TimeSeriesException.class);
 
         String noData = String.join(System.lineSeparator(),
@@ -274,14 +276,14 @@ public class TimeSeriesTest {
         String onlyOneTime = String.join(System.lineSeparator(),
             "Time;ts1",
             "1970-01-01T03:00:00.000+01:00;2.0") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(onlyOneTime, ';', false)).hasMessageContaining("At least 2 rows are expected").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(onlyOneTime, ';', false, TimeFormat.DATE_TIME)).hasMessageContaining("At least 2 rows are expected").isInstanceOf(TimeSeriesException.class);
 
         String unexpectedTokens = String.join(System.lineSeparator(),
             "Time;ts1;ts2",
             "1970-01-01T01:00:00.000+01:00;1.0;3.2",
             "1970-01-01T02:00:00.000+01:00;2.0",
             "1970-01-01T03:00:00.000+01:00;2.0;1.0") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, ';', false)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(unexpectedTokens, ';', false, TimeFormat.DATE_TIME)).hasMessageContaining("Columns of line 1 are inconsistent with header").isInstanceOf(TimeSeriesException.class);
     }
 
     @Test
