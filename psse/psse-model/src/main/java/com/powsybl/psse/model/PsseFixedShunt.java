@@ -15,20 +15,20 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseFixedShunt {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private String id = "1";
 
-    @Parsed(index = 2)
+    @Parsed
     private int status = 1;
 
-    @Parsed(index = 3)
+    @Parsed
     private double gl = 0;
 
-    @Parsed(index = 4)
+    @Parsed
     private double bl = 0;
 
     public int getI() {
