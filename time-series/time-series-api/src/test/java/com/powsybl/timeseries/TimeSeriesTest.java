@@ -119,7 +119,7 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testLongRegularTimeSeriesIndex() {
+    public void testFractionsOfSecondsRegularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
                 "0.000;1;1.0;",
@@ -160,17 +160,17 @@ public class TimeSeriesTest {
     }
 
     @Test
-    public void testLongIrregularTimeSeriesIndex() {
+    public void testMillisIrregularTimeSeriesIndex() {
         String csv = String.join(System.lineSeparator(),
                 "Time;Version;ts1;ts2",
-                "0.000;1;1.0;",
-                "0.001;1;;a",
-                "0.004;1;3.0;b",
-                "0.000;2;4.0;c",
-                "0.001;2;5.0;",
-                "0.004;2;6.0;d") + System.lineSeparator();
+                "0;1;1.0;",
+                "1;1;;a",
+                "4;1;3.0;b",
+                "0;2;4.0;c",
+                "1;2;5.0;",
+                "4;2;6.0;d") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', true, TimeFormat.FRACTIONS_OF_SECOND);
+        Map<Integer, List<TimeSeries>> timeSeriesPerVersion = TimeSeries.parseCsv(csv, ';', true, TimeFormat.MILLIS);
 
         assertEquals(2, timeSeriesPerVersion.size());
         assertEquals(2, timeSeriesPerVersion.get(1).size());
