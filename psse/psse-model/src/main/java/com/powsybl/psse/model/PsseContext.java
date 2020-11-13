@@ -6,140 +6,54 @@
  */
 package com.powsybl.psse.model;
 
+import com.powsybl.psse.model.data.AbstractDataBlock;
+
+import java.util.EnumMap;
+import java.util.Map;
+
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class PsseContext {
 
+    private final Map<AbstractDataBlock.PsseDataBlock, String[]> fieldNames = new EnumMap<>(AbstractDataBlock.PsseDataBlock.class);
     private String delimiter;
+    private PsseConstants.PsseVersion version;
 
-    private String[] caseIdentificationDataReadFields;
-    private String[] busDataReadFields;
-    private String[] loadDataReadFields;
-    private String[] fixedBusShuntDataReadFields;
-    private String[] generatorDataReadFields;
-    private String[] nonTransformerBranchDataReadFields;
-    private String[] t3wTransformerDataReadFields;
-    private String[] t2wTransformerDataReadFields;
-    private String[] areaInterchangeDataReadFields;
-    private String[] zoneDataReadFields;
-    private String[] ownerDataReadFields;
-    private String[] switchedShuntDataReadFields;
-
-    PsseContext() {
+    public PsseContext() {
     }
 
-    public void setDelimiter(String delimiter) {
-        this.delimiter = delimiter;
+    public PsseConstants.PsseVersion getVersion() {
+        return this.version;
+    }
+
+    public PsseContext setVersion(PsseConstants.PsseVersion version) {
+        this.version = version;
+        return this;
     }
 
     public String getDelimiter() {
         return this.delimiter;
     }
 
-    public void setCaseIdentificationDataReadFields(String[] fields) {
-        this.caseIdentificationDataReadFields = fields;
+    public void setDelimiter(String delimiter) {
+        this.delimiter = delimiter;
     }
 
-    String[] getCaseIdentificationDataReadFields() {
-        return this.caseIdentificationDataReadFields;
+    public void setFieldNames(AbstractDataBlock.PsseDataBlock dataBlock, String[] fieldNames) {
+        this.fieldNames.put(dataBlock, fieldNames);
     }
 
-    public void setBusDataReadFields(String[] fields) {
-        this.busDataReadFields = fields;
-    }
-
-    String[] getBusDataReadFields() {
-        return this.busDataReadFields;
-    }
-
-    public void setLoadDataReadFields(String[] fields) {
-        this.loadDataReadFields = fields;
-    }
-
-    String[] getLoadDataReadFields() {
-        return this.loadDataReadFields;
-    }
-
-    public void setFixedBusShuntDataReadFields(String[] fields) {
-        this.fixedBusShuntDataReadFields = fields;
-    }
-
-    String[] getFixedBusShuntDataReadFields() {
-        return this.fixedBusShuntDataReadFields;
-    }
-
-    public void setGeneratorDataReadFields(String[] fields) {
-        this.generatorDataReadFields = fields;
-    }
-
-    String[] getGeneratorDataReadFields() {
-        return this.generatorDataReadFields;
-    }
-
-    public void setNonTransformerBranchDataReadFields(String[] fields) {
-        this.nonTransformerBranchDataReadFields = fields;
-    }
-
-    String[] getNonTransformerBranchDataReadFields() {
-        return this.nonTransformerBranchDataReadFields;
-    }
-
-    public void set3wTransformerDataReadFields(String[] fields) {
-        this.t3wTransformerDataReadFields = fields;
+    public String[] getFieldNames(AbstractDataBlock.PsseDataBlock dataBlock) {
+        return this.fieldNames.get(dataBlock);
     }
 
     public boolean is3wTransformerDataReadFieldsEmpty() {
-        return this.t3wTransformerDataReadFields == null;
-    }
-
-    public String[] get3wTransformerDataReadFields() {
-        return this.t3wTransformerDataReadFields;
-    }
-
-    public void set2wTransformerDataReadFields(String[] fields) {
-        this.t2wTransformerDataReadFields = fields;
+        return fieldNames.get(AbstractDataBlock.PsseDataBlock.TRANSFORMER_3_DATA) == null;
     }
 
     public boolean is2wTransformerDataReadFieldsEmpty() {
-        return this.t2wTransformerDataReadFields == null;
-    }
-
-    String[] get2wTransformerDataReadFields() {
-        return this.t2wTransformerDataReadFields;
-    }
-
-    public void setAreaInterchangeDataReadFields(String[] fields) {
-        this.areaInterchangeDataReadFields = fields;
-    }
-
-    String[] getAreaInterchangeDataReadFields() {
-        return this.areaInterchangeDataReadFields;
-    }
-
-    public void setZoneDataReadFields(String[] fields) {
-        this.zoneDataReadFields = fields;
-    }
-
-    String[] getZoneDataReadFields() {
-        return this.zoneDataReadFields;
-    }
-
-    public void setOwnerDataReadFields(String[] fields) {
-        this.ownerDataReadFields = fields;
-    }
-
-    String[] getOwnerDataReadFields() {
-        return this.ownerDataReadFields;
-    }
-
-    public void setSwitchedShuntDataReadFields(String[] fields) {
-        this.switchedShuntDataReadFields = fields;
-    }
-
-    String[] getSwitchedShuntDataReadFields() {
-        return this.switchedShuntDataReadFields;
+        return fieldNames.get(AbstractDataBlock.PsseDataBlock.TRANSFORMER_2_DATA) == null;
     }
 }

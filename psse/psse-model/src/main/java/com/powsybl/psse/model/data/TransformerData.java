@@ -6,41 +6,45 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseContext;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseTransformer;
+import com.powsybl.psse.model.PsseTransformer35;
+import org.apache.commons.lang3.ArrayUtils;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
-import com.powsybl.psse.model.PsseTransformer;
-import com.powsybl.psse.model.PsseTransformer35;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TransformerData extends AbstractBlockData {
+class TransformerData extends AbstractDataBlock<PsseTransformer> {
 
-    TransformerData(PsseVersion psseVersion) {
-        super(psseVersion);
+    TransformerData() {
+        super(PsseDataBlock.TRANSFORMER_DATA);
     }
 
-    TransformerData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
-        super(psseVersion, psseFileFormat);
+    @Override
+    public String[] fieldNames(PsseVersion version) {
+        throw new PsseException("XXX(Luma) fieldNames for PsseTransformer");
     }
 
-    List<PsseTransformer> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.TRANSFORMER_DATA, PsseVersion.VERSION_33);
+    @Override
+    public Class<? extends PsseTransformer> psseTypeClass(PsseVersion version) {
+        throw new PsseException("XXX(Luma) typeClass for PsseTransformer");
+    }
 
+    @Override
+    public List<PsseTransformer> read(BufferedReader reader, PsseContext context) throws IOException {
         List<PsseTransformer> transformers = new ArrayList<>();
 
-        List<String> records = readRecordBlock(reader);
+        List<String> records = Util.readRecordBlock(reader);
         int i = 0;
         while (i < records.size()) {
             String record1 = records.get(i++);
@@ -50,10 +54,10 @@ class TransformerData extends AbstractBlockData {
 
             if (is3wtransformer(record1, context.getDelimiter())) {
                 String record5 = records.get(i++);
-                PsseTransformer transformer = transformer3wRecords(record1, record2, record3, record4, record5, context, this.getPsseVersion());
+                PsseTransformer transformer = transformer3wRecords(record1, record2, record3, record4, record5, context);
                 transformers.add(transformer);
             } else {
-                PsseTransformer transformer = transformer2wRecords(record1, record2, record3, record4, context, this.getPsseVersion());
+                PsseTransformer transformer = transformer2wRecords(record1, record2, record3, record4, context);
                 transformers.add(transformer);
             }
         }
@@ -61,58 +65,66 @@ class TransformerData extends AbstractBlockData {
         return transformers;
     }
 
-    private static PsseTransformer transformer3wRecords(String record1, String record2, String record3, String record4,
-        String record5, PsseContext context, PsseVersion version) {
+    private PsseTransformer transformer3wRecords(String record1, String record2, String record3, String record4,
+        String record5, PsseContext context) {
 
         String twtRecord = String.join(context.getDelimiter(), record1, record2, record3, record4, record5);
         String[] headers = transformerDataHeaders(record1.split(context.getDelimiter()).length,
-            record2.split(context.getDelimiter()).length, record3.split(context.getDelimiter()).length,
-            record4.split(context.getDelimiter()).length, version);
+            record2.split(context.getDelimiter()).length,
+            record3.split(context.getDelimiter()).length,
+            record4.split(context.getDelimiter()).length,
+            record5.split(context.getDelimiter()).length,
+            context.getVersion());
 
+        // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
+        // because they all appear in the same data block
         if (context.is3wTransformerDataReadFieldsEmpty()) {
-            context.set3wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()));
+//            context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, readActualFieldNames(twtRecord, headers, context.getDelimiter()));
+            context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, headers);
         }
 
-        if (version == PsseVersion.VERSION_35) {
+        if (context.getVersion() == PsseVersion.VERSION_35) {
             return parseRecordHeader(twtRecord, PsseTransformer35.class, headers);
         } else {
             return parseRecordHeader(twtRecord, PsseTransformer.class, headers);
         }
     }
 
-    private static PsseTransformer transformer2wRecords(String record1, String record2, String record3, String record4,
-        PsseContext context, PsseVersion version) {
+    private PsseTransformer transformer2wRecords(String record1, String record2, String record3, String record4,
+        PsseContext context) {
 
         String twtRecord = String.join(context.getDelimiter(), record1, record2, record3, record4);
         String[] headers = transformerDataHeaders(record1.split(context.getDelimiter()).length,
-            record2.split(context.getDelimiter()).length, record3.split(context.getDelimiter()).length,
-            version);
+            record2.split(context.getDelimiter()).length,
+            record3.split(context.getDelimiter()).length,
+            record4.split(context.getDelimiter()).length,
+            context.getVersion());
 
+        // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
         if (context.is2wTransformerDataReadFieldsEmpty()) {
-            context.set2wTransformerDataReadFields(readFields(twtRecord, headers, context.getDelimiter()));
+//            context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, readActualFieldNames(twtRecord, headers, context.getDelimiter()));
+            context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, headers);
         }
 
-        if (version == PsseVersion.VERSION_35) {
+        if (context.getVersion() == PsseVersion.VERSION_35) {
             return parseRecordHeader(twtRecord, PsseTransformer35.class, headers);
         } else {
             return parseRecordHeader(twtRecord, PsseTransformer.class, headers);
         }
     }
 
-    List<PsseTransformer> readx(JsonNode networkNode, PsseContext context) {
-        assertMinimumExpectedVersion(PsseBlockData.TRANSFORMER_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
+    @Override
+    public List<PsseTransformer> readx(JsonNode networkNode, PsseContext context) {
         JsonNode transformerDataNode = networkNode.get("transformer");
         if (transformerDataNode == null) {
             return new ArrayList<>();
         }
 
-        String[] headers = nodeFields(transformerDataNode);
-        List<String> records = nodeRecords(transformerDataNode);
+        String[] headers = Util.nodeFieldNames(transformerDataNode);
+        List<String> records = Util.nodeRecords(transformerDataNode);
 
         setRawxReadFields(records, headers, context);
-        List<PsseTransformer35> transformer35List = parseRecordsHeader(records, PsseTransformer35.class, headers);
-        return new ArrayList<>(transformer35List);
+        return parseRecords(records, PsseTransformer35.class, headers);
     }
 
     private static boolean is3wtransformer(String record, String delimiter) {
@@ -124,20 +136,35 @@ class TransformerData extends AbstractBlockData {
     }
 
     private static void setRawxReadFields(List<String> records, String[] headers, PsseContext context) {
-        records.forEach(record -> {
+        // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
+        for (String record : records) {
             if (is3wtransformer(record, context.getDelimiter())) {
                 if (context.is3wTransformerDataReadFieldsEmpty()) {
-                    context.set3wTransformerDataReadFields(readFields(record, headers, context.getDelimiter()));
+//                    context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, readActualFieldNames(record, headers, context.getDelimiter()));
+                    context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, headers);
                 }
             } else {
                 if (context.is2wTransformerDataReadFieldsEmpty()) {
-                    context.set2wTransformerDataReadFields(readFields(record, headers, context.getDelimiter()));
+//                    context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, readActualFieldNames(record, headers, context.getDelimiter()));
+                    context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, headers);
                 }
             }
             if (!context.is3wTransformerDataReadFieldsEmpty() && !context.is2wTransformerDataReadFieldsEmpty()) {
                 return;
             }
-        });
+        }
+    }
+
+    private static String[] transformerDataHeaders(int record1Fields, int record2Fields, int record3Fields, int record4Fields, int record5Fields, PsseVersion version) {
+
+        String[] headers = new String[] {};
+        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord1DataHeaders(version), 0, record1Fields));
+        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord2DataHeaders(version), 0, record2Fields));
+        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord3DataHeaders(version), 0, record3Fields));
+        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord4DataHeaders(version), 0, record4Fields));
+        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord5DataHeaders(version), 0, record5Fields));
+
+        return headers;
     }
 
     private static String[] transformerDataHeaders(int record1Fields, int record2Fields, int record3Fields, int record4Fields, PsseVersion version) {
@@ -147,18 +174,6 @@ class TransformerData extends AbstractBlockData {
         headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord2DataHeaders(version), 0, record2Fields));
         headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord3DataHeaders(version), 0, record3Fields));
         headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord4DataHeaders(version), 0, record4Fields));
-        headers = ArrayUtils.addAll(headers, transformerRecord5DataHeaders(version));
-
-        return headers;
-    }
-
-    private static String[] transformerDataHeaders(int record1Fields, int record2Fields, int record3Fields, PsseVersion version) {
-
-        String[] headers = new String[] {};
-        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord1DataHeaders(version), 0, record1Fields));
-        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord2DataHeaders(version), 0, record2Fields));
-        headers = ArrayUtils.addAll(headers, ArrayUtils.subarray(transformerRecord3DataHeaders(version), 0, record3Fields));
-        headers = ArrayUtils.addAll(headers, transformerRecord4DataHeaders(version));
 
         return headers;
     }

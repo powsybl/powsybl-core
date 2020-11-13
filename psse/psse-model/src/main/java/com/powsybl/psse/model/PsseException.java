@@ -9,12 +9,15 @@ package com.powsybl.psse.model;
 import com.powsybl.commons.PowsyblException;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PsseException extends PowsyblException {
 
     public PsseException(String msg) {
         super(msg);
+    }
+
+    public PsseException(String msg, Exception e) {
+        super(msg, e);
     }
 }

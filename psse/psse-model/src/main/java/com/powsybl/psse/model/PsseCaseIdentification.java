@@ -6,13 +6,10 @@
  */
 package com.powsybl.psse.model;
 
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.univocity.parsers.annotations.Parsed;
+
+import java.util.stream.Collectors;
 
 /**
  *
@@ -108,35 +105,20 @@ public class PsseCaseIdentification {
         this.title2 = title2;
     }
 
-    public void check() {
+    public void validate() {
         if (ic == 1) {
-            throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
+            throw new PsseException("Incremental load of data option (IC = 1) is not supported");
         }
-        int[] supportedVersionsInt = createSupportedVersions();
-        if (!ArrayUtils.contains(supportedVersionsInt, rev)) {
-            String supportedVersions = IntStream.of(supportedVersionsInt).mapToObj(String::valueOf).collect(Collectors.joining(", "));
-            throw new PsseException("PSS/E version " + rev + " not supported. Supported Versions are: " + supportedVersions + ".");
+        if (!PsseVersion.supportedVersions().contains(rev)) {
+            String msgSupported = PsseVersion.supportedVersions().stream().map(String::valueOf).sorted().collect(Collectors.joining(", "));
+            throw new PsseException("Version " + rev + " not supported. Supported versions are: " + msgSupported);
         }
         if (sbase <= 0.) {
-            throw new PsseException("PSS/E Unexpected System MVA base " + sbase);
+            throw new PsseException("Unexpected System MVA base " + sbase);
         }
         if (basfrq <= 0.) {
-            throw new PsseException("PSS/E Unexpected System base frequency " + basfrq);
+            throw new PsseException("Unexpected System base frequency " + basfrq);
         }
     }
 
-    private static int[] createSupportedVersions() {
-        int[] sv = new int[PsseVersion.values().length];
-
-        int index = 0;
-        for (PsseVersion e : PsseVersion.values()) {
-            if (e == PsseVersion.VERSION_35) {
-                sv[index] = 35;
-            } else {
-                sv[index] = 33;
-            }
-            index++;
-        }
-        return sv;
-    }
 }

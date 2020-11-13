@@ -6,8 +6,11 @@
  */
 package com.powsybl.psse.model;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class PsseConstants {
@@ -16,12 +19,32 @@ public final class PsseConstants {
     }
 
     public enum PsseVersion {
-        VERSION_33,
-        VERSION_35
-    }
+        VERSION_33(33),
+        VERSION_35(35);
 
-    public enum PsseFileFormat {
-        FORMAT_RAW,
-        FORMAT_RAWX
+        private final int number;
+        private static final Map<Integer, PsseVersion> BY_NUMBER = new HashMap<>();
+
+        static {
+            for (PsseVersion v : PsseVersion.values()) {
+                BY_NUMBER.put(v.getNumber(), v);
+            }
+        }
+
+        private PsseVersion(int number) {
+            this.number = number;
+        }
+
+        public static PsseVersion fromNumber(int number) {
+            return BY_NUMBER.get(number);
+        }
+
+        public static Set<Integer> supportedVersions() {
+            return BY_NUMBER.keySet();
+        }
+
+        public int getNumber() {
+            return number;
+        }
     }
 }

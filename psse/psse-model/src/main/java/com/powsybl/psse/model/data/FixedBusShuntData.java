@@ -6,62 +6,33 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseFixedShunt;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class FixedBusShuntData extends AbstractBlockData {
+class FixedBusShuntData extends AbstractDataBlock<PsseFixedShunt> {
 
-    public FixedBusShuntData(PsseVersion psseVersion) {
-        super(psseVersion);
+    private static final String[] FIELD_NAMES_35 = {"ibus", "shntid", "stat", "gl", "bl"};
+    private static final String[] FIELD_NAMES_33 = {"i", "id", "status", "gl", "bl"};
+
+    public FixedBusShuntData() {
+        super(PsseDataBlock.FIXED_BUS_SHUNT_DATA);
     }
 
-    FixedBusShuntData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
-        super(psseVersion, psseFileFormat);
+    @Override
+    public Class<PsseFixedShunt> psseTypeClass(PsseVersion version) {
+        return PsseFixedShunt.class;
     }
 
-    List<PsseFixedShunt> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.FIXED_BUS_SHUNT_DATA, PsseVersion.VERSION_33);
-
-        List<String> records = readRecordBlock(reader);
-        String[] headers = fixedBusShuntDataHeaders(this.getPsseVersion());
-        context.setFixedBusShuntDataReadFields(readFields(records, headers, context.getDelimiter()));
-
-        return parseRecordsHeader(records, PsseFixedShunt.class, headers);
-    }
-
-    List<PsseFixedShunt> readx(JsonNode networkNode, PsseContext context) {
-        assertMinimumExpectedVersion(PsseBlockData.FIXED_BUS_SHUNT_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
-        JsonNode fixedShuntNode = networkNode.get("fixshunt");
-        if (fixedShuntNode == null) {
-            return new ArrayList<>();
-        }
-
-        String[] headers = nodeFields(fixedShuntNode);
-        List<String> records = nodeRecords(fixedShuntNode);
-
-        context.setFixedBusShuntDataReadFields(headers);
-        return parseRecordsHeader(records, PsseFixedShunt.class, headers);
-    }
-
-    static String[] fixedBusShuntDataHeaders(PsseVersion version) {
+    @Override
+    public String[] fieldNames(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"ibus", "shntid", "stat", "gl", "bl"};
+            return FIELD_NAMES_35;
         } else {
-            return new String[] {"i", "id", "status", "gl", "bl"};
+            return FIELD_NAMES_33;
         }
     }
 }

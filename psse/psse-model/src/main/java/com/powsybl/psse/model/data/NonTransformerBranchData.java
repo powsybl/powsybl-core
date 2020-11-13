@@ -6,72 +6,41 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseNonTransformerBranch;
 import com.powsybl.psse.model.PsseNonTransformerBranch35;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class NonTransformerBranchData extends AbstractBlockData {
+class NonTransformerBranchData extends AbstractDataBlock<PsseNonTransformerBranch> {
 
-    NonTransformerBranchData(PsseVersion psseVersion) {
-        super(psseVersion);
+    private static final String[] FIELD_NAMES_35 = {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
+        "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj",
+        "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+    private static final String[] FIELD_NAMES_33 = {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
+        "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+
+    NonTransformerBranchData() {
+        super(PsseDataBlock.NON_TRANSFORMER_BRANCH_DATA);
     }
 
-    NonTransformerBranchData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
-        super(psseVersion, psseFileFormat);
-    }
-
-    List<PsseNonTransformerBranch> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.NON_TRANSFORMER_BRANCH_DATA, PsseVersion.VERSION_33);
-
-        List<String> records = readRecordBlock(reader);
-        String[] headers = nonTransformerBranchDataHeaders(this.getPsseVersion());
-        context.setNonTransformerBranchDataReadFields(readFields(records, headers, context.getDelimiter()));
-
-        if (this.getPsseVersion() == PsseVersion.VERSION_35) {
-            List<PsseNonTransformerBranch35> nonTransformerBranch35List = parseRecordsHeader(records, PsseNonTransformerBranch35.class, headers);
-            return new ArrayList<>(nonTransformerBranch35List);
-        } else { // version_33
-            return parseRecordsHeader(records, PsseNonTransformerBranch.class, headers);
-        }
-    }
-
-    List<PsseNonTransformerBranch> readx(JsonNode networkNode, PsseContext context) {
-        assertMinimumExpectedVersion(PsseBlockData.NON_TRANSFORMER_BRANCH_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
-        JsonNode nonTransformerBranchNode = networkNode.get("acline");
-        if (nonTransformerBranchNode == null) {
-            return new ArrayList<>();
-        }
-
-        String[] headers = nodeFields(nonTransformerBranchNode);
-        List<String> records = nodeRecords(nonTransformerBranchNode);
-
-        context.setNonTransformerBranchDataReadFields(headers);
-        List<PsseNonTransformerBranch35> nonTransformerBranch35List = parseRecordsHeader(records, PsseNonTransformerBranch35.class, headers);
-        return new ArrayList<>(nonTransformerBranch35List);
-    }
-
-    private static String[] nonTransformerBranchDataHeaders(PsseVersion version) {
+    @Override
+    public Class<? extends PsseNonTransformerBranch> psseTypeClass(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
-                "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj",
-                "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-        } else { // Version 33
-            return new String[] {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
-                "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+            return PsseNonTransformerBranch35.class;
+        } else {
+            return PsseNonTransformerBranch.class;
+        }
+    }
+
+    @Override
+    public String[] fieldNames(PsseVersion version) {
+        if (version == PsseVersion.VERSION_35) {
+            return FIELD_NAMES_35;
+        } else {
+            return FIELD_NAMES_33;
         }
     }
 }

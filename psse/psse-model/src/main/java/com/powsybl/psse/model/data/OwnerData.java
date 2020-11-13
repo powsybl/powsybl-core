@@ -6,62 +6,33 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseOwner;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class OwnerData extends AbstractBlockData {
+class OwnerData extends AbstractDataBlock<PsseOwner> {
 
-    OwnerData(PsseVersion psseVersion) {
-        super(psseVersion);
+    private static final String[] FIELD_NAMES_35 = {"iowner", "owname"};
+    private static final String[] FIELD_NAMES_33 = {"i", "owname"};
+
+    OwnerData() {
+        super(PsseDataBlock.OWNER_DATA);
     }
 
-    OwnerData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
-        super(psseVersion, psseFileFormat);
+    @Override
+    public Class<PsseOwner> psseTypeClass(PsseVersion version) {
+        return PsseOwner.class;
     }
 
-    List<PsseOwner> read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.OWNER_DATA, PsseVersion.VERSION_33);
-
-        String[] headers = ownerDataHeaders(this.getPsseVersion());
-        List<String> records = readRecordBlock(reader);
-
-        context.setOwnerDataReadFields(readFields(records, headers, context.getDelimiter()));
-        return parseRecordsHeader(records, PsseOwner.class, headers);
-    }
-
-    List<PsseOwner> readx(JsonNode networkNode, PsseContext context) {
-        assertMinimumExpectedVersion(PsseBlockData.OWNER_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
-        JsonNode ownerNode = networkNode.get("owner");
-        if (ownerNode == null) {
-            return new ArrayList<>();
-        }
-
-        String[] headers = nodeFields(ownerNode);
-        List<String> records = nodeRecords(ownerNode);
-
-        context.setOwnerDataReadFields(headers);
-        return parseRecordsHeader(records, PsseOwner.class, headers);
-    }
-
-    private static String[] ownerDataHeaders(PsseVersion version) {
+    @Override
+    public String[] fieldNames(PsseVersion version) {
         if (version == PsseVersion.VERSION_35) {
-            return new String[] {"iowner", "owname"};
+            return FIELD_NAMES_35;
         } else {
-            return new String[] {"i", "owname"};
+            return FIELD_NAMES_33;
         }
     }
 }

@@ -6,83 +6,43 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.util.List;
-
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseFileFormat;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
+import org.apache.commons.lang3.ArrayUtils;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.util.List;
 
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class CaseIdentificationData extends AbstractBlockData {
+class CaseIdentificationData extends AbstractDataBlock<PsseCaseIdentification> {
 
-    CaseIdentificationData(PsseVersion psseVersion) {
-        super(psseVersion);
+    CaseIdentificationData() {
+        super(PsseDataBlock.CASE_IDENTIFICATION_DATA);
     }
 
-    CaseIdentificationData(PsseVersion psseVersion, PsseFileFormat psseFileFormat) {
-        super(psseVersion, psseFileFormat);
-    }
-
-    PsseCaseIdentification read(BufferedReader reader, PsseContext context) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_33);
-
-        String line = readLineAndRemoveComment(reader);
-        context.setDelimiter(detectDelimiter(line));
+    public PsseCaseIdentification read1(BufferedReader reader, PsseContext context) throws IOException {
+        String line = Util.readLineAndRemoveComment(reader);
+        context.setDelimiter(Util.detectDelimiter(line));
 
         String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
         PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
 
-        context.setCaseIdentificationDataReadFields(headers);
+        context.setFieldNames(getDataBlock(), headers);
+        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
         return caseIdentification;
     }
 
-    PsseCaseIdentification read(BufferedReader reader) throws IOException {
-        assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_33);
-
-        String line = readLineAndRemoveComment(reader);
-
-        String[] headers = caseIdentificationDataHeaders();
-        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
-        caseIdentification.setTitle1(reader.readLine());
-        caseIdentification.setTitle2(reader.readLine());
-
-        return caseIdentification;
-    }
-
-    PsseCaseIdentification readx(JsonNode networkNode) {
-        assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
-        JsonNode caseIdentificationNode = networkNode.get("caseid");
-        if (caseIdentificationNode == null) {
-            throw new PsseException("Psse: CaseIdentificationBlock does not exist");
-        }
-
-        String[] headers = nodeFields(caseIdentificationNode);
-        List<String> records = nodeRecords(caseIdentificationNode);
-        List<PsseCaseIdentification> caseIdentificationList = parseRecordsHeader(records, PsseCaseIdentification.class, headers);
-        if (caseIdentificationList.size() != 1) {
-            throw new PsseException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
-        }
-
-        return caseIdentificationList.get(0);
-    }
-
-    PsseCaseIdentification readx(JsonNode networkNode, PsseContext context) {
-        assertMinimumExpectedVersion(PsseBlockData.CASE_IDENTIFICATION_DATA, PsseVersion.VERSION_35, PsseFileFormat.FORMAT_RAWX);
-
+    PsseCaseIdentification readx1(JsonNode networkNode, PsseContext context) {
         context.setDelimiter(",");
 
         JsonNode caseIdentificationNode = networkNode.get("caseid");
@@ -90,14 +50,14 @@ class CaseIdentificationData extends AbstractBlockData {
             throw new PsseException("Psse: CaseIdentificationBlock does not exist");
         }
 
-        String[] headers = nodeFields(caseIdentificationNode);
-        List<String> records = nodeRecords(caseIdentificationNode);
-        List<PsseCaseIdentification> caseIdentificationList = parseRecordsHeader(records, PsseCaseIdentification.class, headers);
+        String[] headers = Util.nodeFieldNames(caseIdentificationNode);
+        List<String> records = Util.nodeRecords(caseIdentificationNode);
+        List<PsseCaseIdentification> caseIdentificationList = parseRecords(records, PsseCaseIdentification.class, headers);
         if (caseIdentificationList.size() != 1) {
             throw new PsseException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
         }
 
-        context.setCaseIdentificationDataReadFields(headers);
+        context.setFieldNames(getDataBlock(), headers);
         return caseIdentificationList.get(0);
     }
 
@@ -108,5 +68,15 @@ class CaseIdentificationData extends AbstractBlockData {
 
     private static String[] caseIdentificationDataHeaders() {
         return new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
+    }
+
+    @Override
+    public String[] fieldNames(PsseVersion version) {
+        throw new PsseException("XXX(Luma) fieldNames for CaseIdentification");
+    }
+
+    @Override
+    public Class<? extends PsseCaseIdentification> psseTypeClass(PsseVersion version) {
+        throw new PsseException("XXX(Luma) typeClass for CaseIdentification");
     }
 }

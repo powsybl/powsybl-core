@@ -111,15 +111,32 @@ public class PsseImporterTest extends AbstractConverterTest {
         importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", true);
     }
 
-    @Test(expected = PsseException.class)
-    public void badVersionTest() {
+    @Test
+    public void badModeTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
-        new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        PsseException x = assertThrows(PsseException.class, () -> {
+            new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        });
+        assertEquals("Incremental load of data option (IC = 1) is not supported", x.getMessage());
     }
 
-    @Test(expected = PsseException.class)
-    public void badModeTest() {
+    @Test
+    public void badVersionTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
-        new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        PsseException x = assertThrows(PsseException.class, () -> {
+            new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        });
+        assertEquals("Version 29 not supported. Supported versions are: 33, 35", x.getMessage());
+    }
+
+    @Test
+    public void dataSourceExistsTest() {
+        ReadOnlyDataSource dataSource;
+
+        dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        assertFalse(new PsseImporter().exists(dataSource));
+
+        dataSource = new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
+        assertTrue(new PsseImporter().exists(dataSource));
     }
 }
