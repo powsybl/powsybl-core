@@ -42,8 +42,6 @@ final class Util {
         return parser.getDetectedFormat().getDelimiterString();
     }
 
-    static final char[] DELIMITERS = {',', ' '};
-
     static CsvParserSettings createCsvParserSettings() {
         CsvParserSettings settings = new CsvParserSettings();
         settings.setHeaderExtractionEnabled(false);
@@ -113,7 +111,7 @@ final class Util {
     }
 
     // "" Is not allowed as a field
-    static String cleanRawxFieldString(String data) {
+    static String cleanRawxFieldNames(String data) {
         StringBuffer newData = new StringBuffer();
         Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
         Matcher m = p.matcher(data);
@@ -129,7 +127,7 @@ final class Util {
     }
 
     // "" Is allowed as data
-    static String cleanRawxDataString(String data) {
+    static String cleanRawxRecord(String data) {
         StringBuffer newData = new StringBuffer();
         Pattern p = Pattern.compile("(\"[^\"]*\")|( )+");
         Matcher m = p.matcher(data);
@@ -144,15 +142,15 @@ final class Util {
         return newData.toString().trim();
     }
 
-    static String[] nodeFieldNames(JsonNode jsonNode) {
+    static String[] readFieldNames(JsonNode jsonNode) {
         String fieldsNode = jsonNode.get("fields").toString();
-        String fieldsNodeClean = cleanRawxFieldString(fieldsNode.substring(1, fieldsNode.length() - 1));
+        String fieldsNodeClean = cleanRawxFieldNames(fieldsNode.substring(1, fieldsNode.length() - 1));
         return fieldsNodeClean.split(",");
     }
 
-    static List<String> nodeRecords(JsonNode jsonNode) {
+    static List<String> readRecords(JsonNode jsonNode) {
         String dataNode = jsonNode.get("data").toString();
-        String dataNodeClean = cleanRawxDataString(dataNode.substring(1, dataNode.length() - 1));
+        String dataNodeClean = cleanRawxRecord(dataNode.substring(1, dataNode.length() - 1));
 
         String[] dataNodeArray = StringUtils.substringsBetween(dataNodeClean, "[", "]");
         List<String> records = new ArrayList<>();

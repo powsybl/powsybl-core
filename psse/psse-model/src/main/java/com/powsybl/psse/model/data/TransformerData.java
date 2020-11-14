@@ -114,8 +114,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             return new ArrayList<>();
         }
 
-        String[] headers = Util.nodeFieldNames(transformerDataNode);
-        List<String> records = Util.nodeRecords(transformerDataNode);
+        String[] headers = Util.readFieldNames(transformerDataNode);
+        List<String> records = Util.readRecords(transformerDataNode);
 
         setRawxReadFields(records, headers, context);
         return parseRecords(records, headers, context);

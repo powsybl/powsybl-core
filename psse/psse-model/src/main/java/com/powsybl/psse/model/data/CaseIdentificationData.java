@@ -50,8 +50,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             throw new PsseException("CaseIdentification not found");
         }
 
-        String[] headers = Util.nodeFieldNames(caseIdentificationNode);
-        List<String> records = Util.nodeRecords(caseIdentificationNode);
+        String[] headers = Util.readFieldNames(caseIdentificationNode);
+        List<String> records = Util.readRecords(caseIdentificationNode);
         List<PsseCaseIdentification> caseIdentificationList = parseRecords(records, headers, context);
         if (caseIdentificationList.size() != 1) {
             throw new PsseException("CaseIdentification records. Unexpected size " + caseIdentificationList.size());

@@ -64,8 +64,8 @@ public abstract class AbstractRecordGroup<T> {
         if (jsonNode == null) {
             return new ArrayList<>();
         }
-        String[] actualFieldNames = Util.nodeFieldNames(jsonNode);
-        List<String> records = Util.nodeRecords(jsonNode);
+        String[] actualFieldNames = Util.readFieldNames(jsonNode);
+        List<String> records = Util.readRecords(jsonNode);
         context.setFieldNames(recordGroup, actualFieldNames);
         return parseRecords(records, actualFieldNames, context);
     }
