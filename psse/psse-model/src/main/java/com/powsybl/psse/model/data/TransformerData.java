@@ -108,7 +108,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public List<PsseTransformer> readx(JsonNode networkNode, PsseContext context) {
+    public List<PsseTransformer> read(JsonNode networkNode, PsseContext context) {
         JsonNode transformerDataNode = networkNode.get("transformer");
         if (transformerDataNode == null) {
             return new ArrayList<>();

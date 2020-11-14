@@ -42,7 +42,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
     PsseCaseIdentification read1(JsonNode networkNode, PsseContext context) {
         context.setDelimiter(",");
-        PsseCaseIdentification caseIdentification = super.readx(networkNode, context).get(0);
+        PsseCaseIdentification caseIdentification = super.read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
         return caseIdentification;
     }

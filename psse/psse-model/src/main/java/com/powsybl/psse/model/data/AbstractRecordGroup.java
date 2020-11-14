@@ -53,7 +53,7 @@ public abstract class AbstractRecordGroup<T> {
         return psseObjects;
     }
 
-    public List<T> readx(JsonNode networkNode, PsseContext context) {
+    public List<T> read(JsonNode networkNode, PsseContext context) {
         // Records in RAWX format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
