@@ -12,7 +12,6 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
@@ -28,7 +27,7 @@ public class RawXData35 implements RawData {
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new PsseContext());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new Context());
         caseIdentification.validate();
         return true;
     }
@@ -37,17 +36,17 @@ public class RawXData35 implements RawData {
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new PsseContext());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new Context());
         return PsseVersion.fromNumber(caseIdentification.getRev());
     }
 
     @Override
-    public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, PsseContext context) throws IOException {
+    public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         return read(jsonFile, context);
     }
 
-    private PsseRawModel read(String jsonFile, PsseContext context) throws IOException {
+    private PsseRawModel read(String jsonFile, Context context) throws IOException {
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
         caseIdentification.validate();

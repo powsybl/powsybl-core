@@ -9,7 +9,6 @@ package com.powsybl.psse.model.data;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -26,9 +25,9 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
     }
 
-    public PsseCaseIdentification read1(BufferedReader reader, PsseContext context) throws IOException {
+    public PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
         String line = Util.readLineAndRemoveComment(reader);
-        context.setDelimiter(Util.detectDelimiter(line));
+        context.detectDelimiter(line);
 
         String[] headers = fieldNames(context.getVersion());
         PsseCaseIdentification caseIdentification = parseSingleRecord(line, headers, context);
@@ -40,7 +39,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return caseIdentification;
     }
 
-    PsseCaseIdentification read1(JsonNode networkNode, PsseContext context) {
+    PsseCaseIdentification read1(JsonNode networkNode, Context context) {
         context.setDelimiter(",");
         PsseCaseIdentification caseIdentification = super.read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));

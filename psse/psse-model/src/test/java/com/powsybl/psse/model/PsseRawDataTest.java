@@ -11,10 +11,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.psse.model.data.AbstractRecordGroup;
-import com.powsybl.psse.model.data.RawData33;
-import com.powsybl.psse.model.data.RawData35;
-import com.powsybl.psse.model.data.RawXData35;
+import com.powsybl.psse.model.data.*;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -48,7 +45,7 @@ public class PsseRawDataTest {
     @Test
     public void ieee14BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
-        PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", new PsseContext());
+        PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(rawData);
         String actualJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
         assertEquals(expectedJson, actualJson);
@@ -56,7 +53,7 @@ public class PsseRawDataTest {
 
     @Test
     public void ieee14BusReadFieldsTest() throws IOException {
-        PsseContext context = new PsseContext();
+        Context context = new Context();
         PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", context);
         assertNotNull(rawData);
 
@@ -110,7 +107,7 @@ public class PsseRawDataTest {
 
     @Test
     public void minimalExampleRawxTest() throws IOException {
-        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", new PsseContext());
+        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", new Context());
 
         double tol = 0.000001;
         assertEquals("PSS(R)E MINIMUM RAWX CASE", rawData.getCaseIdentification().getTitle1());
@@ -142,7 +139,7 @@ public class PsseRawDataTest {
 
     @Test
     public void minimalExampleRawxReadFieldsTest() throws IOException {
-        PsseContext context = new PsseContext();
+        Context context = new Context();
         PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", context);
         assertNotNull(rawData);
 
@@ -169,7 +166,7 @@ public class PsseRawDataTest {
 
     @Test
     public void ieee14BusRev35RawxTest() throws IOException {
-        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", new PsseContext());
+        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", new Context());
 
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
         String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
@@ -178,7 +175,7 @@ public class PsseRawDataTest {
 
     @Test
     public void ieee14BusRev35RawxReadFieldsTest() throws IOException {
-        PsseContext context = new PsseContext();
+        Context context = new Context();
         PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", context);
         assertNotNull(rawData);
 
@@ -232,7 +229,7 @@ public class PsseRawDataTest {
 
     @Test
     public void ieee14BusRev35Test() throws IOException {
-        PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", new PsseContext());
+        PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(rawData);
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
         String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
@@ -241,7 +238,7 @@ public class PsseRawDataTest {
 
     @Test
     public void ieee14BusRev35ReadFieldsTest() throws IOException {
-        PsseContext context = new PsseContext();
+        Context context = new Context();
         PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", context);
         assertNotNull(rawData);
 

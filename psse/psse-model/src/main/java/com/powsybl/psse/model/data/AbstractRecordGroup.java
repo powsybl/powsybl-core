@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
@@ -37,7 +36,7 @@ public abstract class AbstractRecordGroup<T> {
 
     public abstract Class<? extends T> psseTypeClass(PsseVersion version);
 
-    public List<T> read(BufferedReader reader, PsseContext context) throws IOException {
+    public List<T> read(BufferedReader reader, Context context) throws IOException {
         // Record groups in RAW format have a fixed order for fields
         // Optional fields may not be present at the end of each record.
         // We obtain the maximum number of fields read in each record of the record group.
@@ -53,7 +52,7 @@ public abstract class AbstractRecordGroup<T> {
         return psseObjects;
     }
 
-    public List<T> read(JsonNode networkNode, PsseContext context) {
+    public List<T> read(JsonNode networkNode, Context context) {
         // Records in RAWX format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
@@ -74,14 +73,14 @@ public abstract class AbstractRecordGroup<T> {
         return recordGroup;
     }
 
-    T parseSingleRecord(String record, String[] headers, PsseContext context) {
+    T parseSingleRecord(String record, String[] headers, Context context) {
         return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
-    List<T> parseRecords(List<String> records, String[] headers, PsseContext context) {
-        CsvParserSettings settings = Util.createCsvParserSettings();
-        settings.setHeaders(headers);
+    List<T> parseRecords(List<String> records, String[] headers, Context context) {
         BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(context.getVersion()));
+        CsvParserSettings settings = context.getCsvParserSettings();
+        settings.setHeaders(headers);
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
         context.resetCurrentRecordGroup();

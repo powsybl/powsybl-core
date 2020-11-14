@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseTransformer;
 import com.powsybl.psse.model.PsseTransformer35;
@@ -45,7 +44,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public List<PsseTransformer> read(BufferedReader reader, PsseContext context) throws IOException {
+    public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
         List<PsseTransformer> transformers = new ArrayList<>();
 
         List<String> records = Util.readRecords(reader);
@@ -70,7 +69,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     private PsseTransformer transformer3wRecords(String record1, String record2, String record3, String record4,
-        String record5, PsseContext context) {
+        String record5, Context context) {
 
         String twtRecord = String.join(context.getDelimiter(), record1, record2, record3, record4, record5);
         String[] headers = transformerDataHeaders(record1.split(context.getDelimiter()).length,
@@ -90,7 +89,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     private PsseTransformer transformer2wRecords(String record1, String record2, String record3, String record4,
-        PsseContext context) {
+        Context context) {
 
         String twtRecord = String.join(context.getDelimiter(), record1, record2, record3, record4);
         String[] headers = transformerDataHeaders(record1.split(context.getDelimiter()).length,
@@ -108,7 +107,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public List<PsseTransformer> read(JsonNode networkNode, PsseContext context) {
+    public List<PsseTransformer> read(JsonNode networkNode, Context context) {
         List<PsseTransformer> transformers = super.read(networkNode, context);
         // XXX(Luma) The fieldNames for transformers apply for 2 and 3 winding transformers
         context.setFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA, context.getFieldNames(PsseRecordGroup.TRANSFORMER_DATA));
@@ -124,7 +123,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         return Integer.parseInt(tokens[2].trim()) != 0;
     }
 
-    private static void setRawxReadFields(List<String> records, String[] headers, PsseContext context) {
+    private static void setRawxReadFields(List<String> records, String[] headers, Context context) {
         // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
         for (String record : records) {
             if (is3wtransformer(record, context.getDelimiter())) {

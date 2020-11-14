@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.BufferedReader;
@@ -22,7 +21,7 @@ import java.io.InputStreamReader;
 public class RawData35 extends RawData33 {
 
     @Override
-    public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, PsseContext context) throws IOException {
+    public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, context);
             caseIdentification.validate();

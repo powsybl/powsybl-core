@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
-import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
@@ -23,5 +22,5 @@ public interface RawData {
 
     PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException;
 
-    PsseRawModel read(ReadOnlyDataSource dataSource, String ext, PsseContext context) throws IOException;
+    PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException;
 }

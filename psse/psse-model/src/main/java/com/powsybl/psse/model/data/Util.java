@@ -8,14 +8,7 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
-import com.univocity.parsers.common.DataProcessingException;
-import com.univocity.parsers.common.ParsingContext;
-import com.univocity.parsers.common.RetryableErrorHandler;
-import com.univocity.parsers.csv.CsvParser;
-import com.univocity.parsers.csv.CsvParserSettings;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -30,30 +23,8 @@ import java.util.regex.Pattern;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 final class Util {
-    private static final Logger LOGGER = LoggerFactory.getLogger(Util.class);
 
     private Util() {
-    }
-
-    static String detectDelimiter(String record) {
-        CsvParserSettings settings = createCsvParserSettings();
-        CsvParser parser = new CsvParser(settings);
-        parser.parseLine(record);
-        return parser.getDetectedFormat().getDelimiterString();
-    }
-
-    static CsvParserSettings createCsvParserSettings() {
-        CsvParserSettings settings = new CsvParserSettings();
-        settings.setHeaderExtractionEnabled(false);
-        settings.setQuoteDetectionEnabled(true);
-        settings.setDelimiterDetectionEnabled(true, ',', ' '); // sequence order is relevant
-        settings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
-            @Override
-            public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error(error.getMessage());
-            }
-        });
-        return settings;
     }
 
     static void readDiscardedRecordGroup(BufferedReader reader) throws IOException {
