@@ -28,7 +28,7 @@ public class RawXData35 implements RawData {
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().readx1(networkNode, new PsseContext());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new PsseContext());
         caseIdentification.validate();
         return true;
     }
@@ -37,7 +37,7 @@ public class RawXData35 implements RawData {
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().readx1(networkNode, new PsseContext());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new PsseContext());
         return PsseVersion.fromNumber(caseIdentification.getRev());
     }
 
@@ -48,13 +48,9 @@ public class RawXData35 implements RawData {
     }
 
     private PsseRawModel read(String jsonFile, PsseContext context) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(jsonFile);
-        JsonNode networkNode = rootNode.get("network");
-
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().readx1(networkNode, context);
-        // If we have been able to obtain a Case Identification, set version from revision read
-        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
+        caseIdentification.validate();
 
         PsseRawModel model = new PsseRawModel(caseIdentification);
 
