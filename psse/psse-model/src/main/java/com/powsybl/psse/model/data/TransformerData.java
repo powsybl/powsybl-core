@@ -109,16 +109,11 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     @Override
     public List<PsseTransformer> read(JsonNode networkNode, PsseContext context) {
-        JsonNode transformerDataNode = networkNode.get("transformer");
-        if (transformerDataNode == null) {
-            return new ArrayList<>();
-        }
-
-        String[] headers = Util.readFieldNames(transformerDataNode);
-        List<String> records = Util.readRecords(transformerDataNode);
-
-        setRawxReadFields(records, headers, context);
-        return parseRecords(records, headers, context);
+        List<PsseTransformer> transformers = super.read(networkNode, context);
+        // XXX(Luma) The fieldNames for transformers apply for 2 and 3 winding transformers
+        context.setFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA, context.getFieldNames(PsseRecordGroup.TRANSFORMER_DATA));
+        context.setFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA, context.getFieldNames(PsseRecordGroup.TRANSFORMER_DATA));
+        return transformers;
     }
 
     private static boolean is3wtransformer(String record, String delimiter) {
