@@ -13,13 +13,13 @@ import com.powsybl.psse.model.PsseConstants.PsseVersion;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class AreaInterchangeData extends AbstractDataBlock<PsseArea> {
+class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
 
     private static final String[] FIELD_NAMES_35 = {"iarea", "isw", "pdes", "ptol", "arname"};
     private static final String[] FIELD_NAMES_33 = {"i", "isw", "pdes", "ptol", "arname"};
 
     AreaInterchangeData() {
-        super(PsseDataBlock.AREA_INTERCHANGE_DATA);
+        super(PsseRecordGroup.AREA_INTERCHANGE_DATA);
     }
 
     @Override

@@ -21,6 +21,7 @@ import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.data.RawDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -533,7 +534,7 @@ public class PsseImporter implements Importer {
                         dataSource.getBaseName(),
                         String.join("|", EXTENSIONS)));
             }
-            PsseConstants.PsseVersion version = RawDataFactory.create(ext).readVersion(dataSource, ext);
+            PsseVersion version = RawDataFactory.create(ext).readVersion(dataSource, ext);
             PsseContext context = new PsseContext();
             PsseRawModel psseRawModel = RawDataFactory.create(ext, version).read(dataSource, ext, context);
             psseRawModel.getCaseIdentification().validate();

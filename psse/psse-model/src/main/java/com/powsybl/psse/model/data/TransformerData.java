@@ -24,10 +24,10 @@ import java.util.List;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TransformerData extends AbstractDataBlock<PsseTransformer> {
+class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     TransformerData() {
-        super(PsseDataBlock.TRANSFORMER_DATA);
+        super(PsseRecordGroup.TRANSFORMER_DATA);
     }
 
     @Override
@@ -37,14 +37,18 @@ class TransformerData extends AbstractDataBlock<PsseTransformer> {
 
     @Override
     public Class<? extends PsseTransformer> psseTypeClass(PsseVersion version) {
-        throw new PsseException("XXX(Luma) typeClass for PsseTransformer");
+        if (version == PsseVersion.VERSION_35) {
+            return PsseTransformer35.class;
+        } else {
+            return PsseTransformer.class;
+        }
     }
 
     @Override
     public List<PsseTransformer> read(BufferedReader reader, PsseContext context) throws IOException {
         List<PsseTransformer> transformers = new ArrayList<>();
 
-        List<String> records = Util.readRecordBlock(reader);
+        List<String> records = Util.readRecords(reader);
         int i = 0;
         while (i < records.size()) {
             String record1 = records.get(i++);
@@ -77,17 +81,12 @@ class TransformerData extends AbstractDataBlock<PsseTransformer> {
             context.getVersion());
 
         // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
-        // because they all appear in the same data block
+        // because they all appear in the same record group
         if (context.is3wTransformerDataReadFieldsEmpty()) {
-//            context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, readActualFieldNames(twtRecord, headers, context.getDelimiter()));
-            context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, headers);
+            context.setFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA, headers);
         }
 
-        if (context.getVersion() == PsseVersion.VERSION_35) {
-            return parseRecordHeader(twtRecord, PsseTransformer35.class, headers);
-        } else {
-            return parseRecordHeader(twtRecord, PsseTransformer.class, headers);
-        }
+        return parseSingleRecord(twtRecord, headers, context);
     }
 
     private PsseTransformer transformer2wRecords(String record1, String record2, String record3, String record4,
@@ -102,15 +101,10 @@ class TransformerData extends AbstractDataBlock<PsseTransformer> {
 
         // XXX(Luma) we can not manage properly different field names for 2 and 3 winding records
         if (context.is2wTransformerDataReadFieldsEmpty()) {
-//            context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, readActualFieldNames(twtRecord, headers, context.getDelimiter()));
-            context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, headers);
+            context.setFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA, headers);
         }
 
-        if (context.getVersion() == PsseVersion.VERSION_35) {
-            return parseRecordHeader(twtRecord, PsseTransformer35.class, headers);
-        } else {
-            return parseRecordHeader(twtRecord, PsseTransformer.class, headers);
-        }
+        return parseSingleRecord(twtRecord, headers, context);
     }
 
     @Override
@@ -124,7 +118,7 @@ class TransformerData extends AbstractDataBlock<PsseTransformer> {
         List<String> records = Util.nodeRecords(transformerDataNode);
 
         setRawxReadFields(records, headers, context);
-        return parseRecords(records, PsseTransformer35.class, headers);
+        return parseRecords(records, headers, context);
     }
 
     private static boolean is3wtransformer(String record, String delimiter) {
@@ -140,13 +134,11 @@ class TransformerData extends AbstractDataBlock<PsseTransformer> {
         for (String record : records) {
             if (is3wtransformer(record, context.getDelimiter())) {
                 if (context.is3wTransformerDataReadFieldsEmpty()) {
-//                    context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, readActualFieldNames(record, headers, context.getDelimiter()));
-                    context.setFieldNames(PsseDataBlock.TRANSFORMER_3_DATA, headers);
+                    context.setFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA, headers);
                 }
             } else {
                 if (context.is2wTransformerDataReadFieldsEmpty()) {
-//                    context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, readActualFieldNames(record, headers, context.getDelimiter()));
-                    context.setFieldNames(PsseDataBlock.TRANSFORMER_2_DATA, headers);
+                    context.setFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA, headers);
                 }
             }
             if (!context.is3wTransformerDataReadFieldsEmpty() && !context.is2wTransformerDataReadFieldsEmpty()) {

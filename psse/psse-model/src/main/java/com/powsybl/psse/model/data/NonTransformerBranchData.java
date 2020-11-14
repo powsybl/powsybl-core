@@ -14,7 +14,7 @@ import com.powsybl.psse.model.PsseNonTransformerBranch35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class NonTransformerBranchData extends AbstractDataBlock<PsseNonTransformerBranch> {
+class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBranch> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
         "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj",
@@ -23,7 +23,7 @@ class NonTransformerBranchData extends AbstractDataBlock<PsseNonTransformerBranc
         "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
 
     NonTransformerBranchData() {
-        super(PsseDataBlock.NON_TRANSFORMER_BRANCH_DATA);
+        super(PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
     }
 
     @Override

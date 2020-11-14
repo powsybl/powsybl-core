@@ -22,10 +22,10 @@ import java.util.List;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class CaseIdentificationData extends AbstractDataBlock<PsseCaseIdentification> {
+class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
     CaseIdentificationData() {
-        super(PsseDataBlock.CASE_IDENTIFICATION_DATA);
+        super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
     }
 
     public PsseCaseIdentification read1(BufferedReader reader, PsseContext context) throws IOException {
@@ -33,11 +33,11 @@ class CaseIdentificationData extends AbstractDataBlock<PsseCaseIdentification> {
         context.setDelimiter(Util.detectDelimiter(line));
 
         String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
-        PsseCaseIdentification caseIdentification = parseRecordHeader(line, PsseCaseIdentification.class, headers);
+        PsseCaseIdentification caseIdentification = parseSingleRecord(line, headers, context);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
 
-        context.setFieldNames(getDataBlock(), headers);
+        context.setFieldNames(getRecordGroup(), headers);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
         return caseIdentification;
     }
@@ -47,17 +47,17 @@ class CaseIdentificationData extends AbstractDataBlock<PsseCaseIdentification> {
 
         JsonNode caseIdentificationNode = networkNode.get("caseid");
         if (caseIdentificationNode == null) {
-            throw new PsseException("Psse: CaseIdentificationBlock does not exist");
+            throw new PsseException("CaseIdentification not found");
         }
 
         String[] headers = Util.nodeFieldNames(caseIdentificationNode);
         List<String> records = Util.nodeRecords(caseIdentificationNode);
-        List<PsseCaseIdentification> caseIdentificationList = parseRecords(records, PsseCaseIdentification.class, headers);
+        List<PsseCaseIdentification> caseIdentificationList = parseRecords(records, headers, context);
         if (caseIdentificationList.size() != 1) {
-            throw new PsseException("Psse: CaseIdentificationBlock, unexpected size " + caseIdentificationList.size());
+            throw new PsseException("CaseIdentification records. Unexpected size " + caseIdentificationList.size());
         }
 
-        context.setFieldNames(getDataBlock(), headers);
+        context.setFieldNames(getRecordGroup(), headers);
         return caseIdentificationList.get(0);
     }
 
@@ -77,6 +77,6 @@ class CaseIdentificationData extends AbstractDataBlock<PsseCaseIdentification> {
 
     @Override
     public Class<? extends PsseCaseIdentification> psseTypeClass(PsseVersion version) {
-        throw new PsseException("XXX(Luma) typeClass for CaseIdentification");
+        return PsseCaseIdentification.class;
     }
 }

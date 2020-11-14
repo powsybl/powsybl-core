@@ -6,10 +6,12 @@
  */
 package com.powsybl.psse.model;
 
-import com.powsybl.psse.model.data.AbstractDataBlock;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 
 import java.util.EnumMap;
 import java.util.Map;
+
+import static com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -17,18 +19,19 @@ import java.util.Map;
  */
 public class PsseContext {
 
-    private final Map<AbstractDataBlock.PsseDataBlock, String[]> fieldNames = new EnumMap<>(AbstractDataBlock.PsseDataBlock.class);
+    private final Map<PsseRecordGroup, String[]> fieldNames = new EnumMap<>(PsseRecordGroup.class);
     private String delimiter;
-    private PsseConstants.PsseVersion version;
+    private PsseVersion version;
+    private int currentRecordGroupMaxNumFields;
 
     public PsseContext() {
     }
 
-    public PsseConstants.PsseVersion getVersion() {
+    public PsseVersion getVersion() {
         return this.version;
     }
 
-    public PsseContext setVersion(PsseConstants.PsseVersion version) {
+    public PsseContext setVersion(PsseVersion version) {
         this.version = version;
         return this;
     }
@@ -41,19 +44,31 @@ public class PsseContext {
         this.delimiter = delimiter;
     }
 
-    public void setFieldNames(AbstractDataBlock.PsseDataBlock dataBlock, String[] fieldNames) {
-        this.fieldNames.put(dataBlock, fieldNames);
+    public void setFieldNames(PsseRecordGroup recordGroup, String[] fieldNames) {
+        this.fieldNames.put(recordGroup, fieldNames);
     }
 
-    public String[] getFieldNames(AbstractDataBlock.PsseDataBlock dataBlock) {
-        return this.fieldNames.get(dataBlock);
+    public String[] getFieldNames(PsseRecordGroup recordGroup) {
+        return this.fieldNames.get(recordGroup);
     }
 
     public boolean is3wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(AbstractDataBlock.PsseDataBlock.TRANSFORMER_3_DATA) == null;
+        return fieldNames.get(PsseRecordGroup.TRANSFORMER_3_DATA) == null;
     }
 
     public boolean is2wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(AbstractDataBlock.PsseDataBlock.TRANSFORMER_2_DATA) == null;
+        return fieldNames.get(PsseRecordGroup.TRANSFORMER_2_DATA) == null;
+    }
+
+    public void resetCurrentRecordGroup() {
+        currentRecordGroupMaxNumFields = 0;
+    }
+
+    public int getCurrentRecordGroupMaxNumFields() {
+        return currentRecordGroupMaxNumFields;
+    }
+
+    public void setCurrentRecordNumFields(int numFields) {
+        currentRecordGroupMaxNumFields = Math.max(currentRecordGroupMaxNumFields, numFields);
     }
 }

@@ -14,13 +14,13 @@ import com.powsybl.psse.model.PsseZone;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class ZoneData extends AbstractDataBlock<PsseZone> {
+class ZoneData extends AbstractRecordGroup<PsseZone> {
 
     private static final String[] FIELD_NAMES_35 = {"izone", "zoname"};
     private static final String[] FIELD_NAMES_33 = {"i", "zoname"};
 
     ZoneData() {
-        super(PsseDataBlock.ZONE_DATA);
+        super(PsseRecordGroup.ZONE_DATA);
     }
 
     @Override

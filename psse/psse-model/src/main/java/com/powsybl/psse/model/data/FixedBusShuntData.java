@@ -13,13 +13,13 @@ import com.powsybl.psse.model.PsseFixedShunt;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class FixedBusShuntData extends AbstractDataBlock<PsseFixedShunt> {
+class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "shntid", "stat", "gl", "bl"};
     private static final String[] FIELD_NAMES_33 = {"i", "id", "status", "gl", "bl"};
 
     public FixedBusShuntData() {
-        super(PsseDataBlock.FIXED_BUS_SHUNT_DATA);
+        super(PsseRecordGroup.FIXED_BUS_SHUNT_DATA);
     }
 
     @Override

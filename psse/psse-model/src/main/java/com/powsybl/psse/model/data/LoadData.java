@@ -14,13 +14,13 @@ import com.powsybl.psse.model.PsseLoad35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class LoadData extends AbstractDataBlock<PsseLoad> {
+class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
     private static final String[] FIELD_NAMES_33 = {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};
 
     LoadData() {
-        super(PsseDataBlock.LOAD_DATA);
+        super(PsseRecordGroup.LOAD_DATA);
     }
 
     @Override

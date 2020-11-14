@@ -58,7 +58,7 @@ final class Util {
         return settings;
     }
 
-    static void readDiscardedRecordBlock(BufferedReader reader) throws IOException {
+    static void readDiscardedRecordGroup(BufferedReader reader) throws IOException {
         String firstToken;
         do {
             String line = reader.readLine();
@@ -74,7 +74,7 @@ final class Util {
         while (!firstToken.equals("0"));
     }
 
-    static List<String> readRecordBlock(BufferedReader reader) throws IOException {
+    static List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
         String line = readLineAndRemoveComment(reader);
         while (!line.trim().equals("0")) {

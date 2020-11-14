@@ -11,7 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
@@ -34,11 +34,11 @@ public class RawXData35 implements RawData {
     }
 
     @Override
-    public PsseConstants.PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
+    public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().readx1(networkNode, new PsseContext());
-        return PsseConstants.PsseVersion.fromNumber(caseIdentification.getRev());
+        return PsseVersion.fromNumber(caseIdentification.getRev());
     }
 
     @Override
@@ -54,7 +54,7 @@ public class RawXData35 implements RawData {
 
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().readx1(networkNode, context);
         // If we have been able to obtain a Case Identification, set version from revision read
-        context.setVersion(PsseConstants.PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
 
         PsseRawModel model = new PsseRawModel(caseIdentification);
 

@@ -29,39 +29,39 @@ public class RawData35 extends RawData33 {
 
             PsseRawModel model = new PsseRawModel(caseIdentification);
             // TODO System-Wide data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addBuses(new BusData().read(reader, context));
             model.addLoads(new LoadData().read(reader, context));
             model.addFixedShunts(new FixedBusShuntData().read(reader, context));
             model.addGenerators(new GeneratorData().read(reader, context));
             model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
             // TODO System Switching device data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
             // TODO 2-terminal DC data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO voltage source converter data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO impedance correction data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO multi-terminal DC data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO multi-section line data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addZones(new ZoneData().read(reader, context));
             // TODO inter-area transfer data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addOwners(new OwnerData().read(reader, context));
             // TODO facts control device data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             // TODO gne device data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO Induction Machine data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO Substation data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
 
             return model;
         }

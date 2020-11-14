@@ -14,13 +14,13 @@ import com.powsybl.psse.model.PsseGenerator35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class GeneratorData extends AbstractDataBlock<PsseGenerator> {
+class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
     private static final String[] FIELD_NAMES_33 = {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
 
     GeneratorData() {
-        super(PsseDataBlock.GENERATOR_DATA);
+        super(PsseRecordGroup.GENERATOR_DATA);
     }
 
     @Override

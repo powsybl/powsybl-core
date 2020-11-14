@@ -8,7 +8,7 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
@@ -32,11 +32,11 @@ public class RawData33 implements RawData {
     }
 
     @Override
-    public PsseConstants.PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException {
+    public PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new PsseContext());
             caseIdentification.validate();
-            return PsseConstants.PsseVersion.fromNumber(caseIdentification.getRev());
+            return PsseVersion.fromNumber(caseIdentification.getRev());
         }
     }
 
@@ -55,26 +55,26 @@ public class RawData33 implements RawData {
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
             // TODO 2-terminal DC data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO voltage source converter data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO impedance correction data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO multi-terminal DC data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO multi-section line data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addZones(new ZoneData().read(reader, context));
             // TODO inter-area transfer data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addOwners(new OwnerData().read(reader, context));
             // TODO facts control device data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             // TODO gne device data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
             // TODO Induction Machine data
-            Util.readDiscardedRecordBlock(reader);
+            Util.readDiscardedRecordGroup(reader);
 
             return model;
         }

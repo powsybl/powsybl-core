@@ -6,7 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,11 +25,11 @@ public final class RawDataFactory {
         }
     }
 
-    public static RawData create(String extension, PsseConstants.PsseVersion version) {
+    public static RawData create(String extension, PsseVersion version) {
         if (extension.toLowerCase().equals("rawx")) {
             return new RawXData35();
         } else {
-            if (version == PsseConstants.PsseVersion.VERSION_35) {
+            if (version == PsseVersion.VERSION_35) {
                 return new RawData35();
             }
             return new RawData33();

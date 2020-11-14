@@ -25,12 +25,12 @@ import java.util.List;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public abstract class AbstractDataBlock<T> {
+public abstract class AbstractRecordGroup<T> {
 
-    private final PsseDataBlock dataBlock;
+    private final PsseRecordGroup recordGroup;
 
-    AbstractDataBlock(PsseDataBlock dataBlock) {
-        this.dataBlock = dataBlock;
+    AbstractRecordGroup(PsseRecordGroup recordGroup) {
+        this.recordGroup = recordGroup;
     }
 
     public abstract String[] fieldNames(PsseVersion version);
@@ -38,65 +38,56 @@ public abstract class AbstractDataBlock<T> {
     public abstract Class<? extends T> psseTypeClass(PsseVersion version);
 
     public List<T> read(BufferedReader reader, PsseContext context) throws IOException {
-        // XXX(Luma) data blocks in RAW format have a fixed order for columns
-        // Optional columns may appear at the end of each record
-        // We obtain the maximum number of columns in each record of the data block
-        // This will be the number of "actual columns" used in the data block
-        // We store these columns in the context
-        // For parsing records we use all the field names defined in the data block
+        // Record groups in RAW format have a fixed order for fields
+        // Optional fields may not be present at the end of each record.
+        // We obtain the maximum number of fields read in each record of the record group.
+        // This will be the number of "actual fields" recorded for the record group.
+        // We store the "actual" field names in the context for potential later use.
+        // For parsing records we use all the field names defined for the record group.
 
         String[] allFieldNames = fieldNames(context.getVersion());
-        List<String> records = Util.readRecordBlock(reader);
-        //String[] actualFieldNames = readActualFieldNames(records, allFieldNames, context.getDelimiter());
-
-        //context.setFieldNames(dataBlock, actualFieldNames);
-        int[] maxColumns = new int[1];
-        List<T> psseObjects = parseRecords(records, psseTypeClass(context.getVersion()), allFieldNames, maxColumns);
-        String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, maxColumns[0]);
-        context.setFieldNames(dataBlock, actualFieldNames);
+        List<String> records = Util.readRecords(reader);
+        List<T> psseObjects = parseRecords(records, allFieldNames, context);
+        String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
+        context.setFieldNames(recordGroup, actualFieldNames);
         return psseObjects;
     }
 
     public List<T> readx(JsonNode networkNode, PsseContext context) {
-        JsonNode jsonNode = networkNode.get(dataBlock.getRawxNodeName());
+        // Records in RAWX format have arbitrary order for fields.
+        // Fields present in the record group are defined explicitly in a header.
+        // Order and number of field names is relevant for parsing,
+        // the field names must be taken from the explicit header defined in the file.
+        // We store the "actual" field names in the context for potential later use.
+
+        JsonNode jsonNode = networkNode.get(recordGroup.getRawxNodeName());
         if (jsonNode == null) {
             return new ArrayList<>();
         }
-
-        // XXX(Luma) data blocks in RAW format have arbitrary order for columns
-        // Columns present in the data block are defined explicitly in a header
-        // Order and number of columns is relevant,
-        // We have to use the field names obtained from the header to parse the records
-
         String[] actualFieldNames = Util.nodeFieldNames(jsonNode);
         List<String> records = Util.nodeRecords(jsonNode);
-
-        context.setFieldNames(dataBlock, actualFieldNames);
-        return parseRecords(records, psseTypeClass(context.getVersion()), actualFieldNames);
+        context.setFieldNames(recordGroup, actualFieldNames);
+        return parseRecords(records, actualFieldNames, context);
     }
 
-    PsseDataBlock getDataBlock() {
-        return dataBlock;
+    PsseRecordGroup getRecordGroup() {
+        return recordGroup;
     }
 
-    T parseRecordHeader(String record, Class<? extends T> aClass, String[] headers) {
-        List<T> beans = parseRecords(Collections.singletonList(record), aClass, headers);
-        return beans.get(0);
+    T parseSingleRecord(String record, String[] headers, PsseContext context) {
+        return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
-    List<T> parseRecords(List<String> records, Class<? extends T> aClass, String[] headers) {
-        return parseRecords(records, aClass, headers, new int[1]);
-    }
-
-    List<T> parseRecords(List<String> records, Class<? extends T> aClass, String[] headers, int[] maxColumns) {
+    List<T> parseRecords(List<String> records, String[] headers, PsseContext context) {
         CsvParserSettings settings = Util.createCsvParserSettings();
         settings.setHeaders(headers);
-        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(aClass);
+        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(context.getVersion()));
         settings.setProcessor(processor);
         CsvParser parser = new CsvParser(settings);
+        context.resetCurrentRecordGroup();
         for (String record : records) {
             String[] fields = parser.parseLine(record);
-            maxColumns[0] = Math.max(maxColumns[0], fields.length);
+            context.setCurrentRecordNumFields(fields.length);
         }
         List<? extends T> beans = processor.getBeans();
         if (beans.size() != records.size()) {
@@ -105,7 +96,7 @@ public abstract class AbstractDataBlock<T> {
         return (List<T>) beans;
     }
 
-    public enum PsseDataBlock {
+    public enum PsseRecordGroup {
         CASE_IDENTIFICATION_DATA("caseid"),
         BUS_DATA("bus"),
         LOAD_DATA("load"),
@@ -114,7 +105,7 @@ public abstract class AbstractDataBlock<T> {
         NON_TRANSFORMER_BRANCH_DATA("acline"),
         TRANSFORMER_DATA("transformer"),
         // XXX(Luma) do we really need to split transformers in 2 and 3 winding ?
-        // XXX(Luma) these are not real data blocks in the PSS/E input
+        // XXX(Luma) these are not real record groups in the PSS/E input
         TRANSFORMER_2_DATA("transformer2"),
         TRANSFORMER_3_DATA("transformer3"),
         AREA_INTERCHANGE_DATA("area"),
@@ -134,7 +125,7 @@ public abstract class AbstractDataBlock<T> {
 
         private final String rawxNodeName;
 
-        private PsseDataBlock(String rawxNodeName) {
+        private PsseRecordGroup(String rawxNodeName) {
             this.rawxNodeName = rawxNodeName;
         }
 

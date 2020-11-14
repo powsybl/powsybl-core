@@ -13,13 +13,13 @@ import com.powsybl.psse.model.PsseOwner;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class OwnerData extends AbstractDataBlock<PsseOwner> {
+class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
     private static final String[] FIELD_NAMES_35 = {"iowner", "owname"};
     private static final String[] FIELD_NAMES_33 = {"i", "owname"};
 
     OwnerData() {
-        super(PsseDataBlock.OWNER_DATA);
+        super(PsseRecordGroup.OWNER_DATA);
     }
 
     @Override

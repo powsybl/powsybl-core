@@ -13,13 +13,13 @@ import com.powsybl.psse.model.PsseConstants.PsseVersion;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class BusData extends AbstractDataBlock<PsseBus> {
+class BusData extends AbstractRecordGroup<PsseBus> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
     private static final String[] FIELD_NAMES_33 = {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
 
     BusData() {
-        super(PsseDataBlock.BUS_DATA);
+        super(PsseRecordGroup.BUS_DATA);
     }
 
     @Override

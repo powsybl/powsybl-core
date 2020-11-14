@@ -7,7 +7,7 @@
 package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.PsseConstants;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseRawModel;
 
@@ -21,7 +21,7 @@ public interface RawData {
 
     boolean isValidFile(ReadOnlyDataSource dataSource, String extension) throws IOException;
 
-    PsseConstants.PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException;
+    PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException;
 
     PsseRawModel read(ReadOnlyDataSource dataSource, String ext, PsseContext context) throws IOException;
 }
