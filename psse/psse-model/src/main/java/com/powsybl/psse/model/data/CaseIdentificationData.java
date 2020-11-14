@@ -10,11 +10,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
-import com.powsybl.psse.model.PsseException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -42,23 +40,11 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return caseIdentification;
     }
 
-    PsseCaseIdentification readx1(JsonNode networkNode, PsseContext context) {
+    PsseCaseIdentification read1(JsonNode networkNode, PsseContext context) {
         context.setDelimiter(",");
-
-        JsonNode caseIdentificationNode = networkNode.get("caseid");
-        if (caseIdentificationNode == null) {
-            throw new PsseException("CaseIdentification not found");
-        }
-
-        String[] headers = Util.readFieldNames(caseIdentificationNode);
-        List<String> records = Util.readRecords(caseIdentificationNode);
-        List<PsseCaseIdentification> caseIdentificationList = parseRecords(records, headers, context);
-        if (caseIdentificationList.size() != 1) {
-            throw new PsseException("CaseIdentification records. Unexpected size " + caseIdentificationList.size());
-        }
-
-        context.setFieldNames(getRecordGroup(), headers);
-        return caseIdentificationList.get(0);
+        PsseCaseIdentification caseIdentification = super.readx(networkNode, context).get(0);
+        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        return caseIdentification;
     }
 
     @Override
