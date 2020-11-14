@@ -11,18 +11,18 @@ import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseContext;
 import com.powsybl.psse.model.PsseException;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.List;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
+
+    private static final String[] FIELD_NAMES = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
 
     CaseIdentificationData() {
         super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
@@ -32,7 +32,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         String line = Util.readLineAndRemoveComment(reader);
         context.setDelimiter(Util.detectDelimiter(line));
 
-        String[] headers = caseIdentificationDataHeaders(line.split(context.getDelimiter()).length);
+        String[] headers = fieldNames(context.getVersion());
         PsseCaseIdentification caseIdentification = parseSingleRecord(line, headers, context);
         caseIdentification.setTitle1(reader.readLine());
         caseIdentification.setTitle2(reader.readLine());
@@ -61,18 +61,9 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return caseIdentificationList.get(0);
     }
 
-    private static String[] caseIdentificationDataHeaders(int firstRecordFields) {
-        String[] first = new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq"};
-        return ArrayUtils.addAll(ArrayUtils.subarray(first, 0, firstRecordFields), "title1", "title2");
-    }
-
-    private static String[] caseIdentificationDataHeaders() {
-        return new String[] {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-    }
-
     @Override
     public String[] fieldNames(PsseVersion version) {
-        throw new PsseException("XXX(Luma) fieldNames for CaseIdentification");
+        return FIELD_NAMES;
     }
 
     @Override
