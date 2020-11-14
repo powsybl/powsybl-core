@@ -26,8 +26,7 @@ public class RawXData35 implements RawData {
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new Context());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
         caseIdentification.validate();
         return true;
     }
@@ -35,8 +34,7 @@ public class RawXData35 implements RawData {
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, new Context());
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
         return PsseVersion.fromNumber(caseIdentification.getRev());
     }
 
@@ -46,8 +44,12 @@ public class RawXData35 implements RawData {
         return read(jsonFile, context);
     }
 
+    private static JsonNode networkNode(String jsonFile) throws IOException {
+        return new ObjectMapper().readTree(jsonFile).get("network");
+    }
+
     private PsseRawModel read(String jsonFile, Context context) throws IOException {
-        JsonNode networkNode = new ObjectMapper().readTree(jsonFile).get("network");
+        JsonNode networkNode = networkNode(jsonFile);
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
         caseIdentification.validate();
 

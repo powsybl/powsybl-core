@@ -18,7 +18,7 @@ public final class RawDataFactory {
     }
 
     public static RawData create(String extension) {
-        if (extension.toLowerCase().equals("rawx")) {
+        if (extension.equalsIgnoreCase("rawx")) {
             return new RawXData35();
         } else {
             return new RawData33();
@@ -26,7 +26,7 @@ public final class RawDataFactory {
     }
 
     public static RawData create(String extension, PsseVersion version) {
-        if (extension.toLowerCase().equals("rawx")) {
+        if (extension.equalsIgnoreCase("rawx")) {
             return new RawXData35();
         } else {
             if (version == PsseVersion.VERSION_35) {
