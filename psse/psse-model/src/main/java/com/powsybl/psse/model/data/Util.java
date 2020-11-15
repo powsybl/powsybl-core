@@ -8,7 +8,10 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -24,10 +27,13 @@ import java.util.regex.Pattern;
  */
 final class Util {
 
+    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
+
     private Util() {
     }
 
-    static void readDiscardedRecordGroup(BufferedReader reader) throws IOException {
+    static void readDiscardedRecordGroup(PsseRecordGroup recordGroup, BufferedReader reader) throws IOException {
+        LOG.info("read discarded record group {}", recordGroup);
         String firstToken;
         do {
             String line = reader.readLine();

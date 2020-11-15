@@ -97,30 +97,31 @@ public abstract class AbstractRecordGroup<T> {
 
     public enum PsseRecordGroup {
         CASE_IDENTIFICATION_DATA("caseid"),
+        SYSTEM_WIDE_DATA("?"),
         BUS_DATA("bus"),
         LOAD_DATA("load"),
         FIXED_BUS_SHUNT_DATA("fixshunt"),
         GENERATOR_DATA("generator"),
         NON_TRANSFORMER_BRANCH_DATA("acline"),
+        SYSTEM_SWITCHING_DEVICE_DATA("sysswd"),
         TRANSFORMER_DATA("transformer"),
-        // XXX(Luma) do we really need to split transformers in 2 and 3 winding ?
-        // XXX(Luma) these are not real record groups in the PSS/E input
+        // Transformer record group includes two and three winding transformers
         TRANSFORMER_2_DATA("transformer2"),
         TRANSFORMER_3_DATA("transformer3"),
         AREA_INTERCHANGE_DATA("area"),
-        TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA("XXX"),
-        VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA("XXX"),
-        TRANSFORMER_IMPEDANCE_CORRECTION_TABLES("XXX"),
-        MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA("XXX"),
-        MULTI_SECTION_LINE_GROUPING_DATA("XXX"),
+        TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA("twotermdc"),
+        VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA("vscdc"),
+        TRANSFORMER_IMPEDANCE_CORRECTION_TABLES("impcor"),
+        MULTI_TERMINAL_DC_TRANSMISSION_LINE_DATA("ntermdc"),
+        MULTI_SECTION_LINE_GROUPING_DATA("msline"),
         ZONE_DATA("zone"),
-        INTERAREA_TRANSFER_DATA("XXX"),
+        INTERAREA_TRANSFER_DATA("iatransfer"),
         OWNER_DATA("owner"),
-        FACTS_DEVICE_DATA("XXX"),
+        FACTS_DEVICE_DATA("facts"),
         SWITCHED_SHUNT_DATA("swshunt"),
-        GNE_DEVICE_DATA("XXX"),
-        INDUCTION_MACHINE_DATA("XXX"),
-        Q_RECORD("XXX");
+        GNE_DEVICE_DATA("gne"),
+        INDUCTION_MACHINE_DATA("indmach"),
+        SUBSTATION_DATA("sub");
 
         private final String rawxNodeName;
 
