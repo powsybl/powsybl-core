@@ -15,11 +15,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class ExportOptions extends AbstractOptions<ExportOptions> {
+
+    public enum IidmVersionIncompatibilityBehavior {
+        THROW_EXCEPTION,
+        LOG_ERROR
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
@@ -36,6 +43,8 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
 
     private String version;
+
+    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
 
     private Map<String, String> extensionsVersions = new HashMap<>();
 
@@ -57,12 +66,18 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, version, THROW_EXCEPTION);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
         this.version = version;
+        this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
     }
 
     @Override
@@ -147,6 +162,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setVersion(String version) {
         this.version = version;
+        return this;
+    }
+
+    public IidmVersionIncompatibilityBehavior getIidmVersionIncompatibilityBehavior() {
+        return iidmVersionIncompatibilityBehavior;
+    }
+
+    public ExportOptions setIidmVersionIncompatibilityBehavior(IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
         return this;
     }
 
