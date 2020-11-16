@@ -80,7 +80,7 @@ public final class MatpowerReader {
                     bus.setMaximumVoltageMagnitude(buses.getDouble(row, 11));
                     bus.setMinimumVoltageMagnitude(buses.getDouble(row, 12));
                 }
-                model.getBuses().add(bus);
+                model.addBus(bus);
             }
 
             for (int row = 0; row < generators.getDimensions()[0]; row++) {

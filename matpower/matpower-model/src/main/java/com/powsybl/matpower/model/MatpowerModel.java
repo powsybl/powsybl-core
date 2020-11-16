@@ -9,9 +9,7 @@ package com.powsybl.matpower.model;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.eu>
@@ -24,6 +22,8 @@ public class MatpowerModel {
     private String version;
 
     private final List<MBus> buses = new ArrayList<>();
+
+    private final Map<Integer, MBus> busByNum = new HashMap<>();
 
     private final List<MGen> generators = new ArrayList<>();
 
@@ -54,8 +54,18 @@ public class MatpowerModel {
         this.baseMva = baseMva;
     }
 
+    public void addBus(MBus bus) {
+        Objects.requireNonNull(bus);
+        buses.add(bus);
+        busByNum.put(bus.getNumber(), bus);
+    }
+
     public List<MBus> getBuses() {
         return buses;
+    }
+
+    public MBus getBusByNum(int num) {
+        return busByNum.get(num);
     }
 
     public List<MGen> getGenerators() {
