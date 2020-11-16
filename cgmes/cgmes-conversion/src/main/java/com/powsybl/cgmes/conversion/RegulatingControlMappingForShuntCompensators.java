@@ -59,6 +59,21 @@ public class RegulatingControlMappingForShuntCompensators {
         }
         String rcId = cgmesRc.regulatingControlId;
 
+        // This equipment is not participating in its regulating control
+        // We will not create default regulation data
+        // But will try to store information about corresponding regulating control
+        if (!cgmesRc.controlEnabled) {
+            if (rcId != null) {
+                RegulatingControl rc = parent.cachedRegulatingControls().get(rcId);
+                if (rc != null) {
+                    setRegulatingControl(shuntCompensator, rcId, rc, cgmesRc.controlEnabled);
+                }
+            }
+            return;
+        }
+        // The equipment is participating in regulating control (cgmesRc.controlEnabled)
+        // But no regulating control information has been found
+        // We create default regulation data
         if (rcId == null) {
             context.missing("Regulating Control ID not defined");
             setDefaultRegulatingControl(shuntCompensator);
@@ -70,6 +85,8 @@ public class RegulatingControlMappingForShuntCompensators {
             setDefaultRegulatingControl(shuntCompensator);
             return;
         }
+        // Finally, equipment participates in it regulating control,
+        // and the regulating control information is present in the CGMES model
         setRegulatingControl(shuntCompensator, rcId, rc, cgmesRc.controlEnabled);
         rc.setCorrectlySet(true);
     }
@@ -87,7 +104,9 @@ public class RegulatingControlMappingForShuntCompensators {
         shuntCompensator.setTargetV(rc.targetValue)
                 .setTargetDeadband(rc.targetDeadband);
         if (rc.targetValue > 0) {
-            // The regulating control is enabled and the equipment participation in the control is enabled
+            // For the IIDM regulating control to be enabled
+            // both the equipment participation in the control and
+            // the regulating control itself should be enabled
             shuntCompensator.setVoltageRegulatorOn(rc.enabled && controlEnabled);
         } else  {
             shuntCompensator.setVoltageRegulatorOn(false);
