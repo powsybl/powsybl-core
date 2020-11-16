@@ -51,9 +51,13 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             IidmXmlUtil.assertMinimumVersion(getRootElementName(), SHUNT_NON_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
         }
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
-            context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
-            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getSectionCount()));
+            ShuntCompensatorModel model = sc.getModel();
+            double bPerSection = model instanceof ShuntCompensatorLinearModel ? ((ShuntCompensatorLinearModel) model).getBPerSection() : sc.getB();
+            XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
+            int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
+            context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount() : 1;
+            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(currentSectionCount));
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> context.getWriter().writeAttribute("sectionCount", Integer.toString(sc.getSectionCount())));
         IidmXmlUtil.writeBooleanAttributeFromMinimumVersion(ROOT_ELEMENT_NAME, "voltageRegulatorOn", sc.isVoltageRegulatorOn(), false, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
@@ -70,7 +74,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> writeModel(sc, context));
         if (sc != sc.getRegulatingTerminal().getConnectable()) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
-            TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> TerminalRefXml.writeTerminalRef(sc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
     }
 
@@ -81,13 +85,15 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection(), context.getWriter());
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
-            context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), SHUNT_NON_LINEAR_MODEL);
-            for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
-                XmlUtil.writeDouble("b", s.getB(), context.getWriter());
-                XmlUtil.writeDouble("g", s.getG(), context.getWriter());
-            }
-            context.getWriter().writeEndElement();
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), SHUNT_NON_LINEAR_MODEL);
+                for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
+                    XmlUtil.writeDouble("b", s.getB(), context.getWriter());
+                    XmlUtil.writeDouble("g", s.getG(), context.getWriter());
+                }
+                context.getWriter().writeEndElement();
+            });
         } else {
             throw new PowsyblException("Unexpected shunt type " + sc.getModelType() + " for shunt " + sc.getId());
         }
