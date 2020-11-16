@@ -12,10 +12,17 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.test.*;
-
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
+import com.powsybl.iidm.network.test.ShuntTestCaseFactory;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import org.junit.Assert;
 import org.junit.Test;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,6 +61,19 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "_network_loads", "inputs/eurostag-tutorial-example1-loads.txt");
         assertEqualsToRef(dataSource, "_network_generators", "inputs/eurostag-tutorial-example1-generators.txt");
         assertEqualsToRef(dataSource, "_network_limits", "inputs/eurostag-tutorial-example1-limits.txt");
+    }
+
+    @Test
+    public void writeNetworkWithExtension() throws IOException {
+        Network network = Network.create("sim1", "test");
+
+        network.addExtension(FooNetworkExtension.class, new FooNetworkExtension());
+
+        MemDataSource dataSource = new MemDataSource();
+        AmplExporter exporter = new AmplExporter();
+        exporter.export(network, new Properties(), dataSource);
+
+        assertEqualsToRef(dataSource, "foo-network-extension", "inputs/foo-network-extension.txt");
     }
 
     @Test

@@ -99,7 +99,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         }
 
         ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.forwarded(new SecurityAnalysisExecutionInput());
-        SecurityAnalysisResult result = handler.after(workingDir, DefaultExecutionReport.ok());
+        SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport(workingDir));
 
         assertNotNull(result);
         assertTrue(result.getPreContingencyResult().isComputationOk());
@@ -238,7 +238,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         ExecutionHandler<SecurityAnalysisResult> handler3 = SecurityAnalysisExecutionHandlers.distributed(input, 2);
         assertThatExceptionOfType(ComputationException.class).isThrownBy(() -> {
             Command cmd = Mockito.mock(Command.class);
-            handler3.after(workingDir, new DefaultExecutionReport(Collections.singletonList(new ExecutionError(cmd, 0, 42))));
+            handler3.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
         })
             .withMessageContaining("An error occurred during security analysis command execution")
             .withStackTraceContaining("Error during the execution in directory  /work exit codes: Task 0 : 42");
@@ -249,7 +249,7 @@ public class SecurityAnalysisExecutionHandlersTest {
 
         ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.distributed(input, 2);
 
-        SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport());
+        SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport(workingDir));
 
         assertNotNull(result);
         assertTrue(result.getPreContingencyResult().isComputationOk());
@@ -289,7 +289,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
         try {
-            handler2.after(workingDir, new DefaultExecutionReport());
+            handler2.after(workingDir, new DefaultExecutionReport(workingDir));
             fail();
         } catch (ComputationException ce) {
             assertEquals("logs", ce.getErrLogs().get("security-analysis-task_0.err"));
@@ -300,7 +300,7 @@ public class SecurityAnalysisExecutionHandlersTest {
 
         try {
             Command cmd = Mockito.mock(Command.class);
-            handler2.after(workingDir, new DefaultExecutionReport(Collections.singletonList(new ExecutionError(cmd, 0, 42))));
+            handler2.after(workingDir, new DefaultExecutionReport(workingDir, Collections.singletonList(new ExecutionError(cmd, 0, 42))));
             fail();
         } catch (Exception e) {
             // ignored
@@ -316,7 +316,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         }
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
 
-        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport());
+        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport(workingDir));
         SecurityAnalysisResult result = resultWithLog.getResult();
 
         assertNotNull(result);
@@ -349,7 +349,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
 
         assertThatExceptionOfType(ComputationException.class)
-                .isThrownBy(() -> handler2.after(workingDir, new DefaultExecutionReport()))
+                .isThrownBy(() -> handler2.after(workingDir, new DefaultExecutionReport(workingDir)))
                 .withStackTraceContaining("NoSuchFile")
                 .withStackTraceContaining("result.json")
                 .satisfies(ce -> {
@@ -362,7 +362,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
         }
-        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport());
+        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport(workingDir));
         SecurityAnalysisResult result = resultWithLog.getResult();
 
         assertNotNull(result);

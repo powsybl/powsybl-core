@@ -7,13 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -71,19 +69,46 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        final LineAdder adder = context.network().newLine()
-                .setEnsureIdUnicity(false)
-                .setR(r)
-                .setX(x)
-                .setG1(gch / 2)
-                .setG2(gch / 2)
-                .setB1(bch / 2)
-                .setB2(bch / 2);
-        identify(adder);
-        connect(adder);
-        final Line l = adder.add();
-        addAliases(l);
-        convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        if (isZeroImpedanceInsideVoltageLevel(r, x, bch, gch)) {
+            // Convert to switch
+            Switch sw;
+            boolean open = !(terminalConnected(1) && terminalConnected(2));
+            if (context.nodeBreaker()) {
+                VoltageLevel.NodeBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getNodeBreakerView().newSwitch()
+                        .setKind(SwitchKind.BREAKER)
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            } else {
+                VoltageLevel.BusBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getBusBreakerView().newSwitch()
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            }
+            addAliases(sw);
+        } else {
+            final LineAdder adder = context.network().newLine()
+                    .setEnsureIdUnicity(false)
+                    .setR(r)
+                    .setX(x)
+                    .setG1(gch / 2)
+                    .setG2(gch / 2)
+                    .setB1(bch / 2)
+                    .setB2(bch / 2);
+            identify(adder);
+            connect(adder);
+            final Line l = adder.add();
+            addAliases(l);
+            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        }
+    }
+
+    private boolean isZeroImpedanceInsideVoltageLevel(double r, double x, double bch, double gch) {
+        return r == 0.0 && x == 0.0 && voltageLevel(1) == voltageLevel(2);
     }
 
     public void convertMergedLinesAtNode(PropertyBag other, String boundaryNode) {
