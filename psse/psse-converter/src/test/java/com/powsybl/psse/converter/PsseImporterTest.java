@@ -115,9 +115,10 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test()
     public void badModeTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
+        PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
         PsseException x = assertThrows(PsseException.class, () -> {
-            new PsseImporter().importData(dataSource, networkFactory, null);
+            psseImporter.importData(dataSource, networkFactory, null);
         });
         assertEquals("Incremental load of data option (IC = 1) is not supported", x.getMessage());
     }
@@ -125,9 +126,10 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test
     public void badVersionTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
         PsseException x = assertThrows(PsseException.class, () -> {
-            new PsseImporter().importData(dataSource, networkFactory, null);
+            psseImporter.importData(dataSource, networkFactory, null);
         });
         assertEquals("Version 29 not supported. Supported versions are: 33, 35", x.getMessage());
     }
