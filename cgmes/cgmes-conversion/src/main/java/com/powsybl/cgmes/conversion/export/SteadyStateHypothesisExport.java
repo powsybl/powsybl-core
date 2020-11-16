@@ -51,8 +51,8 @@ public final class SteadyStateHypothesisExport {
             writeEnergyConsumers(network, cimNamespace, writer);
             writeEquivalentInjections(network, cimNamespace, writer);
             writeTapChangers(network, cimNamespace, regulatingControlViews, writer);
-            writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeSynchronousMachines(network, cimNamespace, regulatingControlViews, writer);
+            writeShuntCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
@@ -320,12 +320,23 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static RegulatingControlView combineRegulatingControlViews(List<RegulatingControlView> rcs) {
-        if (rcs.size() == 1) {
-            return rcs.get(0);
-        } else {
-            LOG.warn("Multiple views ({}) for regulating control {}", rcs.size(), rcs.get(0).id);
-            return rcs.get(0);
+        RegulatingControlView combined = rcs.get(0);
+        if (rcs.size() > 1) {
+            LOG.warn("Multiple views ({}) for regulating control {} are combined", rcs.size(), rcs.get(0).id);
         }
+        for (int k = 1; k < rcs.size(); k++) {
+            RegulatingControlView current = rcs.get(k);
+            if (combined.targetDeadband == 0 && current.targetDeadband > 0) {
+                combined.targetDeadband = current.targetDeadband;
+            }
+            if (!combined.discrete && current.discrete) {
+                combined.discrete = true;
+            }
+            if (!combined.controlEnabled && current.controlEnabled) {
+                combined.controlEnabled = true;
+            }
+        }
+        return combined;
     }
 
     private static void writeRegulatingControl(RegulatingControlView rc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
