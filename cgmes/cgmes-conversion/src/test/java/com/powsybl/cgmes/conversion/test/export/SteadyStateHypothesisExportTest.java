@@ -84,12 +84,12 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         // Zip with new SSH
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
-                .with("EQ.xml", Repackager::eq)
-                .with("TP.xml", Repackager::tp)
-                .with("SV.xml", Repackager::sv)
-                .with("SSH.xml", exportedSsh)
-                .with("EQ_BD.xml", Repackager::eqBd)
-                .with("TP_BD.xml", Repackager::tpBd);
+                .with("test_EQ.xml", Repackager::eq)
+                .with("test_TP.xml", Repackager::tp)
+                .with("test_SV.xml", Repackager::sv)
+                .with("test_SSH.xml", exportedSsh)
+                .with("test_EQ_BD.xml", Repackager::eqBd)
+                .with("test_TP_BD.xml", Repackager::tpBd);
         r.zip(repackaged);
 
         // Import with new SSH

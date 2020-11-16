@@ -6,17 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Properties;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
-import org.junit.Test;
-
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -30,6 +19,15 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.junit.Test;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Properties;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -64,12 +62,12 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Zip with new SV
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
-                .with("EQ.xml", Repackager::eq)
-                .with("TP.xml", Repackager::tp)
-                .with("SV.xml", exportedSv)
-                .with("SSH.xml", Repackager::ssh)
-                .with("EQ_BD.xml", Repackager::eqBd)
-                .with("TP_BD.xml", Repackager::tpBd);
+                .with("test_EQ.xml", Repackager::eq)
+                .with("test_TP.xml", Repackager::tp)
+                .with("test_SV.xml", exportedSv)
+                .with("test_SSH.xml", Repackager::ssh)
+                .with("test_EQ_BD.xml", Repackager::eqBd)
+                .with("test_TP_BD.xml", Repackager::tpBd);
         r.zip(repackaged);
 
         // Import with new SV
