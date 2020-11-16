@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import javax.xml.stream.XMLStreamException;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -86,8 +85,9 @@ public final class IidmXmlUtil {
         if (context.getOptions().getIidmVersionIncompatibilityBehavior() == ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION) {
             throw createException(elementName, type, refVersion, context.getVersion(), reason);
         } else if (context.getOptions().getIidmVersionIncompatibilityBehavior() == ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR) {
-            Supplier<String> message = () -> message(elementName, type, refVersion, context.getVersion(), reason);
-            LOGGER.error(message.get());
+            if (LOGGER.isErrorEnabled()) {
+                LOGGER.error(message(elementName, type, refVersion, context.getVersion(), reason));
+            }
         } else {
             throw new AssertionError("Unexpected behaviour: " + context.getOptions().getIidmVersionIncompatibilityBehavior());
         }
