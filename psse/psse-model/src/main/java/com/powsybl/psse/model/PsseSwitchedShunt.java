@@ -15,83 +15,83 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseSwitchedShunt {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private int modsw = 1;
 
-    @Parsed(index = 2)
+    @Parsed
     private int adjm = 0;
 
-    @Parsed(index = 3)
+    @Parsed
     private int stat = 1;
 
-    @Parsed(index = 4)
+    @Parsed
     private double vswhi = 1.0;
 
-    @Parsed(index = 5)
+    @Parsed
     private double vswlo = 1.0;
 
-    @Parsed(index = 6)
+    @Parsed
     private int swrem = 0;
 
-    @Parsed(index = 7)
+    @Parsed
     private double rmpct = 100.0;
 
-    @Parsed(index = 8)
+    @Parsed
     private String rmidnt = " ";
 
-    @Parsed(index = 9)
+    @Parsed
     private double binit = 0.0;
 
-    @Parsed(index = 10)
+    @Parsed
     private int n1 = 0;
 
-    @Parsed(index = 11)
+    @Parsed
     private double b1 = 0.0;
 
-    @Parsed(index = 12)
+    @Parsed
     private int n2 = 0;
 
-    @Parsed(index = 13)
+    @Parsed
     private double b2 = 0.0;
 
-    @Parsed(index = 14)
+    @Parsed
     private int n3 = 0;
 
-    @Parsed(index = 15)
+    @Parsed
     private double b3 = 0.0;
 
-    @Parsed(index = 16)
+    @Parsed
     private int n4 = 0;
 
-    @Parsed(index = 17)
+    @Parsed
     private double b4 = 0.0;
 
-    @Parsed(index = 18)
+    @Parsed
     private int n5 = 0;
 
-    @Parsed(index = 19)
+    @Parsed
     private double b5 = 0.0;
 
-    @Parsed(index = 20)
+    @Parsed
     private int n6 = 0;
 
-    @Parsed(index = 21)
+    @Parsed
     private double b6 = 0.0;
 
-    @Parsed(index = 22)
+    @Parsed
     private int n7 = 0;
 
-    @Parsed(index = 23)
+    @Parsed
     private double b7 = 0.0;
 
-    @Parsed(index = 24)
+    @Parsed
     private int n8 = 0;
 
-    @Parsed(index = 25)
+    @Parsed
     private double b8 = 0.0;
 
     public int getI() {

@@ -705,6 +705,48 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources miniNodeBreakerJoinVoltageLevelSwitch() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_joinVoltageLevelSwitch/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-joinVoltageLevel-switch",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources miniNodeBreakerJoinVoltageLevelTx() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_joinVoltageLevelTx/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-joinVoltageLevel-tx",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModel miniNodeBreakerInternalLineZ0() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_internal_line_z0/";
@@ -719,8 +761,8 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
                 new ResourceSet(baseOriginal,
                         "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
-                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
                         "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
                 new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));

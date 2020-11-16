@@ -15,89 +15,89 @@ import com.univocity.parsers.annotations.Validate;
  */
 public class PsseGenerator {
 
-    @Parsed(index = 0)
+    @Parsed
     @Validate
     private int i;
 
-    @Parsed(index = 1)
+    @Parsed
     private String id = "1";
 
-    @Parsed(index = 2)
+    @Parsed
     private double pg = 0;
 
-    @Parsed(index = 3)
+    @Parsed
     private double qg = 0;
 
-    @Parsed(index = 4)
+    @Parsed
     private double qt = 9999;
 
-    @Parsed(index = 5)
+    @Parsed
     private double qb = -9999;
 
-    @Parsed(index = 6)
+    @Parsed
     private double vs = 1;
 
-    @Parsed(index = 7)
+    @Parsed
     private int ireg = 0;
 
-    @Parsed(index = 8)
+    @Parsed
     private double mbase = Double.NaN;
 
-    @Parsed(index = 9)
+    @Parsed
     private double zr = 0;
 
-    @Parsed(index = 10)
+    @Parsed
     private double zx = 1;
 
-    @Parsed(index = 11)
+    @Parsed
     private double rt = 0;
 
-    @Parsed(index = 12)
+    @Parsed
     private double xt = 0;
 
-    @Parsed(index = 13)
+    @Parsed
     private double gtap = 1;
 
-    @Parsed(index = 14)
+    @Parsed
     private int stat = 1;
 
-    @Parsed(index = 15)
+    @Parsed
     private double rmpct = 100;
 
-    @Parsed(index = 16)
+    @Parsed
     private double pt = 9999;
 
-    @Parsed(index = 17)
+    @Parsed
     private double pb = -9999;
 
-    @Parsed(index = 18)
+    @Parsed
     private int o1 = -1;
 
-    @Parsed(index = 19)
+    @Parsed
     private double f1 = 1;
 
-    @Parsed(index = 20)
+    @Parsed
     private int o2 = 0;
 
-    @Parsed(index = 21)
+    @Parsed
     private double f2 = 1;
 
-    @Parsed(index = 22)
+    @Parsed
     private int o3 = 0;
 
-    @Parsed(index = 23)
+    @Parsed
     private double f3 = 1;
 
-    @Parsed(index = 24)
+    @Parsed
     private int o4 = 0;
 
-    @Parsed(index = 25)
+    @Parsed
     private double f4 = 1;
 
-    @Parsed(index = 26)
+    @Parsed
     private int wmod = 0;
 
-    @Parsed(index = 27)
+    @Parsed
     private double wpf = 1;
 
     public int getI() {
