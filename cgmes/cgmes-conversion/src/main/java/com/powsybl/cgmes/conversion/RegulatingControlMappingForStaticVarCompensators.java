@@ -6,9 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -16,6 +13,9 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -123,8 +123,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         }
         svc.setRegulatingTerminal(terminal);
 
-        svc.setProperty("RegulatingControl", rc.regulatingControlId);
-        svc.setProperty("targetDeadBand", String.valueOf(control.getTargetDeadBand()));
+        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rc.regulatingControlId);
         return okSet;
     }
 

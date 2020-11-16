@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
@@ -72,7 +73,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
         String generatingUnit = p.getId("GeneratingUnit");
         if (generatingUnit != null) {
-            g.setProperty("GeneratingUnit", generatingUnit);
+            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
         }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);

@@ -6,9 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Generator;
@@ -17,6 +14,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -116,9 +116,7 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
-
-        gen.setProperty("RegulatingControl", controlId);
-        gen.setProperty("targetDeadBand", String.valueOf(control.getTargetDeadBand()));
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
         return true;
     }

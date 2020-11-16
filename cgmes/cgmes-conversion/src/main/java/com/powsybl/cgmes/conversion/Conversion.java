@@ -737,5 +737,5 @@ public class Conversion {
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
-    public static final String CGMES_PREFIX_ALIAS = "CGMES.";
+    public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
 }

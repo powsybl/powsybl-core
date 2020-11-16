@@ -313,7 +313,7 @@ public class StateVariablesAdder {
     }
 
     private PropertyBag createPowerFlowProperties(Terminal terminal) {
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL1).orElse(null);
+        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal == null) {
             return null;
         }
