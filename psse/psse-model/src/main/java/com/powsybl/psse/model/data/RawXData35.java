@@ -7,11 +7,9 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
@@ -21,31 +19,12 @@ import java.nio.charset.StandardCharsets;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RawXData35 implements RawData {
-
-    @Override
-    public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
-        caseIdentification.validate();
-        return true;
-    }
-
-    @Override
-    public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
-        return PsseVersion.fromNumber(caseIdentification.getRev());
-    }
+public class RawXData35 extends RawXDataCommon {
 
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
         return read(jsonFile, context);
-    }
-
-    private static JsonNode networkNode(String jsonFile) throws IOException {
-        return new ObjectMapper().readTree(jsonFile).get("network");
     }
 
     private PsseRawModel read(String jsonFile, Context context) throws IOException {

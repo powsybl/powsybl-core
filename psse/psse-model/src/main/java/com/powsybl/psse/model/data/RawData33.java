@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 
@@ -20,25 +19,7 @@ import java.io.InputStreamReader;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RawData33 implements RawData {
-
-    @Override
-    public boolean isValidFile(ReadOnlyDataSource dataSource, String extension) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new Context());
-            caseIdentification.validate();
-            return true;
-        }
-    }
-
-    @Override
-    public PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new Context());
-            caseIdentification.validate();
-            return PsseVersion.fromNumber(caseIdentification.getRev());
-        }
-    }
+public class RawData33 extends RawDataCommon {
 
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {

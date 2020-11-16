@@ -19,7 +19,7 @@ import java.io.InputStreamReader;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RawData35 extends RawData33 {
+public class RawData35 extends RawDataCommon {
 
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {

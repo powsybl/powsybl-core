@@ -18,10 +18,13 @@ public final class RawDataFactory {
     }
 
     public static RawData create(String extension) {
+        // When only extension is given,
+        // We create Raw Data objects that are able to read the case identification
+        // To determine if the file is valid and get its version
         if (extension.equalsIgnoreCase("rawx")) {
-            return new RawXData35();
+            return new RawXDataCommon();
         } else {
-            return new RawData33();
+            return new RawDataCommon();
         }
     }
 
