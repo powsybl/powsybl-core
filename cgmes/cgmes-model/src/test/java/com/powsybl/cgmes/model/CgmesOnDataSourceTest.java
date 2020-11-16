@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
  */
 public class CgmesOnDataSourceTest {
 
-    private void doTestExists(String filename, String cimVersion, boolean expectedExists) {
+    private static void doTestExists(String filename, String cimVersion, boolean expectedExists) {
         ReadOnlyDataSource dataSource = new ResourceDataSource("incomplete",
                 new ResourceSet("/", filename));
         CgmesOnDataSource cgmesOnDataSource = new CgmesOnDataSource(dataSource);
@@ -27,7 +27,7 @@ public class CgmesOnDataSourceTest {
         assertEquals(expectedExists, exists);
     }
 
-    private void doTestExistsEmpty(String profile, String cimVersion, boolean expectedExists) {
+    private static void doTestExistsEmpty(String profile, String cimVersion, boolean expectedExists) {
         String filename = "empty_cim" + cimVersion + "_" + profile + ".xml";
         doTestExists(filename, cimVersion, expectedExists);
     }
