@@ -12,6 +12,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.psse.model.PsseException;
@@ -111,11 +112,12 @@ public class PsseImporterTest extends AbstractConverterTest {
         importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", true);
     }
 
-    @Test
+    @Test()
     public void badModeTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
+        NetworkFactory networkFactory = new NetworkFactoryImpl();
         PsseException x = assertThrows(PsseException.class, () -> {
-            new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+            new PsseImporter().importData(dataSource, networkFactory, null);
         });
         assertEquals("Incremental load of data option (IC = 1) is not supported", x.getMessage());
     }
@@ -123,8 +125,9 @@ public class PsseImporterTest extends AbstractConverterTest {
     @Test
     public void badVersionTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
+        NetworkFactory networkFactory = new NetworkFactoryImpl();
         PsseException x = assertThrows(PsseException.class, () -> {
-            new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+            new PsseImporter().importData(dataSource, networkFactory, null);
         });
         assertEquals("Version 29 not supported. Supported versions are: 33, 35", x.getMessage());
     }
