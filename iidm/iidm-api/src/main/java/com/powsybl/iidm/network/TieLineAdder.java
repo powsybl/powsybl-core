@@ -11,27 +11,38 @@ package com.powsybl.iidm.network;
  */
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
-    TieLineAdder setR(double r);
+    interface HalfLineAdder {
 
-    TieLineAdder setX(double x);
+        HalfLineAdder setId(String id);
 
-    TieLineAdder setG1(double g1);
+        HalfLineAdder setName(String name);
 
-    TieLineAdder setB1(double b1);
+        HalfLineAdder setFictitious(boolean fictitious);
 
-    TieLineAdder setG2(double g2);
+        HalfLineAdder setXnodeP(double xnodeP);
 
-    TieLineAdder setB2(double b2);
+        HalfLineAdder setXnodeQ(double xnodeQ);
 
-    TieLineAdder setXnodeP(double xnodeP);
+        HalfLineAdder setR(double r);
 
-    TieLineAdder setXnodeQ(double xnodeQ);
+        HalfLineAdder setX(double x);
+
+        HalfLineAdder setG1(double g1);
+
+        HalfLineAdder setG2(double g2);
+
+        HalfLineAdder setB1(double b1);
+
+        HalfLineAdder setB2(double b2);
+
+        TieLineAdder add();
+    }
 
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
-    TieLineAdder line1();
+    TieLineAdder.HalfLineAdder newHalfLine1();
 
-    TieLineAdder line2();
+    TieLineAdder.HalfLineAdder newHalfLine2();
 
     TieLine add();
 
