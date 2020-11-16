@@ -13,27 +13,27 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     interface HalfLineAdder {
 
-        TieLineAdder.HalfLineAdder setId(String id);
+        HalfLineAdder setId(String id);
 
-        TieLineAdder.HalfLineAdder setName(String name);
+        HalfLineAdder setName(String name);
 
-        TieLineAdder.HalfLineAdder setFictitious(boolean fictitious);
+        HalfLineAdder setFictitious(boolean fictitious);
 
-        TieLineAdder.HalfLineAdder setXnodeP(double xnodeP);
+        HalfLineAdder setXnodeP(double xnodeP);
 
-        TieLineAdder.HalfLineAdder setXnodeQ(double xnodeQ);
+        HalfLineAdder setXnodeQ(double xnodeQ);
 
-        TieLineAdder.HalfLineAdder setR(double r);
+        HalfLineAdder setR(double r);
 
-        TieLineAdder.HalfLineAdder setX(double x);
+        HalfLineAdder setX(double x);
 
-        TieLineAdder.HalfLineAdder setG1(double g1);
+        HalfLineAdder setG1(double g1);
 
-        TieLineAdder.HalfLineAdder setG2(double g2);
+        HalfLineAdder setG2(double g2);
 
-        TieLineAdder.HalfLineAdder setB1(double b1);
+        HalfLineAdder setB1(double b1);
 
-        TieLineAdder.HalfLineAdder setB2(double b2);
+        HalfLineAdder setB2(double b2);
 
         TieLineAdder add();
     }
