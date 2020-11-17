@@ -35,6 +35,12 @@ import java.util.stream.Stream;
  */
 public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>> extends Iterable<P> {
 
+    enum TimeFormat {
+        DATE_FORMAT,
+        MILLIS,
+        FRACTIONS_OF_SECOND;
+    }
+
     TimeSeriesMetadata getMetadata();
 
     void synchronize(TimeSeriesIndex newIndex);

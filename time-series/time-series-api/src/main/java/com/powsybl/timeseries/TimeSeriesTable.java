@@ -7,6 +7,8 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
+
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -534,7 +536,15 @@ public class TimeSeriesTable {
 
     public void writeCsv(Path file) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault());
+            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault(), true, TimeFormat.DATE_FORMAT);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void writeCsv(Path file, boolean versioned, TimeFormat timeFormat) {
+        try (BufferedWriter writer = createWriter(file)) {
+            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault(), versioned, timeFormat);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -542,7 +552,17 @@ public class TimeSeriesTable {
 
     public String toCsvString(char separator, ZoneId zoneId) {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, separator, zoneId);
+            writeCsv(writer, separator, zoneId, true, TimeFormat.DATE_FORMAT);
+            writer.flush();
+            return writer.toString();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public String toCsvString(char separator, ZoneId zoneId, boolean versioned, TimeFormat timeFormat) {
+        try (StringWriter writer = new StringWriter()) {
+            writeCsv(writer, separator, zoneId, versioned, timeFormat);
             writer.flush();
             return writer.toString();
         } catch (IOException e) {
@@ -553,8 +573,10 @@ public class TimeSeriesTable {
     private void writeHeader(Writer writer, CsvConfig config) throws IOException {
         // write header
         writer.write("Time");
-        writer.write(config.separator);
-        writer.write("Version");
+        if (config.isVersioned()) {
+            writer.write(config.separator);
+            writer.write("Version");
+        }
         if (timeSeriesMetadata != null) {
             for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
                 writer.write(config.separator);
@@ -579,9 +601,27 @@ public class TimeSeriesTable {
 
         final DateTimeFormatter dateTimeFormatter;
 
+        final boolean versioned;
+
+        final TimeFormat timeFormat;
+
         public CsvConfig(char separator, DateTimeFormatter dateTimeFormatter) {
+            this(separator, dateTimeFormatter, true, TimeFormat.DATE_FORMAT);
+        }
+
+        public CsvConfig(char separator, DateTimeFormatter dateTimeFormatter, boolean versioned, TimeFormat timeFormat) {
             this.separator = separator;
             this.dateTimeFormatter = dateTimeFormatter;
+            this.versioned = versioned;
+            this.timeFormat = timeFormat;
+        }
+
+        public boolean isVersioned() {
+            return versioned;
+        }
+
+        public TimeFormat getTimeFormat() {
+            return timeFormat;
         }
     }
 
@@ -618,10 +658,11 @@ public class TimeSeriesTable {
 
     private void dumpCache(Writer writer, CsvConfig config, int point, CsvCache cache, int cachedPoints, int version) throws IOException {
         for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
-            ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(tableIndex.getTimeAt(point + cachedPoint)), ZoneId.systemDefault());
-            writer.write(dateTime.format(config.dateTimeFormatter));
-            writer.write(config.separator);
-            writer.write(Integer.toString(version));
+            writeTime(writer, config, point, cachedPoint);
+            if (config.isVersioned()) {
+                writer.write(config.separator);
+                writer.write(Integer.toString(version));
+            }
             for (int i = 0; i < timeSeriesMetadata.size(); i++) {
                 TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
                 int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
@@ -640,14 +681,31 @@ public class TimeSeriesTable {
         }
     }
 
-    public void writeCsv(Writer writer, char separator, ZoneId zoneId) {
+    private void writeTime(Writer writer, CsvConfig config, int point, int cachedPoint) throws IOException {
+        long time = tableIndex.getTimeAt(point + cachedPoint);
+        switch (config.getTimeFormat()) {
+            case DATE_FORMAT:
+                ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
+                writer.write(dateTime.format(config.dateTimeFormatter));
+                break;
+            case FRACTIONS_OF_SECOND:
+                double convertedTime = new Long(time).doubleValue();
+                writer.write(Double.toString(convertedTime / 1000));
+                break;
+            case MILLIS:
+                writer.write(Long.toString(time));
+                break;
+        }
+    }
+
+    public void writeCsv(Writer writer, char separator, ZoneId zoneId, boolean versioned, TimeFormat timeFormat) {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(zoneId);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            CsvConfig config = new CsvConfig(separator, DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId));
+            CsvConfig config = new CsvConfig(separator, DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId), versioned, timeFormat);
 
             writeHeader(writer, config);
 
