@@ -51,38 +51,33 @@ public class ExportAlternativesTest {
 
     @Test
     public void testExportAlternativesBusBranchSmall() throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportXmlCompare::sameScenarioTime,
-                        ExportXmlCompare::ensuringIncreasedModelVersion,
-                        ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
-    @Ignore("WIP completing SSH export")
     @Test
     public void testExportAlternativesBusBranchMicro() throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportXmlCompare::sameScenarioTime,
-                        ExportXmlCompare::ensuringIncreasedModelVersion,
-                        ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
-                        ExportXmlCompare::ignoringSynchronousMachinesWithTargetDeadband,
-                        ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
+            ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
     }
 
-    @Ignore("WIP completing SSH export")
     @Test
     public void testExportAlternativesBusBranchMicroT4() throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportXmlCompare::sameScenarioTime,
-                        ExportXmlCompare::ensuringIncreasedModelVersion,
-                        ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
-                        ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
-                        ExportXmlCompare::ignoringSynchronousMachinesWithTargetDeadband,
-                        ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
+            ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
+            ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridType4BE().dataSource(), knownDiffs);
     }
 
@@ -122,8 +117,7 @@ public class ExportAlternativesTest {
             FileUtils.cleanDirectory(exportFolder.toFile());
         }
         Files.createDirectories(exportFolder);
-        DataSource tmpDataSource = new FileDataSource(exportFolder, "");
-        return tmpDataSource;
+        return new FileDataSource(exportFolder, "");
     }
 
     private FileSystem fileSystem;

@@ -20,8 +20,9 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.xmlunit.diff.DifferenceEvaluator;
+import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -38,29 +39,45 @@ import java.util.Properties;
  */
 public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
-    @Ignore("WIP completing SSH export")
     @Test
     public void microGridBE() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2, knownDiffs);
     }
 
-    @Ignore("WIP completing SSH export")
     @Test
     public void microGridBEWithHiddenTapChangers() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEHiddenTapChangers().dataSource(), 2, knownDiffs);
     }
 
     @Test
     public void microGridBEWithSharedRegulatingControl() throws IOException, XMLStreamException {
-        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1ModifiedCatalog.microGridBaseCaseBESharedRegulatingControl().dataSource(), 2, knownDiffs);
     }
 
     @Test
     public void smallGrid() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+            ExportXmlCompare::sameScenarioTime,
+            ExportXmlCompare::ensuringIncreasedModelVersion,
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs);
     }
 
-    private void test(ReadOnlyDataSource dataSource, int version) throws IOException, XMLStreamException {
+    private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
@@ -78,7 +95,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         // Compare the exported SSH with the original one
         try (InputStream expectedssh = Repackager.newInputStream(dataSource, Repackager::ssh);
                 InputStream actualssh = Files.newInputStream(exportedSsh)) {
-            ExportXmlCompare.compareSSH(expectedssh, actualssh);
+            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffs);
         }
 
         // Zip with new SSH

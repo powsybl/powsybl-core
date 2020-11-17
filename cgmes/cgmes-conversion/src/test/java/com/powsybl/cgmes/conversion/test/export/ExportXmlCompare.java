@@ -85,15 +85,7 @@ public final class ExportXmlCompare {
         return selectingEquivalentSshObjects(ignoringNonPersistentSshIds(withSelectedSshNodes(diff(expected, actual, de))));
     }
 
-    static void compareSSH(InputStream expected, InputStream actual) throws IOException {
-        DifferenceEvaluator knownDiffs =
-                DifferenceEvaluators.chain(
-                        ExportXmlCompare::sameScenarioTime,
-                        ExportXmlCompare::ensuringIncreasedModelVersion,
-                        ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
-                        ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
-                        ExportXmlCompare::ignoringSynchronousMachinesWithTargetDeadband,
-                        ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+    static void compareSSH(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) throws IOException {
         onlyNodeListSequenceDiffs(compare(diffSSH(expected, actual, knownDiffs).checkForIdentical()));
     }
 
@@ -194,7 +186,7 @@ public final class ExportXmlCompare {
         return result;
     }
 
-    static ComparisonResult ignoringSynchronousMachinesWithTargetDeadband(Comparison comparison, ComparisonResult result) {
+    static ComparisonResult ignoringSynchronousMachinesSVCsWithTargetDeadband(Comparison comparison, ComparisonResult result) {
         // In micro grid there are two regulating controls for synchronous machines
         // that have a target deadband of 0.5
         // PowSyBl does not allow deadband for generator regulation
@@ -205,17 +197,13 @@ public final class ExportXmlCompare {
             // check that parent of current text node is a regulating control target deadband,
             // then check grand parent is one of the known diff identifiers
             if (control.getParentNode() != null
-                    && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
-                    && control.getParentNode().getLocalName().equals("RegulatingControl.targetDeadband")) {
+                && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
+                && control.getParentNode().getLocalName().equals("RegulatingControl.targetDeadband")) {
                 Node rccontrol = control.getParentNode().getParentNode();
                 String about = rccontrol.getAttributes().getNamedItemNS(RDF_NAMESPACE, "about").getTextContent();
                 if (about.equals("#_84bf5be8-eb59-4555-b131-fce4d2d7775d")
-                        || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")) {
-                    // The regulating control _6ba406ce-78cf-4485-9b01-a34e584f1a8d
-                    // is shared between a synchronous machine and a tap changer
-                    // In PowSyBl, from the point of view of the generator,
-                    // we consider the regulating control without deadband
-                    // But the transformer should be allowed to use a deadband
+                    || about.equals("#_6ba406ce-78cf-4485-9b01-a34e584f1a8d")
+                    || about.equals("#_caf65447-3cfb-48d7-aaaa-cd9af3d34261")) {
                     return ComparisonResult.EQUAL;
                 }
             }
@@ -418,10 +406,7 @@ public final class ExportXmlCompare {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
             // Optional attributes with default values
-            // targetDeadband is optional, explicit value 0 can be ignored
-            if (name.equals("RegulatingControl.targetDeadband") && Double.valueOf(n.getTextContent()) == 0) {
-                return false;
-            } else if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
+            if (name.equals("EquivalentInjection.regulationStatus") && n.getTextContent().equals("false")) {
                 return false;
             } else if (name.equals("EquivalentInjection.regulationTarget") && Double.valueOf(n.getTextContent()) == 0) {
                 return false;
