@@ -15,6 +15,7 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
@@ -51,5 +52,20 @@ public class DanglingLineXmlTest extends AbstractXmlConverterTest {
                 assertEquals("danglingLine.generation is not null and not supported for IIDM-XML version " + version.toString(".") + ". IIDM-XML version should be >= 1.3", e.getMessage());
             }
         });
+
+        // check it doesn't fail for all versions < 1.3 if IidmVersionIncompatibilityBehavior is to log error
+        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+            try {
+                writeXmlTest(network, (n, path) -> write(n, path, version), getVersionedNetworkPath("danglingLineWithGeneration.xml", version));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    private static void write(Network network, Path path, IidmXmlVersion version) {
+        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
+                .setVersion(version.toString("."));
+        NetworkXml.write(network, options, path);
     }
 }
