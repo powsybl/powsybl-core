@@ -23,10 +23,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         protected boolean fictitious = false;
 
-        protected double xnodeP = Double.NaN;
-
-        protected double xnodeQ = Double.NaN;
-
         protected double r = Double.NaN;
 
         protected double x = Double.NaN;
@@ -58,18 +54,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         @Override
         public HalfLineAdderImpl setFictitious(boolean fictitious) {
             this.fictitious = fictitious;
-            return this;
-        }
-
-        @Override
-        public HalfLineAdderImpl setXnodeP(double xnodeP) {
-            this.xnodeP = xnodeP;
-            return this;
-        }
-
-        @Override
-        public HalfLineAdderImpl setXnodeQ(double xnodeQ) {
-            this.xnodeQ = xnodeQ;
             return this;
         }
 
@@ -130,12 +114,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             }
             if (Double.isNaN(b2)) {
                 throw new ValidationException(this, String.format("b2 is not set for half line %d", num));
-            }
-            if (Double.isNaN(xnodeP)) {
-                throw new ValidationException(this, String.format("xnodeP is not set for half line %d", num));
-            }
-            if (Double.isNaN(xnodeQ)) {
-                throw new ValidationException(this, String.format("xnodeQ is not set for half line %d", num));
             }
             if (num == 1) {
                 TieLineAdderImpl.this.halfLineAdder1 = this;
@@ -214,8 +192,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         half1.id = halfLineAdder1.id;
         half1.name = halfLineAdder1.name;
         half1.fictitious = halfLineAdder1.fictitious;
-        half1.xnodeP = halfLineAdder1.xnodeP;
-        half1.xnodeQ = halfLineAdder1.xnodeQ;
         half1.r = halfLineAdder1.r;
         half1.x = halfLineAdder1.x;
         half1.g1 = halfLineAdder1.g1;
@@ -227,8 +203,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         half2.id = halfLineAdder2.id;
         half2.name = halfLineAdder2.name;
         half2.fictitious = halfLineAdder2.fictitious;
-        half2.xnodeP = halfLineAdder2.xnodeP;
-        half2.xnodeQ = halfLineAdder2.xnodeQ;
         half2.r = halfLineAdder2.r;
         half2.x = halfLineAdder2.x;
         half2.g1 = halfLineAdder2.g1;
@@ -247,7 +221,6 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         line.addTerminal(terminal2);
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
-        line.initXnodesValues(getNetwork().getRef());
         network.getIndex().checkAndAdd(line);
         getNetwork().getListeners().notifyCreation(line);
         return line;

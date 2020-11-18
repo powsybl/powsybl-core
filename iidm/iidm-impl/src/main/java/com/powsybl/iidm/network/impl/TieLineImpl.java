@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Objects;
-
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
+
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,7 +17,6 @@ import com.powsybl.iidm.network.ValidationException;
 class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {
-
         TieLineImpl parent;
         String id;
         String name;
@@ -49,32 +48,6 @@ class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public String getName() {
             return name == null ? id : name;
-        }
-
-        @Override
-        public double getXnodeP() {
-            return xnodeP;
-        }
-
-        @Override
-        public HalfLineImpl setXnodeP(double xnodeP) {
-            double oldValue = this.xnodeP;
-            this.xnodeP = xnodeP;
-            notifyUpdate("xnodeP", oldValue, xnodeP);
-            return this;
-        }
-
-        @Override
-        public double getXnodeQ() {
-            return xnodeQ;
-        }
-
-        @Override
-        public HalfLineImpl setXnodeQ(double xnodeQ) {
-            double oldValue = this.xnodeQ;
-            this.xnodeQ = xnodeQ;
-            notifyUpdate("xnodeQ", oldValue, xnodeQ);
-            return this;
         }
 
         @Override
@@ -179,11 +152,16 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     private final HalfLineImpl half2;
 
+    private final TieLineBoundaryPointImpl boundaryPoint1;
+    private final TieLineBoundaryPointImpl boundaryPoint2;
+
     TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
         super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = attach(half1);
         this.half2 = attach(half2);
+        this.boundaryPoint1 = new TieLineBoundaryPointImpl(half1, this::getTerminal1);
+        this.boundaryPoint2 = new TieLineBoundaryPointImpl(half2, this::getTerminal2);
     }
 
     private HalfLineImpl attach(HalfLineImpl half) {
@@ -285,5 +263,17 @@ class TieLineImpl extends LineImpl implements TieLine {
     @Override
     public LineImpl setB2(double b2) {
         throw createNotSupportedForTieLines();
+    }
+
+    @Override
+    public TieLineBoundaryPointImpl getBoundaryPoint(Side side) {
+        switch (side) {
+            case ONE:
+                return boundaryPoint1;
+            case TWO:
+                return boundaryPoint2;
+            default:
+                throw new AssertionError("Unexpected side: " + side);
+        }
     }
 }

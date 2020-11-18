@@ -193,7 +193,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithTieLines(NetworkFactory networkFactory) {
-        Network network = createWithLFResults();
+        Network network = createWithLFResults(networkFactory);
         network.getLine("NHV1_NHV2_1").remove();
         network.getLine("NHV1_NHV2_2").remove();
 
@@ -204,7 +204,7 @@ public final class EurostagTutorialExample1Factory {
                 .setVoltageLevel2("VLHV2")
                 .setBus2("NHV2")
                 .setUcteXnodeCode("XNODE1")
-                .line1()
+                .newHalfLine1()
                     .setId("NHV1_XNODE1")
                     .setR(1.5)
                     .setX(20.0)
@@ -212,7 +212,8 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
-                .line2()
+                    .add()
+                .newHalfLine2()
                     .setId("XNODE1_NHV2")
                     .setR(1.5)
                     .setX(13.0)
@@ -220,6 +221,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .add()
                 .add();
         network.newTieLine()
                 .setId("NHV1_NHV2_2")
@@ -228,7 +230,7 @@ public final class EurostagTutorialExample1Factory {
                 .setVoltageLevel2("VLHV2")
                 .setBus2("NHV2")
                 .setUcteXnodeCode("XNODE2")
-                .line1()
+                .newHalfLine1()
                     .setId("NVH1_XNODE2")
                     .setR(1.5)
                     .setX(20.0)
@@ -236,7 +238,8 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
-                .line2()
+                    .add()
+                .newHalfLine2()
                     .setId("XNODE2_NHV2")
                     .setR(1.5)
                     .setX(13.0)
@@ -244,6 +247,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .add()
                 .add();
         network.getLine("NHV1_NHV2_1").getTerminal1()
                 .setP(302.4440612792969)
@@ -262,7 +266,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithLFResults() {
-        Network network = create();
+        return createWithLFResults(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithLFResults(NetworkFactory factory) {
+        Network network = create(factory);
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
 
         network.getBusBreakerView().getBus("NGEN")
