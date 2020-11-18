@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.BoundaryPoint;
+import com.powsybl.iidm.network.OtherSide;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
@@ -18,13 +18,13 @@ import java.util.function.Supplier;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class TieLineBoundaryPointImpl implements BoundaryPoint {
+class HalfLineOtherSideImpl implements OtherSide {
 
     private final Supplier<Terminal> terminalGetter;
 
     private final TieLine.HalfLine halfLine;
 
-    TieLineBoundaryPointImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalGetter) {
+    HalfLineOtherSideImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalGetter) {
         this.halfLine = Objects.requireNonNull(halfLine);
         this.terminalGetter = Objects.requireNonNull(terminalGetter);
     }

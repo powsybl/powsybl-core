@@ -198,14 +198,14 @@ public class LineAdapterTest {
         // Check P & Q are updated
         SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
         SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
-        assertEquals(expectedSV1.getP(), dl1.getBoundaryPoint().getP(), 0.0d);
-        assertEquals(expectedSV1.getQ(), dl1.getBoundaryPoint().getQ(), 0.0d);
-        assertEquals(expectedSV1.getU(), dl1.getBoundaryPoint().getV(), 0.0d);
-        assertEquals(expectedSV1.getA(), dl1.getBoundaryPoint().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getP(), dl2.getBoundaryPoint().getP(), 0.0d);
-        assertEquals(expectedSV2.getQ(), dl2.getBoundaryPoint().getQ(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundaryPoint().getV(), 0.0d);
-        assertEquals(expectedSV2.getA(), dl2.getBoundaryPoint().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getP(), dl1.getOtherSide().getP(), 0.0d);
+        assertEquals(expectedSV1.getQ(), dl1.getOtherSide().getQ(), 0.0d);
+        assertEquals(expectedSV1.getU(), dl1.getOtherSide().getV(), 0.0d);
+        assertEquals(expectedSV1.getA(), dl1.getOtherSide().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getP(), dl2.getOtherSide().getP(), 0.0d);
+        assertEquals(expectedSV2.getQ(), dl2.getOtherSide().getQ(), 0.0d);
+        assertEquals(expectedSV2.getU(), dl2.getOtherSide().getV(), 0.0d);
+        assertEquals(expectedSV2.getA(), dl2.getOtherSide().getAngle(), 0.0d);
     }
 
     @Test

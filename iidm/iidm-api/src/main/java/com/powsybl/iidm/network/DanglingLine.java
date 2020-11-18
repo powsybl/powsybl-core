@@ -278,7 +278,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
 
     CurrentLimitsAdder newCurrentLimits();
 
-    default BoundaryPoint getBoundaryPoint() {
+    default OtherSide getOtherSide() {
         throw new UnsupportedOperationException();
     }
 }

@@ -323,7 +323,7 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="boundaryPoint" minOccurs="0" maxOccurs="1" type="iidm:BoundaryPoint"/>
+                    <xs:element name="otherSide" minOccurs="0" maxOccurs="1" type="iidm:BoundaryPoint"/>
                     <xs:choice minOccurs="0">
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>

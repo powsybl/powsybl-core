@@ -233,11 +233,11 @@ public interface TieLine extends Line {
         String getName();
 
         /**
-         * @deprecated Use {@link #getBoundaryPoint(Side)} and {@link BoundaryPoint#getP()} instead.
+         * @deprecated Use {@link #getOtherSide()} and {@link OtherSide#getP()} instead.
          */
         @Deprecated
         default double getXnodeP() {
-            return Double.NaN;
+            return getOtherSide().getP();
         }
 
         /**
@@ -249,11 +249,11 @@ public interface TieLine extends Line {
         }
 
         /**
-         * @deprecated Use {@link #getBoundaryPoint(Side)} and {@link BoundaryPoint#getQ()} instead.
+         * @deprecated Use {@link #getOtherSide()} and {@link OtherSide#getQ()} instead.
          */
         @Deprecated
         default double getXnodeQ() {
-            return Double.NaN;
+            return getOtherSide().getQ();
         }
 
         /**
@@ -262,6 +262,10 @@ public interface TieLine extends Line {
         @Deprecated
         default HalfLine setXnodeQ(double q) {
             return this;
+        }
+
+        default OtherSide getOtherSide() {
+            throw new UnsupportedOperationException();
         }
 
         /**
@@ -300,8 +304,4 @@ public interface TieLine extends Line {
      * Get a given side half of the line characteristics
      */
     HalfLine getHalf(Side side);
-
-    default BoundaryPoint getBoundaryPoint(Side side) {
-        throw new UnsupportedOperationException();
-    }
 }

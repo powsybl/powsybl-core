@@ -247,7 +247,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    private final DanglingLineBoundaryPointImpl boundaryPoint;
+    private final DanglingLineOtherSideImpl boundaryPoint;
 
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
                      String ucteXnodeCode, GenerationImpl generation) {
@@ -266,7 +266,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
         this.generation = generation != null ? generation.setDanglingLine(this) : null;
-        this.boundaryPoint = new DanglingLineBoundaryPointImpl(this);
+        this.boundaryPoint = new DanglingLineOtherSideImpl(this);
     }
 
     @Override
@@ -398,7 +398,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public BoundaryPoint getBoundaryPoint() {
+    public OtherSide getOtherSide() {
         return boundaryPoint;
     }
 

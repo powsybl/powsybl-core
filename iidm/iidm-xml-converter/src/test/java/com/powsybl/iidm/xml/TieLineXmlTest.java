@@ -7,7 +7,6 @@
 
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import org.junit.Test;
@@ -30,13 +29,13 @@ public class TieLineXmlTest extends AbstractXmlConverterTest {
     public void ignoreIncorrectBoundaryValues() {
         Network network = NetworkXml.read(getVersionedNetworkAsStream("tielineNullBoundaryValues.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
         TieLine tl = (TieLine) network.getLine("NHV1_NHV2_1");
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.ONE).getP(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.ONE).getQ(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.ONE).getV(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.ONE).getAngle(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.TWO).getP(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.TWO).getQ(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.TWO).getV(), 0.0);
-        assertNotEquals(0.0, tl.getBoundaryPoint(Branch.Side.TWO).getAngle(), 0.0);
+        assertNotEquals(0.0, tl.getHalf1().getOtherSide().getP(), 0.0);
+        assertNotEquals(0.0, tl.getHalf1().getOtherSide().getQ(), 0.0);
+        assertNotEquals(0.0, tl.getHalf1().getOtherSide().getV(), 0.0);
+        assertNotEquals(0.0, tl.getHalf1().getOtherSide().getAngle(), 0.0);
+        assertNotEquals(0.0, tl.getHalf2().getOtherSide().getP(), 0.0);
+        assertNotEquals(0.0, tl.getHalf2().getOtherSide().getQ(), 0.0);
+        assertNotEquals(0.0, tl.getHalf2().getOtherSide().getV(), 0.0);
+        assertNotEquals(0.0, tl.getHalf2().getOtherSide().getAngle(), 0.0);
     }
 }

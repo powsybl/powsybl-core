@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface BoundaryPoint {
+public interface OtherSide {
 
     double getV();
 

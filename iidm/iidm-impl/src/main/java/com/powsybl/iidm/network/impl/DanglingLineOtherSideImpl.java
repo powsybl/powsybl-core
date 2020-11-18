@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.BoundaryPoint;
+import com.powsybl.iidm.network.OtherSide;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
@@ -17,11 +17,11 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class DanglingLineBoundaryPointImpl implements BoundaryPoint {
+class DanglingLineOtherSideImpl implements OtherSide {
 
     private final DanglingLine parent;
 
-    DanglingLineBoundaryPointImpl(DanglingLine parent) {
+    DanglingLineOtherSideImpl(DanglingLine parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 

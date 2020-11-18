@@ -26,7 +26,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     private static final String ANGLE = "angle";
     private static final String GENERATION = "generation";
-    private static final String BOUNDARY_POINT = "boundaryPoint";
+    private static final String OTHER_SIDE = "otherSide";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
@@ -92,7 +92,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (hasDefinedBoundaryPoint(dl)) {
             IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> LOG.warn("Boundary Point values of dangling line {} are defined but are not serializable for XIIDM version < 1.5", dl.getId()));
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeBoundaryPoint(dl.getBoundaryPoint(), context.getWriter(), context.getVersion().getNamespaceURI()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeBoundaryPoint(dl.getOtherSide(), context.getWriter(), context.getVersion().getNamespaceURI()));
         }
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
@@ -102,12 +102,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         }
     }
 
-    private static void writeBoundaryPoint(BoundaryPoint boundaryPoint, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
-        writer.writeEmptyElement(namespaceUri, BOUNDARY_POINT);
-        XmlUtil.writeDouble("p", boundaryPoint.getP(), writer);
-        XmlUtil.writeDouble("q", boundaryPoint.getQ(), writer);
-        XmlUtil.writeDouble("v", boundaryPoint.getV(), writer);
-        XmlUtil.writeDouble(ANGLE, boundaryPoint.getAngle(), writer);
+    private static void writeBoundaryPoint(OtherSide otherSide, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
+        writer.writeEmptyElement(namespaceUri, OTHER_SIDE);
+        XmlUtil.writeDouble("p", otherSide.getP(), writer);
+        XmlUtil.writeDouble("q", otherSide.getQ(), writer);
+        XmlUtil.writeDouble("v", otherSide.getV(), writer);
+        XmlUtil.writeDouble(ANGLE, otherSide.getAngle(), writer);
     }
 
     @Override
@@ -160,9 +160,9 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case BOUNDARY_POINT:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, BOUNDARY_POINT, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    readBoundaryPoint(dl.getId(), dl.getBoundaryPoint(), context);
+                case OTHER_SIDE:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, OTHER_SIDE, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    readBoundaryPoint(dl.getId(), dl.getOtherSide(), context);
                     break;
                 case "currentLimits":
                     readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
@@ -178,17 +178,17 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         });
     }
 
-    private static void readBoundaryPoint(String dlId, BoundaryPoint boundaryPoint, NetworkXmlReaderContext context) {
+    private static void readBoundaryPoint(String dlId, OtherSide otherSide, NetworkXmlReaderContext context) {
         XMLStreamReader reader = context.getReader();
         double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
         double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
         double v = XmlUtil.readOptionalDoubleAttribute(reader, "v");
         double angle = XmlUtil.readOptionalDoubleAttribute(reader, ANGLE);
         context.getEndTasks().add(() -> {
-            checkBoundaryValue(p, boundaryPoint.getP(), "p", dlId);
-            checkBoundaryValue(q, boundaryPoint.getQ(), "q", dlId);
-            checkBoundaryValue(v, boundaryPoint.getV(), "v", dlId);
-            checkBoundaryValue(angle, boundaryPoint.getAngle(), ANGLE, dlId);
+            checkBoundaryValue(p, otherSide.getP(), "p", dlId);
+            checkBoundaryValue(q, otherSide.getQ(), "q", dlId);
+            checkBoundaryValue(v, otherSide.getV(), "v", dlId);
+            checkBoundaryValue(angle, otherSide.getAngle(), ANGLE, dlId);
         });
     }
 
@@ -199,8 +199,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     private static boolean hasDefinedBoundaryPoint(DanglingLine dl) {
-        BoundaryPoint boundaryPoint = dl.getBoundaryPoint();
-        return !Double.isNaN(boundaryPoint.getP()) || !Double.isNaN(boundaryPoint.getQ()) ||
-                !Double.isNaN(boundaryPoint.getV()) || !Double.isNaN(boundaryPoint.getAngle());
+        OtherSide otherSide = dl.getOtherSide();
+        return !Double.isNaN(otherSide.getP()) || !Double.isNaN(otherSide.getQ()) ||
+                !Double.isNaN(otherSide.getV()) || !Double.isNaN(otherSide.getAngle());
     }
 }
