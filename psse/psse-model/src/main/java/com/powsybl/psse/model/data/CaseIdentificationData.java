@@ -36,6 +36,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         context.setFieldNames(getRecordGroup(), headers);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setRawx(false);
         return caseIdentification;
     }
 
@@ -43,6 +44,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         context.setDelimiter(",");
         PsseCaseIdentification caseIdentification = super.read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setRawx(true);
         return caseIdentification;
     }
 

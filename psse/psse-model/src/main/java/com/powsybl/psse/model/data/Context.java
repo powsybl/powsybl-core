@@ -32,6 +32,7 @@ public class Context {
     private final CsvParserSettings csvParserSettings;
     private String delimiter;
     private PsseVersion version;
+    private boolean rawx;
     private int currentRecordGroupMaxNumFields;
 
     public Context() {
@@ -55,6 +56,11 @@ public class Context {
         return this;
     }
 
+    public Context setRawx(boolean rawx) {
+        this.rawx = rawx;
+        return this;
+    }
+
     public String getDelimiter() {
         return this.delimiter;
     }
@@ -68,9 +74,16 @@ public class Context {
         csvParserSettings.setDelimiterDetectionEnabled(true, ',', ' ');
         CsvParser parser = new CsvParser(csvParserSettings);
         parser.parseLine(record);
-        csvParserSettings.setFormat(parser.getDetectedFormat());
-        csvParserSettings.setDelimiterDetectionEnabled(false);
         this.delimiter = parser.getDetectedFormat().getDelimiterString();
+
+        csvParserSettings.getFormat().setDelimiter(this.delimiter);
+        if (rawx) {
+            csvParserSettings.getFormat().setQuote('"');
+        } else {
+            csvParserSettings.getFormat().setQuote('\'');
+        }
+        csvParserSettings.setDelimiterDetectionEnabled(false);
+        csvParserSettings.setQuoteDetectionEnabled(false);
     }
 
     public void setFieldNames(PsseRecordGroup recordGroup, String[] fieldNames) {

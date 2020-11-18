@@ -143,7 +143,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         String[][] actualFieldNames0 = new String[transformerRecords.length][];
         int totalFieldNames = 0;
         for (int k = 0; k < transformerRecords.length; k++) {
-            int numFields = transformerRecords[k].split(context.getDelimiter()).length;
+            int numFields = Util.numFieldsRawFileFormat(transformerRecords[k], context.getDelimiter());
             actualFieldNames0[k] = ArrayUtils.subarray(allFieldNames[k], 0, numFields);
             totalFieldNames += numFields;
         }

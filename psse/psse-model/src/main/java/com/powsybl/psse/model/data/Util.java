@@ -119,6 +119,25 @@ final class Util {
         return newData.toString().trim();
     }
 
+    // num fields raw format, quote is always '
+    static int numFieldsRawFileFormat(String data, String delimiter) {
+        int fields = 0;
+        Matcher m = Pattern.compile("([^\']+)|(\'([^\']*)\')").matcher(data);
+
+        while (m.find()) {
+            if (m.group().contains("'")) {
+                fields++;
+            } else {
+                for (String field : m.group().split(delimiter)) {
+                    if (!field.equals("")) {
+                        fields++;
+                    }
+                }
+            }
+        }
+        return fields;
+    }
+
     static String[] readFieldNames(JsonNode jsonNode) {
         String fieldsNode = jsonNode.get("fields").toString();
         String fieldsNodeClean = cleanRawxFieldNames(fieldsNode.substring(1, fieldsNode.length() - 1));

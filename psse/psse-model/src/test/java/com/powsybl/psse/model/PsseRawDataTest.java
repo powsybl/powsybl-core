@@ -42,6 +42,10 @@ public class PsseRawDataTest {
         return new ResourceDataSource("MinimalExample", new ResourceSet("/", "MinimalExample.rawx"));
     }
 
+    private ReadOnlyDataSource ieee14WhitespaceAsDelimiterRaw() {
+        return new ResourceDataSource("IEEE_14_bus_whitespaceAsDelimiter", new ResourceSet("/", "IEEE_14_bus_whitespaceAsDelimiter.raw"));
+    }
+
     @Test
     public void ieee14BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
@@ -103,6 +107,15 @@ public class PsseRawDataTest {
         String[] expectedOwnerDataReadFields = new String[]{"i", "owname"};
         String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER_DATA);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
+    }
+
+    @Test
+    public void ieee14BusWhitespaceAsDelimiterTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
+        PsseRawModel rawData = new RawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        String actualJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
+        assertEquals(expectedJson, actualJson);
     }
 
     @Test
