@@ -9,8 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -20,11 +18,7 @@ import javax.xml.stream.XMLStreamException;
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DanglingLineXml.class);
-
-    private static final String ANGLE = "angle";
     private static final String GENERATION = "generation";
-    private static final String OTHER_SIDE = "otherSide";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
