@@ -14,6 +14,8 @@ import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.NodeCalc;
 import gnu.trove.list.array.TDoubleArrayList;
+
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
@@ -305,6 +307,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
             List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
+                System.out.println(i);
+                System.out.println(names.get(i));
+                if (Objects.isNull(names.get(i))) {
+                    LOG.warn("Timeseries without name");
+                    continue;
+                }
                 TimeSeriesMetadata metadata = new TimeSeriesMetadata(names.get(i), dataTypes[i], index);
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     TDoubleArrayList doubleValues = (TDoubleArrayList) values[i];
@@ -398,10 +406,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static void checkCsvHeader(String separatorStr, boolean versioned, String[] tokens) {
-        if (versioned && (tokens.length < 3 || !"Time".equals(tokens[0]) || !"Version".equals(tokens[1]))) {
-            throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "Version" + separatorStr + "...");
-        } else if (tokens.length < 2 || !"Time".equals(tokens[0])) {
-            throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "...");
+        if (versioned && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
+            throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
+        } else if (tokens.length < 2 || !"time".equals(tokens[0].toLowerCase())) {
+            throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
     }
 
@@ -535,4 +543,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     static List<TimeSeries> parseJson(Path file) {
         return JsonUtil.parseJson(file, TimeSeries::parseJson);
     }
+
+    static final Logger LOG = LoggerFactory.getLogger(TimeSeries.class);
 }
