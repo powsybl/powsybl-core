@@ -36,11 +36,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
-    @Override
-    protected boolean hasSubElements(TieLine l, NetworkXmlWriterContext context) {
-        return hasSubElements(l) || (hasDefinedOtherSide(l) && context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0);
-    }
-
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         OtherSide otherSide = halfLine.getOtherSide();
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
@@ -76,35 +71,12 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            writeOtherSide(tl.getHalf1().getOtherSide(), 1, context);
-            writeOtherSide(tl.getHalf2().getOtherSide(), 2, context);
-        });
         if (tl.getCurrentLimits1() != null) {
             writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (tl.getCurrentLimits2() != null) {
             writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
         }
-    }
-
-    private static void writeOtherSide(OtherSide otherSide, int halfNumber, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (hasDefinedOtherSide(otherSide)) {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "half" + halfNumber + "OtherSide");
-            XmlUtil.writeDouble("p", otherSide.getP(), context.getWriter());
-            XmlUtil.writeDouble("q", otherSide.getQ(), context.getWriter());
-            XmlUtil.writeDouble("v", otherSide.getV(), context.getWriter());
-            XmlUtil.writeDouble("angle", otherSide.getAngle(), context.getWriter());
-        }
-    }
-
-    private static boolean hasDefinedOtherSide(TieLine l) {
-        return hasDefinedOtherSide(l.getHalf1().getOtherSide()) || hasDefinedOtherSide(l.getHalf2().getOtherSide());
-    }
-
-    private static boolean hasDefinedOtherSide(OtherSide otherSide) {
-        return !Double.isNaN(otherSide.getP()) || !Double.isNaN(otherSide.getQ()) ||
-                !Double.isNaN(otherSide.getV()) || !Double.isNaN(otherSide.getAngle());
     }
 
     @Override
@@ -166,16 +138,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case "half1OtherSide":
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "half1OtherSide", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    checkOtherSideValues(tl.getId(), tl.getHalf1().getOtherSide(), 1, context);
-                    break;
-
-                case "half2OtherSide":
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "half2OtherSide", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    checkOtherSideValues(tl.getId(), tl.getHalf2().getOtherSide(), 2, context);
-                    break;
-
                 case "currentLimits1":
                     readCurrentLimits(1, tl::newCurrentLimits1, context.getReader());
                     break;
@@ -187,19 +149,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 default:
                     super.readSubElements(tl, context);
             }
-        });
-    }
-
-    private static void checkOtherSideValues(String tlId, OtherSide otherSide, int halfNumber, NetworkXmlReaderContext context) {
-        double otherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
-        double otherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
-        double otherSideV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
-        double otherSideAngle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
-        context.getEndTasks().add(() -> {
-            checkOtherSideValues(otherSideP, otherSide.getP(), "half" + halfNumber + "OtherSideP", tlId);
-            checkOtherSideValues(otherSideQ, otherSide.getQ(), "half" + halfNumber + "OtherSideQ", tlId);
-            checkOtherSideValues(otherSideV, otherSide.getV(), "half" + halfNumber + "OtherSideV", tlId);
-            checkOtherSideValues(otherSideAngle, otherSide.getAngle(), "half" + halfNumber + "OtherSideAngle", tlId);
         });
     }
 

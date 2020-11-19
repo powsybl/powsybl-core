@@ -313,17 +313,10 @@
         </xs:sequence>
         <xs:attribute name="permanentLimit" use="optional" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="OtherSide">
-        <xs:attribute name="p" use="optional" type="xs:double"/>
-        <xs:attribute name="q" use="optional" type="xs:double"/>
-        <xs:attribute name="v" use="optional" type="xs:double"/>
-        <xs:attribute name="angle" use="optional" type="xs:double"/>
-    </xs:complexType>
     <xs:complexType name="DanglingLine">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="otherSide" minOccurs="0" maxOccurs="1" type="iidm:OtherSide"/>
                     <xs:choice minOccurs="0">
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
@@ -535,8 +528,6 @@
         <xs:complexContent>
             <xs:extension base="iidm:Branch">
                 <xs:sequence>
-                    <xs:element name="half1OtherSide" type="iidm:OtherSide" minOccurs="0" maxOccurs="1"/>
-                    <xs:element name="half2OtherSide" type="iidm:OtherSide" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
                     <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
                 </xs:sequence>
