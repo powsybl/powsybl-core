@@ -965,7 +965,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .line1().setId(mergedLine.half1.id)
+                    .newHalfLine1().setId(mergedLine.half1.id)
                         .setName(mergedLine.half1.name)
                         .setR(mergedLine.half1.r)
                         .setX(mergedLine.half1.x)
@@ -976,7 +976,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setXnodeP(mergedLine.half1.xnodeP)
                         .setXnodeQ(mergedLine.half1.xnodeQ)
                         .setFictitious(mergedLine.half1.fictitious)
-                    .line2().setId(mergedLine.half2.id)
+                    .add()
+                    .newHalfLine2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
                         .setX(mergedLine.half2.x)
@@ -987,6 +988,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setXnodeP(mergedLine.half2.xnodeP)
                         .setXnodeQ(mergedLine.half2.xnodeQ)
                         .setFictitious(mergedLine.half2.fictitious)
+                    .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
