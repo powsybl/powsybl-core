@@ -241,7 +241,7 @@ public class TimeSeriesTest {
             "1970-01-01T04:00:00.000+01:00;4.0;c",
             "1970-01-01T05:00:00.000+01:00;5.0;",
             "1970-01-01T06:00:00.000+01:00;6.0;d") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, ';', false, TimeFormat.DATE_TIME)).hasMessage("Bad CSV header, should be \nTime;...").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoTime, ';', false, TimeFormat.DATE_TIME)).hasMessage("Bad CSV header, should be \ntime;...").isInstanceOf(TimeSeriesException.class);
 
         String badHeaderNoVersion = String.join(System.lineSeparator(),
             "Time;NoVersion;ts1;ts2",
@@ -251,7 +251,7 @@ public class TimeSeriesTest {
             "1970-01-01T01:00:00.000+01:00;2;4.0;c",
             "1970-01-01T02:00:00.000+01:00;2;5.0;",
             "1970-01-01T03:00:00.000+01:00;2;6.0;d") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoVersion, ';')).hasMessage("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(badHeaderNoVersion, ';')).hasMessage("Bad CSV header, should be \ntime;version;...").isInstanceOf(TimeSeriesException.class);
 
         String duplicates = String.join(System.lineSeparator(),
             "Time;Version;ts1;ts1",
@@ -271,7 +271,7 @@ public class TimeSeriesTest {
             "1970-01-01T01:00:00.000+01:00;2",
             "1970-01-01T02:00:00.000+01:00;2",
             "1970-01-01T03:00:00.000+01:00;2") + System.lineSeparator();
-        assertThatCode(() -> TimeSeries.parseCsv(noData, ';')).hasMessageContaining("Bad CSV header, should be \nTime;Version;...").isInstanceOf(TimeSeriesException.class);
+        assertThatCode(() -> TimeSeries.parseCsv(noData, ';')).hasMessageContaining("Bad CSV header, should be \ntime;version;...").isInstanceOf(TimeSeriesException.class);
 
         String onlyOneTime = String.join(System.lineSeparator(),
             "Time;ts1",

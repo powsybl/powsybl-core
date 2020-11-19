@@ -307,8 +307,6 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
             List<TimeSeries> timeSeriesList = new ArrayList<>(names.size());
             for (int i = 0; i < names.size(); i++) {
-                System.out.println(i);
-                System.out.println(names.get(i));
                 if (Objects.isNull(names.get(i))) {
                     LOG.warn("Timeseries without name");
                     continue;
