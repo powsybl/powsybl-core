@@ -8,7 +8,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.OtherSide;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
@@ -129,8 +129,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     }
 
     @Override
-    public OtherSide getOtherSide() {
-        return danglingLine.getOtherSide();
+    public Boundary getBoundary() {
+        return danglingLine.getBoundary();
     }
 
     public TieLine.HalfLine setB(double b) {

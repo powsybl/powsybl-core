@@ -107,7 +107,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public OtherSide getOtherSide() {
-        return getDelegate().getOtherSide();
+    public Boundary getBoundary() {
+        return getDelegate().getBoundary();
     }
 }

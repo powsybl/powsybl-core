@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -247,7 +248,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    private final DanglingLineOtherSideImpl boundaryPoint;
+    private final DanglingLineBoundaryImpl boundary;
 
     DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b,
                      String ucteXnodeCode, GenerationImpl generation) {
@@ -266,7 +267,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
         this.generation = generation != null ? generation.setDanglingLine(this) : null;
-        this.boundaryPoint = new DanglingLineOtherSideImpl(this);
+        this.boundary = new DanglingLineBoundaryImpl(this);
     }
 
     @Override
@@ -398,8 +399,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public OtherSide getOtherSide() {
-        return boundaryPoint;
+    public Boundary getBoundary() {
+        return boundary;
     }
 
     @Override

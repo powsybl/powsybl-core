@@ -37,7 +37,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
-        OtherSide otherSide = halfLine.getOtherSide();
+        Boundary boundary = halfLine.getBoundary();
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (!halfLine.getId().equals(halfLine.getName())) {
             context.getWriter().writeAttribute("name_" + side, context.getAnonymizer().anonymizeString(halfLine.getName()));
@@ -49,8 +49,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            XmlUtil.writeDouble("xnodeP_" + side, otherSide.getP(), context.getWriter());
-            XmlUtil.writeDouble("xnodeQ_" + side, otherSide.getQ(), context.getWriter());
+            XmlUtil.writeDouble("xnodeP_" + side, boundary.getP(), context.getWriter());
+            XmlUtil.writeDouble("xnodeQ_" + side, boundary.getQ(), context.getWriter());
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
@@ -120,15 +120,15 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            double half1OtherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            double half2OtherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            double half1OtherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            double half2OtherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+            double half1BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
+            double half2BoundaryP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
+            double half1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
+            double half2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
             context.getEndTasks().add(() -> {
-                checkOtherSideValues(half1OtherSideP, tl.getHalf1().getOtherSide().getP(), "half1OtherSideP", tl.getId());
-                checkOtherSideValues(half2OtherSideP, tl.getHalf2().getOtherSide().getP(), "half2OtherSideP", tl.getId());
-                checkOtherSideValues(half1OtherSideQ, tl.getHalf1().getOtherSide().getQ(), "half1OtherSideQ", tl.getId());
-                checkOtherSideValues(half2OtherSideQ, tl.getHalf2().getOtherSide().getQ(), "half2OtherSideQ", tl.getId());
+                checkBoundaryValue(half1BoundaryP, tl.getHalf1().getBoundary().getP(), "xnodeP_1", tl.getId());
+                checkBoundaryValue(half2BoundaryP, tl.getHalf2().getBoundary().getP(), "xnodeP_2", tl.getId());
+                checkBoundaryValue(half1BoundaryQ, tl.getHalf1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
+                checkBoundaryValue(half2BoundaryQ, tl.getHalf2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
             });
         });
         return tl;
@@ -152,7 +152,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         });
     }
 
-    private static void checkOtherSideValues(double imported, double calculated, String name, String tlId) {
+    private static void checkBoundaryValue(double imported, double calculated, String name, String tlId) {
         if (!Double.isNaN(imported) && imported != calculated) {
             LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
         }

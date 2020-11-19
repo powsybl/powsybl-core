@@ -29,7 +29,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         double g2 = Double.NaN;
         double b1 = Double.NaN;
         double b2 = Double.NaN;
-        HalfLineOtherSideImpl otherSide;
+        HalfLineBoundaryImpl boundary;
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -130,8 +130,8 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
 
         @Override
-        public HalfLineOtherSideImpl getOtherSide() {
-            return otherSide;
+        public HalfLineBoundaryImpl getBoundary() {
+            return boundary;
         }
 
         @Override
@@ -167,7 +167,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     private HalfLineImpl attach(HalfLineImpl half, Supplier<Terminal> terminalSupplier) {
         half.setParent(this);
-        half.otherSide = new HalfLineOtherSideImpl(half, terminalSupplier);
+        half.boundary = new HalfLineBoundaryImpl(half, terminalSupplier);
         return half;
     }
 

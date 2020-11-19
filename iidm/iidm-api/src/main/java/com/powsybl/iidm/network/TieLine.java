@@ -233,11 +233,11 @@ public interface TieLine extends Line {
         String getName();
 
         /**
-         * @deprecated Use {@link #getOtherSide()} and {@link OtherSide#getP()} instead.
+         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getP()} instead.
          */
         @Deprecated
         default double getXnodeP() {
-            return getOtherSide().getP();
+            return getBoundary().getP();
         }
 
         /**
@@ -249,11 +249,11 @@ public interface TieLine extends Line {
         }
 
         /**
-         * @deprecated Use {@link #getOtherSide()} and {@link OtherSide#getQ()} instead.
+         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getQ()} instead.
          */
         @Deprecated
         default double getXnodeQ() {
-            return getOtherSide().getQ();
+            return getBoundary().getQ();
         }
 
         /**
@@ -264,7 +264,7 @@ public interface TieLine extends Line {
             return this;
         }
 
-        default OtherSide getOtherSide() {
+        default Boundary getBoundary() {
             throw new UnsupportedOperationException();
         }
 
