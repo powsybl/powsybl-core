@@ -29,27 +29,35 @@ class DanglingLineOtherSideImpl implements OtherSide {
     public double getV() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(parent);
     }
 
     @Override
     public double getP() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+    }
+
+    private static double getV(Bus b) {
+        return b == null ? Double.NaN : b.getV();
+    }
+
+    private static double getAngle(Bus b) {
+        return b == null ? Double.NaN : b.getAngle();
     }
 }

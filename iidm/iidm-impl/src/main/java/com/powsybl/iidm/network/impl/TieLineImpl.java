@@ -165,9 +165,9 @@ class TieLineImpl extends LineImpl implements TieLine {
         this.half2 = attach(half2, this::getTerminal2);
     }
 
-    private HalfLineImpl attach(HalfLineImpl half, Supplier<Terminal> terminalGetter) {
+    private HalfLineImpl attach(HalfLineImpl half, Supplier<Terminal> terminalSupplier) {
         half.setParent(this);
-        half.otherSide = new HalfLineOtherSideImpl(half, terminalGetter);
+        half.otherSide = new HalfLineOtherSideImpl(half, terminalSupplier);
         return half;
     }
 

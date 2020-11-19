@@ -20,40 +20,48 @@ import java.util.function.Supplier;
  */
 class HalfLineOtherSideImpl implements OtherSide {
 
-    private final Supplier<Terminal> terminalGetter;
+    private final Supplier<Terminal> terminalSupplier;
 
     private final TieLine.HalfLine halfLine;
 
-    HalfLineOtherSideImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalGetter) {
+    HalfLineOtherSideImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalSupplier) {
         this.halfLine = Objects.requireNonNull(halfLine);
-        this.terminalGetter = Objects.requireNonNull(terminalGetter);
+        this.terminalSupplier = Objects.requireNonNull(terminalSupplier);
     }
 
     @Override
     public double getV() {
-        Terminal t = terminalGetter.get();
+        Terminal t = terminalSupplier.get();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideU(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(halfLine);
     }
 
     @Override
     public double getAngle() {
-        Terminal t = terminalGetter.get();
+        Terminal t = terminalSupplier.get();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideA(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(halfLine);
     }
 
     @Override
     public double getP() {
-        Terminal t = terminalGetter.get();
+        Terminal t = terminalSupplier.get();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideP(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(halfLine);
     }
 
     @Override
     public double getQ() {
-        Terminal t = terminalGetter.get();
+        Terminal t = terminalSupplier.get();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSideQ(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(halfLine);
+    }
+
+    private static double getV(Bus b) {
+        return b == null ? Double.NaN : b.getV();
+    }
+
+    private static double getAngle(Bus b) {
+        return b == null ? Double.NaN : b.getAngle();
     }
 }
