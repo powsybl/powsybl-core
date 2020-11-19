@@ -27,7 +27,7 @@ public class TieLineXmlTest extends AbstractXmlConverterTest {
 
     @Test
     public void ignoreIncorrectBoundaryValues() {
-        Network network = NetworkXml.read(getVersionedNetworkAsStream("tielineNullBoundaryValues.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
+        Network network = NetworkXml.read(getVersionedNetworkAsStream("tielineNullOtherSideValues.xml", IidmXmlConstants.CURRENT_IIDM_XML_VERSION));
         TieLine tl = (TieLine) network.getLine("NHV1_NHV2_1");
         assertNotEquals(0.0, tl.getHalf1().getOtherSide().getP(), 0.0);
         assertNotEquals(0.0, tl.getHalf1().getOtherSide().getQ(), 0.0);

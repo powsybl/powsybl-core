@@ -7,10 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.OtherSide;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,9 +19,6 @@ import javax.xml.stream.XMLStreamException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> {
-
-    private static final String BOUNDARY_POINT_P = "boundaryPointP_";
-    private static final String BOUNDARY_POINT_Q = "boundaryPointQ_";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 
@@ -42,6 +36,11 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
+    @Override
+    protected boolean hasSubElements(TieLine l, NetworkXmlWriterContext context) {
+        return hasSubElements(l) || (hasDefinedOtherSide(l) && context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0);
+    }
+
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         OtherSide otherSide = halfLine.getOtherSide();
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
@@ -57,12 +56,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
             XmlUtil.writeDouble("xnodeP_" + side, otherSide.getP(), context.getWriter());
             XmlUtil.writeDouble("xnodeQ_" + side, otherSide.getQ(), context.getWriter());
-        });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            XmlUtil.writeDouble(BOUNDARY_POINT_P + side, otherSide.getP(), context.getWriter());
-            XmlUtil.writeDouble(BOUNDARY_POINT_Q + side, otherSide.getQ(), context.getWriter());
-            XmlUtil.writeDouble("boundaryPointV_" + side, otherSide.getV(), context.getWriter());
-            XmlUtil.writeDouble("boundaryPointAngle_" + side, otherSide.getAngle(), context.getWriter());
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
@@ -83,12 +76,35 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            writeOtherSide(tl.getHalf1().getOtherSide(), 1, context);
+            writeOtherSide(tl.getHalf2().getOtherSide(), 2, context);
+        });
         if (tl.getCurrentLimits1() != null) {
             writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
         }
         if (tl.getCurrentLimits2() != null) {
             writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
         }
+    }
+
+    private static void writeOtherSide(OtherSide otherSide, int halfNumber, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (hasDefinedOtherSide(otherSide)) {
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "half" + halfNumber + "OtherSide");
+            XmlUtil.writeDouble("p", otherSide.getP(), context.getWriter());
+            XmlUtil.writeDouble("q", otherSide.getQ(), context.getWriter());
+            XmlUtil.writeDouble("v", otherSide.getV(), context.getWriter());
+            XmlUtil.writeDouble("angle", otherSide.getAngle(), context.getWriter());
+        }
+    }
+
+    private static boolean hasDefinedOtherSide(TieLine l) {
+        return hasDefinedOtherSide(l.getHalf1().getOtherSide()) || hasDefinedOtherSide(l.getHalf2().getOtherSide());
+    }
+
+    private static boolean hasDefinedOtherSide(OtherSide otherSide) {
+        return !Double.isNaN(otherSide.getP()) || !Double.isNaN(otherSide.getQ()) ||
+                !Double.isNaN(otherSide.getV()) || !Double.isNaN(otherSide.getAngle());
     }
 
     @Override
@@ -131,49 +147,35 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                 .add();
         readPQ(1, tl.getTerminal1(), context.getReader());
         readPQ(2, tl.getTerminal2(), context.getReader());
-        double boundaryPointV1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointV_1");
-        double boundaryPointV2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointV_2");
-        double boundaryPointAngle1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointAngle_1");
-        double boundaryPointAngle2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointAngle_2");
-        double[] boundaryPointP1 = new double[1];
-        double[] boundaryPointP2 = new double[1];
-        double[] boundaryPointQ1 = new double[1];
-        double[] boundaryPointQ2 = new double[1];
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            boundaryPointP1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
-            boundaryPointP2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
-            boundaryPointQ1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
-            boundaryPointQ2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
-        });
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            boundaryPointP1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointP_1");
-            boundaryPointP2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointP_2");
-            boundaryPointQ1[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointQ_1");
-            boundaryPointQ2[0] = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "boundaryPointQ_2");
-        });
-        context.getEndTasks().add(() -> {
-            checkBoundaryPointValue(boundaryPointV1, tl.getHalf1().getOtherSide().getV(), "boundaryPointV1", tl.getId());
-            checkBoundaryPointValue(boundaryPointV2, tl.getHalf2().getOtherSide().getV(), "boundaryPointV2", tl.getId());
-            checkBoundaryPointValue(boundaryPointAngle1, tl.getHalf1().getOtherSide().getAngle(), "boundaryPointAngle1", tl.getId());
-            checkBoundaryPointValue(boundaryPointAngle2, tl.getHalf2().getOtherSide().getAngle(), "boundaryPointAngle2", tl.getId());
-            checkBoundaryPointValue(boundaryPointP1[0], tl.getHalf1().getOtherSide().getP(), "boundaryPointP1", tl.getId());
-            checkBoundaryPointValue(boundaryPointP2[0], tl.getHalf2().getOtherSide().getP(), "boundaryPointP2", tl.getId());
-            checkBoundaryPointValue(boundaryPointQ1[0], tl.getHalf1().getOtherSide().getQ(), "boundaryPointQ1", tl.getId());
-            checkBoundaryPointValue(boundaryPointQ2[0], tl.getHalf2().getOtherSide().getQ(), "boundaryPointQ2", tl.getId());
+            double half1OtherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_1");
+            double half2OtherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeP_2");
+            double half1OtherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
+            double half2OtherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
+            context.getEndTasks().add(() -> {
+                checkOtherSideValues(half1OtherSideP, tl.getHalf1().getOtherSide().getP(), "half1OtherSideP", tl.getId());
+                checkOtherSideValues(half2OtherSideP, tl.getHalf2().getOtherSide().getP(), "half2OtherSideP", tl.getId());
+                checkOtherSideValues(half1OtherSideQ, tl.getHalf1().getOtherSide().getQ(), "half1OtherSideQ", tl.getId());
+                checkOtherSideValues(half2OtherSideQ, tl.getHalf2().getOtherSide().getQ(), "half2OtherSideQ", tl.getId());
+            });
         });
         return tl;
-    }
-
-    private static void checkBoundaryPointValue(double imported, double calculated, String name, String tlId) {
-        if (!Double.isNaN(imported) && imported != calculated) {
-            LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
-        }
     }
 
     @Override
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
+                case "half1OtherSide":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "half1OtherSide", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    checkOtherSideValues(tl.getId(), tl.getHalf1().getOtherSide(), 1, context);
+                    break;
+
+                case "half2OtherSide":
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, "half2OtherSide", IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    checkOtherSideValues(tl.getId(), tl.getHalf2().getOtherSide(), 2, context);
+                    break;
+
                 case "currentLimits1":
                     readCurrentLimits(1, tl::newCurrentLimits1, context.getReader());
                     break;
@@ -186,5 +188,24 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
                     super.readSubElements(tl, context);
             }
         });
+    }
+
+    private static void checkOtherSideValues(String tlId, OtherSide otherSide, int halfNumber, NetworkXmlReaderContext context) {
+        double otherSideP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
+        double otherSideQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
+        double otherSideV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "v");
+        double otherSideAngle = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "angle");
+        context.getEndTasks().add(() -> {
+            checkOtherSideValues(otherSideP, otherSide.getP(), "half" + halfNumber + "OtherSideP", tlId);
+            checkOtherSideValues(otherSideQ, otherSide.getQ(), "half" + halfNumber + "OtherSideQ", tlId);
+            checkOtherSideValues(otherSideV, otherSide.getV(), "half" + halfNumber + "OtherSideV", tlId);
+            checkOtherSideValues(otherSideAngle, otherSide.getAngle(), "half" + halfNumber + "OtherSideAngle", tlId);
+        });
+    }
+
+    private static void checkOtherSideValues(double imported, double calculated, String name, String tlId) {
+        if (!Double.isNaN(imported) && imported != calculated) {
+            LOGGER.info("{} of TieLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, tlId, imported, calculated);
+        }
     }
 }

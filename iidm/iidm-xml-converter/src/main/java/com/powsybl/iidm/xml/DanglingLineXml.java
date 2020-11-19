@@ -44,7 +44,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
-        return hasSubElements(dl) || (hasDefinedBoundaryPoint(dl) && context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0);
+        return hasSubElements(dl) || (hasDefinedOtherSide(dl) && context.getVersion().compareTo(IidmXmlVersion.V_1_5) >= 0);
     }
 
     @Override
@@ -90,9 +90,9 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (hasDefinedBoundaryPoint(dl)) {
-            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> LOG.warn("Boundary Point values of dangling line {} are defined but are not serializable for XIIDM version < 1.5", dl.getId()));
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeBoundaryPoint(dl.getOtherSide(), context.getWriter(), context.getVersion().getNamespaceURI()));
+        if (hasDefinedOtherSide(dl)) {
+            IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> LOG.warn("Other side's values of dangling line {} are defined but are not serializable for XIIDM version < 1.5", dl.getId()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeOtherSide(dl.getOtherSide(), context.getWriter(), context.getVersion().getNamespaceURI()));
         }
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
@@ -102,7 +102,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         }
     }
 
-    private static void writeBoundaryPoint(OtherSide otherSide, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
+    private static void writeOtherSide(OtherSide otherSide, XMLStreamWriter writer, String namespaceUri) throws XMLStreamException {
         writer.writeEmptyElement(namespaceUri, OTHER_SIDE);
         XmlUtil.writeDouble("p", otherSide.getP(), writer);
         XmlUtil.writeDouble("q", otherSide.getQ(), writer);
@@ -185,20 +185,20 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double v = XmlUtil.readOptionalDoubleAttribute(reader, "v");
         double angle = XmlUtil.readOptionalDoubleAttribute(reader, ANGLE);
         context.getEndTasks().add(() -> {
-            checkBoundaryValue(p, otherSide.getP(), "p", dlId);
-            checkBoundaryValue(q, otherSide.getQ(), "q", dlId);
-            checkBoundaryValue(v, otherSide.getV(), "v", dlId);
-            checkBoundaryValue(angle, otherSide.getAngle(), ANGLE, dlId);
+            checkOtherSideValues(p, otherSide.getP(), "p", dlId);
+            checkOtherSideValues(q, otherSide.getQ(), "q", dlId);
+            checkOtherSideValues(v, otherSide.getV(), "v", dlId);
+            checkOtherSideValues(angle, otherSide.getAngle(), ANGLE, dlId);
         });
     }
 
-    private static void checkBoundaryValue(double imported, double calculated, String name, String dlId) {
+    private static void checkOtherSideValues(double imported, double calculated, String name, String dlId) {
         if (!Double.isNaN(imported) && imported != calculated) {
             LOG.info("boundaryPoint.{} of DanglingLine {} is recalculated. Its imported value is not used (imported value = {}; calculated value = {})", name, dlId, imported, calculated);
         }
     }
 
-    private static boolean hasDefinedBoundaryPoint(DanglingLine dl) {
+    private static boolean hasDefinedOtherSide(DanglingLine dl) {
         OtherSide otherSide = dl.getOtherSide();
         return !Double.isNaN(otherSide.getP()) || !Double.isNaN(otherSide.getQ()) ||
                 !Double.isNaN(otherSide.getV()) || !Double.isNaN(otherSide.getAngle());
