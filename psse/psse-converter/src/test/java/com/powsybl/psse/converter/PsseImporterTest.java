@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
 /**
@@ -117,10 +118,10 @@ public class PsseImporterTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("case-flag-not-supported", new ResourceSet("/", "case-flag-not-supported.raw"));
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
-        PsseException x = assertThrows(PsseException.class, () -> {
-            psseImporter.importData(dataSource, networkFactory, null);
-        });
-        assertEquals("Incremental load of data option (IC = 1) is not supported", x.getMessage());
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(() -> {
+                psseImporter.importData(dataSource, networkFactory, null);
+            }).withMessage("Incremental load of data option (IC = 1) is not supported");
     }
 
     @Test
@@ -128,10 +129,10 @@ public class PsseImporterTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("version-not-supported", new ResourceSet("/", "version-not-supported.raw"));
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
-        PsseException x = assertThrows(PsseException.class, () -> {
-            psseImporter.importData(dataSource, networkFactory, null);
-        });
-        assertEquals("Version 29 not supported. Supported versions are: 33, 35", x.getMessage());
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(() -> {
+                psseImporter.importData(dataSource, networkFactory, null);
+            }).withMessage("Version 29 not supported. Supported versions are: 33, 35");
     }
 
     @Test
