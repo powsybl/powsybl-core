@@ -7,6 +7,7 @@
 package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseGenerator;
 import com.powsybl.psse.model.PsseGenerator35;
 
@@ -25,10 +26,13 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
     @Override
     public String[] fieldNames(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_35;
-        } else {
-            return FIELD_NAMES_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_35;
+            case VERSION_33:
+                return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 

@@ -69,18 +69,24 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     public String[][] fieldNames3(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_3_35;
-        } else {
-            return FIELD_NAMES_3_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_3_35;
+            case VERSION_33:
+                return FIELD_NAMES_3_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 
     public String[][] fieldNames2(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_2_35;
-        } else {
-            return FIELD_NAMES_2_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_2_35;
+            case VERSION_33:
+                return FIELD_NAMES_2_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 
