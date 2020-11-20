@@ -6,9 +6,11 @@
  */
 package com.powsybl.psse.model;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,13 +25,7 @@ public final class PsseConstants {
         VERSION_35(35);
 
         private final int number;
-        private static final Map<Integer, PsseVersion> BY_NUMBER = new HashMap<>();
-
-        static {
-            for (PsseVersion v : PsseVersion.values()) {
-                BY_NUMBER.put(v.getNumber(), v);
-            }
-        }
+        private static final Map<Integer, PsseVersion> BY_NUMBER = Arrays.stream(values()).collect(Collectors.toMap(PsseVersion::getNumber, Function.identity()));
 
         private PsseVersion(int number) {
             this.number = number;
