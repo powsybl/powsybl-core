@@ -78,7 +78,8 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
-        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(context.getVersion()));
+        int expectedCount = records.size();
+        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(context.getVersion()), expectedCount);
         CsvParserSettings settings = context.getCsvParserSettings();
         settings.setHeaders(headers);
         settings.setProcessor(processor);
@@ -89,7 +90,7 @@ public abstract class AbstractRecordGroup<T> {
             context.setCurrentRecordNumFields(fields.length);
         }
         List<? extends T> beans = processor.getBeans();
-        if (beans.size() != records.size()) {
+        if (beans.size() != expectedCount) {
             throw new PsseException("Parsing error");
         }
         return (List<T>) beans;
