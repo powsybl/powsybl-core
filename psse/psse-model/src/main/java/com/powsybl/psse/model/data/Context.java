@@ -41,13 +41,13 @@ public class Context {
         csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error(error.getMessage());
+                LOGGER.error("Parsing context {}", error);
             }
         });
     }
 
     public PsseVersion getVersion() {
-        return this.version;
+        return version;
     }
 
     public Context setVersion(PsseVersion version) {
@@ -56,7 +56,7 @@ public class Context {
     }
 
     public String getDelimiter() {
-        return this.delimiter;
+        return delimiter;
     }
 
     public void setDelimiter(String delimiter) {
@@ -70,7 +70,7 @@ public class Context {
         parser.parseLine(record);
         csvParserSettings.setFormat(parser.getDetectedFormat());
         csvParserSettings.setDelimiterDetectionEnabled(false);
-        this.delimiter = parser.getDetectedFormat().getDelimiterString();
+        delimiter = parser.getDetectedFormat().getDelimiterString();
     }
 
     public void setFieldNames(PsseRecordGroup recordGroup, String[] fieldNames) {
@@ -78,7 +78,7 @@ public class Context {
     }
 
     public String[] getFieldNames(PsseRecordGroup recordGroup) {
-        return this.fieldNames.get(recordGroup);
+        return fieldNames.get(recordGroup);
     }
 
     public CsvParserSettings getCsvParserSettings() {

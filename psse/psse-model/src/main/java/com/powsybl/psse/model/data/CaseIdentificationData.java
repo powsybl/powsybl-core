@@ -25,7 +25,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
     }
 
-    public PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
+    PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
         String line = Util.readLineAndRemoveComment(reader);
         context.detectDelimiter(line);
 
@@ -41,7 +41,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
     PsseCaseIdentification read1(JsonNode networkNode, Context context) {
         context.setDelimiter(",");
-        PsseCaseIdentification caseIdentification = super.read(networkNode, context).get(0);
+        PsseCaseIdentification caseIdentification = read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
         return caseIdentification;
     }
