@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -132,7 +133,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(() -> {
                 psseImporter.importData(dataSource, networkFactory, null);
-            }).withMessage("Version 29 not supported. Supported versions are: 33, 35");
+            }).withMessage("Version 29 not supported. Supported versions are: " + PsseVersion.supportedVersions());
     }
 
     @Test
