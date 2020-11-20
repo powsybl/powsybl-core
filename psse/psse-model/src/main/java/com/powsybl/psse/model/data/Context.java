@@ -41,7 +41,7 @@ public class Context {
         csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error("Parsing context {}", error);
+                LOGGER.error("Parsing context {}", context, error);
             }
         });
     }
