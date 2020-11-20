@@ -13,6 +13,7 @@ import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -23,12 +24,14 @@ public class RawXData35 extends RawXDataCommon {
 
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        return read(jsonFile, context);
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            String json = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
+            return read(json, context);
+        }
     }
 
-    private PsseRawModel read(String jsonFile, Context context) throws IOException {
-        JsonNode networkNode = networkNode(jsonFile);
+    private PsseRawModel read(String json, Context context) throws IOException {
+        JsonNode networkNode = networkNode(json);
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
         caseIdentification.validate();
 

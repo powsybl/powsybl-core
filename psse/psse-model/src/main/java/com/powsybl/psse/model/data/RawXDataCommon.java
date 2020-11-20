@@ -16,6 +16,7 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -29,17 +30,21 @@ public class RawXDataCommon implements RawData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
-        caseIdentification.validate();
-        return true;
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            String json = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(json), new Context());
+            caseIdentification.validate();
+            return true;
+        }
     }
 
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(jsonFile), new Context());
-        return PsseVersion.fromNumber(caseIdentification.getRev());
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            String json = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(json), new Context());
+            return PsseVersion.fromNumber(caseIdentification.getRev());
+        }
     }
 
     @Override
@@ -47,7 +52,7 @@ public class RawXDataCommon implements RawData {
         throw new PsseException("RawXDataCommon does not know how to read complete data file. Specific version instance is required");
     }
 
-    protected JsonNode networkNode(String jsonFile) throws IOException {
-        return new ObjectMapper().readTree(jsonFile).get("network");
+    protected JsonNode networkNode(String json) throws IOException {
+        return new ObjectMapper().readTree(json).get("network");
     }
 }
