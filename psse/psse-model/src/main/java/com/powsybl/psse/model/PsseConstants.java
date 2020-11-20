@@ -8,7 +8,6 @@ package com.powsybl.psse.model;
 
 import java.util.Arrays;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -26,6 +25,7 @@ public final class PsseConstants {
 
         private final int number;
         private static final Map<Integer, PsseVersion> BY_NUMBER = Arrays.stream(values()).collect(Collectors.toMap(PsseVersion::getNumber, Function.identity()));
+        private static final String ALL_VERSIONS = Arrays.stream(values()).map(PsseVersion::getNumber).sorted().map(String::valueOf).collect(Collectors.joining(", "));
 
         private PsseVersion(int number) {
             this.number = number;
@@ -35,8 +35,12 @@ public final class PsseConstants {
             return BY_NUMBER.get(number);
         }
 
-        public static Set<Integer> supportedVersions() {
-            return BY_NUMBER.keySet();
+        public static String supportedVersions() {
+            return ALL_VERSIONS;
+        }
+
+        public static boolean isSupported(int rev) {
+            return BY_NUMBER.keySet().contains(rev);
         }
 
         public int getNumber() {
