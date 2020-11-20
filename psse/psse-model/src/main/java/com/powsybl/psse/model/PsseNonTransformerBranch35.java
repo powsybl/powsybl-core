@@ -9,6 +9,8 @@ package com.powsybl.psse.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.univocity.parsers.annotations.Parsed;
 
+import java.util.Objects;
+
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -93,6 +95,7 @@ public class PsseNonTransformerBranch35 extends PsseNonTransformerBranch {
     }
 
     public void setName(String name) {
+        Objects.requireNonNull(name);
         this.name = name;
     }
 
