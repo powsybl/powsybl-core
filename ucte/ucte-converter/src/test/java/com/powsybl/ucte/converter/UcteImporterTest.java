@@ -17,6 +17,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Iterator;
+
 import static org.junit.Assert.*;
 
 /**
@@ -176,5 +178,17 @@ public class UcteImporterTest {
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
     }
+
+    @Test
+    public void voltageLevelsCreationIssueTest() {
+        ResourceDataSource dataSource = new ResourceDataSource("VLsCreationIssue", new ResourceSet("/", "VLsCreationIssue.uct"));
+
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(2, network.getVoltageLevelCount());
+        Iterator<VoltageLevel> iter = network.getVoltageLevels().iterator();
+        assertEquals(iter.next().getNominalV(), iter.next().getNominalV(), 0.01);
+        assertFalse(iter.hasNext());
+    }
+
 }
 

@@ -16,9 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UcteNetworkExt implements UcteNetwork {
@@ -123,21 +123,35 @@ public class UcteNetworkExt implements UcteNetwork {
         }
 
         // in the same substation...
-        addEdgeBetweenSameGeographicalSpotNodes(network, graph);
+        addEdgeBetweenSameGeographicalSpotNodes(network, Optional.empty(), graph);
         addEdgeBetweenTransformers(network, graph);
-        addEdgeForCouplerOrLowImpedanceLine(network, graph);
+        addEdgeForCouplerOrLowImpedanceLine(network, Optional.empty(), graph);
 
         return graph;
     }
 
-    private void addEdgeBetweenSameGeographicalSpotNodes(UcteNetwork network, Graph<UcteNodeCode, Object> graph) {
+    private Graph<UcteNodeCode, Object> createVoltageLevelGraph(UcteNetwork network, Collection<UcteNodeCode> nodeCodes) {
+        Graph<UcteNodeCode, Object> graph = new Pseudograph<>(Object.class);
+        for (UcteNodeCode node : nodeCodes) {
+            graph.addVertex(node);
+        }
+
+        // in the same VL...
+        addEdgeBetweenSameGeographicalSpotNodes(network, Optional.of(nodeCodes.stream().collect(Collectors.toList())), graph);
+        addEdgeForCouplerOrLowImpedanceLine(network, Optional.of(nodeCodes.stream().collect(Collectors.toSet())), graph);
+
+        return graph;
+    }
+
+    private void addEdgeBetweenSameGeographicalSpotNodes(UcteNetwork network, Optional<Collection<UcteNodeCode>> nodeCodesSubset, Graph<UcteNodeCode, Object> graph) {
         // ...nodes with same geographical spot
-        Multimap<String, UcteNode> nodesByGeographicalSpot = Multimaps.index(network.getNodes(), node -> node.getCode().getUcteCountryCode() + node.getCode().getGeographicalSpot());
-        for (Map.Entry<String, Collection<UcteNode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
-            for (UcteNode n1 : entry.getValue()) {
-                for (UcteNode n2 : entry.getValue()) {
+        Collection<UcteNodeCode> nodeCodes = nodeCodesSubset.isPresent() ? nodeCodesSubset.get() : network.getNodes().stream().map(n -> n.getCode()).collect(Collectors.toList());
+        Multimap<String, UcteNodeCode> nodesByGeographicalSpot = Multimaps.index(nodeCodes, nodeCode -> nodeCode.getUcteCountryCode().getUcteCode() + nodeCode.getGeographicalSpot());
+        for (Map.Entry<String, Collection<UcteNodeCode>> entry : nodesByGeographicalSpot.asMap().entrySet()) {
+            for (UcteNodeCode n1 : entry.getValue()) {
+                for (UcteNodeCode n2 : entry.getValue()) {
                     if (n1 != n2) {
-                        graph.addEdge(n1.getCode(), n2.getCode());
+                        graph.addEdge(n1, n2);
                     }
                 }
             }
@@ -153,11 +167,14 @@ public class UcteNetworkExt implements UcteNetwork {
         }
     }
 
-    private void addEdgeForCouplerOrLowImpedanceLine(UcteNetwork network, Graph<UcteNodeCode, Object> graph) {
+    private void addEdgeForCouplerOrLowImpedanceLine(UcteNetwork network, Optional<Set<UcteNodeCode>> nodeCodesSubset, Graph<UcteNodeCode, Object> graph) {
         // ...nodes connected by a coupler or by a low impedance line
         for (UcteLine l : network.getLines()) {
             UcteNodeCode nodeCode1 = l.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = l.getId().getNodeCode2();
+            if (nodeCodesSubset.isPresent() && !(nodeCodesSubset.get().contains(nodeCode1) && nodeCodesSubset.get().contains(nodeCode2))) {
+                continue;
+            }
             if (l.getStatus() == UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION
                     || l.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION) {
                 graph.addEdge(nodeCode1, nodeCode2);
@@ -183,6 +200,25 @@ public class UcteNetworkExt implements UcteNetwork {
         return c;
     }
 
+    private UcteNodeCode getMainNode(Set<UcteNodeCode> nodes) {
+        // the main node of the substation is not an xnode and the one with the highest voltage
+        // level and the lowest busbar number.
+        return nodes.stream()
+                .sorted((nodeCode1, nodeCode2) -> {
+                    if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
+                            nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+                        return 1;
+                    } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX &&
+                            nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
+                        return -1;
+                    } else {
+                        return compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
+                    }
+                })
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+    }
+
     private void updateSubstation() {
         if (substations == null) {
             LOGGER.trace("Update substations...");
@@ -190,22 +226,7 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                // the main node of the substation is not an xnode and the one with the highest voltage
-                // level and the lowest busbar number.
-                UcteNodeCode mainNode = substationNodes.stream()
-                        .sorted((nodeCode1, nodeCode2) -> {
-                            if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
-                                    nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-                                return 1;
-                            } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX &&
-                                    nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
-                                return -1;
-                            } else {
-                                return compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
-                            }
-                        })
-                        .findFirst()
-                        .orElseThrow(AssertionError::new);
+                UcteNodeCode mainNode = getMainNode(substationNodes);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
                         = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);
@@ -218,14 +239,17 @@ public class UcteNetworkExt implements UcteNetwork {
                 LOGGER.trace("Define substation {}", substationName);
 
                 for (Map.Entry<UcteVoltageLevelCode, Collection<UcteNodeCode>> entry : nodesByVoltageLevel.asMap().entrySet()) {
-                    UcteVoltageLevelCode vlc = entry.getKey();
-                    Collection<UcteNodeCode> voltageLevelNodes = entry.getValue();
-                    String voltageLevelName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot() + vlc.ordinal();
-                    UcteVoltageLevel voltageLevel = new UcteVoltageLevel(voltageLevelName, substation, voltageLevelNodes);
-                    voltageLevels.add(voltageLevel);
-                    voltageLevelNodes.forEach(voltageLevelNode -> node2voltageLevel.put(voltageLevelNode, voltageLevel));
+                    Graph<UcteNodeCode, Object> graphVl = createVoltageLevelGraph(network, entry.getValue());
+                    for (Set<UcteNodeCode> voltageLevelNodes : new ConnectivityInspector<>(graphVl).connectedSets()) {
+                        UcteVoltageLevelCode vlc = entry.getKey();
+                        UcteNodeCode mainVlNode = getMainNode(voltageLevelNodes);
+                        String voltageLevelName = mainVlNode.getUcteCountryCode().getUcteCode() + mainVlNode.getGeographicalSpot() + vlc.ordinal();
+                        UcteVoltageLevel voltageLevel = new UcteVoltageLevel(voltageLevelName, substation, voltageLevelNodes);
+                        voltageLevels.add(voltageLevel);
+                        voltageLevelNodes.forEach(voltageLevelNode -> node2voltageLevel.put(voltageLevelNode, voltageLevel));
 
-                    LOGGER.trace("Define voltage level {} as a group of {} nodes", voltageLevelName, voltageLevelNodes);
+                        LOGGER.trace("Define voltage level {} as a group of {} nodes", voltageLevelName, voltageLevelNodes);
+                    }
                 }
             }
         }
