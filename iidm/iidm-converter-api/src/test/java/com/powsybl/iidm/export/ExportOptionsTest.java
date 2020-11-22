@@ -50,7 +50,7 @@ public class ExportOptionsTest {
     public void exportOptionsTest3() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo");
 
-        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE);
+        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
         options.setExtensions(extensionsList);
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
         assertEquals(Boolean.TRUE, options.isIndent());
@@ -58,5 +58,6 @@ public class ExportOptionsTest {
         assertEquals(TopologyLevel.BUS_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(1, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(Boolean.TRUE, options.isSorted());
     }
 }
