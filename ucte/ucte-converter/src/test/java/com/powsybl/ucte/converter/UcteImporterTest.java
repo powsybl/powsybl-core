@@ -18,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Iterator;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
@@ -190,5 +191,15 @@ public class UcteImporterTest {
         assertFalse(iter.hasNext());
     }
 
+    @Test
+    public void substationNameInvariance() {
+        ResourceDataSource dataSource = new ResourceDataSource("VLsCreationIssue", new ResourceSet("/", "VLsCreationIssue.uct"));
+
+        IntStream.iterate(0, i -> i + 1).limit(10).forEach(i -> {
+            Network network = new UcteImporter().importData(dataSource, null);
+            assertNotNull(network.getSubstation("FTESTU"));
+            assertNull(network.getSubstation("F1TEST"));
+        });
+    }
 }
 
