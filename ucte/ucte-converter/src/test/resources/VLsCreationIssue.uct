@@ -1,0 +1,12 @@
+##C 2007.05.01
+Test case for UCTE import issue in PowSyBl core package
+When multiples VLs with the same nominal voltage are present in a substation, only one is created
+contact : slimane.amar@rte-france.com
+
+##N
+##ZFR
+F1TEST11 1TEST77 1    0 0        0.15546 72.7296 0.00000 0.00000
+FTESTU11 TESTUP7 1-2  0 0        0.00000 0.00000 0.00000 0.00000
+
+##T
+F1TEST11 FTESTU11 1 0 380.0 380.0 1186. 0.1280 44.280 0.000000 0.0000   1803 TESTUY771

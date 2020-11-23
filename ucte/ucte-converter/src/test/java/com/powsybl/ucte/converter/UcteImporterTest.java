@@ -13,9 +13,12 @@ import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
@@ -175,6 +178,17 @@ public class UcteImporterTest {
         assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
+    }
+
+    @Test
+    public void substationNameInvariance() {
+        ResourceDataSource dataSource = new ResourceDataSource("VLsCreationIssue", new ResourceSet("/", "VLsCreationIssue.uct"));
+
+        IntStream.iterate(0, i -> i + 1).limit(100).forEach(i -> {
+            Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+            assertNotNull(network.getSubstation("FTESTU"));
+            assertNull(network.getSubstation("F1TEST"));
+        });
     }
 }
 

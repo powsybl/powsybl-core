@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UcteNetworkExt implements UcteNetwork {
@@ -201,7 +200,8 @@ public class UcteNetworkExt implements UcteNetwork {
                                     nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
                                 return -1;
                             } else {
-                                return compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
+                                int c = compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
+                                return (c != 0) ? c : nodeCode2.compareTo(nodeCode1); // Alphabetical order to always have the same main node (invariant)
                             }
                         })
                         .findFirst()
