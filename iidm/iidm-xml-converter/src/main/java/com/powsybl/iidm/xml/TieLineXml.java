@@ -49,8 +49,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         XmlUtil.writeDouble("g2_" + side, halfLine.getG2(), context.getWriter());
         XmlUtil.writeDouble("b2_" + side, halfLine.getB2(), context.getWriter());
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_4, context, () -> {
-            XmlUtil.writeDouble("xnodeP_" + side, -boundary.getP(), context.getWriter());
-            XmlUtil.writeDouble("xnodeQ_" + side, -boundary.getQ(), context.getWriter());
+            XmlUtil.writeDouble("xnodeP_" + side, boundary.getP(), context.getWriter());
+            XmlUtil.writeDouble("xnodeQ_" + side, boundary.getQ(), context.getWriter());
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
@@ -125,10 +125,10 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
             double half1BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_1");
             double half2BoundaryQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "xnodeQ_2");
             context.getEndTasks().add(() -> {
-                checkBoundaryValue(half1BoundaryP, -tl.getHalf1().getBoundary().getP(), "xnodeP_1", tl.getId());
-                checkBoundaryValue(half2BoundaryP, -tl.getHalf2().getBoundary().getP(), "xnodeP_2", tl.getId());
-                checkBoundaryValue(half1BoundaryQ, -tl.getHalf1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
-                checkBoundaryValue(half2BoundaryQ, -tl.getHalf2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
+                checkBoundaryValue(half1BoundaryP, tl.getHalf1().getBoundary().getP(), "xnodeP_1", tl.getId());
+                checkBoundaryValue(half2BoundaryP, tl.getHalf2().getBoundary().getP(), "xnodeP_2", tl.getId());
+                checkBoundaryValue(half1BoundaryQ, tl.getHalf1().getBoundary().getQ(), "xnodeQ_1", tl.getId());
+                checkBoundaryValue(half2BoundaryQ, tl.getHalf2().getBoundary().getQ(), "xnodeQ_2", tl.getId());
             });
         });
         return tl;
