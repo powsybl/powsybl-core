@@ -115,6 +115,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.create();
 
         DefaultContingencyList contingencyList = (DefaultContingencyList) ContingencyList.load(fileSystem.getPath("/contingencies.json"));
+        assertEquals(DefaultContingencyList.VERSION, contingencyList.getVersion());
         assertEquals("list", contingencyList.getName());
 
         List<Contingency> contingencies = contingencyList.getContingencies(network);

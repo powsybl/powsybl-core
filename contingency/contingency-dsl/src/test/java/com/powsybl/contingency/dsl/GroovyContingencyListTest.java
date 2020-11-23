@@ -63,8 +63,10 @@ public class GroovyContingencyListTest {
         writeToDslFile("contingency('c1') {",
                 "    equipments 'NHV1_NHV2_1'",
                 "}");
-        List<Contingency> contingencies = ContingencyList.load(dslFile)
-                .getContingencies(network);
+        ContingencyList contingencyList = ContingencyList.load(dslFile);
+        assertEquals(GroovyContingencyList.VERSION, contingencyList.getVersion());
+        assertEquals("test.groovy", contingencyList.getName());
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
         Contingency contingency = contingencies.get(0);
         assertEquals("c1", contingency.getId());

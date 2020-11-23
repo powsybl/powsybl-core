@@ -18,6 +18,9 @@ import java.util.stream.Collectors;
  */
 public class DefaultContingencyList implements ContingencyList {
 
+    // VERSION = 1.0 : first version
+    public static final String VERSION = "1.0";
+
     private final String name;
 
     private final List<Contingency> contingencies;
@@ -33,6 +36,11 @@ public class DefaultContingencyList implements ContingencyList {
     public DefaultContingencyList(String name, List<Contingency> contingencies) {
         this.name = Objects.requireNonNull(name);
         this.contingencies = ImmutableList.copyOf(contingencies);
+    }
+
+    @Override
+    public String getVersion() {
+        return VERSION;
     }
 
     @Override

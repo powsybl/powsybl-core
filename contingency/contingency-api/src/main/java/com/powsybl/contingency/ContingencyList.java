@@ -7,6 +7,7 @@
 
 package com.powsybl.contingency;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.iidm.network.Network;
 import org.apache.commons.io.FilenameUtils;
 
@@ -21,12 +22,7 @@ import java.util.List;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public interface ContingencyList {
-
-    /**
-     * Return the name of this contingency list
-     */
-    String getName();
+public interface ContingencyList extends Versionable {
 
     /**
      * Return a list of contingency for the given network.

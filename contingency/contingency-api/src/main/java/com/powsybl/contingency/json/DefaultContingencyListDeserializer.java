@@ -35,6 +35,10 @@ public class DefaultContingencyListDeserializer extends StdDeserializer<DefaultC
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
+                case "version":
+                    parser.nextToken();
+                    break;
+
                 case "name":
                     name = parser.nextTextValue();
                     break;
