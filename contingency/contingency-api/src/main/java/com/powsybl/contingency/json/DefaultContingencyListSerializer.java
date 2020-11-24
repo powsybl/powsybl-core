@@ -26,7 +26,7 @@ public class DefaultContingencyListSerializer extends StdSerializer<DefaultConti
     @Override
     public void serialize(DefaultContingencyList contingencyList, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
-        jsonGenerator.writeStringField("version", contingencyList.getVersion());
+        jsonGenerator.writeStringField("version", DefaultContingencyList.VERSION);
         jsonGenerator.writeStringField("name", contingencyList.getName());
         jsonGenerator.writeObjectField("contingencies", contingencyList.getContingencies());
         jsonGenerator.writeEndObject();

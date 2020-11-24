@@ -39,11 +39,6 @@ public class DefaultContingencyList implements ContingencyList {
     }
 
     @Override
-    public String getVersion() {
-        return VERSION;
-    }
-
-    @Override
     public String getName() {
         return name;
     }
