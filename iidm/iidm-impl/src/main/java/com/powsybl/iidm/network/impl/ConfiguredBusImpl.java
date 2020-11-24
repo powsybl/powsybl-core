@@ -70,6 +70,11 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
     }
 
     @Override
+    public TerminalExt getTerminalReference() {
+        return getConnectedTerminalStream().findFirst().orElseGet(() -> getTerminals().isEmpty() ? null : getTerminals().get(0));
+    }
+
+    @Override
     public int getTerminalCount() {
         return terminals.get(network.get().getVariantIndex()).size();
     }

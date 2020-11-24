@@ -82,6 +82,17 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
+    public TerminalExt getTerminalReference() {
+        checkValidity();
+        return getConnectedTerminalStream()
+                .findFirst()
+                .orElseGet(() -> buses.stream()
+                        .map(BusExt::getTerminalReference)
+                        .findFirst()
+                        .orElse(null));
+    }
+
+    @Override
     public void invalidate() {
         valid = false;
         buses.clear();

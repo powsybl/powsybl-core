@@ -109,6 +109,12 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public TerminalExt getTerminalReference() {
+        checkValidity();
+        return terminalRef;
+    }
+
+    @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
         return Collections.unmodifiableCollection(terminals);

@@ -8,13 +8,9 @@ package com.powsybl.iidm.mergingview;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -22,37 +18,15 @@ import java.util.stream.Stream;
  */
 class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
-    private final List<TerminalAdapter> terminals = new ArrayList<>();
+    private final List<TerminalAdapter> terminals;
     private final TerminalAdapter terminalRef;
 
     BusAdapter(final Bus delegate, final MergingViewIndex index) {
         super(delegate, index);
-
-        delegate.getConnectedTerminalStream()
+        terminals = delegate.getConnectedTerminalStream()
                 .map(t -> getIndex().getTerminal(t))
-                .forEach(terminals::add);
-        if (terminals.isEmpty() && delegate.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
-            // If we are in this case, the bus in a calculated Bus-Breaker bus which is between two retained switches
-            terminalRef = findTerminalRef(delegate, getIndex(), (s, v) -> v.getBusBreakerView().getBus1(s.getId()), (s, v) -> v.getNodeBreakerView().getNode1(s.getId()))
-                    .orElseGet(() ->
-                            findTerminalRef(delegate, getIndex(), (s, v) -> v.getBusBreakerView().getBus2(s.getId()), (s, v) -> v.getNodeBreakerView().getNode2(s.getId()))
-                                    .orElse(null));
-        } else {
-            terminalRef = terminals.isEmpty() ? null : terminals.get(0);
-        }
-    }
-
-    private static Optional<TerminalAdapter> findTerminalRef(Bus delegate, MergingViewIndex index,
-                                                             BiFunction<Switch, VoltageLevel, Bus> busGetter, BiFunction<Switch, VoltageLevel, Integer> nodeGetter) {
-        VoltageLevel vl = delegate.getVoltageLevel();
-        return vl.getNodeBreakerView().getSwitchStream()
-                .filter(Switch::isRetained)
-                .filter(s -> busGetter.apply(s, vl).equals(delegate))
-                .map(s -> nodeGetter.apply(s, vl))
-                .map(i -> Networks.getEquivalentTerminal(vl, i))
-                .filter(Objects::nonNull)
-                .map(index::getTerminal)
-                .findFirst();
+                .collect(Collectors.toList());
+        terminalRef = getIndex().getTerminal(delegate.getTerminalReference());
     }
 
     @Override
@@ -238,13 +212,7 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         ConnectedComponentsManager ccm = getIndex().getView().getConnectedComponentsManager();
         ccm.update();
 
-        if (terminals.isEmpty()) {
-            if (terminalRef == null) {
-                return null;
-            }
-            return ccm.getComponent(terminalRef.getConnectedComponentNumber());
-        }
-        return ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+        return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
     }
 
     @Override
@@ -259,6 +227,7 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
         terminals.forEach(t -> t.setConnectedComponentNumber(connectedComponentNumber));
+        terminalRef.setConnectedComponentNumber(connectedComponentNumber);
     }
 
     @Override
@@ -272,17 +241,12 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
         SynchronousComponentsManager ccm = getIndex().getView().getSynchronousComponentsManager();
         ccm.update();
 
-        if (terminals.isEmpty()) {
-            if (terminalRef == null) {
-                return null;
-            }
-            return ccm.getComponent(terminalRef.getSynchronousComponentNumber());
-        }
-        return ccm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+        return terminalRef == null ? null : ccm.getComponent(terminalRef.getSynchronousComponentNumber());
     }
 
     void setSynchronousComponentNumber(int synchronousComponentNumber) {
         terminals.forEach(t -> t.setSynchronousComponentNumber(synchronousComponentNumber));
+        terminalRef.setSynchronousComponentNumber(synchronousComponentNumber);
     }
 
     @Override
