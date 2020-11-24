@@ -125,20 +125,19 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeShuntCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
-            String linearNonlinear;
+            String shuntType;
             switch (s.getModelType()) {
                 case LINEAR:
-                    linearNonlinear = "Linear";
+                    shuntType = "Linear";
                     break;
                 case NON_LINEAR:
-                    linearNonlinear = "Nonlinear";
+                    shuntType = "Nonlinear";
                     break;
                 default:
-                    linearNonlinear = "";
-                    break;
+                    throw new AssertionError("Unexpected shunt model type: " + s.getModelType());
             }
             boolean controlEnabled = s.isVoltageRegulatorOn();
-            writer.writeStartElement(cimNamespace, linearNonlinear + "ShuntCompensator");
+            writer.writeStartElement(cimNamespace, shuntType + "ShuntCompensator");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + s.getId());
             writer.writeStartElement(cimNamespace, "ShuntCompensator.sections");
             writer.writeCharacters(CgmesExportUtil.format(s.getSectionCount()));
@@ -386,6 +385,8 @@ public final class SteadyStateHypothesisExport {
                         case TWO:
                             numt = 2;
                             break;
+                        default:
+                            throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
                     }
                 } else if (c instanceof ThreeWindingsTransformer) {
                     switch (((ThreeWindingsTransformer) c).getSide(t)) {
@@ -398,6 +399,8 @@ public final class SteadyStateHypothesisExport {
                         case THREE:
                             numt = 3;
                             break;
+                        default:
+                            throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
                     }
                 } else {
                     throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());

@@ -7,17 +7,6 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.UncheckedIOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -36,6 +25,16 @@ import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterType;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -87,7 +86,7 @@ public class CgmesExport implements Exporter {
         }
     }
 
-    private void exportUsingOriginalCgmesModel(Network network, DataSource ds, CgmesModelExtension ext) {
+    private static void exportUsingOriginalCgmesModel(Network network, DataSource ds, CgmesModelExtension ext) {
         CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);

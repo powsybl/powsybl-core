@@ -324,6 +324,7 @@ public class Conversion {
     private void addCgmesSshControlAreas(Network network, Context context) {
         PropertyBags sshControlAreas = cgmes.controlAreas();
         if (sshControlAreas != null && !sshControlAreas.isEmpty()) {
+            // TODO Develop conversion after IIDM modelling of control areas or define extension
             context.ignored("ControlAreas", "Unsupported in current version");
         }
     }
