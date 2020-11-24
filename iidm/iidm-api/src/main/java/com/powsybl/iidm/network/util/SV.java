@@ -21,7 +21,7 @@ import org.apache.commons.math3.complex.ComplexUtils;
  */
 public class SV {
 
-    public static double getRatio(TwoWindingsTransformer twt) {
+    public static double getRho(TwoWindingsTransformer twt) {
         return twt.getRatedU2() / twt.getRatedU1() * twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getRho()).orElse(1d);
     }
 
@@ -84,9 +84,9 @@ public class SV {
         return a;
     }
 
-    private Complex computeU2(Complex y1, Complex y2, Complex z, double ratio) {
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
+    private Complex computeU2(Complex y1, Complex y2, Complex z, double rho) {
+        Complex v1p = v1.multiply(rho); // v1p=v1*rho
+        Complex i1p = i1.divide(rho); // i1p=i1/rho
 
         Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
         Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
@@ -95,13 +95,13 @@ public class SV {
         return v2.multiply(Math.sqrt(3f));
     }
 
-    private Complex computeU2(Complex y, Complex z, double ratio) {
-        return computeU2(y, new Complex(0, 0), z, ratio);
+    private Complex computeU2(Complex y, Complex z, double rho) {
+        return computeU2(y, new Complex(0, 0), z, rho);
     }
 
-    private Complex computeS2(Complex y1, Complex y2, Complex z, double ratio) {
-        Complex v1p = v1.multiply(ratio); // v1p=v1*rho
-        Complex i1p = i1.divide(ratio); // i1p=i1/rho
+    private Complex computeS2(Complex y1, Complex y2, Complex z, double rho) {
+        Complex v1p = v1.multiply(rho); // v1p=v1*rho
+        Complex i1p = i1.divide(rho); // i1p=i1/rho
 
         Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
         Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
@@ -109,29 +109,29 @@ public class SV {
         return v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
     }
 
-    private Complex computeS2(Complex y, Complex z, double ratio) {
-        return computeS2(y, new Complex(0, 0), z, ratio);
+    private Complex computeS2(Complex y, Complex z, double rho) {
+        return computeS2(y, new Complex(0, 0), z, rho);
     }
 
-    public SV otherSide(double r, double x, double g, double b, double ratio) {
+    public SV otherSide(double r, double x, double g, double b, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y = new Complex(g, b); // y=g+jb
-        Complex u2 = computeU2(y, z, ratio);
-        Complex s2 = computeS2(y, z, ratio);
+        Complex u2 = computeU2(y, z, rho);
+        Complex s2 = computeS2(y, z, rho);
         return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
     }
 
-    public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
+    public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
         Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex u2 = computeU2(y1, y2, z, ratio);
-        Complex s2 = computeS2(y1, y2, z, ratio);
+        Complex u2 = computeU2(y1, y2, z, rho);
+        Complex s2 = computeS2(y1, y2, z, rho);
         return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
-        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), getRatio(twt));
+        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), getRho(twt));
     }
 
     public SV otherSide(Line l) {
@@ -146,11 +146,11 @@ public class SV {
         return otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
-    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
+    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
         Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s2 = computeS2(y1, y2, z, ratio);
+        Complex s2 = computeS2(y1, y2, z, rho);
         return -s2.getReal();
     }
 
@@ -162,11 +162,11 @@ public class SV {
         return otherSideP(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0);
     }
 
-    public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double ratio) {
+    public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
         Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s2 = computeS2(y1, y2, z, ratio);
+        Complex s2 = computeS2(y1, y2, z, rho);
         return -s2.getImaginary();
     }
 
@@ -178,10 +178,10 @@ public class SV {
         return otherSideQ(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
-    public double otherSideU(double r, double x, double g1, double b1, double ratio) {
+    public double otherSideU(double r, double x, double g1, double b1, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex u2 = computeU2(y1, new Complex(0, 0), z, ratio);
+        Complex u2 = computeU2(y1, new Complex(0, 0), z, rho);
         return u2.abs();
     }
 
@@ -193,10 +193,10 @@ public class SV {
         return otherSideU(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 1);
     }
 
-    public double otherSideA(double r, double x, double g1, double b1, double ratio) {
+    public double otherSideA(double r, double x, double g1, double b1, double rho) {
         Complex z = new Complex(r, x); // z=r+jx
         Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex u2 = computeU2(y1, new Complex(0, 0), z, ratio);
+        Complex u2 = computeU2(y1, new Complex(0, 0), z, rho);
         return Math.toDegrees(u2.getArgument());
     }
 
