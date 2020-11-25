@@ -125,7 +125,7 @@ public class RegulatingControlMappingForGenerators {
     private static class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
-        public boolean controlEnabled;
+        boolean controlEnabled;
     }
 
     private final RegulatingControlMapping parent;
