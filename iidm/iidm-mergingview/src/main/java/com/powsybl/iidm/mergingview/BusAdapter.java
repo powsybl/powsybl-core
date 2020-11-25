@@ -227,7 +227,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
         terminals.forEach(t -> t.setConnectedComponentNumber(connectedComponentNumber));
-        terminalRef.setConnectedComponentNumber(connectedComponentNumber);
     }
 
     @Override
@@ -246,7 +245,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     void setSynchronousComponentNumber(int synchronousComponentNumber) {
         terminals.forEach(t -> t.setSynchronousComponentNumber(synchronousComponentNumber));
-        terminalRef.setSynchronousComponentNumber(synchronousComponentNumber);
     }
 
     @Override
