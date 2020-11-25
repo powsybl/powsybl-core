@@ -48,7 +48,7 @@ public class RegulatingControlMappingForGenerators {
         CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = qPercent;
-        rd.controlEnabled = sm.asBoolean("controlEnabled", true);
+        rd.controlEnabled = sm.asBoolean("controlEnabled", false);
         mapping.put(generatorId, rd);
     }
 
