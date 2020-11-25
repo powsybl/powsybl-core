@@ -76,7 +76,13 @@ public class BusAdapterTest {
     @Test
     public void testSynchronousComponentSetterGetter() {
         MergingView view = MergingView.create("testSynchronousComponentSetterGetter", "iidm");
-        view.merge(HvdcTestNetwork.createVsc());
+        Network network = HvdcTestNetwork.createVsc();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("disconnected")
+                .add();
+        view.merge(network);
         HvdcLine l = view.getHvdcLine("L");
         assertNotNull(l);
         VscConverterStation cs1 = view.getVscConverterStation("C1");
@@ -95,6 +101,11 @@ public class BusAdapterTest {
         int num1 = bus1.getSynchronousComponent().getNum();
         int num2 = bus2.getSynchronousComponent().getNum();
         assertNotEquals(num1, num2);
+        Bus disconnected = view.getBusBreakerView().getBus("disconnected");
+        assertNull(disconnected.getConnectedComponent());
+        assertNull(disconnected.getSynchronousComponent());
+        assertFalse(disconnected.isInMainConnectedComponent());
+        assertFalse(disconnected.isInMainSynchronousComponent());
     }
 
     @Test
