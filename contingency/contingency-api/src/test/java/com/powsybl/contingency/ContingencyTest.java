@@ -16,7 +16,6 @@ import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,16 +29,19 @@ public class ContingencyTest {
 
     @Test
     public void test() {
-        ContingencyElement element1 = new BranchContingency("line");
-        ContingencyElement element2 = new GeneratorContingency("generator");
-        Contingency contingency = new Contingency("contingency", element1, element2);
+        Contingency contingency = Contingency.builder("contingency")
+                .addBranch("line")
+                .addGenerator("generator")
+                .build();
 
         assertEquals("contingency", contingency.getId());
         assertEquals(2, contingency.getElements().size());
 
-        Iterator<ContingencyElement> iterator = contingency.getElements().iterator();
-        assertEquals(element1, iterator.next());
-        assertEquals(element2, iterator.next());
+        List<ContingencyElement> elements = contingency.getElements();
+        assertEquals("line", elements.get(0).getId());
+        assertEquals(ContingencyElementType.BRANCH, elements.get(0).getType());
+        assertEquals("generator", elements.get(1).getId());
+        assertEquals(ContingencyElementType.GENERATOR, elements.get(1).getType());
 
         ModificationTask task = contingency.toTask();
         assertTrue(task instanceof CompoundModificationTask);
@@ -48,12 +50,14 @@ public class ContingencyTest {
     @Test
     public void validationTest() {
         Network network = EurostagTutorialExample1Factory.create();
-        Contingency generatorContingency = new Contingency("GEN contingency", new GeneratorContingency("GEN"));
-        Contingency generatorInvalidContingency = new Contingency("GEN invalid contingency", new GeneratorContingency("GE"));
-        Contingency lineContingency = new Contingency("NHV1_NHV2_1 contingency", new BranchContingency("NHV1_NHV2_1", "VLHV1"));
-        Contingency lineInvalidContingency = new Contingency("NHV1_NHV2_1 invalid contingency", new BranchContingency("NHV1_NHV2_1", "VLHV"));
-        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(generatorContingency, generatorInvalidContingency,
-                lineContingency, lineInvalidContingency), network);
+        Contingency generatorContingency = Contingency.builder("GEN contingency").addGenerator("GEN").build();
+        Contingency generatorInvalidContingency = Contingency.builder("GEN invalid contingency").addGenerator("GE").build();
+        Contingency lineContingency = Contingency.builder("NHV1_NHV2_1 contingency").addLine("NHV1_NHV2_1", "VLHV1").build();
+        Contingency lineInvalidContingency = Contingency.builder("NHV1_NHV2_1 invalid contingency").addLine("NHV1_NHV2_1", "VLHV").build();
+
+        List<Contingency> validContingencies = ContingencyList.of(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency)
+                .getContingencies(network);
+
         assertEquals(Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency"),
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
@@ -61,9 +65,12 @@ public class ContingencyTest {
     @Test
     public void validationTestForShunt() {
         Network network = HvdcTestNetwork.createLcc();
-        Contingency shuntCompensatorContingency = new Contingency("Shunt contingency", new ShuntCompensatorContingency("C1_Filter1"));
-        Contingency shuntCompensatorInvalidContingency = new Contingency("Shunt invalid contingency", new ShuntCompensatorContingency("C_Filter"));
-        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(shuntCompensatorContingency, shuntCompensatorInvalidContingency), network);
+        Contingency shuntCompensatorContingency = Contingency.builder("Shunt contingency").addShuntCompensator("C1_Filter1").build();
+        Contingency shuntCompensatorInvalidContingency = Contingency.builder("Shunt invalid contingency").addShuntCompensator("C_Filter").build();
+
+        List<Contingency> validContingencies = ContingencyList.of(shuntCompensatorContingency, shuntCompensatorInvalidContingency)
+                .getContingencies(network);
+
         assertEquals(Arrays.asList("Shunt contingency"),
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
@@ -71,9 +78,11 @@ public class ContingencyTest {
     @Test
     public void validationTestForSVC() {
         Network network = SvcTestCaseFactory.create();
-        Contingency staticVarCompensatorContingency = new Contingency("SVC contingency", new StaticVarCompensatorContingency("SVC2"));
-        Contingency staticVarCompensatorInvalidContingency = new Contingency("SVC invalid contingency", new StaticVarCompensatorContingency("SVC"));
-        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency), network);
+        Contingency staticVarCompensatorContingency = Contingency.builder("SVC contingency").addStaticVarCompensator("SVC2").build();
+        Contingency staticVarCompensatorInvalidContingency = Contingency.builder("SVC invalid contingency").addStaticVarCompensator("SVC").build();
+        List<Contingency> validContingencies = ContingencyList.of(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency)
+                .getContingencies(network);
+
         assertEquals(Arrays.asList("SVC contingency"),
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
@@ -81,9 +90,11 @@ public class ContingencyTest {
     @Test
     public void validationTestForDL() {
         Network network = DanglingLineNetworkFactory.create();
-        Contingency danglingLineContingency = new Contingency("DL contingency", new DanglingLineContingency("DL"));
-        Contingency danglingLineInvalidContingency = new Contingency("DL invalid contingency", new DanglingLineContingency("DL_THAT_DO_NOT_EXIST"));
-        List<Contingency> validContingencies = Contingency.checkValidity(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network);
+        Contingency danglingLineContingency = Contingency.builder("DL contingency").addDanglingLine("DL").build();
+        Contingency danglingLineInvalidContingency = Contingency.builder("DL invalid contingency").addDanglingLine("DL_THAT_DO_NOT_EXIST").build();
+        List<Contingency> validContingencies = ContingencyList.of(danglingLineContingency, danglingLineInvalidContingency)
+                .getContingencies(network);
+
         assertEquals(Arrays.asList("DL contingency"),
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
     }
