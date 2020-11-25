@@ -49,7 +49,7 @@ public class CgmesExport implements Exporter {
     @Override
     public void export(Network network, Properties params, DataSource ds) {
         Objects.requireNonNull(network);
-        if (params != null && ConversionParameters.readBooleanParameter(getFormat(), params, USING_ONLY_NETWORK_PARAMETER)) {
+        if (ConversionParameters.readBooleanParameter(getFormat(), params, USING_ONLY_NETWORK_PARAMETER)) {
             exportUsingOnlyNetwork(network, params, ds);
         } else {
             CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
