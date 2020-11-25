@@ -82,6 +82,28 @@ public class BusAdapterTest {
                 .newBus()
                 .setId("disconnected")
                 .add();
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("connected1")
+                .add();
+        vl1.getBusBreakerView()
+                .newSwitch()
+                .setId("sw1")
+                .setBus1("B1")
+                .setBus2("connected1")
+                .setOpen(false)
+                .add();
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("connected2")
+                .add();
+        vl1.getBusBreakerView()
+                .newSwitch()
+                .setId("sw2")
+                .setBus1("connected2")
+                .setBus2("connected1")
+                .setOpen(false)
+                .add();
         view.merge(network);
         HvdcLine l = view.getHvdcLine("L");
         assertNotNull(l);
@@ -106,6 +128,16 @@ public class BusAdapterTest {
         assertNull(disconnected.getSynchronousComponent());
         assertFalse(disconnected.isInMainConnectedComponent());
         assertFalse(disconnected.isInMainSynchronousComponent());
+        Bus connected1 = view.getBusBreakerView().getBus("connected1");
+        assertNotNull(connected1.getConnectedComponent());
+        assertNotNull(connected1.getSynchronousComponent());
+        assertSame(connected1.getConnectedComponent(), bus1.getConnectedComponent());
+        assertSame(connected1.getSynchronousComponent(), bus1.getSynchronousComponent());
+        Bus connected2 = view.getBusBreakerView().getBus("connected1");
+        assertNotNull(connected2.getConnectedComponent());
+        assertNotNull(connected2.getSynchronousComponent());
+        assertSame(connected2.getConnectedComponent(), bus1.getConnectedComponent());
+        assertSame(connected2.getSynchronousComponent(), bus1.getSynchronousComponent());
     }
 
     @Test

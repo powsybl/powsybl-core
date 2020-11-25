@@ -6,14 +6,14 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -71,7 +71,40 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     @Override
     public TerminalExt getTerminalReference() {
-        return getConnectedTerminalStream().findFirst().orElseGet(() -> getTerminals().isEmpty() ? null : getTerminals().get(0));
+        return getConnectedTerminalStream().findFirst().orElseGet(() -> {
+            if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                // in bus-breaker voltage level, the terminal reference can be a connected terminal in another bus linked to this one by one or several closed switches
+                VoltageLevel.BusBreakerView view = voltageLevel.getBusBreakerView();
+                return view.getBusStream()
+                        .map(b -> getTerminalReference(b, this, view))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElse(null);
+            }
+            return null;
+        });
+    }
+
+    private static TerminalExt getTerminalReference(Bus b1, Bus b2, VoltageLevel.BusBreakerView view) {
+        for (Switch ss : view.getSwitches()) {
+            if (areConnectedBySwitch(b1, b2, ss, view)) {
+                TerminalExt t = (TerminalExt) b1.getTerminalReference();
+                if (t != null) {
+                    return t;
+                }
+            }
+            if (areConnectedBySwitch(b2, b1, ss, view)) {
+                TerminalExt t = (TerminalExt) b1.getTerminalReference();
+                if (t != null) {
+                    return t;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean areConnectedBySwitch(Bus bus1, Bus bus2, Switch ss, VoltageLevel.BusBreakerView view) {
+        return view.getBus1(ss.getId()) == bus1 && view.getBus2(ss.getId()) == bus2 && !ss.isOpen();
     }
 
     @Override
