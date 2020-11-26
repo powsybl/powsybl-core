@@ -14,27 +14,29 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseCaseIdentification {
 
-    @Parsed(index = 0)
+    @Parsed
     private int ic = 0;
 
-    @Parsed(index = 1)
+    @Parsed
     private double sbase = 100;
 
-    @Parsed(index = 2)
+    @Parsed
     private int rev = 33;
 
-    @Parsed(index = 3)
+    @Parsed
     private double xfrrat = Double.NaN;
 
-    @Parsed(index = 4)
+    @Parsed
     private double nxfrat = Double.NaN;
 
-    @Parsed(index = 5)
+    @Parsed
     private double basfrq = Double.NaN;
 
-    private String title1;
+    @Parsed
+    private String title1 = "";
 
-    private String title2;
+    @Parsed
+    private String title2 = "";
 
     public int getIc() {
         return ic;

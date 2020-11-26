@@ -8,13 +8,13 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ShuntCompensatorContingency;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -32,8 +32,7 @@ public class ShuntCompensatorTrippingTest {
     public void generatorTrippingTest() {
         assertTrue(network.getShuntCompensator("C1_Filter1").getTerminal().isConnected());
 
-        ShuntCompensatorContingency tripping = new ShuntCompensatorContingency("C1_Filter1");
-        Contingency contingency = new Contingency("contingency", tripping);
+        Contingency contingency = Contingency.shuntCompensator("C1_Filter1");
 
         ModificationTask task = contingency.toTask();
         task.modify(network, null);
