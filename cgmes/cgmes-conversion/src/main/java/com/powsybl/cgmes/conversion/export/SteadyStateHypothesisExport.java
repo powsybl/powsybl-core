@@ -56,6 +56,8 @@ public final class SteadyStateHypothesisExport {
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
+            // FIXME open status of retained switches in bus-branch models
+            writeSwitches(network, cimNamespace, writer);
             // TODO writeControlAreas
             writeTerminals(network, cimNamespace, writer);
 
@@ -65,11 +67,30 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
+    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer) {
+        for (Switch sw : network.getSwitches()) {
+            writeSwitch(sw, cimNamespace, writer);
+        }
+    }
+
+    private static final String ALIAS_TYPE_TERMINAL_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1";
+    private static final String ALIAS_TYPE_TERMINAL_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2";
+
     private static void writeTerminals(Network network, String cimNamespace, XMLStreamWriter writer) {
         for (Connectable<?> c : network.getConnectables()) {
             for (Terminal t : c.getTerminals()) {
                 writeTerminal(t, c, cimNamespace, writer);
             }
+        }
+        for (Switch sw : network.getSwitches()) {
+            // Terminals for switches are exported as always connected
+            // The status of the switch is "open" if any of the original terminals were not connected
+            // An original "closed" switch with any terminal disconnected
+            // will be exported as "open" with terminals connected
+            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_1)
+                .ifPresent(tid1 -> writeTerminal(tid1, true, cimNamespace, writer));
+            sw.getAliasFromType(ALIAS_TYPE_TERMINAL_2)
+                .ifPresent(tid2 -> writeTerminal(tid2, true, cimNamespace, writer));
         }
         for (DanglingLine dl : network.getDanglingLines()) {
             // Terminal for equivalent injection at boundary is always connected
@@ -363,6 +384,32 @@ public final class SteadyStateHypothesisExport {
             return "TapChangerControl";
         } else {
             return "RegulatingControl";
+        }
+    }
+
+    private static void writeSwitch(Switch sw, String cimNamespace, XMLStreamWriter writer) {
+        try {
+            writer.writeStartElement(cimNamespace, switchClassname(sw.getKind()));
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + sw.getId());
+            writer.writeStartElement(cimNamespace, "Switch.open");
+            writer.writeCharacters(Boolean.toString(sw.isOpen()));
+            writer.writeEndElement();
+            writer.writeEndElement();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static String switchClassname(SwitchKind kind) {
+        switch (kind) {
+            case BREAKER:
+                return "Breaker";
+            case DISCONNECTOR:
+                return "Disconnector";
+            case LOAD_BREAK_SWITCH:
+                return "LoadBreakSwitch";
+            default:
+                throw new AssertionError("Unexpected switch king " + kind);
         }
     }
 
