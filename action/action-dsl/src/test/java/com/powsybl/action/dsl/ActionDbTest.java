@@ -22,11 +22,10 @@ public class ActionDbTest {
 
     @Test
     public void testContingencies() {
-        Contingency contingency = Mockito.mock(Contingency.class);
-        Mockito.when(contingency.getId()).thenReturn("id");
-
         ActionDb actionDb = new ActionDb();
+        Contingency contingency = Contingency.builder("id").build();
         actionDb.addContingency(contingency);
+
         assertEquals(1, actionDb.getContingencies().size());
         assertSame(contingency, actionDb.getContingency("id"));
 
@@ -40,7 +39,7 @@ public class ActionDbTest {
     @Test
     public void testDuplicateContingency() {
         ActionDb actionDb = new ActionDb();
-        Contingency c1 = new Contingency("c1");
+        Contingency c1 = Contingency.builder("c1").build();
         actionDb.addContingency(c1);
 
         assertThatExceptionOfType(ActionDslException.class)

@@ -27,17 +27,15 @@ public class SubContingenciesProviderTest {
 
     @Test
     public void test() {
-        ContingenciesProvider provider = n -> IntStream.range(1, 5)
-                .mapToObj(i -> new Contingency("contingency-" + i))
-                .collect(Collectors.toList());
-
         Network network = Mockito.mock(Network.class);
 
-        List<String> subList1 = new SubContingenciesProvider(provider, new Partition(1, 2))
+        ContingenciesProvider provider = newContingenciesProvider();
+
+        List<String> subList1 = ContingenciesProviders.newSubProvider(provider, new Partition(1, 2))
                 .getContingencies(network)
                 .stream().map(Contingency::getId).collect(Collectors.toList());
 
-        List<String> subList2 = new SubContingenciesProvider(provider, new Partition(2, 2))
+        List<String> subList2 = ContingenciesProviders.newSubProvider(provider, new Partition(2, 2))
                 .getContingencies(network)
                 .stream().map(Contingency::getId).collect(Collectors.toList());
 
@@ -47,15 +45,30 @@ public class SubContingenciesProviderTest {
 
     @Test
     public void testEmpty() {
-        ContingenciesProvider provider = n -> Collections.emptyList();
+        ContingenciesProvider provider = ContingenciesProviders.emptyProvider();
 
         Network network = Mockito.mock(Network.class);
 
-        List<String> subList1 = new SubContingenciesProvider(provider, new Partition(1, 1))
+        List<String> subList1 = ContingenciesProviders.newSubProvider(provider, new Partition(1, 1))
                 .getContingencies(network)
                 .stream().map(Contingency::getId).collect(Collectors.toList());
 
         assertEquals(Collections.emptyList(), subList1);
     }
 
+    private static ContingenciesProvider newContingenciesProvider() {
+        return new ContingenciesProvider() {
+            @Override
+            public List<Contingency> getContingencies(Network network) {
+                return IntStream.range(1, 5)
+                        .mapToObj(i -> Contingency.builder("contingency-" + i).build())
+                        .collect(Collectors.toList());
+            }
+
+            @Override
+            public String asScript() {
+                return "";
+            }
+        };
+    }
 }

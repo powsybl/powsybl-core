@@ -23,7 +23,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
@@ -49,13 +48,12 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
-        List<ContingencyElement> elements = Arrays.asList(
-                new BranchContingency("NHV1_NHV2_2", "VLNHV1"),
-                new BranchContingency("NHV1_NHV2_1"),
-                new GeneratorContingency("GEN"),
-                new BusbarSectionContingency("BBS1")
-        );
-        Contingency contingency = new Contingency("contingency", elements);
+        Contingency contingency = Contingency.builder("contingency")
+                                             .addBranch("NHV1_NHV2_2", "VLNHV1")
+                                             .addBranch("NHV1_NHV2_1")
+                                             .addGenerator("GEN")
+                                             .addBusbarSection("BBS1")
+                                             .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));

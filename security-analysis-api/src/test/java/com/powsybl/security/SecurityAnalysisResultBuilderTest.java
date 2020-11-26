@@ -59,7 +59,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         CustomContext postResultContext = new CustomContext(network, "post");
         CustomContext postViolationContext = new CustomContext(network, "post-vio");
-        builder.contingency(new Contingency("contingency1"), postResultContext)
+        builder.contingency(Contingency.builder("contingency1").build(), postResultContext)
                 .setComputationOk(true)
                 .addViolations(Security.checkLimits(network), postViolationContext)
                 .endContingency();
@@ -86,12 +86,12 @@ public class SecurityAnalysisResultBuilderTest {
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
-        builder.contingency(new Contingency("contingency1")).setComputationOk(true)
+        builder.contingency(Contingency.builder("contingency1").build()).setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(520));
-        builder.contingency(new Contingency("contingency2")).setComputationOk(true)
+        builder.contingency(Contingency.builder("contingency2").build()).setComputationOk(true)
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
 
