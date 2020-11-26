@@ -71,12 +71,17 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     @Override
     public TerminalExt getTerminalReference() {
+        return getTerminalReference(new ArrayList<>());
+    }
+
+    private TerminalExt getTerminalReference(List<Bus> visited) {
         return getConnectedTerminalStream().findFirst().orElseGet(() -> {
             if (voltageLevel.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 // in bus-breaker voltage level, the terminal reference can be a connected terminal in another bus linked to this one by one or several closed switches
                 VoltageLevel.BusBreakerView view = voltageLevel.getBusBreakerView();
+                visited.add(this);
                 return view.getBusStream()
-                        .map(b -> getTerminalReference(b, this, view))
+                        .map(b -> getTerminalReference(b, this, view, visited))
                         .filter(Objects::nonNull)
                         .findFirst()
                         .orElse(null);
@@ -85,18 +90,14 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         });
     }
 
-    private static TerminalExt getTerminalReference(Bus b1, Bus b2, VoltageLevel.BusBreakerView view) {
-        for (Switch ss : view.getSwitches()) {
-            if (areConnectedBySwitch(b1, b2, ss, view)) {
-                TerminalExt t = (TerminalExt) b1.getTerminalReference();
-                if (t != null) {
-                    return t;
-                }
-            }
-            if (areConnectedBySwitch(b2, b1, ss, view)) {
-                TerminalExt t = (TerminalExt) b1.getTerminalReference();
-                if (t != null) {
-                    return t;
+    private static TerminalExt getTerminalReference(Bus b1, Bus b2, VoltageLevel.BusBreakerView view, List<Bus> visited) {
+        if (!visited.contains(b1)) {
+            for (Switch ss : view.getSwitches()) {
+                if (areConnectedBySwitch(b1, b2, ss, view) || areConnectedBySwitch(b2, b1, ss, view)) {
+                    TerminalExt t = ((ConfiguredBusImpl) b1).getTerminalReference(visited);
+                    if (t != null) {
+                        return t;
+                    }
                 }
             }
         }
