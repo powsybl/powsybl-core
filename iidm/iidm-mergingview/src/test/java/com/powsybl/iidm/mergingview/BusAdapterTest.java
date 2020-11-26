@@ -141,6 +141,60 @@ public class BusAdapterTest {
     }
 
     @Test
+    public void testStackOverflow() {
+        Network network = NetworkFactory.findDefault().createNetwork("testLoop", "test");
+        Substation s = network.newSubstation()
+            .setId("sub2")
+            .setCountry(Country.FR)
+            .setTso("RTE")
+            .add();
+        VoltageLevel vl = s.newVoltageLevel()
+            .setId("vl")
+            .setName("vl")
+            .setNominalV(440.0)
+            .setHighVoltageLimit(400.0)
+            .setLowVoltageLimit(200.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b1")
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b2")
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b3")
+            .add();
+        vl.getBusBreakerView()
+            .newSwitch()
+            .setId("sw1")
+            .setBus1("b1")
+            .setBus2("b2")
+            .setOpen(false)
+            .add();
+        vl.getBusBreakerView()
+            .newSwitch()
+            .setId("sw2")
+            .setBus1("b2")
+            .setBus2("b3")
+            .setOpen(false)
+            .add();
+        vl.newLoad()
+            .setId("LOAD")
+            .setConnectableBus("b3")
+            .setBus("b3")
+            .setP0(100.0)
+            .setQ0(1.0)
+            .add();
+        Terminal terminalRef1 = vl.getBusBreakerView().getBus("b1").getTerminalReference();
+        assertNotNull(terminalRef1);
+        assertEquals("LOAD", terminalRef1.getConnectable().getId());
+    }
+
+    @Test
     public void testGetMergedLine() {
         // Networks creation
         Network network1 = NoEquipmentNetworkFactory.create();
