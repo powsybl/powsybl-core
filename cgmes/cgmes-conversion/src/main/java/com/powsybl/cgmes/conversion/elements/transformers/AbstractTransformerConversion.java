@@ -109,14 +109,14 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         if (ptcs != null) {
             for (int  i = 0; i < ptcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + index, true));
+                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
             }
         }
         List<String> rtcs = context.cgmes().ratioTapChangerListForPowerTransformer(identifiable.getId());
         if (rtcs != null) {
             for (int i = 0; i < rtcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + index, true));
+                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
             }
         }
     }

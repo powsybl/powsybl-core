@@ -447,7 +447,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (td == null) {
                 return;
             }
-            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + i, true);
+            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
         }
     }
