@@ -6,9 +6,9 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseOwner;
+import com.powsybl.psse.model.PsseVersion;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

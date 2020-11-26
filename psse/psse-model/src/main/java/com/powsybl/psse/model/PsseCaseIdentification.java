@@ -6,7 +6,6 @@
  */
 package com.powsybl.psse.model;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.univocity.parsers.annotations.Parsed;
 
 /**

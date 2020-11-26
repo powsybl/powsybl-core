@@ -95,8 +95,7 @@ public class PsseNonTransformerBranch35 extends PsseNonTransformerBranch {
     }
 
     public void setName(String name) {
-        Objects.requireNonNull(name);
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
     }
 
     public double getRate1() {

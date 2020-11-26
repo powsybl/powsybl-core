@@ -8,16 +8,14 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
+import com.powsybl.psse.model.PsseVersion;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
 /**
  * PSSE raw data common to all versions
@@ -31,8 +29,7 @@ public class RawXDataCommon implements RawData {
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try (InputStream is = dataSource.newInputStream(null, ext)) {
-            String json = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(json), new Context());
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(is), new Context());
             caseIdentification.validate();
             return true;
         }
@@ -41,8 +38,7 @@ public class RawXDataCommon implements RawData {
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try (InputStream is = dataSource.newInputStream(null, ext)) {
-            String json = new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8);
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(json), new Context());
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(is), new Context());
             return PsseVersion.fromNumber(caseIdentification.getRev());
         }
     }
@@ -52,7 +48,7 @@ public class RawXDataCommon implements RawData {
         throw new PsseException("RawXDataCommon does not know how to read complete data file. Specific version instance is required");
     }
 
-    protected JsonNode networkNode(String json) throws IOException {
-        return new ObjectMapper().readTree(json).get("network");
+    protected JsonNode networkNode(InputStream stream) throws IOException {
+        return new ObjectMapper().readTree(stream).get("network");
     }
 }

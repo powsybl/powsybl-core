@@ -15,8 +15,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
@@ -120,9 +120,8 @@ public class PsseImporterTest extends AbstractConverterTest {
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> {
-                psseImporter.importData(dataSource, networkFactory, null);
-            }).withMessage("Incremental load of data option (IC = 1) is not supported");
+                .isThrownBy(() -> psseImporter.importData(dataSource, networkFactory, null))
+                .withMessage("Incremental load of data option (IC = 1) is not supported");
     }
 
     @Test
@@ -131,9 +130,8 @@ public class PsseImporterTest extends AbstractConverterTest {
         PsseImporter psseImporter = new PsseImporter();
         NetworkFactory networkFactory = new NetworkFactoryImpl();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> {
-                psseImporter.importData(dataSource, networkFactory, null);
-            }).withMessage("Version 29 not supported. Supported versions are: " + PsseVersion.supportedVersions());
+                .isThrownBy(() -> psseImporter.importData(dataSource, networkFactory, null))
+                .withMessage("Version 29 not supported. Supported versions are: " + PsseVersion.supportedVersions());
     }
 
     @Test

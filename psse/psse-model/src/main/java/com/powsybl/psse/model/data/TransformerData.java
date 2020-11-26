@@ -7,10 +7,10 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseTransformer;
 import com.powsybl.psse.model.PsseTransformer35;
+import com.powsybl.psse.model.PsseVersion;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;

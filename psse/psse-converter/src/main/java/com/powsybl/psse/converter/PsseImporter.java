@@ -21,7 +21,6 @@ import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.data.Context;
 import com.powsybl.psse.model.data.RawDataFactory;
 import org.slf4j.Logger;
