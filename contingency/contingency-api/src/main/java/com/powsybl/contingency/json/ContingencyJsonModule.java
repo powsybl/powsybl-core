@@ -9,6 +9,7 @@ package com.powsybl.contingency.json;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
+import com.powsybl.contingency.DefaultContingencyList;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,9 +18,11 @@ import com.powsybl.contingency.ContingencyElement;
 public class ContingencyJsonModule extends SimpleModule {
 
     public ContingencyJsonModule() {
+        addSerializer(DefaultContingencyList.class, new DefaultContingencyListSerializer());
         addSerializer(Contingency.class, new ContingencySerializer());
         addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
 
+        addDeserializer(DefaultContingencyList.class, new DefaultContingencyListDeserializer());
         addDeserializer(Contingency.class, new ContingencyDeserializer());
         addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
     }
