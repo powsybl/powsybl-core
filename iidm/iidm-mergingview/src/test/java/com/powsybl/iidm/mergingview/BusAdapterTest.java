@@ -141,7 +141,7 @@ public class BusAdapterTest {
     }
 
     @Test
-    public void testStackOverflow() {
+    public void testTerminalReference() {
         Network network = NetworkFactory.findDefault().createNetwork("testLoop", "test");
         Substation s = network.newSubstation()
             .setId("sub2")
@@ -168,12 +168,12 @@ public class BusAdapterTest {
             .newBus()
             .setId("b3")
             .add();
-        vl.getBusBreakerView()
+        Switch sw1 = vl.getBusBreakerView()
             .newSwitch()
             .setId("sw1")
             .setBus1("b1")
             .setBus2("b2")
-            .setOpen(false)
+            .setOpen(true)
             .add();
         vl.getBusBreakerView()
             .newSwitch()
@@ -182,6 +182,11 @@ public class BusAdapterTest {
             .setBus2("b3")
             .setOpen(false)
             .add();
+        assertNull(vl.getBusBreakerView().getBus("b1").getTerminalReference());
+
+        sw1.setOpen(false);
+        assertNull(vl.getBusBreakerView().getBus("b1").getTerminalReference());
+
         vl.newLoad()
             .setId("LOAD")
             .setConnectableBus("b3")
