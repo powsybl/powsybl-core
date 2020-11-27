@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -80,20 +81,34 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public void addAlias(String alias) {
-        addAlias(alias, null);
+        addAlias(alias, false);
+    }
+
+    @Override
+    public void addAlias(String alias, boolean ensureAliasUnicity) {
+        addAlias(alias, null, ensureAliasUnicity);
     }
 
     @Override
     public void addAlias(String alias, String aliasType) {
+        addAlias(alias, aliasType, false);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
         Objects.requireNonNull(alias);
+        String uniqueAlias = alias;
+        if (ensureAliasUnicity) {
+            uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
+        }
         if (aliasType != null && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
-        if (getNetwork().getIndex().addAlias(this, alias)) {
+        if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
             if (aliasType != null) {
-                aliasesByType.put(aliasType, alias);
+                aliasesByType.put(aliasType, uniqueAlias);
             } else {
-                aliasesWithoutType.add(alias);
+                aliasesWithoutType.add(uniqueAlias);
             }
         }
     }
@@ -102,7 +117,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     public void removeAlias(String alias) {
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
-        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().contains(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
+        String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
         if (type != null) {
             aliasesByType.remove(type);
         } else {

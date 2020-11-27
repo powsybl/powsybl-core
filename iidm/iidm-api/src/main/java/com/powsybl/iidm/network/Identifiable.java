@@ -69,6 +69,10 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     default void addAlias(String alias) {
     }
 
+    default void addAlias(String alias, boolean ensureAliasUnicity) {
+        addAlias(alias);
+    }
+
     /**
      * Add an alias to the object. Aliases must be unique in associated Network, and different
      * from any identifiable ID. This alias is associated to a given alias type.
@@ -79,6 +83,10 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * If a given non null type already has an associated alias for this object, throw a {@link com.powsybl.commons.PowsyblException}
      */
     default void addAlias(String alias, String aliasType) {
+    }
+
+    default void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
+        addAlias(alias, aliasType);
     }
 
     /**
