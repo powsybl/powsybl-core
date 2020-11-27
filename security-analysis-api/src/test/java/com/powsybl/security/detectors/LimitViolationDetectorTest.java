@@ -135,8 +135,8 @@ public class LimitViolationDetectorTest {
         voltageLevel1 = network.getVoltageLevel("VLHV1");
         genVoltageLevel = network.getVoltageLevel("VLGEN");
         loadVoltageLevel = network.getVoltageLevel("VLLOAD");
-        contingency1 = Contingency.builder("cont1").build();
-        contingency1 = Contingency.builder("cont2").build();
+        contingency1 = new Contingency("cont1");
+        contingency2 = new Contingency("cont2");
 
         collectedViolations = new ArrayList<>();
     }

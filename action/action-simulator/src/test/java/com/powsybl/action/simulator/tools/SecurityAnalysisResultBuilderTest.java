@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 public class SecurityAnalysisResultBuilderTest {
 
     private Contingency createContingency() {
-        return Contingency.builder("contingency").build();
+        return new Contingency("contingency");
     }
 
     private List<LimitViolation> createPreContingencyViolations() {

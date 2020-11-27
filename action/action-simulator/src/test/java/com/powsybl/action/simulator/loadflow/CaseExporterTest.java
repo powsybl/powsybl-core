@@ -46,7 +46,7 @@ public class CaseExporterTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
 
-        contingency = Contingency.builder("contingency").build();
+        contingency = new Contingency("contingency");
         network = Network.create("id", "test");
     }
 

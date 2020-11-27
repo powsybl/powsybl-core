@@ -10,7 +10,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -21,7 +20,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -42,7 +40,9 @@ public class SecurityAnalysisExecutionBuilderTest {
 
     @Before
     public void setUp() {
-        ContingenciesProvider provider = newContingenciesProvider();
+
+        Contingency contingency = new Contingency("cont");
+        ContingenciesProvider provider = network -> Collections.nCopies(10, contingency);
 
         actualProvider = new AtomicReference<>();
 
@@ -114,18 +114,4 @@ public class SecurityAnalysisExecutionBuilderTest {
         assertEquals(5, actualProvider.get().getContingencies(null).size());
     }
 
-    private static ContingenciesProvider newContingenciesProvider() {
-        return new ContingenciesProvider() {
-            @Override
-            public List<Contingency> getContingencies(Network network) {
-                Contingency contingency = Contingency.builder("cont").build();
-                return Collections.nCopies(10, contingency);
-            }
-
-            @Override
-            public String asScript() {
-                return "";
-            }
-        };
-    }
 }

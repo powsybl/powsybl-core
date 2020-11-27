@@ -66,7 +66,7 @@ public class DistributedSecurityAnalysisTest {
             @Override
             public List<Contingency> getContingencies(Network network) {
                 return IntStream.range(1, 6)
-                        .mapToObj(i -> Contingency.builder("contingency-" + i).build())
+                        .mapToObj(i -> new Contingency("contingency-" + i))
                         .collect(Collectors.toList());
             }
 

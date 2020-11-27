@@ -23,7 +23,7 @@ public class ActionDbTest {
     @Test
     public void testContingencies() {
         ActionDb actionDb = new ActionDb();
-        Contingency contingency = Contingency.builder("id").build();
+        Contingency contingency = new Contingency("id");
         actionDb.addContingency(contingency);
 
         assertEquals(1, actionDb.getContingencies().size());
@@ -39,7 +39,7 @@ public class ActionDbTest {
     @Test
     public void testDuplicateContingency() {
         ActionDb actionDb = new ActionDb();
-        Contingency c1 = Contingency.builder("c1").build();
+        Contingency c1 = new Contingency("c1");
         actionDb.addContingency(c1);
 
         assertThatExceptionOfType(ActionDslException.class)
