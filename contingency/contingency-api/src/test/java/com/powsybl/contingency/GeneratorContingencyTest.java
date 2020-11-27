@@ -23,9 +23,10 @@ public class GeneratorContingencyTest {
 
     @Test
     public void test() {
-        Contingency contingency = Contingency.shuntCompensator("id");
+        Contingency contingency = Contingency.generator("id");
         assertEquals("id", contingency.getId());
         assertEquals(1, contingency.getElements().size());
+        assertEquals(ContingencyElementType.GENERATOR, contingency.getElements().get(0).getType());
 
         GeneratorContingency genContingency = new GeneratorContingency("id");
         assertEquals("id", genContingency.getId());
