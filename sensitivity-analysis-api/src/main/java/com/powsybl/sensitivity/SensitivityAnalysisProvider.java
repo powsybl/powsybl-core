@@ -9,9 +9,10 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -49,7 +50,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
     CompletableFuture<SensitivityAnalysisResult> run(Network network,
                                                      String workingStateId,
                                                      SensitivityFactorsProvider factorsProvider,
-                                                     ContingenciesProvider contingenciesProvider,
+                                                     List<Contingency> contingenciesProvider,
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager);
 }
