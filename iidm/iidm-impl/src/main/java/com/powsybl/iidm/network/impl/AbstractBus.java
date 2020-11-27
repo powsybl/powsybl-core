@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
     protected VoltageLevelExt voltageLevel;
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
 
     AbstractBus(String id, boolean fictitious, VoltageLevelExt voltageLevel) {
         this(id, id, fictitious, voltageLevel);
@@ -29,7 +28,6 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     AbstractBus(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel) {
         super(id, name, fictitious);
         this.voltageLevel = voltageLevel;
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -137,7 +135,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                              .filter(clazz);
     }
 
-    private <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+    protected <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
         if (getConnectedTerminalCount() == 0) {
             return Stream.empty();
         }
@@ -256,16 +254,6 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
         return getConnectableStream(VscConverterStation.class);
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return operationalLimitsHolder.newVoltageLimits();
     }
 
     @Override

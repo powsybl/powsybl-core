@@ -189,6 +189,23 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
+    public VoltageLimits getVoltageLimits() {
+        return getConnectableStream(BusbarSection.class)
+                .map(VoltageLimitsHolder::getVoltageLimits)
+                .filter(Objects::nonNull)
+                .findFirst() // we suppose that all voltage limits in a same calculated bus are equals
+                .orElse(null);
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits() {
+        return getConnectableStream(BusbarSection.class)
+                .findFirst()
+                .map(VoltageLimitsHolder::newVoltageLimits)
+                .orElseThrow(() -> new ValidationException(this, "No busbarsection is associated to this calculated bus: no voltage limit can be created."));
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         checkValidity();
         return super.getLines();

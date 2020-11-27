@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -196,6 +197,23 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
             }
         }
         throw new AssertionError("Should not happen");
+    }
+
+    @Override
+    public VoltageLimits getVoltageLimits() {
+        return buses.stream()
+                .map(VoltageLimitsHolder::getVoltageLimits)
+                .filter(Objects::nonNull)
+                .findFirst() // we suppose that all voltage limits in a same calculated bus are equals
+                .orElse(null);
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits() {
+        return buses.stream()
+                .findFirst()
+                .map(VoltageLimitsHolder::newVoltageLimits)
+                .orElseThrow(() -> new AssertionError("Should not happen")); // a merged bus should at least contain one configured bus
     }
 
     @Override
