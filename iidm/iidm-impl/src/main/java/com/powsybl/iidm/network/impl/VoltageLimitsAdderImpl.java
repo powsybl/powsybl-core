@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.*;
 class VoltageLimitsAdderImpl implements VoltageLimitsAdder {
 
     private final OperationalLimitsOwner owner;
-    private double highVoltage;
-    private double lowVoltage;
+    private double highVoltage = Double.NaN;
+    private double lowVoltage = Double.NaN;
 
     VoltageLimitsAdderImpl(OperationalLimitsOwner owner) {
         this.owner = owner;

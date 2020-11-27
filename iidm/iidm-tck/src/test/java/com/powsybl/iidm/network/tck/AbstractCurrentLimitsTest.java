@@ -128,6 +128,52 @@ public abstract class AbstractCurrentLimitsTest {
         try {
             currentLimitsAdder.beginTemporaryLimit()
                     .setAcceptableDuration(5 * 60)
+                    .setName("fail")
+                    .setOverloadingProtection(false)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
+                    .setName("fail")
+                    .setValue(-1200.0)
+                    .setOverloadingProtection(false)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(-1)
+                    .setName("fail")
+                    .setValue(1200.0)
+                    .setOverloadingProtection(false)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setName("fail")
+                    .setValue(1200.0)
+                    .setOverloadingProtection(false)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
                     .setOverloadingProtection(false)
                     .endTemporaryLimit();

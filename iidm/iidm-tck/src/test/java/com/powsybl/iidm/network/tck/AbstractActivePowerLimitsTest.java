@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.ActivePowerLimits;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -42,14 +39,7 @@ public abstract class AbstractActivePowerLimitsTest {
         return network;
     }
 
-    @Test
-    public void test() {
-        Network network = createNetwork();
-        Line l = network.getLine("NHV1_NHV2_1");
-
-        // limits1
-        assertFalse(l.getOperationalLimits1().isEmpty());
-        ActivePowerLimits limits1 = l.getActivePowerLimits1();
+    private static void testLimits1(ActivePowerLimits limits1) {
         assertNotNull(limits1);
         assertEquals(LimitType.ACTIVE_POWER, limits1.getLimitType());
         assertEquals(350, limits1.getPermanentLimit(), 0.0);
@@ -58,14 +48,31 @@ public abstract class AbstractActivePowerLimitsTest {
         assertEquals(370, limits1.getTemporaryLimit(20 * 60).getValue(), 0.0);
         assertEquals("10'", limits1.getTemporaryLimit(10 * 60).getName());
         assertEquals(380, limits1.getTemporaryLimit(10 * 60).getValue(), 0.0);
+    }
 
-        // limits2
-        assertFalse(l.getOperationalLimits2().isEmpty());
-        ActivePowerLimits limits2 = l.getActivePowerLimits2();
+    private static void testLimits2(ActivePowerLimits limits2) {
         assertNotNull(limits2);
         assertEquals(LimitType.ACTIVE_POWER, limits2.getLimitType());
         assertEquals(400, limits2.getPermanentLimit(), 0.0);
         assertTrue(limits2.getTemporaryLimits().isEmpty());
+    }
+
+    @Test
+    public void test() {
+        Network network = createNetwork();
+        Line l = network.getLine("NHV1_NHV2_1");
+
+        // limits1
+        assertFalse(l.getOperationalLimits1().isEmpty());
+        testLimits1(l.getActivePowerLimits1());
+        testLimits1(l.getActivePowerLimits(Branch.Side.ONE));
+
+        // limits2
+        assertFalse(l.getOperationalLimits2().isEmpty());
+        ActivePowerLimits limits2 = l.getActivePowerLimits2();
+        testLimits2(limits2);
+        testLimits2(l.getActivePowerLimits(Branch.Side.TWO));
+
         limits2.remove();
         assertNull(l.getActivePowerLimits2());
     }

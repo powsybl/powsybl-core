@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.LimitType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -42,14 +39,7 @@ public abstract class AbstractApparentPowerLimitsTest {
         return network;
     }
 
-    @Test
-    public void test() {
-        Network network = createNetwork();
-        Line l = network.getLine("NHV1_NHV2_2");
-
-        // limits1
-        assertFalse(l.getOperationalLimits1().isEmpty());
-        ApparentPowerLimits apparentPowerLimits1 = l.getApparentPowerLimits1();
+    private static void testLimits1(ApparentPowerLimits apparentPowerLimits1) {
         assertNotNull(apparentPowerLimits1);
         assertEquals(LimitType.APPARENT_POWER, apparentPowerLimits1.getLimitType());
         assertEquals(300, apparentPowerLimits1.getPermanentLimit(), 0.0);
@@ -58,14 +48,31 @@ public abstract class AbstractApparentPowerLimitsTest {
         assertEquals(320.0, apparentPowerLimits1.getTemporaryLimit(20 * 60).getValue(), 0.0);
         assertEquals("5'", apparentPowerLimits1.getTemporaryLimit(5 * 60).getName());
         assertEquals(350, apparentPowerLimits1.getTemporaryLimit(5 * 60).getValue(), 0.0);
+    }
 
-        // limits2
-        assertFalse(l.getOperationalLimits2().isEmpty());
-        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2();
+    private static void testLimits2(ApparentPowerLimits apparentPowerLimits2) {
         assertNotNull(apparentPowerLimits2);
         assertEquals(LimitType.APPARENT_POWER, apparentPowerLimits2.getLimitType());
         assertEquals(310, apparentPowerLimits2.getPermanentLimit(), 0.0);
         assertTrue(apparentPowerLimits2.getTemporaryLimits().isEmpty());
+    }
+
+    @Test
+    public void test() {
+        Network network = createNetwork();
+        Line l = network.getLine("NHV1_NHV2_2");
+
+        // limits1
+        assertFalse(l.getOperationalLimits1().isEmpty());
+        testLimits1(l.getApparentPowerLimits1());
+        testLimits1(l.getApparentPowerLimits(Branch.Side.ONE));
+
+        // limits2
+        assertFalse(l.getOperationalLimits2().isEmpty());
+        ApparentPowerLimits apparentPowerLimits2 = l.getApparentPowerLimits2();
+        testLimits2(apparentPowerLimits2);
+        testLimits2(l.getApparentPowerLimits(Branch.Side.TWO));
+
         apparentPowerLimits2.remove();
         assertNull(l.getApparentPowerLimits2());
     }
