@@ -632,6 +632,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean isEnsureIdAliasUnicity() {
+            return ensureIdAliasUnicity;
+        }
+
+        public Config setEnsureIdAliasUnicity(boolean ensureIdAliasUnicity) {
+            this.ensureIdAliasUnicity = ensureIdAliasUnicity;
+            return this;
+        }
+
         public Xfmr2RatioPhaseInterpretationAlternative getXfmr2RatioPhase() {
             return xfmr2RatioPhase;
         }
@@ -692,6 +701,8 @@ public class Conversion {
         private StateProfile profileUsedForInitialStateValues = SSH;
         private boolean storeCgmesModelAsNetworkExtension = true;
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
+
+        private boolean ensureIdAliasUnicity = false;
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
