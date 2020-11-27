@@ -113,17 +113,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits1() {
-        return operationalLimitsHolder1.newActivePowerLimitsAdder();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits1() {
-        return operationalLimitsHolder1.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits1() {
-        return operationalLimitsHolder1.newVoltageLimits();
+        return operationalLimitsHolder1.newActivePowerLimits();
     }
 
     @Override
@@ -158,17 +148,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
 
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
-        return operationalLimitsHolder2.newActivePowerLimitsAdder();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits2() {
-        return operationalLimitsHolder2.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits2() {
-        return operationalLimitsHolder2.newVoltageLimits();
+        return operationalLimitsHolder2.newActivePowerLimits();
     }
 
     @Override
@@ -197,16 +177,6 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
             return getApparentPowerLimits1();
         } else if (side == Branch.Side.TWO) {
             return getApparentPowerLimits2();
-        }
-        throw new AssertionError("Unexpected side: " + side);
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits(Branch.Side side) {
-        if (side == Branch.Side.ONE) {
-            return getVoltageLimits1();
-        } else if (side == Branch.Side.TWO) {
-            return getVoltageLimits2();
         }
         throw new AssertionError("Unexpected side: " + side);
     }

@@ -6,17 +6,19 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.*;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class BusbarSectionImpl extends AbstractInjection<BusbarSection> implements BusbarSection {
+class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
+
+    private final OperationalLimitsHolderImpl operationalLimitsHolder;
 
     BusbarSectionImpl(String id, String name, boolean fictitious) {
         super(id, name, fictitious);
+        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -42,5 +44,15 @@ class BusbarSectionImpl extends AbstractInjection<BusbarSection> implements Busb
     @Override
     public double getAngle() {
         return ((NodeTerminal) getTerminal()).getAngle();
+    }
+
+    @Override
+    public VoltageLimits getVoltageLimits() {
+        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits() {
+        return operationalLimitsHolder.newVoltageLimits();
     }
 }

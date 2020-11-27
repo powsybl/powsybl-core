@@ -9,7 +9,6 @@ package com.powsybl.iidm.network;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
-import java.util.Collections;
 
 /**
  * A Three Windings Power Transformer.
@@ -211,7 +210,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *     </tbody>
      * </table>
      */
-    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, OperationalLimitsHolder {
+    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
 
         /**
          * Get the terminal the leg is connected to.
@@ -275,11 +274,6 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the rated voltage in kV.
          */
         Leg setRatedU(double ratedU);
-
-        @Override
-        default List<OperationalLimits> getOperationalLimits() {
-            return Collections.singletonList(getCurrentLimits());
-        }
 
         /**
          * Get the normal apparent power rating in MVA (optional).

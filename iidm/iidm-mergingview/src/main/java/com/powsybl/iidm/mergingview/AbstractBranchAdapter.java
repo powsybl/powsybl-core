@@ -87,16 +87,6 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public VoltageLimits getVoltageLimits1() {
-        return getDelegate().getVoltageLimits1();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits1() {
-        return getDelegate().newVoltageLimits1();
-    }
-
-    @Override
     public List<OperationalLimits> getOperationalLimits2() {
         return getDelegate().getOperationalLimits2();
     }
@@ -129,16 +119,6 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     @Override
     public ActivePowerLimitsAdder newActivePowerLimits2() {
         return getDelegate().newActivePowerLimits2();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits2() {
-        return getDelegate().getVoltageLimits2();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits2() {
-        return getDelegate().newVoltageLimits2();
     }
 
     @Override

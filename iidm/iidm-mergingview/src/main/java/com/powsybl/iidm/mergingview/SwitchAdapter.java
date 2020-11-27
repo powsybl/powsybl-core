@@ -8,8 +8,6 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -50,50 +48,5 @@ public class SwitchAdapter extends AbstractIdentifiableAdapter<Switch> implement
     @Override
     public void setRetained(final boolean retained) {
         getDelegate().setRetained(retained);
-    }
-
-    @Override
-    public List<OperationalLimits> getOperationalLimits() {
-        return getDelegate().getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        return getDelegate().getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return getDelegate().newCurrentLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits() {
-        return getDelegate().getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits() {
-        return getDelegate().newActivePowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
-        return getDelegate().getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return getDelegate().newApparentPowerLimits();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return getDelegate().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return getDelegate().newVoltageLimits();
     }
 }

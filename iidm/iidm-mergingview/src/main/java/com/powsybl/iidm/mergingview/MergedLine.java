@@ -203,16 +203,6 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public VoltageLimits getVoltageLimits1() {
-        return getDanglingLine1().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits1() {
-        return getDanglingLine1().newVoltageLimits();
-    }
-
-    @Override
     public List<OperationalLimits> getOperationalLimits2() {
         return getDanglingLine2().getOperationalLimits();
     }
@@ -245,16 +235,6 @@ class MergedLine implements TieLine {
     @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits2() {
         return getDanglingLine2().newApparentPowerLimits();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits2() {
-        return getDanglingLine2().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits2() {
-        return getDanglingLine2().newVoltageLimits();
     }
 
     @Override

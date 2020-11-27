@@ -123,16 +123,6 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public VoltageLimits getVoltageLimits() {
-            return getDelegate().getVoltageLimits();
-        }
-
-        @Override
-        public VoltageLimitsAdder newVoltageLimits() {
-            return getDelegate().newVoltageLimits();
-        }
-
-        @Override
         public double getG() {
             return getDelegate().getG();
         }

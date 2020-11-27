@@ -194,17 +194,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public ActivePowerLimitsAdder newActivePowerLimits() {
-            return operationalLimitsHolder.newActivePowerLimitsAdder();
-        }
-
-        @Override
-        public VoltageLimits getVoltageLimits() {
-            return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-        }
-
-        @Override
-        public VoltageLimitsAdder newVoltageLimits() {
-            return operationalLimitsHolder.newVoltageLimits();
+            return operationalLimitsHolder.newActivePowerLimits();
         }
 
         @Override

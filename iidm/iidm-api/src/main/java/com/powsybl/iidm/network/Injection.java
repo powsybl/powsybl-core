@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Injection<I extends Injection<I>> extends Connectable<I>, OperationalLimitsHolder {
+public interface Injection<I extends Injection<I>> extends Connectable<I> {
 
     /**
      * Get the terminal.

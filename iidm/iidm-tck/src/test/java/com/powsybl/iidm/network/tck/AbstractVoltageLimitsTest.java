@@ -6,14 +6,13 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLimits;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -23,8 +22,8 @@ public abstract class AbstractVoltageLimitsTest {
 
     private static Network createNetwork() {
         Network network = EurostagTutorialExample1Factory.create();
-        Load load = network.getLoad("LOAD");
-        load.newVoltageLimits()
+        Bus bus = network.getBusBreakerView().getBus("NLOAD");
+        bus.newVoltageLimits()
                 .setHighVoltage(220.0)
                 .setLowVoltage(140.0)
                 .add();
@@ -34,11 +33,9 @@ public abstract class AbstractVoltageLimitsTest {
     @Test
     public void test() {
         Network network = createNetwork();
-        Load load = network.getLoad("LOAD");
+        Bus bus = network.getBusBreakerView().getBus("NLOAD");
 
-        assertFalse(load.getOperationalLimits().isEmpty());
-        assertEquals(1, load.getOperationalLimits().size());
-        VoltageLimits voltageLimits = load.getVoltageLimits();
+        VoltageLimits voltageLimits = bus.getVoltageLimits();
         assertNotNull(voltageLimits);
         assertEquals(140.0, voltageLimits.getLowVoltage(), 0.0);
         assertEquals(220.0, voltageLimits.getHighVoltage(), 0.0);

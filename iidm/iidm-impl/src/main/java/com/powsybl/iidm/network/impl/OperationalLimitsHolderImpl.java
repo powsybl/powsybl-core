@@ -56,7 +56,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         return new ApparentPowerLimitsAdderImpl(this);
     }
 
-    ActivePowerLimitsAdder newActivePowerLimitsAdder() {
+    ActivePowerLimitsAdder newActivePowerLimits() {
         return new ActivePowerLimitsAdderImpl(this);
     }
 

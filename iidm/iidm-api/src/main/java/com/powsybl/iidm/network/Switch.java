@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Switch extends Identifiable<Switch>, OperationalLimitsHolder {
+public interface Switch extends Identifiable<Switch> {
 
     /**
      * Get the parent voltage level.

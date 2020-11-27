@@ -97,7 +97,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Branch<I extends Branch<I>> extends Connectable<I>, OperationalLimitsSidedHolder {
+public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     enum Side {
         ONE,
@@ -143,14 +143,79 @@ public interface Branch<I extends Branch<I>> extends Connectable<I>, Operational
 
     Side getSide(Terminal terminal);
 
-    @Override
     default List<OperationalLimits> getOperationalLimits1() {
         return getCurrentLimits1() != null ? Collections.singletonList(getCurrentLimits1()) : Collections.emptyList();
     }
 
-    @Override
+    CurrentLimits getCurrentLimits1();
+
+    default ActivePowerLimits getActivePowerLimits1() {
+        return null;
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits1() {
+        return null;
+    }
+
+    CurrentLimitsAdder newCurrentLimits1();
+
+    default ActivePowerLimitsAdder newActivePowerLimits1() {
+        throw new UnsupportedOperationException();
+    }
+
+    default ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        throw new UnsupportedOperationException();
+    }
+
     default List<OperationalLimits> getOperationalLimits2() {
         return getCurrentLimits2() != null ? Collections.singletonList(getCurrentLimits2()) : Collections.emptyList();
+    }
+
+    CurrentLimits getCurrentLimits2();
+
+    default ActivePowerLimits getActivePowerLimits2() {
+        return null;
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits2() {
+        return null;
+    }
+
+    CurrentLimitsAdder newCurrentLimits2();
+
+    default ActivePowerLimitsAdder newActivePowerLimits2() {
+        throw new UnsupportedOperationException();
+    }
+
+    default ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        throw new UnsupportedOperationException();
+    }
+
+    default CurrentLimits getCurrentLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getCurrentLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getCurrentLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    default ActivePowerLimits getActivePowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getActivePowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getActivePowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getApparentPowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getApparentPowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
     }
 
     boolean isOverloaded();

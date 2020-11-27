@@ -9,15 +9,11 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVariantObject {
-
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
 
     private final VoltageLevelExt voltageLevel;
 
@@ -39,7 +35,6 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
             this.open.add(open);
             this.retained.add(retained);
         }
-        operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -144,50 +139,5 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
     @Override
     protected String getTypeDescription() {
         return "Switch";
-    }
-
-    @Override
-    public List<OperationalLimits> getOperationalLimits() {
-        return operationalLimitsHolder.getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return operationalLimitsHolder.newCurrentLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return operationalLimitsHolder.newApparentPowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits() {
-        return operationalLimitsHolder.newActivePowerLimitsAdder();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return operationalLimitsHolder.newVoltageLimits();
     }
 }

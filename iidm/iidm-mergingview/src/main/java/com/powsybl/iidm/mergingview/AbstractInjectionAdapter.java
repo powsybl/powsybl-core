@@ -8,8 +8,6 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
-
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -22,50 +20,5 @@ abstract class AbstractInjectionAdapter<I extends Injection<I>> extends Abstract
     @Override
     public final Terminal getTerminal() {
         return getIndex().getTerminal(getDelegate().getTerminal());
-    }
-
-    @Override
-    public List<OperationalLimits> getOperationalLimits() {
-        return getDelegate().getOperationalLimits();
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits() {
-        return getDelegate().getCurrentLimits();
-    }
-
-    @Override
-    public CurrentLimitsAdder newCurrentLimits() {
-        return getDelegate().newCurrentLimits();
-    }
-
-    @Override
-    public ApparentPowerLimits getApparentPowerLimits() {
-        return getDelegate().getApparentPowerLimits();
-    }
-
-    @Override
-    public ApparentPowerLimitsAdder newApparentPowerLimits() {
-        return getDelegate().newApparentPowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimits getActivePowerLimits() {
-        return getDelegate().getActivePowerLimits();
-    }
-
-    @Override
-    public ActivePowerLimitsAdder newActivePowerLimits() {
-        return getDelegate().newActivePowerLimits();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return getDelegate().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return getDelegate().newVoltageLimits();
     }
 }

@@ -12,15 +12,13 @@ import java.util.List;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface OperationalLimitsHolder {
+public interface FlowsLimitsHolder {
 
     default List<OperationalLimits> getOperationalLimits() {
-        return Collections.emptyList();
+        return getCurrentLimits() != null ? Collections.singletonList(getCurrentLimits()) : Collections.emptyList();
     }
 
-    default CurrentLimits getCurrentLimits() {
-        return null;
-    }
+    CurrentLimits getCurrentLimits();
 
     default ActivePowerLimits getActivePowerLimits() {
         return null;
@@ -30,23 +28,13 @@ public interface OperationalLimitsHolder {
         return null;
     }
 
-    default VoltageLimits getVoltageLimits() {
-        return null;
-    }
-
-    default CurrentLimitsAdder newCurrentLimits() {
-        throw new UnsupportedOperationException();
-    }
+    CurrentLimitsAdder newCurrentLimits();
 
     default ApparentPowerLimitsAdder newApparentPowerLimits() {
         throw new UnsupportedOperationException();
     }
 
     default ActivePowerLimitsAdder newActivePowerLimits() {
-        throw new UnsupportedOperationException();
-    }
-
-    default VoltageLimitsAdder newVoltageLimits() {
         throw new UnsupportedOperationException();
     }
 }
