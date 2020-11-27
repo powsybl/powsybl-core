@@ -6,38 +6,50 @@
  */
 package com.powsybl.iidm.network.tck;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLimits;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public abstract class AbstractVoltageLimitsTest {
 
-    private static Network createNetwork() {
+    @Test
+    public void testBus() {
         Network network = EurostagTutorialExample1Factory.create();
         Bus bus = network.getBusBreakerView().getBus("NLOAD");
         bus.newVoltageLimits()
                 .setHighVoltage(220.0)
                 .setLowVoltage(140.0)
                 .add();
-        return network;
+
+        test(bus);
     }
 
     @Test
-    public void test() {
-        Network network = createNetwork();
-        Bus bus = network.getBusBreakerView().getBus("NLOAD");
+    public void testBusbarSection() {
+        Network network = FictitiousSwitchFactory.create();
+        BusbarSection busbarSection = network.getBusbarSection("O");
+        busbarSection.newVoltageLimits()
+                .setHighVoltage(220.0)
+                .setLowVoltage(140.0)
+                .add();
 
-        VoltageLimits voltageLimits = bus.getVoltageLimits();
+        test(busbarSection);
+    }
+
+    private static void test(VoltageLimitsHolder holder) {
+        VoltageLimits voltageLimits = holder.getVoltageLimits();
         assertNotNull(voltageLimits);
         assertEquals(140.0, voltageLimits.getLowVoltage(), 0.0);
         assertEquals(220.0, voltageLimits.getHighVoltage(), 0.0);
+        voltageLimits.remove();
+        assertNull(holder.getVoltageLimits());
     }
 }

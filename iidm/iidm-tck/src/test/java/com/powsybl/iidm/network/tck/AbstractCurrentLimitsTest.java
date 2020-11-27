@@ -156,6 +156,7 @@ public abstract class AbstractCurrentLimitsTest {
             // ignore
         }
 
+        assertEquals(LimitType.CURRENT, currentLimits.getLimitType());
         currentLimits.setPermanentLimit(1000.0);
         assertEquals(1000.0, currentLimits.getPermanentLimit(), 0.0);
         assertEquals(3, currentLimits.getTemporaryLimits().size());
@@ -166,6 +167,9 @@ public abstract class AbstractCurrentLimitsTest {
         assertTrue(temporaryLimit300.isFictitious());
         assertEquals(1400.0, temporaryLimit300.getValue(), 0.0);
         assertEquals(300, temporaryLimit300.getAcceptableDuration());
+
+        currentLimits.remove();
+        assertNull(line.getCurrentLimits1());
     }
 
     @Test
