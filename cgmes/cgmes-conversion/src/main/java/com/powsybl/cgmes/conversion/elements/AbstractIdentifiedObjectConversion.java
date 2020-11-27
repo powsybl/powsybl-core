@@ -56,17 +56,14 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     // Identification
 
     public void identify(IdentifiableAdder<?> adder) {
-        adder
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(true);
+        identify(adder, iidmId(), iidmName());
     }
 
     public void identify(IdentifiableAdder<?> adder, String id, String name) {
         adder
                 .setId(id)
                 .setName(name)
-                .setEnsureIdUnicity(true);
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity());
     }
 
     @Override
