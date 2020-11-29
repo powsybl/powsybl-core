@@ -8,36 +8,55 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiFunction;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ *
  */
 public class BranchTripping extends AbstractTrippingTask {
 
     private final String branchId;
     private final String voltageLevelId;
+    private final BiFunction<Network, String, Branch<?>> supplier;
 
     public BranchTripping(String branchId) {
         this(branchId, null);
     }
 
     public BranchTripping(String branchId, String voltageLevelId) {
+        this(branchId, voltageLevelId, Network::getBranch);
+    }
+
+    protected BranchTripping(String branchId, String voltageLevelId, BiFunction<Network, String, Branch<?>> supplier) {
         this.branchId = Objects.requireNonNull(branchId);
         this.voltageLevelId = voltageLevelId;
+        this.supplier = supplier;
+    }
+
+    protected String getBranchId() {
+        return branchId;
+    }
+
+    protected String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
     @Override
     public void traverse(Network network, ComputationManager computationManager, Set<Switch> switchesToOpen, Set<Terminal> terminalsToDisconnect) {
         Objects.requireNonNull(network);
 
-        Branch branch = network.getBranch(branchId);
+        Branch<?> branch = supplier.apply(network, branchId);
         if (branch == null) {
-            throw new PowsyblException("Branch '" + branchId + "' not found");
+            throw createNotFoundException();
         }
         if (voltageLevelId != null) {
             if (voltageLevelId.equals(branch.getTerminal1().getVoltageLevel().getId())) {
@@ -45,12 +64,20 @@ public class BranchTripping extends AbstractTrippingTask {
             } else if (voltageLevelId.equals(branch.getTerminal2().getVoltageLevel().getId())) {
                 ContingencyTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
             } else {
-                throw new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
+                throw createNotConnectedException();
             }
         } else {
             ContingencyTopologyTraverser.traverse(branch.getTerminal1(), switchesToOpen, terminalsToDisconnect);
             ContingencyTopologyTraverser.traverse(branch.getTerminal2(), switchesToOpen, terminalsToDisconnect);
         }
+    }
+
+    protected PowsyblException createNotFoundException() {
+        return new PowsyblException("Branch '" + branchId + "' not found");
+    }
+
+    protected PowsyblException createNotConnectedException() {
+        return new PowsyblException("VoltageLevel '" + voltageLevelId + "' not connected to branch '" + branchId + "'");
     }
 
 }

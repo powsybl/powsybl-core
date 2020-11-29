@@ -75,7 +75,7 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         }
 
         DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
-            .setEnsureIdUnicity(false)
+            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
             .setR(r)
             .setX(x)
             .setG(gch)

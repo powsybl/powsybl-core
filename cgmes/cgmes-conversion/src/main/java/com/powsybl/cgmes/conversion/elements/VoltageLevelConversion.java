@@ -72,7 +72,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
         int index = 0;
         for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
             index++;
-            vl.addAlias(mergedVl, "MergedVoltageLevel" + index);
+            vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
     }
 
