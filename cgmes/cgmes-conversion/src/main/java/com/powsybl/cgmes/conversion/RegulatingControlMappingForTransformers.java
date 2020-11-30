@@ -11,7 +11,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
@@ -391,13 +390,13 @@ public class RegulatingControlMappingForTransformers {
         }
         Map<Integer, Set<Integer>> adjacency = buildAdjacency(terminalEnds);
 
-        Optional<? extends Terminal> terminalEnd = terminalEnds.stream()
-            .filter(terminal -> connectedTerminals(adjacency, regulatingTerminal, terminal)).findFirst();
-        if (terminalEnd.isPresent()) {
-            return terminalEnd.get();
-        } else {
-            return regulatingTerminal;
+        for (Terminal terminal : terminalEnds) {
+            if (connectedTerminals(adjacency, regulatingTerminal, terminal)) {
+                return terminal;
+            }
         }
+
+        return regulatingTerminal;
     }
 
     private static Map<Integer, Set<Integer>> buildAdjacency(List<? extends Terminal> terminalEnds) {
