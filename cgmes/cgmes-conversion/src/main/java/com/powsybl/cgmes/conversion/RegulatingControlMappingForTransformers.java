@@ -20,6 +20,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -382,6 +383,9 @@ public class RegulatingControlMappingForTransformers {
     // is directly connected to one terminal end)
     private static Terminal moveRegulatingTerminalToTerminalEnd(Terminal regulatingTerminal,
         List<? extends Terminal> terminalEnds) {
+        if (regulatingTerminal.getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            return regulatingTerminal;
+        }
         if (terminalEnds.contains(regulatingTerminal)) {
             return regulatingTerminal;
         }
