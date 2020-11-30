@@ -388,7 +388,7 @@ public class RegulatingControlMappingForTransformers {
         if (terminalEnds.contains(regulatingTerminal)) {
             return regulatingTerminal;
         }
-        Map<Integer, Set<Integer>> adjacency = buildAdjacency(terminalEnds);
+        Map<Integer, Set<Integer>> adjacency = buildAdjacency(regulatingTerminal);
 
         for (Terminal terminal : terminalEnds) {
             if (connectedTerminals(adjacency, regulatingTerminal, terminal)) {
@@ -399,15 +399,13 @@ public class RegulatingControlMappingForTransformers {
         return regulatingTerminal;
     }
 
-    private static Map<Integer, Set<Integer>> buildAdjacency(List<? extends Terminal> terminalEnds) {
+    private static Map<Integer, Set<Integer>> buildAdjacency(Terminal regulatingTerminal) {
         Map<Integer, Set<Integer>> adjacency = new HashMap<>();
 
-        terminalEnds.forEach(terminal -> {
-            VoltageLevel voltageLevel = terminal.getVoltageLevel();
-            voltageLevel.getNodeBreakerView().getInternalConnections().forEach(internalConnection -> {
-                adjacency.computeIfAbsent(internalConnection.getNode1(), k -> new HashSet<>()).add(internalConnection.getNode2());
-                adjacency.computeIfAbsent(internalConnection.getNode2(), k -> new HashSet<>()).add(internalConnection.getNode1());
-            });
+        VoltageLevel voltageLevel = regulatingTerminal.getVoltageLevel();
+        voltageLevel.getNodeBreakerView().getInternalConnections().forEach(internalConnection -> {
+            adjacency.computeIfAbsent(internalConnection.getNode1(), k -> new HashSet<>()).add(internalConnection.getNode2());
+            adjacency.computeIfAbsent(internalConnection.getNode2(), k -> new HashSet<>()).add(internalConnection.getNode1());
         });
         return adjacency;
     }
