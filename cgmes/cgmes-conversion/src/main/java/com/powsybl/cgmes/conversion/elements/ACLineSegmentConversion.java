@@ -92,7 +92,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             addAliases(sw);
         } else {
             final LineAdder adder = context.network().newLine()
-                    .setEnsureIdUnicity(false)
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                     .setR(r)
                     .setX(x)
                     .setG1(gch / 2)
