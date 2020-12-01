@@ -19,7 +19,7 @@ import static org.junit.Assert.*;
 public abstract class AbstractVoltageLimitsTest {
 
     @Test
-    public void testBus() {
+    public void testConfiguredBus() {
         Network network = EurostagTutorialExample1Factory.create();
         Bus bus = network.getBusBreakerView().getBus("NLOAD");
         bus.newVoltageLimits()
@@ -28,6 +28,18 @@ public abstract class AbstractVoltageLimitsTest {
                 .add();
 
         test("Bus 'NLOAD'", bus);
+    }
+
+    @Test
+    public void testCalculatedBus() {
+        Network network = FictitiousSwitchFactory.create();
+        Bus bus = network.getBusbarSection("O").getTerminal().getBusBreakerView().getBus();
+        bus.newVoltageLimits()
+                .setHighVoltage(220.0)
+                .setLowVoltage(140.0)
+                .add();
+
+        test("Busbar section 'O'", bus);
     }
 
     @Test
@@ -67,6 +79,8 @@ public abstract class AbstractVoltageLimitsTest {
         } catch (ValidationException e) {
             assertEquals(message + ": At least the low or the high voltage limit must be defined.", e.getMessage());
         }
+        voltageLimits.setLowVoltage(120.0);
+        assertEquals(120.0, voltageLimits.getLowVoltage(), 0.0);
         voltageLimits.remove();
         assertNull(holder.getVoltageLimits());
     }

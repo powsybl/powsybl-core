@@ -132,6 +132,8 @@ public abstract class AbstractDanglingLineTest {
                 .add();
         assertEquals(132.0, danglingLine.getApparentPowerLimits().getPermanentLimit(), 0.0);
 
+        assertEquals(3, danglingLine.getOperationalLimits().size());
+
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();
         assertSame(bus, terminal);

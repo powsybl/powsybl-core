@@ -182,6 +182,19 @@ public abstract class AbstractCurrentLimitsTest {
             // ignore
         }
 
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1400.0)
+                    .setName("20'")
+                    .setOverloadingProtection(false)
+                    .endTemporaryLimit()
+                    .add();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
         CurrentLimits currentLimits = currentLimitsAdder.beginTemporaryLimit()
                     .setName("5'")
                     .setAcceptableDuration(5 * 60)
