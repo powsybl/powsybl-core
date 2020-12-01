@@ -1,9 +1,10 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+
 package com.powsybl.contingency.dsl;
 
 import com.google.common.collect.Sets;
@@ -16,9 +17,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
@@ -32,10 +31,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class GroovyDslContingenciesProviderTest {
-
+public class GroovyContingencyListTest {
     private FileSystem fileSystem;
 
     private Path dslFile;
@@ -45,7 +43,7 @@ public class GroovyDslContingenciesProviderTest {
     @Before
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
-        dslFile = fileSystem.getPath("/test.dsl");
+        dslFile = fileSystem.getPath("/test.groovy");
         network = EurostagTutorialExample1Factory.create();
     }
 
@@ -65,8 +63,9 @@ public class GroovyDslContingenciesProviderTest {
         writeToDslFile("contingency('c1') {",
                 "    equipments 'NHV1_NHV2_1'",
                 "}");
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
-                .getContingencies(network);
+        ContingencyList contingencyList = ContingencyList.load(dslFile);
+        assertEquals("test.groovy", contingencyList.getName());
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
         assertEquals(1, contingencies.size());
         Contingency contingency = contingencies.get(0);
         assertEquals("c1", contingency.getId());
@@ -85,7 +84,7 @@ public class GroovyDslContingenciesProviderTest {
                 "contingency('c2') {",
                 "    equipments 'NHV1_NHV2_2'",
                 "}");
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals("c1", contingencies.get(0).getId());
@@ -103,7 +102,7 @@ public class GroovyDslContingenciesProviderTest {
                 "        equipments l.id",
                 "    }",
                 "}");
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
@@ -119,54 +118,13 @@ public class GroovyDslContingenciesProviderTest {
     }
 
     @Test
-    public void testFactory() throws IOException {
-        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
-
-        String dsl = createAllBranchesDsl();
-
-        InputStream inputStreamDsl = new ByteArrayInputStream(dsl.getBytes(StandardCharsets.UTF_8));
-
-        ContingenciesProvider providerFromStream = factory.create(inputStreamDsl);
-        assertTrue(providerFromStream instanceof GroovyDslContingenciesProvider);
-        List<Contingency> contingenciesFromStream = providerFromStream.getContingencies(network);
-        assertEquals(4, contingenciesFromStream.size());
-
-        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
-            writer.write(dsl);
-        }
-        ContingenciesProvider providerFromFile = factory.create(dslFile);
-        assertTrue(providerFromFile instanceof GroovyDslContingenciesProvider);
-        List<Contingency> contingenciesFromFile = providerFromFile.getContingencies(network);
-        assertEquals(4, contingenciesFromFile.size());
-
-        assertEquals(getContingenciesNames(contingenciesFromFile), getContingenciesNames(contingenciesFromStream));
-    }
-
-    @Test
-    public void reuseProvider() {
-        ContingenciesProviderFactory factory = new GroovyDslContingenciesProviderFactory();
-
-        InputStream inputStreamDsl = new ByteArrayInputStream(createAllBranchesDsl().getBytes(StandardCharsets.UTF_8));
-
-        ContingenciesProvider provider = factory.create(inputStreamDsl);
-        assertTrue(provider instanceof GroovyDslContingenciesProvider);
-
-        List<Contingency> contingencies1 = provider.getContingencies(network);
-        assertEquals(4, contingencies1.size());
-        List<Contingency> contingencies2 = provider.getContingencies(network);
-        assertEquals(4, contingencies2.size());
-
-        assertEquals(getContingenciesNames(contingencies1), getContingenciesNames(contingencies2));
-    }
-
-    @Test
     public void withComparison() throws IOException {
         writeToDslFile("for (l in network.lines) {",
                 "    if (l.terminal1.voltageLevel.nominalV >= 380) {",
                 "        contingency(l.id) { equipments l.id }",
                 "    }",
                 "}");
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
         assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
@@ -176,7 +134,7 @@ public class GroovyDslContingenciesProviderTest {
                 "        contingency(l.id) { equipments l.id }",
                 "    }",
                 "}");
-        contingencies = new GroovyDslContingenciesProvider(dslFile)
+        contingencies = ContingencyList.load(dslFile)
                 .getContingencies(network);
         assertTrue(contingencies.isEmpty());
     }
@@ -191,7 +149,7 @@ public class GroovyDslContingenciesProviderTest {
                 "        tsName 'myTs'",
                 "    }",
                 "}");
-        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+        List<Contingency> contingencies = ContingencyList.load(dslFile)
                 .getContingencies(network);
         assertEquals(1, contingencies.size());
         assertEquals(1, contingencies.get(0).getExtensions().size());
