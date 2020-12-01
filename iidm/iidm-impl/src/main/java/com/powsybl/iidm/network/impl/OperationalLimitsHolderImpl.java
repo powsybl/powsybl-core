@@ -8,10 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -34,7 +31,7 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
     }
 
     List<OperationalLimits> getOperationalLimits() {
-        return new ArrayList<>(operationalLimits.values());
+        return Collections.unmodifiableList(new ArrayList<>(operationalLimits.values()));
     }
 
     <L extends OperationalLimits> L getOperationalLimits(LimitType type, Class<L> limitClazz) {
