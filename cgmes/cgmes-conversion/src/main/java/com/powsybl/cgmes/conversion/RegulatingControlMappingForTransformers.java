@@ -391,7 +391,11 @@ public class RegulatingControlMappingForTransformers {
         Map<Integer, Set<Integer>> adjacency = buildAdjacency(regulatingTerminal);
 
         for (Terminal terminal : terminalEnds) {
-            if (connectedTerminals(adjacency, regulatingTerminal, terminal)) {
+            if (regulatingTerminal.getVoltageLevel() != terminal.getVoltageLevel()) {
+                continue;
+            }
+
+            if (terminalsAtTheSameConnectivityNode(adjacency, regulatingTerminal, terminal)) {
                 return terminal;
             }
         }
@@ -410,14 +414,16 @@ public class RegulatingControlMappingForTransformers {
         return adjacency;
     }
 
-    private static boolean connectedTerminals(Map<Integer, Set<Integer>> adjacency, Terminal regulatingTerminal, Terminal terminalEnd) {
+    // check if both terminals are in the same connectivityNode expanding through internalConnections
+    private static boolean terminalsAtTheSameConnectivityNode(Map<Integer, Set<Integer>> adjacency, Terminal regulatingTerminal, Terminal terminalEnd) {
         Set<Integer> visitedNodes = new HashSet<>();
         ArrayList<Integer> allConnected = new ArrayList<>();
 
         allConnected.add(regulatingTerminal.getNodeBreakerView().getNode());
         visitedNodes.add(regulatingTerminal.getNodeBreakerView().getNode());
 
-        // Expand, adding in each step all non-visited adjacent nodes, exit if the node associated to terminalEnd is found
+        // Expand, adding in each step all non-visited adjacent nodes, exit if the node
+        // associated to terminalEnd is found
         int k = 0;
         while (k < allConnected.size()) {
             int node = allConnected.get(k);
