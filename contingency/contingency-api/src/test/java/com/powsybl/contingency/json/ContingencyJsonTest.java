@@ -29,7 +29,6 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -50,18 +49,17 @@ public class ContingencyJsonTest extends AbstractConverterTest {
     }
 
     private static Contingency create() {
-        List<ContingencyElement> elements = new ArrayList<>();
-        elements.add(new BranchContingency("NHV1_NHV2_2", "VLHV1"));
-        elements.add(new BranchContingency("NHV1_NHV2_1"));
-        elements.add(new HvdcLineContingency("HVDC1"));
-        elements.add(new HvdcLineContingency("HVDC1", "VL1"));
-        elements.add(new GeneratorContingency("GEN"));
-        elements.add(new ShuntCompensatorContingency("SC"));
-        elements.add(new StaticVarCompensatorContingency("SVC"));
-        elements.add(new BusbarSectionContingency("BBS1"));
-        elements.add(new DanglingLineContingency("DL1"));
-
-        Contingency contingency = new Contingency("contingency", elements);
+        Contingency contingency = Contingency.builder("contingency")
+                                             .addBranch("NHV1_NHV2_2", "VLHV1")
+                                             .addBranch("NHV1_NHV2_1")
+                                             .addHvdcLine("HVDC1")
+                                             .addHvdcLine("HVDC1", "VL1")
+                                             .addGenerator("GEN")
+                                             .addShuntCompensator("SC")
+                                             .addStaticVarCompensator("SVC")
+                                             .addBusbarSection("BBS1")
+                                             .addDanglingLine("DL1")
+                                             .build();
 
         contingency.addExtension(DummyExtension.class, new DummyExtension());
         return contingency;
