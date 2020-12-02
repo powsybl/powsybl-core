@@ -380,16 +380,15 @@ public class RegulatingControlMappingForTransformers {
         // we will try to change it for one of the transformer terminals,
         // but only if regulating terminal and the transformer terminal
         // are at the same connectivity node.
-        // Terminals are at the same connectivity node if they are connected
-        // only through internal connections in node/breaker view
-        Set<Integer> transformerNodes = transformerTerminals.stream().map(t -> t.getNodeBreakerView().getNode()).collect(Collectors.toSet());
-        System.err.println("   node regulatingTerminal     = " + regulatingTerminal.getNodeBreakerView().getNode());
-        System.err.println("   nodes transformerTerminals  = " + transformerNodes);
+        // Terminals are at the same connectivity node if they are at the same voltageLevel
+        // and are connected only through internal connections in node/breaker view
+        Set<Integer> transformerNodes = transformerTerminals.stream()
+            .filter(t -> t.getVoltageLevel() == regulatingTerminal.getVoltageLevel())
+            .map(t -> t.getNodeBreakerView().getNode()).collect(Collectors.toSet());
         Terminal[] found = {null};
         regulatingTerminal.getVoltageLevel().getNodeBreakerView().traverse(regulatingTerminal.getNodeBreakerView().getNode(),
             (node1, sw, node2) -> {
                 boolean isInternalConnection = sw == null;
-                System.err.printf("    %3d  -- %s -- %3d%n", node1, isInternalConnection ? "internal connection" : sw.getId(), node2);
                 if (transformerNodes.contains(node2)) {
                     found[0] = regulatingTerminal.getVoltageLevel().getNodeBreakerView().getTerminal(node2);
                     // Do not continue graph traversal
