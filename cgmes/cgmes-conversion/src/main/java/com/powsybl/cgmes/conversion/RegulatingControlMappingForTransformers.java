@@ -384,7 +384,8 @@ public class RegulatingControlMappingForTransformers {
         // and are connected only through internal connections in node/breaker view
         Set<Integer> transformerNodes = transformerTerminals.stream()
             .filter(t -> t.getVoltageLevel() == regulatingTerminal.getVoltageLevel())
-            .map(t -> t.getNodeBreakerView().getNode()).collect(Collectors.toSet());
+            .map(t -> t.getNodeBreakerView().getNode())
+            .collect(Collectors.toSet());
         if (transformerNodes.isEmpty()) {
             return null;
         }
