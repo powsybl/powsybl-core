@@ -6,23 +6,15 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -219,47 +211,40 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void setPhaseTapChangerControl(boolean regulating, CgmesRegulatingControlPhase rc,
-        RegulatingControl control, PhaseTapChanger ptc, List<? extends Terminal> terminalEnds) {
+        RegulatingControl control, PhaseTapChanger ptc, List<? extends Terminal> transformerTerminals) {
         if (control == null || ptc == null) {
             return;
         }
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(regulating, rc.ltcFlag, control, ptc, context, terminalEnds);
+            okSet = setPtcRegulatingControl(regulating, getPtcRegulatingMode(rc.ltcFlag, RegulationMode.CURRENT_LIMITER), control, ptc, context, transformerTerminals);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(regulating, rc.ltcFlag, control, ptc, context, terminalEnds);
+            okSet = setPtcRegulatingControl(regulating, getPtcRegulatingMode(rc.ltcFlag, RegulationMode.ACTIVE_POWER_CONTROL), control, ptc, context, transformerTerminals);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(boolean regulating, boolean ltcFlag, RegulatingControl control,
-        PhaseTapChanger ptc, Context context, List<? extends Terminal> terminalEnds) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context, terminalEnds);
-    }
-
-    private boolean setPtcRegulatingControlActivePower(boolean regulating, boolean ltcFlag, RegulatingControl control,
-        PhaseTapChanger ptc, Context context, List<? extends Terminal> terminalEnds) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context, terminalEnds);
-    }
-
-    private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
-        RegulatingControl control, PhaseTapChanger ptc, Context context, List<? extends Terminal> terminalEnds) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
+    private boolean setPtcRegulatingControl(boolean regulating, RegulationMode regulationMode,
+        RegulatingControl control, PhaseTapChanger ptc, Context context, List<? extends Terminal> transformerTerminals) {
+        Terminal regulatingTerminal = parent.findRegulatingTerminal(control.cgmesTerminal);
+        if (regulatingTerminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
-        Terminal terminalEnd = moveRegulatingTerminalToTerminalEnd(terminal, terminalEnds);
+        if (!isValidTerminalForRegulatingFlow(control.cgmesTerminal, regulatingTerminal)) {
+            regulatingTerminal = fixRegulatingTerminalForFlow(control.cgmesTerminal, regulatingTerminal, transformerTerminals);
+            if (regulatingTerminal == null) {
+                context.invalid(RegulatingControlMapping.REGULATING_TERMINAL, () -> String.format(RegulatingControlMapping.INVALID_CGMES_REGULATING_TERMINAL, control.cgmesTerminal));
+                return false;
+            }
+            context.fixed(RegulatingControlMapping.REGULATING_TERMINAL,  () -> String.format(RegulatingControlMapping.INVALID_CGMES_REGULATING_TERMINAL_FIXED, control.cgmesTerminal));
+        }
 
         // Order is important
-        ptc.setRegulationTerminal(terminalEnd)
+        ptc.setRegulationTerminal(regulatingTerminal)
                 .setRegulationValue(control.targetValue)
                 .setTargetDeadband(control.targetDeadband)
                 .setRegulationMode(regulationMode)
@@ -268,8 +253,7 @@ public class RegulatingControlMappingForTransformers {
         return true;
     }
 
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,
-                                                                PhaseTapChanger.RegulationMode regulationMode) {
+    private RegulationMode getPtcRegulatingMode(boolean ltcFlag, RegulationMode regulationMode) {
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -298,7 +282,7 @@ public class RegulatingControlMappingForTransformers {
 
         // rca.regulationMode has been initialized to FIXED_TAP
 
-        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+        RegulationMode finalRegulationMode = RegulationMode.FIXED_TAP;
         if (ltcFlag) {
             finalRegulationMode = regulationMode;
         }
@@ -378,75 +362,49 @@ public class RegulatingControlMappingForTransformers {
         boolean tapChangerControlEnabled; // enabled status in SSH values of PTC/RTC
     }
 
-    // Select as terminal one terminal end if it is possible (if regulatingTerminal
-    // is directly connected to one terminal end)
-    private static Terminal moveRegulatingTerminalToTerminalEnd(Terminal regulatingTerminal,
-        List<? extends Terminal> terminalEnds) {
-        if (regulatingTerminal.getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            return regulatingTerminal;
+    private static boolean isValidTerminalForRegulatingFlow(String regulatingTerminalId, Terminal regulatingTerminal) {
+        // When regulated magnitude is a flow (current or active power)
+        // regulating terminal must be a terminal where a flow can be measured
+        if (regulatingTerminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
+            && regulatingTerminal.getConnectable().getType() == ConnectableType.BUSBAR_SECTION) {
+            LOG.error("Substation {}. Regulating terminal {} is target for a flow magnitude but points to a Busbar section",
+                regulatingTerminal.getVoltageLevel().getSubstation().getNameOrId(),
+                regulatingTerminalId);
+            return false;
         }
-        if (terminalEnds.contains(regulatingTerminal)) {
-            return regulatingTerminal;
-        }
-        Map<Integer, Set<Integer>> adjacency = buildAdjacency(regulatingTerminal);
-
-        for (Terminal terminal : terminalEnds) {
-            if (regulatingTerminal.getVoltageLevel() != terminal.getVoltageLevel()) {
-                continue;
-            }
-
-            if (terminalsAtTheSameConnectivityNode(adjacency, regulatingTerminal, terminal)) {
-                return terminal;
-            }
-        }
-
-        return regulatingTerminal;
+        return true;
     }
 
-    private static Map<Integer, Set<Integer>> buildAdjacency(Terminal regulatingTerminal) {
-        Map<Integer, Set<Integer>> adjacency = new HashMap<>();
-
-        VoltageLevel voltageLevel = regulatingTerminal.getVoltageLevel();
-        voltageLevel.getNodeBreakerView().getInternalConnections().forEach(internalConnection -> {
-            adjacency.computeIfAbsent(internalConnection.getNode1(), k -> new HashSet<>()).add(internalConnection.getNode2());
-            adjacency.computeIfAbsent(internalConnection.getNode2(), k -> new HashSet<>()).add(internalConnection.getNode1());
-        });
-        return adjacency;
-    }
-
-    // check if both terminals are in the same connectivityNode expanding through internalConnections
-    private static boolean terminalsAtTheSameConnectivityNode(Map<Integer, Set<Integer>> adjacency, Terminal regulatingTerminal, Terminal terminalEnd) {
-        Set<Integer> visitedNodes = new HashSet<>();
-        ArrayList<Integer> allConnected = new ArrayList<>();
-
-        allConnected.add(regulatingTerminal.getNodeBreakerView().getNode());
-        visitedNodes.add(regulatingTerminal.getNodeBreakerView().getNode());
-
-        // Expand, adding in each step all non-visited adjacent nodes, exit if the node
-        // associated to terminalEnd is found
-        int k = 0;
-        while (k < allConnected.size()) {
-            int node = allConnected.get(k);
-            if (node == terminalEnd.getNodeBreakerView().getNode()) {
-                return true;
-            }
-            if (adjacency.containsKey(node)) {
-                adjacency.get(node).forEach(ad -> {
-                    if (visitedNodes.contains(ad)) {
-                        return;
-                    }
-                    allConnected.add(ad);
-                    visitedNodes.add(ad);
-                });
-            }
-            k++;
-        }
-
-        return false;
+    private static Terminal fixRegulatingTerminalForFlow(String regulatingTerminalId, Terminal regulatingTerminal, List<? extends Terminal> transformerTerminals) {
+        // If the regulating terminal is invalid
+        // we will try to change it for one of the transformer terminals,
+        // but only if regulating terminal and the transformer terminal
+        // are at the same connectivity node.
+        // Terminals are at the same connectivity node if they are connected
+        // only through internal connections in node/breaker view
+        Set<Integer> transformerNodes = transformerTerminals.stream().map(t -> t.getNodeBreakerView().getNode()).collect(Collectors.toSet());
+        System.err.println("   node regulatingTerminal     = " + regulatingTerminal.getNodeBreakerView().getNode());
+        System.err.println("   nodes transformerTerminals  = " + transformerNodes);
+        Terminal[] found = {null};
+        regulatingTerminal.getVoltageLevel().getNodeBreakerView().traverse(regulatingTerminal.getNodeBreakerView().getNode(),
+            (node1, sw, node2) -> {
+                boolean isInternalConnection = sw == null;
+                System.err.printf("    %3d  -- %s -- %3d%n", node1, isInternalConnection ? "internal connection" : sw.getId(), node2);
+                if (transformerNodes.contains(node2)) {
+                    found[0] = regulatingTerminal.getVoltageLevel().getNodeBreakerView().getTerminal(node2);
+                    // Do not continue graph traversal
+                    return false;
+                }
+                // Continue traversing only if this is an internal connection
+                return isInternalConnection;
+            });
+        return found[0];
     }
 
     private final RegulatingControlMapping parent;
     private final Context context;
     private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
     private final Map<String, CgmesRegulatingControlForThreeWindingsTransformer> t3xMapping;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForTransformers.class);
 }

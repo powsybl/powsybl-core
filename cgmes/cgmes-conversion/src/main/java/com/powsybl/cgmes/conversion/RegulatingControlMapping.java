@@ -22,8 +22,10 @@ import java.util.Optional;
 public class RegulatingControlMapping {
 
     static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES terminal: %s";
+    static final String INVALID_CGMES_REGULATING_TERMINAL = "CGMES regulating control terminal is invalid for the regulation mode: %s";
+    static final String INVALID_CGMES_REGULATING_TERMINAL_FIXED = "CGMES invalid regulating control terminal was fixed: %s";
 
-    private static final String REGULATING_TERMINAL = "Regulating Terminal";
+    static final String REGULATING_TERMINAL = "Regulating Terminal";
     private static final String REGULATING_CONTROL = "RegulatingControl";
     private static final String TERMINAL = "Terminal";
     private static final String VOLTAGE = "voltage";
