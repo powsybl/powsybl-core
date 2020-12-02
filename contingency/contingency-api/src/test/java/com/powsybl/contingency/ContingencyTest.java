@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,12 @@ public class ContingencyTest {
 
         ModificationTask task = contingency.toTask();
         assertTrue(task instanceof CompoundModificationTask);
+
+        ContingencyElement bbsElement = new BusbarSectionContingency("bbs");
+        contingency.addElement(bbsElement);
+        assertEquals(3, contingency.getElements().size());
+        contingency.removeElement(bbsElement);
+        assertEquals(2, contingency.getElements().size());
     }
 
     @Test
@@ -57,9 +64,16 @@ public class ContingencyTest {
 
         List<Contingency> validContingencies = ContingencyList.of(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency)
                 .getContingencies(network);
+        List<String> expectedValidIds = Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency");
 
-        assertEquals(Arrays.asList("GEN contingency", "NHV1_NHV2_1 contingency"),
+        assertEquals(expectedValidIds,
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+                ContingencyList.checkValidity(Arrays.asList(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency), network)
+                        .stream()
+                        .map(Contingency::getId)
+                        .collect(Collectors.toList()));
     }
 
     @Test
@@ -71,8 +85,16 @@ public class ContingencyTest {
         List<Contingency> validContingencies = ContingencyList.of(shuntCompensatorContingency, shuntCompensatorInvalidContingency)
                 .getContingencies(network);
 
-        assertEquals(Arrays.asList("Shunt contingency"),
+        List<String> expectedValidIds = Collections.singletonList("Shunt contingency");
+
+        assertEquals(expectedValidIds,
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+                ContingencyList.checkValidity(Arrays.asList(shuntCompensatorContingency, shuntCompensatorInvalidContingency), network)
+                        .stream()
+                        .map(Contingency::getId)
+                        .collect(Collectors.toList()));
     }
 
     @Test
@@ -83,8 +105,16 @@ public class ContingencyTest {
         List<Contingency> validContingencies = ContingencyList.of(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency)
                 .getContingencies(network);
 
-        assertEquals(Arrays.asList("SVC contingency"),
+        List<String> expectedValidIds = Collections.singletonList("SVC contingency");
+
+        assertEquals(expectedValidIds,
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+                ContingencyList.checkValidity(Arrays.asList(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency), network)
+                        .stream()
+                        .map(Contingency::getId)
+                        .collect(Collectors.toList()));
     }
 
     @Test
@@ -95,7 +125,15 @@ public class ContingencyTest {
         List<Contingency> validContingencies = ContingencyList.of(danglingLineContingency, danglingLineInvalidContingency)
                 .getContingencies(network);
 
-        assertEquals(Arrays.asList("DL contingency"),
+        List<String> expectedValidIds = Collections.singletonList("DL contingency");
+
+        assertEquals(expectedValidIds,
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+
+        assertEquals(expectedValidIds,
+                ContingencyList.checkValidity(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network)
+                        .stream()
+                        .map(Contingency::getId)
+                        .collect(Collectors.toList()));
     }
 }
