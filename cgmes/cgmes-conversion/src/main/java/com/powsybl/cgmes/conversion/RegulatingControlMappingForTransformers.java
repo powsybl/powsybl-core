@@ -235,7 +235,7 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
         if (!isValidTerminalForRegulatingFlow(control.cgmesTerminal, regulatingTerminal)) {
-            regulatingTerminal = fixRegulatingTerminalForFlow(control.cgmesTerminal, regulatingTerminal, transformerTerminals);
+            regulatingTerminal = fixRegulatingTerminalForFlow(regulatingTerminal, transformerTerminals);
             if (regulatingTerminal == null) {
                 context.invalid(RegulatingControlMapping.REGULATING_TERMINAL, () -> String.format(RegulatingControlMapping.INVALID_CGMES_REGULATING_TERMINAL, control.cgmesTerminal));
                 return false;
@@ -375,7 +375,7 @@ public class RegulatingControlMappingForTransformers {
         return true;
     }
 
-    private static Terminal fixRegulatingTerminalForFlow(String regulatingTerminalId, Terminal regulatingTerminal, List<? extends Terminal> transformerTerminals) {
+    private static Terminal fixRegulatingTerminalForFlow(Terminal regulatingTerminal, List<? extends Terminal> transformerTerminals) {
         // If the regulating terminal is invalid
         // we will try to change it for one of the transformer terminals,
         // but only if regulating terminal and the transformer terminal

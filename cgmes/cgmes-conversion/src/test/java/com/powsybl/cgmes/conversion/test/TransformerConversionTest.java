@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -411,7 +412,7 @@ public class TransformerConversionTest {
     public void microGridBaseCasePhaseTapChangerMoveRegulatingTerminal() throws IOException {
         Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerPhaseTapChangerMoveRegulatingTerminal(), new Conversion.Config());
         TwoWindingsTransformer twt = n.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
-        assertTrue(twt.getTerminal2() == twt.getPhaseTapChanger().getRegulationTerminal());
+        assertSame(twt.getTerminal2(), twt.getPhaseTapChanger().getRegulationTerminal());
     }
 
     @Test
