@@ -385,6 +385,9 @@ public class RegulatingControlMappingForTransformers {
         Set<Integer> transformerNodes = transformerTerminals.stream()
             .filter(t -> t.getVoltageLevel() == regulatingTerminal.getVoltageLevel())
             .map(t -> t.getNodeBreakerView().getNode()).collect(Collectors.toSet());
+        if (transformerNodes.isEmpty()) {
+            return null;
+        }
         Terminal[] found = {null};
         regulatingTerminal.getVoltageLevel().getNodeBreakerView().traverse(regulatingTerminal.getNodeBreakerView().getNode(),
             (node1, sw, node2) -> {
