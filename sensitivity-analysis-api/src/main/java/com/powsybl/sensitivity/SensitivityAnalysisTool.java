@@ -9,9 +9,7 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.ContingenciesProviderFactory;
-import com.powsybl.contingency.EmptyContingencyListProvider;
+import com.powsybl.contingency.*;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -30,6 +28,8 @@ import org.apache.commons.cli.ParseException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
@@ -146,12 +146,11 @@ public class SensitivityAnalysisTool implements Tool {
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
 
-        ContingenciesProvider contingenciesProvider = new EmptyContingencyListProvider();
+        List<Contingency> contingencies = Collections.emptyList();
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
-            ContingenciesProviderFactory contingenciesProviderFactory = defaultConfig.newFactoryImpl(ContingenciesProviderFactory.class);
-            contingenciesProvider = contingenciesProviderFactory.create(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)));
+            contingencies = ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network);
         }
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingenciesProvider, params);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingencies, params);
 
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");
