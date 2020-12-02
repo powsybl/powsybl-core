@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test;
 
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -405,6 +407,20 @@ public class TransformerConversionTest {
 
         boolean ok = t3xCompareFlow(n, "_5d38b7ed-73fd-405a-9cdb-78425e003773", -1494.636083, 1530.638656, 981.686099, 1826.870720, 562.199867, 309.289551);
         assertTrue(ok);
+    }
+
+    @Test
+    public void microGridBaseCasePhaseTapChangerMoveRegulatingTerminal() throws IOException {
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerPhaseTapChangerMoveRegulatingTerminal(), new Conversion.Config());
+        TwoWindingsTransformer twt = n.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        assertSame(twt.getTerminal2(), twt.getPhaseTapChanger().getRegulationTerminal());
+    }
+
+    @Test
+    public void microGridBaseCasePhaseTapChangerRemoteRegulatingTerminalAtBusbarSection() throws IOException {
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerPhaseTapChangerRemoteRegulatingTerminalAtBusbarSection(), new Conversion.Config());
+        TwoWindingsTransformer twt = n.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        assertNull(twt.getPhaseTapChanger().getRegulationTerminal());
     }
 
     private boolean t2xCompareFlow(Network n, String id, double p1, double q1, double p2, double q2) {

@@ -6,17 +6,15 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -94,7 +92,7 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl ptcControl = getTapChangerControl(rc.phaseTapChanger);
         boolean ptcRegulating = ptcControl != null && (ptcControl.enabled || rc.phaseTapChanger.tapChangerControlEnabled);
 
-        setPhaseTapChangerControl(ptcRegulating, rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger());
+        setPhaseTapChangerControl(ptcRegulating, rc.phaseTapChanger, ptcControl, twt.getPhaseTapChanger(), twt.getTerminals());
         boolean regulatingSet = twt.hasPhaseTapChanger() && twt.getPhaseTapChanger().isRegulating();
 
         rtcRegulating = checkOnlyOneEnabled(twt.getId(), rtcRegulating, regulatingSet, "ratioTapChanger");
@@ -127,7 +125,7 @@ public class RegulatingControlMappingForTransformers {
         RegulatingControl ptcControl3 = getTapChangerControl(rc.phaseTapChanger3);
         boolean ptcRegulating3 = getPtcRegulating(ptcControl3, rc.phaseTapChanger3);
 
-        setPhaseTapChangerControl(ptcRegulating1, rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger());
+        setPhaseTapChangerControl(ptcRegulating1, rc.phaseTapChanger1, ptcControl1, twt.getLeg1().getPhaseTapChanger(), twt.getTerminals());
         boolean regulatingSet = twt.getLeg1().hasPhaseTapChanger() && twt.getLeg1().getPhaseTapChanger().isRegulating();
 
         rtcRegulating1 = checkOnlyOneEnabled(twt.getId(), rtcRegulating1, regulatingSet, "ratioTapChanger at Leg1");
@@ -135,7 +133,7 @@ public class RegulatingControlMappingForTransformers {
         regulatingSet = regulatingSet || (twt.getLeg1().hasRatioTapChanger() && twt.getLeg1().getRatioTapChanger().isRegulating());
 
         ptcRegulating2 = checkOnlyOneEnabled(twt.getId(), ptcRegulating2, regulatingSet, "phaseTapChanger at Leg2");
-        setPhaseTapChangerControl(ptcRegulating2, rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger());
+        setPhaseTapChangerControl(ptcRegulating2, rc.phaseTapChanger2, ptcControl2, twt.getLeg2().getPhaseTapChanger(), twt.getTerminals());
         regulatingSet = regulatingSet || (twt.getLeg2().hasPhaseTapChanger() && twt.getLeg2().getPhaseTapChanger().isRegulating());
 
         rtcRegulating2 = checkOnlyOneEnabled(twt.getId(), rtcRegulating2, regulatingSet, "ratioTapChanger at Leg2");
@@ -143,7 +141,7 @@ public class RegulatingControlMappingForTransformers {
         regulatingSet = regulatingSet || (twt.getLeg2().hasRatioTapChanger() && twt.getLeg2().getRatioTapChanger().isRegulating());
 
         ptcRegulating3 = checkOnlyOneEnabled(twt.getId(), ptcRegulating3, regulatingSet, "phaseTapChanger at Leg3");
-        setPhaseTapChangerControl(ptcRegulating3, rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger());
+        setPhaseTapChangerControl(ptcRegulating3, rc.phaseTapChanger3, ptcControl3, twt.getLeg3().getPhaseTapChanger(), twt.getTerminals());
         regulatingSet = regulatingSet || (twt.getLeg3().hasPhaseTapChanger() && twt.getLeg3().getPhaseTapChanger().isRegulating());
 
         rtcRegulating3 = checkOnlyOneEnabled(twt.getId(), rtcRegulating3, regulatingSet, "ratioTapChanger at Leg3");
@@ -213,46 +211,40 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private void setPhaseTapChangerControl(boolean regulating, CgmesRegulatingControlPhase rc,
-                                           RegulatingControl control, PhaseTapChanger ptc) {
+        RegulatingControl control, PhaseTapChanger ptc, List<? extends Terminal> transformerTerminals) {
         if (control == null || ptc == null) {
             return;
         }
 
         boolean okSet = false;
         if (control.mode.endsWith("currentflow")) {
-            okSet = setPtcRegulatingControlCurrentFlow(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControl(regulating, getPtcRegulatingMode(rc.ltcFlag, RegulationMode.CURRENT_LIMITER), control, ptc, context, transformerTerminals);
         } else if (control.mode.endsWith("activepower")) {
-            okSet = setPtcRegulatingControlActivePower(regulating, rc.ltcFlag, control, ptc, context);
+            okSet = setPtcRegulatingControl(regulating, getPtcRegulatingMode(rc.ltcFlag, RegulationMode.ACTIVE_POWER_CONTROL), control, ptc, context, transformerTerminals);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setPtcRegulatingControlCurrentFlow(boolean regulating, boolean ltcFlag, RegulatingControl control,
-                                                       PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.CURRENT_LIMITER);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
-    }
-
-    private boolean setPtcRegulatingControlActivePower(boolean regulating, boolean ltcFlag, RegulatingControl control,
-                                                       PhaseTapChanger ptc, Context context) {
-        PhaseTapChanger.RegulationMode regulationMode = getPtcRegulatingMode(ltcFlag,
-                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        return setPtcRegulatingControl(regulating, regulationMode, control, ptc, context);
-    }
-
-    private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
-                                            RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
+    private boolean setPtcRegulatingControl(boolean regulating, RegulationMode regulationMode,
+        RegulatingControl control, PhaseTapChanger ptc, Context context, List<? extends Terminal> transformerTerminals) {
+        Terminal regulatingTerminal = parent.findRegulatingTerminal(control.cgmesTerminal);
+        if (regulatingTerminal == null) {
             context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
             return false;
         }
+        if (!isValidTerminalForRegulatingFlow(control.cgmesTerminal, regulatingTerminal)) {
+            regulatingTerminal = fixRegulatingTerminalForFlow(regulatingTerminal, transformerTerminals);
+            if (regulatingTerminal == null) {
+                context.invalid(RegulatingControlMapping.REGULATING_TERMINAL, () -> String.format(RegulatingControlMapping.INVALID_CGMES_REGULATING_TERMINAL, control.cgmesTerminal));
+                return false;
+            }
+            context.fixed(RegulatingControlMapping.REGULATING_TERMINAL,  () -> String.format(RegulatingControlMapping.INVALID_CGMES_REGULATING_TERMINAL_FIXED, control.cgmesTerminal));
+        }
 
         // Order is important
-        ptc.setRegulationTerminal(terminal)
+        ptc.setRegulationTerminal(regulatingTerminal)
                 .setRegulationValue(control.targetValue)
                 .setTargetDeadband(control.targetDeadband)
                 .setRegulationMode(regulationMode)
@@ -261,8 +253,7 @@ public class RegulatingControlMappingForTransformers {
         return true;
     }
 
-    private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,
-                                                                PhaseTapChanger.RegulationMode regulationMode) {
+    private RegulationMode getPtcRegulatingMode(boolean ltcFlag, RegulationMode regulationMode) {
         // According to the following CGMES documentation:
         // IEC TS 61970-600-1, Edition 1.0, 2017-07.
         // "Energy management system application program interface (EMS-API)
@@ -291,7 +282,7 @@ public class RegulatingControlMappingForTransformers {
 
         // rca.regulationMode has been initialized to FIXED_TAP
 
-        PhaseTapChanger.RegulationMode finalRegulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
+        RegulationMode finalRegulationMode = RegulationMode.FIXED_TAP;
         if (ltcFlag) {
             finalRegulationMode = regulationMode;
         }
@@ -371,8 +362,52 @@ public class RegulatingControlMappingForTransformers {
         boolean tapChangerControlEnabled; // enabled status in SSH values of PTC/RTC
     }
 
+    private static boolean isValidTerminalForRegulatingFlow(String regulatingTerminalId, Terminal regulatingTerminal) {
+        // When regulated magnitude is a flow (current or active power)
+        // regulating terminal must be a terminal where a flow can be measured
+        if (regulatingTerminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
+            && regulatingTerminal.getConnectable().getType() == ConnectableType.BUSBAR_SECTION) {
+            LOG.error("Substation {}. Regulating terminal {} is target for a flow magnitude but points to a Busbar section",
+                regulatingTerminal.getVoltageLevel().getSubstation().getNameOrId(),
+                regulatingTerminalId);
+            return false;
+        }
+        return true;
+    }
+
+    private static Terminal fixRegulatingTerminalForFlow(Terminal regulatingTerminal, List<? extends Terminal> transformerTerminals) {
+        // If the regulating terminal is invalid
+        // we will try to change it for one of the transformer terminals,
+        // but only if regulating terminal and the transformer terminal
+        // are at the same connectivity node.
+        // Terminals are at the same connectivity node if they are at the same voltageLevel
+        // and are connected only through internal connections in node/breaker view
+        Set<Integer> transformerNodes = transformerTerminals.stream()
+            .filter(t -> t.getVoltageLevel() == regulatingTerminal.getVoltageLevel())
+            .map(t -> t.getNodeBreakerView().getNode())
+            .collect(Collectors.toSet());
+        if (transformerNodes.isEmpty()) {
+            return null;
+        }
+        Terminal[] found = {null};
+        regulatingTerminal.getVoltageLevel().getNodeBreakerView().traverse(regulatingTerminal.getNodeBreakerView().getNode(),
+            (node1, sw, node2) -> {
+                boolean isInternalConnection = sw == null;
+                if (transformerNodes.contains(node2)) {
+                    found[0] = regulatingTerminal.getVoltageLevel().getNodeBreakerView().getTerminal(node2);
+                    // Do not continue graph traversal
+                    return false;
+                }
+                // Continue traversing only if this is an internal connection
+                return isInternalConnection;
+            });
+        return found[0];
+    }
+
     private final RegulatingControlMapping parent;
     private final Context context;
     private final Map<String, CgmesRegulatingControlForTwoWindingsTransformer> t2xMapping;
     private final Map<String, CgmesRegulatingControlForThreeWindingsTransformer> t3xMapping;
+
+    private static final Logger LOG = LoggerFactory.getLogger(RegulatingControlMappingForTransformers.class);
 }
