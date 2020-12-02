@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseNonTransformerBranch;
-import com.powsybl.psse.model.PsseNonTransformerBranch35;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -29,11 +28,7 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
 
     @Override
     public Class<? extends PsseNonTransformerBranch> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseNonTransformerBranch35.class;
-        } else {
-            return PsseNonTransformerBranch.class;
-        }
+        return PsseNonTransformerBranch.class;
     }
 
     @Override

@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
 
@@ -13,7 +14,8 @@ import com.univocity.parsers.annotations.Validate;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseGenerator {
+@JsonFilter("PsseVersionFilter")
+public class PsseGenerator extends Versioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -99,6 +101,14 @@ public class PsseGenerator {
 
     @Parsed
     private double wpf = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int nreg = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int baslod = 0;
 
     public int getI() {
         return i;
@@ -322,5 +332,25 @@ public class PsseGenerator {
 
     public void setWpf(double wpf) {
         this.wpf = wpf;
+    }
+
+    public int getNreg() {
+        checkVersion("nreg");
+        return nreg;
+    }
+
+    public void setNreg(int nreg) {
+        checkVersion("nreg");
+        this.nreg = nreg;
+    }
+
+    public int getBaslod() {
+        checkVersion("baslod");
+        return baslod;
+    }
+
+    public void setBaslod(int baslod) {
+        checkVersion("baslod");
+        this.baslod = baslod;
     }
 }

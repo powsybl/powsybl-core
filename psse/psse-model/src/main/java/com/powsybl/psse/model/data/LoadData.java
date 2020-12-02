@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad;
-import com.powsybl.psse.model.PsseLoad35;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -38,10 +37,6 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     @Override
     public Class<? extends PsseLoad> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseLoad35.class;
-        } else {
-            return PsseLoad.class;
-        }
+        return PsseLoad.class;
     }
 }

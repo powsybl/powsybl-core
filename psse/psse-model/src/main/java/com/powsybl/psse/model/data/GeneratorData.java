@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseGenerator;
-import com.powsybl.psse.model.PsseGenerator35;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -38,10 +37,6 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
     @Override
     public Class<? extends PsseGenerator> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseGenerator35.class;
-        } else {
-            return PsseGenerator.class;
-        }
+        return PsseGenerator.class;
     }
 }

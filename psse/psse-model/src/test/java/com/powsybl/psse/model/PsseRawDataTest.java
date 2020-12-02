@@ -6,7 +6,12 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.PropertyWriter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -18,6 +23,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -42,13 +48,48 @@ public class PsseRawDataTest {
         return new ResourceDataSource("MinimalExample", new ResourceSet("/", "MinimalExample.rawx"));
     }
 
+    private static String toJson(PsseRawModel rawData) throws JsonProcessingException {
+        int version = rawData.getCaseIdentification().getRev();
+        SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
+            @Override
+            protected boolean include(PropertyWriter writer) {
+                System.err.println(writer.getName());
+                PsseRev rev = writer.getAnnotation(PsseRev.class);
+                return rev == null || (rev.since() <= version && version <= rev.until());
+            }
+        };
+        FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
+        return new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(rawData);
+    }
+
     @Test
     public void ieee14BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
         PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(rawData);
-        String actualJson = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
-        assertEquals(expectedJson, actualJson);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void testAccessToFieldNotPresentInVersion() throws IOException {
+        PsseRawModel raw33 = new RawData33().read(ieee14Raw(), "raw", new Context());
+        assertNotNull(raw33);
+        PsseGenerator g = raw33.getGenerators().get(0);
+        // Trying to get a field only available since version 35 gives an error
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(() -> g.getNreg())
+            .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
+        PsseNonTransformerBranch b = raw33.getNonTransformerBranches().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(() -> b.getRate1())
+            .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
+
+        PsseRawModel raw35 = new RawData35().read(ieee14Raw35(), "raw", new Context());
+        assertNotNull(raw35);
+        PsseNonTransformerBranch b35 = raw35.getNonTransformerBranches().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(() -> b35.getRatea())
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
     }
 
     @Test
@@ -167,10 +208,8 @@ public class PsseRawDataTest {
     @Test
     public void ieee14BusRev35RawxTest() throws IOException {
         PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", new Context());
-
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
-        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
-        assertEquals(jsonRef, json);
+        assertEquals(jsonRef, toJson(rawData));
     }
 
     @Test
@@ -232,8 +271,7 @@ public class PsseRawDataTest {
         PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(rawData);
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
-        String json = new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(rawData);
-        assertEquals(jsonRef, json);
+        assertEquals(jsonRef, toJson(rawData));
     }
 
     @Test

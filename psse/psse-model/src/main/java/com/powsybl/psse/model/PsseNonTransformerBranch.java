@@ -6,14 +6,18 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
+
+import java.util.Objects;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseNonTransformerBranch {
+@JsonFilter("PsseVersionFilter")
+public class PsseNonTransformerBranch extends Versioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -37,12 +41,15 @@ public class PsseNonTransformerBranch {
     private double b = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     private double ratea = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     private double rateb = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     private double ratec = 0;
 
     @Parsed
@@ -89,6 +96,58 @@ public class PsseNonTransformerBranch {
 
     @Parsed
     private double f4 = 1;
+
+    @Parsed(defaultNullRead = " ")
+    @PsseRev(since = 35)
+    private String name;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate1 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate2 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate3 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate4 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate5 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate6 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate7 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate8 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate9 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate10 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate11 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate12 = 0;
 
     public int getI() {
         return i;
@@ -139,26 +198,32 @@ public class PsseNonTransformerBranch {
     }
 
     public double getRatea() {
+        checkVersion("ratea");
         return ratea;
     }
 
     public void setRatea(double ratea) {
+        checkVersion("ratea");
         this.ratea = ratea;
     }
 
     public double getRateb() {
+        checkVersion("rateb");
         return rateb;
     }
 
     public void setRateb(double rateb) {
+        checkVersion("rateb");
         this.rateb = rateb;
     }
 
     public double getRatec() {
+        checkVersion("ratec");
         return ratec;
     }
 
     public void setRatec(double ratec) {
+        checkVersion("ratec");
         this.ratec = ratec;
     }
 
@@ -280,5 +345,135 @@ public class PsseNonTransformerBranch {
 
     public void setF4(double f4) {
         this.f4 = f4;
+    }
+
+    public String getName() {
+        checkVersion("name");
+        return name;
+    }
+
+    public void setName(String name) {
+        checkVersion("name");
+        this.name = Objects.requireNonNull(name);
+    }
+
+    public double getRate1() {
+        checkVersion("rate1");
+        return rate1;
+    }
+
+    public void setRate1(double rate1) {
+        checkVersion("rate1");
+        this.rate1 = rate1;
+    }
+
+    public double getRate2() {
+        checkVersion("rate2");
+        return rate2;
+    }
+
+    public void setRate2(double rate2) {
+        checkVersion("rate2");
+        this.rate2 = rate2;
+    }
+
+    public double getRate3() {
+        checkVersion("rate3");
+        return rate3;
+    }
+
+    public void setRate3(double rate3) {
+        checkVersion("rate3");
+        this.rate3 = rate3;
+    }
+
+    public double getRate4() {
+        checkVersion("rate4");
+        return rate4;
+    }
+
+    public void setRate4(double rate4) {
+        checkVersion("rate4");
+        this.rate4 = rate4;
+    }
+
+    public double getRate5() {
+        checkVersion("rate5");
+        return rate5;
+    }
+
+    public void setRate5(double rate5) {
+        checkVersion("rate5");
+        this.rate5 = rate5;
+    }
+
+    public double getRate6() {
+        checkVersion("rate6");
+        return rate6;
+    }
+
+    public void setRate6(double rate6) {
+        checkVersion("rate6");
+        this.rate6 = rate6;
+    }
+
+    public double getRate7() {
+        checkVersion("rate7");
+        return rate7;
+    }
+
+    public void setRate7(double rate7) {
+        checkVersion("rate7");
+        this.rate7 = rate7;
+    }
+
+    public double getRate8() {
+        checkVersion("rate8");
+        return rate8;
+    }
+
+    public void setRate8(double rate8) {
+        checkVersion("rate8");
+        this.rate8 = rate8;
+    }
+
+    public double getRate9() {
+        checkVersion("rate9");
+        return rate9;
+    }
+
+    public void setRate9(double rate9) {
+        checkVersion("rate9");
+        this.rate9 = rate9;
+    }
+
+    public double getRate10() {
+        checkVersion("rate10");
+        return rate10;
+    }
+
+    public void setRate10(double rate10) {
+        checkVersion("rate10");
+        this.rate10 = rate10;
+    }
+
+    public double getRate11() {
+        checkVersion("rate11");
+        return rate11;
+    }
+
+    public void setRate11(double rate11) {
+        checkVersion("rate11");
+        this.rate11 = rate11;
+    }
+
+    public double getRate12() {
+        checkVersion("rate12");
+        return rate12;
+    }
+
+    public void setRate12(double rate12) {
+        checkVersion("rate12");
+        this.rate12 = rate12;
     }
 }

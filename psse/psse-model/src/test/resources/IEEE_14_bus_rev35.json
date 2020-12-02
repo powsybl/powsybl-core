@@ -453,7 +453,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 2,
     "id" : "1 ",
@@ -484,7 +484,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 3,
     "id" : "1 ",
@@ -515,7 +515,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 6,
     "id" : "1 ",
@@ -546,7 +546,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 8,
     "id" : "1 ",
@@ -577,7 +577,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   } ],
   "nonTransformerBranches" : [ {
     "i" : 1,

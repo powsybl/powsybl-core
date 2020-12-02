@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
 
@@ -13,7 +14,8 @@ import com.univocity.parsers.annotations.Validate;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseLoad {
+@JsonFilter("PsseVersionFilter")
+public class PsseLoad extends Versioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -57,6 +59,22 @@ public class PsseLoad {
 
     @Parsed
     private int intrpt = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double dgenp = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double dgenq = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double dgenm = 0;
+
+    @Parsed(defaultNullRead = "            ")
+    @PsseRev(since = 35)
+    private String loadtype;
 
     public int getI() {
         return i;
@@ -168,5 +186,45 @@ public class PsseLoad {
 
     public void setIntrpt(int intrpt) {
         this.intrpt = intrpt;
+    }
+
+    public double getDgenp() {
+        checkVersion("dgenp");
+        return dgenp;
+    }
+
+    public void setDgenp(double dgenp) {
+        checkVersion("dgenp");
+        this.dgenp = dgenp;
+    }
+
+    public double getDgenq() {
+        checkVersion("dgenq");
+        return dgenq;
+    }
+
+    public void setDgenq(double dgenq) {
+        checkVersion("dgenq");
+        this.dgenq = dgenq;
+    }
+
+    public double getDgenm() {
+        checkVersion("dgenm");
+        return dgenm;
+    }
+
+    public void setDgenm(double dgenm) {
+        checkVersion("dgenm");
+        this.dgenm = dgenm;
+    }
+
+    public String getLoadtype() {
+        checkVersion("loadtype");
+        return loadtype;
+    }
+
+    public void setLoadtype(String loadtype) {
+        checkVersion("loadtype");
+        this.loadtype = loadtype;
     }
 }
