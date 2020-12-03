@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseSwitchedShunt;
-import com.powsybl.psse.model.PsseSwitchedShunt35;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -28,15 +27,6 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
     }
 
     @Override
-    public Class<? extends PsseSwitchedShunt> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseSwitchedShunt35.class;
-        } else {
-            return PsseSwitchedShunt.class;
-        }
-    }
-
-    @Override
     public String[] fieldNames(PsseVersion version) {
         switch (version) {
             case VERSION_35:
@@ -46,5 +36,10 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
             default:
                 throw new PsseException("Unsupported version " + version);
         }
+    }
+
+    @Override
+    public Class<? extends PsseSwitchedShunt> psseTypeClass(PsseVersion version) {
+        return PsseSwitchedShunt.class;
     }
 }

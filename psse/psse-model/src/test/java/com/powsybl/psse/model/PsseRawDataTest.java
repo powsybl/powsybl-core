@@ -74,11 +74,13 @@ public class PsseRawDataTest {
     public void testAccessToFieldNotPresentInVersion() throws IOException {
         PsseRawModel raw33 = new RawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(raw33);
+
         PsseGenerator g = raw33.getGenerators().get(0);
         // Trying to get a field only available since version 35 gives an error
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(() -> g.getNreg())
             .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
+
         PsseNonTransformerBranch b = raw33.getNonTransformerBranches().get(0);
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(() -> b.getRate1())

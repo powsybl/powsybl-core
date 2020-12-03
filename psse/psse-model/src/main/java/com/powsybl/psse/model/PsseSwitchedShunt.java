@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
 
@@ -13,7 +14,8 @@ import com.univocity.parsers.annotations.Validate;
  *
  * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
  */
-public class PsseSwitchedShunt {
+@JsonFilter("PsseVersionFilter")
+public class PsseSwitchedShunt extends Versioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -35,6 +37,7 @@ public class PsseSwitchedShunt {
     private double vswlo = 1.0;
 
     @Parsed
+    @PsseRev(until = 33)
     private int swrem = 0;
 
     @Parsed
@@ -94,6 +97,50 @@ public class PsseSwitchedShunt {
     @Parsed
     private double b8 = 0.0;
 
+    @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
+    @PsseRev(since = 35)
+    private String id;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int swreg = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int nreg = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s1 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s2 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s3 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s4 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s5 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s6 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s7 = 1;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int s8 = 1;
+
     public int getI() {
         return i;
     }
@@ -143,6 +190,7 @@ public class PsseSwitchedShunt {
     }
 
     public int getSwrem() {
+        checkVersion("swrem");
         return swrem;
     }
 
@@ -302,4 +350,102 @@ public class PsseSwitchedShunt {
         this.b8 = b8;
     }
 
+    public String getId() {
+        checkVersion("id");
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getSwreg() {
+        checkVersion("swreg");
+        return swreg;
+    }
+
+    public void setSwreg(int swreg) {
+        this.swreg = swreg;
+    }
+
+    public int getNreg() {
+        checkVersion("nreg");
+        return nreg;
+    }
+
+    public void setNreg(int nreg) {
+        this.nreg = nreg;
+    }
+
+    public int getS1() {
+        checkVersion("s1");
+        return s1;
+    }
+
+    public void setS1(int s1) {
+        this.s1 = s1;
+    }
+
+    public int getS2() {
+        checkVersion("s2");
+        return s2;
+    }
+
+    public void setS2(int s2) {
+        this.s2 = s2;
+    }
+
+    public int getS3() {
+        checkVersion("s3");
+        return s3;
+    }
+
+    public void setS3(int s3) {
+        this.s3 = s3;
+    }
+
+    public int getS4() {
+        checkVersion("s4");
+        return s4;
+    }
+
+    public void setS4(int s4) {
+        this.s4 = s4;
+    }
+
+    public int getS5() {
+        checkVersion("s5");
+        return s5;
+    }
+
+    public void setS5(int s5) {
+        this.s5 = s5;
+    }
+
+    public int getS6() {
+        checkVersion("s6");
+        return s6;
+    }
+
+    public void setS6(int s6) {
+        this.s6 = s6;
+    }
+
+    public int getS7() {
+        checkVersion("s7");
+        return s7;
+    }
+
+    public void setS7(int s7) {
+        this.s7 = s7;
+    }
+
+    public int getS8() {
+        checkVersion("s8");
+        return s8;
+    }
+
+    public void setS8(int s8) {
+        this.s8 = s8;
+    }
 }
