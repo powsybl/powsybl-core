@@ -35,7 +35,7 @@ public class DynamicSimulationResultTest {
         curves.put("NETWORK__BUS____1_TN_Upu_value", TimeSeries.createDouble("NETWORK__BUS____1_TN_Upu_value", index, 1.059970, 1.059970, 1.059970, 1.059970));
 
         index = new IrregularTimeSeriesIndex(new long[] {102479, 102479, 102479, 104396});
-        TimeSeries timeLine = TimeSeries.createString("TimeLine", index,
+        StringTimeSeries timeLine = TimeSeries.createString("TimeLine", index,
             "CLA_2_5 - CLA : order to change topology",
             "_BUS____2-BUS____5-1_AC - LINE : opening both sides",
             "CLA_2_5 - CLA : order to change topology",

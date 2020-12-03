@@ -9,6 +9,7 @@ package com.powsybl.dynamicsimulation;
 import java.util.Collections;
 import java.util.Map;
 
+import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
@@ -19,9 +20,9 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     private final boolean status;
     private final String logs;
     private final Map<String, TimeSeries> curves;
-    private final TimeSeries timeLine;
+    private final StringTimeSeries timeLine;
 
-    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, TimeSeries timeLine) {
+    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
         this.status = status;
         this.logs = logs;
         this.curves = curves;
@@ -49,7 +50,7 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     }
 
     @Override
-    public TimeSeries getTimeLine() {
+    public StringTimeSeries getTimeLine() {
         return timeLine;
     }
 }

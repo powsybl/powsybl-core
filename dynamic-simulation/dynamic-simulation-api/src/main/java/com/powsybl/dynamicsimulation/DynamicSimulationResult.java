@@ -8,6 +8,7 @@ package com.powsybl.dynamicsimulation;
 
 import java.util.Map;
 
+import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 /**
@@ -26,5 +27,5 @@ public interface DynamicSimulationResult {
     /**
      * The Timeline contains information about relevant events that may have happened during the time domain simulation.
      */
-    TimeSeries getTimeLine();
+    StringTimeSeries getTimeLine();
 }

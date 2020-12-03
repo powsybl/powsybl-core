@@ -8,6 +8,7 @@ package com.powsybl.dynamicsimulation.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             }
 
             @Override
-            public TimeSeries getTimeLine() {
+            public StringTimeSeries getTimeLine() {
                 return null;
             }
         };
