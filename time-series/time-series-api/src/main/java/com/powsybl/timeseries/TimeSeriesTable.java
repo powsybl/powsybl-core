@@ -687,7 +687,8 @@ public class TimeSeriesTable {
                 writer.write(dateTime.format(config.dateTimeFormatter));
                 break;
             case FRACTIONS_OF_SECOND:
-                double convertedTime = new Long(time).doubleValue();
+                Long longTime = new Long(time);
+                double convertedTime = longTime.doubleValue();
                 writer.write(Double.toString(convertedTime / 1000));
                 break;
             case MILLIS:
