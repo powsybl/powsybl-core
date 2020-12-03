@@ -95,8 +95,6 @@ public class TieLineAdapterTest {
                     .setG2(0.0)
                     .setB1(0.0)
                     .setB2(0.0)
-                    .setXnodeP(0.0)
-                    .setXnodeQ(0.0)
                     .add()
                 .newHalfLine2()
                     .setId("l2")
@@ -106,8 +104,6 @@ public class TieLineAdapterTest {
                     .setG2(0.0)
                     .setB1(0.0)
                     .setB2(0.0)
-                    .setXnodeP(0.0)
-                    .setXnodeQ(0.0)
                     .add()
                 .setUcteXnodeCode("XNODE")
                 .add();

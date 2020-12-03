@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -173,41 +174,18 @@ public class DanglingLineAdapterTest {
         assertEquals(dl1.getR() + dl2.getR(), mergedLine.getR(), 0.0d);
         assertSame(mergedLine, mergedLine.setX(2.0d));
         assertEquals(dl1.getX() + dl2.getX(), mergedLine.getX(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG1(3.0d));
+        assertSame(mergedLine, mergedLine.setG1(0.0d));
         assertEquals(dl1.getG(), mergedLine.getG1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setG2(4.0d));
+        assertSame(mergedLine, mergedLine.setG2(0.0d));
         assertEquals(dl2.getG(), mergedLine.getG2(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB1(5.0d));
+        assertSame(mergedLine, mergedLine.setB1(0.0d));
         assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
-        assertSame(mergedLine, mergedLine.setB2(6.0d));
+        assertSame(mergedLine, mergedLine.setB2(0.0d));
         assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
         assertEquals(p0, dl1.getP0(), 0.0d);
         assertEquals(q0, dl1.getQ0(), 0.0d);
         assertEquals(p0, dl2.getP0(), 0.0d);
         assertEquals(q0, dl2.getQ0(), 0.0d);
-
-        double p1 = -605.0;
-        double q1 = -302.5;
-        double p2 = 600.0;
-        double q2 = 300.0;
-        double lossesP = p1 + p2;
-        double lossesQ = q1 + q2;
-        final Terminal t1 = mergedLine.getTerminal("vl1");
-        assertNotNull(t1);
-        assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
-        final Terminal t2 = mergedLine.getTerminal("vl2");
-        assertNotNull(t2);
-        assertEquals(Branch.Side.TWO, mergedLine.getSide(t2));
-        // Update P & Q
-        t1.setP(p1);
-        t1.setQ(q1);
-        t2.setP(p2);
-        t2.setQ(q2);
-        // Check P & Q are computed by Listener
-        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
-        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
-        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
-        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
@@ -225,6 +203,51 @@ public class DanglingLineAdapterTest {
             assertTrue(t instanceof TerminalAdapter);
             assertNotNull(t);
         });
+
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        final Terminal t1 = mergedLine.getTerminal("vl1");
+        assertNotNull(t1);
+        assertEquals(Branch.Side.ONE, mergedLine.getSide(t1));
+        final Terminal t2 = mergedLine.getTerminal("vl2");
+        assertNotNull(t2);
+        assertEquals(Branch.Side.TWO, mergedLine.getSide(t2));
+
+        // Update P & Q
+        t1.setP(p1);
+        t1.setQ(q1);
+        t2.setP(p2);
+        t2.setQ(q2);
+        // Update V & Angle
+        double v1 = 420.0;
+        double v2 = 380.0;
+        double angle1 = -1e-4;
+        double angle2 = -1.7e-3;
+        t1.getBusView().getBus().setV(v1).setAngle(angle1);
+        t2.getBusView().getBus().setV(v2).setAngle(angle2);
+
+        // Check P & Q are computed by Listener
+        SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
+        assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.getQ(), mergedLine.getHalf1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
+        // Check V & Angle are computed by Listener
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 0.0d);
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
