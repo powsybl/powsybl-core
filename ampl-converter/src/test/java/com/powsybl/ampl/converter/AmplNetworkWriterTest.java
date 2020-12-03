@@ -105,7 +105,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = HvdcTestNetwork.createLcc();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-lcc-test-case.txt");
         assertEqualsToRef(dataSource, "_network_lcc_converter_stations", "inputs/lcc-test-case.txt");
@@ -117,7 +117,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = PhaseShifterTestCaseFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_ptc", "inputs/ptc-test-case.txt");
     }
@@ -127,7 +127,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = SvcTestCaseFactory.createWithMoreSVCs();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_static_var_compensators", "inputs/svc-test-case.txt");
     }
@@ -137,7 +137,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = BatteryNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_batteries", "inputs/battery-test-batteries.txt");
     }
@@ -160,7 +160,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
                 .add();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/three-windings-transformers-branches.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/three-windings-transformers-buses.txt");
@@ -175,7 +175,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = HvdcTestNetwork.createVsc();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_hvdc", "inputs/hvdc-vsc-test-case.txt");
         assertEqualsToRef(dataSource, "_network_vsc_converter_stations", "inputs/vsc-test-case.txt");
@@ -187,9 +187,24 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_limits", "inputs/current-limits-test-case.txt");
+    }
+
+    @Test
+    public void writeTieLine() throws IOException {
+        Network network = EurostagTutorialExample1Factory.createWithTieLine();
+
+        Properties properties = new Properties();
+        properties.put("iidm.export.ampl.with-xnodes", "true");
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, properties, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations-tl.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/eurostag-tutorial-example1-buses-tl.txt");
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/eurostag-tutorial-example1-branches-tl.txt");
     }
 
     @Test
@@ -197,7 +212,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = DanglingLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
         assertEqualsToRef(dataSource, "_network_buses", "inputs/dangling-line-buses.txt");
@@ -212,13 +227,13 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         HvdcLine l = network.getHvdcLine("L");
         l.addExtension(FooExtension.class, new FooExtension());
         MemDataSource dataSource = new MemDataSource();
-        export(network, dataSource);
+        export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "foo-extension", "inputs/foo-extension.txt");
     }
 
-    private void export(Network network, DataSource dataSource) {
+    private void export(Network network, Properties properties, DataSource dataSource) {
         AmplExporter exporter = new AmplExporter();
-        exporter.export(network, new Properties(), dataSource);
+        exporter.export(network, properties, dataSource);
     }
 }
