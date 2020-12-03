@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.univocity.parsers.annotations.Parsed;
 import com.univocity.parsers.annotations.Validate;
@@ -17,8 +18,8 @@ import com.univocity.parsers.annotations.Validate;
 
 // order using alphabetic order
 @JsonPropertyOrder(alphabetic = true)
-
-public class PsseTransformer {
+@JsonFilter("PsseVersionFilter")
+public class PsseTransformer extends Versioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -129,12 +130,15 @@ public class PsseTransformer {
     protected double ang1 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double rata1 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratb1 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratc1 = 0;
 
     @Parsed
@@ -180,12 +184,15 @@ public class PsseTransformer {
     protected double ang2 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double rata2 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratb2 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratc2 = 0;
 
     @Parsed
@@ -231,12 +238,15 @@ public class PsseTransformer {
     protected double ang3 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double rata3 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratb3 = 0;
 
     @Parsed
+    @PsseRev(until = 33)
     protected double ratc3 = 0;
 
     @Parsed
@@ -271,6 +281,166 @@ public class PsseTransformer {
 
     @Parsed
     protected double cnxa3 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int zcod = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate11 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate21 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate31 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate41 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate51 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate61 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate71 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate81 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate91 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate101 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate111 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate121 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int node1 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate12 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate22 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate32 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate42 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate52 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate62 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate72 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate82 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate92 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate102 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate112 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate122 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int node2 = 0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate13 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate23 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate33 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate43 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate53 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate63 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate73 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate83 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate93 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate103 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate113 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private double rate123 = 0.0;
+
+    @Parsed
+    @PsseRev(since = 35)
+    private int node3 = 0;
 
     public int getI() {
         return i;
@@ -528,27 +698,43 @@ public class PsseTransformer {
         this.anstar = anstar;
     }
 
+    public int getZcod() {
+        checkVersion("zcod");
+        return zcod;
+    }
+
+    public void setZcod(int zcod) {
+        this.zcod = zcod;
+    }
+
     public WindingRecord getWindingRecord1() {
-        return new WindingRecord(windv1, nomv1, ang1, rata1, ratb1, ratc1, cod1, cont1, rma1, rmi1, vma1, vmi1, ntp1,
-            tab1, cr1, cx1, cnxa1);
+        return new WindingRecord(windv1, nomv1, ang1, rata1, ratb1, ratc1, rate11, rate21, rate31, rate41, rate51, rate61,
+            rate71, rate81, rate91, rate101, rate111, rate121, cod1, cont1, node1, rma1, rmi1, vma1, vmi1, ntp1, tab1, cr1,
+            cx1, cnxa1);
     }
 
     public WindingRecord getWindingRecord2() {
-        return new WindingRecord(windv2, nomv2, ang2, rata2, ratb2, ratc2, cod2, cont2, rma2, rmi2, vma2, vmi2, ntp2,
-            tab2, cr2, cx2, cnxa2);
+        return new WindingRecord(windv2, nomv2, ang2, rata2, ratb2, ratc2, rate11, rate22, rate32, rate42, rate52, rate62,
+            rate72, rate82, rate92, rate102, rate112, rate122, cod2, cont2, node2, rma2, rmi2, vma2, vmi2, ntp2, tab2, cr2,
+            cx2, cnxa2);
     }
 
     public WindingRecord getWindingRecord3() {
-        return new WindingRecord(windv3, nomv3, ang3, rata3, ratb3, ratc3, cod3, cont3, rma3, rmi3, vma3, vmi3, ntp3,
-            tab3, cr3, cx3, cnxa3);
+        return new WindingRecord(windv3, nomv3, ang3, rata3, ratb3, ratc3, rate13, rate23, rate33, rate43, rate53, rate63,
+            rate73, rate83, rate93, rate103, rate113, rate123, cod3, cont3, node3, rma3, rmi3, vma3, vmi3, ntp3, tab3, cr3,
+            cx3, cnxa3);
     }
 
-    public static class WindingRecord {
+    @JsonFilter("PsseVersionFilter")
+    public class WindingRecord {
         private final double windv;
         private final double nomv;
         private final double ang;
+        @PsseRev(until = 33)
         private final double rata;
+        @PsseRev(until = 33)
         private final double ratb;
+        @PsseRev(until = 33)
         private final double ratc;
         private final int cod;
         private final int cont;
@@ -561,6 +747,32 @@ public class PsseTransformer {
         private final double cr;
         private final double cx;
         private final double cnxa;
+        @PsseRev(since = 35)
+        private final double rate1;
+        @PsseRev(since = 35)
+        private final double rate2;
+        @PsseRev(since = 35)
+        private final double rate3;
+        @PsseRev(since = 35)
+        private final double rate4;
+        @PsseRev(since = 35)
+        private final double rate5;
+        @PsseRev(since = 35)
+        private final double rate6;
+        @PsseRev(since = 35)
+        private final double rate7;
+        @PsseRev(since = 35)
+        private final double rate8;
+        @PsseRev(since = 35)
+        private final double rate9;
+        @PsseRev(since = 35)
+        private final double rate10;
+        @PsseRev(since = 35)
+        private final double rate11;
+        @PsseRev(since = 35)
+        private final double rate12;
+        @PsseRev(since = 35)
+        private final int node;
 
         WindingRecord(double windv, double nomv, double ang, double rata, double ratb, double ratc, int cod, int cont,
             double rma, double rmi, double vma, double vmi, int ntp, int tab, double cr, double cx, double cnxa) {
@@ -581,6 +793,92 @@ public class PsseTransformer {
             this.cr = cr;
             this.cx = cx;
             this.cnxa = cnxa;
+            this.rate1 = 0.0;
+            this.rate2 = 0.0;
+            this.rate3 = 0.0;
+            this.rate4 = 0.0;
+            this.rate5 = 0.0;
+            this.rate6 = 0.0;
+            this.rate7 = 0.0;
+            this.rate8 = 0.0;
+            this.rate9 = 0.0;
+            this.rate10 = 0.0;
+            this.rate11 = 0.0;
+            this.rate12 = 0.0;
+            this.node = 0;
+        }
+
+        WindingRecord(double windv, double nomv, double ang, double rate1, double rate2, double rate3,
+            double rate4, double rate5, double rate6, double rate7, double rate8, double rate9, double rate10,
+            double rate11, double rate12, int cod, int cont, int node, double rma, double rmi, double vma, double vmi,
+            int ntp, int tab, double cr, double cx, double cnxa) {
+            this.windv = windv;
+            this.nomv = nomv;
+            this.ang = ang;
+            this.rata = 0.0;
+            this.ratb = 0.0;
+            this.ratc = 0.0;
+            this.cod = cod;
+            this.cont = cont;
+            this.rma = rma;
+            this.rmi = rmi;
+            this.vma = vma;
+            this.vmi = vmi;
+            this.ntp = ntp;
+            this.tab = tab;
+            this.cr = cr;
+            this.cx = cx;
+            this.cnxa = cnxa;
+            this.rate1 = rate1;
+            this.rate2 = rate2;
+            this.rate3 = rate3;
+            this.rate4 = rate4;
+            this.rate5 = rate5;
+            this.rate6 = rate6;
+            this.rate7 = rate7;
+            this.rate8 = rate8;
+            this.rate9 = rate9;
+            this.rate10 = rate10;
+            this.rate11 = rate11;
+            this.rate12 = rate12;
+            this.node = node;
+        }
+
+        WindingRecord(double windv, double nomv, double ang, double rata, double ratb, double ratc,
+            double rate1, double rate2, double rate3, double rate4, double rate5, double rate6,
+            double rate7, double rate8, double rate9, double rate10, double rate11, double rate12,
+            int cod, int cont, int node, double rma, double rmi, double vma, double vmi,
+            int ntp, int tab, double cr, double cx, double cnxa) {
+            this.windv = windv;
+            this.nomv = nomv;
+            this.ang = ang;
+            this.rata = rata;
+            this.ratb = ratb;
+            this.ratc = ratc;
+            this.cod = cod;
+            this.cont = cont;
+            this.rma = rma;
+            this.rmi = rmi;
+            this.vma = vma;
+            this.vmi = vmi;
+            this.ntp = ntp;
+            this.tab = tab;
+            this.cr = cr;
+            this.cx = cx;
+            this.cnxa = cnxa;
+            this.rate1 = rate1;
+            this.rate2 = rate2;
+            this.rate3 = rate3;
+            this.rate4 = rate4;
+            this.rate5 = rate5;
+            this.rate6 = rate6;
+            this.rate7 = rate7;
+            this.rate8 = rate8;
+            this.rate9 = rate9;
+            this.rate10 = rate10;
+            this.rate11 = rate11;
+            this.rate12 = rate12;
+            this.node = node;
         }
 
         public double getWindv() {
@@ -596,14 +894,17 @@ public class PsseTransformer {
         }
 
         public double getRata() {
+            checkVersion("rata");
             return rata;
         }
 
         public double getRatb() {
+            checkVersion("ratb");
             return ratb;
         }
 
         public double getRatc() {
+            checkVersion("ratc");
             return ratc;
         }
 
@@ -649,6 +950,71 @@ public class PsseTransformer {
 
         public double getCnxa() {
             return cnxa;
+        }
+
+        public double getRate1() {
+            checkVersion("rate1");
+            return rate1;
+        }
+
+        public double getRate2() {
+            checkVersion("rate2");
+            return rate2;
+        }
+
+        public double getRate3() {
+            checkVersion("rate3");
+            return rate3;
+        }
+
+        public double getRate4() {
+            checkVersion("rate4");
+            return rate4;
+        }
+
+        public double getRate5() {
+            checkVersion("rate5");
+            return rate5;
+        }
+
+        public double getRate6() {
+            checkVersion("rate6");
+            return rate6;
+        }
+
+        public double getRate7() {
+            checkVersion("rate7");
+            return rate7;
+        }
+
+        public double getRate8() {
+            checkVersion("rate8");
+            return rate8;
+        }
+
+        public double getRate9() {
+            checkVersion("rate9");
+            return rate9;
+        }
+
+        public double getRate10() {
+            checkVersion("rate10");
+            return rate10;
+        }
+
+        public double getRate11() {
+            checkVersion("rate11");
+            return rate11;
+        }
+
+        public double getRate12() {
+            checkVersion("rate12");
+            return rate12;
+        }
+
+        public int getNode() {
+            checkVersion("node");
+            return node;
         }
     }
 }

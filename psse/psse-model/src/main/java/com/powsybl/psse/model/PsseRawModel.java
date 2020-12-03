@@ -120,7 +120,7 @@ public class PsseRawModel {
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
-        this.switchedShunts.addAll(switchedShunts);
+        this.switchedShunts.addAll(modelled(switchedShunts));
     }
 
     public List<PsseSwitchedShunt> getSwitchedShunts() {
