@@ -70,7 +70,7 @@ public class ContingencyTest {
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
 
         assertEquals(expectedValidIds,
-                ContingencyList.checkValidity(Arrays.asList(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency), network)
+                ContingencyList.getValidContingencies(Arrays.asList(generatorContingency, generatorInvalidContingency, lineContingency, lineInvalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));
@@ -91,7 +91,7 @@ public class ContingencyTest {
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
 
         assertEquals(expectedValidIds,
-                ContingencyList.checkValidity(Arrays.asList(shuntCompensatorContingency, shuntCompensatorInvalidContingency), network)
+                ContingencyList.getValidContingencies(Arrays.asList(shuntCompensatorContingency, shuntCompensatorInvalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));
@@ -111,7 +111,7 @@ public class ContingencyTest {
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
 
         assertEquals(expectedValidIds,
-                ContingencyList.checkValidity(Arrays.asList(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency), network)
+                ContingencyList.getValidContingencies(Arrays.asList(staticVarCompensatorContingency, staticVarCompensatorInvalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));
@@ -131,7 +131,7 @@ public class ContingencyTest {
                 validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
 
         assertEquals(expectedValidIds,
-                ContingencyList.checkValidity(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network)
+                ContingencyList.getValidContingencies(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));

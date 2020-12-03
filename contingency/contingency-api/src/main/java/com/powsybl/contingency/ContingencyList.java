@@ -75,7 +75,10 @@ public interface ContingencyList {
         return new DefaultContingencyList(contingencies);
     }
 
-    static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
+    /**
+     * Return only valid contingencies based on given list of contingencies and network
+     */
+    static List<Contingency> getValidContingencies(List<Contingency> contingencies, Network network) {
         Objects.requireNonNull(contingencies);
         Objects.requireNonNull(network);
         return contingencies.stream()

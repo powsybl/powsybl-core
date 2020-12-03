@@ -44,7 +44,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     public List<ContingencyElement> getElements() {
-        return elements;
+        return Collections.unmodifiableList(elements);
     }
 
     @Override
@@ -130,15 +130,11 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     /**
      * Return a list of valid contingencies.
-     * @deprecated Use {@link ContingencyList#checkValidity(List, Network)} ()} instead.
+     * @deprecated Use {@link ContingencyList#getValidContingencies(List, Network)} ()} instead.
      */
     @Deprecated
     public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
-        Objects.requireNonNull(contingencies);
-        Objects.requireNonNull(network);
-        return contingencies.stream()
-                .filter(c -> c.isValid(network))
-                .collect(Collectors.toList());
+        return ContingencyList.getValidContingencies(contingencies, network);
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
