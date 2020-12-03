@@ -128,18 +128,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEUsingSshForRtcPtcEnabled() {
+    public void microBEUsingSshForRtcPtcDisabled() {
         Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcEnabledBySsh().dataSource(), null);
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcDisabled().dataSource(), null);
+
+        // Even if the tap changers keep their controlEnabled flag == true,
+        // Their associated regulating control (tap changer control) is disabled
+        // So in IIDM the tap changers should not be regulating
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertTrue(rtc.isRegulating());
+        assertFalse(rtc.isRegulating());
 
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-                .getPhaseTapChanger();
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertTrue(ptc.isRegulating());
+        assertFalse(ptc.isRegulating());
     }
 
     @Test

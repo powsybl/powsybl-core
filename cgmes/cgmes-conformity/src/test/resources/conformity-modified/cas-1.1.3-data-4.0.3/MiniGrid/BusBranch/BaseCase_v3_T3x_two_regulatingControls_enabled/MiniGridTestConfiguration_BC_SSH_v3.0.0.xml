@@ -232,7 +232,15 @@
 
   <!-- ADDED COMPONENT !-->
 
-    <cim:RegulatingControl rdf:about="#RATIO_TAP_CONTROL_T2">
+  <cim:RatioTapChanger rdf:about="#RATIO_TAP_CHANGER_T2">
+      <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+      <cim:TapChanger.step>32</cim:TapChanger.step>
+  </cim:RatioTapChanger>
+  <cim:RatioTapChanger rdf:about="#RATIO_TAP_CHANGER_T3">
+      <cim:TapChanger.controlEnabled>true</cim:TapChanger.controlEnabled>
+      <cim:TapChanger.step>32</cim:TapChanger.step>
+  </cim:RatioTapChanger>
+  <cim:RegulatingControl rdf:about="#RATIO_TAP_CONTROL_T2">
     <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
     <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
     <cim:RegulatingControl.targetDeadband>0</cim:RegulatingControl.targetDeadband>
