@@ -348,6 +348,7 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+    BIND ( "true" AS ?controlEnabled )
 }}
 }
 

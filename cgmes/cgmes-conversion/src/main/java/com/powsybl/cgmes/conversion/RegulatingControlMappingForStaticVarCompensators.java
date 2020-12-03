@@ -6,9 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -16,6 +13,9 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -36,7 +36,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
     public void add(String iidmId, PropertyBag sm) {
         String rcId = RegulatingControlMapping.getRegulatingControlId(sm);
-        boolean controlEnabledProperty = sm.asBoolean("controlEnabled", false);
+        boolean controlEnabled = sm.asBoolean("controlEnabled", false);
         double defaultTargetVoltage = sm.asDouble("voltageSetPoint");
         double defaultTargetReactivePower = sm.asDouble("q");
         String defaultRegulationMode = sm.getId("controlMode");
@@ -48,7 +48,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         CgmesRegulatingControlForStaticVarCompensator rc = new CgmesRegulatingControlForStaticVarCompensator();
         rc.regulatingControlId = rcId;
-        rc.controlEnabledProperty = controlEnabledProperty;
+        rc.controlEnabled = controlEnabled;
         rc.defaultTargetVoltage = defaultTargetVoltage;
         rc.defaultTargetReactivePower = defaultTargetReactivePower;
         rc.defaultRegulationMode = defaultRegulationMode;
@@ -97,7 +97,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         StaticVarCompensator.RegulationMode regulationMode;
 
         boolean okSet = false;
-        if (!control.enabled && rc.controlEnabledProperty) {
+        if (!control.enabled && rc.controlEnabled) {
             context.fixed("SVCControlEnabledStatus", () -> String.format("Regulating control of %s is disabled but controlEnabled property is set to true." +
                     "Equipment properties are used to set local default regulation if local default regulation is reactive power. Else, regulation is disabled.", svc.getId()));
             setDefaultRegulatingControl(rc, svc, true);
@@ -118,7 +118,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         svc.setVoltageSetpoint(targetVoltage);
         svc.setReactivePowerSetpoint(targetReactivePower);
-        if (control.enabled && rc.controlEnabledProperty) {
+        if (control.enabled && rc.controlEnabled) {
             svc.setRegulationMode(regulationMode);
         }
         svc.setRegulatingTerminal(terminal);
@@ -145,7 +145,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         svc.setVoltageSetpoint(targetVoltage);
         svc.setReactivePowerSetpoint(targetReactivePower);
-        if (rc.controlEnabledProperty) {
+        if (rc.controlEnabled) {
             svc.setRegulationMode(regulationMode);
         }
     }
@@ -156,7 +156,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
     private static class CgmesRegulatingControlForStaticVarCompensator {
         String regulatingControlId;
-        boolean controlEnabledProperty;
+        boolean controlEnabled;
         double defaultTargetVoltage;
         double defaultTargetReactivePower;
         String defaultRegulationMode;

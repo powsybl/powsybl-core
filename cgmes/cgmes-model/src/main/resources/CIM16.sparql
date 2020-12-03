@@ -475,8 +475,6 @@ WHERE {
     }
 }}
 OPTIONAL { GRAPH ?graphSSH {
-    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
-    # When controlEnabled is set to false there is no additional data
     ?RatioTapChanger
         cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
         cim:TapChanger.step ?step
@@ -728,12 +726,13 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
-    OPTIONAL { GRAPH ?graphSSH3 {
-        ?SynchronousMachine 
-            cim:RotatingMachine.p ?p ;
-            cim:RotatingMachine.q ?q ;
-            cim:SynchronousMachine.referencePriority ?referencePriority
-    }}
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?SynchronousMachine
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
@@ -811,10 +810,11 @@ WHERE {
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
-OPTIONAL { GRAPH ?graphSSH3  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?ExternalNetworkInjection
         cim:ExternalNetworkInjection.p ?p ;
-        cim:ExternalNetworkInjection.q ?q
+        cim:ExternalNetworkInjection.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
