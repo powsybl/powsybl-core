@@ -8,6 +8,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
@@ -48,28 +49,6 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     @Override
     public String getName() {
         return danglingLine.getNameOrId();
-    }
-
-    @Override
-    public double getXnodeP() {
-        return danglingLine.getP0();
-    }
-
-    @Override
-    public TieLine.HalfLine setXnodeP(double p) {
-        danglingLine.setP0(p);
-        return this;
-    }
-
-    @Override
-    public double getXnodeQ() {
-        return danglingLine.getQ0();
-    }
-
-    @Override
-    public TieLine.HalfLine setXnodeQ(double q) {
-        danglingLine.setQ0(q);
-        return this;
     }
 
     @Override
@@ -147,6 +126,11 @@ public class HalfLineAdapter implements TieLine.HalfLine {
         this.b2 = b2;
         danglingLine.setB(b1 + b2);
         return this;
+    }
+
+    @Override
+    public Boundary getBoundary() {
+        return danglingLine.getBoundary();
     }
 
     public TieLine.HalfLine setB(double b) {
