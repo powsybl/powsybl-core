@@ -90,7 +90,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public Class<? extends PsseTransformer> psseTypeClass(PsseVersion version) {
+    public Class<? extends PsseTransformer> psseTypeClass() {
         return PsseTransformer.class;
     }
 

@@ -25,11 +25,6 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     }
 
     @Override
-    public Class<PsseZone> psseTypeClass(PsseVersion version) {
-        return PsseZone.class;
-    }
-
-    @Override
     public String[] fieldNames(PsseVersion version) {
         switch (version) {
             case VERSION_35:
@@ -40,4 +35,10 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
                 throw new PsseException("Unsupported version " + version);
         }
     }
+
+    @Override
+    public Class<PsseZone> psseTypeClass() {
+        return PsseZone.class;
+    }
+
 }

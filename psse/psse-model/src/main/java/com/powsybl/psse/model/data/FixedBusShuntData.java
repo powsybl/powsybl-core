@@ -24,11 +24,6 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     }
 
     @Override
-    public Class<PsseFixedShunt> psseTypeClass(PsseVersion version) {
-        return PsseFixedShunt.class;
-    }
-
-    @Override
     public String[] fieldNames(PsseVersion version) {
         switch (version) {
             case VERSION_35:
@@ -39,4 +34,10 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
                 throw new PsseException("Unsupported version " + version);
         }
     }
+
+    @Override
+    public Class<PsseFixedShunt> psseTypeClass() {
+        return PsseFixedShunt.class;
+    }
+
 }

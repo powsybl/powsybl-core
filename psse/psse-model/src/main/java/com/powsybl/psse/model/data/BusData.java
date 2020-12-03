@@ -24,7 +24,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
     }
 
     @Override
-    public Class<PsseBus> psseTypeClass(PsseVersion version) {
+    public Class<PsseBus> psseTypeClass() {
         return PsseBus.class;
     }
 

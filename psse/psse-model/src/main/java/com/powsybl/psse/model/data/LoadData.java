@@ -36,7 +36,7 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
     }
 
     @Override
-    public Class<? extends PsseLoad> psseTypeClass(PsseVersion version) {
+    public Class<? extends PsseLoad> psseTypeClass() {
         return PsseLoad.class;
     }
 }

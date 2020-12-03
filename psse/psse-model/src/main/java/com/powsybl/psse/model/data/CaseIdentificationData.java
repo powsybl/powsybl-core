@@ -52,7 +52,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     @Override
-    public Class<? extends PsseCaseIdentification> psseTypeClass(PsseVersion version) {
+    public Class<? extends PsseCaseIdentification> psseTypeClass() {
         return PsseCaseIdentification.class;
     }
 }

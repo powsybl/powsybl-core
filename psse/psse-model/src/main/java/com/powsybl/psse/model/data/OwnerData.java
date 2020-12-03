@@ -24,11 +24,6 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     }
 
     @Override
-    public Class<PsseOwner> psseTypeClass(PsseVersion version) {
-        return PsseOwner.class;
-    }
-
-    @Override
     public String[] fieldNames(PsseVersion version) {
         switch (version) {
             case VERSION_35:
@@ -39,4 +34,10 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
                 throw new PsseException("Unsupported version " + version);
         }
     }
+
+    @Override
+    public Class<PsseOwner> psseTypeClass() {
+        return PsseOwner.class;
+    }
+
 }

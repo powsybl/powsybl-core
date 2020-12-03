@@ -27,11 +27,6 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     }
 
     @Override
-    public Class<? extends PsseNonTransformerBranch> psseTypeClass(PsseVersion version) {
-        return PsseNonTransformerBranch.class;
-    }
-
-    @Override
     public String[] fieldNames(PsseVersion version) {
         switch (version) {
             case VERSION_35:
@@ -42,4 +37,10 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
                 throw new PsseException("Unsupported version " + version);
         }
     }
+
+    @Override
+    public Class<? extends PsseNonTransformerBranch> psseTypeClass() {
+        return PsseNonTransformerBranch.class;
+    }
+
 }

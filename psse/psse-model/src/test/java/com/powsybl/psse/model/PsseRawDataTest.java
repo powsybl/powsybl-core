@@ -53,7 +53,6 @@ public class PsseRawDataTest {
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
             protected boolean include(PropertyWriter writer) {
-                System.err.println(writer.getName());
                 PsseRev rev = writer.getAnnotation(PsseRev.class);
                 return rev == null || (rev.since() <= version && version <= rev.until());
             }

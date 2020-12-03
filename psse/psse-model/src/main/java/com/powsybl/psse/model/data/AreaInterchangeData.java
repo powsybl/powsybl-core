@@ -24,7 +24,7 @@ class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
     }
 
     @Override
-    public Class<PsseArea> psseTypeClass(PsseVersion version) {
+    public Class<PsseArea> psseTypeClass() {
         return PsseArea.class;
     }
 
