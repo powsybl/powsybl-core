@@ -6,9 +6,6 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Generator;
@@ -17,6 +14,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -48,6 +48,7 @@ public class RegulatingControlMappingForGenerators {
         CgmesRegulatingControlForGenerator rd = new CgmesRegulatingControlForGenerator();
         rd.regulatingControlId = cgmesRegulatingControlId;
         rd.qPercent = qPercent;
+        rd.controlEnabled = sm.asBoolean("controlEnabled", false);
         mapping.put(generatorId, rd);
     }
 
@@ -79,7 +80,7 @@ public class RegulatingControlMappingForGenerators {
 
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
-            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, gen);
+            okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, rc.controlEnabled, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
@@ -87,7 +88,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private boolean setRegulatingControlVoltage(String controlId,
-                                                RegulatingControl control, double qPercent, Generator gen) {
+                                                RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
 
         // Take default terminal if it has not been defined in CGMES file (it is never null)
         Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal);
@@ -102,7 +103,8 @@ public class RegulatingControlMappingForGenerators {
         }
 
         boolean voltageRegulatorOn = false;
-        if (control.enabled) {
+        // Regulating control is enabled AND this equipment participates in regulating control
+        if (control.enabled && eqControlEnabled) {
             voltageRegulatorOn = true;
         }
 
@@ -123,6 +125,7 @@ public class RegulatingControlMappingForGenerators {
     private static class CgmesRegulatingControlForGenerator {
         String regulatingControlId;
         double qPercent;
+        boolean controlEnabled;
     }
 
     private final RegulatingControlMapping parent;
