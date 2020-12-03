@@ -32,7 +32,7 @@ public class BusbarSectionConversion extends AbstractConductingEquipmentConversi
         BusbarSectionAdder bbsAdder = voltageLevel().getNodeBreakerView().newBusbarSection()
                 .setId(iidmId())
                 .setName(iidmName())
-                .setEnsureIdUnicity(false);
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity());
         bbsAdder.setNode(iidmNode());
         BusbarSection bbs = bbsAdder.add();
         addAliases(bbs);

@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import java.util.Objects;
-
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
+
+import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -17,19 +19,17 @@ import com.powsybl.iidm.network.ValidationException;
 class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {
-
         TieLineImpl parent;
         String id;
         String name;
         boolean fictitious = false;
-        double xnodeP = Double.NaN;
-        double xnodeQ = Double.NaN;
         double r = Double.NaN;
         double x = Double.NaN;
         double g1 = Double.NaN;
         double g2 = Double.NaN;
         double b1 = Double.NaN;
         double b2 = Double.NaN;
+        HalfLineBoundaryImpl boundary;
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -49,32 +49,6 @@ class TieLineImpl extends LineImpl implements TieLine {
         @Override
         public String getName() {
             return name == null ? id : name;
-        }
-
-        @Override
-        public double getXnodeP() {
-            return xnodeP;
-        }
-
-        @Override
-        public HalfLineImpl setXnodeP(double xnodeP) {
-            double oldValue = this.xnodeP;
-            this.xnodeP = xnodeP;
-            notifyUpdate("xnodeP", oldValue, xnodeP);
-            return this;
-        }
-
-        @Override
-        public double getXnodeQ() {
-            return xnodeQ;
-        }
-
-        @Override
-        public HalfLineImpl setXnodeQ(double xnodeQ) {
-            double oldValue = this.xnodeQ;
-            this.xnodeQ = xnodeQ;
-            notifyUpdate("xnodeQ", oldValue, xnodeQ);
-            return this;
         }
 
         @Override
@@ -156,6 +130,11 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
 
         @Override
+        public HalfLineBoundaryImpl getBoundary() {
+            return boundary;
+        }
+
+        @Override
         public boolean isFictitious() {
             return fictitious;
         }
@@ -182,12 +161,13 @@ class TieLineImpl extends LineImpl implements TieLine {
     TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
         super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = attach(half1);
-        this.half2 = attach(half2);
+        this.half1 = attach(half1, this::getTerminal1);
+        this.half2 = attach(half2, this::getTerminal2);
     }
 
-    private HalfLineImpl attach(HalfLineImpl half) {
+    private HalfLineImpl attach(HalfLineImpl half, Supplier<Terminal> terminalSupplier) {
         half.setParent(this);
+        half.boundary = new HalfLineBoundaryImpl(half, terminalSupplier);
         return half;
     }
 

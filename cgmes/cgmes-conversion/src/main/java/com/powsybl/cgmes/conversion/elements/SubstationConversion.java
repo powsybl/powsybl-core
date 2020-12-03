@@ -51,7 +51,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         Substation s = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())
-                .setEnsureIdUnicity(false)
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .setCountry(country)
                 .setGeographicalTags(geoTag)
                 .add();
@@ -62,7 +62,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         int index = 0;
         for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
             index++;
-            s.addAlias(mergedSub, "MergedSubstation" + index);
+            s.addAlias(mergedSub, "MergedSubstation" + index, context.config().isEnsureIdAliasUnicity());
         }
     }
 }

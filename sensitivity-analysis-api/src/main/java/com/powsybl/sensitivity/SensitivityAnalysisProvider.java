@@ -9,9 +9,10 @@ package com.powsybl.sensitivity;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,12 +37,12 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * Run an asynchronous single sensitivity analysis job.
      * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
      * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
-     * {@code contingenciesProvider} according to the {@code parameters}.
+     * {@code contingencies} according to the {@code parameters}.
      *
      * @param network IIDM network on which the sensitivity analysis will be performed
      * @param workingStateId network variant ID on which the analysis will be performed
      * @param factorsProvider provider of sensitivity factors to be computed
-     * @param contingenciesProvider provider of contingencies after which sensitivity factors will be computed
+     * @param contingencies list of contingencies after which sensitivity factors will be computed
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
@@ -49,7 +50,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
     CompletableFuture<SensitivityAnalysisResult> run(Network network,
                                                      String workingStateId,
                                                      SensitivityFactorsProvider factorsProvider,
-                                                     ContingenciesProvider contingenciesProvider,
+                                                     List<Contingency> contingencies,
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager);
 }
