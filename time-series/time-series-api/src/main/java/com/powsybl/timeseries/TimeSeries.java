@@ -15,7 +15,6 @@ import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.NodeCalc;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.supercsv.io.CsvListReader;
 import org.supercsv.prefs.CsvPreference;
