@@ -36,6 +36,7 @@ public class Versioned {
             throw new PsseException("Wrong field name " + fieldName, e);
         }
 
+        field.setAccessible(true);
         checkVersionField(field, fieldName);
     }
 
@@ -48,7 +49,6 @@ public class Versioned {
         Field field = null;
         try {
             List<Class<?>> innerClasses = Arrays.asList(this.getClass().getDeclaredClasses());
-            innerClasses.forEach(ic -> System.err.printf("%s %n", ic.getName()));
             Class<?> innerClass = innerClasses.parallelStream()
                 .filter(ic -> ic.getName().contains(this.getClass().getName() + "$" + innerClassName))
                 .findFirst().orElseThrow(() -> new PsseException("Wrong class name " + innerClassName));
@@ -57,11 +57,11 @@ public class Versioned {
             throw new PsseException("Wrong field name " + fieldName, e);
         }
 
+        field.setAccessible(true);
         checkVersionField(field, fieldName);
     }
 
     private void checkVersionField(Field field, String fieldName) {
-        field.setAccessible(true);
         if (!field.isAnnotationPresent(PsseRev.class)) {
             throw new PsseException("Missing PsseRev annotation in field " + fieldName);
         }

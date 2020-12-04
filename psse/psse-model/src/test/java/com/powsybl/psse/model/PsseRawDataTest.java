@@ -16,6 +16,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.psse.model.PsseTransformer.WindingRecord;
 import com.powsybl.psse.model.data.*;
 import org.junit.Test;
 
@@ -86,12 +87,14 @@ public class PsseRawDataTest {
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseTransformer twt = raw33.getTransformers().get(0);
+        WindingRecord windingRecord = twt.getWindingRecord1();
+
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(() -> twt.getZcod())
             .withMessage("Wrong version of PSSE RAW model (33). Field 'zcod' is valid since version 35");
 
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> twt.getWindingRecord1().getRate1())
+            .isThrownBy(() -> windingRecord.getRate1())
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseRawModel raw35 = new RawData35().read(ieee14Raw35(), "raw", new Context());
@@ -102,8 +105,9 @@ public class PsseRawDataTest {
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
+        WindingRecord windingRecord35 = twt35.getWindingRecord1();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> twt35.getWindingRecord1().getRata())
+            .isThrownBy(() -> windingRecord35.getRata())
             .withMessage("Wrong version of PSSE RAW model (35). Field 'rata' is valid since version 33 until 33");
     }
 

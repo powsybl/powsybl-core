@@ -21,6 +21,8 @@ import com.univocity.parsers.annotations.Validate;
 @JsonFilter("PsseVersionFilter")
 public class PsseTransformer extends Versioned {
 
+    private static final String WINDING_RECORD = "WindingRecord";
+
     @Parsed(field = {"i", "ibus"})
     @Validate
     private int i;
@@ -894,17 +896,17 @@ public class PsseTransformer extends Versioned {
         }
 
         public double getRata() {
-            checkVersion("WindingRecord", "rata");
+            checkVersion(WINDING_RECORD, "rata");
             return rata;
         }
 
         public double getRatb() {
-            checkVersion("WindingRecord", "ratb");
+            checkVersion(WINDING_RECORD, "ratb");
             return ratb;
         }
 
         public double getRatc() {
-            checkVersion("WindingRecord", "ratc");
+            checkVersion(WINDING_RECORD, "ratc");
             return ratc;
         }
 
@@ -953,67 +955,67 @@ public class PsseTransformer extends Versioned {
         }
 
         public double getRate1() {
-            checkVersion("WindingRecord", "rate1");
+            checkVersion(WINDING_RECORD, "rate1");
             return rate1;
         }
 
         public double getRate2() {
-            checkVersion("WindingRecord", "rate2");
+            checkVersion(WINDING_RECORD, "rate2");
             return rate2;
         }
 
         public double getRate3() {
-            checkVersion("WindingRecord", "rate3");
+            checkVersion(WINDING_RECORD, "rate3");
             return rate3;
         }
 
         public double getRate4() {
-            checkVersion("WindingRecord", "rate4");
+            checkVersion(WINDING_RECORD, "rate4");
             return rate4;
         }
 
         public double getRate5() {
-            checkVersion("WindingRecord", "rate5");
+            checkVersion(WINDING_RECORD, "rate5");
             return rate5;
         }
 
         public double getRate6() {
-            checkVersion("WindingRecord", "rate6");
+            checkVersion(WINDING_RECORD, "rate6");
             return rate6;
         }
 
         public double getRate7() {
-            checkVersion("WindingRecord", "rate7");
+            checkVersion(WINDING_RECORD, "rate7");
             return rate7;
         }
 
         public double getRate8() {
-            checkVersion("WindingRecord", "rate8");
+            checkVersion(WINDING_RECORD, "rate8");
             return rate8;
         }
 
         public double getRate9() {
-            checkVersion("WindingRecord", "rate9");
+            checkVersion(WINDING_RECORD, "rate9");
             return rate9;
         }
 
         public double getRate10() {
-            checkVersion("WindingRecord", "rate10");
+            checkVersion(WINDING_RECORD, "rate10");
             return rate10;
         }
 
         public double getRate11() {
-            checkVersion("WindingRecord", "rate11");
+            checkVersion(WINDING_RECORD, "rate11");
             return rate11;
         }
 
         public double getRate12() {
-            checkVersion("WindingRecord", "rate12");
+            checkVersion(WINDING_RECORD, "rate12");
             return rate12;
         }
 
         public int getNode() {
-            checkVersion("WindingRecord", "node");
+            checkVersion(WINDING_RECORD, "node");
             return node;
         }
     }
