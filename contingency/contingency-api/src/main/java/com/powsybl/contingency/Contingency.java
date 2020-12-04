@@ -30,8 +30,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     private final List<ContingencyElement> elements;
 
     public Contingency(String id, ContingencyElement... elements) {
-        this.id = Objects.requireNonNull(id);
-        this.elements = Arrays.asList(elements);
+        this(id, Arrays.asList(elements));
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {

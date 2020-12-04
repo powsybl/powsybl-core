@@ -52,6 +52,10 @@ public class ContingencyTest {
         assertEquals(3, contingency.getElements().size());
         contingency.removeElement(bbsElement);
         assertEquals(2, contingency.getElements().size());
+
+        contingency = new Contingency("test", bbsElement);
+        contingency.addElement(new LineContingency("UNKNOWN"));
+        assertEquals(2, contingency.getElements().size());
     }
 
     @Test
