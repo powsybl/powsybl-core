@@ -88,7 +88,7 @@ public class PsseRawModel {
     }
 
     public void addTransformers(List<PsseTransformer> transformers) {
-        this.transformers.addAll(transformers);
+        this.transformers.addAll(modelled(transformers));
     }
 
     public List<PsseTransformer> getTransformers() {

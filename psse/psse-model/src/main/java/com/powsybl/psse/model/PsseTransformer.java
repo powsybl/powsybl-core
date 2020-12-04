@@ -894,17 +894,17 @@ public class PsseTransformer extends Versioned {
         }
 
         public double getRata() {
-            checkVersion("rata");
+            checkVersion("WindingRecord", "rata");
             return rata;
         }
 
         public double getRatb() {
-            checkVersion("ratb");
+            checkVersion("WindingRecord", "ratb");
             return ratb;
         }
 
         public double getRatc() {
-            checkVersion("ratc");
+            checkVersion("WindingRecord", "ratc");
             return ratc;
         }
 
@@ -953,67 +953,67 @@ public class PsseTransformer extends Versioned {
         }
 
         public double getRate1() {
-            checkVersion("rate1");
+            checkVersion("WindingRecord", "rate1");
             return rate1;
         }
 
         public double getRate2() {
-            checkVersion("rate2");
+            checkVersion("WindingRecord", "rate2");
             return rate2;
         }
 
         public double getRate3() {
-            checkVersion("rate3");
+            checkVersion("WindingRecord", "rate3");
             return rate3;
         }
 
         public double getRate4() {
-            checkVersion("rate4");
+            checkVersion("WindingRecord", "rate4");
             return rate4;
         }
 
         public double getRate5() {
-            checkVersion("rate5");
+            checkVersion("WindingRecord", "rate5");
             return rate5;
         }
 
         public double getRate6() {
-            checkVersion("rate6");
+            checkVersion("WindingRecord", "rate6");
             return rate6;
         }
 
         public double getRate7() {
-            checkVersion("rate7");
+            checkVersion("WindingRecord", "rate7");
             return rate7;
         }
 
         public double getRate8() {
-            checkVersion("rate8");
+            checkVersion("WindingRecord", "rate8");
             return rate8;
         }
 
         public double getRate9() {
-            checkVersion("rate9");
+            checkVersion("WindingRecord", "rate9");
             return rate9;
         }
 
         public double getRate10() {
-            checkVersion("rate10");
+            checkVersion("WindingRecord", "rate10");
             return rate10;
         }
 
         public double getRate11() {
-            checkVersion("rate11");
+            checkVersion("WindingRecord", "rate11");
             return rate11;
         }
 
         public double getRate12() {
-            checkVersion("rate12");
+            checkVersion("WindingRecord", "rate12");
             return rate12;
         }
 
         public int getNode() {
-            checkVersion("node");
+            checkVersion("WindingRecord", "node");
             return node;
         }
     }
