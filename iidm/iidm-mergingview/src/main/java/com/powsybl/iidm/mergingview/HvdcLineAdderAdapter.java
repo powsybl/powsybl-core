@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util2.Identifiables;
 
 import java.util.Objects;
 

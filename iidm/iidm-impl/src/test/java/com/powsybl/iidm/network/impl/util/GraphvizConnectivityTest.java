@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.util;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.util.GraphvizConnectivity;
+import com.powsybl.iidm.network.util2.GraphvizConnectivity;
 import org.junit.Test;
 
 import java.io.BufferedReader;

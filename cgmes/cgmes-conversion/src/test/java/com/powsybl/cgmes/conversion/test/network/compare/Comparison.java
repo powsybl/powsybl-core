@@ -17,6 +17,8 @@ import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
+import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions2.SlackTerminal;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

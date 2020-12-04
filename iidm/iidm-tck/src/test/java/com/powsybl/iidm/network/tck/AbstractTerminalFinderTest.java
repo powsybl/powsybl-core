@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-import com.powsybl.iidm.network.util.TerminalFinder;
+import com.powsybl.iidm.network.util2.TerminalFinder;
 import org.junit.Test;
 
 import java.util.Optional;

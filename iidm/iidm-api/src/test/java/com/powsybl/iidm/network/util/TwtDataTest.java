@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import com.powsybl.iidm.network.util2.TwtData;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

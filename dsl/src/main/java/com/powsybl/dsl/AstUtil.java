@@ -6,7 +6,7 @@
  */
 package com.powsybl.dsl;
 
-import groovy.inspect.swingui.AstNodeToScriptVisitor;
+//import groovy.inspect.swingui.AstNodeToScriptVisitor;
 import org.codehaus.groovy.ast.stmt.BlockStatement;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public final class AstUtil {
 
     public static String toString(BlockStatement blockStatement) {
         try (StringWriter writer = new StringWriter()) {
-            blockStatement.visit(new AstNodeToScriptVisitor(writer));
+    //        blockStatement.visit(new AstNodeToScriptVisitor(writer));
             writer.flush();
             return writer.toString();
         } catch (IOException e) {

@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util2.Networks;
 import org.junit.Test;
 
 import java.io.IOException;

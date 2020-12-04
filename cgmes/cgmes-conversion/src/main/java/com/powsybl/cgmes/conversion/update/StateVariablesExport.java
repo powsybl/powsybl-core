@@ -12,7 +12,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions2.SlackTerminal;
 import org.apache.commons.math3.complex.Complex;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

@@ -9,7 +9,7 @@ package com.powsybl.security.detectors;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util2.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.Security;

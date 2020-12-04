@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.IdentifiableAdder;
-import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util2.Identifiables;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

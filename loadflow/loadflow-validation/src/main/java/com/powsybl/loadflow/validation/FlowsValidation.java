@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util2.BranchData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

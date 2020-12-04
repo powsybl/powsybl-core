@@ -45,8 +45,8 @@ import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
-import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util2.ConnectedComponents;
+import com.powsybl.iidm.network.util2.SV;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

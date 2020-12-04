@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.extensions;
+package com.powsybl.iidm.network.extensions2;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.TerminalFinder;
+import com.powsybl.iidm.network.util2.TerminalFinder;
 
 import java.util.Objects;
 
@@ -51,7 +51,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
 
     /**
      * Create a SlackTerminal extension attached to the voltage level of the given bus, using the default
-     * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
+     * {@link TerminalFinder} strategy.
      */
     static void attach(Bus bus) {
         Objects.requireNonNull(bus);

@@ -12,7 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util2.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

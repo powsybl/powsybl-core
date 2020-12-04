@@ -16,7 +16,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.network.util2.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

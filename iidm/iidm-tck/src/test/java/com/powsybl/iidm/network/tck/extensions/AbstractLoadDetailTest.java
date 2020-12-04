@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.tck.extensions;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions2.LoadDetailAdder;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

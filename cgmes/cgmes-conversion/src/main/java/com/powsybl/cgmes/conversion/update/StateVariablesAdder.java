@@ -35,8 +35,8 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
+import com.powsybl.iidm.network.util2.LinkData;
+import com.powsybl.iidm.network.util2.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

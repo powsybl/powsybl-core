@@ -11,8 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Identifiables;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.util2.Identifiables;
+import com.powsybl.iidm.network.util2.LimitViolationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

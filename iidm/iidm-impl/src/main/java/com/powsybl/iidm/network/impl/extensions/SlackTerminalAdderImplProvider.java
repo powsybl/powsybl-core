@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions2.SlackTerminal;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>

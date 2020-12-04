@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Identifiables;
+import com.powsybl.iidm.network.util2.Identifiables;
 
 import java.util.Objects;
 

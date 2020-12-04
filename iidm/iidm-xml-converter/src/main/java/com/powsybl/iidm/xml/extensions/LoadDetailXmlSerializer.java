@@ -13,8 +13,8 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.extensions.LoadDetail;
-import com.powsybl.iidm.network.extensions.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions2.LoadDetailAdder;
 
 import javax.xml.stream.XMLStreamException;
 
