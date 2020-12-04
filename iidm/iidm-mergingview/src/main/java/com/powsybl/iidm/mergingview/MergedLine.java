@@ -93,35 +93,6 @@ class MergedLine implements TieLine {
         });
     }
 
-    void computeAndSetP0() {
-        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
-        double p1 = getTerminal1().getP();
-        double p2 = getTerminal2().getP();
-        if (!Double.isNaN(p1) && !Double.isNaN(p2)) {
-            double losses = p1 + p2;
-            half1.setXnodeP((p1 + losses / 2.0) * sign(p2));
-            half2.setXnodeP((p2 + losses / 2.0) * sign(p1));
-        }
-    }
-
-    void computeAndSetQ0() {
-        // TODO(mathbagu): depending on the b/g in the middle of the MergedLine, this computation is not correct
-        double q1 = getTerminal1().getQ();
-        double q2 = getTerminal2().getQ();
-        if (!Double.isNaN(q1) && !Double.isNaN(q2)) {
-            double losses = q1 + q2;
-            half1.setXnodeQ((q1 + losses / 2.0) * sign(q2));
-            half2.setXnodeQ((q2 + losses / 2.0) * sign(q1));
-        }
-    }
-
-    private static int sign(double value) {
-        // Sign depends on the transit flow:
-        // P1 ---->-----DL1.P0 ---->----- DL2.P0 ---->---- P2
-        // The sign of DL1.P0 is the same as P2, and respectively the sign of DL2.P0 is the same than P1
-        return (value >= 0) ? 1 : -1;
-    }
-
     @Override
     public ConnectableType getType() {
         return ConnectableType.LINE;
