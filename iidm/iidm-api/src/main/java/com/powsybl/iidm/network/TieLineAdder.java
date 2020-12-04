@@ -19,9 +19,21 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
         HalfLineAdder setFictitious(boolean fictitious);
 
-        HalfLineAdder setXnodeP(double xnodeP);
+        /**
+         * @deprecated Boundary P is now calculated, never set.
+         */
+        @Deprecated
+        default HalfLineAdder setXnodeP(double xnodeP) {
+            return this;
+        }
 
-        HalfLineAdder setXnodeQ(double xnodeQ);
+        /**
+         * @deprecated Boundary Q is now calculated, never set.
+         */
+        @Deprecated
+        default HalfLineAdder setXnodeQ(double xnodeQ) {
+            return this;
+        }
 
         HalfLineAdder setR(double r);
 
