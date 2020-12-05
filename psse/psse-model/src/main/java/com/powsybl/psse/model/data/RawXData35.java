@@ -7,13 +7,12 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseRawModel;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.io.InputStream;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -23,12 +22,13 @@ public class RawXData35 extends RawXDataCommon {
 
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
-        String jsonFile = new String(ByteStreams.toByteArray(dataSource.newInputStream(null, ext)), StandardCharsets.UTF_8);
-        return read(jsonFile, context);
+        try (InputStream is = dataSource.newInputStream(null, ext)) {
+            return read(is, context);
+        }
     }
 
-    private PsseRawModel read(String jsonFile, Context context) throws IOException {
-        JsonNode networkNode = networkNode(jsonFile);
+    private PsseRawModel read(InputStream stream, Context context) throws IOException {
+        JsonNode networkNode = networkNode(stream);
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
         caseIdentification.validate();
 

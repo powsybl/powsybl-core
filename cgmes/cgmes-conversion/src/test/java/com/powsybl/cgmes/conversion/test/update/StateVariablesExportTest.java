@@ -164,10 +164,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     private static double getDelta(String xPath) {
         if (xPath.contains("danglingLine")) {
-            if (xPath.endsWith("p") || xPath.endsWith("q")) {
-                return 1e-1;
-            }
-            return 1e-5;
+            return 1e-1;
         }
         return 0.0;
     }

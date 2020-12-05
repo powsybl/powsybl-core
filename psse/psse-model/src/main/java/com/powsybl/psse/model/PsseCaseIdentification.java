@@ -6,10 +6,7 @@
  */
 package com.powsybl.psse.model;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.univocity.parsers.annotations.Parsed;
-
-import java.util.stream.Collectors;
 
 /**
  *
@@ -109,9 +106,8 @@ public class PsseCaseIdentification {
         if (ic == 1) {
             throw new PsseException("Incremental load of data option (IC = 1) is not supported");
         }
-        if (!PsseVersion.supportedVersions().contains(rev)) {
-            String msgSupported = PsseVersion.supportedVersions().stream().map(String::valueOf).sorted().collect(Collectors.joining(", "));
-            throw new PsseException("Version " + rev + " not supported. Supported versions are: " + msgSupported);
+        if (!PsseVersion.isSupported(rev)) {
+            throw new PsseException("Version " + rev + " not supported. Supported versions are: " + PsseVersion.supportedVersions());
         }
         if (sbase <= 0.) {
             throw new PsseException("Unexpected System MVA base " + sbase);

@@ -6,8 +6,9 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseOwner;
+import com.powsybl.psse.model.PsseVersion;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -23,16 +24,20 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     }
 
     @Override
-    public Class<PsseOwner> psseTypeClass(PsseVersion version) {
-        return PsseOwner.class;
+    public String[] fieldNames(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_35;
+            case VERSION_33:
+                return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 
     @Override
-    public String[] fieldNames(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_35;
-        } else {
-            return FIELD_NAMES_33;
-        }
+    public Class<PsseOwner> psseTypeClass() {
+        return PsseOwner.class;
     }
+
 }

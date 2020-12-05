@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
@@ -20,7 +20,8 @@ import static org.junit.Assert.*;
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class AliasesTest {
+public abstract class AbstractAliasesTest {
+
     @Test
     public void canAddAliases() {
         Network network = NetworkTest1Factory.create();
@@ -86,6 +87,29 @@ public class AliasesTest {
 
         assertEquals(1, load.getAliases().size());
         assertTrue(load.getAliases().contains("Load alias"));
+    }
+
+    @Test
+    public void ensureAliasUnicityFromId() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.addAlias("generator1", true);
+        assertFalse(load.getAliases().contains("generator1"));
+        assertTrue(load.getAliases().contains("generator1#0"));
+    }
+
+    @Test
+    public void ensureAliasUnicityFromAlias() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        Generator generator = network.getGenerator("generator1");
+
+        load.addAlias("alias");
+        generator.addAlias("alias", true);
+
+        assertTrue(load.getAliases().contains("alias"));
+        assertFalse(generator.getAliases().contains("alias"));
+        assertTrue(generator.getAliases().contains("alias#0"));
     }
 
     @Test(expected = PowsyblException.class)

@@ -7,10 +7,9 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseTransformer;
-import com.powsybl.psse.model.PsseTransformer35;
+import com.powsybl.psse.model.PsseVersion;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
@@ -69,28 +68,30 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     public String[][] fieldNames3(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_3_35;
-        } else {
-            return FIELD_NAMES_3_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_3_35;
+            case VERSION_33:
+                return FIELD_NAMES_3_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 
     public String[][] fieldNames2(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_2_35;
-        } else {
-            return FIELD_NAMES_2_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_2_35;
+            case VERSION_33:
+                return FIELD_NAMES_2_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 
     @Override
-    public Class<? extends PsseTransformer> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseTransformer35.class;
-        } else {
-            return PsseTransformer.class;
-        }
+    public Class<? extends PsseTransformer> psseTypeClass() {
+        return PsseTransformer.class;
     }
 
     @Override

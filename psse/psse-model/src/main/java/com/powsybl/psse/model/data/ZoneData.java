@@ -6,7 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseZone;
 
 /**
@@ -24,16 +25,20 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     }
 
     @Override
-    public Class<PsseZone> psseTypeClass(PsseVersion version) {
-        return PsseZone.class;
+    public String[] fieldNames(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_35;
+            case VERSION_33:
+                return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 
     @Override
-    public String[] fieldNames(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_35;
-        } else {
-            return FIELD_NAMES_33;
-        }
+    public Class<PsseZone> psseTypeClass() {
+        return PsseZone.class;
     }
+
 }

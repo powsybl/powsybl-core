@@ -6,7 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseVersion;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.RetryableErrorHandler;
@@ -42,13 +42,13 @@ public class Context {
         csvParserSettings.setProcessorErrorHandler(new RetryableErrorHandler<ParsingContext>() {
             @Override
             public void handleError(DataProcessingException error, Object[] inputRow, ParsingContext context) {
-                LOGGER.error(error.getMessage());
+                LOGGER.error("Parsing context {}", context, error);
             }
         });
     }
 
     public PsseVersion getVersion() {
-        return this.version;
+        return version;
     }
 
     public Context setVersion(PsseVersion version) {
@@ -62,7 +62,7 @@ public class Context {
     }
 
     public String getDelimiter() {
-        return this.delimiter;
+        return delimiter;
     }
 
     public void setDelimiter(String delimiter) {
@@ -91,7 +91,7 @@ public class Context {
     }
 
     public String[] getFieldNames(PsseRecordGroup recordGroup) {
-        return this.fieldNames.get(recordGroup);
+        return fieldNames.get(recordGroup);
     }
 
     public CsvParserSettings getCsvParserSettings() {

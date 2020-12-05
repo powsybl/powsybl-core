@@ -8,9 +8,9 @@ package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
+import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedReader;
 import java.io.IOException;

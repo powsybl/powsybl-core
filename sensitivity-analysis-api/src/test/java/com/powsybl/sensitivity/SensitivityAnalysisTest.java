@@ -7,13 +7,15 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -29,7 +31,7 @@ public class SensitivityAnalysisTest {
     private Network network;
     private ComputationManager computationManager;
     private SensitivityFactorsProvider sensitivityFactorsProvider;
-    private ContingenciesProvider contingenciesProvider;
+    private List<Contingency> contingencies;
     private SensitivityAnalysisParameters parameters;
 
     @Before
@@ -40,7 +42,7 @@ public class SensitivityAnalysisTest {
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
         computationManager = Mockito.mock(ComputationManager.class);
         sensitivityFactorsProvider = Mockito.mock(SensitivityFactorsProvider.class);
-        contingenciesProvider = Mockito.mock(ContingenciesProvider.class);
+        contingencies = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);
     }
 
@@ -54,7 +56,7 @@ public class SensitivityAnalysisTest {
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
         CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network, "v", sensitivityFactorsProvider,
-                contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
+                contingencies, new SensitivityAnalysisParameters(), computationManager);
         assertNotNull(result.get());
     }
 
@@ -68,7 +70,7 @@ public class SensitivityAnalysisTest {
     @Test
     public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
         CompletableFuture<SensitivityAnalysisResult> result = SensitivityAnalysis.runAsync(network,
-                sensitivityFactorsProvider, contingenciesProvider);
+                sensitivityFactorsProvider, contingencies);
         assertNotNull(result.get());
     }
 
@@ -82,7 +84,7 @@ public class SensitivityAnalysisTest {
     @Test
     public void testSyncDefaultProvider() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network, "v", sensitivityFactorsProvider,
-                contingenciesProvider, new SensitivityAnalysisParameters(), computationManager);
+                contingencies, new SensitivityAnalysisParameters(), computationManager);
         assertNotNull(result);
     }
 
@@ -95,7 +97,7 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testSyncDefaultProviderWithMinimumArgumentsWithContingencies() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies);
         assertNotNull(result);
     }
 
@@ -108,7 +110,7 @@ public class SensitivityAnalysisTest {
     @Test
     public void testStaticRunMethodWithContingencies() {
         SensitivityAnalysisResult result = SensitivityAnalysis.run(network,
-                network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingenciesProvider, parameters);
+                network.getVariantManager().getWorkingVariantId(), sensitivityFactorsProvider, contingencies, parameters);
         assertNotNull(result);
     }
 
@@ -121,7 +123,7 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testStaticSimpleRunMethodWithParameters() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider, parameters);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies, parameters);
         assertNotNull(result);
     }
 
@@ -133,7 +135,7 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testStaticSimpleRunMethod() {
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingenciesProvider);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, sensitivityFactorsProvider, contingencies);
         assertNotNull(result);
     }
 

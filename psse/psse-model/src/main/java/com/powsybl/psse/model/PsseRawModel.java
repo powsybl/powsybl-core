@@ -7,6 +7,7 @@
 package com.powsybl.psse.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -55,11 +56,11 @@ public class PsseRawModel {
     }
 
     public void addLoads(List<PsseLoad> loads) {
-        this.loads.addAll(loads);
+        this.loads.addAll(modelled(loads));
     }
 
     public List<PsseLoad> getLoads() {
-        return loads;
+        return Collections.unmodifiableList(loads);
     }
 
     public void addFixedShunts(List<PsseFixedShunt> fixedShunts) {
@@ -71,15 +72,15 @@ public class PsseRawModel {
     }
 
     public void addGenerators(List<PsseGenerator> generators) {
-        this.generators.addAll(generators);
+        this.generators.addAll(modelled(generators));
     }
 
     public List<PsseGenerator> getGenerators() {
-        return generators;
+        return Collections.unmodifiableList(generators);
     }
 
     public void addNonTransformerBranches(List<PsseNonTransformerBranch> nonTransformerBranches) {
-        this.nonTransformerBranches.addAll(nonTransformerBranches);
+        this.nonTransformerBranches.addAll(modelled(nonTransformerBranches));
     }
 
     public List<PsseNonTransformerBranch> getNonTransformerBranches() {
@@ -87,7 +88,7 @@ public class PsseRawModel {
     }
 
     public void addTransformers(List<PsseTransformer> transformers) {
-        this.transformers.addAll(transformers);
+        this.transformers.addAll(modelled(transformers));
     }
 
     public List<PsseTransformer> getTransformers() {
@@ -119,10 +120,17 @@ public class PsseRawModel {
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
-        this.switchedShunts.addAll(switchedShunts);
+        this.switchedShunts.addAll(modelled(switchedShunts));
     }
 
     public List<PsseSwitchedShunt> getSwitchedShunts() {
         return switchedShunts;
+    }
+
+    private <T extends Versioned> List<T> modelled(List<T> elements) {
+        for (Versioned v : elements) {
+            v.setModel(this);
+        }
+        return elements;
     }
 }

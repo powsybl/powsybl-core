@@ -8,7 +8,7 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
     }
 
-    public PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
+    PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
         String line = Util.readLineAndRemoveComment(reader);
         context.detectDelimiter(line);
 
@@ -42,7 +42,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
     PsseCaseIdentification read1(JsonNode networkNode, Context context) {
         context.setDelimiter(",");
-        PsseCaseIdentification caseIdentification = super.read(networkNode, context).get(0);
+        PsseCaseIdentification caseIdentification = read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
         context.setRawx(true);
         return caseIdentification;
@@ -54,7 +54,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     @Override
-    public Class<? extends PsseCaseIdentification> psseTypeClass(PsseVersion version) {
+    public Class<? extends PsseCaseIdentification> psseTypeClass() {
         return PsseCaseIdentification.class;
     }
 }

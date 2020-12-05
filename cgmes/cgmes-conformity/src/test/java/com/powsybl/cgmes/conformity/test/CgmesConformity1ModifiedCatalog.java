@@ -79,9 +79,9 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
-    public static TestGridModelResources microGridBaseCaseBERtcPtcEnabledBySsh() {
+    public static TestGridModelResources microGridBaseCaseBERtcPtcDisabled() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_rtc_ptc_enabled_in_ssh_data/";
+                + "/MicroGrid/BaseCase/BC_BE_v2_rtc_ptc_disabled_in_ssh_data/";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
         String baseBoundary = ENTSOE_CONFORMITY_1
@@ -574,6 +574,24 @@ public final class CgmesConformity1ModifiedCatalog {
                 "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
             new ResourceSet(baseOriginal,
                 "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
+    }
+
+    public static TestGridModel miniBusBranchExternalInjectionControl() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/MiniGrid/BusBranch/BaseCase_v3_external_injection_control/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+            + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_v3/";
+        return new TestGridModelResources(
+            "MiniGrid-BusBranch-ExternalInjectionControl",
+            null,
+            new ResourceSet(base,
+                "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml"
+                ),
+            new ResourceSet(baseOriginal,
                 "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
                 "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
                 "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));

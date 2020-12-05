@@ -6,9 +6,9 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad;
-import com.powsybl.psse.model.PsseLoad35;
+import com.powsybl.psse.model.PsseVersion;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,19 +25,18 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     @Override
     public String[] fieldNames(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return FIELD_NAMES_35;
-        } else {
-            return FIELD_NAMES_33;
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_35;
+            case VERSION_33:
+                return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
         }
     }
 
     @Override
-    public Class<? extends PsseLoad> psseTypeClass(PsseVersion version) {
-        if (version == PsseVersion.VERSION_35) {
-            return PsseLoad35.class;
-        } else {
-            return PsseLoad.class;
-        }
+    public Class<? extends PsseLoad> psseTypeClass() {
+        return PsseLoad.class;
     }
 }

@@ -7,8 +7,8 @@
 package com.powsybl.psse.model.data;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseRawModel;
+import com.powsybl.psse.model.PsseVersion;
 
 import java.io.IOException;
 

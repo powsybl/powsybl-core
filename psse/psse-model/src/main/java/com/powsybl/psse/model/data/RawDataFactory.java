@@ -6,7 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -32,10 +33,14 @@ public final class RawDataFactory {
         if (extension.equalsIgnoreCase("rawx")) {
             return new RawXData35();
         } else {
-            if (version == PsseVersion.VERSION_35) {
-                return new RawData35();
+            switch (version) {
+                case VERSION_35:
+                    return new RawData35();
+                case VERSION_33:
+                    return new RawData33();
+                default:
+                    throw new PsseException("Unsupported version " + version);
             }
-            return new RawData33();
         }
     }
 }

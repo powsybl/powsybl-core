@@ -7,8 +7,8 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseConstants.PsseVersion;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
@@ -34,7 +34,7 @@ public abstract class AbstractRecordGroup<T> {
 
     public abstract String[] fieldNames(PsseVersion version);
 
-    public abstract Class<? extends T> psseTypeClass(PsseVersion version);
+    public abstract Class<? extends T> psseTypeClass();
 
     public List<T> read(BufferedReader reader, Context context) throws IOException {
         // Record groups in RAW format have a fixed order for fields
@@ -78,7 +78,8 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     List<T> parseRecords(List<String> records, String[] headers, Context context) {
-        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(context.getVersion()));
+        int expectedCount = records.size();
+        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
         CsvParserSettings settings = context.getCsvParserSettings();
         settings.setHeaders(headers);
         settings.setProcessor(processor);
@@ -89,7 +90,7 @@ public abstract class AbstractRecordGroup<T> {
             context.setCurrentRecordNumFields(fields.length);
         }
         List<? extends T> beans = processor.getBeans();
-        if (beans.size() != records.size()) {
+        if (beans.size() != expectedCount) {
             throw new PsseException("Parsing error");
         }
         return (List<T>) beans;

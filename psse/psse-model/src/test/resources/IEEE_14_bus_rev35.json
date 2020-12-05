@@ -453,7 +453,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 2,
     "id" : "1 ",
@@ -484,7 +484,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 3,
     "id" : "1 ",
@@ -515,7 +515,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 6,
     "id" : "1 ",
@@ -546,7 +546,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   }, {
     "i" : 8,
     "id" : "1 ",
@@ -577,7 +577,7 @@
     "wmod" : 0,
     "wpf" : 1.0,
     "nreg" : 0,
-    "basLod" : 0
+    "baslod" : 0
   } ],
   "nonTransformerBranches" : [ {
     "i" : 1,
@@ -1295,7 +1295,7 @@
     "x12" : 0.20912,
     "x23" : "NaN",
     "x31" : "NaN",
-    "zcod" : 0.0
+    "zcod" : 0
   }, {
     "anstar" : 0.0,
     "ckt" : "1 ",
@@ -1416,7 +1416,7 @@
     "x12" : 0.55618,
     "x23" : "NaN",
     "x31" : "NaN",
-    "zcod" : 0.0
+    "zcod" : 0
   }, {
     "anstar" : 0.0,
     "ckt" : "1 ",
@@ -1537,7 +1537,7 @@
     "x12" : 0.25202,
     "x23" : "NaN",
     "x31" : "NaN",
-    "zcod" : 0.0
+    "zcod" : 0
   } ],
   "areas" : [ {
     "i" : 1,
