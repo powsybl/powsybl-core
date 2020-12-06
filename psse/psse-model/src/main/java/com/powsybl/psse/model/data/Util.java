@@ -6,15 +6,25 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
+import com.univocity.parsers.csv.CsvWriter;
+import com.univocity.parsers.csv.CsvWriterSettings;
+
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -156,5 +166,61 @@ final class Util {
             records.addAll(Arrays.asList(dataNodeArray));
         }
         return records;
+    }
+
+    static void writeEndOfBlock(OutputStream outputStream) {
+        writeString("0", outputStream);
+    }
+
+    static void writeEndOfBlockAndComment(String comment, OutputStream outputStream) {
+        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
+        writer.writeRow("0" + " / " + comment);
+        writer.flush();
+    }
+
+    static void writeQrecord(OutputStream outputStream) {
+        writeString("Q", outputStream);
+    }
+
+    static void writeListString(List<String> records, OutputStream outputStream) {
+        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
+        records.forEach(writer::writeRow);
+        writer.flush();
+    }
+
+    static void writeString(String line, OutputStream outputStream) {
+        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
+        writer.writeRow(line);
+        writer.flush();
+    }
+
+    static String writeJsonModel(JsonModel jsonModel) throws IOException {
+        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+        prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper.setSerializationInclusion(Include.NON_NULL);
+        return objectMapper.writer(prettyPrinter).writeValueAsString(jsonModel);
+    }
+
+    static String[] insideHeaders(String[] quoteFields, String[] headers) {
+        String[] quoteFieldsInside = new String[] {};
+        for (int i = 0; i < quoteFields.length; i++) {
+            if (ArrayUtils.contains(headers, quoteFields[i])) {
+                quoteFieldsInside = ArrayUtils.add(quoteFieldsInside, quoteFields[i]);
+            }
+        }
+        return quoteFieldsInside;
+    }
+
+    static String[] excludeFields(String[] initialFields, String[] excludedFields) {
+        String[] fields = new String[] {};
+        for (int i = 0; i < initialFields.length; i++) {
+            if (!ArrayUtils.contains(excludedFields, initialFields[i])) {
+                fields = ArrayUtils.add(fields, initialFields[i]);
+            }
+        }
+        return fields;
     }
 }

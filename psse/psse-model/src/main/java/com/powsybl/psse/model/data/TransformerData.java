@@ -8,14 +8,17 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseTransformer;
 import com.powsybl.psse.model.PsseVersion;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -49,6 +52,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
         {"windv2", "nomv2"}
     };
+    private static final String[] QUOTED_FIELDS = {"ckt", "name", "vecgrp"};
 
     TransformerData() {
         super(PsseRecordGroup.TRANSFORMER_DATA);
@@ -65,6 +69,17 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     @Override
     public String[] fieldNames(PsseVersion version) {
         throw new PsseException("Should not occur");
+    }
+
+    @Override
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return QUOTED_FIELDS;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 
     public String[][] fieldNames3(PsseVersion version) {
@@ -90,8 +105,13 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public Class<? extends PsseTransformer> psseTypeClass() {
+    public Class<PsseTransformer> psseTypeClass() {
         return PsseTransformer.class;
+    }
+
+    @Override
+    public List<PsseTransformer> psseModelRecords(PsseRawModel model) {
+        return model.getTransformers();
     }
 
     @Override
@@ -139,6 +159,87 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         return transformers;
     }
 
+    @Override
+    public void write(PsseRawModel model, Context context, OutputStream outputStream) {
+        List<PsseTransformer> transformerList2w = model.getTransformers().stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
+        if (!transformerList2w.isEmpty()) {
+            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA);
+            String[][] allFieldNames = fieldNames2(context.getVersion());
+            this.<PsseTransformer>write(PsseTransformer.class, transformerList2w, allFieldNames, headers, context, outputStream, true);
+        }
+
+        List<PsseTransformer> transformerList3w = model.getTransformers().stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
+        if (!transformerList3w.isEmpty()) {
+            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA);
+            String[][] allFieldNames = fieldNames3(context.getVersion());
+            this.<PsseTransformer>write(PsseTransformer.class, transformerList3w, allFieldNames, headers, context, outputStream, false);
+        }
+
+        Util.writeEndOfBlockAndComment(endOfBlockComment(context.getVersion()), outputStream);
+    }
+
+    private <T> void write(Class<T> aClass, List<T> transformerRecords, String[][] allFieldNames, String[] headers,
+        Context context, OutputStream outputStream, boolean is2w) {
+
+        String[] headers1 = Util.insideHeaders(allFieldNames[0], headers);
+        List<String> r1 = writeBlock(aClass, transformerRecords, headers1, Util.insideHeaders(QUOTED_FIELDS, headers1), context.getDelimiter().charAt(0));
+
+        String[] headers2 = Util.insideHeaders(allFieldNames[1], headers);
+        List<String> r2 = writeBlock(aClass, transformerRecords, headers2, Util.insideHeaders(QUOTED_FIELDS, headers2), context.getDelimiter().charAt(0));
+
+        String[] headers3 = Util.insideHeaders(allFieldNames[2], headers);
+        List<String> r3 = writeBlock(aClass, transformerRecords, headers3, Util.insideHeaders(QUOTED_FIELDS, headers3), context.getDelimiter().charAt(0));
+
+        String[] headers4 = Util.insideHeaders(allFieldNames[3], headers);
+        List<String> r4 = writeBlock(aClass, transformerRecords, headers4, Util.insideHeaders(QUOTED_FIELDS, headers4), context.getDelimiter().charAt(0));
+
+        if (is2w) {
+            write2wRecords(r1, r2, r3, r4, outputStream);
+        } else {
+            String[] headers5 = Util.insideHeaders(allFieldNames[4], headers);
+            List<String> r5 = writeBlock(aClass, transformerRecords, headers5, Util.insideHeaders(QUOTED_FIELDS, headers5), context.getDelimiter().charAt(0));
+
+            write3wRecords(r1, r2, r3, r4, r5, outputStream);
+        }
+    }
+
+    private static void write2wRecords(List<String> r1, List<String> r2, List<String> r3, List<String> r4,
+        OutputStream outputStream) {
+        if (r1.size() == r2.size() && r1.size() == r3.size() && r1.size() == r4.size()) {
+
+            List<String> mixList = new ArrayList<>();
+            for (int i = 0; i < r1.size(); i++) {
+                mixList.add(r1.get(i));
+                mixList.add(r2.get(i));
+                mixList.add(r3.get(i));
+                mixList.add(r4.get(i));
+            }
+            Util.writeListString(mixList, outputStream);
+        } else {
+            throw new PsseException("Psse: 2wTransformer. Transformer records do not match " +
+                String.format("%d %d %d %d", r1.size(), r2.size(), r3.size(), r4.size()));
+        }
+    }
+
+    private static void write3wRecords(List<String> r1, List<String> r2, List<String> r3, List<String> r4,
+        List<String> r5, OutputStream outputStream) {
+        if (r1.size() == r2.size() && r1.size() == r3.size() && r1.size() == r4.size() && r1.size() == r5.size()) {
+
+            List<String> mixList = new ArrayList<>();
+            for (int i = 0; i < r1.size(); i++) {
+                mixList.add(r1.get(i));
+                mixList.add(r2.get(i));
+                mixList.add(r3.get(i));
+                mixList.add(r4.get(i));
+                mixList.add(r5.get(i));
+            }
+            Util.writeListString(mixList, outputStream);
+        } else {
+            throw new PsseException("Psse: 3wTransformer. Transformer records do not match " +
+                String.format("%d %d %d %d %d", r1.size(), r2.size(), r3.size(), r4.size(), r5.size()));
+        }
+    }
+
     private static String[] actualFieldNames(String[][] allFieldNames, String[] transformerRecords, Context context) {
         // Obtain the list of actual field names separately for each record of the transformer
         String[][] actualFieldNames0 = new String[transformerRecords.length][];
@@ -156,5 +257,16 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             k += fieldNames.length;
         }
         return actualFieldNames;
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return "END OF TRANSFORMER DATA, BEGIN AREA DATA";
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 }

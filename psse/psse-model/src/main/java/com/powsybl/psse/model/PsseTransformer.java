@@ -9,7 +9,6 @@ package com.powsybl.psse.model;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -24,11 +23,9 @@ public class PsseTransformer extends Versioned {
     private static final String WINDING_RECORD = "WindingRecord";
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"j", "jbus"})
-    @Validate
     private int j;
 
     @Parsed(field = {"k", "kbus"})
@@ -92,10 +89,9 @@ public class PsseTransformer extends Versioned {
     private double r12 = 0;
 
     @Parsed(field = {"x12", "x1_2"})
-    @Validate
     private double x12;
 
-    @Parsed(field = {"sbase12", "sabse1_2"})
+    @Parsed(field = {"sbase12", "sbase1_2"})
     private double sbase12 = Double.NaN;
 
     @Parsed(field = {"r23", "r2_3"})
@@ -288,51 +284,51 @@ public class PsseTransformer extends Versioned {
     @PsseRev(since = 35)
     private int zcod = 0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate1"})
     @PsseRev(since = 35)
     private double rate11 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate2"})
     @PsseRev(since = 35)
     private double rate21 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate3"})
     @PsseRev(since = 35)
     private double rate31 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate4"})
     @PsseRev(since = 35)
     private double rate41 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate5"})
     @PsseRev(since = 35)
     private double rate51 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate6"})
     @PsseRev(since = 35)
     private double rate61 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate7"})
     @PsseRev(since = 35)
     private double rate71 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate8"})
     @PsseRev(since = 35)
     private double rate81 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate9"})
     @PsseRev(since = 35)
     private double rate91 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate10"})
     @PsseRev(since = 35)
     private double rate101 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate11"})
     @PsseRev(since = 35)
     private double rate111 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg1rate12"})
     @PsseRev(since = 35)
     private double rate121 = 0.0;
 
@@ -340,51 +336,51 @@ public class PsseTransformer extends Versioned {
     @PsseRev(since = 35)
     private int node1 = 0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate1"})
     @PsseRev(since = 35)
     private double rate12 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate2"})
     @PsseRev(since = 35)
     private double rate22 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate3"})
     @PsseRev(since = 35)
     private double rate32 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate4"})
     @PsseRev(since = 35)
     private double rate42 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate5"})
     @PsseRev(since = 35)
     private double rate52 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate6"})
     @PsseRev(since = 35)
     private double rate62 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate7"})
     @PsseRev(since = 35)
     private double rate72 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate8"})
     @PsseRev(since = 35)
     private double rate82 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate9"})
     @PsseRev(since = 35)
     private double rate92 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate10"})
     @PsseRev(since = 35)
     private double rate102 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate11"})
     @PsseRev(since = 35)
     private double rate112 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg2rate12"})
     @PsseRev(since = 35)
     private double rate122 = 0.0;
 
@@ -392,51 +388,51 @@ public class PsseTransformer extends Versioned {
     @PsseRev(since = 35)
     private int node2 = 0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate1"})
     @PsseRev(since = 35)
     private double rate13 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate2"})
     @PsseRev(since = 35)
     private double rate23 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate3"})
     @PsseRev(since = 35)
     private double rate33 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate4"})
     @PsseRev(since = 35)
     private double rate43 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate5"})
     @PsseRev(since = 35)
     private double rate53 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate6"})
     @PsseRev(since = 35)
     private double rate63 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate7"})
     @PsseRev(since = 35)
     private double rate73 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate8"})
     @PsseRev(since = 35)
     private double rate83 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate9"})
     @PsseRev(since = 35)
     private double rate93 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate10"})
     @PsseRev(since = 35)
     private double rate103 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate11"})
     @PsseRev(since = 35)
     private double rate113 = 0.0;
 
-    @Parsed
+    @Parsed(field = {"wdg3rate12"})
     @PsseRev(since = 35)
     private double rate123 = 0.0;
 

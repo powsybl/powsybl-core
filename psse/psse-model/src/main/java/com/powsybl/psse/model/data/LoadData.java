@@ -6,8 +6,11 @@
  */
 package com.powsybl.psse.model.data;
 
+import java.util.List;
+
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -18,6 +21,8 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
     private static final String[] FIELD_NAMES_33 = {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};
+    private static final String[] QUOTED_FIELDS_35 = {"loadid", "loadtype"};
+    private static final String[] QUOTED_FIELDS_33 = {"id"};
 
     LoadData() {
         super(PsseRecordGroup.LOAD_DATA);
@@ -36,7 +41,35 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
     }
 
     @Override
-    public Class<? extends PsseLoad> psseTypeClass() {
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return QUOTED_FIELDS_35;
+            case VERSION_33:
+                return QUOTED_FIELDS_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public Class<PsseLoad> psseTypeClass() {
         return PsseLoad.class;
+    }
+
+    @Override
+    public List<PsseLoad> psseModelRecords(PsseRawModel model) {
+        return model.getLoads();
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return "END OF LOAD DATA, BEGIN FIXED SHUNT DATA";
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
@@ -23,4 +24,6 @@ public interface RawData {
     PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException;
 
     PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException;
+
+    void write(PsseRawModel model, Context context, DataSource dataSource) throws IOException;
 }

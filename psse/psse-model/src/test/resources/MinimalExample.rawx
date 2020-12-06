@@ -1,8 +1,8 @@
 {
      "network":{
          "caseid":{
-             "fields":["title1"],
-             "data":["PSS(R)E MINIMUM RAWX CASE"]
+             "fields":["rev", "title1"],
+             "data":[35, "PSS(R)E MINIMUM RAWX CASE"]
          },
          "bus":{
              "fields":["ibus", "name", "ide"],

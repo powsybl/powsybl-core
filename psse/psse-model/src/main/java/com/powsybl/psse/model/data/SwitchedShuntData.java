@@ -6,7 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
+import java.util.List;
+
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseSwitchedShunt;
 import com.powsybl.psse.model.PsseVersion;
 
@@ -39,7 +42,36 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
     }
 
     @Override
-    public Class<? extends PsseSwitchedShunt> psseTypeClass() {
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return FIELD_NAMES_35;
+            case VERSION_33:
+                return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public Class<PsseSwitchedShunt> psseTypeClass() {
         return PsseSwitchedShunt.class;
+    }
+
+    @Override
+    public List<PsseSwitchedShunt> psseModelRecords(PsseRawModel model) {
+        return model.getSwitchedShunts();
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return "pepe";
+            case VERSION_33:
+                return "pepe";
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 }

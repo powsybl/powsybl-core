@@ -13,6 +13,8 @@ import com.fasterxml.jackson.databind.ser.PropertyWriter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -21,7 +23,9 @@ import com.powsybl.psse.model.data.*;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -31,7 +35,7 @@ import static org.junit.Assert.assertNotNull;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseRawDataTest {
+public class PsseRawDataTest extends AbstractConverterTest {
 
     private ReadOnlyDataSource ieee14Raw() {
         return new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
@@ -182,6 +186,7 @@ public class PsseRawDataTest {
         PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", new Context());
 
         double tol = 0.000001;
+        assertEquals(35, rawData.getCaseIdentification().getRev());
         assertEquals("PSS(R)E MINIMUM RAWX CASE", rawData.getCaseIdentification().getTitle1());
 
         assertEquals(2, rawData.getBuses().size());
@@ -215,7 +220,7 @@ public class PsseRawDataTest {
         PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", context);
         assertNotNull(rawData);
 
-        String[] expectedCaseIdentificationDataReadFields = new String[]{"title1"};
+        String[] expectedCaseIdentificationDataReadFields = new String[]{"rev", "title1"};
         String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION_DATA);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
@@ -358,6 +363,58 @@ public class PsseRawDataTest {
         String[] expectedOwnerDataReadFields = new String[]{"iowner", "owname"};
         String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER_DATA);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
+    }
+
+    @Test
+    public void ieee14BusWriteTest() throws IOException {
+        Context context = new Context();
+
+        RawData33 rawData33 = new RawData33();
+        PsseRawModel rawData = rawData33.read(ieee14Raw(), "raw", context);
+        assertNotNull(rawData);
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee14BusRev35WriteTest() throws IOException {
+        Context context = new Context();
+        RawData35 rawData35 = new RawData35();
+        PsseRawModel rawData = rawData35.read(ieee14Raw35(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void minimalExampleRawxWriteTest() throws IOException {
+        Context context = new Context();
+        RawXData35 rawXData35 = new RawXData35();
+        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", context);
+        assertNotNull(rawData);
+
+        rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "MinimalExample_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "MinimalExample_exported.rawx"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "MinimalExample_exported.rawx"), is);
+        }
+    }
+
+    @Test
+    public void ieee14BusRev35RawxWriteTest() throws IOException {
+        Context context = new Context();
+        RawXData35 rawXData35 = new RawXData35();
+        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", context);
+        assertNotNull(rawData);
+
+        rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_exported.rawx"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.rawx"), is);
+        }
     }
 
     private void assertArrayEquals(String[] expected, String[] actual) {

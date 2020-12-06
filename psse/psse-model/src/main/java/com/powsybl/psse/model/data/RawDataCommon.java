@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseException;
@@ -46,5 +47,10 @@ public class RawDataCommon implements RawData {
     @Override
     public PsseRawModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         throw new PsseException("RawDataCommon does not know how to read complete data file. Specific version instance is required");
+    }
+
+    @Override
+    public void write(PsseRawModel model, Context context, DataSource dataSource) throws IOException {
+        throw new PsseException("RawDataCommon does not know how to write complete data file. Specific version instance is required");
     }
 }

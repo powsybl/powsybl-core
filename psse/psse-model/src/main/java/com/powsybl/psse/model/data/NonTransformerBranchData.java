@@ -6,8 +6,11 @@
  */
 package com.powsybl.psse.model.data;
 
+import java.util.List;
+
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseNonTransformerBranch;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -21,6 +24,8 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
         "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
     private static final String[] FIELD_NAMES_33 = {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
         "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+    private static final String[] QUOTED_FIELDS_35 = {"ckt", "name"};
+    private static final String[] QUOTED_FIELDS_33 = {"ckt"};
 
     NonTransformerBranchData() {
         super(PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
@@ -39,8 +44,36 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     }
 
     @Override
-    public Class<? extends PsseNonTransformerBranch> psseTypeClass() {
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return QUOTED_FIELDS_35;
+            case VERSION_33:
+                return QUOTED_FIELDS_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public Class<PsseNonTransformerBranch> psseTypeClass() {
         return PsseNonTransformerBranch.class;
     }
 
+    @Override
+    public List<PsseNonTransformerBranch> psseModelRecords(PsseRawModel model) {
+        return model.getNonTransformerBranches();
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return "END OF BRANCH DATA, BEGIN SYSTEM SWITCHING DEVICE DATA";
+            case VERSION_33:
+                return "END OF BRANCH DATA, BEGIN TRANSFORMER DATA";
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
 }
