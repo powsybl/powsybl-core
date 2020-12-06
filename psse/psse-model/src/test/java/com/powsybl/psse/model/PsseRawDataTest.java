@@ -417,6 +417,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
         }
     }
 
+    @Test
+    public void ieee14WhitespaceAsDelimiterWriteTest() throws IOException {
+        Context context = new Context();
+
+        RawData33 rawData33 = new RawData33();
+        PsseRawModel rawData = rawData33.read(ieee14WhitespaceAsDelimiterRaw(), "raw", context);
+        assertNotNull(rawData);
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_whitespaceAsDelimiter_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"), is);
+        }
+    }
+
     private void assertArrayEquals(String[] expected, String[] actual) {
         if (!Arrays.equals(expected, actual)) {
             String message = "Arrays are different:" + System.lineSeparator()
