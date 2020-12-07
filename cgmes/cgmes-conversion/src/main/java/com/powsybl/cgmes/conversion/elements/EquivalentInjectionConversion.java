@@ -76,12 +76,6 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             dl = adder
                     .setP0(fother.p() + f.p())
                     .setQ0(fother.q() + f.q())
-                    .newGeneration()
-                        .setTargetV(Double.NaN)
-                        .setVoltageRegulationOn(false)
-                        .setTargetP(0.0)
-                        .setTargetQ(0.0)
-                    .add()
                     .add();
         }
         // We do not call addAliases(dl) !
