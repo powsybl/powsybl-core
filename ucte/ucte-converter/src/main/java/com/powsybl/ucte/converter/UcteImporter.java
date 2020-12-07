@@ -893,10 +893,6 @@ public class UcteImporter implements Importer {
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
         float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
         float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
-        double xnodeP1 = dlAtSideOne.getP0();
-        double xnodeQ1 = dlAtSideOne.getQ0();
-        double xnodeP2 = dlAtSideTwo.getP0();
-        double xnodeQ2 = dlAtSideTwo.getQ0();
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
         TieLine mergeLine = network.newTieLine()
@@ -915,8 +911,6 @@ public class UcteImporter implements Importer {
                     .setG2(0.0)
                     .setB1(dlAtSideOne.getB())
                     .setB2(0.0)
-                    .setXnodeP(xnodeP1)
-                    .setXnodeQ(xnodeQ1)
                     .setFictitious(dlAtSideOne.isFictitious())
                     .add()
                 .newHalfLine2()
@@ -927,8 +921,6 @@ public class UcteImporter implements Importer {
                     .setG2(dlAtSideTwo.getG())
                     .setB1(0.0)
                     .setB2(dlAtSideTwo.getB())
-                    .setXnodeP(xnodeP2)
-                    .setXnodeQ(xnodeQ2)
                     .setFictitious(dlAtSideTwo.isFictitious())
                     .add()
                 .setUcteXnodeCode(xnodeCode)
@@ -946,8 +938,8 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
-                .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
+        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp)
+                .withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
     }
 
     @Override

@@ -6,7 +6,6 @@
  */
 package com.powsybl.contingency;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
@@ -31,13 +30,12 @@ public class Contingency extends AbstractExtendable<Contingency> {
     private final List<ContingencyElement> elements;
 
     public Contingency(String id, ContingencyElement... elements) {
-        this.id = Objects.requireNonNull(id);
-        this.elements = ImmutableList.copyOf(elements);
+        this(id, Arrays.asList(elements));
     }
 
     public Contingency(String id, List<ContingencyElement> elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = ImmutableList.copyOf(elements);
+        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
     }
 
     public String getId() {
@@ -45,7 +43,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
     }
 
     public List<ContingencyElement> getElements() {
-        return elements;
+        return Collections.unmodifiableList(elements);
     }
 
     @Override
@@ -60,6 +58,16 @@ public class Contingency extends AbstractExtendable<Contingency> {
             return id.equals(other.id) && elements.equals(other.elements);
         }
         return false;
+    }
+
+    public void addElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.add(element);
+    }
+
+    public void removeElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.remove(element);
     }
 
     public ModificationTask toTask() {
@@ -117,6 +125,15 @@ public class Contingency extends AbstractExtendable<Contingency> {
             LOGGER.warn("Contingency '{}' is invalid", id);
         }
         return valid;
+    }
+
+    /**
+     * Return a list of valid contingencies.
+     * @deprecated Use {@link ContingencyList#getValidContingencies(List, Network)} ()} instead.
+     */
+    @Deprecated
+    public static List<Contingency> checkValidity(List<Contingency> contingencies, Network network) {
+        return ContingencyList.getValidContingencies(contingencies, network);
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {

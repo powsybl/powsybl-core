@@ -124,6 +124,11 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
+    public Boundary getBoundary() {
+        return getDelegate().getBoundary();
+    }
+
+    @Override
     public ApparentPowerLimitsAdder newApparentPowerLimits() {
         return getDelegate().newApparentPowerLimits();
     }

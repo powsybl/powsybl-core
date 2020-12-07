@@ -128,18 +128,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEUsingSshForRtcPtcEnabled() {
+    public void microBEUsingSshForRtcPtcDisabled() {
         Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcEnabledBySsh().dataSource(), null);
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcDisabled().dataSource(), null);
+
+        // Even if the tap changers keep their controlEnabled flag == true,
+        // Their associated regulating control (tap changer control) is disabled
+        // So in IIDM the tap changers should not be regulating
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertTrue(rtc.isRegulating());
+        assertFalse(rtc.isRegulating());
 
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-                .getPhaseTapChanger();
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertTrue(ptc.isRegulating());
+        assertFalse(ptc.isRegulating());
     }
 
     @Test
@@ -489,6 +492,19 @@ public class CgmesConformity1ModifiedConversionTest {
         Terminal regulatingTerminal3 = rtc3.getRegulationTerminal();
         assertNotNull(regulatingTerminal3);
         assertFalse(rtc3.isRegulating());
+    }
+
+    @Test
+    public void miniBusBranchExternalInjectionControl() throws IOException {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), null);
+        // External network injections with shared control enabled
+        // One external network injection has control enabled
+        // The other one has it disabled
+        assertFalse(network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").isVoltageRegulatorOn());
+        assertTrue(network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").isVoltageRegulatorOn());
+        assertEquals(10.0, network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").getTargetV(), 1e-10);
+        // Even if the control is disabled, the target voltage must be set
+        assertEquals(10.0, network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").getTargetV(), 1e-10);
     }
 
     @Test

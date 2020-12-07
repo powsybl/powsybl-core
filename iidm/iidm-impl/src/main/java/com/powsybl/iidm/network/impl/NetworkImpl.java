@@ -883,8 +883,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.g2 = 0;
             l.half1.b1 = dl1.getB();
             l.half1.b2 = 0;
-            l.half1.xnodeP = dl1.getP0();
-            l.half1.xnodeQ = dl1.getQ0();
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
@@ -894,8 +892,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.g1 = 0;
             l.half2.b2 = dl2.getB();
             l.half2.b1 = 0;
-            l.half2.xnodeP = dl2.getP0();
-            l.half2.xnodeQ = dl2.getQ0();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
@@ -972,8 +968,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setG2(mergedLine.half1.g2)
                         .setB1(mergedLine.half1.b1)
                         .setB2(mergedLine.half1.b2)
-                        .setXnodeP(mergedLine.half1.xnodeP)
-                        .setXnodeQ(mergedLine.half1.xnodeQ)
                         .setFictitious(mergedLine.half1.fictitious)
                     .add()
                     .newHalfLine2().setId(mergedLine.half2.id)
@@ -984,8 +978,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setG2(mergedLine.half2.g2)
                         .setB1(mergedLine.half2.b1)
                         .setB2(mergedLine.half2.b2)
-                        .setXnodeP(mergedLine.half2.xnodeP)
-                        .setXnodeQ(mergedLine.half2.xnodeQ)
                         .setFictitious(mergedLine.half2.fictitious)
                     .add()
                     .setUcteXnodeCode(mergedLine.xnode);
@@ -1038,8 +1030,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double g2;
             double b1;
             double b2;
-            double xnodeP;
-            double xnodeQ;
             boolean fictitious;
         }
 
