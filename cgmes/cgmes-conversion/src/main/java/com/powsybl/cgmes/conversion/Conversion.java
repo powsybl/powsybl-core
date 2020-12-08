@@ -612,6 +612,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean createCgmesExportMapping() {
+            return createCgmesExportMapping;
+        }
+
+        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
+            this.createCgmesExportMapping = createCgmesExportMapping;
+            return this;
+        }
+
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -726,6 +735,8 @@ public class Conversion {
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
         private boolean ensureIdAliasUnicity = false;
+
+        private boolean createCgmesExportMapping = false;
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;
