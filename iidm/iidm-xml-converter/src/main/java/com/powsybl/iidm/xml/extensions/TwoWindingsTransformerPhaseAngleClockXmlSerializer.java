@@ -33,7 +33,7 @@ public class TwoWindingsTransformerPhaseAngleClockXmlSerializer
 
     @Override
     public void write(TwoWindingsTransformerPhaseAngleClock extension, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeOptionalInt("phaseAngleClock", extension.getPhaseAngleClock(), 0, context.getExtensionsWriter());
+        XmlUtil.writeOptionalInt("phaseAngleClock", extension.getPhaseAngleClock(), 0, context.getWriter());
     }
 
     @Override
