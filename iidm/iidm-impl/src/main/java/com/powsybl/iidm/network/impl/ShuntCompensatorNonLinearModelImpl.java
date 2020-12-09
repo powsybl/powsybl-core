@@ -6,20 +6,23 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
+import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel implements ShuntCompensatorNonLinearModel {
+class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorNonLinearModel {
 
     static class SectionImpl implements Section {
 
-        private ShuntCompensatorImpl shuntCompensator = null;
+        private final ShuntCompensatorImpl shuntCompensator;
 
         private final int index;
 
@@ -27,7 +30,8 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
 
         private double g;
 
-        SectionImpl(int index, double b, double g) {
+        SectionImpl(ShuntCompensatorImpl shuntCompensator, int index, double b, double g) {
+            this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
             this.index = index;
             this.b = b;
             this.g = g;
@@ -43,7 +47,7 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
             ValidationUtil.checkB(shuntCompensator, b);
             double oldValue = this.b;
             this.b = b;
-            shuntCompensator.notifyUpdate(notifyUpdateSection(index, "b"), oldValue, this.b);
+            shuntCompensator.notifyUpdate(getAttributeName(index, "b"), oldValue, this.b);
             return this;
         }
 
@@ -57,34 +61,22 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
             ValidationUtil.checkG(shuntCompensator, g);
             double oldValue = this.g;
             this.g = g;
-            shuntCompensator.notifyUpdate(notifyUpdateSection(index, "g"), oldValue, this.g);
+            shuntCompensator.notifyUpdate(getAttributeName(index, "g"), oldValue, this.g);
             return this;
         }
 
-        public SectionImpl copy() {
-            return new SectionImpl(index, b, g);
-        }
-
-        private static String notifyUpdateSection(int sectionNum, String attribute) {
+        private String getAttributeName(int sectionNum, String attribute) {
             return "section" + sectionNum + "." + attribute;
-        }
-
-        void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
-            if (this.shuntCompensator != null) {
-                throw new PowsyblException("Shunt compensator " + shuntCompensator.getId() + " has been set twice for the section " + index);
-            }
-            this.shuntCompensator = shuntCompensator;
         }
     }
 
+    private final ShuntCompensatorImpl shuntCompensator;
+
     private final List<SectionImpl> sections;
 
-    ShuntCompensatorNonLinearModelImpl(List<SectionImpl> sections) {
-        // Deep copy of section list
-        // Ensure sections will not be shared with other instance of ShuntCompensatorNonLinearModel
-        this.sections = sections.stream()
-                        .map(ShuntCompensatorNonLinearModelImpl.SectionImpl::copy)
-                        .collect(Collectors.toList());
+    ShuntCompensatorNonLinearModelImpl(ShuntCompensatorImpl shuntCompensator, List<SectionImpl> sections) {
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+        this.sections = Objects.requireNonNull(sections);
     }
 
     @Override
@@ -116,11 +108,5 @@ class ShuntCompensatorNonLinearModelImpl extends AbstractShuntCompensatorModel i
             throw new ValidationException(shuntCompensator, "invalid section count (must be in [0;maximumSectionCount]");
         }
         return sectionCount == 0 ? 0 : sections.get(sectionCount - 1).getG();
-    }
-
-    @Override
-    public void setShuntCompensator(ShuntCompensatorImpl shuntCompensator) {
-        super.setShuntCompensator(shuntCompensator);
-        sections.forEach(section -> section.setShuntCompensator(shuntCompensator));
     }
 }

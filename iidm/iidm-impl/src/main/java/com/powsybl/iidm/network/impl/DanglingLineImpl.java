@@ -366,7 +366,10 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     void setGeneration(GenerationImpl generation) {
-        this.generation = generation;
+        if (this.generation != null) {
+            throw new AssertionError("DanglingLine generation assignment after its creation is forbidden");
+        }
+        this.generation = Objects.requireNonNull(generation);
     }
 
     @Override

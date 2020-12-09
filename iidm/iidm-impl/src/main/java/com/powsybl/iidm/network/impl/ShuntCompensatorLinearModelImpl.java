@@ -11,10 +11,14 @@ import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ValidationUtil;
 
+import java.util.Objects;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel implements ShuntCompensatorLinearModel {
+class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
+
+    private final ShuntCompensatorImpl shuntCompensator;
 
     private double bPerSection;
 
@@ -22,7 +26,8 @@ class ShuntCompensatorLinearModelImpl extends AbstractShuntCompensatorModel impl
 
     private int maximumSectionCount;
 
-    ShuntCompensatorLinearModelImpl(double bPerSection, double gPerSection, int maximumSectionCount) {
+    ShuntCompensatorLinearModelImpl(ShuntCompensatorImpl shuntCompensator, double bPerSection, double gPerSection, int maximumSectionCount) {
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
         this.bPerSection = bPerSection;
         this.gPerSection = gPerSection;
         this.maximumSectionCount = maximumSectionCount;
