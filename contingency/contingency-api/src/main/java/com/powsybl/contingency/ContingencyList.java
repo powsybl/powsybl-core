@@ -17,6 +17,8 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -71,5 +73,16 @@ public interface ContingencyList {
      */
     static ContingencyList of(Contingency... contingencies) {
         return new DefaultContingencyList(contingencies);
+    }
+
+    /**
+     * Return only valid contingencies based on given list of contingencies and network
+     */
+    static List<Contingency> getValidContingencies(List<Contingency> contingencies, Network network) {
+        Objects.requireNonNull(contingencies);
+        Objects.requireNonNull(network);
+        return contingencies.stream()
+                .filter(c -> c.isValid(network))
+                .collect(Collectors.toList());
     }
 }

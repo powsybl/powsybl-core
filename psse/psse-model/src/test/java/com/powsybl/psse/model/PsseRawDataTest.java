@@ -16,7 +16,6 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.psse.model.PsseTransformer.WindingRecord;
 import com.powsybl.psse.model.data.*;
 import org.junit.Test;
 
@@ -82,36 +81,36 @@ public class PsseRawDataTest {
         PsseGenerator g = raw33.getGenerators().get(0);
         // Trying to get a field only available since version 35 gives an error
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> g.getNreg())
+            .isThrownBy(g::getNreg)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
 
         PsseNonTransformerBranch b = raw33.getNonTransformerBranches().get(0);
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> b.getRate1())
+            .isThrownBy(b::getRate1)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseTransformer twt = raw33.getTransformers().get(0);
-        WindingRecord windingRecord = twt.getWindingRecord1();
+        PsseTransformerWinding winding1 = twt.getWinding1();
 
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> twt.getZcod())
+            .isThrownBy(twt::getZcod)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'zcod' is valid since version 35");
 
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> windingRecord.getRate1())
+            .isThrownBy(winding1::getRate1)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseRawModel raw35 = new RawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(raw35);
         PsseNonTransformerBranch b35 = raw35.getNonTransformerBranches().get(0);
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> b35.getRatea())
+            .isThrownBy(b35::getRatea)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
-        WindingRecord windingRecord35 = twt35.getWindingRecord1();
+        PsseTransformerWinding winding135 = twt35.getWinding1();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(() -> windingRecord35.getRata())
+            .isThrownBy(winding135::getRata)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'rata' is valid since version 33 until 33");
     }
 
