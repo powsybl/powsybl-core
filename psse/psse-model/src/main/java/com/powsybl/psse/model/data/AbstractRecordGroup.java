@@ -8,14 +8,21 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.data.JsonModel.TableData;
 import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
+import com.univocity.parsers.csv.CsvWriter;
+import com.univocity.parsers.csv.CsvWriterSettings;
+
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,7 +41,13 @@ public abstract class AbstractRecordGroup<T> {
 
     public abstract String[] fieldNames(PsseVersion version);
 
-    public abstract Class<? extends T> psseTypeClass();
+    public abstract String[] quotedFields(PsseVersion version);
+
+    public abstract Class<T> psseTypeClass();
+
+    public abstract List<T> psseModelRecords(PsseRawModel model);
+
+    public abstract String endOfBlockComment(PsseVersion version);
 
     public List<T> read(BufferedReader reader, Context context) throws IOException {
         // Record groups in RAW format have a fixed order for fields
@@ -52,6 +65,14 @@ public abstract class AbstractRecordGroup<T> {
         return psseObjects;
     }
 
+    void write(PsseRawModel model, Context context, OutputStream outputStream) {
+        String[] headers = context.getFieldNames(recordGroup);
+        String[] quoteFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
+
+        writeBlock(psseTypeClass(), psseModelRecords(model), headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
+        Util.writeEndOfBlockAndComment(endOfBlockComment(context.getVersion()), outputStream);
+    }
+
     public List<T> read(JsonNode networkNode, Context context) {
         // Records in RAWX format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
@@ -67,6 +88,14 @@ public abstract class AbstractRecordGroup<T> {
         List<String> records = Util.readRecords(jsonNode);
         context.setFieldNames(recordGroup, actualFieldNames);
         return parseRecords(records, actualFieldNames, context);
+    }
+
+    TableData write(PsseRawModel model, Context context) {
+        String[] headers = context.getFieldNames(recordGroup);
+        String[] quotedFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
+
+        List<String> stringList = writexBlock(psseTypeClass(), psseModelRecords(model), headers, quotedFieldsInside, context.getDelimiter().charAt(0));
+        return new TableData(headers, stringList);
     }
 
     PsseRecordGroup getRecordGroup() {
@@ -94,6 +123,48 @@ public abstract class AbstractRecordGroup<T> {
             throw new PsseException("Parsing error");
         }
         return (List<T>) beans;
+    }
+
+    static <T> void writeBlock(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
+        char delimiter, OutputStream outputStream) {
+
+        CsvWriterSettings settings = writeBlockSettings(aClass, headers, quoteFields, delimiter, '\'');
+        CsvWriter writer = new CsvWriter(outputStream, settings);
+        writer.processRecords(modelRecords);
+        writer.flush();
+    }
+
+    static <T> List<String> writeBlock(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
+        char delimiter) {
+
+        CsvWriterSettings settings = writeBlockSettings(aClass, headers, quoteFields, delimiter, '\'');
+        CsvWriter writer = new CsvWriter(settings);
+        return writer.processRecordsToString(modelRecords);
+    }
+
+    static <T> List<String> writexBlock(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
+        char delimiter) {
+
+        CsvWriterSettings settings = writeBlockSettings(aClass, headers, quoteFields, delimiter, '"');
+        CsvWriter writer = new CsvWriter(settings);
+        return writer.processRecordsToString(modelRecords);
+    }
+
+    private static <T> CsvWriterSettings writeBlockSettings(Class<T> aClass, String[] headers,
+        String[] quoteFields, char delimiter, char quote) {
+
+        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(aClass);
+
+        CsvWriterSettings settings = new CsvWriterSettings();
+        settings.quoteFields(quoteFields);
+        settings.setHeaders(headers);
+        settings.getFormat().setQuote(quote);
+        settings.getFormat().setDelimiter(delimiter);
+        settings.setIgnoreLeadingWhitespaces(false);
+        settings.setIgnoreTrailingWhitespaces(false);
+        settings.setRowWriterProcessor(processor);
+
+        return settings;
     }
 
     public enum PsseRecordGroup {

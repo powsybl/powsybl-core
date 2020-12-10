@@ -6,8 +6,11 @@
  */
 package com.powsybl.psse.model.data;
 
+import java.util.List;
+
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseGenerator;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -18,6 +21,8 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
     private static final String[] FIELD_NAMES_33 = {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
+    private static final String[] QUOTED_FIELDS_35 = {"machid"};
+    private static final String[] QUOTED_FIELDS_33 = {"id"};
 
     GeneratorData() {
         super(PsseRecordGroup.GENERATOR_DATA);
@@ -36,7 +41,35 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
     }
 
     @Override
-    public Class<? extends PsseGenerator> psseTypeClass() {
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+                return QUOTED_FIELDS_35;
+            case VERSION_33:
+                return QUOTED_FIELDS_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public Class<PsseGenerator> psseTypeClass() {
         return PsseGenerator.class;
+    }
+
+    @Override
+    public List<PsseGenerator> psseModelRecords(PsseRawModel model) {
+        return model.getGenerators();
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return "END OF GENERATOR DATA, BEGIN BRANCH DATA";
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
     }
 }

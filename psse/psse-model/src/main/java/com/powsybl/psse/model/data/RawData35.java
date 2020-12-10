@@ -6,14 +6,19 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -54,5 +59,57 @@ public class RawData35 extends RawDataCommon {
 
             return model;
         }
+    }
+
+    @Override
+    public void write(PsseRawModel model, Context context, DataSource dataSource) throws IOException {
+        Objects.requireNonNull(model);
+        Objects.requireNonNull(context);
+        Objects.requireNonNull(dataSource);
+
+        if (context.getVersion() != PsseVersion.VERSION_35) {
+            throw new PsseException("Unexpected version " + context.getVersion());
+        }
+
+        try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
+            write(model, context, outputStream);
+        }
+    }
+
+    private void write(PsseRawModel model, Context context, BufferedOutputStream outputStream) throws IOException {
+
+        new CaseIdentificationData().write1(model, context, outputStream);
+        Util.writeEndOfBlockAndComment("END OF SYSTEM-WIDE DATA, BEGIN BUS DATA", outputStream);
+
+        new BusData().write(model, context, outputStream);
+        new LoadData().write(model, context, outputStream);
+        new FixedBusShuntData().write(model, context, outputStream);
+        new GeneratorData().write(model, context, outputStream);
+        new NonTransformerBranchData().write(model, context, outputStream);
+
+        Util.writeEndOfBlockAndComment("END OF SYSTEM SWITCHING DEVICE DATA, BEGIN TRANSFORMER DATA", outputStream);
+
+        new TransformerData().write(model, context, outputStream);
+        new AreaInterchangeData().write(model, context, outputStream);
+
+        Util.writeEndOfBlockAndComment("END OF TWO-TERMINAL DC DATA, BEGIN VOLTAGE SOURCE CONVERTER DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF VOLTAGE SOURCE CONVERTER DATA, BEGIN IMPEDANCE CORRECTION DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF IMPEDANCE CORRECTION DATA, BEGIN MULTI-TERMINAL DC DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF MULTI-TERMINAL DC DATA, BEGIN MULTI-SECTION LINE DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF MULTI-SECTION LINE DATA, BEGIN ZONE DATA", outputStream);
+
+        new ZoneData().write(model, context, outputStream);
+        Util.writeEndOfBlockAndComment("END OF INTER-AREA TRANSFER DATA, BEGIN OWNER DATA", outputStream);
+        new OwnerData().write(model, context, outputStream);
+
+        Util.writeEndOfBlockAndComment("END OF FACTS CONTROL DEVICE DATA, BEGIN SWITCHED SHUNT DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF SWITCHED SHUNT DATA, BEGIN GNE DEVICE DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF GNE DEVICE DATA, BEGIN INDUCTION MACHINE DATA", outputStream);
+
+        Util.writeEndOfBlockAndComment("END OF INDUCTION MACHINE DATA, BEGIN SUBSTATION DATA", outputStream);
+        Util.writeEndOfBlockAndComment("END OF SUBSTATION DATA", outputStream);
+        Util.writeQrecord(outputStream);
+
+        outputStream.close();
     }
 }

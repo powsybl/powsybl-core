@@ -8,10 +8,16 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.data.JsonModel.ArrayData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -20,6 +26,8 @@ import java.io.IOException;
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
     private static final String[] FIELD_NAMES = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
+    private static final String[] QUOTED_FIELDS = {"title1", "title2"};
+    private static final String[] EXCLUDED_FIELDS = {"title1", "title2"};
 
     CaseIdentificationData() {
         super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
@@ -36,14 +44,41 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
 
         context.setFieldNames(getRecordGroup(), headers);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setRawx(false);
         return caseIdentification;
+    }
+
+    void write1(PsseRawModel model, Context context, OutputStream outputStream) {
+        String[] headers = context.getFieldNames(getRecordGroup());
+        headers = Util.excludeFields(headers, EXCLUDED_FIELDS);
+
+        List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
+        caseIdentificationList.add(model.getCaseIdentification());
+
+        writeBlock(PsseCaseIdentification.class, caseIdentificationList, headers,
+            Util.insideHeaders(QUOTED_FIELDS, headers), context.getDelimiter().charAt(0), outputStream);
+        Util.writeString(model.getCaseIdentification().getTitle1(), outputStream);
+        Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
     }
 
     PsseCaseIdentification read1(JsonNode networkNode, Context context) {
         context.setDelimiter(",");
         PsseCaseIdentification caseIdentification = read(networkNode, context).get(0);
         context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setRawx(true);
         return caseIdentification;
+    }
+
+    ArrayData write1(PsseRawModel model, Context context) {
+        String[] headers = context.getFieldNames(getRecordGroup());
+        List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
+        caseIdentificationList.add(model.getCaseIdentification());
+
+        List<String> stringList = writexBlock(PsseCaseIdentification.class,
+            caseIdentificationList, headers, Util.insideHeaders(QUOTED_FIELDS, headers),
+            context.getDelimiter().charAt(0));
+
+        return new ArrayData(headers, stringList);
     }
 
     @Override
@@ -52,7 +87,24 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     @Override
-    public Class<? extends PsseCaseIdentification> psseTypeClass() {
+    public String[] quotedFields(PsseVersion version) {
+        return QUOTED_FIELDS;
+    }
+
+    @Override
+    public Class<PsseCaseIdentification> psseTypeClass() {
         return PsseCaseIdentification.class;
+    }
+
+    @Override
+    public List<PsseCaseIdentification> psseModelRecords(PsseRawModel model) {
+        List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
+        caseIdentificationList.add(model.getCaseIdentification());
+        return caseIdentificationList;
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        throw new PsseException("Should not occur");
     }
 }

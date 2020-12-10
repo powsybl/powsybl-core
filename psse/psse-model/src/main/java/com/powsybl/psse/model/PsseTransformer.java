@@ -8,9 +8,11 @@ package com.powsybl.psse.model;
 
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import com.univocity.parsers.annotations.HeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
+
+import java.lang.reflect.Field;
 
 /**
  *
@@ -29,11 +31,9 @@ public class PsseTransformer extends Versioned {
     }
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"j", "jbus"})
-    @Validate
     private int j;
 
     @Parsed(field = {"k", "kbus"})
@@ -105,10 +105,9 @@ public class PsseTransformer extends Versioned {
     private double r12 = 0;
 
     @Parsed(field = {"x12", "x1_2"})
-    @Validate
     private double x12;
 
-    @Parsed(field = {"sbase12", "sabse1_2"})
+    @Parsed(field = {"sbase12", "sbase1_2"})
     private double sbase12 = Double.NaN;
 
     @Parsed(field = {"r23", "r2_3"})
@@ -135,14 +134,33 @@ public class PsseTransformer extends Versioned {
     @Parsed
     private double anstar = 0;
 
-    @Nested(headerTransformer = SuffixHeaderTransformer.class, args = "1")
+    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
     private PsseTransformerWinding winding1;
 
-    @Nested(headerTransformer = SuffixHeaderTransformer.class, args = "2")
+    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "2")
     private PsseTransformerWinding winding2;
 
-    @Nested(headerTransformer = SuffixHeaderTransformer.class, args = "3")
+    @Nested(headerTransformer = WindingHeaderTransformer.class, args = "3")
     private PsseTransformerWinding winding3;
+
+    public static class WindingHeaderTransformer extends HeaderTransformer {
+        private final String windingNumber;
+
+        public WindingHeaderTransformer(String... args) {
+            windingNumber = args[0];
+        }
+
+        @Override
+        public String transformName(Field field, String name) {
+            // For rates, add the prefix "wdg<windingNumber>"
+            // For the rest of fields, add "<windingNumber>" as a suffix
+            if (name.startsWith("rate")) {
+                return "wdg" + windingNumber + name;
+            } else {
+                return name + windingNumber;
+            }
+        }
+    }
 
     public int getI() {
         return i;

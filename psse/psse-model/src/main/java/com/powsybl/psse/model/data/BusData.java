@@ -6,8 +6,11 @@
  */
 package com.powsybl.psse.model.data;
 
+import java.util.List;
+
 import com.powsybl.psse.model.PsseBus;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -18,14 +21,10 @@ class BusData extends AbstractRecordGroup<PsseBus> {
 
     private static final String[] FIELD_NAMES_35 = {"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
     private static final String[] FIELD_NAMES_33 = {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
+    private static final String[] QUOTED_FIELDS = {"name"};
 
     BusData() {
         super(PsseRecordGroup.BUS_DATA);
-    }
-
-    @Override
-    public Class<PsseBus> psseTypeClass() {
-        return PsseBus.class;
     }
 
     @Override
@@ -35,6 +34,38 @@ class BusData extends AbstractRecordGroup<PsseBus> {
                 return FIELD_NAMES_35;
             case VERSION_33:
                 return FIELD_NAMES_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public String[] quotedFields(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return QUOTED_FIELDS;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    @Override
+    public Class<PsseBus> psseTypeClass() {
+        return PsseBus.class;
+    }
+
+    @Override
+    public List<PsseBus> psseModelRecords(PsseRawModel model) {
+        return model.getBuses();
+    }
+
+    @Override
+    public String endOfBlockComment(PsseVersion version) {
+        switch (version) {
+            case VERSION_35:
+            case VERSION_33:
+                return "END OF BUS DATA, BEGIN LOAD DATA";
             default:
                 throw new PsseException("Unsupported version " + version);
         }
