@@ -288,7 +288,7 @@ public class CgmesImport implements Importer {
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
     private static final Parameter CREATE_CGMES_EXPORT_MAPPING_PARAMETER = new Parameter(
             CREATE_CGMES_EXPORT_MAPPING,
-            ParameterType.BOOLEAN, 
+            ParameterType.BOOLEAN,
             "Create CGMES context for export",
             Boolean.FALSE);
     private static final Parameter ENSURE_ID_ALIAS_UNICITY_PARAMETER = new Parameter(
