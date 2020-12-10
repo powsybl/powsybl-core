@@ -6,10 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseZone;
 
@@ -54,11 +51,6 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     @Override
     public Class<PsseZone> psseTypeClass() {
         return PsseZone.class;
-    }
-
-    @Override
-    public List<PsseZone> psseModelRecords(PsseRawModel model) {
-        return model.getZones();
     }
 
     @Override

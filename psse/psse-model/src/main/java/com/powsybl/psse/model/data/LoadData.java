@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -55,11 +52,6 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
     @Override
     public Class<PsseLoad> psseTypeClass() {
         return PsseLoad.class;
-    }
-
-    @Override
-    public List<PsseLoad> psseModelRecords(PsseRawModel model) {
-        return model.getLoads();
     }
 
     @Override

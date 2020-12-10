@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseOwner;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -53,11 +50,6 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     @Override
     public Class<PsseOwner> psseTypeClass() {
         return PsseOwner.class;
-    }
-
-    @Override
-    public List<PsseOwner> psseModelRecords(PsseRawModel model) {
-        return model.getOwners();
     }
 
     @Override

@@ -16,14 +16,13 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.data.JsonModel.ArrayData;
 import com.powsybl.psse.model.data.JsonModel.JsonNetwork;
 import com.powsybl.psse.model.data.JsonModel.TableData;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -83,46 +82,51 @@ public class RawXData35 extends RawXDataCommon {
         if (!arrayDataIsEmpty(arrayData)) {
             network.setCaseid(arrayData);
         }
-        TableData tableData = new BusData().write(model, context);
+        TableData tableData = new BusData().write(model.getBuses(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setBus(tableData);
         }
-        tableData = new LoadData().write(model, context);
+        tableData = new LoadData().write(model.getLoads(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setLoad(tableData);
         }
-        tableData = new FixedBusShuntData().write(model, context);
+        tableData = new FixedBusShuntData().write(model.getFixedShunts(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setFixshunt(tableData);
         }
-        tableData = new GeneratorData().write(model, context);
+        tableData = new GeneratorData().write(model.getGenerators(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setGenerator(tableData);
         }
-        tableData = new NonTransformerBranchData().write(model, context);
+        tableData = new NonTransformerBranchData().write(model.getNonTransformerBranches(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setAcline(tableData);
         }
-        tableData = new TransformerData().write(model, context);
+        tableData = new TransformerData().write(model.getTransformers(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setTransformer(tableData);
         }
 
-        tableData = new AreaInterchangeData().write(model, context);
+        tableData = new AreaInterchangeData().write(model.getAreas(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setArea(tableData);
         }
-        tableData = new ZoneData().write(model, context);
+        tableData = new ZoneData().write(model.getZones(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setZone(tableData);
         }
-        tableData = new OwnerData().write(model, context);
+        tableData = new OwnerData().write(model.getOwners(), context);
         if (!tableDataIsEmpty(tableData)) {
             network.setOwner(tableData);
         }
 
+        // XXX(Luma) We could get rid of the JsonModel and setting data into it
+        // If we build directly the TableData items and serialize them over the output stream after being wilt
+        // This would make the "write" more "write"
         JsonModel jsonModel = new JsonModel(network);
+        // XXX(Luma) We should write on an output stream
         String json = Util.writeJsonModel(jsonModel);
+        // XXX(Luma) We should not need this kind of adjustments
         String adjustedJson = StringUtils.replaceEach(json, new String[] {"\"[", "]\"", "\\\""}, new String[] {"[", "]", "\""});
         outputStream.write(adjustedJson.getBytes(StandardCharsets.UTF_8));
 

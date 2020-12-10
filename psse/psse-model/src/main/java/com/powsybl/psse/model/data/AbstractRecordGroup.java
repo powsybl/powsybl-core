@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.data.JsonModel.TableData;
 import com.univocity.parsers.common.processor.BeanListProcessor;
@@ -17,7 +16,6 @@ import com.univocity.parsers.csv.CsvParser;
 import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
-
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
@@ -45,11 +43,11 @@ public abstract class AbstractRecordGroup<T> {
 
     public abstract Class<T> psseTypeClass();
 
-    public abstract List<T> psseModelRecords(PsseRawModel model);
-
     public abstract String endOfBlockComment(PsseVersion version);
 
     public List<T> read(BufferedReader reader, Context context) throws IOException {
+        // XXX(Luma) RAW format is implicit here, maybe it should be explicit ?
+
         // Record groups in RAW format have a fixed order for fields
         // Optional fields may not be present at the end of each record.
         // We obtain the maximum number of fields read in each record of the record group.
@@ -65,15 +63,17 @@ public abstract class AbstractRecordGroup<T> {
         return psseObjects;
     }
 
-    void write(PsseRawModel model, Context context, OutputStream outputStream) {
+    public void write(List<T> psseObjects, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(recordGroup);
         String[] quoteFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
-
-        writeBlock(psseTypeClass(), psseModelRecords(model), headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
+        writeBlock(psseTypeClass(), psseObjects, headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
+        // XXX(Luma) Solve end of block comment without the need for a method
         Util.writeEndOfBlockAndComment(endOfBlockComment(context.getVersion()), outputStream);
     }
 
     public List<T> read(JsonNode networkNode, Context context) {
+        // XXX(Luma) RAWX format is implicit here, is it ok just because we read from a JsonNode ?
+
         // Records in RAWX format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
@@ -90,11 +90,11 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(records, actualFieldNames, context);
     }
 
-    TableData write(PsseRawModel model, Context context) {
+    TableData write(List<T> psseObjects, Context context) {
         String[] headers = context.getFieldNames(recordGroup);
         String[] quotedFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
 
-        List<String> stringList = writexBlock(psseTypeClass(), psseModelRecords(model), headers, quotedFieldsInside, context.getDelimiter().charAt(0));
+        List<String> stringList = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
         return new TableData(headers, stringList);
     }
 

@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseGenerator;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -55,11 +52,6 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
     @Override
     public Class<PsseGenerator> psseTypeClass() {
         return PsseGenerator.class;
-    }
-
-    @Override
-    public List<PsseGenerator> psseModelRecords(PsseRawModel model) {
-        return model.getGenerators();
     }
 
     @Override

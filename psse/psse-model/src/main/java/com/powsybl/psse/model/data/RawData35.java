@@ -79,18 +79,20 @@ public class RawData35 extends RawDataCommon {
     private void write(PsseRawModel model, Context context, BufferedOutputStream outputStream) throws IOException {
 
         new CaseIdentificationData().write1(model, context, outputStream);
+        // XXX(Luma) every block should add its own "END OF xxx DATA"
+        // XXX(Luma) then next block should start with "[, ]BEGIN xxx DATA"
         Util.writeEndOfBlockAndComment("END OF SYSTEM-WIDE DATA, BEGIN BUS DATA", outputStream);
 
-        new BusData().write(model, context, outputStream);
-        new LoadData().write(model, context, outputStream);
-        new FixedBusShuntData().write(model, context, outputStream);
-        new GeneratorData().write(model, context, outputStream);
-        new NonTransformerBranchData().write(model, context, outputStream);
+        new BusData().write(model.getBuses(), context, outputStream);
+        new LoadData().write(model.getLoads(), context, outputStream);
+        new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
+        new GeneratorData().write(model.getGenerators(), context, outputStream);
+        new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
 
         Util.writeEndOfBlockAndComment("END OF SYSTEM SWITCHING DEVICE DATA, BEGIN TRANSFORMER DATA", outputStream);
 
-        new TransformerData().write(model, context, outputStream);
-        new AreaInterchangeData().write(model, context, outputStream);
+        new TransformerData().write(model.getTransformers(), context, outputStream);
+        new AreaInterchangeData().write(model.getAreas(), context, outputStream);
 
         Util.writeEndOfBlockAndComment("END OF TWO-TERMINAL DC DATA, BEGIN VOLTAGE SOURCE CONVERTER DATA", outputStream);
         Util.writeEndOfBlockAndComment("END OF VOLTAGE SOURCE CONVERTER DATA, BEGIN IMPEDANCE CORRECTION DATA", outputStream);
@@ -98,9 +100,9 @@ public class RawData35 extends RawDataCommon {
         Util.writeEndOfBlockAndComment("END OF MULTI-TERMINAL DC DATA, BEGIN MULTI-SECTION LINE DATA", outputStream);
         Util.writeEndOfBlockAndComment("END OF MULTI-SECTION LINE DATA, BEGIN ZONE DATA", outputStream);
 
-        new ZoneData().write(model, context, outputStream);
+        new ZoneData().write(model.getZones(), context, outputStream);
         Util.writeEndOfBlockAndComment("END OF INTER-AREA TRANSFER DATA, BEGIN OWNER DATA", outputStream);
-        new OwnerData().write(model, context, outputStream);
+        new OwnerData().write(model.getOwners(), context, outputStream);
 
         Util.writeEndOfBlockAndComment("END OF FACTS CONTROL DEVICE DATA, BEGIN SWITCHED SHUNT DATA", outputStream);
         Util.writeEndOfBlockAndComment("END OF SWITCHED SHUNT DATA, BEGIN GNE DEVICE DATA", outputStream);

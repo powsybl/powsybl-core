@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseTransformer;
 import com.powsybl.psse.model.PsseVersion;
 import org.apache.commons.lang3.ArrayUtils;
@@ -110,11 +109,6 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public List<PsseTransformer> psseModelRecords(PsseRawModel model) {
-        return model.getTransformers();
-    }
-
-    @Override
     public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
         List<PsseTransformer> transformers = new ArrayList<>();
         String[][] fieldNames3 = fieldNames3(context.getVersion());
@@ -160,15 +154,15 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public void write(PsseRawModel model, Context context, OutputStream outputStream) {
-        List<PsseTransformer> transformerList2w = model.getTransformers().stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
+    public void write(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
+        List<PsseTransformer> transformerList2w = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
         if (!transformerList2w.isEmpty()) {
             String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA);
             String[][] allFieldNames = fieldNames2(context.getVersion());
             this.<PsseTransformer>write(PsseTransformer.class, transformerList2w, allFieldNames, headers, context, outputStream, true);
         }
 
-        List<PsseTransformer> transformerList3w = model.getTransformers().stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
+        List<PsseTransformer> transformerList3w = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
         if (!transformerList3w.isEmpty()) {
             String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA);
             String[][] allFieldNames = fieldNames3(context.getVersion());

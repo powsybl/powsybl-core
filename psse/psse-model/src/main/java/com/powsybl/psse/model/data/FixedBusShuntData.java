@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseFixedShunt;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -55,11 +52,6 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     @Override
     public Class<PsseFixedShunt> psseTypeClass() {
         return PsseFixedShunt.class;
-    }
-
-    @Override
-    public List<PsseFixedShunt> psseModelRecords(PsseRawModel model) {
-        return model.getFixedShunts();
     }
 
     @Override

@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseArea;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -53,11 +50,6 @@ class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
     @Override
     public Class<PsseArea> psseTypeClass() {
         return PsseArea.class;
-    }
-
-    @Override
-    public List<PsseArea> psseModelRecords(PsseRawModel model) {
-        return model.getAreas();
     }
 
     @Override

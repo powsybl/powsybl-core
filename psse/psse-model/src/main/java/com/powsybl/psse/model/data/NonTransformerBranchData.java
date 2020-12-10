@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseNonTransformerBranch;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -58,11 +55,6 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     @Override
     public Class<PsseNonTransformerBranch> psseTypeClass() {
         return PsseNonTransformerBranch.class;
-    }
-
-    @Override
-    public List<PsseNonTransformerBranch> psseModelRecords(PsseRawModel model) {
-        return model.getNonTransformerBranches();
     }
 
     @Override

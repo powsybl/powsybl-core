@@ -6,11 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseBus;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
 /**
@@ -53,11 +50,6 @@ class BusData extends AbstractRecordGroup<PsseBus> {
     @Override
     public Class<PsseBus> psseTypeClass() {
         return PsseBus.class;
-    }
-
-    @Override
-    public List<PsseBus> psseModelRecords(PsseRawModel model) {
-        return model.getBuses();
     }
 
     @Override

@@ -6,10 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
-import java.util.List;
-
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseSwitchedShunt;
 import com.powsybl.psse.model.PsseVersion;
 
@@ -56,11 +53,6 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
     @Override
     public Class<PsseSwitchedShunt> psseTypeClass() {
         return PsseSwitchedShunt.class;
-    }
-
-    @Override
-    public List<PsseSwitchedShunt> psseModelRecords(PsseRawModel model) {
-        return model.getSwitchedShunts();
     }
 
     @Override

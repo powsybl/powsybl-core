@@ -97,13 +97,6 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     @Override
-    public List<PsseCaseIdentification> psseModelRecords(PsseRawModel model) {
-        List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
-        caseIdentificationList.add(model.getCaseIdentification());
-        return caseIdentificationList;
-    }
-
-    @Override
     public String endOfBlockComment(PsseVersion version) {
         throw new PsseException("Should not occur");
     }
