@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.apache.commons.math3.complex.Complex;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,10 +72,10 @@ public final class StateVariablesExport {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + CgmesExportUtil.getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(context.getScenarioTime().toString("yyyy-MM-dd'T'HH:mm:ss"));
+        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(DateTime.now().toString());
+        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(DateTime.now()));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
         writer.writeCharacters(context.getSvDescription());
