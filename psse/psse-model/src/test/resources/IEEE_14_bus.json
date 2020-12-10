@@ -981,7 +981,7 @@
     "stat" : 1,
     "vecgrp" : "            ",
     "vmstar" : 1.0,
-    "windingRecord1" : {
+    "winding1" : {
       "windv" : 0.978,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1000,7 +1000,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord2" : {
+    "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1019,7 +1019,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord3" : {
+    "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1071,7 +1071,7 @@
     "stat" : 1,
     "vecgrp" : "            ",
     "vmstar" : 1.0,
-    "windingRecord1" : {
+    "winding1" : {
       "windv" : 0.969,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1090,7 +1090,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord2" : {
+    "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1109,7 +1109,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord3" : {
+    "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1161,7 +1161,7 @@
     "stat" : 1,
     "vecgrp" : "            ",
     "vmstar" : 1.0,
-    "windingRecord1" : {
+    "winding1" : {
       "windv" : 0.932,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1180,7 +1180,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord2" : {
+    "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
@@ -1199,7 +1199,7 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
-    "windingRecord3" : {
+    "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,

@@ -281,7 +281,7 @@ public class PsseImporter implements Importer {
         double baskv2 = busNumToPsseBus.get(psseTfo.getJ()).getBaskv();
         double zb2 = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getSb();
         double sbase12 = psseTfo.getSbase12();
-        double nomV1 = psseTfo.getWindingRecord1().getNomv();
+        double nomV1 = psseTfo.getWinding1().getNomv();
 
         //handling impedance and admittance
         // CZ = 1 the triangle values are already in right pu
@@ -301,8 +301,8 @@ public class PsseImporter implements Importer {
 
         // Handling terminal ratios
         //default value when Cw = 1
-        double w1 = psseTfo.getWindingRecord1().getWindv();
-        double w2 = psseTfo.getWindingRecord2().getWindv();
+        double w1 = psseTfo.getWinding1().getWindv();
+        double w2 = psseTfo.getWinding2().getWindv();
         if (psseTfo.getCw() == 2) {
             // case where Cw = 2
             w1 = w1 / baskv1;
@@ -347,13 +347,13 @@ public class PsseImporter implements Importer {
                     .add();
 
             //Phase Shift Transformer
-            if (psseTfo.getWindingRecord1().getAng() != 0) {
+            if (psseTfo.getWinding1().getAng() != 0) {
                 PhaseTapChangerAdder phaseTapChangerAdder = tfo2W.newPhaseTapChanger()
                         .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                         .setRegulating(false)
                         .setTapPosition(0);
                 List<Double> alphas = new ArrayList<>();
-                alphas.add(-psseTfo.getWindingRecord1().getAng());  //TODO : check angle and angle units (supposed in degrees)
+                alphas.add(-psseTfo.getWinding1().getAng());  //TODO : check angle and angle units (supposed in degrees)
                 // TODO create full table
                 for (double alpha : alphas) {
                     phaseTapChangerAdder.beginStep()
@@ -369,10 +369,10 @@ public class PsseImporter implements Importer {
             }
 
             //TODO support phase shift on all ends of the Tfo
-            if (psseTfo.getWindingRecord2().getAng() != 0) {
+            if (psseTfo.getWinding2().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 2 not yet supported  ", id);
             }
-            if (psseTfo.getK() != 0 && psseTfo.getWindingRecord3().getAng() != 0) {
+            if (psseTfo.getK() != 0 && psseTfo.getWinding3().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
             }
 
@@ -389,7 +389,7 @@ public class PsseImporter implements Importer {
             double baskv3 = busNumToPsseBus.get(psseTfo.getK()).getBaskv();
 
             // Cw = 1
-            double w3 = psseTfo.getWindingRecord3().getWindv();
+            double w3 = psseTfo.getWinding3().getWindv();
             if (psseTfo.getCw() == 2) {
                 // Cw = 2 : conversion of kV into ratio
                 w3 = w3 / baskv3;

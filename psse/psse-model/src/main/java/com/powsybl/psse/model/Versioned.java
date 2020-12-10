@@ -36,7 +36,6 @@ public class Versioned {
             throw new PsseException("Wrong field name " + fieldName, e);
         }
 
-        field.setAccessible(true);
         checkVersionField(field, fieldName);
     }
 
@@ -57,7 +56,6 @@ public class Versioned {
             throw new PsseException("Wrong field name " + fieldName, e);
         }
 
-        field.setAccessible(true);
         checkVersionField(field, fieldName);
     }
 
