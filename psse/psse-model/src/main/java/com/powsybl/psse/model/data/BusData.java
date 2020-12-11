@@ -12,37 +12,28 @@ import com.powsybl.psse.model.PsseVersion;
 
 import java.io.OutputStream;
 
+import static com.powsybl.psse.model.PsseVersion.VERSION_33;
+import static com.powsybl.psse.model.PsseVersion.VERSION_35;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class BusData extends AbstractRecordGroup<PsseBus> {
 
-    private static final String[] FIELD_NAMES_35 = {"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
-    private static final String[] FIELD_NAMES_33 = {"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo"};
     private static final String[] QUOTED_FIELDS = {"name"};
 
     BusData() {
         super(PsseRecordGroup.BUS);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-                return FIELD_NAMES_35;
-            case VERSION_33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(VERSION_33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
+        withFieldNames(VERSION_35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
     }
 
     @Override
     public String[] quotedFields(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
+        switch (version.major()) {
+            case V33:
+            case V35:
                 return QUOTED_FIELDS;
             default:
                 throw new PsseException("Unsupported version " + version);

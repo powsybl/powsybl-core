@@ -40,7 +40,7 @@ public class RawXDataCommon implements RawData {
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try (InputStream is = dataSource.newInputStream(null, ext)) {
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(is), new Context());
-            return PsseVersion.fromNumber(caseIdentification.getRev());
+            return PsseVersion.fromRevision(caseIdentification.getRev());
         }
     }
 

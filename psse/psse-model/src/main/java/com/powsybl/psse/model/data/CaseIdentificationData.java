@@ -24,12 +24,11 @@ import java.util.List;
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
-    private static final String[] FIELD_NAMES = {"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
     private static final String[] QUOTED_FIELDS = {"title1", "title2"};
     private static final String[] EXCLUDED_FIELDS = {"title1", "title2"};
 
     CaseIdentificationData() {
-        super(PsseRecordGroup.CASE_IDENTIFICATION);
+        super(PsseRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2");
     }
 
     PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
@@ -42,7 +41,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         caseIdentification.setTitle2(reader.readLine());
 
         context.setFieldNames(getRecordGroup(), headers);
-        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
         context.setRawx(false);
         return caseIdentification;
     }
@@ -63,7 +62,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     PsseCaseIdentification read1(JsonNode networkNode, Context context) {
         context.setDelimiter(",");
         PsseCaseIdentification caseIdentification = read(networkNode, context).get(0);
-        context.setVersion(PsseVersion.fromNumber(caseIdentification.getRev()));
+        context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
         context.setRawx(true);
         return caseIdentification;
     }
@@ -78,11 +77,6 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             context.getDelimiter().charAt(0));
 
         return new ArrayData(headers, stringList);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        return FIELD_NAMES;
     }
 
     @Override

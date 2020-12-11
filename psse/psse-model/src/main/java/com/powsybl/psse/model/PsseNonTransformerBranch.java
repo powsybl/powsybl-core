@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @JsonFilter("PsseVersionFilter")
-public class PsseNonTransformerBranch extends Versioned {
+public class PsseNonTransformerBranch extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -41,15 +41,15 @@ public class PsseNonTransformerBranch extends Versioned {
     private double b = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double ratea = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double rateb = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double ratec = 0;
 
     @Parsed
@@ -98,55 +98,55 @@ public class PsseNonTransformerBranch extends Versioned {
     private double f4 = 1;
 
     @Parsed(defaultNullRead = " ")
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private String name;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate1 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate2 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate3 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate4 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate5 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate6 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate7 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate8 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate9 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate10 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate11 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate12 = 0;
 
     public int getI() {

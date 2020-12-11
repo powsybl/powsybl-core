@@ -25,10 +25,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -39,12 +36,24 @@ public abstract class AbstractRecordGroup<T> {
     private static final Logger LOG = LoggerFactory.getLogger(Util.class);
 
     private final PsseRecordGroup recordGroup;
+    private final String[] fieldNames;
+    private final Map<PsseVersion, String[]> fieldNamesByVersion = new HashMap<>();
 
-    AbstractRecordGroup(PsseRecordGroup recordGroup) {
+    AbstractRecordGroup(PsseRecordGroup recordGroup, String... fieldNames) {
         this.recordGroup = recordGroup;
+        this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
     }
 
-    public abstract String[] fieldNames(PsseVersion version);
+    public void withFieldNames(PsseVersion version, String... fieldNames) {
+        fieldNamesByVersion.put(version, fieldNames);
+    }
+
+    public String[] fieldNames(PsseVersion version) {
+        if (fieldNames != null) {
+            return fieldNames;
+        }
+        return fieldNamesByVersion.get(version);
+    }
 
     public abstract String[] quotedFields(PsseVersion version);
 

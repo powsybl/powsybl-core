@@ -106,7 +106,7 @@ public class PsseCaseIdentification {
         if (ic == 1) {
             throw new PsseException("Incremental load of data option (IC = 1) is not supported");
         }
-        if (!PsseVersion.isSupported(rev)) {
+        if (!PsseVersion.fromRevision(rev).isSupported()) {
             throw new PsseException("Version " + rev + " not supported. Supported versions are: " + PsseVersion.supportedVersions());
         }
         if (sbase <= 0.) {

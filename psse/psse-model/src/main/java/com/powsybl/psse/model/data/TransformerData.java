@@ -72,9 +72,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     @Override
     public String[] quotedFields(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
+        switch (version.major()) {
+            case V35:
+            case V33:
                 return QUOTED_FIELDS;
             default:
                 throw new PsseException("Unsupported version " + version);
@@ -82,10 +82,10 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     public String[][] fieldNames3(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
+        switch (version.major()) {
+            case V35:
                 return FIELD_NAMES_3_35;
-            case VERSION_33:
+            case V33:
                 return FIELD_NAMES_3_33;
             default:
                 throw new PsseException("Unsupported version " + version);
@@ -93,10 +93,10 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     public String[][] fieldNames2(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
+        switch (version.major()) {
+            case V35:
                 return FIELD_NAMES_2_35;
-            case VERSION_33:
+            case V33:
                 return FIELD_NAMES_2_33;
             default:
                 throw new PsseException("Unsupported version " + version);

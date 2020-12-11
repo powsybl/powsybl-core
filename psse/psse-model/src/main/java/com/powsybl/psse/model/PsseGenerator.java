@@ -15,7 +15,7 @@ import com.univocity.parsers.annotations.Validate;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @JsonFilter("PsseVersionFilter")
-public class PsseGenerator extends Versioned {
+public class PsseGenerator extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -103,11 +103,11 @@ public class PsseGenerator extends Versioned {
     private double wpf = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int nreg = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int baslod = 0;
 
     public int getI() {

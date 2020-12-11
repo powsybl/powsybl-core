@@ -40,7 +40,7 @@ public class RawDataCommon implements RawData {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new Context());
             caseIdentification.validate();
-            return PsseVersion.fromNumber(caseIdentification.getRev());
+            return PsseVersion.fromRevision(caseIdentification.getRev());
         }
     }
 

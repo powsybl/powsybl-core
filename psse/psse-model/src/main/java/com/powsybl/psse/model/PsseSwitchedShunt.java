@@ -15,7 +15,7 @@ import com.univocity.parsers.annotations.Validate;
  * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
  */
 @JsonFilter("PsseVersionFilter")
-public class PsseSwitchedShunt extends Versioned {
+public class PsseSwitchedShunt extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
     @Validate
@@ -37,7 +37,7 @@ public class PsseSwitchedShunt extends Versioned {
     private double vswlo = 1.0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private int swrem = 0;
 
     @Parsed
@@ -98,47 +98,47 @@ public class PsseSwitchedShunt extends Versioned {
     private double b8 = 0.0;
 
     @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private String id;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int swreg = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int nreg = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s1 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s2 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s3 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s4 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s5 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s6 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s7 = 1;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int s8 = 1;
 
     public int getI() {

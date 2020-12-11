@@ -61,7 +61,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
             protected boolean include(PropertyWriter writer) {
-                PsseRev rev = writer.getAnnotation(PsseRev.class);
+                Revision rev = writer.getAnnotation(Revision.class);
                 return rev == null || (rev.since() <= version && version <= rev.until());
             }
         };

@@ -66,7 +66,7 @@ public class RawData33 extends RawDataCommon {
         Objects.requireNonNull(context);
         Objects.requireNonNull(dataSource);
 
-        if (context.getVersion() != PsseVersion.VERSION_33) {
+        if (!PsseVersion.VERSION_33.equals(context.getVersion())) {
             throw new PsseException("Unexpected version " + context.getVersion());
         }
 

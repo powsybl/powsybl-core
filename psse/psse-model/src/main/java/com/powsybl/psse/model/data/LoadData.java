@@ -27,10 +27,10 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     @Override
     public String[] fieldNames(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
+        switch (version.major()) {
+            case V35:
                 return FIELD_NAMES_35;
-            case VERSION_33:
+            case V33:
                 return FIELD_NAMES_33;
             default:
                 throw new PsseException("Unsupported version " + version);
@@ -39,10 +39,10 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
 
     @Override
     public String[] quotedFields(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
+        switch (version.major()) {
+            case V35:
                 return QUOTED_FIELDS_35;
-            case VERSION_33:
+            case V33:
                 return QUOTED_FIELDS_33;
             default:
                 throw new PsseException("Unsupported version " + version);

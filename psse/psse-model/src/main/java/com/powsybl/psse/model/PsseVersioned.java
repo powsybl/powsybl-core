@@ -8,15 +8,17 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
+
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-@interface PsseRev {
-    static final int UNLIMITED = 9999;
-    int since() default 33;
-    int until() default UNLIMITED;
+@interface Revision {
+    static final float MAX_REVISION = 99.99f;
+    float since() default 33.0f;
+    float until() default MAX_REVISION;
 }
 
-public class Versioned {
+public class PsseVersioned {
     private PsseRawModel model = null;
 
     public void setModel(PsseRawModel model) {
@@ -60,21 +62,22 @@ public class Versioned {
     }
 
     private void checkVersionField(Field field, String fieldName) {
-        if (!field.isAnnotationPresent(PsseRev.class)) {
+        if (!field.isAnnotationPresent(Revision.class)) {
             throw new PsseException("Missing PsseRev annotation in field " + fieldName);
         }
-        int since = field.getAnnotation(PsseRev.class).since();
-        int until = field.getAnnotation(PsseRev.class).until();
-        int version = model.getCaseIdentification().getRev();
-        if (!(since <= version && version <= until)) {
+        PsseVersion since = PsseVersion.fromRevision(field.getAnnotation(Revision.class).since());
+        PsseVersion until = PsseVersion.fromRevision(field.getAnnotation(Revision.class).until());
+        PsseVersion current = PsseVersion.fromRevision(model.getCaseIdentification().getRev());
+        if (!(since.getNumber() <= current.getNumber() && current.getNumber() <= until.getNumber())) {
             String message = String.format(
                 "Wrong version of PSSE RAW model (%d). Field '%s' is valid since version %d%s",
-                version,
+                current.getMajor(),
                 fieldName,
-                since,
-                until != PsseRev.UNLIMITED ? " until " + until : "");
+                since.getMajor(),
+                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until.getMajor() : "");
             throw new PsseException(message);
         }
     }
+
 }
 

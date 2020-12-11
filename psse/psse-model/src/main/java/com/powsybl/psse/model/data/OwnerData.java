@@ -26,10 +26,10 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
     @Override
     public String[] fieldNames(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
+        switch (version.major()) {
+            case V35:
                 return FIELD_NAMES_35;
-            case VERSION_33:
+            case V33:
                 return FIELD_NAMES_33;
             default:
                 throw new PsseException("Unsupported version " + version);
@@ -38,9 +38,9 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
     @Override
     public String[] quotedFields(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
+        switch (version.major()) {
+            case V35:
+            case V33:
                 return QUOTED_FIELDS;
             default:
                 throw new PsseException("Unsupported version " + version);

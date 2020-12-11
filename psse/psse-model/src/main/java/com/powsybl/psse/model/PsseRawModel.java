@@ -127,8 +127,8 @@ public class PsseRawModel {
         return switchedShunts;
     }
 
-    private <T extends Versioned> List<T> modelled(List<T> elements) {
-        for (Versioned v : elements) {
+    private <T extends PsseVersioned> List<T> modelled(List<T> elements) {
+        for (PsseVersioned v : elements) {
             v.setModel(this);
         }
         return elements;

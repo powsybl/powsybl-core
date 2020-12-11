@@ -21,7 +21,7 @@ import java.lang.reflect.Field;
 
 @JsonPropertyOrder(alphabetic = true)
 @JsonFilter("PsseVersionFilter")
-public class PsseTransformer extends Versioned {
+public class PsseTransformer extends PsseVersioned {
 
     public void setModel(PsseRawModel model) {
         super.setModel(model);
@@ -98,7 +98,7 @@ public class PsseTransformer extends Versioned {
     private String vecgrp = "            ";
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int zcod = 0;
 
     @Parsed(field = {"r12", "r1_2"})

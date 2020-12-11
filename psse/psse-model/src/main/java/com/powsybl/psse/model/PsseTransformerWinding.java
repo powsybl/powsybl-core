@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.univocity.parsers.annotations.Parsed;
 
 @JsonFilter("PsseVersionFilter")
-public class PsseTransformerWinding extends Versioned {
+public class PsseTransformerWinding extends PsseVersioned {
     @Parsed
     private double windv = Double.NaN;
 
@@ -15,63 +15,63 @@ public class PsseTransformerWinding extends Versioned {
     private double ang = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double rata = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double ratb = 0;
 
     @Parsed
-    @PsseRev(until = 33)
+    @Revision(until = 33)
     private double ratc =  0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate1 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate2 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate3 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate4 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate5 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate6 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate7 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate8 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate9 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate10 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate11 = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private double rate12 = 0;
 
     @Parsed
@@ -81,7 +81,7 @@ public class PsseTransformerWinding extends Versioned {
     private int cont = 0;
 
     @Parsed
-    @PsseRev(since = 35)
+    @Revision(since = 35)
     private int node = 0;
 
     @Parsed

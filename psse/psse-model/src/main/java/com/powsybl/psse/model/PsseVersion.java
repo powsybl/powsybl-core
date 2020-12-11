@@ -6,46 +6,101 @@
  */
 package com.powsybl.psse.model;
 
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * @author Mathieu BAGUE {@literal <mathieu.bague at rte-france.com>}
  */
-public enum PsseVersion {
-    VERSION_33(33),
-    VERSION_35(35);
+public final class PsseVersion {
+    private static final int MAJOR_FACTOR = 100;
+    private static final int MINOR_FACTOR = 100;
 
-    private static final Map<Integer, PsseVersion> BY_NUMBER = Arrays.stream(values())
-            .collect(Collectors.toMap(PsseVersion::getNumber, Function.identity()));
+    public static final PsseVersion VERSION_33 = new PsseVersion(33 * MAJOR_FACTOR);
+    public static final PsseVersion VERSION_35 = new PsseVersion(35 * MAJOR_FACTOR);
+    static final PsseVersion MAX_VERSION = PsseVersion.fromRevision(Revision.MAX_REVISION);
 
-    private static final String ALL_VERSIONS = Arrays.stream(values())
-            .map(PsseVersion::getNumber)
-            .sorted()
-            .map(String::valueOf)
-            .collect(Collectors.joining(", "));
+    private static final List<PsseVersion> SUPPORTED_VERSIONS = Arrays.asList(VERSION_33, VERSION_35);
+    private static final Set<Integer> SUPPORTED_MAJORS = SUPPORTED_VERSIONS.stream().map(PsseVersion::getMajor).collect(Collectors.toSet());
+    private static final String STR_SUPPORTED_MAJORS = SUPPORTED_MAJORS.stream()
+        .sorted()
+        .map(v -> v.toString())
+        .collect(Collectors.joining(", "));
 
     private final int number;
 
-    PsseVersion(int number) {
+    private PsseVersion(int number) {
         this.number = number;
+    }
+
+    public int getMajor() {
+        return number / MAJOR_FACTOR;
     }
 
     public int getNumber() {
         return number;
     }
 
-    public static PsseVersion fromNumber(int number) {
-        return BY_NUMBER.get(number);
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        PsseVersion that = (PsseVersion) o;
+        return number == that.number;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(number);
+    }
+
+    public static PsseVersion fromRevision(float revisionNumber) {
+        return new PsseVersion(numberFromRevision(revisionNumber));
     }
 
     public static String supportedVersions() {
-        return ALL_VERSIONS;
+        return STR_SUPPORTED_MAJORS;
     }
 
-    public static boolean isSupported(int rev) {
-        return BY_NUMBER.containsKey(rev);
+    public boolean isSupported() {
+        return SUPPORTED_MAJORS.contains(getMajor());
+    }
+
+    private static int numberFromRevision(float revision) {
+        int major = (int) Math.floor(revision);
+        int minor = ((int) revision - major) * MINOR_FACTOR;
+        return major * MAJOR_FACTOR + minor;
+    }
+
+    // XXX(Luma) Temporal solution while removing too many references to versions
+
+    public Major major() {
+        return Major.fromNumber(getMajor());
+    }
+
+    public enum Major {
+        V33(33),
+        V35(35);
+        int number;
+
+        private static final Map<Integer, Major> BY_NUMBER = Arrays.stream(values())
+            .collect(Collectors.toMap(Major::getNumber, Function.identity()));
+
+        private static final Major fromNumber(int major) {
+            return BY_NUMBER.get(major);
+        }
+
+        private Major(int major) {
+            this.number = major;
+        }
+
+        private int getNumber() {
+            return number;
+        }
     }
 }

@@ -33,10 +33,10 @@ public final class RawDataFactory {
         if (extension.equalsIgnoreCase("rawx")) {
             return new RawXData35();
         } else {
-            switch (version) {
-                case VERSION_35:
+            switch (version.major()) {
+                case V35:
                     return new RawData35();
-                case VERSION_33:
+                case V33:
                     return new RawData33();
                 default:
                     throw new PsseException("Unsupported version " + version);
