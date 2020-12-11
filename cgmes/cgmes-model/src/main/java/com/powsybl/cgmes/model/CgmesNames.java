@@ -97,6 +97,7 @@ public final class CgmesNames {
     public static final String TABULAR = "tabular";
     public static final String TCUL_CONTROL_MODE = "tculControlMode";
     public static final String TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
+    public static final String PHASE_TAP_CHANGER_TABULAR = "PhaseTapChangerTabular";
 
     private CgmesNames() {
     }
