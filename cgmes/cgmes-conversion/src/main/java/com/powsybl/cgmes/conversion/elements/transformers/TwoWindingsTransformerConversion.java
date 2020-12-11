@@ -99,6 +99,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         setToIidmPhaseTapChanger(convertedT2xModel, tx);
 
         setRegulatingControlContext(convertedT2xModel, tx);
+        addCgmesReferences(tx, convertedT2xModel.end1.ratioTapChanger);
+        addCgmesReferences(tx, convertedT2xModel.end1.phaseTapChanger);
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
