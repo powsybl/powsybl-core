@@ -13,6 +13,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
@@ -165,6 +166,12 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testMissingPermanentLimit() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport_withoutPermanentLimit.uct");
         testExporter(network, "/expectedExport_withoutPermanentLimit.uct");
+    }
+
+    @Test
+    public void testXnodeTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xNodeTransformer.uct");
+        testExporter(network, "/xNodeTransformer.uct");
     }
 
 }

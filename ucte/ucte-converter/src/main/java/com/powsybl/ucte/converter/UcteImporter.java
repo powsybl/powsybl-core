@@ -268,6 +268,7 @@ public class UcteImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
                 .setId(ucteLine.getId().toString())
+                .setName(xnode.getGeographicalName())
                 .setBus(connected ? nodeCode.toString() : null)
                 .setConnectableBus(nodeCode.toString())
                 .setR(ucteLine.getResistance())
@@ -579,6 +580,7 @@ public class UcteImporter implements Importer {
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
+        addGeographicalNameProperty(ucteXnode, yDanglingLine);
 
         String voltageLevelId1;
         String voltageLevelId2;
