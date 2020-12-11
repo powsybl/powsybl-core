@@ -29,9 +29,11 @@ public class PsseCaseIdentification {
     private double sbase = 100;
 
     @Parsed
-    // TODO(Luma) We will use first format for writing, so always write only major version
-    // TODO(Luma) Review we want to accept numbers with zero, one or two decimal places
-    @Format(formats = {"0", "0.0", "0.00"})
+    // Accept floats and write a maximum of two decimal places
+    // Do not write decimal point if decimal part is 0
+    @Format(formats = {"0.##"})
+    // Similar way writing revision for Json,
+    // but relying on PsseVersion class
     @JsonSerialize(using = RevisionSerializer.class)
     private float rev = 33;
 
