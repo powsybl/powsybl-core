@@ -11,7 +11,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;

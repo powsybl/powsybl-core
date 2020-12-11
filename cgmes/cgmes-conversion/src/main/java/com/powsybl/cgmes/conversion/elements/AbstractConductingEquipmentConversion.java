@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -452,8 +453,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 return;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
-            if (context.nodeBreaker()) {
-                identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE + i, td.busId);
+            if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+                CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+                mapping.put(identifiable.getId(), i, td.t.topologicalNode());
             }
             i++;
         }

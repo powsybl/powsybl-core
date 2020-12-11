@@ -12,8 +12,9 @@ import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.conversion.extensions.CgmesIidmMappingAdder;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -154,6 +155,11 @@ public class Conversion {
         addCgmesSshMetadata(network);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
+            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
+            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            mappingAdder.add();
+        }
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 

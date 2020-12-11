@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.elements.CgmesTopologyKind;
+import com.powsybl.cgmes.conversion.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
@@ -15,15 +16,18 @@ import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.Network;
 import org.joda.time.DateTime;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesExportContext {
+
+    public enum TopologicalMappingUse {
+        MAPPING_ONLY,
+        PARTIAL_MAPPING,
+        NO_MAPPING
+    }
 
     private int cimVersion = 16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
@@ -33,6 +37,11 @@ public class CgmesExportContext {
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
     private boolean exportBoundaryPowerFlows = false;
+
+    private final Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping = new HashMap<>();
+
+    private TopologicalMappingUse topologicalMappingUse = TopologicalMappingUse.NO_MAPPING;
+    private final Set<String> unmappedTopologicalNodes = new HashSet<>();
 
     public static final class ModelDescription {
 
@@ -122,6 +131,12 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
+        CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
+        if (cgmesIidmMapping != null) {
+            topologicalMappingUse = TopologicalMappingUse.MAPPING_ONLY;
+            topologicalNodeByBusBreakerBusMapping.putAll(cgmesIidmMapping.toMap());
+            unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
+        }
     }
 
     public CgmesExportContext() {
@@ -173,5 +188,41 @@ public class CgmesExportContext {
 
     public String getCimNamespace() {
         return CgmesNamespace.getCimNamespace(cimVersion);
+    }
+
+    public CgmesExportContext setTopologicalMappingUse(TopologicalMappingUse topologicalMappingUse) {
+        this.topologicalMappingUse = Objects.requireNonNull(topologicalMappingUse);
+        return this;
+    }
+
+    public Set<String> getTopologicalNodesByBusBreakerBus(String busId) {
+        if (topologicalMappingUse == TopologicalMappingUse.MAPPING_ONLY) {
+            return topologicalNodeByBusBreakerBusMapping.get(busId);
+        } else if (topologicalMappingUse == TopologicalMappingUse.NO_MAPPING) {
+            return Collections.singleton(busId);
+        } else if (topologicalMappingUse == TopologicalMappingUse.PARTIAL_MAPPING) {
+            return Optional.ofNullable(topologicalNodeByBusBreakerBusMapping.get(busId)).orElseGet(() -> Collections.singleton(busId));
+        }
+        throw new AssertionError("Unexpected mapping use: " + topologicalMappingUse);
+    }
+
+    public CgmesExportContext setTopologicalNodeByBusBreakerBusMapping(Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping) {
+        this.topologicalNodeByBusBreakerBusMapping.clear();
+        this.topologicalNodeByBusBreakerBusMapping.putAll(topologicalNodeByBusBreakerBusMapping);
+        return this;
+    }
+
+    public Set<String> getUnmappedTopologicalNodes() {
+        return Collections.unmodifiableSet(unmappedTopologicalNodes);
+    }
+
+    public void isMapped(String mappedTopologicalNode) {
+        this.unmappedTopologicalNodes.remove(mappedTopologicalNode);
+    }
+
+    public CgmesExportContext setUnmappedTopologicalNodes(Set<String> unmappedTopologicalNodes) {
+        this.unmappedTopologicalNodes.clear();
+        this.unmappedTopologicalNodes.addAll(unmappedTopologicalNodes);
+        return this;
     }
 }

@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.complexVoltage;
-import static com.powsybl.cgmes.model.CgmesNamespace.*;
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -49,10 +49,14 @@ public final class StateVariablesExport {
             if (context.getCimVersion() == 16) {
                 CgmesExportUtil.writeModelDescription(writer, context.getSvModelDescription(), context);
                 writeTopologicalIslands(network, cimNamespace, writer, context);
+                // Note: unmapped topological nodes (node breaker) & boundary topological nodes are not written in topological islands
             }
 
             writeVoltagesForTopologicalNodes(network, cimNamespace, writer, context);
-            writeVoltagesForBoundaryNodes(network, cimNamespace, writer);
+            writeVoltagesForBoundaryNodes(network, cimNamespace, writer, context);
+            for (String tn : context.getUnmappedTopologicalNodes()) {
+                writeVoltage(tn, 0.0, 0.0, cimNamespace, writer);
+            }
             writePowerFlows(network, cimNamespace, writer, context);
             writeShuntCompensatorSections(network, cimNamespace, writer);
             writeTapSteps(network, cimNamespace, writer);
@@ -168,11 +172,12 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeVoltagesForBoundaryNodes(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
             Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
             if (topologicalNode.isPresent()) {
+                context.isMapped(topologicalNode.get());
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), cimNamespace, writer);
                 } else if (b != null) {
