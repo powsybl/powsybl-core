@@ -17,6 +17,8 @@ public class DefaultNetworkReducerBuilder {
 
     private ReductionOptions options = new ReductionOptions();
 
+    private ReducerNamingStrategy reducerNamingStrategy = new DefaultReducerNamingStrategy();
+
     private List<NetworkReducerObserver> observers = new ArrayList<>();
 
     public DefaultNetworkReducerBuilder withNetworkPredicate(NetworkPredicate predicate) {
@@ -45,7 +47,12 @@ public class DefaultNetworkReducerBuilder {
         return this;
     }
 
+    public DefaultNetworkReducerBuilder withNamingStrategy(ReducerNamingStrategy reducerNamingStrategy) {
+        this.reducerNamingStrategy = Objects.requireNonNull(reducerNamingStrategy);
+        return this;
+    }
+
     public DefaultNetworkReducer build() {
-        return new DefaultNetworkReducer(predicate, options, observers);
+        return new DefaultNetworkReducer(predicate, options, reducerNamingStrategy, observers);
     }
 }
