@@ -20,11 +20,15 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -66,19 +70,18 @@ public abstract class AbstractRecordGroup<T> {
 
     static void readAndIgnore(PsseRecordGroup recordGroup, BufferedReader reader) throws IOException {
         LOG.debug("read and ignore record group {}", recordGroup);
-        String firstToken;
+        int number = -1;
         do {
             String line = reader.readLine();
             if (line == null) {
                 throw new PsseException("Unexpected end of file");
             }
-            String[] tokens = line.split("[, ]");
-            if (tokens.length < 1) {
-                throw new PsseException("Malformed line: " + line);
+            Scanner scanner = new Scanner(line);
+            if (scanner.hasNextInt()) {
+                number = scanner.nextInt();
             }
-            firstToken = tokens[0];
         }
-        while (!firstToken.equals("0"));
+        while (!(number == 0));
     }
 
     public void write(List<T> psseObjects, Context context, OutputStream outputStream) {
