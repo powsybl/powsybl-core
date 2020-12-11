@@ -36,7 +36,7 @@ public class CgmesExportContext {
 
     public static final class ModelDescription {
 
-        private String description = "Model";
+        private String description;
         private int version = 1;
         private final List<String> dependencies = new ArrayList<>();
         private String modelingAuthoritySet = "powsybl.org";
