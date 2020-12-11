@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Test;
