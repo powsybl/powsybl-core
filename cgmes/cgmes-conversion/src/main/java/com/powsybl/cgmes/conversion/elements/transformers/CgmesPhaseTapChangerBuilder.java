@@ -23,27 +23,29 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder {
 
+    private final String type;
+    private final String tableId;
     private final double xtx;
 
     CgmesPhaseTapChangerBuilder(PropertyBag phaseTapChanger, double xtx, Context context) {
         super(phaseTapChanger, context);
+        this.type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
+        this.tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         this.xtx = xtx;
     }
 
     @Override
     public TapChanger build() {
         if (!validType()) {
-            Supplier<String> type = () -> "Unexpected type " + p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-            context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, type);
+            Supplier<String> utype = () -> "Unexpected type " + this.type;
+            context.invalid(CgmesNames.PHASE_TAP_CHANGER_TYPE, utype);
             return null;
         }
         return super.build();
     }
 
     private boolean validType() {
-        String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
-        String type = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        return isLinear(type) || isTabular(type, tableId) || isSymmetrical(type) || isAsymmetrical(type);
+        return isLinear() || isTabular() || isSymmetrical() || isAsymmetrical();
     }
 
     @Override
@@ -57,15 +59,13 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
 
     @Override
     protected void addSteps() {
-        String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
-        String phaseTapChangerType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE).toLowerCase();
-        if (isLinear(phaseTapChangerType)) {
+        if (isLinear()) {
             addStepsLinear();
-        } else if (isTabular(phaseTapChangerType, tableId)) {
-            addStepsFromTable(tableId);
-        } else if (isAsymmetrical(phaseTapChangerType)) {
+        } else if (isTabular()) {
+            addStepsFromTable();
+        } else if (isAsymmetrical()) {
             addStepsAsymmetrical();
-        } else if (isSymmetrical(phaseTapChangerType)) {
+        } else if (isSymmetrical()) {
             addStepsSymmetrical();
         } else {
             // Add a single step with default values by default
@@ -91,7 +91,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         stepXforLinearAndSymmetrical();
     }
 
-    private void addStepsFromTable(String tableId) {
+    private void addStepsFromTable() {
         PropertyBags table = context.phaseTapChangerTable(tableId);
         if (table == null) {
             return;
@@ -214,19 +214,19 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
-    private static boolean isLinear(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith(CgmesNames.LINEAR);
+    private boolean isLinear() {
+        return type != null && type.endsWith(CgmesNames.LINEAR);
     }
 
-    private static boolean isTabular(String tapChangerType, String tableId) {
-        return tableId != null && tapChangerType != null && tapChangerType.endsWith(CgmesNames.TABULAR);
+    private boolean isTabular() {
+        return tableId != null && type != null && type.endsWith(CgmesNames.TABULAR);
     }
 
-    private static boolean isSymmetrical(String tapChangerType) {
-        return tapChangerType != null && !tapChangerType.endsWith(CgmesNames.ASYMMETRICAL) && tapChangerType.endsWith(CgmesNames.SYMMETRICAL);
+    private boolean isSymmetrical() {
+        return type != null && !type.endsWith(CgmesNames.ASYMMETRICAL) && type.endsWith(CgmesNames.SYMMETRICAL);
     }
 
-    private static boolean isAsymmetrical(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith(CgmesNames.ASYMMETRICAL);
+    private boolean isAsymmetrical() {
+        return type != null && type.endsWith(CgmesNames.ASYMMETRICAL);
     }
 }
