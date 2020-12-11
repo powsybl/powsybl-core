@@ -8,7 +8,6 @@ package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.data.JsonModel.ArrayData;
@@ -30,7 +29,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     private static final String[] EXCLUDED_FIELDS = {"title1", "title2"};
 
     CaseIdentificationData() {
-        super(PsseRecordGroup.CASE_IDENTIFICATION_DATA);
+        super(PsseRecordGroup.CASE_IDENTIFICATION);
     }
 
     PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
@@ -94,10 +93,5 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     @Override
     public Class<PsseCaseIdentification> psseTypeClass() {
         return PsseCaseIdentification.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        throw new PsseException("Should not occur");
     }
 }

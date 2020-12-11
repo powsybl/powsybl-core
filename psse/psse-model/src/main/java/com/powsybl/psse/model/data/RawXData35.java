@@ -129,8 +129,6 @@ public class RawXData35 extends RawXDataCommon {
         // XXX(Luma) We should not need this kind of adjustments
         String adjustedJson = StringUtils.replaceEach(json, new String[] {"\"[", "]\"", "\\\""}, new String[] {"[", "]", "\""});
         outputStream.write(adjustedJson.getBytes(StandardCharsets.UTF_8));
-
-        outputStream.close();
     }
 
     private boolean arrayDataIsEmpty(ArrayData arrayData) {

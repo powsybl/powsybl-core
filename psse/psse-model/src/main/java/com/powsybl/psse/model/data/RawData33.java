@@ -12,13 +12,15 @@ import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
+
+import static com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup.*;
+import static com.powsybl.psse.model.data.AbstractRecordGroup.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -41,18 +43,18 @@ public class RawData33 extends RawDataCommon {
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
             // TODO complete discarded record groups
-            Util.readDiscardedRecordGroup(PsseRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE_DATA, reader);
-            Util.readDiscardedRecordGroup(PsseRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_DATA, reader);
-            Util.readDiscardedRecordGroup(PsseRecordGroup.TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, reader);
-            Util.readDiscardedRecordGroup(PsseRecordGroup.MULTI_SECTION_LINE_GROUPING_DATA, reader);
-            Util.readDiscardedRecordGroup(PsseRecordGroup.MULTI_SECTION_LINE_GROUPING_DATA, reader);
+            readAndIgnore(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
+            readAndIgnore(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
+            readAndIgnore(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, reader);
+            readAndIgnore(MULTI_SECTION_LINE_GROUPING, reader);
+            readAndIgnore(MULTI_SECTION_LINE_GROUPING, reader);
             model.addZones(new ZoneData().read(reader, context));
-            Util.readDiscardedRecordGroup(PsseRecordGroup.INTERAREA_TRANSFER_DATA, reader);
+            readAndIgnore(INTERAREA_TRANSFER, reader);
             model.addOwners(new OwnerData().read(reader, context));
-            Util.readDiscardedRecordGroup(PsseRecordGroup.FACTS_DEVICE_DATA, reader);
+            readAndIgnore(FACTS_CONTROL_DEVICE, reader);
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
-            Util.readDiscardedRecordGroup(PsseRecordGroup.GNE_DEVICE_DATA, reader);
-            Util.readDiscardedRecordGroup(PsseRecordGroup.INDUCTION_MACHINE_DATA, reader);
+            readAndIgnore(GNE_DEVICE, reader);
+            readAndIgnore(INDUCTION_MACHINE, reader);
 
             return model;
         }
@@ -81,26 +83,24 @@ public class RawData33 extends RawDataCommon {
         new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
         new GeneratorData().write(model.getGenerators(), context, outputStream);
         new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
-
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
 
-        Util.writeEndOfBlockAndComment("END OF TWO-TERMINAL DC DATA, BEGIN VOLTAGE SOURCE CONVERTER DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF VOLTAGE SOURCE CONVERTER DATA, BEGIN IMPEDANCE CORRECTION DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF IMPEDANCE CORRECTION DATA, BEGIN MULTI-TERMINAL DC DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF MULTI-TERMINAL DC DATA, BEGIN MULTI-SECTION LINE DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF MULTI-SECTION LINE DATA, BEGIN ZONE DATA", outputStream);
+        writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
+        writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
+        writeEmpty(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, outputStream);
+        writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
+        writeEmpty(MULTI_SECTION_LINE_GROUPING, outputStream);
 
         new ZoneData().write(model.getZones(), context, outputStream);
-        Util.writeEndOfBlockAndComment("END OF INTER-AREA TRANSFER DATA, BEGIN OWNER DATA", outputStream);
+        writeEmpty(INTERAREA_TRANSFER, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
 
-        Util.writeEndOfBlockAndComment("END OF FACTS CONTROL DEVICE DATA, BEGIN SWITCHED SHUNT DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF SWITCHED SHUNT DATA, BEGIN GNE DEVICE DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF GNE DEVICE DATA, BEGIN INDUCTION MACHINE DATA", outputStream);
-        Util.writeEndOfBlockAndComment("END OF INDUCTION MACHINE DATA", outputStream);
-        Util.writeQrecord(outputStream);
+        writeEmpty(FACTS_CONTROL_DEVICE, outputStream);
+        writeEmpty(SWITCHED_SHUNT, outputStream);
+        writeEmpty(GNE_DEVICE, outputStream);
+        writeEmpty(INDUCTION_MACHINE, outputStream);
 
-        outputStream.close();
+        writeQ(outputStream);
     }
 }

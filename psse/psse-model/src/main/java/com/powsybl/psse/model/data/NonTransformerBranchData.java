@@ -25,7 +25,7 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     private static final String[] QUOTED_FIELDS_33 = {"ckt"};
 
     NonTransformerBranchData() {
-        super(PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
+        super(PsseRecordGroup.NON_TRANSFORMER_BRANCH);
     }
 
     @Override
@@ -55,17 +55,5 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     @Override
     public Class<PsseNonTransformerBranch> psseTypeClass() {
         return PsseNonTransformerBranch.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-                return "END OF BRANCH DATA, BEGIN SYSTEM SWITCHING DEVICE DATA";
-            case VERSION_33:
-                return "END OF BRANCH DATA, BEGIN TRANSFORMER DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

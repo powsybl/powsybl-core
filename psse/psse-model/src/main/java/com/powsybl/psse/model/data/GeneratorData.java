@@ -22,7 +22,7 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
     private static final String[] QUOTED_FIELDS_33 = {"id"};
 
     GeneratorData() {
-        super(PsseRecordGroup.GENERATOR_DATA);
+        super(PsseRecordGroup.GENERATOR);
     }
 
     @Override
@@ -52,16 +52,5 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
     @Override
     public Class<PsseGenerator> psseTypeClass() {
         return PsseGenerator.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF GENERATOR DATA, BEGIN BRANCH DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

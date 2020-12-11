@@ -22,7 +22,7 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     private static final String[] QUOTED_FIELDS = {"zoname"};
 
     ZoneData() {
-        super(PsseRecordGroup.ZONE_DATA);
+        super(PsseRecordGroup.ZONE);
     }
 
     @Override
@@ -51,16 +51,5 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     @Override
     public Class<PsseZone> psseTypeClass() {
         return PsseZone.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF ZONE DATA, BEGIN INTER-AREA TRANSFER DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

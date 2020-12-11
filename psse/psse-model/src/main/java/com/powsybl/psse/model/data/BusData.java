@@ -10,6 +10,8 @@ import com.powsybl.psse.model.PsseBus;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 
+import java.io.OutputStream;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -21,7 +23,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
     private static final String[] QUOTED_FIELDS = {"name"};
 
     BusData() {
-        super(PsseRecordGroup.BUS_DATA);
+        super(PsseRecordGroup.BUS);
     }
 
     @Override
@@ -52,14 +54,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
         return PsseBus.class;
     }
 
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF BUS DATA, BEGIN LOAD DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+    protected void writeBegin(OutputStream outputStream) {
+        // We do not want to write a begin comment for Bus data records
     }
 }

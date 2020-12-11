@@ -13,14 +13,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
-
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -37,26 +33,7 @@ import java.util.regex.Pattern;
  */
 final class Util {
 
-    private static final Logger LOG = LoggerFactory.getLogger(Util.class);
-
     private Util() {
-    }
-
-    static void readDiscardedRecordGroup(PsseRecordGroup recordGroup, BufferedReader reader) throws IOException {
-        LOG.info("read discarded record group {}", recordGroup);
-        String firstToken;
-        do {
-            String line = reader.readLine();
-            if (line == null) {
-                throw new PsseException("Unexpected end of file");
-            }
-            String[] tokens = line.split("[, ]");
-            if (tokens.length < 1) {
-                throw new PsseException("Malformed line: " + line);
-            }
-            firstToken = tokens[0];
-        }
-        while (!firstToken.equals("0"));
     }
 
     static List<String> readRecords(BufferedReader reader) throws IOException {
@@ -166,20 +143,6 @@ final class Util {
             records.addAll(Arrays.asList(dataNodeArray));
         }
         return records;
-    }
-
-    static void writeEndOfBlock(OutputStream outputStream) {
-        writeString("0", outputStream);
-    }
-
-    static void writeEndOfBlockAndComment(String comment, OutputStream outputStream) {
-        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
-        writer.writeRow("0" + " / " + comment);
-        writer.flush();
-    }
-
-    static void writeQrecord(OutputStream outputStream) {
-        writeString("Q", outputStream);
     }
 
     static void writeListString(List<String> records, OutputStream outputStream) {

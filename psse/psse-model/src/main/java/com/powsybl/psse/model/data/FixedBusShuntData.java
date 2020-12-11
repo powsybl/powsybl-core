@@ -22,7 +22,7 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     private static final String[] QUOTED_FIELDS_33 = {"id"};
 
     public FixedBusShuntData() {
-        super(PsseRecordGroup.FIXED_BUS_SHUNT_DATA);
+        super(PsseRecordGroup.FIXED_BUS_SHUNT);
     }
 
     @Override
@@ -52,16 +52,5 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     @Override
     public Class<PsseFixedShunt> psseTypeClass() {
         return PsseFixedShunt.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF FIXED SHUNT DATA, BEGIN GENERATOR DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

@@ -21,7 +21,7 @@ class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
     private static final String[] QUOTED_FIELDS = {"arname"};
 
     AreaInterchangeData() {
-        super(PsseRecordGroup.AREA_INTERCHANGE_DATA);
+        super(PsseRecordGroup.AREA_INTERCHANGE);
     }
 
     @Override
@@ -50,16 +50,5 @@ class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
     @Override
     public Class<PsseArea> psseTypeClass() {
         return PsseArea.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF AREA DATA, BEGIN TWO-TERMINAL DC DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

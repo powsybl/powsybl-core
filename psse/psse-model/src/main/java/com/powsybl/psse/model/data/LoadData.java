@@ -22,7 +22,7 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
     private static final String[] QUOTED_FIELDS_33 = {"id"};
 
     LoadData() {
-        super(PsseRecordGroup.LOAD_DATA);
+        super(PsseRecordGroup.LOAD);
     }
 
     @Override
@@ -52,16 +52,5 @@ class LoadData extends AbstractRecordGroup<PsseLoad> {
     @Override
     public Class<PsseLoad> psseTypeClass() {
         return PsseLoad.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF LOAD DATA, BEGIN FIXED SHUNT DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

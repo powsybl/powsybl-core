@@ -99,11 +99,11 @@ public class Context {
     }
 
     public boolean is3wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(PsseRecordGroup.TRANSFORMER_3_DATA) == null;
+        return fieldNames.get(PsseRecordGroup.TRANSFORMER_3) == null;
     }
 
     public boolean is2wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(PsseRecordGroup.TRANSFORMER_2_DATA) == null;
+        return fieldNames.get(PsseRecordGroup.TRANSFORMER_2) == null;
     }
 
     public void resetCurrentRecordGroup() {

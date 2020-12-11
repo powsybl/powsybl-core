@@ -21,7 +21,7 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     private static final String[] QUOTED_FIELDS = {"owname"};
 
     OwnerData() {
-        super(PsseRecordGroup.OWNER_DATA);
+        super(PsseRecordGroup.OWNER);
     }
 
     @Override
@@ -50,16 +50,5 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     @Override
     public Class<PsseOwner> psseTypeClass() {
         return PsseOwner.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF OWNER DATA, BEGIN FACTS CONTROL DEVICE DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

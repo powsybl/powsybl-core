@@ -54,7 +54,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     private static final String[] QUOTED_FIELDS = {"ckt", "name", "vecgrp"};
 
     TransformerData() {
-        super(PsseRecordGroup.TRANSFORMER_DATA);
+        super(PsseRecordGroup.TRANSFORMER);
     }
 
     private static boolean is3winding(String record, String delimiter) {
@@ -139,7 +139,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             transformers.add(transformer);
 
             // Store actual field names for 2 and 3 winding transformers (overwrite previous value if present)
-            context.setFieldNames(is3winding ? PsseRecordGroup.TRANSFORMER_3_DATA : PsseRecordGroup.TRANSFORMER_2_DATA, fieldNames);
+            context.setFieldNames(is3winding ? PsseRecordGroup.TRANSFORMER_3 : PsseRecordGroup.TRANSFORMER_2, fieldNames);
         }
         return transformers;
     }
@@ -148,32 +148,39 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     public List<PsseTransformer> read(JsonNode networkNode, Context context) {
         List<PsseTransformer> transformers = super.read(networkNode, context);
         // Same field names for 2 and 3 winding transformers
-        context.setFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA, context.getFieldNames(PsseRecordGroup.TRANSFORMER_DATA));
-        context.setFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA, context.getFieldNames(PsseRecordGroup.TRANSFORMER_DATA));
+        context.setFieldNames(PsseRecordGroup.TRANSFORMER_2, context.getFieldNames(PsseRecordGroup.TRANSFORMER));
+        context.setFieldNames(PsseRecordGroup.TRANSFORMER_3, context.getFieldNames(PsseRecordGroup.TRANSFORMER));
         return transformers;
     }
 
     @Override
     public void write(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
+        writeBegin(outputStream);
+
         List<PsseTransformer> transformerList2w = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
         if (!transformerList2w.isEmpty()) {
-            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_2_DATA);
+            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_2);
             String[][] allFieldNames = fieldNames2(context.getVersion());
             this.<PsseTransformer>write(PsseTransformer.class, transformerList2w, allFieldNames, headers, context, outputStream, true);
         }
 
         List<PsseTransformer> transformerList3w = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
         if (!transformerList3w.isEmpty()) {
-            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_3_DATA);
+            String[] headers = context.getFieldNames(PsseRecordGroup.TRANSFORMER_3);
             String[][] allFieldNames = fieldNames3(context.getVersion());
             this.<PsseTransformer>write(PsseTransformer.class, transformerList3w, allFieldNames, headers, context, outputStream, false);
         }
 
-        Util.writeEndOfBlockAndComment(endOfBlockComment(context.getVersion()), outputStream);
+        writeEnd(outputStream);
     }
 
     private <T> void write(Class<T> aClass, List<T> transformerRecords, String[][] allFieldNames, String[] headers,
         Context context, OutputStream outputStream, boolean is2w) {
+
+        // XXX(Luma) Before writing to the output stream
+        // we are writing to a big array of strings simply to check that all corresponding sub-records
+        // of all transformers have the same number of fields
+        // we can get rid of that check and write directly to the outputstream
 
         String[] headers1 = Util.insideHeaders(allFieldNames[0], headers);
         List<String> r1 = writeBlock(aClass, transformerRecords, headers1, Util.insideHeaders(QUOTED_FIELDS, headers1), context.getDelimiter().charAt(0));
@@ -251,16 +258,5 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             k += fieldNames.length;
         }
         return actualFieldNames;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-            case VERSION_33:
-                return "END OF TRANSFORMER DATA, BEGIN AREA DATA";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }

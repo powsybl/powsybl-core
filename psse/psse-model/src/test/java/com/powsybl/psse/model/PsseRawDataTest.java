@@ -125,50 +125,50 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION_DATA);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS_DATA);
+        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD_DATA);
+        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"i", "id", "status", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT_DATA);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR_DATA);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"i", "j", "ckt", "r", "x", "b",
             "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj", "st", "met", "len", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"i", "j", "k", "ckt", "cw", "cz", "cm",
             "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r12", "x12", "sbase12",
             "windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
             "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2_DATA);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"i", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE_DATA);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"i", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE_DATA);
+        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"i", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER_DATA);
+        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 
@@ -220,23 +220,23 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"rev", "title1"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION_DATA);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "ide"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS_DATA);
+        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "pl", "ql"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD_DATA);
+        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR_DATA);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "xpu"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
     }
 
@@ -254,50 +254,50 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION_DATA);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS_DATA);
+        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD_DATA);
+        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"ibus", "shntid", "stat", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT_DATA);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR_DATA);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "rpu", "xpu", "bpu",
             "rate1", "rate2", "rate3", "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
             "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r1_2", "x1_2", "sbase1_2",
             "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
             "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2_DATA);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE_DATA);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"izone", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE_DATA);
+        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"iowner", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER_DATA);
+        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 
@@ -316,31 +316,31 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION_DATA);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS_DATA);
+        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "stat", "area", "zone", "pl", "ql",
             "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD_DATA);
+        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"ibus", "shntid", "stat", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT_DATA);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR_DATA);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name",
             "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12",
             "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH_DATA);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
@@ -348,19 +348,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
             "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "wdg1rate4", "wdg1rate5", "wdg1rate6", "wdg1rate7",
             "wdg1rate8", "wdg1rate9", "wdg1rate10", "wdg1rate11", "wdg1rate12", "cod1", "cont1", "node1", "rma1", "rmi1", "vma1",
             "vmi1", "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2_DATA);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE_DATA);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"izone", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE_DATA);
+        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"iowner", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER_DATA);
+        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 

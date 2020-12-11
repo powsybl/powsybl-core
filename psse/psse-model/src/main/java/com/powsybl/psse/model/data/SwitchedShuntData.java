@@ -23,7 +23,7 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
         "n1", "b1", "n2", "b2", "n3", "b3", "n4", "b4", "n5", "b5", "n6", "b6", "n7", "b7", "n8", "b8"};
 
     SwitchedShuntData() {
-        super(PsseRecordGroup.SWITCHED_SHUNT_DATA);
+        super(PsseRecordGroup.SWITCHED_SHUNT);
     }
 
     @Override
@@ -53,17 +53,5 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
     @Override
     public Class<PsseSwitchedShunt> psseTypeClass() {
         return PsseSwitchedShunt.class;
-    }
-
-    @Override
-    public String endOfBlockComment(PsseVersion version) {
-        switch (version) {
-            case VERSION_35:
-                return "pepe";
-            case VERSION_33:
-                return "pepe";
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 }
