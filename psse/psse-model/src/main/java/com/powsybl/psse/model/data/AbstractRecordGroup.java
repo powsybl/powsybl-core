@@ -76,9 +76,10 @@ public abstract class AbstractRecordGroup<T> {
             if (line == null) {
                 throw new PsseException("Unexpected end of file");
             }
-            Scanner scanner = new Scanner(line);
-            if (scanner.hasNextInt()) {
-                number = scanner.nextInt();
+            try (Scanner scanner = new Scanner(line)) {
+                if (scanner.hasNextInt()) {
+                    number = scanner.nextInt();
+                }
             }
         }
         while (!(number == 0));
