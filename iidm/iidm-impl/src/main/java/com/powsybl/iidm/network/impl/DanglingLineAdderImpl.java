@@ -19,12 +19,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     class GenerationAdderImpl implements GenerationAdder {
 
-        double minP = Double.NaN;
-        double maxP = Double.NaN;
-        double targetP = Double.NaN;
-        double targetQ = Double.NaN;
-        boolean voltageRegulationOn;
-        double targetV = Double.NaN;
+        private double minP = Double.NaN;
+        private double maxP = Double.NaN;
+        private double targetP = Double.NaN;
+        private double targetQ = Double.NaN;
+        private boolean voltageRegulationOn;
+        private double targetV = Double.NaN;
 
         @Override
         public GenerationAdder setTargetP(double targetP) {
@@ -69,6 +69,10 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
             generationAdder = this;
             return DanglingLineAdderImpl.this;
+        }
+
+        private DanglingLineImpl.GenerationImpl build() {
+            return new DanglingLineImpl.GenerationImpl(getNetwork(), minP, maxP, targetP, targetQ, targetV, voltageRegulationOn);
         }
     }
 
@@ -163,18 +167,14 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         ValidationUtil.checkG(this, g);
         ValidationUtil.checkB(this, b);
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode);
+        DanglingLineImpl.GenerationImpl generation = null;
+        if (generationAdder != null) {
+            generation = generationAdder.build();
+        }
+
+        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        if (generationAdder != null) {
-            danglingLine.setGeneration(new DanglingLineImpl.GenerationImpl(danglingLine,
-                    generationAdder.minP,
-                    generationAdder.maxP,
-                    generationAdder.targetP,
-                    generationAdder.targetQ,
-                    generationAdder.targetV,
-                    generationAdder.voltageRegulationOn));
-        }
         getNetwork().getIndex().checkAndAdd(danglingLine);
         getNetwork().getListeners().notifyCreation(danglingLine);
         return danglingLine;
