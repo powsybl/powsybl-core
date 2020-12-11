@@ -8,6 +8,7 @@ package com.powsybl.dynamicsimulation.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
@@ -31,12 +32,12 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
             @Override
             public String getLogs() {
-                return null;
+                return "";
             }
 
             @Override
             public Map<String, TimeSeries> getCurves() {
-                return Collections.emptyMap();
+                return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
             }
 
             @Override
@@ -46,7 +47,7 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
 
             @Override
             public StringTimeSeries getTimeLine() {
-                return null;
+                return DynamicSimulationResult.emptyTimeLine();
             }
         };
     }

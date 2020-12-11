@@ -8,6 +8,7 @@ package com.powsybl.dynamicsimulation;
 
 import java.util.Map;
 
+import com.powsybl.timeseries.RegularTimeSeriesIndex;
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
 
@@ -28,4 +29,17 @@ public interface DynamicSimulationResult {
      * The Timeline contains information about relevant events that may have happened during the time domain simulation.
      */
     StringTimeSeries getTimeLine();
+
+    /**
+     * The empty timeline (immutable).
+     */
+    static final StringTimeSeries EMPTY_TIMELINE = TimeSeries.createString("timeLine", new RegularTimeSeriesIndex(0, 0, 0));
+
+    /**
+     * Returns an empty timeline (immutable).
+     * @return an empty timeline
+     */
+    static StringTimeSeries emptyTimeLine() {
+        return EMPTY_TIMELINE;
+    }
 }

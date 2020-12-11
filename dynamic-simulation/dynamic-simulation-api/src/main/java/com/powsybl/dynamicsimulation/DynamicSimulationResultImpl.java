@@ -8,6 +8,7 @@ package com.powsybl.dynamicsimulation;
 
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 
 import com.powsybl.timeseries.StringTimeSeries;
 import com.powsybl.timeseries.TimeSeries;
@@ -25,8 +26,8 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
     public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
         this.status = status;
         this.logs = logs;
-        this.curves = curves;
-        this.timeLine = timeLine;
+        this.curves = Objects.requireNonNull(curves);
+        this.timeLine = Objects.requireNonNull(timeLine);
     }
 
     @Override

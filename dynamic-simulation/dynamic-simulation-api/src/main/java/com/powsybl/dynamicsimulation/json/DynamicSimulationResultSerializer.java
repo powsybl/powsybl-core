@@ -11,6 +11,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map.Entry;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -21,6 +22,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.timeseries.TimeSeries;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -34,12 +36,23 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
     }
 
     @Override
-    public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator,
-        SerializerProvider serializerProvider)
-        throws IOException {
+    public void serialize(DynamicSimulationResult result, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
         jsonGenerator.writeStringField("version", VERSION);
         jsonGenerator.writeBooleanField("isOK", result.isOk());
+        jsonGenerator.writeStringField("logs", result.getLogs());
+        jsonGenerator.writeFieldName("curves");
+        jsonGenerator.writeStartArray();
+        for (Entry<String, TimeSeries> entry : result.getCurves().entrySet()) {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeStringField("name", entry.getKey());
+            jsonGenerator.writeFieldName("curve");
+            entry.getValue().writeJson(jsonGenerator);
+            jsonGenerator.writeEndObject();
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeFieldName("timeLine");
+        result.getTimeLine().writeJson(jsonGenerator);
         jsonGenerator.writeEndObject();
     }
 
