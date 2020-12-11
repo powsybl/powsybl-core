@@ -6,9 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseLoad;
-import com.powsybl.psse.model.PsseVersion;
+
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,37 +17,11 @@ import com.powsybl.psse.model.PsseVersion;
  */
 class LoadData extends AbstractRecordGroup<PsseLoad> {
 
-    private static final String[] FIELD_NAMES_35 = {"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt", "dgenp", "dgenq", "dgenm", "loadtype"};
-    private static final String[] FIELD_NAMES_33 = {"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt"};
-    private static final String[] QUOTED_FIELDS_35 = {"loadid", "loadtype"};
-    private static final String[] QUOTED_FIELDS_33 = {"id"};
-
     LoadData() {
         super(PsseRecordGroup.LOAD);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_35;
-            case V33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return QUOTED_FIELDS_35;
-            case V33:
-                return QUOTED_FIELDS_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(V33, "i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt");
+        withFieldNames(V35, "ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale", "intrpt", "dgenp", "dgenq", "dgenm", "loadtype");
+        withQuotedFields("id", "loadid", "loadtype");
     }
 
     @Override

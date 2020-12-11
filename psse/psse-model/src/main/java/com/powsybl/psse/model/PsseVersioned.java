@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
+import static com.powsybl.psse.model.PsseVersion.fromRevision;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
@@ -61,20 +62,26 @@ public class PsseVersioned {
         checkVersionField(field, fieldName);
     }
 
+    public static boolean isValidVersion(PsseVersion version, Revision revisionAnnotation) {
+        PsseVersion since = fromRevision(revisionAnnotation.since());
+        PsseVersion until = fromRevision(revisionAnnotation.until());
+        return since.getNumber() <= version.getNumber() && version.getNumber() <= until.getNumber();
+    }
+
     private void checkVersionField(Field field, String fieldName) {
         if (!field.isAnnotationPresent(Revision.class)) {
-            throw new PsseException("Missing PsseRev annotation in field " + fieldName);
+            throw new PsseException("Missing Revision annotation in field " + fieldName);
         }
-        PsseVersion since = PsseVersion.fromRevision(field.getAnnotation(Revision.class).since());
-        PsseVersion until = PsseVersion.fromRevision(field.getAnnotation(Revision.class).until());
-        PsseVersion current = PsseVersion.fromRevision(model.getCaseIdentification().getRev());
-        if (!(since.getNumber() <= current.getNumber() && current.getNumber() <= until.getNumber())) {
+        PsseVersion current = fromRevision(model.getCaseIdentification().getRev());
+        if (!isValidVersion(current, field.getAnnotation(Revision.class))) {
+            PsseVersion since = fromRevision(field.getAnnotation(Revision.class).since());
+            PsseVersion until = fromRevision(field.getAnnotation(Revision.class).until());
             String message = String.format(
-                "Wrong version of PSSE RAW model (%d). Field '%s' is valid since version %d%s",
-                current.getMajor(),
+                "Wrong version of PSSE RAW model (%s). Field '%s' is valid since version %s%s",
+                current,
                 fieldName,
-                since.getMajor(),
-                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until.getMajor() : "");
+                since,
+                until.getNumber() != MAX_VERSION.getNumber() ? " until " + until : "");
             throw new PsseException(message);
         }
     }

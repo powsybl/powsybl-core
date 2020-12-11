@@ -11,7 +11,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
-import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.data.AbstractRecordGroup.PsseRecordGroup.*;
 import static com.powsybl.psse.model.data.AbstractRecordGroup.*;
 
@@ -68,11 +68,9 @@ public class RawData35 extends RawDataCommon {
         Objects.requireNonNull(model);
         Objects.requireNonNull(context);
         Objects.requireNonNull(dataSource);
-
-        if (!PsseVersion.VERSION_35.equals(context.getVersion())) {
-            throw new PsseException("Unexpected version " + context.getVersion());
+        if (context.getVersion().major() != V35) {
+            throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
-
         try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
             write(model, context, outputStream);
         }

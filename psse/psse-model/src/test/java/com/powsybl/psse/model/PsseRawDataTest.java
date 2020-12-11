@@ -27,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
 
+import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -57,12 +58,12 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     private static String toJson(PsseRawModel rawData) throws JsonProcessingException {
-        int version = rawData.getCaseIdentification().getRev();
+        PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
             protected boolean include(PropertyWriter writer) {
                 Revision rev = writer.getAnnotation(Revision.class);
-                return rev == null || (rev.since() <= version && version <= rev.until());
+                return rev == null || PsseVersioned.isValidVersion(version, rev);
             }
         };
         FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
@@ -185,7 +186,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", new Context());
 
         double tol = 0.000001;
-        assertEquals(35, rawData.getCaseIdentification().getRev());
+        assertEquals(35, rawData.getCaseIdentification().getRev(), 0);
         assertEquals("PSS(R)E MINIMUM RAWX CASE", rawData.getCaseIdentification().getTitle1());
 
         assertEquals(2, rawData.getBuses().size());

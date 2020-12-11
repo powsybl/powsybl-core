@@ -167,14 +167,15 @@ final class Util {
         return objectMapper.writer(prettyPrinter).writeValueAsString(jsonModel);
     }
 
-    static String[] insideHeaders(String[] quoteFields, String[] headers) {
-        String[] quoteFieldsInside = new String[] {};
-        for (int i = 0; i < quoteFields.length; i++) {
-            if (ArrayUtils.contains(headers, quoteFields[i])) {
-                quoteFieldsInside = ArrayUtils.add(quoteFieldsInside, quoteFields[i]);
+    static String[] intersection(String[] strings1, String[] strings2) {
+        // XXX(Luma) improve this
+        String[] intersection = new String[] {};
+        for (int i = 0; i < strings1.length; i++) {
+            if (ArrayUtils.contains(strings2, strings1[i])) {
+                intersection = ArrayUtils.add(intersection, strings1[i]);
             }
         }
-        return quoteFieldsInside;
+        return intersection;
     }
 
     static String[] excludeFields(String[] initialFields, String[] excludedFields) {

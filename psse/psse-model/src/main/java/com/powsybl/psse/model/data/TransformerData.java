@@ -51,10 +51,10 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
         {"windv2", "nomv2"}
     };
-    private static final String[] QUOTED_FIELDS = {"ckt", "name", "vecgrp"};
 
     TransformerData() {
         super(PsseRecordGroup.TRANSFORMER);
+        withQuotedFields("ckt", "name", "vecgrp");
     }
 
     private static boolean is3winding(String record, String delimiter) {
@@ -68,17 +68,6 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     @Override
     public String[] fieldNames(PsseVersion version) {
         throw new PsseException("Should not occur");
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-            case V33:
-                return QUOTED_FIELDS;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
     }
 
     public String[][] fieldNames3(PsseVersion version) {
@@ -182,23 +171,23 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         // of all transformers have the same number of fields
         // we can get rid of that check and write directly to the outputstream
 
-        String[] headers1 = Util.insideHeaders(allFieldNames[0], headers);
-        List<String> r1 = writeBlock(aClass, transformerRecords, headers1, Util.insideHeaders(QUOTED_FIELDS, headers1), context.getDelimiter().charAt(0));
+        String[] headers1 = Util.intersection(allFieldNames[0], headers);
+        List<String> r1 = writeBlock(aClass, transformerRecords, headers1, Util.intersection(quotedFields(), headers1), context.getDelimiter().charAt(0));
 
-        String[] headers2 = Util.insideHeaders(allFieldNames[1], headers);
-        List<String> r2 = writeBlock(aClass, transformerRecords, headers2, Util.insideHeaders(QUOTED_FIELDS, headers2), context.getDelimiter().charAt(0));
+        String[] headers2 = Util.intersection(allFieldNames[1], headers);
+        List<String> r2 = writeBlock(aClass, transformerRecords, headers2, Util.intersection(quotedFields(), headers2), context.getDelimiter().charAt(0));
 
-        String[] headers3 = Util.insideHeaders(allFieldNames[2], headers);
-        List<String> r3 = writeBlock(aClass, transformerRecords, headers3, Util.insideHeaders(QUOTED_FIELDS, headers3), context.getDelimiter().charAt(0));
+        String[] headers3 = Util.intersection(allFieldNames[2], headers);
+        List<String> r3 = writeBlock(aClass, transformerRecords, headers3, Util.intersection(quotedFields(), headers3), context.getDelimiter().charAt(0));
 
-        String[] headers4 = Util.insideHeaders(allFieldNames[3], headers);
-        List<String> r4 = writeBlock(aClass, transformerRecords, headers4, Util.insideHeaders(QUOTED_FIELDS, headers4), context.getDelimiter().charAt(0));
+        String[] headers4 = Util.intersection(allFieldNames[3], headers);
+        List<String> r4 = writeBlock(aClass, transformerRecords, headers4, Util.intersection(quotedFields(), headers4), context.getDelimiter().charAt(0));
 
         if (is2w) {
             write2wRecords(r1, r2, r3, r4, outputStream);
         } else {
-            String[] headers5 = Util.insideHeaders(allFieldNames[4], headers);
-            List<String> r5 = writeBlock(aClass, transformerRecords, headers5, Util.insideHeaders(QUOTED_FIELDS, headers5), context.getDelimiter().charAt(0));
+            String[] headers5 = Util.intersection(allFieldNames[4], headers);
+            List<String> r5 = writeBlock(aClass, transformerRecords, headers5, Util.intersection(quotedFields(), headers5), context.getDelimiter().charAt(0));
 
             write3wRecords(r1, r2, r3, r4, r5, outputStream);
         }

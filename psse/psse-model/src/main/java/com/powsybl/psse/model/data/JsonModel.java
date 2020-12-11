@@ -124,7 +124,7 @@ public class JsonModel {
 
     @JsonPropertyOrder({"fields", "data"})
     public static class TableData {
-        // XXX(Luma) We should remove the quoting from field names
+        // XXX(Luma) We should be able to remove the addQuote from field names
         // It is required only to keep all field names in the same line
         // Should be solved by using different settings to serialize over destination output
         // In fact this whole class should be removed

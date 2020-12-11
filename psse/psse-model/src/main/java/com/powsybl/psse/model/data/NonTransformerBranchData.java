@@ -6,9 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseNonTransformerBranch;
-import com.powsybl.psse.model.PsseVersion;
+
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,40 +17,11 @@ import com.powsybl.psse.model.PsseVersion;
  */
 class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBranch> {
 
-    private static final String[] FIELD_NAMES_35 = {"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5",
-        "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj",
-        "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-    private static final String[] FIELD_NAMES_33 = {"i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj",
-        "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-    private static final String[] QUOTED_FIELDS_35 = {"ckt", "name"};
-    private static final String[] QUOTED_FIELDS_33 = {"ckt"};
-
     NonTransformerBranchData() {
         super(PsseRecordGroup.NON_TRANSFORMER_BRANCH);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_35;
-            case V33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return QUOTED_FIELDS_35;
-            case V33:
-                return QUOTED_FIELDS_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(V33, "i", "j", "ckt", "r", "x", "b", "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj", "st", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
+        withFieldNames(V35, "ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name", "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12", "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
+        withQuotedFields("ckt", "name");
     }
 
     @Override

@@ -6,7 +6,15 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.univocity.parsers.annotations.Format;
 import com.univocity.parsers.annotations.Parsed;
+
+import java.io.IOException;
 
 /**
  *
@@ -21,7 +29,11 @@ public class PsseCaseIdentification {
     private double sbase = 100;
 
     @Parsed
-    private int rev = 33;
+    // TODO(Luma) We will use first format for writing, so always write only major version
+    // TODO(Luma) Review we want to accept numbers with zero, one or two decimal places
+    @Format(formats = {"0", "0.0", "0.00"})
+    @JsonSerialize(using = RevisionSerializer.class)
+    private float rev = 33;
 
     @Parsed
     private double xfrrat = Double.NaN;
@@ -54,11 +66,11 @@ public class PsseCaseIdentification {
         this.sbase = sbase;
     }
 
-    public int getRev() {
+    public float getRev() {
         return rev;
     }
 
-    public void setRev(int rev) {
+    public void setRev(float rev) {
         this.rev = rev;
     }
 
@@ -106,8 +118,9 @@ public class PsseCaseIdentification {
         if (ic == 1) {
             throw new PsseException("Incremental load of data option (IC = 1) is not supported");
         }
-        if (!PsseVersion.fromRevision(rev).isSupported()) {
-            throw new PsseException("Version " + rev + " not supported. Supported versions are: " + PsseVersion.supportedVersions());
+        PsseVersion v = PsseVersion.fromRevision(rev);
+        if (!v.isSupported()) {
+            throw new PsseException(String.format("Version %s not supported. Supported versions are: %s", v, PsseVersion.supportedVersions()));
         }
         if (sbase <= 0.) {
             throw new PsseException("Unexpected System MVA base " + sbase);
@@ -117,4 +130,11 @@ public class PsseCaseIdentification {
         }
     }
 
+    public static class RevisionSerializer extends JsonSerializer<Float> {
+        @Override
+        public void serialize(Float value, JsonGenerator generator, SerializerProvider provider) throws IOException, JsonProcessingException {
+            String rev = PsseVersion.fromRevision(value).toString();
+            generator.writeRawValue(rev);
+        }
+    }
 }

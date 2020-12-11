@@ -24,11 +24,11 @@ import java.util.List;
  */
 class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification> {
 
-    private static final String[] QUOTED_FIELDS = {"title1", "title2"};
     private static final String[] EXCLUDED_FIELDS = {"title1", "title2"};
 
     CaseIdentificationData() {
         super(PsseRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2");
+        withQuotedFields("title1", "title2");
     }
 
     PsseCaseIdentification read1(BufferedReader reader, Context context) throws IOException {
@@ -54,7 +54,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         caseIdentificationList.add(model.getCaseIdentification());
 
         writeBlock(PsseCaseIdentification.class, caseIdentificationList, headers,
-            Util.insideHeaders(QUOTED_FIELDS, headers), context.getDelimiter().charAt(0), outputStream);
+            Util.intersection(quotedFields(), headers), context.getDelimiter().charAt(0), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle1(), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
     }
@@ -73,15 +73,10 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         caseIdentificationList.add(model.getCaseIdentification());
 
         List<String> stringList = writexBlock(PsseCaseIdentification.class,
-            caseIdentificationList, headers, Util.insideHeaders(QUOTED_FIELDS, headers),
+            caseIdentificationList, headers, Util.intersection(quotedFields(), headers),
             context.getDelimiter().charAt(0));
 
         return new ArrayData(headers, stringList);
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        return QUOTED_FIELDS;
     }
 
     @Override

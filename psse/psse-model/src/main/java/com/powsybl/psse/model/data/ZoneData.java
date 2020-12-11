@@ -6,9 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseZone;
+
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  *
@@ -17,35 +18,11 @@ import com.powsybl.psse.model.PsseZone;
  */
 class ZoneData extends AbstractRecordGroup<PsseZone> {
 
-    private static final String[] FIELD_NAMES_35 = {"izone", "zoname"};
-    private static final String[] FIELD_NAMES_33 = {"i", "zoname"};
-    private static final String[] QUOTED_FIELDS = {"zoname"};
-
     ZoneData() {
         super(PsseRecordGroup.ZONE);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_35;
-            case V33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-            case V33:
-                return QUOTED_FIELDS;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(V33, "i", "zoname");
+        withFieldNames(V35, "izone", "zoname");
+        withQuotedFields("zoname");
     }
 
     @Override

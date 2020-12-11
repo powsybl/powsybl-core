@@ -7,8 +7,9 @@
 package com.powsybl.psse.model.data;
 
 import com.powsybl.psse.model.PsseArea;
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
+
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,35 +17,11 @@ import com.powsybl.psse.model.PsseVersion;
  */
 class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
 
-    private static final String[] FIELD_NAMES_35 = {"iarea", "isw", "pdes", "ptol", "arname"};
-    private static final String[] FIELD_NAMES_33 = {"i", "isw", "pdes", "ptol", "arname"};
-    private static final String[] QUOTED_FIELDS = {"arname"};
-
     AreaInterchangeData() {
         super(PsseRecordGroup.AREA_INTERCHANGE);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_35;
-            case V33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-            case V33:
-                return QUOTED_FIELDS;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(V33, "i", "isw", "pdes", "ptol", "arname");
+        withFieldNames(V35, "iarea", "isw", "pdes", "ptol", "arname");
+        withQuotedFields("arname");
     }
 
     @Override

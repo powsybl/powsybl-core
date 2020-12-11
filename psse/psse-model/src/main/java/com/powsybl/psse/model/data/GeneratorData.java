@@ -6,9 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseGenerator;
-import com.powsybl.psse.model.PsseVersion;
+
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,37 +17,11 @@ import com.powsybl.psse.model.PsseVersion;
  */
 class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
 
-    private static final String[] FIELD_NAMES_35 = {"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-    private static final String[] FIELD_NAMES_33 = {"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-    private static final String[] QUOTED_FIELDS_35 = {"machid"};
-    private static final String[] QUOTED_FIELDS_33 = {"id"};
-
     GeneratorData() {
         super(PsseRecordGroup.GENERATOR);
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_35;
-            case V33:
-                return FIELD_NAMES_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public String[] quotedFields(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return QUOTED_FIELDS_35;
-            case V33:
-                return QUOTED_FIELDS_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
+        withFieldNames(V33, "i", "id", "pg", "qg", "qt", "qb", "vs", "ireg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf");
+        withFieldNames(V35, "ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg", "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf");
+        withQuotedFields("id", "machid");
     }
 
     @Override

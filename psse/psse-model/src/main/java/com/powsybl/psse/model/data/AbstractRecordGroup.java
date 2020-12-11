@@ -37,25 +37,36 @@ public abstract class AbstractRecordGroup<T> {
 
     private final PsseRecordGroup recordGroup;
     private final String[] fieldNames;
-    private final Map<PsseVersion, String[]> fieldNamesByVersion = new HashMap<>();
+    private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new HashMap<>();
+    private String[] quotedFields;
 
     AbstractRecordGroup(PsseRecordGroup recordGroup, String... fieldNames) {
         this.recordGroup = recordGroup;
         this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
     }
 
-    public void withFieldNames(PsseVersion version, String... fieldNames) {
-        fieldNamesByVersion.put(version, fieldNames);
+    public void withFieldNames(PsseVersion.Major version, String... fieldNames) {
+        fieldNamesByVersionMajor.put(version, fieldNames);
     }
 
     public String[] fieldNames(PsseVersion version) {
         if (fieldNames != null) {
             return fieldNames;
         }
-        return fieldNamesByVersion.get(version);
+        String[] fieldNames = fieldNamesByVersionMajor.get(version.major());
+        if (fieldNames == null) {
+            throw new PsseException("Missing fieldNames for version " + version.getMajorNumber() + " in record group " + recordGroup);
+        }
+        return fieldNames;
     }
 
-    public abstract String[] quotedFields(PsseVersion version);
+    public void withQuotedFields(String...quotedFields) {
+        this.quotedFields = quotedFields.length > 0 ? quotedFields : null;
+    }
+
+    public String[] quotedFields() {
+        return quotedFields;
+    }
 
     public abstract Class<T> psseTypeClass();
 
@@ -96,7 +107,7 @@ public abstract class AbstractRecordGroup<T> {
 
     public void write(List<T> psseObjects, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quoteFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
+        String[] quoteFieldsInside = Util.intersection(quotedFields(), headers);
         writeBegin(outputStream);
         writeBlock(psseTypeClass(), psseObjects, headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
         writeEnd(outputStream);
@@ -123,7 +134,7 @@ public abstract class AbstractRecordGroup<T> {
 
     TableData write(List<T> psseObjects, Context context) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quotedFieldsInside = Util.insideHeaders(quotedFields(context.getVersion()), headers);
+        String[] quotedFieldsInside = Util.intersection(quotedFields(), headers);
 
         List<String> stringList = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
         return new TableData(headers, stringList);
