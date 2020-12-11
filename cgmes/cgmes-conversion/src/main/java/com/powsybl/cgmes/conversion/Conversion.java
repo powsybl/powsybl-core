@@ -11,8 +11,9 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -150,6 +151,8 @@ public class Conversion {
         Context context = createContext(network);
         assignNetworkProperties(context);
         addCgmesSvMetadata(network);
+        addCgmesSshMetadata(network);
+        addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
@@ -303,6 +306,26 @@ public class Conversion {
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
+        }
+    }
+
+    private void addCgmesSshMetadata(Network network) {
+        PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
+        if (sshDescription != null && !sshDescription.isEmpty()) {
+            CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
+                    .setDescription(sshDescription.get(0).getId("description"))
+                    .setSshVersion(sshDescription.get(0).asInt("version"))
+                    .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
+            sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
+            adder.add();
+        }
+    }
+
+    private void addCgmesSshControlAreas(Network network, Context context) {
+        PropertyBags sshControlAreas = cgmes.controlAreas();
+        if (sshControlAreas != null && !sshControlAreas.isEmpty()) {
+            // TODO Develop conversion after IIDM modelling of control areas or define extension
+            context.ignored("ControlAreas", "Unsupported in current version");
         }
     }
 
@@ -726,6 +749,5 @@ public class Conversion {
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 
-    public static final String CGMES_PREFIX_ALIAS = "CGMES.";
-
+    public static final String CGMES_PREFIX_ALIAS_PROPERTIES = "CGMES.";
 }
