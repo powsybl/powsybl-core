@@ -21,6 +21,7 @@ import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.ucte.converter.util.UcteConverterHelper;
+import com.powsybl.ucte.converter.util.UcteValidation;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
 import org.joda.time.DateTime;
@@ -102,6 +103,9 @@ public class UcteExporter implements Exporter {
      * @return the UcteNetwork corresponding to the IIDM network
      */
     private static UcteNetwork createUcteNetwork(Network network, NamingStrategy namingStrategy) {
+
+        UcteValidation.run(network);
+
         if (network.getShuntCompensatorCount() > 0 ||
             network.getStaticVarCompensatorCount() > 0 ||
             network.getBatteryCount() > 0 ||

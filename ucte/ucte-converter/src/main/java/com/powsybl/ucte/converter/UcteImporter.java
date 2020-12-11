@@ -19,6 +19,7 @@ import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.ucte.converter.util.UcteValidation;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -979,6 +980,8 @@ public class UcteImporter implements Importer {
                 createTransformers(ucteNetwork, network, ucteFileName);
 
                 mergeXnodeDanglingLines(ucteNetwork, network);
+
+                UcteValidation.run(network);
 
                 stopwatch.stop();
                 LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
