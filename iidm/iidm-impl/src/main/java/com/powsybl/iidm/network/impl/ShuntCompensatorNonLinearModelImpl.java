@@ -47,7 +47,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
             ValidationUtil.checkB(shuntCompensator, b);
             double oldValue = this.b;
             this.b = b;
-            shuntCompensator.notifyUpdate(getAttributeName(index, "b"), oldValue, this.b);
+            shuntCompensator.notifyUpdate(() -> getAttributeName(index, "b"), oldValue, this.b);
             return this;
         }
 
@@ -61,7 +61,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
             ValidationUtil.checkG(shuntCompensator, g);
             double oldValue = this.g;
             this.g = g;
-            shuntCompensator.notifyUpdate(getAttributeName(index, "g"), oldValue, this.g);
+            shuntCompensator.notifyUpdate(() -> getAttributeName(index, "g"), oldValue, this.g);
             return this;
         }
 
