@@ -18,7 +18,7 @@ import java.util.Objects;
  */
 class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, ShuntCompensatorLinearModel {
 
-    private final ShuntCompensatorImpl shuntCompensator;
+    private ShuntCompensatorImpl shuntCompensator;
 
     private double bPerSection;
 
@@ -26,11 +26,20 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     private int maximumSectionCount;
 
-    ShuntCompensatorLinearModelImpl(ShuntCompensatorImpl shuntCompensator, double bPerSection, double gPerSection, int maximumSectionCount) {
-        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+    ShuntCompensatorLinearModelImpl(double bPerSection, double gPerSection, int maximumSectionCount) {
         this.bPerSection = bPerSection;
         this.gPerSection = gPerSection;
         this.maximumSectionCount = maximumSectionCount;
+    }
+
+    @Override
+    public ShuntCompensatorLinearModelImpl attach(ShuntCompensatorImpl shuntCompensator) {
+        if (this.shuntCompensator != null) {
+            throw new AssertionError("ShuntCompensatorLinearModelImpl already attached to " + this.shuntCompensator.getId());
+        }
+
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+        return this;
     }
 
     @Override

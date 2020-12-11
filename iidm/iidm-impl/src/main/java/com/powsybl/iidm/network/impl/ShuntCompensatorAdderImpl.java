@@ -50,7 +50,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         int getMaximumSectionCount();
 
-        ShuntCompensatorModelExt build(ShuntCompensatorImpl shuntCompensator);
+        ShuntCompensatorModelExt build();
 
     }
 
@@ -94,8 +94,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         @Override
-        public ShuntCompensatorModelExt build(ShuntCompensatorImpl shuntCompensator) {
-            return new ShuntCompensatorLinearModelImpl(shuntCompensator, bPerSection, gPerSection, maximumSectionCount);
+        public ShuntCompensatorModelExt build() {
+            return new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
         }
     }
 
@@ -151,13 +151,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         @Override
-        public ShuntCompensatorModelExt build(ShuntCompensatorImpl shuntCompensator) {
+        public ShuntCompensatorModelExt build() {
             List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = IntStream.range(0, sectionAdders.size()).mapToObj(s -> {
                 SectionAdderImpl adder = sectionAdders.get(s);
-                return new ShuntCompensatorNonLinearModelImpl.SectionImpl(shuntCompensator, s + 1, adder.b, adder.g);
+                return new ShuntCompensatorNonLinearModelImpl.SectionImpl(s + 1, adder.b, adder.g);
             }).collect(Collectors.toList());
 
-            return new ShuntCompensatorNonLinearModelImpl(shuntCompensator, sections);
+            return new ShuntCompensatorNonLinearModelImpl(sections);
         }
 
         @Override
@@ -221,10 +221,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount());
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetwork().getRef(),
-                id, getName(), isFictitious(), sectionCount,
+                id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
                 regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
-        shunt.setModel(modelBuilder.build(shunt));
 
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

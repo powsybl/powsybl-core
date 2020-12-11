@@ -22,7 +22,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
     static class SectionImpl implements Section {
 
-        private final ShuntCompensatorImpl shuntCompensator;
+        private ShuntCompensatorImpl shuntCompensator;
 
         private final int index;
 
@@ -30,11 +30,18 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
         private double g;
 
-        SectionImpl(ShuntCompensatorImpl shuntCompensator, int index, double b, double g) {
-            this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+        SectionImpl(int index, double b, double g) {
             this.index = index;
             this.b = b;
             this.g = g;
+        }
+
+        private SectionImpl attach(ShuntCompensatorImpl shuntCompensator) {
+            if (this.shuntCompensator != null) {
+                throw new AssertionError("Section already attached to " + this.shuntCompensator.getId());
+            }
+            this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+            return this;
         }
 
         @Override
@@ -70,13 +77,26 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
         }
     }
 
-    private final ShuntCompensatorImpl shuntCompensator;
+    private ShuntCompensatorImpl shuntCompensator;
 
     private final List<SectionImpl> sections;
 
-    ShuntCompensatorNonLinearModelImpl(ShuntCompensatorImpl shuntCompensator, List<SectionImpl> sections) {
-        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+    ShuntCompensatorNonLinearModelImpl(List<SectionImpl> sections) {
         this.sections = Objects.requireNonNull(sections);
+    }
+
+    @Override
+    public ShuntCompensatorNonLinearModelImpl attach(ShuntCompensatorImpl shuntCompensator) {
+        if (this.shuntCompensator != null) {
+            throw new AssertionError("ShuntCompensatorNonLinearModelImpl already attached to " + this.shuntCompensator.getId());
+        }
+
+        this.shuntCompensator = Objects.requireNonNull(shuntCompensator);
+        for (SectionImpl section : sections) {
+            section.attach(shuntCompensator);
+        }
+
+        return this;
     }
 
     @Override

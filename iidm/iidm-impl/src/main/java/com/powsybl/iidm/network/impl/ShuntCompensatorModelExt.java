@@ -21,4 +21,6 @@ interface ShuntCompensatorModelExt extends ShuntCompensatorModel {
     double getB(int sectionCount);
 
     double getG(int sectionCount);
+
+    ShuntCompensatorModelExt attach(ShuntCompensatorImpl shuntCompensator);
 }

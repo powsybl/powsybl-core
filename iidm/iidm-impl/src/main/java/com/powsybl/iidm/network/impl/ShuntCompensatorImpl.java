@@ -21,7 +21,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final Ref<? extends VariantManagerHolder> network;
 
-    private ShuntCompensatorModelExt model;
+    private final ShuntCompensatorModelExt model;
 
     /* the regulating terminal */
     private TerminalExt regulatingTerminal;
@@ -41,7 +41,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, boolean fictitious,
+                         String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
@@ -58,13 +58,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
         }
-    }
-
-    void setModel(ShuntCompensatorModelExt model) {
-        if (this.model != null) {
-            throw new AssertionError("Shunt compensator model assignment after its creation is forbidden");
-        }
-        this.model = Objects.requireNonNull(model);
+        this.model = Objects.requireNonNull(model).attach(this);
     }
 
     @Override
