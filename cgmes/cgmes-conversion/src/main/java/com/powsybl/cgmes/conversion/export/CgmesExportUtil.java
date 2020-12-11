@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -63,10 +64,10 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, "FullModel");
         writer.writeAttribute(RDF_NAMESPACE, "about", "urn:uuid:" + getUniqueId());
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.SCENARIO_TIME);
-        writer.writeCharacters(context.getScenarioTime().toString());
+        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(context.getScenarioTime()));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
-        writer.writeCharacters(DateTime.now().toString());
+        writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(DateTime.now()));
         writer.writeEndElement();
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
         writer.writeCharacters(modelDescription.getDescription());
