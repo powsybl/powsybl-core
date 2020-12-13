@@ -118,6 +118,7 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
         return true;
     }
