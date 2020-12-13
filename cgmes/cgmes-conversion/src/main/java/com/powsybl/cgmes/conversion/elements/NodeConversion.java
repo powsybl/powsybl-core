@@ -22,7 +22,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.network.util2.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
