@@ -143,7 +143,8 @@
                     <artifactId>maven-javadoc-plugin</artifactId>
                     <version>3.2.0</version>
                     <configuration>
-                        <skippedModules>groovy-groovysh</skippedModules>
+                        <!-- Seems to be necessary when running from IntelliJ but not from command line -->
+                        <javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>
                     </configuration>
                 </plugin>
                 <plugin>
