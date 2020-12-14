@@ -36,7 +36,7 @@ class VoltageLimitsAdderImpl implements VoltageLimitsAdder {
     @Override
     public VoltageLimits add() {
         ValidationUtil.checkDefinedVoltageLimits(owner, lowVoltage, highVoltage);
-        VoltageLimits voltageLimits = new VoltageLimitsImpl(owner, lowVoltage, highVoltage);
+        VoltageLimits voltageLimits = new ConfiguredVoltageLimitsImpl(owner, lowVoltage, highVoltage);
         owner.setOperationalLimits(LimitType.VOLTAGE, voltageLimits);
         return voltageLimits;
     }

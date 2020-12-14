@@ -34,13 +34,8 @@ public abstract class AbstractVoltageLimitsTest {
                 .setLowVoltage(140.0)
                 .add();
 
-        test("Bus 'NLOAD'", bus);
-
-        bus.newVoltageLimits()
-                .setHighVoltage(220.0)
-                .setLowVoltage(140.0)
-                .add();
-        test("Bus 'NLOAD'", bbus);
+        testCalculated("Bus 'VLLOAD_0'", bbus);
+        testConfigured("Bus 'NLOAD'", bus);
     }
 
     @Test
@@ -59,13 +54,8 @@ public abstract class AbstractVoltageLimitsTest {
                 .setLowVoltage(140.0)
                 .add();
 
-        test("Busbar section 'O'", busbarSection);
-
-        busbarSection.newVoltageLimits()
-                .setHighVoltage(220.0)
-                .setLowVoltage(140.0)
-                .add();
-        test("Busbar section 'O'", bus);
+        testCalculated("Bus 'N_0'", bus);
+        testConfigured("Busbar section 'O'", busbarSection);
     }
 
     @Test
@@ -80,7 +70,7 @@ public abstract class AbstractVoltageLimitsTest {
         }
     }
 
-    private static void test(String message, VoltageLimitsHolder holder) {
+    private static void testConfigured(String message, VoltageLimitsHolder holder) {
         VoltageLimits voltageLimits = holder.getVoltageLimits();
         assertNotNull(voltageLimits);
         assertEquals(140.0, voltageLimits.getLowVoltage(), 0.0);
@@ -97,5 +87,30 @@ public abstract class AbstractVoltageLimitsTest {
         assertEquals(120.0, voltageLimits.getLowVoltage(), 0.0);
         voltageLimits.remove();
         assertNull(holder.getVoltageLimits());
+    }
+
+    private static void testCalculated(String message, VoltageLimitsHolder holder) {
+        VoltageLimits voltageLimits = holder.getVoltageLimits();
+        assertNotNull(voltageLimits);
+        assertEquals(140.0, voltageLimits.getLowVoltage(), 0.0);
+        assertEquals(220.0, voltageLimits.getHighVoltage(), 0.0);
+        try {
+            voltageLimits.setHighVoltage(100);
+            fail();
+        } catch (ValidationException e) {
+            assertEquals(message + ": Voltage limits cannot be set on a calculated object: directly set on the configured object.", e.getMessage());
+        }
+        try {
+            voltageLimits.setLowVoltage(100);
+            fail();
+        } catch (ValidationException e) {
+            assertEquals(message + ": Voltage limits cannot be set on a calculated object: directly set on the configured object.", e.getMessage());
+        }
+        try {
+            voltageLimits.remove();
+            fail();
+        } catch (ValidationException e) {
+            assertEquals(message + ": Voltage limits cannot be removed from a calculated object: directly remove from the configured object.", e.getMessage());
+        }
     }
 }
