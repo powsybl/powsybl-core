@@ -93,7 +93,7 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
         /**
          * TODO: to move to IIDM
          */
-        private static double getPermanentLimit(Branch<?> branch, Branch.Side side) {
+        private static double getPermanentLimit(Branch branch, Branch.Side side) {
             Objects.requireNonNull(branch);
             Objects.requireNonNull(side);
             double permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Double.NaN;
