@@ -76,8 +76,6 @@ public abstract class AbstractRecordGroup<T> {
     public abstract Class<T> psseTypeClass();
 
     public List<T> read(BufferedReader reader, Context context) throws IOException {
-        // XXX(Luma) RAW format is implicit here, maybe it should be explicit ?
-
         // Record groups in RAW format have a fixed order for fields
         // Optional fields may not be present at the end of each record.
         // We obtain the maximum number of fields read in each record of the record group.
@@ -130,9 +128,7 @@ public abstract class AbstractRecordGroup<T> {
         }
     }
 
-    public List<T> read(JsonNode networkNode, Context context) {
-        // XXX(Luma) RAWX format is implicit here, is it ok just because we read from a JsonNode ?
-
+    public List<T> readx(JsonNode networkNode, Context context) {
         // Records in RAWX format have arbitrary order for fields.
         // Fields present in the record group are defined explicitly in a header.
         // Order and number of field names is relevant for parsing,
@@ -151,9 +147,9 @@ public abstract class AbstractRecordGroup<T> {
 
     void writex(List<T> psseObjects, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quotedFieldsInside = Util.intersection(quotedFields(), headers);
+        String[] quotedFields = Util.intersection(quotedFields(), headers);
 
-        List<String> records = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
+        List<String> records = writexBlock(psseTypeClass(), psseObjects, headers, quotedFields, context.getDelimiter().charAt(0));
         writex(headers, records, generator);
     }
 

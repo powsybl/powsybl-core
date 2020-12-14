@@ -134,8 +134,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public List<PsseTransformer> read(JsonNode networkNode, Context context) {
-        List<PsseTransformer> transformers = super.read(networkNode, context);
+    public List<PsseTransformer> readx(JsonNode networkNode, Context context) {
+        List<PsseTransformer> transformers = super.readx(networkNode, context);
         // Same field names for 2 and 3 winding transformers
         context.setFieldNames(PsseRecordGroup.TRANSFORMER_2, context.getFieldNames(PsseRecordGroup.TRANSFORMER));
         context.setFieldNames(PsseRecordGroup.TRANSFORMER_3, context.getFieldNames(PsseRecordGroup.TRANSFORMER));

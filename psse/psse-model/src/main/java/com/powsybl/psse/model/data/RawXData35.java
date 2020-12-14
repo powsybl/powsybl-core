@@ -43,18 +43,18 @@ public class RawXData35 extends RawXDataCommon {
 
         PsseRawModel model = new PsseRawModel(caseIdentification);
 
-        model.addBuses(new BusData().read(networkNode, context));
-        model.addLoads(new LoadData().read(networkNode, context));
-        model.addFixedShunts(new FixedBusShuntData().read(networkNode, context));
-        model.addGenerators(new GeneratorData().read(networkNode, context));
-        model.addNonTransformerBranches(new NonTransformerBranchData().read(networkNode, context));
-        model.addTransformers(new TransformerData().read(networkNode, context));
+        model.addBuses(new BusData().readx(networkNode, context));
+        model.addLoads(new LoadData().readx(networkNode, context));
+        model.addFixedShunts(new FixedBusShuntData().readx(networkNode, context));
+        model.addGenerators(new GeneratorData().readx(networkNode, context));
+        model.addNonTransformerBranches(new NonTransformerBranchData().readx(networkNode, context));
+        model.addTransformers(new TransformerData().readx(networkNode, context));
 
-        model.addAreas(new AreaInterchangeData().read(networkNode, context));
-        model.addZones(new ZoneData().read(networkNode, context));
-        model.addOwners(new OwnerData().read(networkNode, context));
+        model.addAreas(new AreaInterchangeData().readx(networkNode, context));
+        model.addZones(new ZoneData().readx(networkNode, context));
+        model.addOwners(new OwnerData().readx(networkNode, context));
 
-        model.addSwitchedShunts(new SwitchedShuntData().read(networkNode, context));
+        model.addSwitchedShunts(new SwitchedShuntData().readx(networkNode, context));
 
         return model;
     }
