@@ -537,7 +537,7 @@ public class TimeSeriesTable {
 
     public void writeCsv(Path file) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault(), new CsvParserConfig());
+            writeCsv(writer, ZoneId.systemDefault(), new CsvParserConfig());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -545,26 +545,24 @@ public class TimeSeriesTable {
 
     public void writeCsv(Path file, CsvParserConfig csvParserConfig) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, TimeSeriesConstants.DEFAULT_SEPARATOR, ZoneId.systemDefault(), csvParserConfig);
+            writeCsv(writer, ZoneId.systemDefault(), csvParserConfig);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public String toCsvString(char separator, ZoneId zoneId) {
+    public String toCsvString(ZoneId zoneId) {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, separator, zoneId, new CsvParserConfig());
-            writer.flush();
+            writeCsv(writer, zoneId, new CsvParserConfig());
             return writer.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public String toCsvString(char separator, ZoneId zoneId, CsvParserConfig csvParserConfig) {
+    public String toCsvString(ZoneId zoneId, CsvParserConfig csvParserConfig) {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, separator, zoneId, csvParserConfig);
-            writer.flush();
+            writeCsv(writer, zoneId, csvParserConfig);
             return writer.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -575,12 +573,12 @@ public class TimeSeriesTable {
         // write header
         writer.write("Time");
         if (config.isVersioned()) {
-            writer.write(config.separator);
+            writer.write(config.separator());
             writer.write("Version");
         }
         if (timeSeriesMetadata != null) {
             for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
-                writer.write(config.separator);
+                writer.write(config.separator());
                 writer.write(metadata.getName());
             }
         }
@@ -598,18 +596,15 @@ public class TimeSeriesTable {
 
     private static class CsvConfig {
 
-        final char separator;
+        private final DateTimeFormatter dateTimeFormatter;
 
-        final DateTimeFormatter dateTimeFormatter;
+        private final CsvParserConfig csvParserConfig;
 
-        final CsvParserConfig csvParserConfig;
-
-        public CsvConfig(char separator, DateTimeFormatter dateTimeFormatter) {
-            this(separator, dateTimeFormatter, new CsvParserConfig());
+        public CsvConfig(DateTimeFormatter dateTimeFormatter) {
+            this(dateTimeFormatter, new CsvParserConfig());
         }
 
-        public CsvConfig(char separator, DateTimeFormatter dateTimeFormatter, CsvParserConfig csvParserConfig) {
-            this.separator = separator;
+        public CsvConfig(DateTimeFormatter dateTimeFormatter, CsvParserConfig csvParserConfig) {
             this.dateTimeFormatter = dateTimeFormatter;
             this.csvParserConfig = csvParserConfig;
         }
@@ -620,6 +615,10 @@ public class TimeSeriesTable {
 
         public TimeFormat getTimeFormat() {
             return csvParserConfig.timeFormat();
+        }
+
+        public char separator() {
+            return csvParserConfig.separator();
         }
     }
 
@@ -658,13 +657,13 @@ public class TimeSeriesTable {
         for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
             writeTime(writer, config, point, cachedPoint);
             if (config.isVersioned()) {
-                writer.write(config.separator);
+                writer.write(config.separator());
                 writer.write(Integer.toString(version));
             }
             for (int i = 0; i < timeSeriesMetadata.size(); i++) {
                 TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
                 int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
-                writer.write(config.separator);
+                writer.write(config.separator());
                 if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
                     double value = cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum];
                     writeDouble(writer, value);
@@ -687,24 +686,24 @@ public class TimeSeriesTable {
                 writer.write(dateTime.format(config.dateTimeFormatter));
                 break;
             case FRACTIONS_OF_SECOND:
-                Long longTime = new Long(time);
-                double convertedTime = longTime.doubleValue();
-                writer.write(Double.toString(convertedTime / 1000));
+                writer.write(Double.toString(time / 1000.0));
                 break;
             case MILLIS:
                 writer.write(Long.toString(time));
                 break;
+            default:
+                throw new AssertionError("Unknown time format " + config.getTimeFormat());
         }
     }
 
-    public void writeCsv(Writer writer, char separator, ZoneId zoneId, CsvParserConfig csvParserConfig) {
+    public void writeCsv(Writer writer, ZoneId zoneId, CsvParserConfig csvParserConfig) throws IOException {
         Objects.requireNonNull(writer);
         Objects.requireNonNull(zoneId);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            CsvConfig config = new CsvConfig(separator, DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId), csvParserConfig);
+            CsvConfig config = new CsvConfig(DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId), csvParserConfig);
 
             writeHeader(writer, config);
 
@@ -731,5 +730,6 @@ public class TimeSeriesTable {
         }
 
         LOGGER.info("Csv written in {} ms", stopWatch.elapsed(TimeUnit.MILLISECONDS));
+        writer.flush();
     }
 }

@@ -130,32 +130,28 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file) {
-        return parseCsv(file, TimeSeriesConstants.DEFAULT_SEPARATOR, new CsvParserConfig());
+        return parseCsv(file, new CsvParserConfig());
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(String csv) {
+        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
+            return parseCsv(reader, new CsvParserConfig());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    static Map<Integer, List<TimeSeries>> parseCsv(String csv, CsvParserConfig csvParserConfig) {
+        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
+            return parseCsv(reader, csvParserConfig);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     static Map<Integer, List<TimeSeries>> parseCsv(Path file, CsvParserConfig csvParserConfig) {
-        return parseCsv(file, TimeSeriesConstants.DEFAULT_SEPARATOR, csvParserConfig);
-    }
-
-    static Map<Integer, List<TimeSeries>> parseCsv(String csv, char separator) {
-        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
-            return parseCsv(reader, separator, new CsvParserConfig());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static Map<Integer, List<TimeSeries>> parseCsv(String csv, char separator, CsvParserConfig csvParserConfig) {
-        try (BufferedReader reader = new BufferedReader(new StringReader(csv))) {
-            return parseCsv(reader, separator, csvParserConfig);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static Map<Integer, List<TimeSeries>> parseCsv(Path file, char separator, CsvParserConfig csvParserConfig) {
         try (BufferedReader reader = Files.newBufferedReader(file, StandardCharsets.UTF_8)) {
-            return parseCsv(reader, separator, csvParserConfig);
+            return parseCsv(reader, csvParserConfig);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -169,17 +165,23 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return token.isEmpty() ? null : token;
     }
 
-    class CsvParserConfig {
-        boolean versioned;
-        TimeFormat timeFormat;
+    static class CsvParserConfig {
+        private final boolean versioned;
+        private final TimeFormat timeFormat;
+        private final char separator;
 
         CsvParserConfig() {
-            this(true, TimeFormat.DATE_TIME);
+            this(TimeSeriesConstants.DEFAULT_SEPARATOR, true, TimeFormat.DATE_TIME);
         }
 
-        public CsvParserConfig(boolean versioned, TimeFormat timeFormat) {
+        public CsvParserConfig(char separator, boolean versioned, TimeFormat timeFormat) {
+            this.separator = separator;
             this.versioned = versioned;
             this.timeFormat = timeFormat;
+        }
+
+        public char separator() {
+            return separator;
         }
 
         public boolean versioned() {
@@ -192,16 +194,16 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     class CsvParsingContext {
-        final List<String> names;
-        final CsvParserConfig csvParserConfig;
-        final int fixedColumns;
+        private final List<String> names;
+        private final CsvParserConfig csvParserConfig;
+        private final int fixedColumns;
 
-        final TimeSeriesDataType[] dataTypes;
-        final Object[] values;
+        private final TimeSeriesDataType[] dataTypes;
+        private final Object[] values;
 
-        final List<Long> times = new ArrayList<>();
+        private final List<Long> times = new ArrayList<>();
 
-        TimeSeriesIndex refIndex;
+        private TimeSeriesIndex refIndex;
 
         CsvParsingContext(List<String> names) {
             this(names, new CsvParserConfig());
@@ -296,6 +298,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                     Double millis = Double.parseDouble(tokens.get(0));
                     times.add(millis.longValue());
                     break;
+                default:
+                    throw new AssertionError("Unknown time format " + csvParserConfig.timeFormat());
             }
         }
 
@@ -366,7 +370,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 if (spacing == Long.MIN_VALUE) {
                     spacing = duration;
                 } else {
-                    if (1e-4 < Math.abs(duration - spacing)) {
+                    if (duration != spacing) {
                         return Long.MIN_VALUE;
                     }
                 }
@@ -400,13 +404,13 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
 
-    static CsvParsingContext readCsvHeader(CsvListReader csvListReader, String separatorStr, CsvParserConfig csvParserConfig) throws IOException {
+    static CsvParsingContext readCsvHeader(CsvListReader csvListReader, CsvParserConfig csvParserConfig) throws IOException {
         String[] tokens = csvListReader.getHeader(true);
         if (tokens == null) {
             throw new TimeSeriesException("CSV header is missing");
         }
 
-        checkCsvHeader(separatorStr, csvParserConfig.versioned(), tokens);
+        checkCsvHeader(csvParserConfig, tokens);
 
         List<String> duplicates = new ArrayList<>();
         Set<String> namesWithoutDuplicates = new HashSet<>();
@@ -422,25 +426,25 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return new CsvParsingContext(names, csvParserConfig);
     }
 
-    static void checkCsvHeader(String separatorStr, boolean versioned, String[] tokens) {
-        if (versioned && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
+    static void checkCsvHeader(CsvParserConfig csvParserConfig, String[] tokens) {
+        String separatorStr = Character.toString(csvParserConfig.separator());
+        if (csvParserConfig.versioned() && (tokens.length < 3 || !"time".equals(tokens[0].toLowerCase()) || !"version".equals(tokens[1].toLowerCase()))) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "version" + separatorStr + "...");
         } else if (tokens.length < 2 || !"time".equals(tokens[0].toLowerCase())) {
             throw new TimeSeriesException("Bad CSV header, should be \ntime" + separatorStr + "...");
         }
     }
 
-    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, char separator, CsvParserConfig csvParserConfig) {
+    static Map<Integer, List<TimeSeries>> parseCsv(BufferedReader reader, CsvParserConfig csvParserConfig) {
         Objects.requireNonNull(reader);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
 
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = new HashMap<>();
-        String separatorStr = Character.toString(separator);
 
         try {
-            CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', separator, System.lineSeparator()).build());
-            CsvParsingContext context = readCsvHeader(csvListReader, separatorStr, csvParserConfig);
+            CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', csvParserConfig.separator(), System.lineSeparator()).build());
+            CsvParsingContext context = readCsvHeader(csvListReader, csvParserConfig);
             readCsvValues(csvListReader, context, timeSeriesPerVersion);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
