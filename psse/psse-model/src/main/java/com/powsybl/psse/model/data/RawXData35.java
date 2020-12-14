@@ -73,25 +73,26 @@ public class RawXData35 extends RawXDataCommon {
     }
 
     private void write(PsseRawModel model, Context context, BufferedOutputStream outputStream) throws IOException {
-        JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(new DefaultPrettyPrinter());
-        generator.writeStartObject();
-        generator.writeFieldName("network");
-        generator.writeStartObject();
-        generator.flush();
+        try (JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(new DefaultPrettyPrinter())) {
+            generator.writeStartObject();
+            generator.writeFieldName("network");
+            generator.writeStartObject();
+            generator.flush();
 
-        new CaseIdentificationData().write1x(model, context, generator);
-        new BusData().writex(model.getBuses(), context, generator);
-        new LoadData().writex(model.getLoads(), context, generator);
-        new FixedBusShuntData().writex(model.getFixedShunts(), context, generator);
-        new GeneratorData().writex(model.getGenerators(), context, generator);
-        new NonTransformerBranchData().writex(model.getNonTransformerBranches(), context, generator);
-        new TransformerData().writex(model.getTransformers(), context, generator);
-        new AreaInterchangeData().writex(model.getAreas(), context, generator);
-        new ZoneData().writex(model.getZones(), context, generator);
-        new OwnerData().writex(model.getOwners(), context, generator);
+            new CaseIdentificationData().write1x(model, context, generator);
+            new BusData().writex(model.getBuses(), context, generator);
+            new LoadData().writex(model.getLoads(), context, generator);
+            new FixedBusShuntData().writex(model.getFixedShunts(), context, generator);
+            new GeneratorData().writex(model.getGenerators(), context, generator);
+            new NonTransformerBranchData().writex(model.getNonTransformerBranches(), context, generator);
+            new TransformerData().writex(model.getTransformers(), context, generator);
+            new AreaInterchangeData().writex(model.getAreas(), context, generator);
+            new ZoneData().writex(model.getZones(), context, generator);
+            new OwnerData().writex(model.getOwners(), context, generator);
 
-        generator.writeEndObject(); // network
-        generator.writeEndObject(); // root
-        generator.flush();
+            generator.writeEndObject(); // network
+            generator.writeEndObject(); // root
+            generator.flush();
+        }
     }
 }
