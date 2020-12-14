@@ -6,14 +6,13 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
-import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.data.JsonModel.ArrayData;
+import com.powsybl.psse.model.data.JsonModel.TableData;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import org.apache.commons.lang3.ArrayUtils;
@@ -170,16 +169,6 @@ final class Util {
         writer.flush();
     }
 
-    static String writeJsonModel(JsonModel jsonModel) throws IOException {
-        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-        prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        objectMapper.setSerializationInclusion(Include.NON_NULL);
-        return objectMapper.writer(prettyPrinter).writeValueAsString(jsonModel);
-    }
-
     static String[] intersection(String[] strings1, String[] strings2) {
         // XXX(Luma) improve this
         String[] intersection = new String[] {};
@@ -200,4 +189,42 @@ final class Util {
         }
         return fields;
     }
+
+    public static void writex(String rawxNodeName, ArrayData arrayData, JsonGenerator generator) {
+        if (!arrayDataIsEmpty(arrayData)) {
+            writeJson(rawxNodeName, arrayData, generator);
+        }
+    }
+
+    public static void writex(String rawxNodeName, TableData tableData, JsonGenerator generator) {
+        if (!tableDataIsEmpty(tableData)) {
+            writeJson(rawxNodeName, tableData, generator);
+        }
+    }
+
+    private static boolean arrayDataIsEmpty(ArrayData arrayData) {
+        return arrayData.getQuotedFields() == null || arrayData.getData() == null
+            || arrayData.getQuotedFields().isEmpty() || arrayData.getData().isEmpty();
+    }
+
+    private static boolean tableDataIsEmpty(TableData tableData) {
+        return tableData.getQuotedFields() == null || tableData.getData() == null
+            || tableData.getQuotedFields().isEmpty() || tableData.getData().isEmpty();
+    }
+
+    private static void writeJson(String nodeName, Object value, JsonGenerator generator) {
+        try {
+            generator.writeFieldName(nodeName);
+
+            String json = new ObjectMapper().writer(generator.getPrettyPrinter()).writeValueAsString(value);
+            // XXX(Luma) We should not need this kind of adjustments
+            String adjustedJson = StringUtils.replaceEach(json, new String[] {"\"[", "]\"", "\\\""}, new String[] {"[", "]", "\""});
+            generator.writeRawValue(adjustedJson);
+            generator.flush();
+            //outputStream.write(adjustedJson.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new PsseException("XXX(Luma) writing", e);
+        }
+    }
+
 }

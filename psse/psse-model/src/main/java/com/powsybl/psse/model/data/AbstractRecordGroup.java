@@ -7,6 +7,7 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
@@ -146,12 +147,12 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(records, actualFieldNames, context);
     }
 
-    TableData write(List<T> psseObjects, Context context) {
+    void writex(List<T> psseObjects, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
         String[] quotedFieldsInside = Util.intersection(quotedFields(), headers);
 
         List<String> stringList = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
-        return new TableData(headers, stringList);
+        Util.writex(getRecordGroup().getRawxNodeName(), new TableData(headers, stringList), generator);
     }
 
     PsseRecordGroup getRecordGroup() {

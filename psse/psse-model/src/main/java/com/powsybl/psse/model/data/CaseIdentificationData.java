@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseRawModel;
@@ -75,7 +76,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
     }
 
-    ArrayData write1(PsseRawModel model, Context context) {
+    void write1x(PsseRawModel model, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(getRecordGroup());
         List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
         caseIdentificationList.add(model.getCaseIdentification());
@@ -84,7 +85,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             caseIdentificationList, headers, Util.intersection(quotedFields(), headers),
             context.getDelimiter().charAt(0));
 
-        return new ArrayData(headers, stringList);
+        Util.writex(getRecordGroup().getRawxNodeName(), new ArrayData(headers, stringList), generator);
     }
 
     @Override

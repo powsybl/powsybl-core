@@ -6,21 +6,23 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
-import com.powsybl.psse.model.data.JsonModel.ArrayData;
-import com.powsybl.psse.model.data.JsonModel.JsonNetwork;
-import com.powsybl.psse.model.data.JsonModel.TableData;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
@@ -75,69 +77,31 @@ public class RawXData35 extends RawXDataCommon {
     }
 
     private void write(PsseRawModel model, Context context, BufferedOutputStream outputStream) throws IOException {
+        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
+        prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
-        JsonNetwork network = new JsonNetwork();
+        JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(prettyPrinter);
+        generator.writeStartObject();
+        generator.writeFieldName("network");
+        generator.writeStartObject();
+        generator.flush();
 
-        ArrayData arrayData = new CaseIdentificationData().write1(model, context);
-        if (!arrayDataIsEmpty(arrayData)) {
-            network.setCaseid(arrayData);
-        }
-        TableData tableData = new BusData().write(model.getBuses(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setBus(tableData);
-        }
-        tableData = new LoadData().write(model.getLoads(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setLoad(tableData);
-        }
-        tableData = new FixedBusShuntData().write(model.getFixedShunts(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setFixshunt(tableData);
-        }
-        tableData = new GeneratorData().write(model.getGenerators(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setGenerator(tableData);
-        }
-        tableData = new NonTransformerBranchData().write(model.getNonTransformerBranches(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setAcline(tableData);
-        }
-        tableData = new TransformerData().write(model.getTransformers(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setTransformer(tableData);
-        }
+        new CaseIdentificationData().write1x(model, context, generator);
+        new BusData().writex(model.getBuses(), context, generator);
+        new LoadData().writex(model.getLoads(), context, generator);
+        new FixedBusShuntData().writex(model.getFixedShunts(), context, generator);
+        new GeneratorData().writex(model.getGenerators(), context, generator);
+        new NonTransformerBranchData().writex(model.getNonTransformerBranches(), context, generator);
+        new TransformerData().writex(model.getTransformers(), context, generator);
+        new AreaInterchangeData().writex(model.getAreas(), context, generator);
+        new ZoneData().writex(model.getZones(), context, generator);
+        new OwnerData().writex(model.getOwners(), context, generator);
 
-        tableData = new AreaInterchangeData().write(model.getAreas(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setArea(tableData);
-        }
-        tableData = new ZoneData().write(model.getZones(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setZone(tableData);
-        }
-        tableData = new OwnerData().write(model.getOwners(), context);
-        if (!tableDataIsEmpty(tableData)) {
-            network.setOwner(tableData);
-        }
-
-        // XXX(Luma) We could get rid of the JsonModel and setting data into it
-        // If we build directly the TableData items and serialize them over the output stream after being wilt
-        // This would make the "write" more "write"
-        JsonModel jsonModel = new JsonModel(network);
-        // XXX(Luma) We should write on an output stream
-        String json = Util.writeJsonModel(jsonModel);
-        // XXX(Luma) We should not need this kind of adjustments
-        String adjustedJson = StringUtils.replaceEach(json, new String[] {"\"[", "]\"", "\\\""}, new String[] {"[", "]", "\""});
-        outputStream.write(adjustedJson.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private boolean arrayDataIsEmpty(ArrayData arrayData) {
-        return arrayData.getQuotedFields() == null || arrayData.getData() == null
-            || arrayData.getQuotedFields().isEmpty() || arrayData.getData().isEmpty();
-    }
-
-    private boolean tableDataIsEmpty(TableData tableData) {
-        return tableData.getQuotedFields() == null || tableData.getData() == null
-            || tableData.getQuotedFields().isEmpty() || tableData.getData().isEmpty();
+        generator.writeEndObject(); // network
+        generator.writeEndObject(); // root
+        generator.flush();
     }
 }
