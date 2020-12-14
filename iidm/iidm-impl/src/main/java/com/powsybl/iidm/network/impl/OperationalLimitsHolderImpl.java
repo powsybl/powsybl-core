@@ -30,6 +30,11 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType, oldValue, operationalLimits);
     }
 
+    @Override
+    public void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue) {
+        identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
+    }
+
     List<OperationalLimits> getOperationalLimits() {
         return Collections.unmodifiableList(new ArrayList<>(operationalLimits.values()));
     }

@@ -74,7 +74,9 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
     @Override
     public L setPermanentLimit(double permanentLimit) {
         ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
+        owner.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);
         return (L) this;
     }
 

@@ -13,7 +13,9 @@ import com.powsybl.iidm.network.Validable;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface OperationalLimitsOwner extends Validable {
+interface OperationalLimitsOwner extends Validable {
 
     void setOperationalLimits(LimitType limitType, OperationalLimits operationalLimits);
+
+    void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue);
 }
