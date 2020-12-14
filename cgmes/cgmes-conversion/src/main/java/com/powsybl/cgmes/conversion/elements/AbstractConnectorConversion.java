@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import java.util.List;
+import java.util.Optional;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
@@ -88,17 +89,12 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         DanglingLine dl;
         if (equivalentInjectionConversion != null) {
             dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
-            equivalentInjectionConversion.convertReactiveLimits(dl.getGeneration());
+            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion::convertReactiveLimits);
         } else {
-            dl = dlAdder.setP0(f.p())
-                .setQ0(f.q())
-                .newGeneration()
-                .setTargetP(0.0)
-                .setTargetQ(0.0)
-                .setTargetV(Double.NaN)
-                .setVoltageRegulationOn(false)
-                .add()
-                .add();
+            dl = dlAdder
+                    .setP0(f.p())
+                    .setQ0(f.q())
+                    .add();
         }
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS + "Terminal_Boundary");
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS + "Terminal_Network");
@@ -114,8 +110,9 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
 
             if (isZ0(dl)) {
                 // Flow out must be equal to the consumption seen at boundary
-                dl.getTerminal().setP(dl.getP0() - dl.getGeneration().getTargetP());
-                dl.getTerminal().setQ(dl.getQ0() - dl.getGeneration().getTargetQ());
+                Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+                dl.getTerminal().setP(dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0));
+                dl.getTerminal().setQ(dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0));
 
             } else {
                 setDanglingLineModelSideFlow(dl, boundaryNode);
@@ -134,8 +131,9 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         // The net sum of power flow "entering" at boundary is "exiting"
         // through the line, we have to change the sign of the sum of flows
         // at the node when we consider flow at line end
-        double p = dl.getP0() - dl.getGeneration().getTargetP();
-        double q = dl.getQ0() - dl.getGeneration().getTargetQ();
+        Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+        double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
+        double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
         SV svboundary = new SV(-p, -q, v, angle);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
