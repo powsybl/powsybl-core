@@ -269,6 +269,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags controlAreas() {
+        return null;
+    }
+
+    @Override
     public String modelId() {
         return modelId;
     }

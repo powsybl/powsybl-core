@@ -85,10 +85,10 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         // the original ACLineSegment or Switch terminals
         // We want to keep track add this equivalent injection terminal
         // under a separate, specific, alias type
-        dl.addAlias(this.id, Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjection");
+        dl.addAlias(this.id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
         CgmesTerminal cgmesTerminal = context.cgmes().terminal(terminalId());
         if (cgmesTerminal != null) {
-            dl.addAlias(cgmesTerminal.id(), Conversion.CGMES_PREFIX_ALIAS + "EquivalentInjectionTerminal");
+            dl.addAlias(cgmesTerminal.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
         }
         return dl;
     }
