@@ -29,7 +29,7 @@
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="600.0" q0="200.0" bus="NLOAD" connectableBus="NLOAD" p="600.0" q="200.0"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD" p1="600.8677978515625" q1="274.3769836425781" p2="-600.0" q2="-200.0">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="true" targetV="158.0" targetDeadband="0.0">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" targetDeadband="0.0" loadTapChangingCapabilities="true" regulating="true" targetV="158.0">
                 <iidm:terminalRef id="NHV2_NLOAD" side="TWO"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
@@ -37,9 +37,9 @@
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>
-    <iidm:tieLine id="NHV1_NHV2_1" ucteXnodeCode="X1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" p1="302.4440612792969" q1="98.74027252197266" p2="-300.43389892578125" q2="-137.18849182128906" id_1="NHV1_NHV2_1.1" r_1="1.5" x_1="16.5" g1_1="0.0" b1_1="9.65E-5" g2_1="0.0" b2_1="9.65E-5" xnodeP_1="302.4440612792969" xnodeQ_1="98.74027252197266" id_2="NHV1_NHV2_1.2" r_2="1.5" x_2="16.5" g1_2="0.0" b1_2="9.65E-5" g2_2="0.0" b2_2="9.65E-5" xnodeP_2="-300.43389892578125" xnodeQ_2="-137.18849182128906">
+    <iidm:tieLine id="NHV1_NHV2_1" ucteXnodeCode="X1" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" p1="302.4440612792969" q1="98.74027252197266" p2="-300.43389892578125" q2="-137.18849182128906" id_1="NHV1_NHV2_1.1" r_1="1.5" x_1="16.5" g1_1="0.0" b1_1="9.65E-5" g2_1="0.0" b2_1="9.65E-5" xnodeP_1="-301.47434650169686" xnodeQ_1="-118.85058330380885" id_2="NHV1_NHV2_1.2" r_2="1.5" x_2="16.5" g1_2="0.0" b1_2="9.65E-5" g2_2="0.0" b2_2="9.65E-5" xnodeP_2="301.4723196251838" xnodeQ_2="118.76748245598358">
         <iidm:alias>Alias</iidm:alias>
         <iidm:alias>Other alias</iidm:alias>
     </iidm:tieLine>
-    <iidm:tieLine id="NHV1_NHV2_2" ucteXnodeCode="X2" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" p1="302.4440612792969" q1="98.74027252197266" p2="-300.43389892578125" q2="-137.18849182128906" id_1="NHV1_NHV2_2.1" r_1="1.5" x_1="16.5" g1_1="0.0" b1_1="9.65E-5" g2_1="0.0" b2_1="9.65E-5" xnodeP_1="302.4440612792969" xnodeQ_1="98.74027252197266" id_2="NHV1_NHV2_2.2" r_2="1.5" x_2="16.5" g1_2="0.0" b1_2="9.65E-5" g2_2="0.0" b2_2="9.65E-5" xnodeP_2="-300.43389892578125" xnodeQ_2="-137.18849182128906"/>
+    <iidm:tieLine id="NHV1_NHV2_2" ucteXnodeCode="X2" bus1="NHV1" connectableBus1="NHV1" voltageLevelId1="VLHV1" bus2="NHV2" connectableBus2="NHV2" voltageLevelId2="VLHV2" p1="302.4440612792969" q1="98.74027252197266" p2="-300.43389892578125" q2="-137.18849182128906" id_1="NHV1_NHV2_2.1" r_1="1.5" x_1="16.5" g1_1="0.0" b1_1="9.65E-5" g2_1="0.0" b2_1="9.65E-5" xnodeP_1="-301.47434650169686" xnodeQ_1="-118.85058330380885" id_2="NHV1_NHV2_2.2" r_2="1.5" x_2="16.5" g1_2="0.0" b1_2="9.65E-5" g2_2="0.0" b2_2="9.65E-5" xnodeP_2="301.4723196251838" xnodeQ_2="118.76748245598358"/>
 </iidm:network>

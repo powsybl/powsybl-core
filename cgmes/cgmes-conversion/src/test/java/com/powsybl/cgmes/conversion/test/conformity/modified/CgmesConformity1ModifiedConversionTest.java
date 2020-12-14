@@ -495,6 +495,19 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniBusBranchExternalInjectionControl() throws IOException {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), null);
+        // External network injections with shared control enabled
+        // One external network injection has control enabled
+        // The other one has it disabled
+        assertFalse(network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").isVoltageRegulatorOn());
+        assertTrue(network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").isVoltageRegulatorOn());
+        assertEquals(10.0, network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").getTargetV(), 1e-10);
+        // Even if the control is disabled, the target voltage must be set
+        assertEquals(10.0, network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").getTargetV(), 1e-10);
+    }
+
+    @Test
     public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), null);

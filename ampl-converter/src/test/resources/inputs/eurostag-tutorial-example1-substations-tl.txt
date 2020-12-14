@@ -1,0 +1,8 @@
+#Substations (sim1/InitialState)
+#"variant" "num" "unused1" "unused2" "nomV (KV)" "minV (pu)" "maxV (pu)" "fault" "curative" "country" "id" "description"
+1 1 "" 0 24.0000 -99999.0 -99999.0 0 0 "FR" "VLGEN" "VLGEN"
+1 2 "" 0 380.000 -99999.0 -99999.0 0 0 "FR" "VLHV1" "VLHV1"
+1 3 "" 0 380.000 -99999.0 -99999.0 0 0 "FR" "VLHV2" "VLHV2"
+1 4 "" 0 150.000 -99999.0 -99999.0 0 0 "FR" "VLLOAD" "VLLOAD"
+1 5 "" 0 380.000 -99999.0 -99999.0 0 0 "XNODE" "XNODE1_voltageLevel" ""
+1 6 "" 0 380.000 -99999.0 -99999.0 0 0 "XNODE" "XNODE2_voltageLevel" ""
