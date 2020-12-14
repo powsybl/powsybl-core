@@ -732,7 +732,8 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
-        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
 }}
 }
 
@@ -857,6 +858,20 @@ OPTIONAL { GRAPH ?graphSSH  {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}}
+}
+
+# query: controlAreas
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ControlArea
+        a cim:ControlArea ;
+        cim:IdentifiedObject.name ?name
+}}
+{ GRAPH ?graphSSH {
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
 }
 

@@ -7,17 +7,34 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.Properties;
-
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
+import com.powsybl.cgmes.conversion.export.CgmesExportContext;
+import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
+import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
-import com.powsybl.cgmes.conversion.update.StateVariablesAdder;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
+import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterType;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,24 +42,55 @@ import com.powsybl.iidm.network.Network;
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
+    public List<Parameter> getParameters() {
+        return Collections.unmodifiableList(STATIC_PARAMETERS);
+    }
+
     @Override
     public void export(Network network, Properties params, DataSource ds) {
-
-        // Right now the network must contain the original CgmesModel
-        // In the future it should be possible to export to CGMES
-        // directly from an IIDM Network,
-        // without the need for the original CgmesModel
-        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
-        if (ext == null) {
-            throw new CgmesModelException("No extension for CGMES model found in Network");
+        Objects.requireNonNull(network);
+        if (ConversionParameters.readBooleanParameter(getFormat(), params, USING_ONLY_NETWORK_PARAMETER)) {
+            exportUsingOnlyNetwork(network, params, ds);
+        } else {
+            CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
+            if (ext == null) {
+                throw new CgmesModelException("CGMES model is required and not found in Network extension");
+            }
+            exportUsingOriginalCgmesModel(network, ds, ext);
         }
-        CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
+    }
 
+    private String baseName(Network network, Properties params) {
+        String baseName = ConversionParameters.readStringParameter(getFormat(), params, BASE_NAME_PARAMETER);
+        return baseName != null ? baseName : network.getNameOrId();
+    }
+
+    private void exportUsingOnlyNetwork(Network network, Properties params, DataSource ds) {
+        // At this point only SSH, SV can be exported when relying only in Network data
+        // (minimum amount of CGMES references are expected as aliases/properties/extensions)
+        String baseName = baseName(network, params);
+        String filenameSv = baseName + "_SV.xml";
+        String filenameSsh = baseName + "_SSH.xml";
+        CgmesExportContext context = new CgmesExportContext(network);
+        try (OutputStream osv = ds.newOutputStream(filenameSv, false);
+                OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
+            XMLStreamWriter writer;
+            writer = XmlUtil.initializeWriter(true, "    ", osv);
+            StateVariablesExport.write(network, writer, context);
+            writer = XmlUtil.initializeWriter(true, "    ", ossh);
+            SteadyStateHypothesisExport.write(network, writer, context);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void exportUsingOriginalCgmesModel(Network network, DataSource ds, CgmesModelExtension ext) {
+        CgmesUpdate cgmesUpdate = ext.getCgmesUpdate();
         CgmesModel cgmesSource = ext.getCgmesModel();
         CgmesModel cgmes = CgmesModelFactory.copy(cgmesSource);
-
         String variantId = network.getVariantManager().getWorkingVariantId();
-
         cgmesUpdate.update(cgmes, variantId);
         // Fill the State Variables data with the Network current state values
         StateVariablesAdder adder = new StateVariablesAdder(cgmes, network);
@@ -59,4 +107,22 @@ public class CgmesExport implements Exporter {
     public String getFormat() {
         return "CGMES";
     }
+
+    public static final String USING_ONLY_NETWORK = "iidm.export.cgmes.using-only-network";
+    public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+
+    private static final Parameter USING_ONLY_NETWORK_PARAMETER = new Parameter(
+            USING_ONLY_NETWORK,
+            ParameterType.BOOLEAN,
+            "Export to CGMES using only information present in IIDM Network (including extensions and aliases)",
+            Boolean.FALSE);
+    private static final Parameter BASE_NAME_PARAMETER = new Parameter(
+            BASE_NAME,
+            ParameterType.STRING,
+            "Basename for output files",
+            null);
+
+    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+            USING_ONLY_NETWORK_PARAMETER,
+            BASE_NAME_PARAMETER);
 }
