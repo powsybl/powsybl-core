@@ -11,12 +11,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseCaseIdentification;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.data.JsonModel.ArrayData;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -81,11 +81,11 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
         caseIdentificationList.add(model.getCaseIdentification());
 
-        List<String> stringList = writexBlock(PsseCaseIdentification.class,
+        String record = writexBlock(PsseCaseIdentification.class,
             caseIdentificationList, headers, Util.intersection(quotedFields(), headers),
-            context.getDelimiter().charAt(0));
+            context.getDelimiter().charAt(0)).get(0);
 
-        Util.writex(getRecordGroup().getRawxNodeName(), new ArrayData(headers, stringList), generator);
+        writex(headers, Collections.singletonList(record), generator);
     }
 
     @Override

@@ -6,14 +6,10 @@
  */
 package com.powsybl.psse.model.data;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseCaseIdentification;
@@ -77,13 +73,7 @@ public class RawXData35 extends RawXDataCommon {
     }
 
     private void write(PsseRawModel model, Context context, BufferedOutputStream outputStream) throws IOException {
-        DefaultPrettyPrinter prettyPrinter = new DefaultPrettyPrinter();
-        prettyPrinter.indentArraysWith(DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.configure(SerializationFeature.INDENT_OUTPUT, true);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-
-        JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(prettyPrinter);
+        JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(new DefaultPrettyPrinter());
         generator.writeStartObject();
         generator.writeFieldName("network");
         generator.writeStartObject();

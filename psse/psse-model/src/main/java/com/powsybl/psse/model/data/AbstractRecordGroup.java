@@ -9,10 +9,12 @@ package com.powsybl.psse.model.data;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.util.DefaultIndenter;
+import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.data.JsonModel.TableData;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.csv.CsvParser;
@@ -63,7 +65,7 @@ public abstract class AbstractRecordGroup<T> {
         return fieldNames;
     }
 
-    public void withQuotedFields(String...quotedFields) {
+    public void withQuotedFields(String... quotedFields) {
         this.quotedFields = quotedFields.length > 0 ? quotedFields : null;
     }
 
@@ -151,8 +153,8 @@ public abstract class AbstractRecordGroup<T> {
         String[] headers = context.getFieldNames(recordGroup);
         String[] quotedFieldsInside = Util.intersection(quotedFields(), headers);
 
-        List<String> stringList = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
-        Util.writex(getRecordGroup().getRawxNodeName(), new TableData(headers, stringList), generator);
+        List<String> records = writexBlock(psseTypeClass(), psseObjects, headers, quotedFieldsInside, context.getDelimiter().charAt(0));
+        writex(headers, records, generator);
     }
 
     PsseRecordGroup getRecordGroup() {
@@ -259,6 +261,59 @@ public abstract class AbstractRecordGroup<T> {
         }
     }
 
+    public void writex(String[] fields, List<String> data, JsonGenerator g) {
+        if (fields == null || data == null || fields.length == 0 || data.isEmpty()) {
+            return;
+        }
+        // If we have a default pretty printer we will adjust it to write differently
+        // RAWX Parameter Set and Data Tables
+        DefaultPrettyPrinter dpp = null;
+        PrettyPrinter pp = g.getPrettyPrinter();
+        if (pp != null && pp instanceof DefaultPrettyPrinter) {
+            dpp = (DefaultPrettyPrinter) pp;
+        }
+        try {
+            g.writeFieldName(recordGroup.rawxNodeName);
+
+            // Fields
+            g.writeStartObject();
+            // List of fields is pretty printed in a single line
+            if (dpp != null) {
+                dpp.indentArraysWith(DefaultPrettyPrinter.FixedSpaceIndenter.instance);
+            }
+            g.writeArrayFieldStart("fields");
+            for (int k = 0; k < fields.length; k++) {
+                g.writeString(fields[k]);
+            }
+            g.writeEndArray();
+
+            // Data is pretty printed depending on type of record group
+            // TableData sections write every record in a separate line
+            if (dpp != null) {
+                dpp.indentArraysWith(recordGroup.isParameterSet()
+                    ? DefaultPrettyPrinter.FixedSpaceIndenter.instance
+                    : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
+            }
+            g.writeArrayFieldStart("data");
+            for (String s : data) {
+                if (recordGroup.isDataTable()) {
+                    g.writeStartArray();
+                }
+                g.writeRaw(" ");
+                g.writeRaw(s);
+                if (recordGroup.isDataTable()) {
+                    g.writeEndArray();
+                }
+            }
+            g.writeEndArray();
+
+            g.writeEndObject();
+            g.flush();
+        } catch (IOException e) {
+            throw new PsseException("Writing PSSE in RAWX format ", e);
+        }
+    }
+
     public enum PsseRecordGroup {
         CASE_IDENTIFICATION("caseid"),
         SYSTEM_WIDE("?"),
@@ -306,6 +361,18 @@ public abstract class AbstractRecordGroup<T> {
 
         public String getRawName() {
             return rawName;
+        }
+
+        // A RAWX files consist of two types of data objects: RAWX Parameter Sets and RAWX Data Tables.
+        // "caseid" is a RAWX Parameter Set
+        // "bus" is an RAWX Data Table (which has multiple data rows, one for each bus record)
+
+        public boolean isDataTable() {
+            return !isParameterSet();
+        }
+
+        public boolean isParameterSet() {
+            return rawxNodeName.equals("caseid");
         }
     }
 }

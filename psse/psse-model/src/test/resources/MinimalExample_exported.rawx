@@ -1,32 +1,32 @@
 {
   "network" : {
     "caseid" : {
-      "fields" : ["rev", "title1"],
-      "data" : [35,"PSS(R)E MINIMUM RAWX CASE"]
+      "fields" : [ "rev", "title1" ],
+      "data" : [ 35,"PSS(R)E MINIMUM RAWX CASE" ]
     },
     "bus" : {
-      "fields" : ["ibus", "name", "ide"],
+      "fields" : [ "ibus", "name", "ide" ],
       "data" : [
-        [101,"Source",3],
-        [102,"Sink",1]
+        [ 101,"Source",3 ],
+        [ 102,"Sink",1 ]
       ]
     },
     "load" : {
-      "fields" : ["ibus", "loadid", "pl", "ql"],
+      "fields" : [ "ibus", "loadid", "pl", "ql" ],
       "data" : [
-        [102,"1",500.0,200.0]
+        [ 102,"1",500.0,200.0 ]
       ]
     },
     "generator" : {
-      "fields" : ["ibus", "machid"],
+      "fields" : [ "ibus", "machid" ],
       "data" : [
-        [101,"1"]
+        [ 101,"1" ]
       ]
     },
     "acline" : {
-      "fields" : ["ibus", "jbus", "ckt", "xpu"],
+      "fields" : [ "ibus", "jbus", "ckt", "xpu" ],
       "data" : [
-        [101,102,"1",0.01]
+        [ 101,102,"1",0.01 ]
       ]
     }
   }
