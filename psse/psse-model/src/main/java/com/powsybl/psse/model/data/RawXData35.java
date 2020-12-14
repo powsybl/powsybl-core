@@ -40,7 +40,7 @@ public class RawXData35 extends RawXDataCommon {
 
     private PsseRawModel read(InputStream stream, Context context) throws IOException {
         JsonNode networkNode = networkNode(stream);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode, context);
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1x(networkNode, context);
         caseIdentification.validate();
 
         PsseRawModel model = new PsseRawModel(caseIdentification);

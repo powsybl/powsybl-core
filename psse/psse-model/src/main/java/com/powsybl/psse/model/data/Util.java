@@ -7,6 +7,7 @@
 package com.powsybl.psse.model.data;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -24,6 +25,7 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -123,6 +125,17 @@ final class Util {
             }
         }
         return fields;
+    }
+
+    public static JsonNode readx(JsonParser parser, String rawxNodeName) throws IOException {
+        Objects.requireNonNull(parser);
+        Objects.requireNonNull(rawxNodeName);
+        while (parser.hasCurrentToken()) {
+            if (rawxNodeName.equals(parser.getCurrentName())) {
+                return parser.readValueAsTree();
+            }
+        }
+        throw new PsseException("Json node not found: " + rawxNodeName);
     }
 
     static String[] readFieldNames(JsonNode jsonNode) {

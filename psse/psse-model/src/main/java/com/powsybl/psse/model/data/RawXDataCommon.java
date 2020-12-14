@@ -15,8 +15,10 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseRawModel;
 import com.powsybl.psse.model.PsseVersion;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 /**
  * PSSE raw data common to all versions
@@ -29,8 +31,8 @@ public class RawXDataCommon implements RawData {
 
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try (InputStream is = dataSource.newInputStream(null, ext)) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(is), new Context());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1x(reader, new Context());
             caseIdentification.validate();
             return true;
         }
@@ -38,8 +40,8 @@ public class RawXDataCommon implements RawData {
 
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
-        try (InputStream is = dataSource.newInputStream(null, ext)) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(networkNode(is), new Context());
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1x(reader, new Context());
             return PsseVersion.fromRevision(caseIdentification.getRev());
         }
     }

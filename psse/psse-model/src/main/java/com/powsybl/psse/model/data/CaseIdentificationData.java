@@ -46,6 +46,22 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return caseIdentification;
     }
 
+    PsseCaseIdentification read1x(BufferedReader reader, Context context) throws IOException {
+        context.setDelimiter(",");
+        PsseCaseIdentification caseIdentification = readx(reader, context).get(0);
+        context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
+        context.setRawx(true);
+        return caseIdentification;
+    }
+
+    PsseCaseIdentification read1x(JsonNode node, Context context) throws IOException {
+        context.setDelimiter(",");
+        PsseCaseIdentification caseIdentification = read(node, context).get(0);
+        context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
+        context.setRawx(true);
+        return caseIdentification;
+    }
+
     void write1(PsseRawModel model, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(getRecordGroup());
         headers = Util.excludeFields(headers, EXCLUDED_FIELDS);
@@ -57,14 +73,6 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             Util.intersection(quotedFields(), headers), context.getDelimiter().charAt(0), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle1(), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
-    }
-
-    PsseCaseIdentification read1(JsonNode networkNode, Context context) {
-        context.setDelimiter(",");
-        PsseCaseIdentification caseIdentification = read(networkNode, context).get(0);
-        context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
-        context.setRawx(true);
-        return caseIdentification;
     }
 
     ArrayData write1(PsseRawModel model, Context context) {

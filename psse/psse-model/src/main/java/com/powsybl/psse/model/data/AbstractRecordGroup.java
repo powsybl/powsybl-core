@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.model.data;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
@@ -111,6 +113,18 @@ public abstract class AbstractRecordGroup<T> {
         writeBegin(outputStream);
         writeBlock(psseTypeClass(), psseObjects, headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
         writeEnd(outputStream);
+    }
+
+    public List<T> readx(BufferedReader reader, Context context) throws IOException {
+        // Use Jackson streaming API to skip contents until wanted node is found
+        JsonFactory jsonFactory = new JsonFactory();
+        try (JsonParser parser = jsonFactory.createParser(reader)) {
+            JsonNode node = Util.readx(parser, getRecordGroup().getRawxNodeName());
+            String[] actualFieldNames = Util.readFieldNames(node);
+            List<String> records = Util.readRecords(node);
+            context.setFieldNames(getRecordGroup(), actualFieldNames);
+            return parseRecords(records, actualFieldNames, context);
+        }
     }
 
     public List<T> read(JsonNode networkNode, Context context) {
