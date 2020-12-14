@@ -19,39 +19,53 @@ import static org.junit.Assert.*;
 public abstract class AbstractVoltageLimitsTest {
 
     @Test
-    public void testConfiguredBus() {
+    public void testBus() {
         Network network = EurostagTutorialExample1Factory.create();
         Bus bus = network.getBusBreakerView().getBus("NLOAD");
+        Bus bbus = bus.getConnectedTerminalStream().findFirst().map(t -> t.getBusView().getBus()).orElseThrow(() -> new AssertionError("Should not happen"));
+        try {
+            bbus.newVoltageLimits();
+            fail();
+        } catch (ValidationException e) {
+            assertEquals("Bus 'VLLOAD_0': no voltage limit can be created on a calculated object: directly set on the configured object", e.getMessage());
+        }
         bus.newVoltageLimits()
                 .setHighVoltage(220.0)
                 .setLowVoltage(140.0)
                 .add();
 
         test("Bus 'NLOAD'", bus);
-    }
 
-    @Test
-    public void testCalculatedBus() {
-        Network network = FictitiousSwitchFactory.create();
-        Bus bus = network.getBusbarSection("O").getTerminal().getBusBreakerView().getBus();
         bus.newVoltageLimits()
                 .setHighVoltage(220.0)
                 .setLowVoltage(140.0)
                 .add();
-
-        test("Busbar section 'O'", bus);
+        test("Bus 'NLOAD'", bbus);
     }
 
     @Test
     public void testBusbarSection() {
         Network network = FictitiousSwitchFactory.create();
         BusbarSection busbarSection = network.getBusbarSection("O");
+        Bus bus = busbarSection.getTerminal().getBusBreakerView().getBus();
+        try {
+            bus.newVoltageLimits();
+            fail();
+        } catch (ValidationException e) {
+            assertEquals("Bus 'N_0': no voltage limit can be created on a calculated object: directly set on the configured object", e.getMessage());
+        }
         busbarSection.newVoltageLimits()
                 .setHighVoltage(220.0)
                 .setLowVoltage(140.0)
                 .add();
 
         test("Busbar section 'O'", busbarSection);
+
+        busbarSection.newVoltageLimits()
+                .setHighVoltage(220.0)
+                .setLowVoltage(140.0)
+                .add();
+        test("Busbar section 'O'", bus);
     }
 
     @Test

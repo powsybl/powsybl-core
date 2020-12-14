@@ -210,10 +210,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public VoltageLimitsAdder newVoltageLimits() {
-        return buses.stream()
-                .findFirst()
-                .map(VoltageLimitsHolder::newVoltageLimits)
-                .orElseThrow(() -> new AssertionError("Should not happen")); // a merged bus should at least contain one configured bus
+        throw new ValidationException(this, "no voltage limit can be created on a calculated object: directly set on the configured object");
     }
 
     @Override

@@ -199,10 +199,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public VoltageLimitsAdder newVoltageLimits() {
-        return getConnectableStream(BusbarSection.class)
-                .findFirst()
-                .map(VoltageLimitsHolder::newVoltageLimits)
-                .orElseThrow(() -> new ValidationException(this, "No busbarsection is associated to this calculated bus: no voltage limit can be created."));
+        throw new ValidationException(this, "no voltage limit can be created on a calculated object: directly set on the configured object");
     }
 
     @Override
