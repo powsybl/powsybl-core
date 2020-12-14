@@ -97,7 +97,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         CgmesRegulatingControlPhase rcPtc = null;
         if (tc != null) {
             return context.regulatingControlMapping().forTransformers().buildRegulatingControlPhase(
-                tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
+                tc.getId(), tc.getRegulatingControlId(), tc.isTapChangerControlEnabled(), tc.isLtcFlag());
         }
         return rcPtc;
     }
@@ -109,15 +109,41 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         if (ptcs != null) {
             for (int  i = 0; i < ptcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.PHASE_TAP_CHANGER + index));
+                Optional.ofNullable(ptcs.get(i)).ifPresent(ptc -> identifiable.addAlias(ptc, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
             }
         }
         List<String> rtcs = context.cgmes().ratioTapChangerListForPowerTransformer(identifiable.getId());
         if (rtcs != null) {
             for (int i = 0; i < rtcs.size(); i++) {
                 int index = i + 1;
-                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS + CgmesNames.RATIO_TAP_CHANGER + index));
+                Optional.ofNullable(rtcs.get(i)).ifPresent(rtc -> identifiable.addAlias(rtc, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + index, context.config().isEnsureIdAliasUnicity()));
             }
         }
+    }
+
+    protected static void addCgmesReferences(Identifiable<?> transformer, TapChanger tc) {
+        if (tc == null || tc.getId() == null) {
+            return;
+        }
+        if (tc.getRegulatingControlId() != null) {
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "TapChangerControl"), tc.getRegulatingControlId());
+        }
+        if (tc.getType() != null) {
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "type"), tc.getType());
+        }
+        TapChanger tch = tc.getHiddenCombinedTapChanger();
+        if (tch != null) {
+            // All the tap changers have already been added as aliases,
+            // Through properties we only label which one has been combined and kept hidden
+            transformer.setProperty(cgmesReferenceKey(tc.getId(), "hiddenTapChangerId"), tch.getId());
+            transformer.setProperty(cgmesReferenceKey(tch.getId(), "step"), String.valueOf(tch.getTapPosition()));
+            if (tch.getType() != null) {
+                transformer.setProperty(cgmesReferenceKey(tch.getId(), "type"), tch.getType());
+            }
+        }
+    }
+
+    private static String cgmesReferenceKey(String id, String property) {
+        return String.format("%s%s.%s", Conversion.CGMES_PREFIX_ALIAS_PROPERTIES, id, property);
     }
 }

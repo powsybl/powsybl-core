@@ -22,11 +22,10 @@ public class ActionDbTest {
 
     @Test
     public void testContingencies() {
-        Contingency contingency = Mockito.mock(Contingency.class);
-        Mockito.when(contingency.getId()).thenReturn("id");
-
         ActionDb actionDb = new ActionDb();
+        Contingency contingency = new Contingency("id");
         actionDb.addContingency(contingency);
+
         assertEquals(1, actionDb.getContingencies().size());
         assertSame(contingency, actionDb.getContingency("id"));
 

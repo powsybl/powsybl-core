@@ -65,6 +65,10 @@ abstract class AbstractCgmesTapChangerBuilder {
 
         boolean ltcFlag = p.asBoolean(CgmesNames.LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
+        String phaseType = p.getLocal(CgmesNames.PHASE_TAP_CHANGER_TYPE);
+        if (phaseType != null) {
+            tapChanger.setType(phaseType);
+        }
 
         addRegulationData();
         addSteps();

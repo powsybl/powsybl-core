@@ -73,7 +73,7 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals(0, contingency.getExtensions().size());
         assertEquals(1, contingency.getElements().size());
         ContingencyElement element = contingency.getElements().iterator().next();
-        assertTrue(element instanceof BranchContingency);
+        assertTrue(element instanceof LineContingency);
         assertEquals("NHV1_NHV2_1", element.getId());
     }
 

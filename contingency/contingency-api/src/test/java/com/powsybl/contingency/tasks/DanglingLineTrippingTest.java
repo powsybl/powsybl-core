@@ -8,7 +8,6 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.DanglingLineContingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import org.junit.Before;
@@ -33,8 +32,7 @@ public class DanglingLineTrippingTest extends AbstractTrippingTest {
     public void generatorTrippingTest() {
         assertTrue(network.getDanglingLine("DL").getTerminal().isConnected());
 
-        DanglingLineContingency tripping = new DanglingLineContingency("DL");
-        Contingency contingency = new Contingency("contingency", tripping);
+        Contingency contingency = Contingency.danglingLine("DL");
 
         ModificationTask task = contingency.toTask();
         task.modify(network, null);

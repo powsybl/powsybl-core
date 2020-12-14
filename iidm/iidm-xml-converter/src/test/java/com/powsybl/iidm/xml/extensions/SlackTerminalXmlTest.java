@@ -48,10 +48,9 @@ public class SlackTerminalXmlTest extends AbstractConverterTest {
 
         vl.newExtension(SlackTerminalAdder.class).withTerminal(t).add();
 
-        Network network2 = roundTripTest(network,
+        Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                AbstractConverterTest::compareTxt,
                 "/slackTerminal.xml");
 
         VoltageLevel vl2 = network2.getVoltageLevel(voltageLevelId);

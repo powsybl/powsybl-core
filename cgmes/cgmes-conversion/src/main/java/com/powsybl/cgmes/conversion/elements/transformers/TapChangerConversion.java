@@ -127,6 +127,7 @@ public class TapChangerConversion {
     private static TapChanger combineTapChanger(TapChanger tc1, TapChanger tc2) {
         TapChanger tapChanger = baseCloneTapChanger(tc1);
         combineTapChangerSteps(tapChanger, tc1, tc2);
+        tapChanger.setHiddenCombinedTapChanger(tc2);
         return tapChanger;
     }
 
@@ -394,6 +395,8 @@ public class TapChangerConversion {
         boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
+        String type = rtc.getType();
+        TapChanger hiddenCombinedTapChanger = rtc.getHiddenCombinedTapChanger();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition(position)
             .setLtcFlag(isLtcFlag)
@@ -401,7 +404,9 @@ public class TapChangerConversion {
             .setRegulating(isRegulating)
             .setRegulatingControlId(regulatingControlId)
             .setTculControlMode(tculControlMode)
-            .setTapChangerControlEnabled(isTapChangerControlEnabled);
+            .setTapChangerControlEnabled(isTapChangerControlEnabled)
+            .setType(type)
+            .setHiddenCombinedTapChanger(hiddenCombinedTapChanger);
         return tapChanger;
     }
 
