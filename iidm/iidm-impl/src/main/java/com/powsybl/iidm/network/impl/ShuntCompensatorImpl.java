@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,7 +21,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     private final Ref<? extends VariantManagerHolder> network;
 
-    private final AbstractShuntCompensatorModel model;
+    private final ShuntCompensatorModelExt model;
 
     /* the regulating terminal */
     private TerminalExt regulatingTerminal;
@@ -39,12 +41,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TDoubleArrayList targetDeadband;
 
     ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
-                         String id, String name, boolean fictitious, AbstractShuntCompensatorModel model,
+                         String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(id, name, fictitious);
         this.network = network;
-        this.model = attach(model);
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.sectionCount = new TIntArrayList(variantArraySize);
@@ -57,11 +58,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
         }
-    }
-
-    private AbstractShuntCompensatorModel attach(AbstractShuntCompensatorModel model) {
-        model.setShuntCompensator(this);
-        return model;
+        this.model = Objects.requireNonNull(model).attach(this);
     }
 
     @Override
