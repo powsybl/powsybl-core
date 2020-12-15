@@ -60,6 +60,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
  *     </tr>
  * </table>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(Exporter.class)
@@ -77,6 +78,7 @@ public class XMLExporter implements Exporter {
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
     public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
+    public static final String SORTED = "iidm.export.xml.sorted";
     public static final String VERSION = "iidm.export.xml.version";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
@@ -87,6 +89,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of exported extensions", null);
+    private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."));
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -150,6 +153,7 @@ public class XMLExporter implements Exporter {
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null)
+                .setSorted(ConversionParameters.readBooleanParameter(getFormat(), parameters, SORTED_PARAMETER, defaultValueConfig))
                 .setVersion(ConversionParameters.readStringParameter(getFormat(), parameters, VERSION_PARAMETER, defaultValueConfig));
         addExtensionsVersions(parameters, options);
         return options;

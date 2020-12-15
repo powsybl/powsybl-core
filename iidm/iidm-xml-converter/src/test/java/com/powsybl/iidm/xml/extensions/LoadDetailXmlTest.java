@@ -30,7 +30,7 @@ import static org.junit.Assert.assertNotNull;
 public class LoadDetailXmlTest extends AbstractXmlConverterTest {
 
     private static Network createTestNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T12:27:58.535+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
