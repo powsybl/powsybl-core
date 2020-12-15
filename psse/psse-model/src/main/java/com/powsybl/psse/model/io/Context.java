@@ -7,7 +7,6 @@
 package com.powsybl.psse.model.io;
 
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.pf.io.PowerFlowRecordGroup;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.RetryableErrorHandler;
@@ -98,15 +97,6 @@ public class Context {
 
     public CsvParserSettings getCsvParserSettings() {
         return csvParserSettings;
-    }
-
-    // XXX(Luma) remove these methods from here
-    public boolean is3wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(PowerFlowRecordGroup.TRANSFORMER_3) == null;
-    }
-
-    public boolean is2wTransformerDataReadFieldsEmpty() {
-        return fieldNames.get(PowerFlowRecordGroup.TRANSFORMER_2) == null;
     }
 
     public void resetCurrentRecordGroup() {
