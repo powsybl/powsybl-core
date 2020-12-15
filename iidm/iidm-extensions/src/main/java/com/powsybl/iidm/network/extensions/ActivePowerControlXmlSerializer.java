@@ -29,8 +29,8 @@ public class ActivePowerControlXmlSerializer<T extends Injection<T>> extends Abs
 
     @Override
     public void write(ActivePowerControl activePowerControl, XmlWriterContext context) throws XMLStreamException {
-        context.getExtensionsWriter().writeAttribute("participate", Boolean.toString(activePowerControl.isParticipate()));
-        XmlUtil.writeFloat("droop", activePowerControl.getDroop(), context.getExtensionsWriter());
+        context.getWriter().writeAttribute("participate", Boolean.toString(activePowerControl.isParticipate()));
+        XmlUtil.writeFloat("droop", activePowerControl.getDroop(), context.getWriter());
     }
 
     @Override

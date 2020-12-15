@@ -24,7 +24,6 @@ import java.util.Set;
 public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOptions> implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
-    private XMLStreamWriter extensionsWriter;
     private final ExportOptions options;
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
@@ -34,7 +33,6 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
         this.writer = writer;
         this.options = options;
         this.filter = filter;
-        this.extensionsWriter = writer;
         this.exportedEquipments = new HashSet<>();
     }
 
@@ -52,16 +50,17 @@ public class NetworkXmlWriterContext extends AbstractNetworkXmlContext<ExportOpt
         return options;
     }
 
-    public XMLStreamWriter getExtensionsWriter() {
-        return extensionsWriter;
-    }
-
     public BusFilter getFilter() {
         return filter;
     }
 
+    /**
+     * @deprecated Should not be used anymore.
+     */
+    @Deprecated
     public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
-        this.extensionsWriter = extensionsWriter;
+        // does nothing
+        // only kept to prevent breaking change
     }
 
     public Set<Identifiable> getExportedEquipments() {
