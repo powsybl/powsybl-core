@@ -33,10 +33,10 @@ public class LoadDetailXmlSerializer extends AbstractExtensionXmlSerializer<Load
 
     @Override
     public void write(LoadDetail detail, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("fixedActivePower", detail.getFixedActivePower(), context.getExtensionsWriter());
-        XmlUtil.writeFloat("fixedReactivePower", detail.getFixedReactivePower(), context.getExtensionsWriter());
-        XmlUtil.writeFloat("variableActivePower", detail.getVariableActivePower(), context.getExtensionsWriter());
-        XmlUtil.writeFloat("variableReactivePower", detail.getVariableReactivePower(), context.getExtensionsWriter());
+        XmlUtil.writeFloat("fixedActivePower", detail.getFixedActivePower(), context.getWriter());
+        XmlUtil.writeFloat("fixedReactivePower", detail.getFixedReactivePower(), context.getWriter());
+        XmlUtil.writeFloat("variableActivePower", detail.getVariableActivePower(), context.getWriter());
+        XmlUtil.writeFloat("variableReactivePower", detail.getVariableReactivePower(), context.getWriter());
     }
 
     @Override
