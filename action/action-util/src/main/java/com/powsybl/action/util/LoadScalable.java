@@ -123,15 +123,15 @@ class LoadScalable extends AbstractInjectionScalable {
         }
 
         double oldP0 = l.getP0();
-        if (oldP0 < minimumValue(n, LOAD) || oldP0 > this.maximumValue(n, LOAD)) {
+        if (oldP0 < minValue || oldP0 > maxValue) {
             throw new PowsyblException("Error scaling LoadScalable " + id +
                     " : Initial P is not in the range [Pmin, Pmax]");
         }
 
         // We use natural load convention to compute the limits.
         // The actual convention is taken into account afterwards.
-        double availableDown = oldP0 - minimumValue(n, LOAD);
-        double availableUp = maximumValue(n, LOAD) - oldP0;
+        double availableDown = oldP0 - minValue;
+        double availableUp = maxValue - oldP0;
 
         if (scalingConvention == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
