@@ -12,11 +12,12 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -38,15 +39,15 @@ public abstract class AbstractTwoWindingsTransformerPhaseAngleClockTest {
     public void testEnd() {
         transformer.newExtension(TwoWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClock(11).add();
         TwoWindingsTransformerPhaseAngleClock pacOut = transformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
-        Assert.assertEquals(11, pacOut.getPhaseAngleClock());
+        assertEquals(11, pacOut.getPhaseAngleClock());
         pacOut.setPhaseAngleClock(10);
-        Assert.assertEquals(10, pacOut.getPhaseAngleClock());
-        Assert.assertEquals("NHV2_NLOAD", pacOut.getExtendable().getId());
+        assertEquals(10, pacOut.getPhaseAngleClock());
+        assertEquals("NHV2_NLOAD", pacOut.getExtendable().getId());
 
         TwoWindingsTransformerPhaseAngleClock pacIn = transformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
         pacIn.setPhaseAngleClock(6);
         pacOut = transformer.getExtension(TwoWindingsTransformerPhaseAngleClock.class);
-        Assert.assertEquals(6, pacOut.getPhaseAngleClock());
+        assertEquals(6, pacOut.getPhaseAngleClock());
     }
 
     @Test
