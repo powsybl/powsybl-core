@@ -14,8 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -98,23 +97,6 @@ public final class Util {
     }
 
     public static String[] intersection(String[] strings1, String[] strings2) {
-        // XXX(Luma) improve this or consider if it is really required
-        String[] intersection = new String[] {};
-        for (int i = 0; i < strings1.length; i++) {
-            if (ArrayUtils.contains(strings2, strings1[i])) {
-                intersection = ArrayUtils.add(intersection, strings1[i]);
-            }
-        }
-        return intersection;
-    }
-
-    public static String[] excludeFields(String[] initialFields, String[] excludedFields) {
-        String[] fields = new String[] {};
-        for (int i = 0; i < initialFields.length; i++) {
-            if (!ArrayUtils.contains(excludedFields, initialFields[i])) {
-                fields = ArrayUtils.add(fields, initialFields[i]);
-            }
-        }
-        return fields;
+        return ArrayUtils.removeElements(strings1, ArrayUtils.removeElements(strings1, strings2));
     }
 }
