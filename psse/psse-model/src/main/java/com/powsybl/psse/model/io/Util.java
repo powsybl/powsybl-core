@@ -8,6 +8,7 @@ package com.powsybl.psse.model.io;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
@@ -71,22 +72,6 @@ public final class Util {
         return newLine.toString().trim();
     }
 
-    // Empty string "" is not allowed as a field name
-    static String cleanFieldNamesFromJson(String data) {
-        StringBuffer newData = new StringBuffer();
-        Pattern p = Pattern.compile("(\"[^\"]+\")|( )+");
-        Matcher m = p.matcher(data);
-        while (m.find()) {
-            if (m.group().contains("\"")) {
-                m.appendReplacement(newData, m.group().replace("\"", ""));
-            } else {
-                m.appendReplacement(newData, "");
-            }
-        }
-        m.appendTail(newData);
-        return newData.toString();
-    }
-
     // Empty string "" is allowed in the records of Table Data objects
     static String cleanRecordFromJson(String data) {
         StringBuffer newData = new StringBuffer();
@@ -133,10 +118,16 @@ public final class Util {
         throw new PsseException("Json node not found: " + nodeName);
     }
 
-    static String[] readFieldNames(JsonNode jsonNode) {
-        String fieldsNode = jsonNode.get("fields").toString();
-        String fieldsNodeClean = cleanFieldNamesFromJson(fieldsNode.substring(1, fieldsNode.length() - 1));
-        return fieldsNodeClean.split(",");
+    static String[] readFieldNames(JsonNode n) {
+        JsonNode fieldsNode = n.get("fields");
+        if (!fieldsNode.isArray()) {
+            throw new PowsyblException("Expecting array reading fields");
+        }
+        List<String> fields = new ArrayList<>();
+        for (JsonNode f : fieldsNode) {
+            fields.add(f.asText());
+        }
+        return fields.toArray(new String[fields.size()]);
     }
 
     static List<String> readRecords(JsonNode jsonNode) {
