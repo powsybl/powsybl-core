@@ -6,22 +6,16 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -72,22 +66,6 @@ public final class Util {
         return newLine.toString().trim();
     }
 
-    // Empty string "" is allowed in the records of Table Data objects
-    static String cleanRecordFromJson(String data) {
-        StringBuffer newData = new StringBuffer();
-        Pattern p = Pattern.compile("(\"[^\"]*\")|( )+");
-        Matcher m = p.matcher(data);
-        while (m.find()) {
-            if (m.group().contains("\"")) {
-                m.appendReplacement(newData, m.group());
-            } else {
-                m.appendReplacement(newData, "");
-            }
-        }
-        m.appendTail(newData);
-        return newData.toString().trim();
-    }
-
     // quote character assumed to be always '
     public static int numFieldsLegacyTextFileFormat(String data, String delimiter) {
         int fields = 0;
@@ -105,43 +83,6 @@ public final class Util {
             }
         }
         return fields;
-    }
-
-    public static JsonNode readJsonNode(JsonParser parser, String nodeName) throws IOException {
-        Objects.requireNonNull(parser);
-        Objects.requireNonNull(nodeName);
-        while (parser.hasCurrentToken()) {
-            if (nodeName.equals(parser.getCurrentName())) {
-                return parser.readValueAsTree();
-            }
-        }
-        throw new PsseException("Json node not found: " + nodeName);
-    }
-
-    static String[] readFieldNames(JsonNode n) {
-        JsonNode fieldsNode = n.get("fields");
-        if (!fieldsNode.isArray()) {
-            throw new PowsyblException("Expecting array reading fields");
-        }
-        List<String> fields = new ArrayList<>();
-        for (JsonNode f : fieldsNode) {
-            fields.add(f.asText());
-        }
-        return fields.toArray(new String[fields.size()]);
-    }
-
-    static List<String> readRecords(JsonNode jsonNode) {
-        String dataNode = jsonNode.get("data").toString();
-        String dataNodeClean = cleanRecordFromJson(dataNode.substring(1, dataNode.length() - 1));
-
-        String[] dataNodeArray = StringUtils.substringsBetween(dataNodeClean, "[", "]");
-        List<String> records = new ArrayList<>();
-        if (dataNodeArray == null) {
-            records.add(dataNodeClean);
-        } else {
-            records.addAll(Arrays.asList(dataNodeArray));
-        }
-        return records;
     }
 
     public static void writeListString(List<String> records, OutputStream outputStream) {

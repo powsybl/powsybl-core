@@ -59,12 +59,7 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     }
 
     @Override
-    public boolean isDataTable() {
-        return !isParameterSet();
-    }
-
-    @Override
-    public boolean isParameterSet() {
-        return rawxNodeName.equals("caseid");
+    public JsonObjectType getJsonObjectType() {
+        return rawxNodeName.equals("caseid") ? JsonObjectType.PARAMETER_SET : JsonObjectType.DATA_TABLE;
     }
 }

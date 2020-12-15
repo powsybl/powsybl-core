@@ -12,22 +12,25 @@ package com.powsybl.psse.model.io;
  */
 public interface RecordGroupIdentification {
 
+    String getDataName();
+
     default String getUniqueName() {
         String recordGroupName = getJsonNodeName() != null ? getJsonNodeName() : getLegacyTextName();
         return getDataName() + "." + recordGroupName;
     }
 
-    String getDataName();
-
     String getJsonNodeName();
 
     String getLegacyTextName();
+
+    JsonObjectType getJsonObjectType();
 
     // Psse Json files consist of two types of data objects: Parameter Sets and Data Tables.
     // "caseid" in Power Flow data is a Parameter Set
     // "bus" in Power Flow data is an Data Table (which has multiple data rows, one for each bus record)
 
-    boolean isDataTable();
-
-    boolean isParameterSet();
+    enum JsonObjectType {
+        PARAMETER_SET,
+        DATA_TABLE;
+    }
 }

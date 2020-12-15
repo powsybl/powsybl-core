@@ -13,6 +13,7 @@ import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.io.PowerFlowRecordGroup;
@@ -23,6 +24,7 @@ import com.univocity.parsers.csv.CsvParserSettings;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +34,9 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType.DATA_TABLE;
+import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType.PARAMETER_SET;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -121,12 +126,24 @@ public abstract class AbstractRecordGroup<T> {
         // Use Jackson streaming API to skip contents until wanted node is found
         JsonFactory jsonFactory = new JsonFactory();
         try (JsonParser parser = jsonFactory.createParser(reader)) {
-            JsonNode node = Util.readJsonNode(parser, recordGroup.getJsonNodeName());
-            String[] actualFieldNames = Util.readFieldNames(node);
-            List<String> records = Util.readRecords(node);
+            JsonNode node = readJsonNode(parser);
+            String[] actualFieldNames = readFieldNames(node);
+            List<String> records = readRecords(node);
             context.setFieldNames(recordGroup, actualFieldNames);
             return parseRecords(records, actualFieldNames, context);
         }
+    }
+
+    private JsonNode readJsonNode(JsonParser parser) throws IOException {
+        Objects.requireNonNull(parser);
+        String nodeName = recordGroup.getJsonNodeName();
+        Objects.requireNonNull(nodeName);
+        while (parser.hasCurrentToken()) {
+            if (nodeName.equals(parser.getCurrentName())) {
+                return parser.readValueAsTree();
+            }
+        }
+        throw new PsseException("Json node not found: " + nodeName);
     }
 
     public List<T> readJson(JsonNode networkNode, Context context) {
@@ -140,10 +157,43 @@ public abstract class AbstractRecordGroup<T> {
         if (jsonNode == null) {
             return new ArrayList<>();
         }
-        String[] actualFieldNames = Util.readFieldNames(jsonNode);
-        List<String> records = Util.readRecords(jsonNode);
+        String[] actualFieldNames = readFieldNames(jsonNode);
+        List<String> records = readRecords(jsonNode);
         context.setFieldNames(recordGroup, actualFieldNames);
         return parseRecords(records, actualFieldNames, context);
+    }
+
+    static String[] readFieldNames(JsonNode n) {
+        JsonNode fieldsNode = n.get("fields");
+        if (!fieldsNode.isArray()) {
+            throw new PowsyblException("Expecting array reading fields");
+        }
+        List<String> fields = new ArrayList<>();
+        for (JsonNode f : fieldsNode) {
+            fields.add(f.asText());
+        }
+        return fields.toArray(new String[fields.size()]);
+    }
+
+    private List<String> readRecords(JsonNode n) {
+        JsonNode dataNode = n.get("data");
+        if (!dataNode.isArray()) {
+            throw new PowsyblException("Expecting array reading data");
+        }
+        List<String> records = new ArrayList<>();
+        switch (recordGroup.getJsonObjectType()) {
+            case PARAMETER_SET:
+                records.add(StringUtils.substringBetween(dataNode.toString(), "[", "]"));
+                break;
+            case DATA_TABLE:
+                for (JsonNode r : dataNode) {
+                    records.add(StringUtils.substringBetween(r.toString(), "[", "]"));
+                }
+                break;
+            default:
+                throw new PsseException("Unsupported Json object type " + recordGroup.getJsonObjectType());
+        }
+        return records;
     }
 
     public void writeJson(List<T> psseObjects, Context context, JsonGenerator generator) {
@@ -283,18 +333,18 @@ public abstract class AbstractRecordGroup<T> {
             // Data is pretty printed depending on type of record group
             // Table Data objects write every record in a separate line
             if (dpp != null) {
-                dpp.indentArraysWith(recordGroup.isParameterSet()
+                dpp.indentArraysWith(recordGroup.getJsonObjectType() == PARAMETER_SET
                     ? DefaultPrettyPrinter.FixedSpaceIndenter.instance
                     : DefaultIndenter.SYSTEM_LINEFEED_INSTANCE);
             }
             g.writeArrayFieldStart("data");
             for (String s : data) {
-                if (recordGroup.isDataTable()) {
+                if (recordGroup.getJsonObjectType() == DATA_TABLE) {
                     g.writeStartArray();
                 }
                 g.writeRaw(" ");
                 g.writeRaw(s);
-                if (recordGroup.isDataTable()) {
+                if (recordGroup.getJsonObjectType() == DATA_TABLE) {
                     g.writeEndArray();
                 }
             }
