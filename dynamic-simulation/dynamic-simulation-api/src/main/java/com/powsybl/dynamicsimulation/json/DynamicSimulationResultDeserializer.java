@@ -68,7 +68,7 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     parser.nextToken();
                     timeLine = (StringTimeSeries) deserializeTimeSeries(parser);
                     if (timeLine == null) {
-                        timeLine = DynamicSimulationResult.EMPTY_TIMELINE;
+                        timeLine = DynamicSimulationResult.emptyTimeLine();
                     }
                     break;
 

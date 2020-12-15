@@ -31,15 +31,10 @@ public interface DynamicSimulationResult {
     StringTimeSeries getTimeLine();
 
     /**
-     * The empty timeline (immutable).
-     */
-    static final StringTimeSeries EMPTY_TIMELINE = TimeSeries.createString("timeLine", new RegularTimeSeriesIndex(0, 0, 0));
-
-    /**
-     * Returns an empty timeline (immutable).
+     * Returns an empty timeline.
      * @return an empty timeline
      */
     static StringTimeSeries emptyTimeLine() {
-        return EMPTY_TIMELINE;
+        return TimeSeries.createString("timeLine", new RegularTimeSeriesIndex(0, 0, 0));
     }
 }
