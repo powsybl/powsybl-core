@@ -7,9 +7,10 @@
 
 package com.powsybl.iidm.xml;
 
-import javax.xml.stream.XMLStreamException;
-
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
+
+import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
@@ -23,7 +24,7 @@ public final class PropertiesXml {
 
     public static void write(Identifiable<?> identifiable, NetworkXmlWriterContext context) throws XMLStreamException {
         if (identifiable.hasProperty()) {
-            for (String name : identifiable.getPropertyNames()) {
+            for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
                 context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
