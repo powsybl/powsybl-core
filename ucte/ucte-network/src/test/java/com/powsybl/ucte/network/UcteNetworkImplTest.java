@@ -45,14 +45,17 @@ public class UcteNetworkImplTest {
         assertTrue(codes.containsAll(Arrays.asList(code1, code2, code3)));
         UcteNode node = network.getNode(code1);
         assertEquals(1000.0f, node.getActivePowerGeneration(), 0.0f);
+        assertNotNull(network.getNode(code1));
         assertThrows("Node " + code4.toString() + " not found", UcteException.class, () -> network.getNode(code4));
 
         assertEquals(1, network.getLines().size());
         assertEquals(lineId, network.getLines().iterator().next().getId());
+        assertNotNull(network.getLine(lineId));
         assertThrows("Line " + transformerId + " not found", UcteException.class, () -> network.getLine(transformerId));
 
         assertEquals(1, network.getTransformers().size());
         assertEquals(transformerId, network.getTransformers().iterator().next().getId());
+        assertNotNull(network.getTransformer(transformerId));
         assertThrows("Transformer " + lineId + " not found", UcteException.class, () -> network.getTransformer(lineId));
 
         assertEquals(1, network.getRegulations().size());
