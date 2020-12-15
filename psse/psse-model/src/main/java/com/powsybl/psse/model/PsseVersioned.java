@@ -1,9 +1,7 @@
 package com.powsybl.psse.model;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
@@ -11,18 +9,10 @@ import java.util.List;
 import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-@interface Revision {
-    static final float MAX_REVISION = 99.99f;
-    float since() default 33.0f;
-    float until() default MAX_REVISION;
-}
-
 public class PsseVersioned {
-    private PsseRawModel model = null;
+    private PssePowerFlowModel model = null;
 
-    public void setModel(PsseRawModel model) {
+    public void setModel(PssePowerFlowModel model) {
         this.model = model;
     }
 

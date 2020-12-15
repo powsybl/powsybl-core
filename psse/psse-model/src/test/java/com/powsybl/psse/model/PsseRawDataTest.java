@@ -18,7 +18,11 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.psse.model.data.*;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
+import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
+import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,6 +32,7 @@ import java.nio.file.Files;
 import java.util.Arrays;
 
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -57,7 +62,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_whitespaceAsDelimiter", new ResourceSet("/", "IEEE_14_bus_whitespaceAsDelimiter.raw"));
     }
 
-    private static String toJson(PsseRawModel rawData) throws JsonProcessingException {
+    private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
             @Override
@@ -73,14 +78,14 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
-        PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", new Context());
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }
 
     @Test
     public void testAccessToFieldNotPresentInVersion() throws IOException {
-        PsseRawModel raw33 = new RawData33().read(ieee14Raw(), "raw", new Context());
+        PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(raw33);
 
         PsseGenerator g = raw33.getGenerators().get(0);
@@ -105,7 +110,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
             .isThrownBy(winding1::getRate1)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
-        PsseRawModel raw35 = new RawData35().read(ieee14Raw35(), "raw", new Context());
+        PssePowerFlowModel raw35 = new PowerFlowRawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(raw35);
         PsseNonTransformerBranch b35 = raw35.getNonTransformerBranches().get(0);
         assertThatExceptionOfType(PsseException.class)
@@ -122,68 +127,68 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusReadFieldsTest() throws IOException {
         Context context = new Context();
-        PsseRawModel rawData = new RawData33().read(ieee14Raw(), "raw", context);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14Raw(), "raw", context);
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
+        String[] actualBusDataReadFields = context.getFieldNames(BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"i", "id", "status", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
+        String[] actualLoadDataReadFields = context.getFieldNames(LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"i", "id", "status", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"i", "id", "pg", "qg", "qt", "qb", "vs", "ireg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"i", "j", "ckt", "r", "x", "b",
             "ratea", "rateb", "ratec", "gi", "bi", "gj", "bj", "st", "met", "len", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"i", "j", "k", "ckt", "cw", "cz", "cm",
             "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r12", "x12", "sbase12",
             "windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
             "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"i", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"i", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
+        String[] actualZoneDataReadFields = context.getFieldNames(ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"i", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
+        String[] actualOwnerDataReadFields = context.getFieldNames(OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 
     @Test
     public void ieee14BusWhitespaceAsDelimiterTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
-        PsseRawModel rawData = new RawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }
 
     @Test
     public void minimalExampleRawxTest() throws IOException {
-        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", new Context());
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(minimalRawx(), "rawx", new Context());
 
         double tol = 0.000001;
         assertEquals(35, rawData.getCaseIdentification().getRev(), 0);
@@ -217,33 +222,33 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void minimalExampleRawxReadFieldsTest() throws IOException {
         Context context = new Context();
-        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", context);
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(minimalRawx(), "rawx", context);
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"rev", "title1"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "ide"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
+        String[] actualBusDataReadFields = context.getFieldNames(BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "pl", "ql"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
+        String[] actualLoadDataReadFields = context.getFieldNames(LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "xpu"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
     }
 
     @Test
     public void ieee14BusRev35RawxTest() throws IOException {
-        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", new Context());
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", new Context());
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
         assertEquals(jsonRef, toJson(rawData));
     }
@@ -251,60 +256,60 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusRev35RawxReadFieldsTest() throws IOException {
         Context context = new Context();
-        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", context);
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", context);
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
+        String[] actualBusDataReadFields = context.getFieldNames(BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "stat", "area", "zone", "pl", "ql", "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
+        String[] actualLoadDataReadFields = context.getFieldNames(LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"ibus", "shntid", "stat", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "rpu", "xpu", "bpu",
             "rate1", "rate2", "rate3", "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3",
             "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
             "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r1_2", "x1_2", "sbase1_2",
             "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
             "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"izone", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
+        String[] actualZoneDataReadFields = context.getFieldNames(ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"iowner", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
+        String[] actualOwnerDataReadFields = context.getFieldNames(OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 
     @Test
     public void ieee14BusRev35Test() throws IOException {
-        PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", new Context());
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(rawData);
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
         assertEquals(jsonRef, toJson(rawData));
@@ -313,35 +318,35 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusRev35ReadFieldsTest() throws IOException {
         Context context = new Context();
-        PsseRawModel rawData = new RawData35().read(ieee14Raw35(), "raw", context);
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14Raw35(), "raw", context);
         assertNotNull(rawData);
 
         String[] expectedCaseIdentificationDataReadFields = new String[]{"ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2"};
-        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.CASE_IDENTIFICATION);
+        String[] actualCaseIdentificationDataReadFields = context.getFieldNames(CASE_IDENTIFICATION);
         assertArrayEquals(expectedCaseIdentificationDataReadFields, actualCaseIdentificationDataReadFields);
 
         String[] expectedBusDataReadFields = new String[]{"ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va"};
-        String[] actualBusDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.BUS);
+        String[] actualBusDataReadFields = context.getFieldNames(BUS);
         assertArrayEquals(expectedBusDataReadFields, actualBusDataReadFields);
 
         String[] expectedLoadDataReadFields = new String[]{"ibus", "loadid", "stat", "area", "zone", "pl", "ql",
             "ip", "iq", "yp", "yq", "owner", "scale"};
-        String[] actualLoadDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.LOAD);
+        String[] actualLoadDataReadFields = context.getFieldNames(LOAD);
         assertArrayEquals(expectedLoadDataReadFields, actualLoadDataReadFields);
 
         String[] expectedFixedBusShuntDataReadFields = new String[]{"ibus", "shntid", "stat", "gl", "bl"};
-        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.FIXED_BUS_SHUNT);
+        String[] actualFixedBusShuntDataReadFields = context.getFieldNames(FIXED_BUS_SHUNT);
         assertArrayEquals(expectedFixedBusShuntDataReadFields, actualFixedBusShuntDataReadFields);
 
         String[] expectedGeneratorDataReadFields = new String[]{"ibus", "machid", "pg", "qg", "qt", "qb", "vs", "ireg", "nreg",
             "mbase", "zr", "zx", "rt", "xt", "gtap", "stat", "rmpct", "pt", "pb", "baslod", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "wmod", "wpf"};
-        String[] actualGeneratorDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.GENERATOR);
+        String[] actualGeneratorDataReadFields = context.getFieldNames(GENERATOR);
         assertArrayEquals(expectedGeneratorDataReadFields, actualGeneratorDataReadFields);
 
         String[] expectedNonTransformerBranchDataReadFields = new String[]{"ibus", "jbus", "ckt", "rpu", "xpu", "bpu", "name",
             "rate1", "rate2", "rate3", "rate4", "rate5", "rate6", "rate7", "rate8", "rate9", "rate10", "rate11", "rate12",
             "gi", "bi", "gj", "bj", "stat", "met", "len", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
-        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.NON_TRANSFORMER_BRANCH);
+        String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
         String[] expected2wTransformerDataReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
@@ -349,19 +354,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
             "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "wdg1rate4", "wdg1rate5", "wdg1rate6", "wdg1rate7",
             "wdg1rate8", "wdg1rate9", "wdg1rate10", "wdg1rate11", "wdg1rate12", "cod1", "cont1", "node1", "rma1", "rmi1", "vma1",
             "vmi1", "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.TRANSFORMER_2);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
-        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.AREA_INTERCHANGE);
+        String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AREA_INTERCHANGE);
         assertArrayEquals(expectedAreaInterchangeDataReadFields, actualAreaInterchangeDataReadFields);
 
         String[] expectedZoneDataReadFields = new String[]{"izone", "zoname"};
-        String[] actualZoneDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.ZONE);
+        String[] actualZoneDataReadFields = context.getFieldNames(ZONE);
         assertArrayEquals(expectedZoneDataReadFields, actualZoneDataReadFields);
 
         String[] expectedOwnerDataReadFields = new String[]{"iowner", "owname"};
-        String[] actualOwnerDataReadFields = context.getFieldNames(AbstractRecordGroup.PsseRecordGroup.OWNER);
+        String[] actualOwnerDataReadFields = context.getFieldNames(OWNER);
         assertArrayEquals(expectedOwnerDataReadFields, actualOwnerDataReadFields);
     }
 
@@ -369,8 +374,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusWriteTest() throws IOException {
         Context context = new Context();
 
-        RawData33 rawData33 = new RawData33();
-        PsseRawModel rawData = rawData33.read(ieee14Raw(), "raw", context);
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14Raw(), "raw", context);
         assertNotNull(rawData);
         rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_exported.raw"))) {
@@ -381,8 +386,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusRev35WriteTest() throws IOException {
         Context context = new Context();
-        RawData35 rawData35 = new RawData35();
-        PsseRawModel rawData = rawData35.read(ieee14Raw35(), "raw", context);
+        PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
+        PssePowerFlowModel rawData = rawData35.read(ieee14Raw35(), "raw", context);
         assertNotNull(rawData);
 
         rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
@@ -394,8 +399,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void minimalExampleRawxWriteTest() throws IOException {
         Context context = new Context();
-        RawXData35 rawXData35 = new RawXData35();
-        PsseRawModel rawData = new RawXData35().read(minimalRawx(), "rawx", context);
+        PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(minimalRawx(), "rawx", context);
         assertNotNull(rawData);
 
         rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "MinimalExample_exported"));
@@ -407,8 +412,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
     @Test
     public void ieee14BusRev35RawxWriteTest() throws IOException {
         Context context = new Context();
-        RawXData35 rawXData35 = new RawXData35();
-        PsseRawModel rawData = new RawXData35().read(ieee14Rawx35(), "rawx", context);
+        PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", context);
         assertNotNull(rawData);
 
         rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
@@ -421,8 +426,8 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14WhitespaceAsDelimiterWriteTest() throws IOException {
         Context context = new Context();
 
-        RawData33 rawData33 = new RawData33();
-        PsseRawModel rawData = rawData33.read(ieee14WhitespaceAsDelimiterRaw(), "raw", context);
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14WhitespaceAsDelimiterRaw(), "raw", context);
         assertNotNull(rawData);
         rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_whitespaceAsDelimiter_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"))) {

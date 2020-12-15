@@ -21,8 +21,9 @@ import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
-import com.powsybl.psse.model.data.Context;
-import com.powsybl.psse.model.data.RawDataFactory;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.io.PowerFlowDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -208,7 +209,7 @@ public class PsseImporter implements Importer {
         //TODO: take into account zr zx Mbase...
     }
 
-    private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
+    private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network, Map<Integer, PsseBus> busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
@@ -534,14 +535,14 @@ public class PsseImporter implements Importer {
                         dataSource.getBaseName(),
                         String.join("|", EXTENSIONS)));
             }
-            PsseVersion version = RawDataFactory.create(ext).readVersion(dataSource, ext);
+            PsseVersion version = PowerFlowDataFactory.create(ext).readVersion(dataSource, ext);
             Context context = new Context();
-            PsseRawModel psseRawModel = RawDataFactory.create(ext, version).read(dataSource, ext, context);
-            psseRawModel.getCaseIdentification().validate();
+            PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
+            pssePowerFlowModel.getCaseIdentification().validate();
 
             Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
             // TODO store the PsseContext with the Network to be able to export back using its information
-            convert(psseRawModel, network, parameters);
+            convert(pssePowerFlowModel, network, parameters);
             return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -560,7 +561,7 @@ public class PsseImporter implements Importer {
     private boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
         if (ext != null) {
             try {
-                return RawDataFactory.create(ext).isValidFile(dataSource, ext);
+                return PowerFlowDataFactory.create(ext).isValidFile(dataSource, ext);
             } catch (PsseException | IOException e) {
                 LOGGER.error(String.format("Invalid content in filename %s.%s: %s",
                         dataSource.getBaseName(),
@@ -589,7 +590,7 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private void createSwitchedShuntBlockMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
+    private void createSwitchedShuntBlockMap(PssePowerFlowModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
 
         /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
         A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
@@ -617,7 +618,7 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private Network convert(PsseRawModel psseModel, Network network, Properties parameters) {
+    private Network convert(PssePowerFlowModel psseModel, Network network, Properties parameters) {
         // set date and time
         // TODO
 
