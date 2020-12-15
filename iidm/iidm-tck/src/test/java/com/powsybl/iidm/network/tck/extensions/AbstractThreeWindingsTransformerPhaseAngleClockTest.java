@@ -12,11 +12,12 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClockAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
@@ -38,16 +39,16 @@ public abstract class AbstractThreeWindingsTransformerPhaseAngleClockTest {
     public void testEnd() {
         transformer.newExtension(ThreeWindingsTransformerPhaseAngleClockAdder.class).withPhaseAngleClockLeg2(6).withPhaseAngleClockLeg3(1).add();
         ThreeWindingsTransformerPhaseAngleClock pacOut = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
-        Assert.assertEquals(6, pacOut.getPhaseAngleClockLeg2());
-        Assert.assertEquals(1, pacOut.getPhaseAngleClockLeg3());
-        Assert.assertEquals("3WT", pacOut.getExtendable().getId());
+        assertEquals(6, pacOut.getPhaseAngleClockLeg2());
+        assertEquals(1, pacOut.getPhaseAngleClockLeg3());
+        assertEquals("3WT", pacOut.getExtendable().getId());
 
         ThreeWindingsTransformerPhaseAngleClock pacIn = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
         pacIn.setPhaseAngleClockLeg2(1);
         pacIn.setPhaseAngleClockLeg3(6);
         pacOut = transformer.getExtension(ThreeWindingsTransformerPhaseAngleClock.class);
-        Assert.assertEquals(1, pacOut.getPhaseAngleClockLeg2());
-        Assert.assertEquals(6, pacOut.getPhaseAngleClockLeg3());
+        assertEquals(1, pacOut.getPhaseAngleClockLeg2());
+        assertEquals(6, pacOut.getPhaseAngleClockLeg3());
     }
 
     @Test
