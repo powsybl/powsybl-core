@@ -51,7 +51,7 @@ public interface SlackTerminal extends Extension<VoltageLevel> {
 
     /**
      * Create a SlackTerminal extension attached to the voltage level of the given bus, using the default
-     * {@link TerminalFinder} strategy.
+     * {@link com.powsybl.iidm.network.util.TerminalFinder} strategy.
      */
     static void attach(Bus bus) {
         Objects.requireNonNull(bus);
