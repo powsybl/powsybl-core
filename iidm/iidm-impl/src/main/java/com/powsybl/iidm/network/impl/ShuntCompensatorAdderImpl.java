@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,9 +20,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private final VoltageLevelExt voltageLevel;
 
-    private ShuntCompensatorNonLinearModelAdderImpl shuntCompensatorNonLinearModelAdder;
-
-    private ShuntCompensatorLinearModelAdderImpl shuntCompensatorLinearModelAdder;
+    private ShuntCompensatorModelBuilder modelBuilder;
 
     private int sectionCount = -1;
 
@@ -46,7 +46,15 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         return "Shunt compensator";
     }
 
-    class ShuntCompensatorLinearModelAdderImpl implements ShuntCompensatorLinearModelAdder {
+    interface ShuntCompensatorModelBuilder {
+
+        int getMaximumSectionCount();
+
+        ShuntCompensatorModelExt build();
+
+    }
+
+    class ShuntCompensatorLinearModelAdderImpl implements ShuntCompensatorLinearModelAdder, ShuntCompensatorModelBuilder {
 
         private double bPerSection = Double.NaN;
 
@@ -67,6 +75,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         @Override
+        public int getMaximumSectionCount() {
+            return maximumSectionCount;
+        }
+
+        @Override
         public ShuntCompensatorLinearModelAdder setMaximumSectionCount(int maximumSectionCount) {
             this.maximumSectionCount = maximumSectionCount;
             return this;
@@ -76,17 +89,19 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         public ShuntCompensatorAdder add() {
             ValidationUtil.checkLinearBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
             ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
-            shuntCompensatorLinearModelAdder = this;
-            // Only one model is available at once
-            shuntCompensatorNonLinearModelAdder = null;
+            modelBuilder = this;
             return ShuntCompensatorAdderImpl.this;
+        }
+
+        @Override
+        public ShuntCompensatorModelExt build() {
+            return new ShuntCompensatorLinearModelImpl(bPerSection, gPerSection, maximumSectionCount);
         }
     }
 
-    class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder {
+    class ShuntCompensatorNonLinearModelAdderImpl implements ShuntCompensatorNonLinearModelAdder, ShuntCompensatorModelBuilder {
 
-        private final List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = new ArrayList<>();
-        private int index = 1;
+        private final List<SectionAdderImpl> sectionAdders = new ArrayList<>();
 
         class SectionAdderImpl implements SectionAdder {
 
@@ -110,14 +125,13 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
             public ShuntCompensatorNonLinearModelAdder endSection() {
                 ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, b);
                 if (Double.isNaN(g))  {
-                    if (sections.isEmpty()) {
+                    if (sectionAdders.isEmpty()) {
                         g = 0;
                     } else {
-                        g = sections.get(sections.size() - 1).getG();
+                        g = sectionAdders.get(sectionAdders.size() - 1).g;
                     }
                 }
-                sections.add(new ShuntCompensatorNonLinearModelImpl.SectionImpl(index, b, g));
-                index++;
+                sectionAdders.add(this);
                 return ShuntCompensatorNonLinearModelAdderImpl.this;
             }
         }
@@ -129,13 +143,26 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorAdder add() {
-            if (sections.isEmpty()) {
+            if (sectionAdders.isEmpty()) {
                 throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
             }
-            shuntCompensatorNonLinearModelAdder = this;
-            // Only one model is available at once
-            shuntCompensatorLinearModelAdder = null;
+            modelBuilder = this;
             return ShuntCompensatorAdderImpl.this;
+        }
+
+        @Override
+        public ShuntCompensatorModelExt build() {
+            List<ShuntCompensatorNonLinearModelImpl.SectionImpl> sections = IntStream.range(0, sectionAdders.size()).mapToObj(s -> {
+                SectionAdderImpl adder = sectionAdders.get(s);
+                return new ShuntCompensatorNonLinearModelImpl.SectionImpl(s + 1, adder.b, adder.g);
+            }).collect(Collectors.toList());
+
+            return new ShuntCompensatorNonLinearModelImpl(sections);
+        }
+
+        @Override
+        public int getMaximumSectionCount() {
+            return sectionAdders.size();
         }
     }
 
@@ -183,30 +210,21 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        AbstractShuntCompensatorModel model = null;
-        if (shuntCompensatorLinearModelAdder != null) {
-            model = new ShuntCompensatorLinearModelImpl(shuntCompensatorLinearModelAdder.bPerSection,
-                                                        shuntCompensatorLinearModelAdder.gPerSection,
-                                                        shuntCompensatorLinearModelAdder.maximumSectionCount);
-        } else if (shuntCompensatorNonLinearModelAdder != null) {
-            model = new ShuntCompensatorNonLinearModelImpl(shuntCompensatorNonLinearModelAdder.sections);
-        }
 
-        if (model == null) {
-            throw new ValidationException(this, "the shunt compensator model has not been defined");
-        }
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
-        if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
-            throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
-        }
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
-        ShuntCompensatorImpl shunt
-                = new ShuntCompensatorImpl(getNetwork().getRef(),
-                id, getName(), isFictitious(), model,
-                sectionCount, regulatingTerminal == null ? terminal : regulatingTerminal,
+
+        if (modelBuilder == null) {
+            throw new ValidationException(this, "the shunt compensator model has not been defined");
+        }
+        ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount());
+
+        ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetwork().getRef(),
+                id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
+                regulatingTerminal == null ? terminal : regulatingTerminal,
                 voltageRegulatorOn, targetV, targetDeadband);
+
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(shunt);
