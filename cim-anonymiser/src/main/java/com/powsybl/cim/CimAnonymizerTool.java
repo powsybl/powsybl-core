@@ -35,7 +35,7 @@ public class CimAnonymizerTool implements Tool {
         return new Command() {
             @Override
             public String getName() {
-                return "cim-anonymizer";
+                return "anonymize-cim";
             }
 
             @Override
