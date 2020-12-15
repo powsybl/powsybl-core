@@ -4,13 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.util;
+package com.powsybl.iidm.network.tck.util;
 
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.network.util.NodeBreakerTopology;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -18,10 +19,10 @@ import static org.junit.Assert.*;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class NodeBreakerTopologyTest {
+public abstract class AbstractNodeBreakerTopologyTest {
 
     @Test
-    public void removeIsolatedSwitches() throws Exception {
+    public void removeIsolatedSwitches() {
 
         Network network = NetworkTest1Factory.create();
 

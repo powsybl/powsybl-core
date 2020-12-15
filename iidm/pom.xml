@@ -34,7 +34,6 @@
         <module>iidm-scripting</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
-        <module>iidm-util</module>
         <module>iidm-xml-converter</module>
     </modules>
 
