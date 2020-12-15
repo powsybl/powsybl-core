@@ -54,7 +54,7 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            return scalingConvention == GENERATOR ? Math.min(g.getMaxP(), maxValue) : -Math.max(g.getMinP(), minValue);
+            return scalingConvention == GENERATOR ? maximumTargetP(g) : -minimumTargetP(g);
         } else {
             return 0;
         }
@@ -72,10 +72,18 @@ class GeneratorScalable extends AbstractInjectionScalable {
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            return scalingConvention == GENERATOR ? Math.max(g.getMinP(), minValue) : -Math.min(g.getMaxP(), maxValue);
+            return scalingConvention == GENERATOR ? minimumTargetP(g) : -maximumTargetP(g);
         } else {
             return 0;
         }
+    }
+
+    private double minimumTargetP(Generator gen) {
+        return Math.max(gen.getMinP(), minValue);
+    }
+
+    private double maximumTargetP(Generator gen) {
+        return Math.min(gen.getMaxP(), maxValue);
     }
 
     @Override
@@ -116,15 +124,17 @@ class GeneratorScalable extends AbstractInjectionScalable {
         }
 
         double oldTargetP = g.getTargetP();
-        if (oldTargetP < this.minimumValue(n) || oldTargetP > this.maximumValue(n)) {
+        double minimumTargetP = minimumTargetP(g);
+        double maximumTargetP = maximumTargetP(g);
+        if (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP) {
             throw new PowsyblException("Error scaling GeneratorScalable " + id +
                     " : Initial P is not in the range [Pmin, Pmax]");
         }
 
         // We use natural generator convention to compute the limits.
         // The actual convention is taken into account afterwards.
-        double availableUp = maximumValue(n, GENERATOR) - oldTargetP;
-        double availableDown = oldTargetP - minimumValue(n, GENERATOR);
+        double availableUp = maximumTargetP - oldTargetP;
+        double availableDown = oldTargetP - minimumTargetP;
 
         if (scalingConvention == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
