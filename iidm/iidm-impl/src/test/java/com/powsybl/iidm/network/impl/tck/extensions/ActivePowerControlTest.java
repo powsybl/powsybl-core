@@ -6,34 +6,10 @@
  */
 package com.powsybl.iidm.network.impl.tck.extensions;
 
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
-import com.powsybl.iidm.network.impl.extensions.ActivePowerControlImpl;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
+import com.powsybl.iidm.network.tck.extensions.AbstractActivePowerControlTest;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class ActivePowerControlTest {
-
-    @Test
-    public void test() {
-        Network network = BatteryNetworkFactory.create();
-        Battery bat = network.getBattery("BAT");
-        assertNotNull(bat);
-        ActivePowerControl<Battery> activePowerControl = new ActivePowerControlImpl<>(bat, true, 4f);
-        assertEquals("activePowerControl", activePowerControl.getName());
-        assertEquals("BAT", activePowerControl.getExtendable().getId());
-
-        assertTrue(activePowerControl.isParticipate());
-        assertEquals(4f, activePowerControl.getDroop(), 0f);
-        activePowerControl.setParticipate(false);
-        assertFalse(activePowerControl.isParticipate());
-        activePowerControl.setDroop(6f);
-        assertEquals(6f, activePowerControl.getDroop(), 0f);
-    }
+public class ActivePowerControlTest extends AbstractActivePowerControlTest {
 }

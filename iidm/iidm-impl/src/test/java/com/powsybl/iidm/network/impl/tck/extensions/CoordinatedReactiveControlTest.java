@@ -6,47 +6,10 @@
  */
 package com.powsybl.iidm.network.impl.tck.extensions;
 
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.impl.extensions.CoordinatedReactiveControlImpl;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-
-import static org.junit.Assert.assertEquals;
+import com.powsybl.iidm.network.tck.extensions.AbstractCoordinatedReactiveControlTest;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class CoordinatedReactiveControlTest {
-
-    private Generator generator;
-
-    @Rule
-    public final ExpectedException exception = ExpectedException.none();
-
-    @Before
-    public void setUp() {
-        Network network = EurostagTutorialExample1Factory.create();
-        generator = network.getGenerator("GEN");
-    }
-
-    @Test
-    public void test() {
-        CoordinatedReactiveControlImpl control = new CoordinatedReactiveControlImpl(generator, 100.0);
-        assertEquals(100.0, control.getQPercent(), 0.0);
-        control.setQPercent(99.0);
-        assertEquals(99.0, control.getQPercent(), 0.0);
-        assertEquals("GEN", control.getExtendable().getId());
-    }
-
-    @Test
-    public void testUndefined() {
-        exception.expect(PowsyblException.class);
-        exception.expectMessage("Undefined value for qPercent");
-        new CoordinatedReactiveControlImpl(generator, Double.NaN);
-    }
+public class CoordinatedReactiveControlTest extends AbstractCoordinatedReactiveControlTest {
 }
