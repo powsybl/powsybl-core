@@ -30,4 +30,14 @@ public interface SensitivityFactorsProvider {
      * @return A list of sensitivity factors
      */
     List<SensitivityFactor> getFactors(Network network);
+
+
+    /**
+     * Get the list of factors generated based on the given network and a contingency
+     *
+     * @param network Base IIDM network of provision method
+     * @param contingencyId Id of the contingency for which we want the factors. Set to null for base case factors.
+     * @return A list of sensitivity factors
+     */
+    List<SensitivityFactor> getFactors(Network network, String contingencyId);
 }
