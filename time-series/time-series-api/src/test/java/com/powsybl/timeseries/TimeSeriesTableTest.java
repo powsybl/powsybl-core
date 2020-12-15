@@ -7,7 +7,6 @@
 package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
-import com.powsybl.timeseries.TimeSeries.CsvParserConfig;
 import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
 import org.junit.Rule;
@@ -84,6 +83,7 @@ public class TimeSeriesTableTest {
     public void testVersionedCSV() {
         TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
         TimeSeriesTable table = createTimeSeriesTable(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
@@ -92,7 +92,7 @@ public class TimeSeriesTableTest {
                                  "1970-01-01T00:00:00.001Z;1;2.0;6.0;a",
                                  "1970-01-01T00:00:00.002Z;1;3.0;7.0;b",
                                  "1970-01-01T00:00:00.003Z;1;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(ZoneId.of("UTC")));
+                     table.toCsvString(timeSeriesCsvConfig));
 
     }
 
@@ -100,7 +100,7 @@ public class TimeSeriesTableTest {
     public void testUnversionedCSV() {
         TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
         TimeSeriesTable table = createTimeSeriesTable(index);
-        CsvParserConfig csvParserConfig = new CsvParserConfig(';', false, TimeFormat.FRACTIONS_OF_SECOND);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.FRACTIONS_OF_SECOND);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
@@ -109,14 +109,14 @@ public class TimeSeriesTableTest {
                                  "0.001;2.0;6.0;a",
                                  "0.002;3.0;7.0;b",
                                  "0.003;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(ZoneId.of("UTC"), csvParserConfig));
+                     table.toCsvString(timeSeriesCsvConfig));
     }
 
     @Test
     public void testMillisCSV() {
         TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
         TimeSeriesTable table = createTimeSeriesTable(index);
-        CsvParserConfig csvParserConfig = new CsvParserConfig(';', false, TimeFormat.MILLIS);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
 
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
@@ -125,13 +125,14 @@ public class TimeSeriesTableTest {
                                  "1;2.0;6.0;a",
                                  "2;3.0;7.0;b",
                                  "3;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(ZoneId.of("UTC"), csvParserConfig));
+                     table.toCsvString(timeSeriesCsvConfig));
     }
 
     @Test
     public void testEmptyTable() {
         // test empty table CSV export
-        String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(ZoneId.of("UTC"));
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
+        String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(timeSeriesCsvConfig);
         assertEquals("Time;Version" + System.lineSeparator(), emptyCsv);
     }
 
@@ -188,7 +189,7 @@ public class TimeSeriesTableTest {
             }.start();
         }
         cdl.await();
-        String csvString = table.toCsvString(ZoneId.systemDefault());
+        String csvString = table.toCsvString();
         List<List<String>> actual = new BufferedReader(new StringReader(csvString))
             .lines()
             .skip(1) // header

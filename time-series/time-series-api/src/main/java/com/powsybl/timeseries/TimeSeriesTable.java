@@ -7,8 +7,6 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-import com.powsybl.timeseries.TimeSeries.CsvParserConfig;
-import com.powsybl.timeseries.TimeSeries.TimeFormat;
 
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
@@ -23,7 +21,6 @@ import java.nio.file.Path;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
@@ -537,48 +534,48 @@ public class TimeSeriesTable {
 
     public void writeCsv(Path file) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, ZoneId.systemDefault(), new CsvParserConfig());
+            writeCsv(writer, new TimeSeriesCsvConfig());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public void writeCsv(Path file, CsvParserConfig csvParserConfig) {
+    public void writeCsv(Path file, TimeSeriesCsvConfig timeSeriesCsvConfig) {
         try (BufferedWriter writer = createWriter(file)) {
-            writeCsv(writer, ZoneId.systemDefault(), csvParserConfig);
+            writeCsv(writer, timeSeriesCsvConfig);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public String toCsvString(ZoneId zoneId) {
+    public String toCsvString() {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, zoneId, new CsvParserConfig());
+            writeCsv(writer, new TimeSeriesCsvConfig());
             return writer.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public String toCsvString(ZoneId zoneId, CsvParserConfig csvParserConfig) {
+    public String toCsvString(TimeSeriesCsvConfig timeSeriesCsvConfig) {
         try (StringWriter writer = new StringWriter()) {
-            writeCsv(writer, zoneId, csvParserConfig);
+            writeCsv(writer, timeSeriesCsvConfig);
             return writer.toString();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private void writeHeader(Writer writer, CsvConfig config) throws IOException {
+    private void writeHeader(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig) throws IOException {
         // write header
         writer.write("Time");
-        if (config.isVersioned()) {
-            writer.write(config.separator());
+        if (timeSeriesCsvConfig.versioned()) {
+            writer.write(timeSeriesCsvConfig.separator());
             writer.write("Version");
         }
         if (timeSeriesMetadata != null) {
             for (TimeSeriesMetadata metadata : timeSeriesMetadata) {
-                writer.write(config.separator());
+                writer.write(timeSeriesCsvConfig.separator());
                 writer.write(metadata.getName());
             }
         }
@@ -592,34 +589,6 @@ public class TimeSeriesTable {
         final double[] doubleCache = new double[CACHE_SIZE * doubleTimeSeriesNames.size()];
 
         final String[] stringCache = new String[CACHE_SIZE * stringTimeSeriesNames.size()];
-    }
-
-    private static class CsvConfig {
-
-        private final DateTimeFormatter dateTimeFormatter;
-
-        private final CsvParserConfig csvParserConfig;
-
-        public CsvConfig(DateTimeFormatter dateTimeFormatter) {
-            this(dateTimeFormatter, new CsvParserConfig());
-        }
-
-        public CsvConfig(DateTimeFormatter dateTimeFormatter, CsvParserConfig csvParserConfig) {
-            this.dateTimeFormatter = dateTimeFormatter;
-            this.csvParserConfig = csvParserConfig;
-        }
-
-        public boolean isVersioned() {
-            return csvParserConfig.versioned();
-        }
-
-        public TimeFormat getTimeFormat() {
-            return csvParserConfig.timeFormat();
-        }
-
-        public char separator() {
-            return csvParserConfig.separator();
-        }
     }
 
     private void fillCache(int point, CsvCache cache, int cachedPoints, int version) {
@@ -653,17 +622,17 @@ public class TimeSeriesTable {
         }
     }
 
-    private void dumpCache(Writer writer, CsvConfig config, int point, CsvCache cache, int cachedPoints, int version) throws IOException {
+    private void dumpCache(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, CsvCache cache, int cachedPoints, int version) throws IOException {
         for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
-            writeTime(writer, config, point, cachedPoint);
-            if (config.isVersioned()) {
-                writer.write(config.separator());
+            writeTime(writer, timeSeriesCsvConfig, point, cachedPoint);
+            if (timeSeriesCsvConfig.versioned()) {
+                writer.write(timeSeriesCsvConfig.separator());
                 writer.write(Integer.toString(version));
             }
             for (int i = 0; i < timeSeriesMetadata.size(); i++) {
                 TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
                 int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
-                writer.write(config.separator());
+                writer.write(timeSeriesCsvConfig.separator());
                 if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
                     double value = cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum];
                     writeDouble(writer, value);
@@ -678,12 +647,12 @@ public class TimeSeriesTable {
         }
     }
 
-    private void writeTime(Writer writer, CsvConfig config, int point, int cachedPoint) throws IOException {
+    private void writeTime(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig, int point, int cachedPoint) throws IOException {
         long time = tableIndex.getTimeAt(point + cachedPoint);
-        switch (config.getTimeFormat()) {
+        switch (timeSeriesCsvConfig.timeFormat()) {
             case DATE_TIME:
                 ZonedDateTime dateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(time), ZoneId.systemDefault());
-                writer.write(dateTime.format(config.dateTimeFormatter));
+                writer.write(dateTime.format(timeSeriesCsvConfig.dateTimeFormatter()));
                 break;
             case FRACTIONS_OF_SECOND:
                 writer.write(Double.toString(time / 1000.0));
@@ -692,20 +661,18 @@ public class TimeSeriesTable {
                 writer.write(Long.toString(time));
                 break;
             default:
-                throw new AssertionError("Unknown time format " + config.getTimeFormat());
+                throw new AssertionError("Unknown time format " + timeSeriesCsvConfig.timeFormat());
         }
     }
 
-    public void writeCsv(Writer writer, ZoneId zoneId, CsvParserConfig csvParserConfig) throws IOException {
+    public void writeCsv(Writer writer, TimeSeriesCsvConfig timeSeriesCsvConfig) throws IOException {
         Objects.requireNonNull(writer);
-        Objects.requireNonNull(zoneId);
+        Objects.requireNonNull(timeSeriesCsvConfig);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
 
         try {
-            CsvConfig config = new CsvConfig(DateTimeFormatter.ISO_OFFSET_DATE_TIME.withZone(zoneId), csvParserConfig);
-
-            writeHeader(writer, config);
+            writeHeader(writer, timeSeriesCsvConfig);
 
             if (timeSeriesMetadata != null) {
                 // read time series in the doubleBuffer per 10 points chunk to avoid cache missed and improve performances
@@ -721,7 +688,7 @@ public class TimeSeriesTable {
                         fillCache(point, cache, cachedPoints, version);
 
                         // then write cache to CSV
-                        dumpCache(writer, config, point, cache, cachedPoints, version);
+                        dumpCache(writer, timeSeriesCsvConfig, point, cache, cachedPoints, version);
                     }
                 }
             }
