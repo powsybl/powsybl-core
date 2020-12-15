@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util2.Networks;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>

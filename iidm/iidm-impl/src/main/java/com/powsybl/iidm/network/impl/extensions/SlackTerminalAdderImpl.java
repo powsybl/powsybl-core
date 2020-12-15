@@ -10,8 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.extensions2.SlackTerminal;
-import com.powsybl.iidm.network.extensions2.SlackTerminalAdder;
+import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>

@@ -18,7 +18,7 @@ import org.junit.Test;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util2.TwtData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.iidm.network.util.TwtTestData;
 
 /**

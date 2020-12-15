@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.util2.SV;
+import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
 

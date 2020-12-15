@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
-import com.powsybl.iidm.network.util2.TwtData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

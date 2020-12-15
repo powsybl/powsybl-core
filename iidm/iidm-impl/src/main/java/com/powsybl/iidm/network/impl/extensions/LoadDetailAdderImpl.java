@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.extensions2.LoadDetail;
-import com.powsybl.iidm.network.extensions2.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>

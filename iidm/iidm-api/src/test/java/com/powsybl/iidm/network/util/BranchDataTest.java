@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import com.powsybl.iidm.network.util2.BranchData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.junit.Test;

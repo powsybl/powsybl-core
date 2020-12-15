@@ -7,8 +7,8 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions2.LoadDetail;
-import com.powsybl.iidm.network.extensions2.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
 import com.powsybl.iidm.xml.IidmXmlConstants;
 import com.powsybl.iidm.xml.IidmXmlVersion;

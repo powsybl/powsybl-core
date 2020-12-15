@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
-import com.powsybl.iidm.network.util2.ShortIdDictionary;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import java.io.IOException;
 import java.io.PrintStream;

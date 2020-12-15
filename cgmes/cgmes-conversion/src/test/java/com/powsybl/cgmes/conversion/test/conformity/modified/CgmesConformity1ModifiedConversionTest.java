@@ -18,7 +18,7 @@ import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 import org.junit.After;

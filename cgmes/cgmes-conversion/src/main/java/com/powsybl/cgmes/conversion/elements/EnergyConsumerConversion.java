@@ -11,7 +11,7 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.extensions2.LoadDetailAdder;
+import com.powsybl.iidm.network.extensions.LoadDetailAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

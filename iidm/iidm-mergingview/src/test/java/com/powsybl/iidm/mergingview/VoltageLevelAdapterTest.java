@@ -9,7 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.util2.ShortIdDictionary;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

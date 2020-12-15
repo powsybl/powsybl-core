@@ -8,7 +8,7 @@ package com.powsybl.loadflow.validation;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.util2.BranchData;
+import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import org.apache.commons.io.output.NullWriter;

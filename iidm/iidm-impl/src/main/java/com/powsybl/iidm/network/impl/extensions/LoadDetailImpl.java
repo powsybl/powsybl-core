@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.extensions2.LoadDetail;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.impl.AbstractMultiVariantIdentifiableExtension;
 import gnu.trove.list.array.TFloatArrayList;
 

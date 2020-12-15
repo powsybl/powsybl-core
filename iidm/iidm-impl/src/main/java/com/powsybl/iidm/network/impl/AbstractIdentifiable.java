@@ -10,7 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.util2.Identifiables;
+import com.powsybl.iidm.network.util.Identifiables;
 
 import java.util.*;
 import java.util.stream.Collectors;
