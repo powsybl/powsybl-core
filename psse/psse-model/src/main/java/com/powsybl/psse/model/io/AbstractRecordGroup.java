@@ -117,9 +117,9 @@ public abstract class AbstractRecordGroup<T> {
             for (int k = 1; k < lines.length; k++) {
                 lines[k] = records.get(i++);
             }
-            String[] fieldNames = actualFieldNames(fieldNamesByLine, lines, context);
+            String[] actualFieldNames = actualFieldNames(fieldNamesByLine, lines, context);
             String record = String.join(Character.toString(context.getDelimiter()), lines);
-            T object = parseSingleRecord(record, fieldNames, context);
+            T object = parseSingleRecord(record, actualFieldNames, context);
             objects.add(object);
 
             // Some record groups have a fine level of detail on which fields should be saved depending on each record
@@ -129,7 +129,7 @@ public abstract class AbstractRecordGroup<T> {
             if (object instanceof PsseTransformer) {
                 recordGroupForThisRecord = ((PsseTransformer) object).getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
             }
-            context.setFieldNames(recordGroupForThisRecord, fieldNames);
+            context.setFieldNames(recordGroupForThisRecord, actualFieldNames);
         }
         return objects;
     }
@@ -191,9 +191,9 @@ public abstract class AbstractRecordGroup<T> {
 
     public void writeLegacyText(List<T> psseObjects, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quotedFields = Util.intersection(quotedFields(), headers);
+        String[] actualQuotedFields = Util.intersection(quotedFields(), headers);
         writeBegin(outputStream);
-        writeLegacyText(psseTypeClass(), psseObjects, headers, quotedFields, context, outputStream);
+        writeLegacyText(psseTypeClass(), psseObjects, headers, actualQuotedFields, context, outputStream);
         writeEnd(outputStream);
     }
 
