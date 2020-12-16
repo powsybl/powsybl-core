@@ -78,7 +78,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         }
     }
 
-    private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) throws IOException {
+    private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
         new CaseIdentificationData().write1(model, context, outputStream);
 
         // Record group comments:

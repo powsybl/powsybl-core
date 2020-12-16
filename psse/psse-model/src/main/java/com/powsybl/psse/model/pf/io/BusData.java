@@ -32,6 +32,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
         return PsseBus.class;
     }
 
+    @Override
     protected void writeBegin(OutputStream outputStream) {
         // We do not want to write a begin comment for Bus data records
     }

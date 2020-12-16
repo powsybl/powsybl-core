@@ -48,15 +48,15 @@ public abstract class AbstractRecordGroup<T> {
 
     protected final RecordGroupIdentification recordGroup;
     private final String[] fieldNames;
-    private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new HashMap<>();
+    private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new EnumMap<>(PsseVersion.Major.class);
     private String[] quotedFields;
 
-    public AbstractRecordGroup(PowerFlowRecordGroup recordGroup, String... fieldNames) {
+    protected AbstractRecordGroup(PowerFlowRecordGroup recordGroup, String... fieldNames) {
         this.recordGroup = recordGroup;
         this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
     }
 
-    public void withFieldNames(PsseVersion.Major version, String... fieldNames) {
+    protected void withFieldNames(PsseVersion.Major version, String... fieldNames) {
         fieldNamesByVersionMajor.put(version, fieldNames);
     }
 
@@ -64,11 +64,11 @@ public abstract class AbstractRecordGroup<T> {
         if (fieldNames != null) {
             return fieldNames;
         }
-        String[] fieldNames = fieldNamesByVersionMajor.get(version.major());
-        if (fieldNames == null) {
+        String[] fieldNamesVersion = fieldNamesByVersionMajor.get(version.major());
+        if (fieldNamesVersion == null) {
             throw new PsseException("Missing fieldNames for version " + version.getMajorNumber() + " in record group " + recordGroup);
         }
-        return fieldNames;
+        return fieldNamesVersion;
     }
 
     public void withQuotedFields(String... quotedFields) {
@@ -111,7 +111,7 @@ public abstract class AbstractRecordGroup<T> {
                 }
             }
         }
-        while (!(number == 0));
+        while (number != 0);
     }
 
     public void writeLegacyText(List<T> psseObjects, Context context, OutputStream outputStream) {
@@ -198,8 +198,8 @@ public abstract class AbstractRecordGroup<T> {
 
     public void writeJson(List<T> psseObjects, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quotedFields = Util.intersection(quotedFields(), headers);
-        List<String> records = buildRecords(psseTypeClass(), psseObjects, headers, quotedFields, context);
+        String[] actualQuotedFields = Util.intersection(quotedFields(), headers);
+        List<String> records = buildRecords(psseTypeClass(), psseObjects, headers, actualQuotedFields, context);
         writeJson(headers, records, generator);
     }
 
@@ -293,7 +293,7 @@ public abstract class AbstractRecordGroup<T> {
         // for Parameter Sets and Data Tables
         DefaultPrettyPrinter dpp = null;
         PrettyPrinter pp = g.getPrettyPrinter();
-        if (pp != null && pp instanceof DefaultPrettyPrinter) {
+        if (pp instanceof DefaultPrettyPrinter) {
             dpp = (DefaultPrettyPrinter) pp;
         }
         try {

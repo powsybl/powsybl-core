@@ -57,7 +57,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return caseIdentification;
     }
 
-    PsseCaseIdentification read1x(JsonNode node, Context context) throws IOException {
+    PsseCaseIdentification read1x(JsonNode node, Context context) {
         context.setFileFormat(JSON);
         PsseCaseIdentification caseIdentification = readJson(node, context).get(0);
         context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));

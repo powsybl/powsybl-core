@@ -25,6 +25,7 @@ import java.lang.reflect.Field;
 @JsonFilter("PsseVersionFilter")
 public class PsseTransformer extends PsseVersioned {
 
+    @Override
     public void setModel(PssePowerFlowModel model) {
         super.setModel(model);
         winding1.setModel(model);
