@@ -11,13 +11,11 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.Util;
 import com.powsybl.psse.model.pf.PsseTransformer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
@@ -80,10 +78,10 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     @Override
     protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
-        return is3Winding(line0) ? fieldNames3(version) : fieldNames2(version);
+        return is3Winding(line0) ? fieldNames3Winding(version) : fieldNames2Winding(version);
     }
 
-    public String[][] fieldNames3(PsseVersion version) {
+    public String[][] fieldNames3Winding(PsseVersion version) {
         switch (version.major()) {
             case V35:
                 return FIELD_NAMES_3_35;
@@ -94,7 +92,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         }
     }
 
-    public String[][] fieldNames2(PsseVersion version) {
+    public String[][] fieldNames2Winding(PsseVersion version) {
         switch (version.major()) {
             case V35:
                 return FIELD_NAMES_2_35;
@@ -128,88 +126,22 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     public void writeLegacyText(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
         writeBegin(outputStream);
 
-        List<PsseTransformer> transformerList2w = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
-        if (!transformerList2w.isEmpty()) {
-            String[] headers = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_2);
-            String[][] allFieldNames = fieldNames2(context.getVersion());
-            this.<PsseTransformer>writeLegacyText(PsseTransformer.class, transformerList2w, allFieldNames, headers, context, outputStream, true);
+        // Process all transformers with 2 windings together
+        List<PsseTransformer> transformers2Windings = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
+        if (!transformers2Windings.isEmpty()) {
+            String[] contextFieldNames = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_2);
+            String[][] fieldNamesByLine = fieldNames2Winding(context.getVersion());
+            writeLegacyTextMultiLine(PsseTransformer.class, transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
         }
-
-        List<PsseTransformer> transformerList3w = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
-        if (!transformerList3w.isEmpty()) {
+        // Process all transformers with 3 windings together
+        List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
+        if (!transformers3Windings.isEmpty()) {
             String[] headers = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_3);
-            String[][] allFieldNames = fieldNames3(context.getVersion());
-            this.<PsseTransformer>writeLegacyText(PsseTransformer.class, transformerList3w, allFieldNames, headers, context, outputStream, false);
+            String[][] allFieldNames = fieldNames3Winding(context.getVersion());
+            writeLegacyTextMultiLine(PsseTransformer.class, transformers3Windings, allFieldNames, headers, context, outputStream);
         }
 
         writeEnd(outputStream);
-    }
-
-    private <T> void writeLegacyText(Class<T> aClass, List<T> transformerRecords, String[][] allFieldNames, String[] headers,
-                                     Context context, OutputStream outputStream, boolean is2w) {
-
-        // XXX(Luma) Before writing to the output stream
-        // we are writing to a big array of strings simply to check that all corresponding sub-records
-        // of all transformers have the same number of fields
-        // we can get rid of that check and write directly to the outputstream
-
-        String[] headers1 = Util.intersection(allFieldNames[0], headers);
-        List<String> r1 = buildRecords(aClass, transformerRecords, headers1, Util.intersection(quotedFields(), headers1), context);
-
-        String[] headers2 = Util.intersection(allFieldNames[1], headers);
-        List<String> r2 = buildRecords(aClass, transformerRecords, headers2, Util.intersection(quotedFields(), headers2), context);
-
-        String[] headers3 = Util.intersection(allFieldNames[2], headers);
-        List<String> r3 = buildRecords(aClass, transformerRecords, headers3, Util.intersection(quotedFields(), headers3), context);
-
-        String[] headers4 = Util.intersection(allFieldNames[3], headers);
-        List<String> r4 = buildRecords(aClass, transformerRecords, headers4, Util.intersection(quotedFields(), headers4), context);
-
-        if (is2w) {
-            write2wRecords(r1, r2, r3, r4, outputStream);
-        } else {
-            String[] headers5 = Util.intersection(allFieldNames[4], headers);
-            List<String> r5 = buildRecords(aClass, transformerRecords, headers5, Util.intersection(quotedFields(), headers5), context);
-
-            write3wRecords(r1, r2, r3, r4, r5, outputStream);
-        }
-    }
-
-    private static void write2wRecords(List<String> r1, List<String> r2, List<String> r3, List<String> r4,
-        OutputStream outputStream) {
-        if (r1.size() == r2.size() && r1.size() == r3.size() && r1.size() == r4.size()) {
-
-            List<String> mixList = new ArrayList<>();
-            for (int i = 0; i < r1.size(); i++) {
-                mixList.add(r1.get(i));
-                mixList.add(r2.get(i));
-                mixList.add(r3.get(i));
-                mixList.add(r4.get(i));
-            }
-            Util.writeListString(mixList, outputStream);
-        } else {
-            throw new PsseException("Psse: 2wTransformer. Transformer records do not match " +
-                String.format("%d %d %d %d", r1.size(), r2.size(), r3.size(), r4.size()));
-        }
-    }
-
-    private static void write3wRecords(List<String> r1, List<String> r2, List<String> r3, List<String> r4,
-        List<String> r5, OutputStream outputStream) {
-        if (r1.size() == r2.size() && r1.size() == r3.size() && r1.size() == r4.size() && r1.size() == r5.size()) {
-
-            List<String> mixList = new ArrayList<>();
-            for (int i = 0; i < r1.size(); i++) {
-                mixList.add(r1.get(i));
-                mixList.add(r2.get(i));
-                mixList.add(r3.get(i));
-                mixList.add(r4.get(i));
-                mixList.add(r5.get(i));
-            }
-            Util.writeListString(mixList, outputStream);
-        } else {
-            throw new PsseException("Psse: 3wTransformer. Transformer records do not match " +
-                String.format("%d %d %d %d %d", r1.size(), r2.size(), r3.size(), r4.size(), r5.size()));
-        }
     }
 
 }

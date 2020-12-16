@@ -308,6 +308,44 @@ public abstract class AbstractRecordGroup<T> {
         writer.flush();
     }
 
+    protected <T> void writeLegacyTextMultiLine(Class<T> aClass, List<T> objects,
+                                     String[][] fieldNamesByLine, String[] contextFieldNames,
+                                     Context context, OutputStream outputStream) {
+        int numLines = fieldNamesByLine.length;
+
+        // XXX(Luma) entries of the array are the list of first, second, third lines ...
+        // a complete record k is built using recordsLines[0].get(k), recordsLines[1].get(k) ...
+        List<String>[] recordsLines = new ArrayList[numLines];
+
+        for (int l = 0; l < numLines; l++) {
+            String[] headersLine = Util.intersection(fieldNamesByLine[l], contextFieldNames);
+            recordsLines[l] = buildRecords(aClass, objects, headersLine, Util.intersection(quotedFields(), headersLine), context);
+        }
+        checkAllRecordsHaveAllLines(recordsLines);
+        // All lines of all records have been built, now write them
+        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
+        int numRecords = recordsLines[0].size();
+        for (int k = 0; k < numRecords; k++) {
+            for (int l = 0; l < numLines; l++) {
+                writer.writeRow(recordsLines[l].get(k));
+            }
+        }
+        writer.flush();
+    }
+
+    private static void checkAllRecordsHaveAllLines(List<String>[] recordsLines) {
+        int expectedSize = recordsLines[0].size();
+        for (int k = 1; k < recordsLines.length; k++) {
+            int actualSize = recordsLines[k].size();
+            if (expectedSize != actualSize) {
+                throw new PsseException(String.format("PSSE multi-line number of records do not match. Line %d; expected number of records %d, actual %d",
+                    k,
+                    expectedSize,
+                    actualSize));
+            }
+        }
+    }
+
     protected static <T> List<String> buildRecords(Class<T> aClass, List<T> objects, String[] headers, String[] quoteFields, Context context) {
         return new CsvWriter(settingsForCsvWriter(aClass, headers, quoteFields, context)).processRecordsToString(objects);
     }

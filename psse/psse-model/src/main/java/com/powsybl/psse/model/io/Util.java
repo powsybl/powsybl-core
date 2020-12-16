@@ -68,12 +68,6 @@ public final class Util {
         return newLine.toString().trim();
     }
 
-    public static void writeListString(List<String> records, OutputStream outputStream) {
-        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
-        records.forEach(writer::writeRow);
-        writer.flush();
-    }
-
     public static void writeString(String line, OutputStream outputStream) {
         CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
         writer.writeRow(line);
