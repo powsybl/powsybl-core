@@ -193,7 +193,7 @@ public abstract class AbstractRecordGroup<T> {
         String[] headers = context.getFieldNames(recordGroup);
         String[] actualQuotedFields = Util.intersection(quotedFields(), headers);
         writeBegin(outputStream);
-        writeLegacyText(psseTypeClass(), psseObjects, headers, actualQuotedFields, context, outputStream);
+        writeLegacyText(psseObjects, headers, actualQuotedFields, context, outputStream);
         writeEnd(outputStream);
     }
 
@@ -274,7 +274,7 @@ public abstract class AbstractRecordGroup<T> {
     public void writeJson(List<T> psseObjects, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
         String[] actualQuotedFields = Util.intersection(quotedFields(), headers);
-        List<String> records = buildRecords(psseTypeClass(), psseObjects, headers, actualQuotedFields, context);
+        List<String> records = buildRecords(psseObjects, headers, actualQuotedFields, context);
         writeJson(headers, records, generator);
     }
 
@@ -301,16 +301,14 @@ public abstract class AbstractRecordGroup<T> {
         return (List<T>) beans;
     }
 
-    protected static <T> void writeLegacyText(Class<T> aClass, List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
-        CsvWriterSettings settings = settingsForCsvWriter(aClass, headers, quotedFields, context);
+    protected void writeLegacyText(List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
+        CsvWriterSettings settings = settingsForCsvWriter(headers, quotedFields, context);
         CsvWriter writer = new CsvWriter(outputStream, settings);
         writer.processRecords(objects);
         writer.flush();
     }
 
-    protected <T> void writeLegacyTextMultiLine(Class<T> aClass, List<T> objects,
-                                     String[][] fieldNamesByLine, String[] contextFieldNames,
-                                     Context context, OutputStream outputStream) {
+    protected void writeLegacyTextMultiLine(List<T> objects, String[][] fieldNamesByLine, String[] contextFieldNames, Context context, OutputStream outputStream) {
         int numLines = fieldNamesByLine.length;
 
         // XXX(Luma) entries of the array are the list of first, second, third lines ...
@@ -319,7 +317,7 @@ public abstract class AbstractRecordGroup<T> {
 
         for (int l = 0; l < numLines; l++) {
             String[] headersLine = Util.intersection(fieldNamesByLine[l], contextFieldNames);
-            recordsLines[l] = buildRecords(aClass, objects, headersLine, Util.intersection(quotedFields(), headersLine), context);
+            recordsLines[l] = buildRecords(objects, headersLine, Util.intersection(quotedFields(), headersLine), context);
         }
         checkAllRecordsHaveAllLines(recordsLines);
         // All lines of all records have been built, now write them
@@ -346,12 +344,12 @@ public abstract class AbstractRecordGroup<T> {
         }
     }
 
-    protected static <T> List<String> buildRecords(Class<T> aClass, List<T> objects, String[] headers, String[] quoteFields, Context context) {
-        return new CsvWriter(settingsForCsvWriter(aClass, headers, quoteFields, context)).processRecordsToString(objects);
+    protected List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
+        return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects);
     }
 
-    private static <T> CsvWriterSettings settingsForCsvWriter(Class<T> aClass, String[] headers, String[] quotedFields, Context context) {
-        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(aClass);
+    private CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
+        BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(psseTypeClass());
         CsvWriterSettings settings = new CsvWriterSettings();
         settings.quoteFields(quotedFields);
         settings.setHeaders(headers);

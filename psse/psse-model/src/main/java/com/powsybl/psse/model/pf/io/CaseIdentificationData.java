@@ -68,14 +68,14 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         // Adapt headers of case identification record
         // title1 and title2 go in separate lines in legacy text format
         String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup), "title1", "title2");
-        writeLegacyText(PsseCaseIdentification.class, Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context, outputStream);
+        writeLegacyText(Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context, outputStream);
         Util.writeString(model.getCaseIdentification().getTitle1(), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
     }
 
     void write1x(PssePowerFlowModel model, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
-        String record = buildRecords(PsseCaseIdentification.class, Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context).get(0);
+        String record = buildRecords(Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context).get(0);
         writeJson(headers, Collections.singletonList(record), generator);
     }
 

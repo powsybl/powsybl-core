@@ -131,14 +131,14 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         if (!transformers2Windings.isEmpty()) {
             String[] contextFieldNames = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_2);
             String[][] fieldNamesByLine = fieldNames2Winding(context.getVersion());
-            writeLegacyTextMultiLine(PsseTransformer.class, transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
+            writeLegacyTextMultiLine(transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
         }
         // Process all transformers with 3 windings together
         List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
         if (!transformers3Windings.isEmpty()) {
-            String[] headers = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_3);
-            String[][] allFieldNames = fieldNames3Winding(context.getVersion());
-            writeLegacyTextMultiLine(PsseTransformer.class, transformers3Windings, allFieldNames, headers, context, outputStream);
+            String[] contextFieldNames = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_3);
+            String[][] fieldNamesByLine = fieldNames3Winding(context.getVersion());
+            writeLegacyTextMultiLine(transformers3Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
         }
 
         writeEnd(outputStream);
