@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
+import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.io.PowerFlowRecordGroup;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
@@ -34,6 +35,7 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Matcher;
 
 import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType.DATA_TABLE;
 import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType.PARAMETER_SET;
@@ -71,6 +73,11 @@ public abstract class AbstractRecordGroup<T> {
         return fieldNamesVersion;
     }
 
+    // XXX(Luma) to support multiline records
+    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
+        throw new PsseException("Multiline records no supported at this level");
+    }
+
     public void withQuotedFields(String... quotedFields) {
         this.quotedFields = quotedFields.length > 0 ? quotedFields : null;
     }
@@ -95,6 +102,74 @@ public abstract class AbstractRecordGroup<T> {
         String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
         context.setFieldNames(recordGroup, actualFieldNames);
         return psseObjects;
+    }
+
+    public List<T> readLegacyTextMultiLineRecords(BufferedReader reader, Context context) throws IOException {
+        List<T> objects = new ArrayList<>();
+        // Read all records in data section
+        List<String> records = Util.readRecords(reader);
+        int i = 0;
+        while (i < records.size()) {
+            String line0 = records.get(i++);
+            String[][] fieldNamesByLine = getFieldNamesByLine(context.getVersion(), line0);
+            String[] lines = new String[fieldNamesByLine.length];
+            lines[0] = line0;
+            for (int k = 1; k < lines.length; k++) {
+                lines[k] = records.get(i++);
+            }
+            String[] fieldNames = actualFieldNames(fieldNamesByLine, lines, context);
+            String record = String.join(Character.toString(context.getDelimiter()), lines);
+            T object = parseSingleRecord(record, fieldNames, context);
+            objects.add(object);
+
+            // Some record groups have a fine level of detail on which fields should be saved depending on each record
+            // (We want to save different field names for transformers with 2 / 3 windings)
+            // XXX(Luma) instead of this check add a method like getRecordGroup(object)
+            RecordGroupIdentification recordGroupForThisRecord = recordGroup;
+            if (object instanceof PsseTransformer) {
+                recordGroupForThisRecord = ((PsseTransformer) object).getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
+            }
+            context.setFieldNames(recordGroupForThisRecord, fieldNames);
+        }
+        return objects;
+    }
+
+    private static String[] actualFieldNames(String[][] fieldNamesByLine, String[] recordLines, Context context) {
+        // Obtain the list of actual field names separately for each line of the record
+        String[][] actualFieldNames0 = new String[recordLines.length][];
+        int totalFieldNames = 0;
+        String delimiter = Character.toString(context.getDelimiter());
+        for (int k = 0; k < recordLines.length; k++) {
+            int numFields = numFieldsLegacyTextRecord(recordLines[k], delimiter);
+            actualFieldNames0[k] = ArrayUtils.subarray(fieldNamesByLine[k], 0, numFields);
+            totalFieldNames += numFields;
+        }
+        // Concat all actual field names in a single array
+        String[] actualFieldNames = new String[totalFieldNames];
+        int k = 0;
+        for (String[] fieldNames : actualFieldNames0) {
+            System.arraycopy(fieldNames, 0, actualFieldNames, k, fieldNames.length);
+            k += fieldNames.length;
+        }
+        return actualFieldNames;
+    }
+
+    private static int numFieldsLegacyTextRecord(String record, String delimiter) {
+        int fields = 0;
+        char quote = FileFormat.getQuote(FileFormat.LEGACY_TEXT);
+        Matcher m = FileFormat.LEGACY_TEXT_UNQUOTED_OR_QUOTED.matcher(record);
+        while (m.find()) {
+            if (m.group().indexOf(quote) >= 0) {
+                fields++;
+            } else {
+                for (String field : m.group().split(delimiter)) {
+                    if (!field.equals("")) {
+                        fields++;
+                    }
+                }
+            }
+        }
+        return fields;
     }
 
     public static void readLegacyTextAndIgnore(PowerFlowRecordGroup recordGroup, BufferedReader reader) throws IOException {

@@ -11,10 +11,8 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.io.Util;
 import com.powsybl.psse.model.pf.PsseTransformer;
-import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +20,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
-import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
@@ -81,6 +78,11 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         throw new PsseException("Should not occur");
     }
 
+    @Override
+    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
+        return is3Winding(line0) ? fieldNames3(version) : fieldNames2(version);
+    }
+
     public String[][] fieldNames3(PsseVersion version) {
         switch (version.major()) {
             case V35:
@@ -110,38 +112,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
     @Override
     public List<PsseTransformer> readLegacyText(BufferedReader reader, Context context) throws IOException {
-        List<PsseTransformer> transformers = new ArrayList<>();
-        String[][] fieldNames3 = fieldNames3(context.getVersion());
-        String[][] fieldNames2 = fieldNames2(context.getVersion());
-        List<String> records = Util.readRecords(reader);
-        int i = 0;
-        while (i < records.size()) {
-            String record1 = records.get(i++);
-            boolean is3winding = is3Winding(record1);
-            String record2 = records.get(i++);
-            String record3 = records.get(i++);
-            String record4 = records.get(i++);
-            String[] transformerRecords;
-            String[][] allFieldNames;
-            if (is3winding) {
-                String record5 = records.get(i++);
-                String[] transformer3Windings = {record1, record2, record3, record4, record5};
-                transformerRecords = transformer3Windings;
-                allFieldNames = fieldNames3;
-            } else {
-                String[] transformer2Windings = {record1, record2, record3, record4};
-                transformerRecords = transformer2Windings;
-                allFieldNames = fieldNames2;
-            }
-            String[] fieldNames = actualFieldNames(allFieldNames, transformerRecords, context);
-            String transformerCompleteRecord = String.join(Character.toString(context.getDelimiter()), transformerRecords);
-            PsseTransformer transformer = parseSingleRecord(transformerCompleteRecord, fieldNames, context);
-            transformers.add(transformer);
-
-            // Store actual field names for 2 and 3 winding transformers (overwrite previous value if present)
-            context.setFieldNames(is3winding ? PowerFlowRecordGroup.TRANSFORMER_3 : PowerFlowRecordGroup.TRANSFORMER_2, fieldNames);
-        }
-        return transformers;
+        return super.readLegacyTextMultiLineRecords(reader, context);
     }
 
     @Override
@@ -241,41 +212,4 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         }
     }
 
-    private static String[] actualFieldNames(String[][] allFieldNames, String[] transformerRecords, Context context) {
-        // Obtain the list of actual field names separately for each record of the transformer
-        String[][] actualFieldNames0 = new String[transformerRecords.length][];
-        int totalFieldNames = 0;
-        String delimiter = Character.toString(context.getDelimiter());
-        for (int k = 0; k < transformerRecords.length; k++) {
-            int numFields = numFieldsLegacyTextRecord(transformerRecords[k], delimiter);
-            actualFieldNames0[k] = ArrayUtils.subarray(allFieldNames[k], 0, numFields);
-            totalFieldNames += numFields;
-        }
-        // Concat all actual field names in a single array
-        String[] actualFieldNames = new String[totalFieldNames];
-        int k = 0;
-        for (String[] fieldNames : actualFieldNames0) {
-            System.arraycopy(fieldNames, 0, actualFieldNames, k, fieldNames.length);
-            k += fieldNames.length;
-        }
-        return actualFieldNames;
-    }
-
-    private static int numFieldsLegacyTextRecord(String record, String delimiter) {
-        int fields = 0;
-        char quote = FileFormat.getQuote(FileFormat.LEGACY_TEXT);
-        Matcher m = FileFormat.LEGACY_TEXT_UNQUOTED_OR_QUOTED.matcher(record);
-        while (m.find()) {
-            if (m.group().indexOf(quote) >= 0) {
-                fields++;
-            } else {
-                for (String field : m.group().split(delimiter)) {
-                    if (!field.equals("")) {
-                        fields++;
-                    }
-                }
-            }
-        }
-        return fields;
-    }
 }
