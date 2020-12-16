@@ -81,6 +81,8 @@
     </modules>
 
     <properties>
+        <java.version>11</java.version>
+
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
