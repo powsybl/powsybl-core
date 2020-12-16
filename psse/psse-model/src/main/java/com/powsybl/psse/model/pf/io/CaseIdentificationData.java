@@ -19,9 +19,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -53,18 +51,16 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     }
 
     PsseCaseIdentification read1x(BufferedReader reader, Context context) throws IOException {
-        context.setDelimiter(",");
+        context.setFileFormat(JSON);
         PsseCaseIdentification caseIdentification = readJson(reader, context).get(0);
         context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
-        context.setFileFormat(JSON);
         return caseIdentification;
     }
 
     PsseCaseIdentification read1x(JsonNode node, Context context) throws IOException {
-        context.setDelimiter(",");
+        context.setFileFormat(JSON);
         PsseCaseIdentification caseIdentification = readJson(node, context).get(0);
         context.setVersion(PsseVersion.fromRevision(caseIdentification.getRev()));
-        context.setFileFormat(JSON);
         return caseIdentification;
     }
 
@@ -72,21 +68,14 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         // Adapt headers of case identification record
         // title1 and title2 go in separate lines in legacy text format
         String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup), "title1", "title2");
-        writeRecords(PsseCaseIdentification.class, Collections.singletonList(model.getCaseIdentification()), headers,
-            Util.intersection(quotedFields(), headers), context.getDelimiter().charAt(0), outputStream);
+        writeLegacyText(PsseCaseIdentification.class, Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context, outputStream);
         Util.writeString(model.getCaseIdentification().getTitle1(), outputStream);
         Util.writeString(model.getCaseIdentification().getTitle2(), outputStream);
     }
 
     void write1x(PssePowerFlowModel model, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
-        List<PsseCaseIdentification> caseIdentificationList = new ArrayList<>();
-        caseIdentificationList.add(model.getCaseIdentification());
-
-        String record = writeRecordsForJson(PsseCaseIdentification.class,
-            caseIdentificationList, headers, Util.intersection(quotedFields(), headers),
-            context.getDelimiter().charAt(0)).get(0);
-
+        String record = buildRecords(PsseCaseIdentification.class, Collections.singletonList(model.getCaseIdentification()), headers, Util.intersection(quotedFields(), headers), context).get(0);
         writeJson(headers, Collections.singletonList(record), generator);
     }
 

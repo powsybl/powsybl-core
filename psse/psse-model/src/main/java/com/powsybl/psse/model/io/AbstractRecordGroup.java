@@ -116,9 +116,9 @@ public abstract class AbstractRecordGroup<T> {
 
     public void writeLegacyText(List<T> psseObjects, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(recordGroup);
-        String[] quoteFieldsInside = Util.intersection(quotedFields(), headers);
+        String[] quotedFields = Util.intersection(quotedFields(), headers);
         writeBegin(outputStream);
-        writeRecords(psseTypeClass(), psseObjects, headers, quoteFieldsInside, context.getDelimiter().charAt(0), outputStream);
+        writeLegacyText(psseTypeClass(), psseObjects, headers, quotedFields, context, outputStream);
         writeEnd(outputStream);
     }
 
@@ -199,8 +199,7 @@ public abstract class AbstractRecordGroup<T> {
     public void writeJson(List<T> psseObjects, Context context, JsonGenerator generator) {
         String[] headers = context.getFieldNames(recordGroup);
         String[] quotedFields = Util.intersection(quotedFields(), headers);
-
-        List<String> records = writeRecordsForJson(psseTypeClass(), psseObjects, headers, quotedFields, context.getDelimiter().charAt(0));
+        List<String> records = buildRecords(psseTypeClass(), psseObjects, headers, quotedFields, context);
         writeJson(headers, records, generator);
     }
 
@@ -227,45 +226,27 @@ public abstract class AbstractRecordGroup<T> {
         return (List<T>) beans;
     }
 
-    protected static <T> void writeRecords(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
-                                           char delimiter, OutputStream outputStream) {
-
-        CsvWriterSettings settings = writeRecordsSettings(aClass, headers, quoteFields, delimiter, '\'');
+    protected static <T> void writeLegacyText(Class<T> aClass, List<T> objects, String[] headers, String[] quotedFields, Context context, OutputStream outputStream) {
+        CsvWriterSettings settings = settingsForCsvWriter(aClass, headers, quotedFields, context);
         CsvWriter writer = new CsvWriter(outputStream, settings);
-        writer.processRecords(modelRecords);
+        writer.processRecords(objects);
         writer.flush();
     }
 
-    protected static <T> List<String> writeRecords(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
-                                                   char delimiter) {
-
-        CsvWriterSettings settings = writeRecordsSettings(aClass, headers, quoteFields, delimiter, '\'');
-        CsvWriter writer = new CsvWriter(settings);
-        return writer.processRecordsToString(modelRecords);
+    protected static <T> List<String> buildRecords(Class<T> aClass, List<T> objects, String[] headers, String[] quoteFields, Context context) {
+        return new CsvWriter(settingsForCsvWriter(aClass, headers, quoteFields, context)).processRecordsToString(objects);
     }
 
-    protected static <T> List<String> writeRecordsForJson(Class<T> aClass, List<T> modelRecords, String[] headers, String[] quoteFields,
-                                                          char delimiter) {
-
-        CsvWriterSettings settings = writeRecordsSettings(aClass, headers, quoteFields, delimiter, '"');
-        CsvWriter writer = new CsvWriter(settings);
-        return writer.processRecordsToString(modelRecords);
-    }
-
-    private static <T> CsvWriterSettings writeRecordsSettings(Class<T> aClass, String[] headers,
-                                                              String[] quoteFields, char delimiter, char quote) {
-
+    private static <T> CsvWriterSettings settingsForCsvWriter(Class<T> aClass, String[] headers, String[] quotedFields, Context context) {
         BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(aClass);
-
         CsvWriterSettings settings = new CsvWriterSettings();
-        settings.quoteFields(quoteFields);
+        settings.quoteFields(quotedFields);
         settings.setHeaders(headers);
-        settings.getFormat().setQuote(quote);
-        settings.getFormat().setDelimiter(delimiter);
+        settings.getFormat().setQuote(FileFormat.getQuote(context.getFileFormat()));
+        settings.getFormat().setDelimiter(context.getDelimiter());
         settings.setIgnoreLeadingWhitespaces(false);
         settings.setIgnoreTrailingWhitespaces(false);
         settings.setRowWriterProcessor(processor);
-
         return settings;
     }
 

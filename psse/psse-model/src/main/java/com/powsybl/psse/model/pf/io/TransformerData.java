@@ -11,6 +11,7 @@ import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.io.Util;
 import com.powsybl.psse.model.pf.PsseTransformer;
 import org.apache.commons.lang3.ArrayUtils;
@@ -22,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
@@ -125,16 +125,16 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             String[][] allFieldNames;
             if (is3winding) {
                 String record5 = records.get(i++);
-                String[] transformer3 = {record1, record2, record3, record4, record5};
-                transformerRecords = transformer3;
+                String[] transformer3Windings = {record1, record2, record3, record4, record5};
+                transformerRecords = transformer3Windings;
                 allFieldNames = fieldNames3;
             } else {
-                String[] transformer2 = {record1, record2, record3, record4};
-                transformerRecords = transformer2;
+                String[] transformer2Windings = {record1, record2, record3, record4};
+                transformerRecords = transformer2Windings;
                 allFieldNames = fieldNames2;
             }
             String[] fieldNames = actualFieldNames(allFieldNames, transformerRecords, context);
-            String transformerCompleteRecord = String.join(context.getDelimiter(), transformerRecords);
+            String transformerCompleteRecord = String.join(Character.toString(context.getDelimiter()), transformerRecords);
             PsseTransformer transformer = parseSingleRecord(transformerCompleteRecord, fieldNames, context);
             transformers.add(transformer);
 
@@ -183,22 +183,22 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         // we can get rid of that check and write directly to the outputstream
 
         String[] headers1 = Util.intersection(allFieldNames[0], headers);
-        List<String> r1 = writeRecords(aClass, transformerRecords, headers1, Util.intersection(quotedFields(), headers1), context.getDelimiter().charAt(0));
+        List<String> r1 = buildRecords(aClass, transformerRecords, headers1, Util.intersection(quotedFields(), headers1), context);
 
         String[] headers2 = Util.intersection(allFieldNames[1], headers);
-        List<String> r2 = writeRecords(aClass, transformerRecords, headers2, Util.intersection(quotedFields(), headers2), context.getDelimiter().charAt(0));
+        List<String> r2 = buildRecords(aClass, transformerRecords, headers2, Util.intersection(quotedFields(), headers2), context);
 
         String[] headers3 = Util.intersection(allFieldNames[2], headers);
-        List<String> r3 = writeRecords(aClass, transformerRecords, headers3, Util.intersection(quotedFields(), headers3), context.getDelimiter().charAt(0));
+        List<String> r3 = buildRecords(aClass, transformerRecords, headers3, Util.intersection(quotedFields(), headers3), context);
 
         String[] headers4 = Util.intersection(allFieldNames[3], headers);
-        List<String> r4 = writeRecords(aClass, transformerRecords, headers4, Util.intersection(quotedFields(), headers4), context.getDelimiter().charAt(0));
+        List<String> r4 = buildRecords(aClass, transformerRecords, headers4, Util.intersection(quotedFields(), headers4), context);
 
         if (is2w) {
             write2wRecords(r1, r2, r3, r4, outputStream);
         } else {
             String[] headers5 = Util.intersection(allFieldNames[4], headers);
-            List<String> r5 = writeRecords(aClass, transformerRecords, headers5, Util.intersection(quotedFields(), headers5), context.getDelimiter().charAt(0));
+            List<String> r5 = buildRecords(aClass, transformerRecords, headers5, Util.intersection(quotedFields(), headers5), context);
 
             write3wRecords(r1, r2, r3, r4, r5, outputStream);
         }
@@ -245,7 +245,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         // Obtain the list of actual field names separately for each record of the transformer
         String[][] actualFieldNames0 = new String[transformerRecords.length][];
         int totalFieldNames = 0;
-        String delimiter = context.getDelimiter();
+        String delimiter = Character.toString(context.getDelimiter());
         for (int k = 0; k < transformerRecords.length; k++) {
             int numFields = numFieldsLegacyTextRecord(transformerRecords[k], delimiter);
             actualFieldNames0[k] = ArrayUtils.subarray(allFieldNames[k], 0, numFields);
@@ -261,12 +261,12 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         return actualFieldNames;
     }
 
-    // quote character assumed to be always '
     private static int numFieldsLegacyTextRecord(String record, String delimiter) {
         int fields = 0;
-        Matcher m = Pattern.compile("([^']+)|('([^']*)')").matcher(record);
+        char quote = FileFormat.getQuote(FileFormat.LEGACY_TEXT);
+        Matcher m = FileFormat.LEGACY_TEXT_UNQUOTED_OR_QUOTED.matcher(record);
         while (m.find()) {
-            if (m.group().contains("'")) {
+            if (m.group().indexOf(quote) >= 0) {
                 fields++;
             } else {
                 for (String field : m.group().split(delimiter)) {

@@ -28,12 +28,12 @@ public class Context {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
+    private FileFormat fileFormat = LEGACY_TEXT;
+    private char delimiter = FileFormat.getDefaultDelimiter(fileFormat);
+    private PsseVersion version;
+    private int currentRecordGroupMaxNumFields;
     private final Map<String, String[]> fieldNames = new HashMap<>();
     private final CsvParserSettings csvParserSettings;
-    private String delimiter;
-    private PsseVersion version;
-    private FileFormat fileFormat = LEGACY_TEXT;
-    private int currentRecordGroupMaxNumFields;
 
     public Context() {
         csvParserSettings = new CsvParserSettings();
@@ -56,16 +56,19 @@ public class Context {
         return this;
     }
 
-    public Context setFileFormat(FileFormat fileFormat) {
-        this.fileFormat = fileFormat;
-        return this;
+    public FileFormat getFileFormat() {
+        return fileFormat;
     }
 
-    public String getDelimiter() {
+    public void setFileFormat(FileFormat fileFormat) {
+        this.fileFormat = fileFormat;
+    }
+
+    public char getDelimiter() {
         return delimiter;
     }
 
-    public void setDelimiter(String delimiter) {
+    public void setDelimiter(char delimiter) {
         this.delimiter = delimiter;
     }
 
@@ -75,14 +78,10 @@ public class Context {
         csvParserSettings.setDelimiterDetectionEnabled(true, VALID_DELIMITERS.toCharArray());
         CsvParser parser = new CsvParser(csvParserSettings);
         parser.parseLine(record);
-        this.delimiter = parser.getDetectedFormat().getDelimiterString();
+        setDelimiter(parser.getDetectedFormat().getDelimiterString().charAt(0));
 
-        csvParserSettings.getFormat().setDelimiter(this.delimiter);
-        if (fileFormat.equals(JSON)) {
-            csvParserSettings.getFormat().setQuote('"');
-        } else {
-            csvParserSettings.getFormat().setQuote('\'');
-        }
+        csvParserSettings.getFormat().setDelimiter(getDelimiter());
+        csvParserSettings.getFormat().setQuote(FileFormat.getQuote(getFileFormat()));
         csvParserSettings.setDelimiterDetectionEnabled(false);
         csvParserSettings.setQuoteDetectionEnabled(false);
     }
@@ -110,5 +109,4 @@ public class Context {
     public void setCurrentRecordNumFields(int numFields) {
         currentRecordGroupMaxNumFields = Math.max(currentRecordGroupMaxNumFields, numFields);
     }
-
 }

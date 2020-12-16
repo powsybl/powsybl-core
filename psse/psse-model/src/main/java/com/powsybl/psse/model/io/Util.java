@@ -14,9 +14,11 @@ import org.apache.commons.lang3.ArrayUtils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -45,19 +47,20 @@ public final class Util {
         return line.substring(0, slashIndex);
     }
 
-    // '' Is allowed as a comment
     public static String readLineAndRemoveComment(BufferedReader reader) throws IOException {
         String line = reader.readLine();
         if (line == null) {
             throw new PsseException("PSSE. Unexpected end of file");
         }
         StringBuffer newLine = new StringBuffer();
-        Pattern p = Pattern.compile("('[^']*')|( )+");
-        Matcher m = p.matcher(removeComment(line));
+        Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
+        char quote = FileFormat.getQuote(LEGACY_TEXT);
         while (m.find()) {
-            if (m.group().contains("'")) {
+            // If current group is quoted, keep it as it is
+            if (m.group().indexOf(quote) >= 0) {
                 m.appendReplacement(newLine, m.group());
             } else {
+                // current group is whitespace, keep a single whitespace
                 m.appendReplacement(newLine, " ");
             }
         }
