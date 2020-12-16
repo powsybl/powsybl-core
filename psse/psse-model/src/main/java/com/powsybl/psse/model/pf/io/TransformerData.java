@@ -72,7 +72,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
             int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
             int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            return k != 0;
+            return i != 0 && j != 0 && k != 0;
         }
     }
 
