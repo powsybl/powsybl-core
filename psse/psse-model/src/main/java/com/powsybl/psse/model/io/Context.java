@@ -18,8 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.psse.model.io.FileFormat.JSON;
-import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.io.FileFormat.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -72,7 +71,8 @@ public class Context {
 
     public void detectDelimiter(String record) {
         // The order of delimiters is relevant
-        csvParserSettings.setDelimiterDetectionEnabled(true, ',', ' ');
+        // We pass the delimiters as an array of chars (it will be modified by the parser)
+        csvParserSettings.setDelimiterDetectionEnabled(true, VALID_DELIMITERS.toCharArray());
         CsvParser parser = new CsvParser(csvParserSettings);
         parser.parseLine(record);
         this.delimiter = parser.getDetectedFormat().getDelimiterString();

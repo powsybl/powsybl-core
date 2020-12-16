@@ -7,12 +7,12 @@
 package com.powsybl.psse.model.pf.io;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.Util;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PsseTransformer;
-import com.powsybl.psse.model.PsseVersion;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.BufferedReader;
@@ -20,7 +20,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
+
+import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -60,12 +63,15 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         withQuotedFields("ckt", "name", "vecgrp");
     }
 
-    private static boolean is3winding(String record, String delimiter) {
-        String[] tokens = record.split(delimiter);
-        if (tokens.length < 3) {
-            return false;
+    private static boolean is3Winding(String record) {
+        try (Scanner scanner = new Scanner(record)) {
+            // Valid delimiters surrounded by any number of whitespace
+            scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
+            int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            return k != 0;
         }
-        return Integer.parseInt(tokens[2].trim()) != 0;
     }
 
     @Override
@@ -109,7 +115,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         int i = 0;
         while (i < records.size()) {
             String record1 = records.get(i++);
-            boolean is3winding = is3winding(record1, context.getDelimiter());
+            boolean is3winding = is3Winding(record1);
             String record2 = records.get(i++);
             String record3 = records.get(i++);
             String record4 = records.get(i++);

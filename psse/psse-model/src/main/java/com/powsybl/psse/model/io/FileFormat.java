@@ -12,5 +12,8 @@ package com.powsybl.psse.model.io;
  */
 public enum FileFormat {
     LEGACY_TEXT,
-    JSON
+    JSON;
+
+    // The order of delimiters is relevant
+    public static final String VALID_DELIMITERS = ", ";
 }
