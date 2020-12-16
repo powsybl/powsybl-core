@@ -21,6 +21,8 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
@@ -243,8 +245,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         // Obtain the list of actual field names separately for each record of the transformer
         String[][] actualFieldNames0 = new String[transformerRecords.length][];
         int totalFieldNames = 0;
+        String delimiter = context.getDelimiter();
         for (int k = 0; k < transformerRecords.length; k++) {
-            int numFields = Util.numFieldsLegacyTextFileFormat(transformerRecords[k], context.getDelimiter());
+            int numFields = numFieldsLegacyTextRecord(transformerRecords[k], delimiter);
             actualFieldNames0[k] = ArrayUtils.subarray(allFieldNames[k], 0, numFields);
             totalFieldNames += numFields;
         }
@@ -256,5 +259,23 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             k += fieldNames.length;
         }
         return actualFieldNames;
+    }
+
+    // quote character assumed to be always '
+    private static int numFieldsLegacyTextRecord(String record, String delimiter) {
+        int fields = 0;
+        Matcher m = Pattern.compile("([^']+)|('([^']*)')").matcher(record);
+        while (m.find()) {
+            if (m.group().contains("'")) {
+                fields++;
+            } else {
+                for (String field : m.group().split(delimiter)) {
+                    if (!field.equals("")) {
+                        fields++;
+                    }
+                }
+            }
+        }
+        return fields;
     }
 }

@@ -65,25 +65,6 @@ public final class Util {
         return newLine.toString().trim();
     }
 
-    // quote character assumed to be always '
-    public static int numFieldsLegacyTextFileFormat(String data, String delimiter) {
-        int fields = 0;
-        Matcher m = Pattern.compile("([^\']+)|(\'([^\']*)\')").matcher(data);
-
-        while (m.find()) {
-            if (m.group().contains("'")) {
-                fields++;
-            } else {
-                for (String field : m.group().split(delimiter)) {
-                    if (!field.equals("")) {
-                        fields++;
-                    }
-                }
-            }
-        }
-        return fields;
-    }
-
     public static void writeListString(List<String> records, OutputStream outputStream) {
         CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
         records.forEach(writer::writeRow);
