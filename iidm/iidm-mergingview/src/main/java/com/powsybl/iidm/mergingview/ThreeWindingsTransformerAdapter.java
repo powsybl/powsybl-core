@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,7 +89,7 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
-        public List<OperationalLimits> getOperationalLimits() {
+        public Collection<OperationalLimits> getOperationalLimits() {
             return getDelegate().getOperationalLimits();
         }
 
@@ -198,8 +199,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     @Override
     public List<? extends TerminalAdapter> getTerminals() {
         return getDelegate().getTerminals().stream()
-                                           .map(getIndex()::getTerminal)
-                                           .collect(Collectors.toList());
+                .map(getIndex()::getTerminal)
+                .collect(Collectors.toList());
     }
 
     @Override

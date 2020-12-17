@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
@@ -198,7 +197,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         @Override
-        public List<OperationalLimits> getOperationalLimits() {
+        public Collection<OperationalLimits> getOperationalLimits() {
             return operationalLimitsHolder.getOperationalLimits();
         }
 

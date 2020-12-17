@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -52,7 +52,7 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public List<OperationalLimits> getOperationalLimits1() {
+    public Collection<OperationalLimits> getOperationalLimits1() {
         return getDelegate().getOperationalLimits1();
     }
 
@@ -87,7 +87,7 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits2() {
+    public Collection<OperationalLimits> getOperationalLimits2() {
         return getDelegate().getOperationalLimits2();
     }
 

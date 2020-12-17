@@ -10,11 +10,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements Branch<I> {
@@ -82,7 +81,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits1() {
+    public Collection<OperationalLimits> getOperationalLimits1() {
         return operationalLimitsHolder1.getOperationalLimits();
     }
 
@@ -117,7 +116,7 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits2() {
+    public Collection<OperationalLimits> getOperationalLimits2() {
         return operationalLimitsHolder2.getOperationalLimits();
     }
 

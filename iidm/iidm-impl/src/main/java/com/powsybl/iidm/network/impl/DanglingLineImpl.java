@@ -12,11 +12,10 @@ import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
@@ -371,7 +370,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits() {
+    public Collection<OperationalLimits> getOperationalLimits() {
         return operationalLimitsHolder.getOperationalLimits();
     }
 

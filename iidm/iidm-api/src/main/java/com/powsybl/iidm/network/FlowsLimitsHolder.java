@@ -6,15 +6,15 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface FlowsLimitsHolder {
 
-    default List<OperationalLimits> getOperationalLimits() {
+    default Collection<OperationalLimits> getOperationalLimits() {
         return getCurrentLimits() != null ? Collections.singletonList(getCurrentLimits()) : Collections.emptyList();
     }
 

@@ -139,7 +139,7 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits1() {
+    public Collection<OperationalLimits> getOperationalLimits1() {
         return getDanglingLine1().getOperationalLimits();
     }
 
@@ -174,7 +174,7 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits2() {
+    public Collection<OperationalLimits> getOperationalLimits2() {
         return getDanglingLine2().getOperationalLimits();
     }
 

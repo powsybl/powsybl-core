@@ -8,7 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.List;
+import java.util.Collection;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -99,7 +99,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public List<OperationalLimits> getOperationalLimits() {
+    public Collection<OperationalLimits> getOperationalLimits() {
         return getDelegate().getOperationalLimits();
     }
 

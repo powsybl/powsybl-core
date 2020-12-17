@@ -35,8 +35,8 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType + "." + attribute, oldValue, newValue);
     }
 
-    List<OperationalLimits> getOperationalLimits() {
-        return Collections.unmodifiableList(new ArrayList<>(operationalLimits.values()));
+    Collection<OperationalLimits> getOperationalLimits() {
+        return Collections.unmodifiableCollection(operationalLimits.values());
     }
 
     <L extends OperationalLimits> L getOperationalLimits(LimitType type, Class<L> limitClazz) {
