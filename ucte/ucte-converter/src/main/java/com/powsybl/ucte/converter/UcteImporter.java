@@ -548,7 +548,7 @@ public class UcteImporter implements Importer {
 
         yVoltageLevel.getBusBreakerView().newBus()
                 .setId(yNodeName)
-                // TODO(UCTETransformerAtBoundary) consider setting fictitious to true ?
+                .setFictitious(true)
                 .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
