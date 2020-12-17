@@ -33,12 +33,12 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     private final String rawxNodeName;
     private final String rawName;
 
-    private PowerFlowRecordGroup(String rawxNodeName) {
+    PowerFlowRecordGroup(String rawxNodeName) {
         this.rawxNodeName = rawxNodeName;
         this.rawName = name();
     }
 
-    private PowerFlowRecordGroup(String rawxNodeName, String rawName) {
+    PowerFlowRecordGroup(String rawxNodeName, String rawName) {
         this.rawxNodeName = rawxNodeName;
         this.rawName = rawName;
     }

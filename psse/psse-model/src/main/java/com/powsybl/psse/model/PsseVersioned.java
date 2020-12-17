@@ -6,11 +6,13 @@
  */
 package com.powsybl.psse.model;
 
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
@@ -19,11 +21,12 @@ import static com.powsybl.psse.model.PsseVersion.fromRevision;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
+@JsonFilter("PsseVersionFilter")
 public class PsseVersioned {
     private PssePowerFlowModel model = null;
 
     public void setModel(PssePowerFlowModel model) {
-        this.model = model;
+        this.model = Objects.requireNonNull(model);
     }
 
     public void checkVersion(String fieldName) {

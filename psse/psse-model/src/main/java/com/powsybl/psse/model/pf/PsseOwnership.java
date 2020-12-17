@@ -6,7 +6,6 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.PsseVersioned;
 import com.univocity.parsers.annotations.Parsed;
 
@@ -14,7 +13,6 @@ import com.univocity.parsers.annotations.Parsed;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-@JsonFilter("PsseVersionFilter")
 public class PsseOwnership extends PsseVersioned {
     @Parsed
     private int o1 = -1;

@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface Revision {
-    static final float MAX_REVISION = 99.99f;
+    float MAX_REVISION = 99.99f;
 
     float since() default 33.0f;
 

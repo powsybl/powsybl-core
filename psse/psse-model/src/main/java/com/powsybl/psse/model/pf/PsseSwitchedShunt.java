@@ -6,7 +6,6 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Parsed;
@@ -16,7 +15,6 @@ import com.univocity.parsers.annotations.Validate;
  *
  * @author Jean-Baptiste Heyberger <Jean-Baptiste.Heyberger at rte-france.com>
  */
-@JsonFilter("PsseVersionFilter")
 public class PsseSwitchedShunt extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})

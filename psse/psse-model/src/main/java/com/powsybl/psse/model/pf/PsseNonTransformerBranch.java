@@ -6,7 +6,6 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Nested;
@@ -19,7 +18,6 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@JsonFilter("PsseVersionFilter")
 public class PsseNonTransformerBranch extends PsseVersioned {
 
     @Override

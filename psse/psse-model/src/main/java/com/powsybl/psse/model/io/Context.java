@@ -35,7 +35,7 @@ public class Context {
     private final CsvParserSettings csvParserSettings;
 
     private FileFormat fileFormat = LEGACY_TEXT;
-    private char delimiter = FileFormat.getDefaultDelimiter(fileFormat);
+    private char delimiter = LEGACY_TEXT.getDefaultDelimiter();
     private PsseVersion version;
     private int currentRecordGroupMaxNumFields;
     private JsonGenerator jsonGenerator;
@@ -66,16 +66,18 @@ public class Context {
         return fileFormat;
     }
 
-    public void setFileFormat(FileFormat fileFormat) {
+    public Context setFileFormat(FileFormat fileFormat) {
         this.fileFormat = fileFormat;
+        return this;
     }
 
     public char getDelimiter() {
         return delimiter;
     }
 
-    public void setDelimiter(char delimiter) {
+    public Context setDelimiter(char delimiter) {
         this.delimiter = delimiter;
+        return this;
     }
 
     public void detectDelimiter(String record) {
@@ -87,13 +89,14 @@ public class Context {
         setDelimiter(parser.getDetectedFormat().getDelimiterString().charAt(0));
 
         csvParserSettings.getFormat().setDelimiter(getDelimiter());
-        csvParserSettings.getFormat().setQuote(FileFormat.getQuote(getFileFormat()));
+        csvParserSettings.getFormat().setQuote(getFileFormat().getQuote());
         csvParserSettings.setDelimiterDetectionEnabled(false);
         csvParserSettings.setQuoteDetectionEnabled(false);
     }
 
-    public void setFieldNames(RecordGroupIdentification recordGroup, String[] fieldNames) {
+    public Context setFieldNames(RecordGroupIdentification recordGroup, String[] fieldNames) {
         this.fieldNames.put(recordGroup.getUniqueName(), fieldNames);
+        return this;
     }
 
     public String[] getFieldNames(RecordGroupIdentification recordGroup) {
@@ -112,23 +115,26 @@ public class Context {
         return currentRecordGroupMaxNumFields;
     }
 
-    public void setCurrentRecordNumFields(int numFields) {
+    public Context setCurrentRecordNumFields(int numFields) {
         currentRecordGroupMaxNumFields = Math.max(currentRecordGroupMaxNumFields, numFields);
+        return this;
     }
 
     public JsonGenerator getJsonGenerator() {
         return jsonGenerator;
     }
 
-    public void setJsonGenerator(JsonGenerator jsonGenerator) {
+    public Context setJsonGenerator(JsonGenerator jsonGenerator) {
         this.jsonGenerator = jsonGenerator;
+        return this;
     }
 
     public JsonNode getNetworkNode() {
         return networkNode;
     }
 
-    public void setNetworkNode(JsonNode networkNode) {
+    public Context setNetworkNode(JsonNode networkNode) {
         this.networkNode = networkNode;
+        return this;
     }
 }

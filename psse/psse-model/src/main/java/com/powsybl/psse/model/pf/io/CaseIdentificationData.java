@@ -39,8 +39,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return PsseCaseIdentification.class;
     }
 
-    static class CaseIdentificationLegacyText extends RecordGroupReaderWriterLegacyText<PsseCaseIdentification> {
-        public CaseIdentificationLegacyText(AbstractRecordGroup recordGroup) {
+    private static class CaseIdentificationLegacyText extends RecordGroupReaderWriterLegacyText<PsseCaseIdentification> {
+        public CaseIdentificationLegacyText(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 
@@ -90,8 +90,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
     }
 
-    static class CaseIdentificationJson extends RecordGroupReaderWriterJson<PsseCaseIdentification> {
-        public CaseIdentificationJson(AbstractRecordGroup recordGroup) {
+    private static class CaseIdentificationJson extends RecordGroupReaderWriterJson<PsseCaseIdentification> {
+        public CaseIdentificationJson(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 

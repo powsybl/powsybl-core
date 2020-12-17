@@ -115,7 +115,7 @@ public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T
         for (JsonNode f : fieldsNode) {
             fields.add(f.asText());
         }
-        return fields.toArray(new String[fields.size()]);
+        return fields.toArray(new String[0]);
     }
 
     private List<String> readRecords(JsonNode n) {
@@ -160,8 +160,8 @@ public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T
                 dpp.indentArraysWith(DefaultPrettyPrinter.FixedSpaceIndenter.instance);
             }
             g.writeArrayFieldStart("fields");
-            for (int k = 0; k < fields.length; k++) {
-                g.writeString(fields[k]);
+            for (String field : fields) {
+                g.writeString(field);
             }
             g.writeEndArray();
 

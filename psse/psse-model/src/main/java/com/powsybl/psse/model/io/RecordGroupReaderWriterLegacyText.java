@@ -201,10 +201,9 @@ public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWr
         }
         StringBuffer newLine = new StringBuffer();
         Matcher m = FileFormat.LEGACY_TEXT_QUOTED_OR_WHITESPACE.matcher(removeComment(line));
-        char quote = FileFormat.getQuote(LEGACY_TEXT);
         while (m.find()) {
             // If current group is quoted, keep it as it is
-            if (m.group().indexOf(quote) >= 0) {
+            if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
                 m.appendReplacement(newLine, m.group());
             } else {
                 // current group is whitespace, keep a single whitespace
@@ -245,10 +244,9 @@ public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWr
 
     private static int numFields(String record, String delimiter) {
         int fields = 0;
-        char quote = FileFormat.getQuote(LEGACY_TEXT);
         Matcher m = FileFormat.LEGACY_TEXT_UNQUOTED_OR_QUOTED.matcher(record);
         while (m.find()) {
-            if (m.group().indexOf(quote) >= 0) {
+            if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
                 fields++;
             } else {
                 for (String field : m.group().split(delimiter)) {

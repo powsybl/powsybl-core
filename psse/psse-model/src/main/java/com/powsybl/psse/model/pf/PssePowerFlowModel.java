@@ -54,7 +54,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseBus> getBuses() {
-        return buses;
+        return Collections.unmodifiableList(buses);
     }
 
     public void addLoads(List<PsseLoad> loads) {
@@ -70,7 +70,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseFixedShunt> getFixedShunts() {
-        return fixedShunts;
+        return Collections.unmodifiableList(fixedShunts);
     }
 
     public void addGenerators(List<PsseGenerator> generators) {
@@ -86,7 +86,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseNonTransformerBranch> getNonTransformerBranches() {
-        return nonTransformerBranches;
+        return Collections.unmodifiableList(nonTransformerBranches);
     }
 
     public void addTransformers(List<PsseTransformer> transformers) {
@@ -94,7 +94,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseTransformer> getTransformers() {
-        return transformers;
+        return Collections.unmodifiableList(transformers);
     }
 
     public void addAreas(List<PsseArea> areas) {
@@ -102,7 +102,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseArea> getAreas() {
-        return areas;
+        return Collections.unmodifiableList(areas);
     }
 
     public void addZones(List<PsseZone> zones) {
@@ -110,7 +110,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseZone> getZones() {
-        return zones;
+        return Collections.unmodifiableList(zones);
     }
 
     public void addOwners(List<PsseOwner> owners) {
@@ -118,7 +118,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseOwner> getOwners() {
-        return owners;
+        return Collections.unmodifiableList(owners);
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
@@ -126,7 +126,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseSwitchedShunt> getSwitchedShunts() {
-        return switchedShunts;
+        return Collections.unmodifiableList(switchedShunts);
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {

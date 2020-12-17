@@ -150,7 +150,7 @@ public abstract class AbstractRecordGroup<T> {
         CsvWriterSettings settings = new CsvWriterSettings();
         settings.quoteFields(quotedFields);
         settings.setHeaders(headers);
-        settings.getFormat().setQuote(FileFormat.getQuote(context.getFileFormat()));
+        settings.getFormat().setQuote(context.getFileFormat().getQuote());
         settings.getFormat().setDelimiter(context.getDelimiter());
         settings.setIgnoreLeadingWhitespaces(false);
         settings.setIgnoreTrailingWhitespaces(false);

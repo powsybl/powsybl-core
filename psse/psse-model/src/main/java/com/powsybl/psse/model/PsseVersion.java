@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
  */
 public final class PsseVersion {
     private static final int MAJOR_FACTOR = 100;
-    private static final int MINOR_FACTOR = 100;
     static final PsseVersion MAX_VERSION = PsseVersion.fromRevision(Revision.MAX_REVISION);
     private static final PsseVersion VERSION_33 = new PsseVersion(33 * MAJOR_FACTOR);
     private static final PsseVersion VERSION_35 = new PsseVersion(35 * MAJOR_FACTOR);
@@ -23,7 +22,7 @@ public final class PsseVersion {
     private static final Set<Integer> SUPPORTED_MAJORS = SUPPORTED_VERSIONS.stream().map(PsseVersion::getMajorNumber).collect(Collectors.toSet());
     private static final String STR_SUPPORTED_MAJORS = SUPPORTED_MAJORS.stream()
         .sorted()
-        .map(v -> v.toString())
+        .map(Object::toString)
         .collect(Collectors.joining(", "));
 
     private final int number;
@@ -32,12 +31,16 @@ public final class PsseVersion {
         this.number = number;
     }
 
+    private PsseVersion(float revision) {
+        number = (int) (revision * 100);
+    }
+
     public int getMajorNumber() {
         return number / MAJOR_FACTOR;
     }
 
     public int getMinorNumber() {
-        return number - getMajorNumber() * MAJOR_FACTOR;
+        return number % MAJOR_FACTOR;
     }
 
     public int getNumber() {
@@ -67,7 +70,7 @@ public final class PsseVersion {
     }
 
     public static PsseVersion fromRevision(float revisionNumber) {
-        return new PsseVersion(numberFromRevision(revisionNumber));
+        return new PsseVersion(revisionNumber);
     }
 
     public static String supportedVersions() {
@@ -78,12 +81,6 @@ public final class PsseVersion {
         return SUPPORTED_MAJORS.contains(getMajorNumber());
     }
 
-    private static int numberFromRevision(float revision) {
-        int major = (int) Math.floor(revision);
-        int minor = ((int) revision - major) * MINOR_FACTOR;
-        return major * MAJOR_FACTOR + minor;
-    }
-
     public Major major() {
         return Major.fromNumber(getMajorNumber());
     }
@@ -91,21 +88,22 @@ public final class PsseVersion {
     public enum Major {
         V33(33),
         V35(35);
-        int number;
 
         private static final Map<Integer, Major> BY_NUMBER = Arrays.stream(values())
             .collect(Collectors.toMap(Major::getNumber, Function.identity()));
 
-        private static final Major fromNumber(int major) {
+        private static Major fromNumber(int major) {
             return BY_NUMBER.get(major);
         }
 
-        private Major(int major) {
+        Major(int major) {
             this.number = major;
         }
 
         private int getNumber() {
             return number;
         }
+
+        int number;
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
@@ -22,7 +21,6 @@ import java.lang.reflect.Field;
  */
 
 @JsonPropertyOrder(alphabetic = true)
-@JsonFilter("PsseVersionFilter")
 public class PsseTransformer extends PsseVersioned {
 
     @Override
