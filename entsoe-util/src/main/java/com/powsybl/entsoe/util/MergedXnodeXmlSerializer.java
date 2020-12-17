@@ -29,13 +29,13 @@ public class MergedXnodeXmlSerializer extends AbstractExtensionXmlSerializer<Lin
 
     @Override
     public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("rdp", xnode.getRdp(), context.getExtensionsWriter());
-        XmlUtil.writeFloat("xdp", xnode.getXdp(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("xnodeP1", xnode.getXnodeP1(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("xnodeQ1", xnode.getXnodeQ1(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("xnodeP2", xnode.getXnodeP2(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("xnodeQ2", xnode.getXnodeQ2(), context.getExtensionsWriter());
-        context.getExtensionsWriter().writeAttribute("code", xnode.getCode());
+        XmlUtil.writeFloat("rdp", xnode.getRdp(), context.getWriter());
+        XmlUtil.writeFloat("xdp", xnode.getXdp(), context.getWriter());
+        XmlUtil.writeDouble("xnodeP1", xnode.getXnodeP1(), context.getWriter());
+        XmlUtil.writeDouble("xnodeQ1", xnode.getXnodeQ1(), context.getWriter());
+        XmlUtil.writeDouble("xnodeP2", xnode.getXnodeP2(), context.getWriter());
+        XmlUtil.writeDouble("xnodeQ2", xnode.getXnodeQ2(), context.getWriter());
+        context.getWriter().writeAttribute("code", xnode.getCode());
     }
 
     @Override

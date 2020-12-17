@@ -179,6 +179,13 @@ public class UcteImporterTest {
     }
 
     @Test
+    public void testXnodeTransformer() {
+        ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
+
+    @Test
     public void substationNameInvariance() {
         ResourceDataSource dataSource = new ResourceDataSource("VLsCreationIssue", new ResourceSet("/", "VLsCreationIssue.uct"));
 

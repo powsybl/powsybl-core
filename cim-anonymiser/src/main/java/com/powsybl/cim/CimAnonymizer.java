@@ -159,11 +159,11 @@ public class CimAnonymizer {
             } else if (startElement.getName().getLocalPart().equals("IdentifiedObject.description")) {
                 identifiedObjectDescription = true;
             } else {
-                Iterator it = startElement.getAttributes();
+                Iterator<Attribute> it = startElement.getAttributes();
                 if (it.hasNext()) {
                     List<Attribute> newAttributes = new ArrayList<>();
                     while (it.hasNext()) {
-                        Attribute attribute = (Attribute) it.next();
+                        Attribute attribute = it.next();
                         Attribute newAttribute = anonymizeAttribute(attribute);
                         newAttributes.add(newAttribute != null ? newAttribute : attribute);
                     }
@@ -245,9 +245,9 @@ public class CimAnonymizer {
             XMLEvent event = eventReader.nextEvent();
             if (event.isStartElement()) {
                 StartElement startElement = event.asStartElement();
-                Iterator it = startElement.getAttributes();
+                Iterator<Attribute> it = startElement.getAttributes();
                 while (it.hasNext()) {
-                    Attribute attribute = (Attribute) it.next();
+                    Attribute attribute = it.next();
                     QName name = attribute.getName();
                     if (RDF_ID.equals(name)) {
                         rdfIdValues.add(attribute.getValue());
