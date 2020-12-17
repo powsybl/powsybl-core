@@ -17,6 +17,10 @@ public final class UcteValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteValidation.class);
 
+    private static double LOW_VOLTAGE_FACTOR = 0.8;
+    private static double HIGH_VOLTAGE_FACTOR = 1.2;
+    private static double LOW_NOMINAL_VOLTAGE = 110;
+
     private UcteValidation() {
     }
 
@@ -33,8 +37,8 @@ public final class UcteValidation {
         for (Bus bus : network.getBusView().getBuses()) {
             nominalVoltage = bus.getVoltageLevel().getNominalV();
             voltage = bus.getV();
-            if (voltage < 0.8 * nominalVoltage || voltage > 1.2 * nominalVoltage) {
-                LOGGER.warn("Wrong value for reference voltage");
+            if (voltage < LOW_VOLTAGE_FACTOR * nominalVoltage || voltage > HIGH_VOLTAGE_FACTOR * nominalVoltage) {
+                LOGGER.warn("{} - {} ({})", bus.getId(), "Wrong value for reference voltage", voltage + " kV");
             }
         }
     }
@@ -44,8 +48,9 @@ public final class UcteValidation {
             if (generator.isVoltageRegulatorOn()) {
                 double targetVoltage = generator.getTargetV();
                 double nominalVoltage = generator.getRegulatingTerminal().getVoltageLevel().getNominalV();
-                if (nominalVoltage > 110 && (targetVoltage < 0.8 * nominalVoltage || targetVoltage > 1.2 * nominalVoltage)) {
-                    LOGGER.warn("Wrong value for reference voltage");
+                if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (targetVoltage < LOW_VOLTAGE_FACTOR * nominalVoltage
+                        || targetVoltage > HIGH_VOLTAGE_FACTOR * nominalVoltage)) {
+                    LOGGER.warn("{} - {} ({})", generator.getId(), "Wrong value for reference voltage", targetVoltage + " kV");
                 }
             }
         }
@@ -58,8 +63,8 @@ public final class UcteValidation {
             if (rtc != null && rtc.isRegulating()) {
                 double targetVoltage = rtc.getTargetV();
                 double nominalVoltage = rtc.getRegulationTerminal().getVoltageLevel().getNominalV();
-                if (nominalVoltage > 110 && (targetVoltage < 0.8 * nominalVoltage || targetVoltage > 1.2 * nominalVoltage)) {
-                    LOGGER.warn("Wrong value for reference voltage");
+                if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (targetVoltage < 0.8 * nominalVoltage || targetVoltage > 1.2 * nominalVoltage)) {
+                    LOGGER.error("{} - {} ({})", twt.getId(), "Wrong value for reference voltage", nominalVoltage + "kV");
                 }
             }
         }

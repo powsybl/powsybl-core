@@ -127,10 +127,10 @@ public class UcteNetworkImpl implements UcteNetwork {
             UctePhaseRegulation phaseRegulation = regulation.getPhaseRegulation();
             UcteAngleRegulation angleRegulation = regulation.getAngleRegulation();
             if (phaseRegulation != null) {
-                UcteValidation.checkPhaseRegulation(phaseRegulation);
+                UcteValidation.checkPhaseRegulation(phaseRegulation, regulation.getTransfoId());
             }
             if (angleRegulation != null) {
-                UcteValidation.checkAngleRegulation(angleRegulation);
+                UcteValidation.checkAngleRegulation(angleRegulation, regulation.getTransfoId());
             }
             regulation.fix();
         }

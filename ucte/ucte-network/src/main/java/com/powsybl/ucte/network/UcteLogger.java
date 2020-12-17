@@ -16,11 +16,11 @@ public class UcteLogger {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteLogger.class);
 
-    public void warn(String ruleId, String message, String cause, Object... parameters) {
-        LOGGER.warn("{} - {} ({})", ruleId, message, String.format(cause, parameters));
+    public void warn(String elementId, String message, String explanation) {
+        LOGGER.warn("{} - {} ({})", elementId, message, explanation);
     }
 
-    public void error(String ruleId, String message, String cause, Object... parameters) {
-        LOGGER.error("{} - {} ({})", ruleId, message, String.format(cause, parameters));
+    public void error(String elementId, String message, String explanation) {
+        LOGGER.error("{} - {} ({})", elementId, message, explanation);
     }
 }
