@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class UcteValidation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(UcteValidation.class);
+    private static final UcteLogger LOGGER = new UcteLogger();
 
     public static final double ZERO_EPS = 1e-4;
     public static final double REACTANCE_EPS = 0.05;
