@@ -185,7 +185,8 @@ public class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertEquals(2, network.getSubstationCount());
         assertNotNull(network.getSubstation("F1TEST"));
-        assertNotNull(network.getSubstation("FTESTA"));
+        assertNotNull(network.getSubstation("FTEST1"));
+        assertNull(network.getSubstation("FTESTA"));
         assertNull(network.getSubstation("FTESTB"));
     }
 }

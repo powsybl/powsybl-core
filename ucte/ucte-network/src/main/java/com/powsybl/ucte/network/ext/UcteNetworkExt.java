@@ -191,6 +191,12 @@ public class UcteNetworkExt implements UcteNetwork {
             return c;
         }
 
+        // Compare the geographical name
+        c = nodeCode1.getGeographicalSpot().compareTo(nodeCode2.getGeographicalSpot());
+        if (c != 0) {
+            return c;
+        }
+
         // Prefer the lowest node index
         c = nodeCode1.getBusbar().compareTo(nodeCode2.getBusbar());
         if (c != 0) {
@@ -198,13 +204,7 @@ public class UcteNetworkExt implements UcteNetwork {
         }
 
         // Prefer the first node in the alphabetical order
-        c = nodeCode1.compareTo(nodeCode2);
-        if (c != 0) {
-            return c;
-        }
-
-        // Fallback
-        return -1;
+        return nodeCode1.compareTo(nodeCode2);
     }
 
     private void updateSubstation() {
