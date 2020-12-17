@@ -1,0 +1,2 @@
+module powsybl.commons.test {
+}

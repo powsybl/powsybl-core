@@ -10,7 +10,6 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-import javax.annotation.Nullable;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -36,7 +35,7 @@ public class ZipPackager {
      * @param path the file to add in zip bytes
      * @return a reference to this object
      */
-    public ZipPackager addPath(@Nullable Path path) {
+    public ZipPackager addPath(Path path) {
         if (path == null || !Files.exists(path)) {
             return this;
         }
