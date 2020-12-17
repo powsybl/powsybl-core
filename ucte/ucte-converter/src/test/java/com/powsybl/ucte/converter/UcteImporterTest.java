@@ -178,6 +178,13 @@ public class UcteImporterTest {
     }
 
     @Test
+    public void testXnodeTransformer() {
+        ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
+
+    @Test
     public void testUnvalidRegulation() {
         ResourceDataSource dataSource = new ResourceDataSource("unvalidRegulationNetwork", new ResourceSet("/", "unvalidRegulationNetwork.uct"));
         Network network = new UcteImporter().importData(dataSource, null);

@@ -278,6 +278,7 @@ public class UcteImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
                 .setId(ucteLine.getId().toString())
+                .setName(xnode.getGeographicalName())
                 .setBus(connected ? nodeCode.toString() : null)
                 .setConnectableBus(nodeCode.toString())
                 .setR(ucteLine.getResistance())
@@ -557,6 +558,7 @@ public class UcteImporter implements Importer {
 
         yVoltageLevel.getBusBreakerView().newBus()
                 .setId(yNodeName)
+                .setFictitious(true)
                 .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
@@ -564,20 +566,10 @@ public class UcteImporter implements Importer {
         LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
-        float p0 = 0;
-        if (isValueValid(ucteXnode.getActiveLoad())) {
-            p0 += ucteXnode.getActiveLoad();
-        }
-        if (isValueValid(ucteXnode.getActivePowerGeneration())) {
-            p0 += ucteXnode.getActivePowerGeneration();
-        }
-        float q0 = 0;
-        if (isValueValid(ucteXnode.getReactiveLoad())) {
-            q0 += ucteXnode.getReactiveLoad();
-        }
-        if (isValueValid(ucteXnode.getReactivePowerGeneration())) {
-            q0 += ucteXnode.getReactivePowerGeneration();
-        }
+        float p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
+        float q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
+        float targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
+        float targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
         // create a small impedance dangling line connected to the YNODE
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
@@ -591,9 +583,14 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
+                .newGeneration()
+                    .setTargetP(-targetP)
+                    .setTargetQ(-targetQ)
+                    .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
+        addGeographicalNameProperty(ucteXnode, yDanglingLine);
 
         String voltageLevelId1;
         String voltageLevelId2;

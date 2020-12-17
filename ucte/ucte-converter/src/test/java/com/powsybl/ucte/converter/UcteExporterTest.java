@@ -168,6 +168,12 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testXnodeTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xNodeTransformer.uct");
+        testExporter(network, "/xNodeTransformer.uct");
+    }
+
+    @Test
     public void testValidationUtil() throws IOException {
         Network network = loadNetworkFromResourceFile("/expectedExport.uct");
         for (Bus bus : network.getBusView().getBuses()) {
