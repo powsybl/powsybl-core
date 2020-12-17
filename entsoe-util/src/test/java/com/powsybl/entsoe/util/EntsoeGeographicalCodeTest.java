@@ -29,6 +29,6 @@ public class EntsoeGeographicalCodeTest {
                 EntsoeGeographicalCode.D4, EntsoeGeographicalCode.D7, EntsoeGeographicalCode.D8);
         assertEquals(expected, EntsoeGeographicalCode.forCountry(Country.DE));
 
-        assertEquals(37 + 5, EntsoeGeographicalCode.values().length);
+        assertEquals(38 + 5, EntsoeGeographicalCode.values().length);
     }
 }
