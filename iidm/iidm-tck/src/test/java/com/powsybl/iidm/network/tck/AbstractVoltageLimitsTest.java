@@ -57,6 +57,14 @@ public abstract class AbstractVoltageLimitsTest {
 
         testCalculated("Bus 'N_0'", bus);
         testConfigured("Busbar section 'O'", busbarSection);
+
+        busbarSection.newVoltageLimits().setHighVoltage(220.0).add();
+        assertNotNull(bus.getVoltageLimits());
+        assertTrue(Double.isNaN(bus.getVoltageLimits().getLowVoltage()));
+
+        busbarSection.newVoltageLimits().setLowVoltage(140.0).add();
+        assertNotNull(bus.getVoltageLimits());
+        assertTrue(Double.isNaN(bus.getVoltageLimits().getHighVoltage()));
     }
 
     @Test
