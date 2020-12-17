@@ -35,7 +35,7 @@ public class CimAnonymizerTool implements Tool {
         return new Command() {
             @Override
             public String getName() {
-                return "anonymize-cim";
+                return "cim-anonymizer";
             }
 
             @Override
@@ -45,14 +45,14 @@ public class CimAnonymizerTool implements Tool {
 
             @Override
             public String getDescription() {
-                return "CIM file anonymization";
+                return "CIM files anonymization";
             }
 
             @Override
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder()
-                        .longOpt("cim-zip-path")
+                        .longOpt("cim-path")
                         .desc("CIM zip file or directory")
                         .hasArg()
                         .argName("PATH")
@@ -60,21 +60,21 @@ public class CimAnonymizerTool implements Tool {
                         .build());
                 options.addOption(Option.builder()
                         .longOpt("output-dir")
-                        .desc("directory to write anonymized zip file")
+                        .desc("Directory to write anonymized zip files")
                         .hasArg()
                         .argName("DIR")
                         .required()
                         .build());
                 options.addOption(Option.builder()
-                        .longOpt("dic-file")
-                        .desc("ID dictionary file")
+                        .longOpt("mapping-file")
+                        .desc("File to store the ID mapping")
                         .hasArg()
                         .argName("FILE")
                         .required()
                         .build());
                 options.addOption(Option.builder()
-                        .longOpt("skip-external-ref")
-                        .desc("do not anonymize external references")
+                        .longOpt("skip-external-refs")
+                        .desc("Do not anonymize external references")
                         .build());
                 return options;
             }
@@ -89,10 +89,10 @@ public class CimAnonymizerTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         ToolOptions options = new ToolOptions(line, context.getFileSystem());
-        Path cimZipPath = options.getPath("cim-zip-path").orElseThrow(AssertionError::new);
+        Path cimZipPath = options.getPath("cim-path").orElseThrow(AssertionError::new);
         Path outputDir = options.getPath("output-dir").orElseThrow(AssertionError::new);
-        Path dicFile = options.getPath("dic-file").orElseThrow(AssertionError::new);
-        boolean skipExternalRef = options.hasOption("skip-external-ref");
+        Path mappingFile = options.getPath("mapping-file").orElseThrow(AssertionError::new);
+        boolean skipExternalRef = options.hasOption("skip-external-refs");
 
         CimAnonymizer anomymizer = new CimAnonymizer();
         CimAnonymizer.Logger logger = new CimAnonymizer.Logger() {
@@ -109,10 +109,10 @@ public class CimAnonymizerTool implements Tool {
 
         if (Files.isDirectory(cimZipPath)) {
             try (Stream<Path> stream = Files.list(cimZipPath).filter(cimZipFile -> cimZipFile.getFileName().toString().endsWith(".zip"))) {
-                stream.forEach(cimZipFile -> anomymizer.anonymizeZip(cimZipFile, outputDir, dicFile, logger, skipExternalRef));
+                stream.forEach(cimZipFile -> anomymizer.anonymizeZip(cimZipFile, outputDir, mappingFile, logger, skipExternalRef));
             }
         } else {
-            anomymizer.anonymizeZip(cimZipPath, outputDir, dicFile, logger, skipExternalRef);
+            anomymizer.anonymizeZip(cimZipPath, outputDir, mappingFile, logger, skipExternalRef);
         }
     }
 }

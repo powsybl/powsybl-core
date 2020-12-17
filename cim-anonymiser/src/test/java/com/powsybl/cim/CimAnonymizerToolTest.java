@@ -35,11 +35,11 @@ public class CimAnonymizerToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "anonymize-cim", 4, 3);
-        assertOption(tool.getCommand().getOptions(), "cim-zip-path", true, true);
+        assertCommand(tool.getCommand(), "cim-anonymizer", 4, 3);
+        assertOption(tool.getCommand().getOptions(), "cim-path", true, true);
         assertOption(tool.getCommand().getOptions(), "output-dir", true, true);
-        assertOption(tool.getCommand().getOptions(), "dic-file", true, true);
-        assertOption(tool.getCommand().getOptions(), "skip-external-ref", false, false);
+        assertOption(tool.getCommand().getOptions(), "mapping-file", true, true);
+        assertOption(tool.getCommand().getOptions(), "skip-external-refs", false, false);
     }
 
     @Test
@@ -54,9 +54,9 @@ public class CimAnonymizerToolTest extends AbstractToolTest {
             zos.write(ByteStreams.toByteArray(getClass().getResourceAsStream("/sample_EQ.xml")));
         }
 
-        assertCommand(new String[] {"anonymize-cim", "--cim-zip-path", cimZipFile.toString(),
+        assertCommand(new String[] {"cim-anonymizer", "--cim-path", cimZipFile.toString(),
                                     "--output-dir", anonymizedCimFileDir.toString(),
-                                    "--dic-file", dictionaryFile.toString()},
+                                    "--mapping-file", dictionaryFile.toString()},
                 CommandLineTools.COMMAND_OK_STATUS, "Anonymizing work/sample.zip", "");
 
         assertTrue(Files.exists(anonymizedCimFileDir.resolve("sample.zip")));
