@@ -59,6 +59,7 @@ public enum EntsoeGeographicalCode {
     SI(Country.SI),
     TR(Country.TR),
     UA(Country.UA),
+    KS(Country.KS),
     UC(null),
     UX(null);
 
