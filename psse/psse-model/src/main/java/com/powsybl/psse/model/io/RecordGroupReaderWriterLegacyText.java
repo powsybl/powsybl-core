@@ -30,11 +30,11 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWriter<T> {
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractRecordGroup.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RecordGroupReaderWriterLegacyText.class);
 
     protected final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupReaderWriterLegacyText(AbstractRecordGroup recordGroup) {
+    public RecordGroupReaderWriterLegacyText(AbstractRecordGroup<T> recordGroup) {
         this.recordGroup = recordGroup;
     }
 

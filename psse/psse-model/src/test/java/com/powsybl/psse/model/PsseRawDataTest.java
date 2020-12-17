@@ -94,34 +94,34 @@ public class PsseRawDataTest extends AbstractConverterTest {
             .isThrownBy(g::getNreg)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
 
-        PsseNonTransformerBranch b = raw33.getNonTransformerBranches().get(0);
+        PsseRates br = raw33.getNonTransformerBranches().get(0).getRates();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(b::getRate1)
+            .isThrownBy(br::getRate1)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseTransformer twt = raw33.getTransformers().get(0);
-        PsseTransformerWinding winding1 = twt.getWinding1();
+        PsseRates winding1Rates = twt.getWinding1().getRates();
 
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(twt::getZcod)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'zcod' is valid since version 35");
 
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(winding1::getRate1)
+            .isThrownBy(winding1Rates::getRate1)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PssePowerFlowModel raw35 = new PowerFlowRawData35().read(ieee14Raw35(), "raw", new Context());
         assertNotNull(raw35);
-        PsseNonTransformerBranch b35 = raw35.getNonTransformerBranches().get(0);
+        PsseRates br35 = raw35.getNonTransformerBranches().get(0).getRates();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(b35::getRatea)
+            .isThrownBy(br35::getRatea)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
-        PsseTransformerWinding winding135 = twt35.getWinding1();
+        PsseRates winding135Rates = twt35.getWinding1().getRates();
         assertThatExceptionOfType(PsseException.class)
-            .isThrownBy(winding135::getRata)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'rata' is valid since version 33 until 33");
+            .isThrownBy(winding135Rates::getRatea)
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
     }
 
     @Test

@@ -6,13 +6,11 @@
  */
 package com.powsybl.psse.model.io;
 
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.*;
 import com.fasterxml.jackson.core.util.DefaultIndenter;
 import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.psse.model.PsseException;
 import org.apache.commons.lang3.StringUtils;
@@ -32,9 +30,9 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T> {
-    private final AbstractRecordGroup recordGroup;
+    private final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupReaderWriterJson(AbstractRecordGroup recordGroup) {
+    public RecordGroupReaderWriterJson(AbstractRecordGroup<T> recordGroup) {
         this.recordGroup = recordGroup;
     }
 
@@ -79,11 +77,13 @@ public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T
 
     private JsonNode readJsonNode(JsonParser parser) throws IOException {
         Objects.requireNonNull(parser);
+        ObjectMapper mapper = new ObjectMapper();
+        parser.setCodec(mapper);
         String nodeName = recordGroup.getIdentification().getJsonNodeName();
-        Objects.requireNonNull(nodeName);
-        while (parser.hasCurrentToken()) {
+        while (!parser.isClosed()) {
+            parser.nextToken();
             if (nodeName.equals(parser.getCurrentName())) {
-                return parser.readValueAsTree();
+                return mapper.convertValue(parser.readValueAsTree().get("caseid"), JsonNode.class);
             }
         }
         throw new PsseException("Json node not found: " + nodeName);

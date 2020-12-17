@@ -16,7 +16,6 @@ import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */

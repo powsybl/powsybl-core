@@ -35,7 +35,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
         return PsseBus.class;
     }
 
-    static class BusLegacyText extends RecordGroupReaderWriterLegacyText {
+    static class BusLegacyText extends RecordGroupReaderWriterLegacyText<PsseBus> {
         public BusLegacyText(AbstractRecordGroup recordGroup) {
             super(recordGroup);
         }

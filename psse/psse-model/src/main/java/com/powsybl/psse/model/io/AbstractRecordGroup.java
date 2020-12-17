@@ -33,20 +33,20 @@ public abstract class AbstractRecordGroup<T> {
     private final String[] fieldNames;
     private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new EnumMap<>(PsseVersion.Major.class);
     private String[] quotedFields;
-    private final Map<FileFormat, RecordGroupReaderWriter> readersWriters = new EnumMap<FileFormat, RecordGroupReaderWriter>(FileFormat.class);
+    private final Map<FileFormat, RecordGroupReaderWriter<T>> readersWriters = new EnumMap<>(FileFormat.class);
 
     protected AbstractRecordGroup(RecordGroupIdentification identification, String... fieldNames) {
         this.identification = identification;
         this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
-        readersWriters.put(LEGACY_TEXT, new RecordGroupReaderWriterLegacyText(this));
-        readersWriters.put(JSON, new RecordGroupReaderWriterJson(this));
+        readersWriters.put(LEGACY_TEXT, new RecordGroupReaderWriterLegacyText<T>(this));
+        readersWriters.put(JSON, new RecordGroupReaderWriterJson<T>(this));
     }
 
     protected void withFieldNames(PsseVersion.Major version, String... fieldNames) {
         fieldNamesByVersionMajor.put(version, fieldNames);
     }
 
-    protected void withReaderWriter(FileFormat fileFormat, RecordGroupReaderWriter rw) {
+    protected void withReaderWriter(FileFormat fileFormat, RecordGroupReaderWriter<T> rw) {
         Objects.requireNonNull(fileFormat);
         Objects.requireNonNull(rw);
         readersWriters.put(fileFormat, rw);
@@ -60,6 +60,14 @@ public abstract class AbstractRecordGroup<T> {
         return this.identification;
     }
 
+    /**
+     * Some record groups have a fine level of detail on which field names should be saved in the context depending on each record
+     * This function will be override for Transformer data:
+     * We want to save different field names for transformers with 2 / 3 windings
+     *
+     * @param object the object to be evaluated for a specific record group identification
+     * @return the specific record group identification for the object
+     */
     public RecordGroupIdentification getIdentificationFor(T object) {
         return this.identification;
     }
@@ -87,7 +95,7 @@ public abstract class AbstractRecordGroup<T> {
     public abstract Class<T> psseTypeClass();
 
     public RecordGroupReaderWriter<T> readerWriterFor(FileFormat fileFormat) {
-        RecordGroupReaderWriter r = readersWriters.get(fileFormat);
+        RecordGroupReaderWriter<T> r = readersWriters.get(fileFormat);
         if (r == null) {
             throw new PsseException("No reader/writer for file format " + fileFormat);
         }
@@ -139,6 +147,10 @@ public abstract class AbstractRecordGroup<T> {
 
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
         BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(psseTypeClass());
+
+        // TODO(Luma) Find a solution using annotations or move the fix to the transformer data record group
+        fixMappingsForTransformers(processor);
+
         CsvWriterSettings settings = new CsvWriterSettings();
         settings.quoteFields(quotedFields);
         settings.setHeaders(headers);
@@ -148,5 +160,18 @@ public abstract class AbstractRecordGroup<T> {
         settings.setIgnoreTrailingWhitespaces(false);
         settings.setRowWriterProcessor(processor);
         return settings;
+    }
+
+    void fixMappingsForTransformers(BeanWriterProcessor<T> processor) {
+        for (int k = 1; k <= 12; k++) {
+            processor.getColumnMapper().attributeToColumnName("winding1.rates.rate" + k, "wdg1rate" + k);
+            processor.getColumnMapper().attributeToColumnName("winding2.rates.rate" + k, "wdg2rate" + k);
+            processor.getColumnMapper().attributeToColumnName("winding3.rates.rate" + k, "wdg3rate" + k);
+        }
+        for (char x = 'a'; x <= 'c'; x++) {
+            processor.getColumnMapper().attributeToColumnName("winding1.rates.rate" + x, "rat" + x + "1");
+            processor.getColumnMapper().attributeToColumnName("winding2.rates.rate" + x, "rat" + x + "2");
+            processor.getColumnMapper().attributeToColumnName("winding3.rates.rate" + x, "rat" + x + "3");
+        }
     }
 }

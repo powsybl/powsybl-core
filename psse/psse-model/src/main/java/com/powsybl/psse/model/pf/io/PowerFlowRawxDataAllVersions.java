@@ -10,16 +10,18 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.psse.model.PsseException;
+import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
-import com.powsybl.psse.model.PsseVersion;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import static com.powsybl.psse.model.io.FileFormat.JSON;
 
 /**
  * PSSE RAWX data common to all versions
@@ -33,7 +35,9 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
+            Context context = new Context();
+            context.setFileFormat(JSON);
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();
             return true;
         }
@@ -42,7 +46,9 @@ public class PowerFlowRawxDataAllVersions implements PowerFlowData {
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String ext) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
+            Context context = new Context();
+            context.setFileFormat(JSON);
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             return PsseVersion.fromRevision(caseIdentification.getRev());
         }
     }

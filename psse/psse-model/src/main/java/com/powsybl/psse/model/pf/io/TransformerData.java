@@ -56,7 +56,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     static class TransformersJson extends RecordGroupReaderWriterJson<PsseTransformer> {
-        TransformersJson(AbstractRecordGroup recordGroup) {
+        TransformersJson(AbstractRecordGroup<PsseTransformer> recordGroup) {
             super(recordGroup);
         }
 
@@ -73,7 +73,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     static class TransformersLegacyText extends RecordGroupReaderWriterLegacyText<PsseTransformer> {
         private final TransformerData transformerData;
 
-        TransformersLegacyText(AbstractRecordGroup recordGroup) {
+        TransformersLegacyText(AbstractRecordGroup<PsseTransformer> recordGroup) {
             super(recordGroup);
             this.transformerData = (TransformerData) recordGroup;
         }
