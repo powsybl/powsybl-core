@@ -176,5 +176,11 @@ public class UcteImporterTest {
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
     }
+
+    @Test
+    public void testUnvalidRegulation() {
+        ResourceDataSource dataSource = new ResourceDataSource("unvalidRegulationNetwork", new ResourceSet("/", "unvalidRegulationNetwork.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+    }
 }
 
