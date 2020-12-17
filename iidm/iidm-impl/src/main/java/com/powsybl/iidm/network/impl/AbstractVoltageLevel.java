@@ -25,17 +25,14 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double nominalV;
 
-    private double lowVoltageLimit;
-
-    private double highVoltageLimit;
+    private final OperationalLimitsHolderImpl operationalLimitsHolder;
 
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
-                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+                         double nominalV) {
         super(id, name, fictitious);
         this.substation = substation;
         this.nominalV = nominalV;
-        this.lowVoltageLimit = lowVoltageLimit;
-        this.highVoltageLimit = highVoltageLimit;
+        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -71,32 +68,48 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return this;
     }
 
+    /**
+     * @deprecated Only kept for compatibility (notifications).
+     */
     @Override
-    public double getLowVoltageLimit() {
-        return lowVoltageLimit;
-    }
-
-    @Override
+    @Deprecated
     public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
-        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
-        double oldValue = this.lowVoltageLimit;
-        this.lowVoltageLimit = lowVoltageLimit;
-        notifyUpdate("lowVoltageLimit", oldValue, lowVoltageLimit);
+        if (getVoltageLimits() != null) {
+            getVoltageLimits().setLowVoltage(lowVoltageLimit);
+        } else {
+            newVoltageLimits()
+                    .setLowVoltage(lowVoltageLimit)
+                    .add();
+            operationalLimitsHolder.notifyUpdate(LimitType.VOLTAGE, "lowVoltage", Double.NaN, lowVoltageLimit);
+        }
         return this;
     }
 
+    /**
+     * @deprecated Only kept for compatibility (notifications).
+     */
     @Override
-    public double getHighVoltageLimit() {
-        return highVoltageLimit;
-    }
-
-    @Override
+    @Deprecated
     public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
-        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
-        double oldValue = this.highVoltageLimit;
-        this.highVoltageLimit = highVoltageLimit;
-        notifyUpdate("highVoltageLimit", oldValue, highVoltageLimit);
+        if (getVoltageLimits() != null) {
+            getVoltageLimits().setHighVoltage(highVoltageLimit);
+        } else {
+            newVoltageLimits()
+                    .setHighVoltage(highVoltageLimit)
+                    .add();
+            operationalLimitsHolder.notifyUpdate(LimitType.VOLTAGE, "highVoltage", Double.NaN, highVoltageLimit);
+        }
         return this;
+    }
+
+    @Override
+    public VoltageLimits getVoltageLimits() {
+        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
+    }
+
+    @Override
+    public VoltageLimitsAdder newVoltageLimits() {
+        return operationalLimitsHolder.newVoltageLimits();
     }
 
     @Override

@@ -190,7 +190,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     @Override
     public VoltageLimits getVoltageLimits() {
-        if (getConnectableStream(BusbarSection.class).map(VoltageLimitsHolder::getVoltageLimits).anyMatch(Objects::nonNull)) {
+        if (getConnectableStream(BusbarSection.class).map(VoltageLimitsHolder::getVoltageLimits).anyMatch(Objects::nonNull) || getVoltageLevel().getVoltageLimits() != null) {
             return new CalculatedVoltageLimitsImpl(this);
         }
         return null;
@@ -202,8 +202,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
                 .map(VoltageLimitsHolder::getVoltageLimits)
                 .filter(Objects::nonNull)
                 .map(VoltageLimits::getHighVoltage)
-                .max(Double::compare)
-                .orElse(Double.NaN);
+                .min(Double::compare)
+                .orElseGet(() -> {
+                    if (getVoltageLevel().getVoltageLimits() != null) {
+                        return getVoltageLevel().getVoltageLimits().getHighVoltage();
+                    }
+                    return Double.NaN;
+                });
     }
 
     @Override
@@ -212,8 +217,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
                 .map(VoltageLimitsHolder::getVoltageLimits)
                 .filter(Objects::nonNull)
                 .map(VoltageLimits::getLowVoltage)
-                .min(Double::compare)
-                .orElse(Double.NaN);
+                .max(Double::compare)
+                .orElseGet(() -> {
+                    if (getVoltageLevel().getVoltageLimits() != null) {
+                        return getVoltageLevel().getVoltageLimits().getLowVoltage();
+                    }
+                    return Double.NaN;
+                });
     }
 
     @Override

@@ -314,8 +314,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     protected final VariantArray<VariantImpl> variants;
 
     BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
-                           double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
+                           double nominalV) {
+        super(id, name, fictitious, substation, nominalV);
         variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(this::invalidateCache);

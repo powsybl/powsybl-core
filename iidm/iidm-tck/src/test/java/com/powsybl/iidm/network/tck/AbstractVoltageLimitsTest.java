@@ -42,6 +42,7 @@ public abstract class AbstractVoltageLimitsTest {
     public void testBusbarSection() {
         Network network = FictitiousSwitchFactory.create();
         BusbarSection busbarSection = network.getBusbarSection("O");
+        busbarSection.getTerminal().getVoltageLevel().getVoltageLimits().remove(); // remove voltage limits at voltage level for the test
         Bus bus = busbarSection.getTerminal().getBusBreakerView().getBus();
         try {
             bus.newVoltageLimits();
@@ -56,6 +57,57 @@ public abstract class AbstractVoltageLimitsTest {
 
         testCalculated("Bus 'N_0'", bus);
         testConfigured("Busbar section 'O'", busbarSection);
+    }
+
+    @Test
+    public void testVoltageLevel() {
+        Network network = FictitiousSwitchFactory.create();
+        VoltageLevel vl = network.getVoltageLevel("N");
+        vl.newVoltageLimits()
+                .setHighVoltage(400)
+                .setLowVoltage(150)
+                .add();
+
+        VoltageLimits voltageLimits = vl.getVoltageLimits();
+        assertNotNull(voltageLimits);
+        assertEquals(400, voltageLimits.getHighVoltage(), 0.0);
+        assertEquals(150, voltageLimits.getLowVoltage(), 0.0);
+
+        vl.getNodeBreakerView().getBusbarSectionStream().forEach(bbs -> {
+            VoltageLimits limits = bbs.getVoltageLimits();
+            assertNotNull(limits);
+            assertEquals(400, limits.getHighVoltage(), 0.0);
+            assertEquals(150, limits.getLowVoltage(), 0.0);
+        });
+
+        vl.getBusBreakerView().getBusStream().forEach(b -> {
+            VoltageLimits limits = b.getVoltageLimits();
+            assertNotNull(limits);
+            assertEquals(400, limits.getHighVoltage(), 0.0);
+            assertEquals(150, limits.getLowVoltage(), 0.0);
+        });
+
+        vl.getBusView().getBusStream().forEach(b -> {
+            VoltageLimits limits = b.getVoltageLimits();
+            assertNotNull(limits);
+            assertEquals(400, limits.getHighVoltage(), 0.0);
+            assertEquals(150, limits.getLowVoltage(), 0.0);
+        });
+
+        voltageLimits.remove();
+        assertNull(vl.getVoltageLimits());
+
+        vl.getNodeBreakerView().getBusbarSectionStream().forEach(bbs -> {
+            assertNull(bbs.getVoltageLimits());
+        });
+
+        vl.getBusBreakerView().getBusStream().forEach(b -> {
+            assertNull(b.getVoltageLimits());
+        });
+
+        vl.getBusView().getBusStream().forEach(b -> {
+            assertNull(b.getVoltageLimits());
+        });
     }
 
     @Test

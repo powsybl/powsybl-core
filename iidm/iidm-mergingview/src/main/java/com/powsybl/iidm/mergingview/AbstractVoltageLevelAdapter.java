@@ -74,25 +74,13 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
-    public double getLowVoltageLimit() {
-        return getDelegate().getLowVoltageLimit();
+    public VoltageLimits getVoltageLimits() {
+        return getDelegate().getVoltageLimits();
     }
 
     @Override
-    public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
-        getDelegate().setLowVoltageLimit(lowVoltageLimit);
-        return this;
-    }
-
-    @Override
-    public double getHighVoltageLimit() {
-        return getDelegate().getHighVoltageLimit();
-    }
-
-    @Override
-    public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
-        getDelegate().setHighVoltageLimit(highVoltageLimit);
-        return this;
+    public VoltageLimitsAdder newVoltageLimits() {
+        return getDelegate().newVoltageLimits();
     }
 
     @Override
