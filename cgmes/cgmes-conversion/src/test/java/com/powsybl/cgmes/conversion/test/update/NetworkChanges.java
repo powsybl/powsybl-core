@@ -46,8 +46,10 @@ public final class NetworkChanges {
 
     public static void modifyEquipmentCharacteristics(Network network) {
         VoltageLevel vl = network.getVoltageLevels().iterator().next();
-        vl.setLowVoltageLimit(vl.getNominalV() - 3.1415);
-        vl.setHighVoltageLimit(vl.getNominalV() + 3.1415);
+        if (vl.getVoltageLimits() != null) {
+            vl.getVoltageLimits().setLowVoltage(vl.getNominalV() - 3.1415);
+            vl.getVoltageLimits().setHighVoltage(vl.getNominalV() + 3.1415);
+        }
 
         Line line = network.getLines().iterator().next();
         // Some lines may correspond to CGMES switches

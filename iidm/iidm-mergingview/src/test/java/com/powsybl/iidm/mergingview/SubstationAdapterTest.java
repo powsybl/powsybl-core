@@ -87,8 +87,10 @@ public class SubstationAdapterTest {
                 .setId("bbVL")
                 .setName("bbVL_name")
                 .setNominalV(200.0)
-                .setLowVoltageLimit(100.0)
-                .setHighVoltageLimit(200.0)
+                .add();
+        v1.newVoltageLimits()
+                .setLowVoltage(100.0)
+                .setHighVoltage(200.0)
                 .add();
         assertNotNull(v1);
         assertTrue(substation.getVoltageLevelStream().findAny().isPresent());

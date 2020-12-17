@@ -37,8 +37,10 @@ public final class FictitiousSwitchFactory {
         VoltageLevel vlC = s.newVoltageLevel()
                 .setId("C")
                 .setNominalV(225.0)
-                .setLowVoltageLimit(0.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vlC.newVoltageLimits()
+                .setLowVoltage(0.0)
                 .add();
         BusbarSection busbarSectionD = vlC.getNodeBreakerView().newBusbarSection()
                 .setId("D")
@@ -53,9 +55,11 @@ public final class FictitiousSwitchFactory {
         VoltageLevel vlN = s.newVoltageLevel()
                 .setId("N")
                 .setNominalV(225.0)
-                .setLowVoltageLimit(220.0)
-                .setHighVoltageLimit(245.00002)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vlN.newVoltageLimits()
+                .setLowVoltage(220.0)
+                .setHighVoltage(245.00002)
                 .add();
         BusbarSection busbarSectionO = vlN.getNodeBreakerView().newBusbarSection()
                 .setId("O")

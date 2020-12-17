@@ -36,8 +36,10 @@ public final class MultipleExtensionsTestNetworkFactory {
                 .setId("VL")
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .setNominalV(20.0f)
-                .setLowVoltageLimit(15.0f)
-                .setHighVoltageLimit(25.0f)
+                .add();
+        vl.newVoltageLimits()
+                .setLowVoltage(15.0f)
+                .setHighVoltage(25.0f)
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("BUS")
