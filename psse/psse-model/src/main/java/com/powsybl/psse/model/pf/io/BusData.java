@@ -7,12 +7,14 @@
 package com.powsybl.psse.model.pf.io;
 
 import com.powsybl.psse.model.io.AbstractRecordGroup;
+import com.powsybl.psse.model.io.RecordGroupReaderWriterLegacyText;
 import com.powsybl.psse.model.pf.PsseBus;
 
 import java.io.OutputStream;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,6 +27,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
         withFieldNames(V33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
         withFieldNames(V35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
         withQuotedFields("name");
+        withReaderWriter(LEGACY_TEXT, new BusLegacyText(this));
     }
 
     @Override
@@ -32,8 +35,14 @@ class BusData extends AbstractRecordGroup<PsseBus> {
         return PsseBus.class;
     }
 
-    @Override
-    protected void writeBegin(OutputStream outputStream) {
-        // We do not want to write a begin comment for Bus data records
+    static class BusLegacyText extends RecordGroupReaderWriterLegacyText {
+        public BusLegacyText(AbstractRecordGroup recordGroup) {
+            super(recordGroup);
+        }
+
+        @Override
+        protected void writeBegin(OutputStream outputStream) {
+            // We do not want to write a begin comment for Bus data records
+        }
     }
 }

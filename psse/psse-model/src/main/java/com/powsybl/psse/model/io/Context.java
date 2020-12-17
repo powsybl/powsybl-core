@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.model.io;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseVersion;
 import com.univocity.parsers.common.DataProcessingException;
 import com.univocity.parsers.common.ParsingContext;
@@ -18,7 +20,8 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.powsybl.psse.model.io.FileFormat.*;
+import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
+import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -28,12 +31,15 @@ public class Context {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Context.class);
 
+    private final Map<String, String[]> fieldNames = new HashMap<>();
+    private final CsvParserSettings csvParserSettings;
+
     private FileFormat fileFormat = LEGACY_TEXT;
     private char delimiter = FileFormat.getDefaultDelimiter(fileFormat);
     private PsseVersion version;
     private int currentRecordGroupMaxNumFields;
-    private final Map<String, String[]> fieldNames = new HashMap<>();
-    private final CsvParserSettings csvParserSettings;
+    private JsonGenerator jsonGenerator;
+    private JsonNode networkNode;
 
     public Context() {
         csvParserSettings = new CsvParserSettings();
@@ -108,5 +114,21 @@ public class Context {
 
     public void setCurrentRecordNumFields(int numFields) {
         currentRecordGroupMaxNumFields = Math.max(currentRecordGroupMaxNumFields, numFields);
+    }
+
+    public JsonGenerator getJsonGenerator() {
+        return jsonGenerator;
+    }
+
+    public void setJsonGenerator(JsonGenerator jsonGenerator) {
+        this.jsonGenerator = jsonGenerator;
+    }
+
+    public JsonNode getNetworkNode() {
+        return networkNode;
+    }
+
+    public void setNetworkNode(JsonNode networkNode) {
+        this.networkNode = networkNode;
     }
 }

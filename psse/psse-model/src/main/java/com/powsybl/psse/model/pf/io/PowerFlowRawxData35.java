@@ -12,9 +12,9 @@ import com.fasterxml.jackson.core.util.DefaultPrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.io.BufferedOutputStream;
@@ -23,6 +23,7 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+import static com.powsybl.psse.model.io.FileFormat.JSON;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -32,6 +33,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
+        context.setFileFormat(JSON);
         try (InputStream is = dataSource.newInputStream(null, ext)) {
             return read(is, context);
         }
@@ -39,23 +41,25 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 
     private PssePowerFlowModel read(InputStream stream, Context context) throws IOException {
         JsonNode networkNode = networkNode(stream);
-        PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1x(networkNode, context);
+        context.setNetworkNode(networkNode);
+        PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(null, context);
         caseIdentification.validate();
 
         PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
 
-        model.addBuses(new BusData().readJson(networkNode, context));
-        model.addLoads(new LoadData().readJson(networkNode, context));
-        model.addFixedShunts(new FixedBusShuntData().readJson(networkNode, context));
-        model.addGenerators(new GeneratorData().readJson(networkNode, context));
-        model.addNonTransformerBranches(new NonTransformerBranchData().readJson(networkNode, context));
-        model.addTransformers(new TransformerData().readJson(networkNode, context));
+        // Call read with inputStream as null will force reading from context.networkNode
+        model.addBuses(new BusData().read(null, context));
+        model.addLoads(new LoadData().read(null, context));
+        model.addFixedShunts(new FixedBusShuntData().read(null, context));
+        model.addGenerators(new GeneratorData().read(null, context));
+        model.addNonTransformerBranches(new NonTransformerBranchData().read(null, context));
+        model.addTransformers(new TransformerData().read(null, context));
 
-        model.addAreas(new AreaInterchangeData().readJson(networkNode, context));
-        model.addZones(new ZoneData().readJson(networkNode, context));
-        model.addOwners(new OwnerData().readJson(networkNode, context));
+        model.addAreas(new AreaInterchangeData().read(null, context));
+        model.addZones(new ZoneData().read(null, context));
+        model.addOwners(new OwnerData().read(null, context));
 
-        model.addSwitchedShunts(new SwitchedShuntData().readJson(networkNode, context));
+        model.addSwitchedShunts(new SwitchedShuntData().read(null, context));
 
         return model;
     }
@@ -75,21 +79,22 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 
     private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) throws IOException {
         try (JsonGenerator generator = new JsonFactory().createGenerator(outputStream).setPrettyPrinter(new DefaultPrettyPrinter())) {
+            context.setJsonGenerator(generator);
             generator.writeStartObject();
             generator.writeFieldName("network");
             generator.writeStartObject();
             generator.flush();
 
-            new CaseIdentificationData().write1x(model, context, generator);
-            new BusData().writeJson(model.getBuses(), context, generator);
-            new LoadData().writeJson(model.getLoads(), context, generator);
-            new FixedBusShuntData().writeJson(model.getFixedShunts(), context, generator);
-            new GeneratorData().writeJson(model.getGenerators(), context, generator);
-            new NonTransformerBranchData().writeJson(model.getNonTransformerBranches(), context, generator);
-            new TransformerData().writeJson(model.getTransformers(), context, generator);
-            new AreaInterchangeData().writeJson(model.getAreas(), context, generator);
-            new ZoneData().writeJson(model.getZones(), context, generator);
-            new OwnerData().writeJson(model.getOwners(), context, generator);
+            new CaseIdentificationData().writeHead(model.getCaseIdentification(), context, null);
+            new BusData().write(model.getBuses(), context, null);
+            new LoadData().write(model.getLoads(), context, null);
+            new FixedBusShuntData().write(model.getFixedShunts(), context, null);
+            new GeneratorData().write(model.getGenerators(), context, null);
+            new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, null);
+            new TransformerData().write(model.getTransformers(), context, null);
+            new AreaInterchangeData().write(model.getAreas(), context, null);
+            new ZoneData().write(model.getZones(), context, null);
+            new OwnerData().write(model.getOwners(), context, null);
 
             generator.writeEndObject(); // network
             generator.writeEndObject(); // root

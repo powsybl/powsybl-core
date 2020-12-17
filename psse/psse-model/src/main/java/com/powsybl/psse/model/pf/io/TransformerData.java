@@ -9,8 +9,7 @@ package com.powsybl.psse.model.pf.io;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.io.*;
 import com.powsybl.psse.model.pf.PsseTransformer;
 
 import java.io.BufferedReader;
@@ -21,12 +20,124 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
+
+    TransformerData() {
+        super(TRANSFORMER);
+        withQuotedFields("ckt", "name", "vecgrp");
+        withReaderWriter(FileFormat.LEGACY_TEXT, new TransformersLegacyText(this));
+        withReaderWriter(FileFormat.JSON, new TransformersJson(this));
+    }
+
+    @Override
+    public String[] fieldNames(PsseVersion version) {
+        throw new PsseException("Should not occur");
+    }
+
+    @Override
+    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
+        return is3Winding(line0) ? fieldNames3Winding(version) : fieldNames2Winding(version);
+    }
+
+    @Override
+    public Class<PsseTransformer> psseTypeClass() {
+        return PsseTransformer.class;
+    }
+
+    @Override
+    public RecordGroupIdentification getIdentificationFor(PsseTransformer transformer) {
+        return transformer.getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
+    }
+
+    static class TransformersJson extends RecordGroupReaderWriterJson<PsseTransformer> {
+        TransformersJson(AbstractRecordGroup recordGroup) {
+            super(recordGroup);
+        }
+
+        @Override
+        public List<PsseTransformer> readJson(JsonNode networkNode, Context context) {
+            List<PsseTransformer> transformers = super.readJson(networkNode, context);
+            // Same field names for 2 and 3 winding transformers
+            context.setFieldNames(TRANSFORMER_2, context.getFieldNames(TRANSFORMER));
+            context.setFieldNames(TRANSFORMER_3, context.getFieldNames(TRANSFORMER));
+            return transformers;
+        }
+    }
+
+    static class TransformersLegacyText extends RecordGroupReaderWriterLegacyText<PsseTransformer> {
+        private final TransformerData transformerData;
+
+        TransformersLegacyText(AbstractRecordGroup recordGroup) {
+            super(recordGroup);
+            this.transformerData = (TransformerData) recordGroup;
+        }
+
+        @Override
+        public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
+            return super.readMultiLineRecords(reader, context);
+        }
+
+        @Override
+        public void write(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
+            writeBegin(outputStream);
+
+            // Process all transformers with 2 windings together
+            List<PsseTransformer> transformers2Windings = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
+            if (!transformers2Windings.isEmpty()) {
+                String[] contextFieldNames = context.getFieldNames(TRANSFORMER_2);
+                String[][] fieldNamesByLine = transformerData.fieldNames2Winding(context.getVersion());
+                writeMultiLineRecords(transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
+            }
+            // Process all transformers with 3 windings together
+            List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
+            if (!transformers3Windings.isEmpty()) {
+                String[] contextFieldNames = context.getFieldNames(TRANSFORMER_3);
+                String[][] fieldNamesByLine = transformerData.fieldNames3Winding(context.getVersion());
+                writeMultiLineRecords(transformers3Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
+            }
+
+            writeEnd(outputStream);
+        }
+    }
+
+    private static boolean is3Winding(String record) {
+        try (Scanner scanner = new Scanner(record)) {
+            // Valid delimiters surrounded by any number of whitespace
+            scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
+            int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
+            return i != 0 && j != 0 && k != 0;
+        }
+    }
+
+    private String[][] fieldNames3Winding(PsseVersion version) {
+        switch (version.major()) {
+            case V35:
+                return FIELD_NAMES_3_35;
+            case V33:
+                return FIELD_NAMES_3_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
+
+    private String[][] fieldNames2Winding(PsseVersion version) {
+        switch (version.major()) {
+            case V35:
+                return FIELD_NAMES_2_35;
+            case V33:
+                return FIELD_NAMES_2_33;
+            default:
+                throw new PsseException("Unsupported version " + version);
+        }
+    }
 
     private static final String[][] FIELD_NAMES_3_35 = {
         {"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp", "zcod"},
@@ -54,94 +165,4 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
         {"windv2", "nomv2"}
     };
-
-    TransformerData() {
-        super(PowerFlowRecordGroup.TRANSFORMER);
-        withQuotedFields("ckt", "name", "vecgrp");
-    }
-
-    private static boolean is3Winding(String record) {
-        try (Scanner scanner = new Scanner(record)) {
-            // Valid delimiters surrounded by any number of whitespace
-            scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
-            int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            return i != 0 && j != 0 && k != 0;
-        }
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        throw new PsseException("Should not occur");
-    }
-
-    @Override
-    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
-        return is3Winding(line0) ? fieldNames3Winding(version) : fieldNames2Winding(version);
-    }
-
-    public String[][] fieldNames3Winding(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_3_35;
-            case V33:
-                return FIELD_NAMES_3_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    public String[][] fieldNames2Winding(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_2_35;
-            case V33:
-                return FIELD_NAMES_2_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
-        }
-    }
-
-    @Override
-    public Class<PsseTransformer> psseTypeClass() {
-        return PsseTransformer.class;
-    }
-
-    @Override
-    public List<PsseTransformer> readLegacyText(BufferedReader reader, Context context) throws IOException {
-        return super.readLegacyTextMultiLineRecords(reader, context);
-    }
-
-    @Override
-    public List<PsseTransformer> readJson(JsonNode networkNode, Context context) {
-        List<PsseTransformer> transformers = super.readJson(networkNode, context);
-        // Same field names for 2 and 3 winding transformers
-        context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER_2, context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER));
-        context.setFieldNames(PowerFlowRecordGroup.TRANSFORMER_3, context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER));
-        return transformers;
-    }
-
-    @Override
-    public void writeLegacyText(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
-        writeBegin(outputStream);
-
-        // Process all transformers with 2 windings together
-        List<PsseTransformer> transformers2Windings = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
-        if (!transformers2Windings.isEmpty()) {
-            String[] contextFieldNames = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_2);
-            String[][] fieldNamesByLine = fieldNames2Winding(context.getVersion());
-            writeLegacyTextMultiLine(transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
-        }
-        // Process all transformers with 3 windings together
-        List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
-        if (!transformers3Windings.isEmpty()) {
-            String[] contextFieldNames = context.getFieldNames(PowerFlowRecordGroup.TRANSFORMER_3);
-            String[][] fieldNamesByLine = fieldNames3Winding(context.getVersion());
-            writeLegacyTextMultiLine(transformers3Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
-        }
-
-        writeEnd(outputStream);
-    }
-
 }

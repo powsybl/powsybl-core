@@ -30,7 +30,7 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
     @Override
     public boolean isValidFile(ReadOnlyDataSource dataSource, String extension) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new Context());
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
             caseIdentification.validate();
             return true;
         }
@@ -39,7 +39,7 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
     @Override
     public PsseVersion readVersion(ReadOnlyDataSource dataSource, String extension) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, extension)))) {
-            PsseCaseIdentification caseIdentification = new CaseIdentificationData().read1(reader, new Context());
+            PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, new Context());
             caseIdentification.validate();
             return PsseVersion.fromRevision(caseIdentification.getRev());
         }
