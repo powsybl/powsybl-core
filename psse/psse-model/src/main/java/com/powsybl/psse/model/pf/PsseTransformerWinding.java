@@ -9,7 +9,6 @@ package com.powsybl.psse.model.pf;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -21,7 +20,6 @@ public class PsseTransformerWinding extends PsseVersioned {
     @Override
     public void setModel(PssePowerFlowModel model) {
         super.setModel(model);
-        rates.setModel(model);
     }
 
     @Parsed
@@ -32,9 +30,6 @@ public class PsseTransformerWinding extends PsseVersioned {
 
     @Parsed
     private double ang = 0;
-
-    @Nested
-    private PsseRates rates;
 
     @Parsed
     private int cod = 0;
@@ -132,9 +127,5 @@ public class PsseTransformerWinding extends PsseVersioned {
 
     public double getCnxa() {
         return cnxa;
-    }
-
-    public PsseRates getRates() {
-        return rates;
     }
 }

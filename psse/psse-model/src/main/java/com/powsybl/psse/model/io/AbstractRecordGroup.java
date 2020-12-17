@@ -38,8 +38,8 @@ public abstract class AbstractRecordGroup<T> {
     protected AbstractRecordGroup(RecordGroupIdentification identification, String... fieldNames) {
         this.identification = identification;
         this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
-        readersWriters.put(LEGACY_TEXT, new RecordGroupReaderWriterLegacyText<T>(this));
-        readersWriters.put(JSON, new RecordGroupReaderWriterJson<T>(this));
+        readersWriters.put(LEGACY_TEXT, new RecordGroupReaderWriterLegacyText<>(this));
+        readersWriters.put(JSON, new RecordGroupReaderWriterJson<>(this));
     }
 
     protected void withFieldNames(PsseVersion.Major version, String... fieldNames) {
@@ -124,7 +124,7 @@ public abstract class AbstractRecordGroup<T> {
 
     public List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
-        BeanListProcessor<? extends T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
+        BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
         CsvParserSettings settings = context.getCsvParserSettings();
         settings.setHeaders(headers);
         settings.setProcessor(processor);
@@ -134,11 +134,11 @@ public abstract class AbstractRecordGroup<T> {
             String[] fields = parser.parseLine(record);
             context.setCurrentRecordNumFields(fields.length);
         }
-        List<? extends T> beans = processor.getBeans();
+        List<T> beans = processor.getBeans();
         if (beans.size() != expectedCount) {
             throw new PsseException("Parsing error");
         }
-        return (List<T>) beans;
+        return beans;
     }
 
     protected List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
@@ -147,10 +147,6 @@ public abstract class AbstractRecordGroup<T> {
 
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
         BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(psseTypeClass());
-
-        // TODO(Luma) Find a solution using annotations or move the fix to the transformer data record group
-        fixMappingsForTransformers(processor);
-
         CsvWriterSettings settings = new CsvWriterSettings();
         settings.quoteFields(quotedFields);
         settings.setHeaders(headers);
@@ -160,18 +156,5 @@ public abstract class AbstractRecordGroup<T> {
         settings.setIgnoreTrailingWhitespaces(false);
         settings.setRowWriterProcessor(processor);
         return settings;
-    }
-
-    void fixMappingsForTransformers(BeanWriterProcessor<T> processor) {
-        for (int k = 1; k <= 12; k++) {
-            processor.getColumnMapper().attributeToColumnName("winding1.rates.rate" + k, "wdg1rate" + k);
-            processor.getColumnMapper().attributeToColumnName("winding2.rates.rate" + k, "wdg2rate" + k);
-            processor.getColumnMapper().attributeToColumnName("winding3.rates.rate" + k, "wdg3rate" + k);
-        }
-        for (char x = 'a'; x <= 'c'; x++) {
-            processor.getColumnMapper().attributeToColumnName("winding1.rates.rate" + x, "rat" + x + "1");
-            processor.getColumnMapper().attributeToColumnName("winding2.rates.rate" + x, "rat" + x + "2");
-            processor.getColumnMapper().attributeToColumnName("winding3.rates.rate" + x, "rat" + x + "3");
-        }
     }
 }

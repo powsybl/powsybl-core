@@ -100,7 +100,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
             .withMessage("Wrong version of PSSE RAW model (33). Field 'rate1' is valid since version 35");
 
         PsseTransformer twt = raw33.getTransformers().get(0);
-        PsseRates winding1Rates = twt.getWinding1().getRates();
+        PsseRates winding1Rates = twt.getWinding1Rates();
 
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(twt::getZcod)
@@ -118,7 +118,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
-        PsseRates winding135Rates = twt35.getWinding1().getRates();
+        PsseRates winding135Rates = twt35.getWinding1Rates();
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(winding135Rates::getRatea)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");

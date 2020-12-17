@@ -15,7 +15,9 @@ import com.powsybl.psse.model.pf.PsseTransformer;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
@@ -33,6 +35,21 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         withQuotedFields("ckt", "name", "vecgrp");
         withReaderWriter(FileFormat.LEGACY_TEXT, new TransformersLegacyText(this));
         withReaderWriter(FileFormat.JSON, new TransformersJson(this));
+        // Fix mappings in nested beans that Univocity did not recognize from annotations
+        // The same mappings are specified in PsseTransformer class
+        // using a headerTransformer processing for @Nested annotation
+        Map<String, String> mapping = new HashMap<>(12 * 3 + 3);
+        for (int k = 1; k <= 12; k++) {
+            mapping.put("winding1Rates.rate" + k, "wdg1rate" + k);
+            mapping.put("winding2Rates.rate" + k, "wdg2rate" + k);
+            mapping.put("winding3Rates.rate" + k, "wdg3rate" + k);
+        }
+        for (char x = 'a'; x <= 'c'; x++) {
+            mapping.put("winding1Rates.rate" + x, "rat" + x + "1");
+            mapping.put("winding2Rates.rate" + x, "rat" + x + "2");
+            mapping.put("winding3Rates.rate" + x, "rat" + x + "3");
+        }
+        //withAttributesToColumnNamesForBeanWriterProcessor(mapping);
     }
 
     @Override

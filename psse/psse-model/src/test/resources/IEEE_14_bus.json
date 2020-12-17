@@ -1065,11 +1065,6 @@
       "windv" : 0.978,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : 1.5,
@@ -1082,15 +1077,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding1Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1103,15 +1098,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding2Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1123,6 +1118,11 @@
       "cr" : 0.0,
       "cx" : 0.0,
       "cnxa" : 0.0
+    },
+    "winding3Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
     },
     "x12" : 0.20912,
     "x23" : "NaN",
@@ -1163,11 +1163,6 @@
       "windv" : 0.969,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : 1.5,
@@ -1180,15 +1175,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding1Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1201,15 +1196,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding2Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1221,6 +1216,11 @@
       "cr" : 0.0,
       "cx" : 0.0,
       "cnxa" : 0.0
+    },
+    "winding3Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
     },
     "x12" : 0.55618,
     "x23" : "NaN",
@@ -1261,11 +1261,6 @@
       "windv" : 0.932,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : 1.5,
@@ -1278,15 +1273,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding1Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding2" : {
       "windv" : 1.0,
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1299,15 +1294,15 @@
       "cx" : 0.0,
       "cnxa" : 0.0
     },
+    "winding2Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
+    },
     "winding3" : {
       "windv" : "NaN",
       "nomv" : 0.0,
       "ang" : 0.0,
-      "rates" : {
-        "ratea" : 0.0,
-        "rateb" : 0.0,
-        "ratec" : 0.0
-      },
       "cod" : 0,
       "cont" : 0,
       "rma" : "NaN",
@@ -1319,6 +1314,11 @@
       "cr" : 0.0,
       "cx" : 0.0,
       "cnxa" : 0.0
+    },
+    "winding3Rates" : {
+      "ratea" : 0.0,
+      "rateb" : 0.0,
+      "ratec" : 0.0
     },
     "x12" : 0.25202,
     "x23" : "NaN",

@@ -32,6 +32,9 @@ public class PsseTransformer extends PsseVersioned {
         winding1.setModel(model);
         winding2.setModel(model);
         winding3.setModel(model);
+        winding1Rates.setModel(model);
+        winding2Rates.setModel(model);
+        winding3Rates.setModel(model);
     }
 
     @Parsed(field = {"i", "ibus"})
@@ -120,11 +123,20 @@ public class PsseTransformer extends PsseVersioned {
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
     private PsseTransformerWinding winding1;
 
+    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "1")
+    private PsseRates winding1Rates;
+
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "2")
     private PsseTransformerWinding winding2;
 
+    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "2")
+    private PsseRates winding2Rates;
+
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "3")
     private PsseTransformerWinding winding3;
+
+    @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "3")
+    private PsseRates winding3Rates;
 
     public static class WindingHeaderTransformer extends HeaderTransformer {
         private final String windingNumber;
@@ -135,14 +147,31 @@ public class PsseTransformer extends PsseVersioned {
 
         @Override
         public String transformName(Field field, String name) {
-            // For rates, add the prefix "wdg<windingNumber>"
-            // For the rest of fields, add "<windingNumber>" as a suffix
-            String name1;
-            if (name.startsWith("rate")) {
-                return name1 = "wdg" + windingNumber + name;
-            } else {
-                return name1 = name + windingNumber;
+            // Add "<windingNumber>" as a suffix
+            return name + windingNumber;
+        }
+    }
+
+    public static class WindingRatesHeaderTransformer extends HeaderTransformer {
+        private final String windingNumber;
+
+        public WindingRatesHeaderTransformer(String... args) {
+            windingNumber = args[0];
+        }
+
+        @Override
+        public String transformName(Field field, String name) {
+            if (name.equals("ratea")) {
+                return "rata" + windingNumber;
             }
+            if (name.equals("rateb")) {
+                return "ratb" + windingNumber;
+            }
+            if (name.equals("ratec")) {
+                return "ratc" + windingNumber;
+            }
+            // Add the prefix "wdg<windingNumber>"
+            return "wdg" + windingNumber + name;
         }
     }
 
@@ -357,6 +386,18 @@ public class PsseTransformer extends PsseVersioned {
 
     public PsseTransformerWinding getWinding3() {
         return winding3;
+    }
+
+    public PsseRates getWinding1Rates() {
+        return winding1Rates;
+    }
+
+    public PsseRates getWinding2Rates() {
+        return winding2Rates;
+    }
+
+    public PsseRates getWinding3Rates() {
+        return winding3Rates;
     }
 
     public PsseOwnership getOwnership() {
