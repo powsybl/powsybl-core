@@ -10,8 +10,6 @@ import com.fasterxml.jackson.annotation.JsonFilter;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.MAX_VERSION;
@@ -38,26 +36,6 @@ public class PsseVersioned {
         Field field = null;
         try {
             field = this.getClass().getDeclaredField(fieldName);
-        } catch (NoSuchFieldException e) {
-            throw new PsseException("Wrong field name " + fieldName, e);
-        }
-
-        checkVersionField(field, fieldName);
-    }
-
-    public void checkVersion(String innerClassName, String fieldName) {
-        // If we do not have a reference back to a model
-        // We can not obtain current version and we can not perform checks
-        if (model == null) {
-            return;
-        }
-        Field field = null;
-        try {
-            List<Class<?>> innerClasses = Arrays.asList(this.getClass().getDeclaredClasses());
-            Class<?> innerClass = innerClasses.parallelStream()
-                .filter(ic -> ic.getName().contains(this.getClass().getName() + "$" + innerClassName))
-                .findFirst().orElseThrow(() -> new PsseException("Wrong class name " + innerClassName));
-            field = innerClass.getDeclaredField(fieldName);
         } catch (NoSuchFieldException e) {
             throw new PsseException("Wrong field name " + fieldName, e);
         }
