@@ -6,6 +6,12 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -17,14 +23,8 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import com.google.common.io.ByteStreams;
-import com.powsybl.commons.io.ForwardingInputStream;
-import com.powsybl.commons.io.ForwardingOutputStream;
-
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -78,8 +78,8 @@ public class ZipFileDataSource implements DataSource {
 
     private static boolean entryExists(Path zipFilePath, String fileName) {
         if (Files.exists(zipFilePath)) {
-            try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-                return zipFile.entry(fileName) != null;
+            try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+                return zipFile.getEntry(fileName) != null;
             } catch (IOException e) {
                 return false;
             }
@@ -104,7 +104,7 @@ public class ZipFileDataSource implements DataSource {
         private final ZipFile zipFile;
 
         public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
-            super(zipFile.getInputStream(fileName));
+            super(zipFile.getInputStream(zipFile.getEntry(fileName)));
             this.zipFile = zipFile;
         }
 
@@ -121,7 +121,7 @@ public class ZipFileDataSource implements DataSource {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         if (entryExists(zipFilePath, fileName)) {
-            InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
+            InputStream is = new ZipEntryInputStream(new ZipFile(Files.newByteChannel(zipFilePath)), fileName);
             return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
         }
         return null;
@@ -157,13 +157,13 @@ public class ZipFileDataSource implements DataSource {
 
                 // copy existing entries
                 if (Files.exists(zipFilePath)) {
-                    try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-                        Enumeration<? extends ZipEntry> e = zipFile.entries();
+                    try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+                        Enumeration<ZipArchiveEntry> e = zipFile.getEntries();
                         while (e.hasMoreElements()) {
-                            ZipEntry zipEntry = e.nextElement();
+                            ZipArchiveEntry zipEntry = e.nextElement();
                             if (!zipEntry.getName().equals(fileName)) {
-                                os.putNextEntry(zipEntry);
-                                try (InputStream zis = zipFile.getInputStream(zipEntry.getName())) {
+                                os.putNextEntry(new ZipEntry(zipEntry.getName()));
+                                try (InputStream zis = zipFile.getInputStream(zipEntry)) {
                                     ByteStreams.copy(zis, os);
                                 }
                                 os.closeEntry();
@@ -206,10 +206,10 @@ public class ZipFileDataSource implements DataSource {
         Pattern p = Pattern.compile(regex);
         Set<String> names = new HashSet<>();
         Path zipFilePath = getZipFilePath();
-        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-            Enumeration<? extends ZipEntry> e = zipFile.entries();
+        try (ZipFile zipFile = new ZipFile(Files.newByteChannel(zipFilePath))) {
+            Enumeration<ZipArchiveEntry> e = zipFile.getEntries();
             while (e.hasMoreElements()) {
-                ZipEntry zipEntry = e.nextElement();
+                ZipArchiveEntry zipEntry = e.nextElement();
                 if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
                     names.add(zipEntry.getName());
                 }
