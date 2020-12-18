@@ -58,7 +58,7 @@ public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWr
     @Override
     public void write(List<T> psseObjects, Context context, OutputStream outputStream) {
         String[] headers = context.getFieldNames(recordGroup.identification);
-        String[] actualQuotedFields = Util.intersection(recordGroup.quotedFields(), headers);
+        String[] actualQuotedFields = Util.retainAll(recordGroup.quotedFields(), headers);
         writeBegin(outputStream);
         write(psseObjects, headers, actualQuotedFields, context, outputStream);
         writeEnd(outputStream);
@@ -115,8 +115,8 @@ public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWr
         List<String>[] recordsLines = new ArrayList[numLines];
 
         for (int l = 0; l < numLines; l++) {
-            String[] headersLine = Util.intersection(fieldNamesByLine[l], contextFieldNames);
-            recordsLines[l] = recordGroup.buildRecords(objects, headersLine, Util.intersection(recordGroup.quotedFields(), headersLine), context);
+            String[] headersLine = Util.retainAll(fieldNamesByLine[l], contextFieldNames);
+            recordsLines[l] = recordGroup.buildRecords(objects, headersLine, Util.retainAll(recordGroup.quotedFields(), headersLine), context);
         }
         checkAllRecordsHaveAllLines(recordsLines);
         // All lines of all records have been built, now write them

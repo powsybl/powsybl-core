@@ -6,7 +6,7 @@
  */
 package com.powsybl.psse.model.io;
 
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -17,7 +17,14 @@ public final class Util {
     private Util() {
     }
 
-    public static String[] intersection(String[] strings1, String[] strings2) {
-        return ArrayUtils.removeElements(strings1, ArrayUtils.removeElements(strings1, strings2));
+    public static String[] retainAll(String[] strings, String[] stringsToKeep) {
+        Set<String> setStringsToKeep = new HashSet<>(Arrays.asList(stringsToKeep));
+        List<String> kept = new ArrayList<>();
+        for (String s : strings) {
+            if (setStringsToKeep.contains(s)) {
+                kept.add(s);
+            }
+        }
+        return kept.toArray(new String[0]);
     }
 }

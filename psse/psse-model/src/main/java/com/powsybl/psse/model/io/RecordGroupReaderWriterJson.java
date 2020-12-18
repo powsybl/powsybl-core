@@ -60,7 +60,7 @@ public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T
             throw new PsseException("Should write to Json generator instead of outputStream");
         }
         String[] headers = context.getFieldNames(recordGroup.identification);
-        String[] actualQuotedFields = Util.intersection(recordGroup.quotedFields(), headers);
+        String[] actualQuotedFields = Util.retainAll(recordGroup.quotedFields(), headers);
         List<String> records = recordGroup.buildRecords(psseObjects, headers, actualQuotedFields, context);
         write(headers, records, context.getJsonGenerator());
     }

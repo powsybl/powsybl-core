@@ -65,7 +65,7 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
             // title1 and title2 go in separate lines in legacy text format
             String[] headers = ArrayUtils.removeElements(context.getFieldNames(recordGroup.getIdentification()), "title1", "title2");
             String[] quotedFields = recordGroup.quotedFields();
-            write(Collections.singletonList(caseIdentification), headers, Util.intersection(quotedFields, headers), context, outputStream);
+            write(Collections.singletonList(caseIdentification), headers, Util.retainAll(quotedFields, headers), context, outputStream);
             writeLine(caseIdentification.getTitle1(), outputStream);
             writeLine(caseIdentification.getTitle2(), outputStream);
         }
