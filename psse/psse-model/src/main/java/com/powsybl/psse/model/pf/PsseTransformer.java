@@ -9,11 +9,10 @@ package com.powsybl.psse.model.pf;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
-import com.univocity.parsers.annotations.HeaderTransformer;
+import com.powsybl.psse.model.pf.io.WindingHeaderTransformer;
+import com.powsybl.psse.model.pf.io.WindingRatesHeaderTransformer;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
-
-import java.lang.reflect.Field;
 
 /**
  *
@@ -135,43 +134,6 @@ public class PsseTransformer extends PsseVersioned {
 
     @Nested(headerTransformer = WindingRatesHeaderTransformer.class, args = "3")
     private PsseRates winding3Rates;
-
-    public static class WindingHeaderTransformer extends HeaderTransformer {
-        private final String windingNumber;
-
-        public WindingHeaderTransformer(String... args) {
-            windingNumber = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            // Add "<windingNumber>" as a suffix
-            return name + windingNumber;
-        }
-    }
-
-    public static class WindingRatesHeaderTransformer extends HeaderTransformer {
-        private final String windingNumber;
-
-        public WindingRatesHeaderTransformer(String... args) {
-            windingNumber = args[0];
-        }
-
-        @Override
-        public String transformName(Field field, String name) {
-            if (name.equals("ratea")) {
-                return "rata" + windingNumber;
-            }
-            if (name.equals("rateb")) {
-                return "ratb" + windingNumber;
-            }
-            if (name.equals("ratec")) {
-                return "ratc" + windingNumber;
-            }
-            // Add the prefix "wdg<windingNumber>"
-            return "wdg" + windingNumber + name;
-        }
-    }
 
     public int getI() {
         return i;
