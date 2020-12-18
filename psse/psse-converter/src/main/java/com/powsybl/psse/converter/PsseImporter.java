@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
@@ -20,10 +21,16 @@ import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.psse.model.*;
+import com.powsybl.psse.model.io.Context;
+import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.io.PowerFlowDataFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
@@ -39,7 +46,7 @@ public class PsseImporter implements Importer {
 
     private static final String FORMAT = "PSS/E";
 
-    private static final String[] EXTS = {"raw", "RAW"};
+    private static final String[] EXTENSIONS = {"raw", "RAW", "rawx", "RAWX"};
 
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("psse.import.ignore-base-voltage",
             ParameterType.BOOLEAN,
@@ -49,110 +56,6 @@ public class PsseImporter implements Importer {
     private static final String V_PROPERTY = "v";
 
     private static final String ANGLE_PROPERTY = "angle";
-
-    @Override
-    public String getFormat() {
-        return FORMAT;
-    }
-
-    @Override
-    public List<Parameter> getParameters() {
-        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
-    }
-
-    @Override
-    public String getComment() {
-        return "PSS/E Format to IIDM converter";
-    }
-
-    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
-        for (String ext : EXTS) {
-            if (dataSource.exists(null, ext)) {
-                return ext;
-            }
-        }
-        if (throwException) {
-            throw new PsseException("File " + dataSource.getBaseName()
-                    + "." + String.join("|", EXTS) + " not found");
-        }
-        return null;
-    }
-
-    @Override
-    public boolean exists(ReadOnlyDataSource dataSource) {
-        try {
-            String ext = findExtension(dataSource, false);
-            if (ext != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    new PsseRawReader().checkCaseIdentification(reader);
-                    return true;
-                } catch (PsseException e) {
-                    return false;
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return false;
-    }
-
-    @Override
-    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        Objects.requireNonNull(fromDataSource);
-        Objects.requireNonNull(toDataSource);
-        try {
-            String ext = findExtension(fromDataSource, false);
-            try (InputStream is = fromDataSource.newInputStream(null, ext);
-                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
-                ByteStreams.copy(is, os);
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private static final class PerUnitContext {
-
-        private final double sb; // base apparent power
-
-        private final boolean ignoreBaseVoltage;
-
-        private PerUnitContext(double sb, boolean ignoreBaseVoltage) {
-            this.sb = sb;
-            this.ignoreBaseVoltage = ignoreBaseVoltage;
-        }
-
-        private double getSb() {
-            return sb;
-        }
-
-        private boolean isIgnoreBaseVoltage() {
-            return ignoreBaseVoltage;
-        }
-    }
-
-    private static final class ShuntBlockTab {
-
-        private final Map<Integer, Integer> ni = new HashMap<>();
-        private final Map<Integer, Double> bi = new HashMap<>();
-
-        private void add(int i, int nni, double bni) {
-            ni.put(i, nni);
-            bi.put(i, bni);
-        }
-
-        private int getNi(int i) {
-            return ni.get(i);
-        }
-
-        private double getBi(int i) {
-            return bi.get(i);
-        }
-
-        private int getSize() {
-            return ni.size();
-        }
-    }
 
     private static String getBusId(int busNum) {
         return "B" + busNum;
@@ -237,34 +140,6 @@ public class PsseImporter implements Importer {
         }
     }
 
-    private void createSwitchedShuntBlockMap(PsseRawModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
-
-        /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
-        A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
-        A block may be capacitive or inductive */
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            ShuntBlockTab sbt = new ShuntBlockTab();
-
-            int[] ni = {
-                    psseSwShunt.getN1(), psseSwShunt.getN2(), psseSwShunt.getN3(), psseSwShunt.getN4(),
-                    psseSwShunt.getN5(), psseSwShunt.getN6(), psseSwShunt.getN7(), psseSwShunt.getN8()
-            };
-
-            double[] bi = {
-                    psseSwShunt.getB1(), psseSwShunt.getB2(), psseSwShunt.getB3(), psseSwShunt.getB4(),
-                    psseSwShunt.getB5(), psseSwShunt.getB6(), psseSwShunt.getB7(), psseSwShunt.getB8()
-            };
-
-            int i = 0;
-            while (i <= 7 && ni[i] > 0) {
-                sbt.add(i + 1, ni[i], bi[i]);
-                i++;
-            }
-
-            stoBlockiTab.put(psseSwShunt, sbt);
-        }
-    }
-
     private static void createSwitchedShunt(PsseSwitchedShunt psseSwShunt, PerUnitContext perUnitContext, ContainersMapping containerMapping, Network network, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
         String busId = getBusId(psseSwShunt.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseSwShunt.getI()));
@@ -277,10 +152,10 @@ public class PsseImporter implements Importer {
                         .setConnectableBus(busId)
                         .setSectionCount(1)
                         .newLinearModel() //TODO: use Binit and sbl.getNi(i) to initiate Bi, for now we use Binit to obtain de same load-flow results
-                            .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
-                            .setMaximumSectionCount(1)
+                        .setBPerSection(psseSwShunt.getBinit())//TODO: take into account BINIT to define the number of switched steps in the case BINIT is different from the max switched steps
+                        .setMaximumSectionCount(1)
                         .add()
-                    .add();
+                        .add();
 
                 if (psseSwShunt.getStat() == 1) {
                     shunt.getTerminal().connect();
@@ -292,7 +167,7 @@ public class PsseImporter implements Importer {
     private static void createGenerator(PsseGenerator psseGen, PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         String busId = getBusId(psseGen.getI());
         VoltageLevel voltageLevel = network.getVoltageLevel(containerMapping.getVoltageLevelId(psseGen.getI()));
-        Generator generator =  voltageLevel.newGenerator()
+        Generator generator = voltageLevel.newGenerator()
                 .setId(busId + "-G" + psseGen.getId())
                 .setConnectableBus(busId)
                 .setTargetP(psseGen.getPg())
@@ -334,7 +209,7 @@ public class PsseImporter implements Importer {
         //TODO: take into account zr zx Mbase...
     }
 
-    private static void createBuses(PsseRawModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
+    private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network, Map<Integer, PsseBus> busNumToPsseBus) {
         for (PsseBus psseBus : psseModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(psseBus.getI());
@@ -407,7 +282,7 @@ public class PsseImporter implements Importer {
         double baskv2 = busNumToPsseBus.get(psseTfo.getJ()).getBaskv();
         double zb2 = voltageLevel2.getNominalV() * voltageLevel2.getNominalV() / perUnitContext.getSb();
         double sbase12 = psseTfo.getSbase12();
-        double nomV1 = psseTfo.getWindingRecord1().getNomv();
+        double nomV1 = psseTfo.getWinding1().getNomv();
 
         //handling impedance and admittance
         // CZ = 1 the triangle values are already in right pu
@@ -427,8 +302,8 @@ public class PsseImporter implements Importer {
 
         // Handling terminal ratios
         //default value when Cw = 1
-        double w1 = psseTfo.getWindingRecord1().getWindv();
-        double w2 = psseTfo.getWindingRecord2().getWindv();
+        double w1 = psseTfo.getWinding1().getWindv();
+        double w2 = psseTfo.getWinding2().getWindv();
         if (psseTfo.getCw() == 2) {
             // case where Cw = 2
             w1 = w1 / baskv1;
@@ -473,13 +348,13 @@ public class PsseImporter implements Importer {
                     .add();
 
             //Phase Shift Transformer
-            if (psseTfo.getWindingRecord1().getAng() != 0) {
+            if (psseTfo.getWinding1().getAng() != 0) {
                 PhaseTapChangerAdder phaseTapChangerAdder = tfo2W.newPhaseTapChanger()
                         .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
                         .setRegulating(false)
                         .setTapPosition(0);
                 List<Double> alphas = new ArrayList<>();
-                alphas.add(-psseTfo.getWindingRecord1().getAng());  //TODO : check angle and angle units (supposed in degrees)
+                alphas.add(-psseTfo.getWinding1().getAng());  //TODO : check angle and angle units (supposed in degrees)
                 // TODO create full table
                 for (double alpha : alphas) {
                     phaseTapChangerAdder.beginStep()
@@ -495,10 +370,10 @@ public class PsseImporter implements Importer {
             }
 
             //TODO support phase shift on all ends of the Tfo
-            if (psseTfo.getWindingRecord2().getAng() != 0) {
+            if (psseTfo.getWinding2().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 2 not yet supported  ", id);
             }
-            if (psseTfo.getK() != 0 && psseTfo.getWindingRecord3().getAng() != 0) {
+            if (psseTfo.getK() != 0 && psseTfo.getWinding3().getAng() != 0) {
                 LOGGER.warn("Phase shift of Transformer ({}) located on end 3 not yet supported  ", id);
             }
 
@@ -515,7 +390,7 @@ public class PsseImporter implements Importer {
             double baskv3 = busNumToPsseBus.get(psseTfo.getK()).getBaskv();
 
             // Cw = 1
-            double w3 = psseTfo.getWindingRecord3().getWindv();
+            double w3 = psseTfo.getWinding3().getWindv();
             if (psseTfo.getCw() == 2) {
                 // Cw = 2 : conversion of kV into ratio
                 w3 = w3 / baskv3;
@@ -609,7 +484,7 @@ public class PsseImporter implements Importer {
                         .setConnectableBus(bus3Id)
                         .setVoltageLevel(voltageLevel3Id)
                     .add()
-                 .add();
+                    .add();
 
             if (psseTfo.getStat() == 1) {
                 tfo3W.getLeg1().getTerminal().connect();
@@ -625,97 +500,234 @@ public class PsseImporter implements Importer {
     }
 
     @Override
+    public String getFormat() {
+        return FORMAT;
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return Collections.singletonList(IGNORE_BASE_VOLTAGE_PARAMETER);
+    }
+
+    @Override
+    public String getComment() {
+        return "PSS/E Format to IIDM converter";
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataSource dataSource) {
+        try {
+            String ext = findExtension(dataSource);
+            return exists(dataSource, ext);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
     public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Objects.requireNonNull(networkFactory);
-
-        Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
-
         try {
-            String ext = findExtension(dataSource, true);
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+            String ext = findExtension(dataSource);
+            if (ext == null) {
+                throw new PsseException(String.format("No Power Flow Data file found. Basename: %s, supported extensions: %s",
+                        dataSource.getBaseName(),
+                        String.join("|", EXTENSIONS)));
+            }
+            PsseVersion version = PowerFlowDataFactory.create(ext).readVersion(dataSource, ext);
+            Context context = new Context();
+            PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
+            pssePowerFlowModel.getCaseIdentification().validate();
 
-                // parse file
-                PsseRawModel psseModel = new PsseRawReader().read(reader);
+            Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
+            // TODO store the PsseContext with the Network to be able to export back using its information
+            convert(pssePowerFlowModel, network, parameters);
+            return network;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
 
-                // check version
-                if (psseModel.getCaseIdentification().getRev() > PsseConstants.SUPPORTED_VERSION) {
-                    throw new PsseException("PSS/E version higher than " + PsseConstants.SUPPORTED_VERSION + " not supported");
-                }
-                if (psseModel.getCaseIdentification().getIc() == 1) {
-                    throw new PsseException("Incremental load of PSS/E data option (IC = 1) not supported");
-                }
+    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
+        for (String ext : EXTENSIONS) {
+            if (dataSource.exists(null, ext)) {
+                return ext;
+            }
+        }
+        return null;
+    }
 
-                // set date and time
-                // TODO
+    private boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
+        if (ext != null) {
+            try {
+                return PowerFlowDataFactory.create(ext).isValidFile(dataSource, ext);
+            } catch (PsseException | IOException e) {
+                LOGGER.error(String.format("Invalid content in filename %s.%s: %s",
+                        dataSource.getBaseName(),
+                        ext,
+                        e.getMessage()));
+            }
+        }
+        return false;
+    }
 
-                // build container to fit IIDM requirements
-                List<Object> branches = ImmutableList.builder()
-                        .addAll(psseModel.getNonTransformerBranches())
-                        .addAll(psseModel.getTransformers())
-                        .build();
-                ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getI();
-                ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getJ();
-                ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getK();
-                ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getR12();
-                ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
-                Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
-                ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
-                    branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
-                    busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
-
-                boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
-                        ParameterDefaultValueConfig.INSTANCE);
-                PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
-
-                //The map gives access to PsseBus object with the int bus Number
-                Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
-
-                // create buses
-                createBuses(psseModel, containerMapping, perUnitContext, network, busNumToPsseBus);
-
-                //Create loads
-                for (PsseLoad psseLoad : psseModel.getLoads()) {
-                    createLoad(psseLoad, containerMapping, network);
-                }
-
-                //Create fixed shunts
-                for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
-                    createShuntCompensator(psseShunt, containerMapping, network);
-                }
-
-                //Create switched shunts
-                Map<PsseSwitchedShunt, ShuntBlockTab > stoBlockiTab = new HashMap<>();
-                createSwitchedShuntBlockMap(psseModel, stoBlockiTab);
-                for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-                    createSwitchedShunt(psseSwShunt, perUnitContext, containerMapping, network, stoBlockiTab);
-                }
-
-                for (PsseGenerator psseGen : psseModel.getGenerators()) {
-                    createGenerator(psseGen, busNumToPsseBus.get(psseGen.getI()), containerMapping, network);
-                }
-
-                for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
-                    createLine(psseLine, containerMapping, perUnitContext, network);
-                }
-
-                for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-                    createTransformer(psseTfo, containerMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase());
-                }
-
-                // Attach a slack bus
-                for (PsseArea psseArea : psseModel.getAreas()) {
-                    if (psseArea.getIsw() != 0) {
-                        String busId = getBusId(psseArea.getIsw());
-                        Bus bus = network.getBusBreakerView().getBus(busId);
-                        SlackTerminal.attach(bus);
-                    }
-                }
-
-                return network;
+    @Override
+    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
+        Objects.requireNonNull(fromDataSource);
+        Objects.requireNonNull(toDataSource);
+        try {
+            String ext = findExtension(fromDataSource);
+            if (!exists(fromDataSource, ext)) {
+                throw new PowsyblException("From data source is not importable");
+            }
+            try (InputStream is = fromDataSource.newInputStream(null, ext);
+                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
+                ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void createSwitchedShuntBlockMap(PssePowerFlowModel psseModel, Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab) {
+
+        /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
+        A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
+        A block may be capacitive or inductive */
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            ShuntBlockTab sbt = new ShuntBlockTab();
+
+            int[] ni = {
+                    psseSwShunt.getN1(), psseSwShunt.getN2(), psseSwShunt.getN3(), psseSwShunt.getN4(),
+                    psseSwShunt.getN5(), psseSwShunt.getN6(), psseSwShunt.getN7(), psseSwShunt.getN8()
+            };
+
+            double[] bi = {
+                    psseSwShunt.getB1(), psseSwShunt.getB2(), psseSwShunt.getB3(), psseSwShunt.getB4(),
+                    psseSwShunt.getB5(), psseSwShunt.getB6(), psseSwShunt.getB7(), psseSwShunt.getB8()
+            };
+
+            int i = 0;
+            while (i <= 7 && ni[i] > 0) {
+                sbt.add(i + 1, ni[i], bi[i]);
+                i++;
+            }
+
+            stoBlockiTab.put(psseSwShunt, sbt);
+        }
+    }
+
+    private Network convert(PssePowerFlowModel psseModel, Network network, Properties parameters) {
+        // set date and time
+        // TODO
+
+        // build container to fit IIDM requirements
+        List<Object> branches = ImmutableList.builder()
+                .addAll(psseModel.getNonTransformerBranches())
+                .addAll(psseModel.getTransformers())
+                .build();
+        ToIntFunction<Object> branchToNum1 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getI() : ((PsseTransformer) branch).getI();
+        ToIntFunction<Object> branchToNum2 = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getJ() : ((PsseTransformer) branch).getJ();
+        ToIntFunction<Object> branchToNum3 = branch -> branch instanceof PsseNonTransformerBranch ? 0 : ((PsseTransformer) branch).getK();
+        ToDoubleFunction<Object> branchToResistance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getR() : ((PsseTransformer) branch).getR12();
+        ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
+        Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
+        ContainersMapping containerMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
+            branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
+            busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
+
+        boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,
+                ParameterDefaultValueConfig.INSTANCE);
+        PerUnitContext perUnitContext = new PerUnitContext(psseModel.getCaseIdentification().getSbase(), ignoreBaseVoltage);
+
+        // The map gives access to PsseBus object with the int bus Number
+        Map<Integer, PsseBus> busNumToPsseBus = new HashMap<>();
+
+        // create buses
+        createBuses(psseModel, containerMapping, perUnitContext, network, busNumToPsseBus);
+
+        // Create loads
+        for (PsseLoad psseLoad : psseModel.getLoads()) {
+            createLoad(psseLoad, containerMapping, network);
+        }
+
+        // Create fixed shunts
+        for (PsseFixedShunt psseShunt : psseModel.getFixedShunts()) {
+            createShuntCompensator(psseShunt, containerMapping, network);
+        }
+
+        // Create switched shunts
+        Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab = new HashMap<>();
+        createSwitchedShuntBlockMap(psseModel, stoBlockiTab);
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            createSwitchedShunt(psseSwShunt, perUnitContext, containerMapping, network, stoBlockiTab);
+        }
+
+        for (PsseGenerator psseGen : psseModel.getGenerators()) {
+            createGenerator(psseGen, busNumToPsseBus.get(psseGen.getI()), containerMapping, network);
+        }
+
+        for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
+            createLine(psseLine, containerMapping, perUnitContext, network);
+        }
+
+        for (PsseTransformer psseTfo : psseModel.getTransformers()) {
+            createTransformer(psseTfo, containerMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase());
+        }
+
+        // Attach a slack bus
+        for (PsseArea psseArea : psseModel.getAreas()) {
+            if (psseArea.getIsw() != 0) {
+                String busId = getBusId(psseArea.getIsw());
+                Bus bus = network.getBusBreakerView().getBus(busId);
+                SlackTerminal.attach(bus);
+            }
+        }
+
+        return network;
+    }
+
+    private static final class PerUnitContext {
+
+        private final double sb; // base apparent power
+
+        private final boolean ignoreBaseVoltage;
+
+        private PerUnitContext(double sb, boolean ignoreBaseVoltage) {
+            this.sb = sb;
+            this.ignoreBaseVoltage = ignoreBaseVoltage;
+        }
+
+        private double getSb() {
+            return sb;
+        }
+
+        private boolean isIgnoreBaseVoltage() {
+            return ignoreBaseVoltage;
+        }
+    }
+
+    private static final class ShuntBlockTab {
+
+        private final Map<Integer, Integer> ni = new HashMap<>();
+        private final Map<Integer, Double> bi = new HashMap<>();
+
+        private void add(int i, int nni, double bni) {
+            ni.put(i, nni);
+            bi.put(i, bni);
+        }
+
+        private int getNi(int i) {
+            return ni.get(i);
+        }
+
+        private double getBi(int i) {
+            return bi.get(i);
+        }
+
+        private int getSize() {
+            return ni.size();
         }
     }
 }
