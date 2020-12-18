@@ -3,7 +3,6 @@ module powsybl.commons {
     requires com.fasterxml.jackson.databind; // Real module
     requires com.google.common;
     requires java.xml.bind; // Real module
-    requires net.java.truevfs.comp.zip;
     requires org.apache.commons.compress;
     requires org.apache.commons.lang3;
     requires org.joda.time;
