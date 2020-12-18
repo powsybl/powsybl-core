@@ -99,9 +99,9 @@ public class ZipPackagerTest {
 
         IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("static.zip")));
         try (ZipFile zipFile2 = new ZipFile(Files.newByteChannel(workingDir.resolve("static.zip")))) {
-            assertEquals("foo",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f1"))),StandardCharsets.UTF_8));
-            assertEquals("bar",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f2"))),StandardCharsets.UTF_8));
-            assertEquals("hello",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f3"))),StandardCharsets.UTF_8));
+            assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f1"))), StandardCharsets.UTF_8));
+            assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f2"))), StandardCharsets.UTF_8));
+            assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f3"))), StandardCharsets.UTF_8));
         }
 
         HashMap<String, byte[]> stringHashMap = new HashMap<>();
