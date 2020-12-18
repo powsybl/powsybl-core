@@ -1,4 +1,4 @@
-module powsybl.commons {
+module com.powsybl.commons {
     requires auto.service; // No Automatic-Module-Name
     requires com.fasterxml.jackson.databind; // Real module
     requires com.google.common;
@@ -14,5 +14,12 @@ module powsybl.commons {
     requires univocity.parsers; // No Automatic-Module-Name
 
     exports com.powsybl.commons;
+    exports com.powsybl.commons.compress;
+    exports com.powsybl.commons.config;
+    exports com.powsybl.commons.exceptions;
+    exports com.powsybl.commons.extensions;
+    exports com.powsybl.commons.io.table;
     exports com.powsybl.commons.json;
+    exports com.powsybl.commons.util;
+    exports com.powsybl.commons.util.trove;
 }

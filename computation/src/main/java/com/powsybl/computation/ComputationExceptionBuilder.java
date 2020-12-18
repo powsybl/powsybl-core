@@ -9,7 +9,6 @@ package com.powsybl.computation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -55,7 +54,7 @@ public class ComputationExceptionBuilder {
      * @param message the detail message of the computation exception.
      * @return this
      */
-    public ComputationExceptionBuilder message(@Nullable String message) {
+    public ComputationExceptionBuilder message(String message) {
         this.message = message;
         return this;
     }
@@ -68,7 +67,7 @@ public class ComputationExceptionBuilder {
      * @param path The path to the standard output file.
      * @return this
      */
-    public ComputationExceptionBuilder addOutLogIfExists(@Nullable Path path) {
+    public ComputationExceptionBuilder addOutLogIfExists(Path path) {
         return readFileToMap(path, outMsgByLogFileName);
     }
 
@@ -79,7 +78,7 @@ public class ComputationExceptionBuilder {
      * @param log log content, may be {@code null}
      * @return this
      */
-    public ComputationExceptionBuilder addOutLog(String logName, @Nullable String log) {
+    public ComputationExceptionBuilder addOutLog(String logName, String log) {
         requireNonNull(logName);
         outMsgByLogFileName.put(logName, log);
         return this;
@@ -93,7 +92,7 @@ public class ComputationExceptionBuilder {
      * @param path The path to the standard error file.
      * @return this
      */
-    public ComputationExceptionBuilder addErrLogIfExists(@Nullable Path path) {
+    public ComputationExceptionBuilder addErrLogIfExists(Path path) {
         return readFileToMap(path, errMsgByLogFileName);
     }
 
@@ -104,7 +103,7 @@ public class ComputationExceptionBuilder {
      * @param log log content, may be {@code null}
      * @return this
      */
-    public ComputationExceptionBuilder addErrLog(String logName, @Nullable String log) {
+    public ComputationExceptionBuilder addErrLog(String logName, String log) {
         requireNonNull(logName);
         errMsgByLogFileName.put(logName, log);
         return this;
@@ -118,7 +117,7 @@ public class ComputationExceptionBuilder {
      * @param path to the file to be added to collected data.
      * @return this
      */
-    public ComputationExceptionBuilder addFileIfExists(@Nullable Path path) {
+    public ComputationExceptionBuilder addFileIfExists(Path path) {
         if (path == null || !Files.exists(path)) {
             return this;
         }
@@ -145,7 +144,7 @@ public class ComputationExceptionBuilder {
         return this;
     }
 
-    private ComputationExceptionBuilder readFileToMap(@Nullable Path path, Map<String, String> map) {
+    private ComputationExceptionBuilder readFileToMap(Path path, Map<String, String> map) {
         if (path == null || !Files.exists(path)) {
             return this;
         }
