@@ -10,7 +10,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.io.RecordGroupReaderWriterLegacyText;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseCaseIdentification;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
@@ -21,7 +21,7 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
-import static com.powsybl.psse.model.io.RecordGroupReaderWriterLegacyText.*;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
@@ -87,7 +87,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         writeEnd("SYSTEM-WIDE", outputStream);
         // Until v33 Bus data did not write its start
         // From v35 we need the start
-        RecordGroupReaderWriterLegacyText.write(", ", outputStream);
+        RecordGroupIOLegacyText.write(", ", outputStream);
         writeBegin(BUS.getLegacyTextName(), outputStream);
 
         new BusData().write(model.getBuses(), context, outputStream);

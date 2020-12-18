@@ -31,8 +31,8 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     TransformerData() {
         super(TRANSFORMER);
         withQuotedFields("ckt", "name", "vecgrp");
-        withReaderWriter(FileFormat.LEGACY_TEXT, new TransformersLegacyText(this));
-        withReaderWriter(FileFormat.JSON, new TransformersJson(this));
+        withIO(FileFormat.LEGACY_TEXT, new TransformersLegacyText(this));
+        withIO(FileFormat.JSON, new TransformersJson(this));
     }
 
     @Override
@@ -55,7 +55,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         return transformer.getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
     }
 
-    static class TransformersJson extends RecordGroupReaderWriterJson<PsseTransformer> {
+    static class TransformersJson extends RecordGroupIOJson<PsseTransformer> {
         TransformersJson(AbstractRecordGroup<PsseTransformer> recordGroup) {
             super(recordGroup);
         }
@@ -70,7 +70,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         }
     }
 
-    static class TransformersLegacyText extends RecordGroupReaderWriterLegacyText<PsseTransformer> {
+    static class TransformersLegacyText extends RecordGroupIOLegacyText<PsseTransformer> {
         private final TransformerData transformerData;
 
         TransformersLegacyText(AbstractRecordGroup<PsseTransformer> recordGroup) {

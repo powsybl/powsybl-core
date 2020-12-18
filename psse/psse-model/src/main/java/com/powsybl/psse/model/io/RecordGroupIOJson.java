@@ -29,10 +29,10 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RecordGroupReaderWriterJson<T> implements RecordGroupReaderWriter<T> {
+public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     private final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupReaderWriterJson(AbstractRecordGroup<T> recordGroup) {
+    public RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
         this.recordGroup = recordGroup;
     }
 

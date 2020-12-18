@@ -33,23 +33,23 @@ public abstract class AbstractRecordGroup<T> {
     private final String[] fieldNames;
     private final Map<PsseVersion.Major, String[]> fieldNamesByVersionMajor = new EnumMap<>(PsseVersion.Major.class);
     private String[] quotedFields;
-    private final Map<FileFormat, RecordGroupReaderWriter<T>> readersWriters = new EnumMap<>(FileFormat.class);
+    private final Map<FileFormat, RecordGroupIO<T>> io = new EnumMap<>(FileFormat.class);
 
     protected AbstractRecordGroup(RecordGroupIdentification identification, String... fieldNames) {
         this.identification = identification;
         this.fieldNames = fieldNames.length > 0 ? fieldNames : null;
-        readersWriters.put(LEGACY_TEXT, new RecordGroupReaderWriterLegacyText<>(this));
-        readersWriters.put(JSON, new RecordGroupReaderWriterJson<>(this));
+        io.put(LEGACY_TEXT, new RecordGroupIOLegacyText<>(this));
+        io.put(JSON, new RecordGroupIOJson<>(this));
     }
 
     protected void withFieldNames(PsseVersion.Major version, String... fieldNames) {
         fieldNamesByVersionMajor.put(version, fieldNames);
     }
 
-    protected void withReaderWriter(FileFormat fileFormat, RecordGroupReaderWriter<T> rw) {
+    protected void withIO(FileFormat fileFormat, RecordGroupIO<T> rw) {
         Objects.requireNonNull(fileFormat);
         Objects.requireNonNull(rw);
-        readersWriters.put(fileFormat, rw);
+        io.put(fileFormat, rw);
     }
 
     protected void withQuotedFields(String... quotedFields) {
@@ -94,8 +94,8 @@ public abstract class AbstractRecordGroup<T> {
 
     public abstract Class<T> psseTypeClass();
 
-    public RecordGroupReaderWriter<T> readerWriterFor(FileFormat fileFormat) {
-        RecordGroupReaderWriter<T> r = readersWriters.get(fileFormat);
+    public RecordGroupIO<T> ioFor(FileFormat fileFormat) {
+        RecordGroupIO<T> r = io.get(fileFormat);
         if (r == null) {
             throw new PsseException("No reader/writer for file format " + fileFormat);
         }
@@ -103,19 +103,19 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public List<T> read(BufferedReader reader, Context context) throws IOException {
-        return readerWriterFor(context.getFileFormat()).read(reader, context);
+        return ioFor(context.getFileFormat()).read(reader, context);
     }
 
     public void write(List<T> psseObjects, Context context, OutputStream outputStream) {
-        readerWriterFor(context.getFileFormat()).write(psseObjects, context, outputStream);
+        ioFor(context.getFileFormat()).write(psseObjects, context, outputStream);
     }
 
     public T readHead(BufferedReader reader, Context context) throws IOException {
-        return readerWriterFor(context.getFileFormat()).readHead(reader, context);
+        return ioFor(context.getFileFormat()).readHead(reader, context);
     }
 
     public void writeHead(T psseObject, Context context, OutputStream outputStream) {
-        readerWriterFor(context.getFileFormat()).writeHead(psseObject, context, outputStream);
+        ioFor(context.getFileFormat()).writeHead(psseObject, context, outputStream);
     }
 
     public T parseSingleRecord(String record, String[] headers, Context context) {

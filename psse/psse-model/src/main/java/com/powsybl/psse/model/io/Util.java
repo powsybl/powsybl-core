@@ -18,6 +18,9 @@ public final class Util {
     }
 
     public static String[] retainAll(String[] strings, String[] stringsToKeep) {
+        if (strings == null || stringsToKeep == null) {
+            return new String[0];
+        }
         Set<String> setStringsToKeep = new HashSet<>(Arrays.asList(stringsToKeep));
         List<String> kept = new ArrayList<>();
         for (String s : strings) {

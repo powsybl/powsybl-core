@@ -29,12 +29,12 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class RecordGroupReaderWriterLegacyText<T> implements RecordGroupReaderWriter<T> {
-    private static final Logger LOG = LoggerFactory.getLogger(RecordGroupReaderWriterLegacyText.class);
+public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
+    private static final Logger LOG = LoggerFactory.getLogger(RecordGroupIOLegacyText.class);
 
     protected final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupReaderWriterLegacyText(AbstractRecordGroup<T> recordGroup) {
+    public RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
         this.recordGroup = recordGroup;
     }
 

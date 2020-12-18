@@ -15,7 +15,7 @@ import java.util.List;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-interface RecordGroupReaderWriter<T> {
+interface RecordGroupIO<T> {
     List<T> read(BufferedReader reader, Context context) throws IOException;
 
     void write(List<T> psseObjects, Context context, OutputStream outputStream);

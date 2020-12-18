@@ -20,7 +20,7 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.io.RecordGroupReaderWriterLegacyText.*;
+import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
