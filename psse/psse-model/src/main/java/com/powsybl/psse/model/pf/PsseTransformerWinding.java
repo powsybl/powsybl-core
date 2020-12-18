@@ -15,11 +15,6 @@ import com.univocity.parsers.annotations.Parsed;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class PsseTransformerWinding extends PsseVersioned {
-    @Override
-    public void setModel(PssePowerFlowModel model) {
-        super.setModel(model);
-    }
-
     @Parsed
     private double windv = Double.NaN;
 

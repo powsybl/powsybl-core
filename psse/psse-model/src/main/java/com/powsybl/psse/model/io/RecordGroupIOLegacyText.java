@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 
@@ -35,6 +36,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     protected final AbstractRecordGroup<T> recordGroup;
 
     public RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
+        Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
     }
 

@@ -33,6 +33,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     private final AbstractRecordGroup<T> recordGroup;
 
     public RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
+        Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
     }
 
