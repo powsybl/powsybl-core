@@ -49,7 +49,7 @@ public class CimAnonymizerTest {
 
     @Test
     public void anonymizeZip() throws Exception {
-        Path workDir = fileSystem.getPath("tmp");
+        Path workDir = fileSystem.getPath("work");
         Path cimZipFile = workDir.resolve("sample.zip");
         Path anonymizedCimFileDir = workDir.resolve("result");
         Files.createDirectories(anonymizedCimFileDir);
