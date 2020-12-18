@@ -187,7 +187,7 @@ public class UcteImporterTest {
 
     @Test
     public void substationNameInvariance() {
-        ResourceDataSource dataSource = new ResourceDataSource("VLsCreationIssue", new ResourceSet("/", "VLsCreationIssue.uct"));
+        ResourceDataSource dataSource = new ResourceDataSource("substationName", new ResourceSet("/", "substationName.uct"));
 
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
         assertEquals(2, network.getSubstationCount());
