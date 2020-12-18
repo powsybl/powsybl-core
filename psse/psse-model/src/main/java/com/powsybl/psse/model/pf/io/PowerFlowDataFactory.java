@@ -31,7 +31,12 @@ public final class PowerFlowDataFactory {
 
     public static PowerFlowData create(String extension, PsseVersion version) {
         if (extension.equalsIgnoreCase("rawx")) {
-            return new PowerFlowRawxData35();
+            switch (version.major()) {
+                case V35:
+                    return new PowerFlowRawxData35();
+                default:
+                    throw new PsseException("Unsupported version " + version);
+            }
         } else {
             switch (version.major()) {
                 case V35:
