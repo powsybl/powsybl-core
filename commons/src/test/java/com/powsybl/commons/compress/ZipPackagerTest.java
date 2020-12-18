@@ -75,15 +75,16 @@ public class ZipPackagerTest {
         byte[] zipBytes = zipPackager.toZipBytes();
 
         IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("res.zip")));
-        ZipFile zipFile = new ZipFile(Files.newByteChannel(workingDir.resolve("res.zip")));
-        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f1"))), StandardCharsets.UTF_8));
-        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f2"))), StandardCharsets.UTF_8));
-        assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f3"))), StandardCharsets.UTF_8));
-        assertEquals("v1", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k1"))), StandardCharsets.UTF_8));
-        assertEquals("é", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k2"))), StandardCharsets.UTF_8));
-        assertEquals("î", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k3"))), StandardCharsets.ISO_8859_1));
+        try (ZipFile zipFile = new ZipFile(Files.newByteChannel(workingDir.resolve("res.zip")))) {
+            assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f1"))), StandardCharsets.UTF_8));
+            assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f2"))), StandardCharsets.UTF_8));
+            assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("f3"))), StandardCharsets.UTF_8));
+            assertEquals("v1", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k1"))), StandardCharsets.UTF_8));
+            assertEquals("é", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k2"))), StandardCharsets.UTF_8));
+            assertEquals("î", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream(zipFile.getEntry("k3"))), StandardCharsets.ISO_8859_1));
 
-        assertArrayEquals(nestedZipBytes, IOUtils.toByteArray(zipFile.getInputStream(zipFile.getEntry("nested.zip"))));
+            assertArrayEquals(nestedZipBytes, IOUtils.toByteArray(zipFile.getInputStream(zipFile.getEntry("nested.zip"))));
+        }
 
         ZipPackager zipPackager1 = new ZipPackager();
         try {
@@ -97,19 +98,21 @@ public class ZipPackagerTest {
         byte[] bytes = ZipPackager.archiveFilesToZipBytes(workingDir, "f1", "f2", "f3.gz");
 
         IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("static.zip")));
-        ZipFile zipFile2 = new ZipFile(Files.newByteChannel(workingDir.resolve("static.zip")));
-        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f1"))), StandardCharsets.UTF_8));
-        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f2"))), StandardCharsets.UTF_8));
-        assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f3"))), StandardCharsets.UTF_8));
+        try (ZipFile zipFile2 = new ZipFile(Files.newByteChannel(workingDir.resolve("static.zip")))) {
+            assertEquals("foo",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f1"))),StandardCharsets.UTF_8));
+            assertEquals("bar",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f2"))),StandardCharsets.UTF_8));
+            assertEquals("hello",IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream(zipFile2.getEntry("f3"))),StandardCharsets.UTF_8));
+        }
 
         HashMap<String, byte[]> stringHashMap = new HashMap<>();
         stringHashMap.put("k1", "foo".getBytes(StandardCharsets.UTF_8));
         stringHashMap.put("k2", "bar".getBytes(StandardCharsets.UTF_8));
         byte[] strMapBytes = ZipPackager.archiveBytesByNameToZipBytes(stringHashMap);
         IOUtils.copy(new ByteArrayInputStream(strMapBytes), Files.newOutputStream(workingDir.resolve("str.zip")));
-        ZipFile strZipFile = new ZipFile(Files.newByteChannel(workingDir.resolve("str.zip")));
-        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream(strZipFile.getEntry("k1"))), StandardCharsets.UTF_8));
-        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream(strZipFile.getEntry("k2"))), StandardCharsets.UTF_8));
+        try (ZipFile strZipFile = new ZipFile(Files.newByteChannel(workingDir.resolve("str.zip")))) {
+            assertEquals("foo", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream(strZipFile.getEntry("k1"))), StandardCharsets.UTF_8));
+            assertEquals("bar", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream(strZipFile.getEntry("k2"))), StandardCharsets.UTF_8));
+        }
     }
 
     private byte[] emptyZipBytes() {
