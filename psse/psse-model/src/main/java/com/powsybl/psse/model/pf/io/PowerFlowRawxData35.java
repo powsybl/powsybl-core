@@ -95,6 +95,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new AreaInterchangeData().write(model.getAreas(), context, null);
             new ZoneData().write(model.getZones(), context, null);
             new OwnerData().write(model.getOwners(), context, null);
+            new SwitchedShuntData().write(model.getSwitchedShunts(), context, null);
 
             generator.writeEndObject(); // network
             generator.writeEndObject(); // root

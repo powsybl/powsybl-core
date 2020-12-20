@@ -97,7 +97,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         new OwnerData().write(model.getOwners(), context, outputStream);
 
         writeEmpty(FACTS_CONTROL_DEVICE, outputStream);
-        writeEmpty(SWITCHED_SHUNT, outputStream);
+        new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
         writeEmpty(GNE_DEVICE, outputStream);
         writeEmpty(INDUCTION_MACHINE, outputStream);
 
