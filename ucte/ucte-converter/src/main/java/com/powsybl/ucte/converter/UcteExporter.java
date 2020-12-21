@@ -29,10 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -94,6 +91,25 @@ public class UcteExporter implements Exporter {
         }
     }
 
+    private static boolean isYNode(Bus bus) {
+        return bus.getId().startsWith("YNODE_");
+        // TODO(UCTETransformerAtBoundary) Some YNodes could have an id that does not follow this naming convention
+        // We could check if this is a bus that has only the following connectable equipment:
+        // - A low-impedance line to an XNode
+        // - A transformer
+        // If it is connected this way, we could conclude it is a YNode
+    }
+
+    private static boolean isDanglingLineYNode(DanglingLine danglingLine) {
+        return isYNode(danglingLine.getTerminal().getBusBreakerView().getConnectableBus());
+    }
+
+    private static boolean isTransformerYNode(TwoWindingsTransformer twoWindingsTransformer) {
+        Bus bus1 = twoWindingsTransformer.getTerminal1().getBusBreakerView().getConnectableBus();
+        Bus bus2 = twoWindingsTransformer.getTerminal2().getBusBreakerView().getConnectableBus();
+        return isYNode(bus1) || isYNode(bus2);
+    }
+
     /**
      * Convert an IIDM network to an UCTE network
      *
@@ -121,7 +137,11 @@ public class UcteExporter implements Exporter {
         for (Substation substation : network.getSubstations()) {
             for (VoltageLevel voltageLevel : substation.getVoltageLevels()) {
                 for (Bus bus : voltageLevel.getBusBreakerView().getBuses()) {
-                    convertBus(ucteNetwork, bus, context);
+                    if (isYNode(bus)) {
+                        LOGGER.warn("Ignoring YNode {}", bus.getId());
+                    } else {
+                        convertBus(ucteNetwork, bus, context);
+                    }
                 }
                 for (Switch sw : voltageLevel.getBusBreakerView().getSwitches()) {
                     convertSwitch(ucteNetwork, sw, context);
@@ -548,6 +568,14 @@ public class UcteExporter implements Exporter {
         // Create XNode
         convertXNode(ucteNetwork, danglingLine, context);
 
+        // Always create the XNode,
+        // But do not export the dangling line if it was related to a YNode
+        // The corresponding transformer will be connected to the XNode
+        if (isDanglingLineYNode(danglingLine)) {
+            LOGGER.warn("Ignoring DanglingLine at YNode in the export {}", danglingLine.getId());
+            return;
+        }
+
         // Create line
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(danglingLine);
         String elementName = danglingLine.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
@@ -681,6 +709,13 @@ public class UcteExporter implements Exporter {
      * @see UcteExporter#convertRegulation(UcteNetwork, UcteElementId, TwoWindingsTransformer)
      */
     private static void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer, UcteExporterContext context) {
+        if (isTransformerYNode(twoWindingsTransformer)) {
+            LOGGER.info("Transformer at boundary is exported {}", twoWindingsTransformer.getId());
+            // The transformer element id contains references to the original UCTE nodes
+            // (Inner node inside network and boundary XNode)
+            // We can export it as a regular transformer
+        }
+
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);

@@ -176,5 +176,12 @@ public class UcteImporterTest {
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
     }
+
+    @Test
+    public void testXnodeTransformer() {
+        ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
 }
 
