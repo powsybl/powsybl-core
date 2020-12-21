@@ -4,20 +4,19 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.psse.model;
+package com.powsybl.ucte.network;
 
 import com.powsybl.commons.PowsyblException;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Mathieu BAGUE {@literal <mathieu.bague at rte-france.com>}
  */
-public class PsseException extends PowsyblException {
+public class UcteException extends PowsyblException {
 
-    public PsseException(String msg) {
-        super(msg);
+    public UcteException() {
     }
 
-    public PsseException(String msg, Exception e) {
-        super(msg, e);
+    public UcteException(String message) {
+        super(message);
     }
 }
