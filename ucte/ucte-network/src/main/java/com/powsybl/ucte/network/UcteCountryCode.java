@@ -52,6 +52,7 @@ public enum UcteCountryCode {
     XX('X', "Fictitious border node");
 
     private final char ucteCode;
+
     private final String prettyName;
 
     UcteCountryCode(char ucteCode, String prettyName) {

@@ -131,6 +131,7 @@ public enum Country {
     KI("KIRIBATI"),
     KP("KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF"),
     KR("KOREA, REPUBLIC OF"),
+    XK("KOSOVO"),
     KW("KUWAIT"),
     KG("KYRGYZSTAN"),
     LA("LAO PEOPLE'S DEMOCRATIC REPUBLIC"),
@@ -260,8 +261,7 @@ public enum Country {
     EH("WESTERN SAHARA"),
     YE("YEMEN"),
     ZM("ZAMBIA"),
-    ZW("ZIMBABWE"),
-    KS("KOSOVO");
+    ZW("ZIMBABWE");
 
     private final String name;
 

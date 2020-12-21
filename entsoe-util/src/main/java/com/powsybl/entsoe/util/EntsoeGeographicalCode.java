@@ -41,6 +41,7 @@ public enum EntsoeGeographicalCode {
     HR(Country.HR),
     HU(Country.HU),
     IT(Country.IT),
+    KS(Country.XK),
     LU(Country.LU),
     LT(Country.LT),
     MA(Country.MA),
@@ -59,7 +60,6 @@ public enum EntsoeGeographicalCode {
     SI(Country.SI),
     TR(Country.TR),
     UA(Country.UA),
-    KS(Country.KS),
     UC(null),
     UX(null);
 
