@@ -81,9 +81,9 @@ public class StringAnonymizerTest {
     @Test
     public void embeddedNewLineTest() throws IOException {
         StringAnonymizer anonymizer = new StringAnonymizer();
-        String anonymizedFoo = anonymizer.anonymize("foo\n");
+        String anonymizedFoo = anonymizer.anonymize("foo\nbar");
         StringAnonymizer anonymizer2 = fromCsv(toCsv(anonymizer));
-        assertEquals("foo\n", anonymizer2.deanonymize(anonymizedFoo));
+        assertEquals("foo\nbar", anonymizer2.deanonymize(anonymizedFoo));
     }
 
     @Test

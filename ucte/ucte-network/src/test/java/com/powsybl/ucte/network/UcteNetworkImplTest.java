@@ -12,9 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -31,6 +29,7 @@ public class UcteNetworkImplTest {
         UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.XX, "AAAAA", UcteVoltageLevelCode.VL_380, '1');
         UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.XX, "BBBBB", UcteVoltageLevelCode.VL_220, '1');
         UcteNodeCode code3 = new UcteNodeCode(UcteCountryCode.XX, "CCCCC", UcteVoltageLevelCode.VL_220, '1');
+        UcteNodeCode code4 = new UcteNodeCode(UcteCountryCode.XX, "DDDDD", UcteVoltageLevelCode.VL_380, '1');
 
         UcteElementId lineId = new UcteElementId(code2, code3, '1');
         UcteElementId transformerId = new UcteElementId(code1, code2, '1');
@@ -46,14 +45,18 @@ public class UcteNetworkImplTest {
         assertTrue(codes.containsAll(Arrays.asList(code1, code2, code3)));
         UcteNode node = network.getNode(code1);
         assertEquals(1000.0f, node.getActivePowerGeneration(), 0.0f);
+        assertNotNull(network.getNode(code1));
+        assertThrows("Node " + code4.toString() + " not found", UcteException.class, () -> network.getNode(code4));
 
         assertEquals(1, network.getLines().size());
         assertEquals(lineId, network.getLines().iterator().next().getId());
-        assertNull(network.getLine(transformerId));
+        assertNotNull(network.getLine(lineId));
+        assertThrows("Line " + transformerId + " not found", UcteException.class, () -> network.getLine(transformerId));
 
         assertEquals(1, network.getTransformers().size());
         assertEquals(transformerId, network.getTransformers().iterator().next().getId());
-        assertNull(network.getTransformer(lineId));
+        assertNotNull(network.getTransformer(transformerId));
+        assertThrows("Transformer " + lineId + " not found", UcteException.class, () -> network.getTransformer(lineId));
 
         assertEquals(1, network.getRegulations().size());
         assertEquals(transformerId, network.getRegulations().iterator().next().getTransfoId());

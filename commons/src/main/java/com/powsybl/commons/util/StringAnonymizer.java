@@ -9,15 +9,11 @@ package com.powsybl.commons.util;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.powsybl.commons.PowsyblException;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.io.CsvListWriter;
-import org.supercsv.prefs.CsvPreference;
+import com.univocity.parsers.csv.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.util.List;
+import java.util.Arrays;
 import java.util.Map;
 
 /**
@@ -69,22 +65,21 @@ public class StringAnonymizer {
         readCsv(reader, DEFAULT_SEPARATOR);
     }
 
-    private static CsvPreference createPreference(char separator) {
-        return new CsvPreference.Builder('"', separator, System.lineSeparator()).build();
+    private static void setFormat(CsvFormat format, char separator) {
+        format.setLineSeparator(System.lineSeparator());
+        format.setDelimiter(separator);
+        format.setQuoteEscape('"');
     }
 
     public void readCsv(BufferedReader reader, char separator) {
-        CsvListReader csvReader = new CsvListReader(reader, createPreference(separator));
-        List<String> nextLine;
-        try {
-            while ((nextLine = csvReader.read()) != null) {
-                if (nextLine.size() != 2) {
-                    throw new PowsyblException("Invalid line '" + nextLine + "'");
-                }
-                mapping.put(nextLine.get(0), nextLine.get(1));
+        CsvParserSettings settings = new CsvParserSettings();
+        setFormat(settings.getFormat(), separator);
+        CsvParser csvParser = new CsvParser(settings);
+        for (String[] nextLine : csvParser.iterate(reader)) {
+            if (nextLine.length != 2) {
+                throw new PowsyblException("Invalid line '" + Arrays.toString(nextLine) + "'");
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            mapping.put(nextLine[0], nextLine[1]);
         }
     }
 
@@ -93,20 +88,18 @@ public class StringAnonymizer {
     }
 
     public void writeCsv(BufferedWriter writer, char separator) {
-        CsvListWriter csvWriter = new CsvListWriter(writer, createPreference(separator));
-        String[] nextLine = new String[2];
+        CsvWriterSettings settings = new CsvWriterSettings();
+        setFormat(settings.getFormat(), separator);
+        CsvWriter csvWriter = new CsvWriter(writer, settings);
         try {
-            try {
-                for (Map.Entry<String, String> e : mapping.entrySet()) {
-                    nextLine[0] = e.getKey();
-                    nextLine[1] = e.getValue();
-                    csvWriter.write(nextLine);
-                }
-            } finally {
-                csvWriter.flush();
+            String[] nextLine = new String[2];
+            for (Map.Entry<String, String> e : mapping.entrySet()) {
+                nextLine[0] = e.getKey();
+                nextLine[1] = e.getValue();
+                csvWriter.writeRow(nextLine);
             }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        } finally {
+            csvWriter.close();
         }
     }
 }
