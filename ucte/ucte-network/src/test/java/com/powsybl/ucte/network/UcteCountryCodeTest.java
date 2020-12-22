@@ -42,6 +42,11 @@ public class UcteCountryCodeTest {
         }
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void unknownCountryCode() {
+        UcteCountryCode.fromUcteCode('&');
+    }
+
     @Test
     public void isUcteCountryCodeTest() {
         assertTrue(isUcteCountryCode('A'));
