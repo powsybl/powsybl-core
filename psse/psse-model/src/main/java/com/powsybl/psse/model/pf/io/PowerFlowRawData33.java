@@ -46,7 +46,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             // TODO complete discarded record groups
             skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
             skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
-            skip(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, reader);
+            model.addTransformerImpedanceCorrectionTables(new TransformerImpedanceCorrectionTableData().read(reader, context));
             skip(MULTI_SECTION_LINE_GROUPING, reader);
             skip(MULTI_SECTION_LINE_GROUPING, reader);
             model.addZones(new ZoneData().read(reader, context));

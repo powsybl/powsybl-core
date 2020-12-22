@@ -30,8 +30,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
     CaseIdentificationData() {
         super(PowerFlowRecordGroup.CASE_IDENTIFICATION, "ic", "sbase", "rev", "xfrrat", "nxfrat", "basfrq", "title1", "title2");
         withQuotedFields("title1", "title2");
-        withIO(LEGACY_TEXT, new CaseIdentificationLegacyText(this));
-        withIO(JSON, new CaseIdentificationJson(this));
+        withIO(LEGACY_TEXT, new IOLegacyText(this));
+        withIO(JSON, new IOJson(this));
     }
 
     @Override
@@ -39,8 +39,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         return PsseCaseIdentification.class;
     }
 
-    private static class CaseIdentificationLegacyText extends RecordGroupIOLegacyText<PsseCaseIdentification> {
-        public CaseIdentificationLegacyText(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
+    private static class IOLegacyText extends RecordGroupIOLegacyText<PsseCaseIdentification> {
+        public IOLegacyText(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 
@@ -90,8 +90,8 @@ class CaseIdentificationData extends AbstractRecordGroup<PsseCaseIdentification>
         }
     }
 
-    private static class CaseIdentificationJson extends RecordGroupIOJson<PsseCaseIdentification> {
-        public CaseIdentificationJson(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
+    private static class IOJson extends RecordGroupIOJson<PsseCaseIdentification> {
+        public IOJson(AbstractRecordGroup<PsseCaseIdentification> recordGroup) {
             super(recordGroup);
         }
 

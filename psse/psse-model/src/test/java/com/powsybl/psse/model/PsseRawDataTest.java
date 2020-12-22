@@ -46,12 +46,20 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"));
     }
 
+    private ReadOnlyDataSource ieee14ModifiedRaw() {
+        return new ResourceDataSource("IEEE_14_bus_modified", new ResourceSet("/", "IEEE_14_bus_modified.raw"));
+    }
+
     private ReadOnlyDataSource ieee14Raw35() {
         return new ResourceDataSource("IEEE_14_bus_rev35", new ResourceSet("/", "IEEE_14_bus_rev35.raw"));
     }
 
     private ReadOnlyDataSource ieee14Rawx35() {
         return new ResourceDataSource("IEEE_14_bus_rev35", new ResourceSet("/", "IEEE_14_bus_rev35.rawx"));
+    }
+
+    private ReadOnlyDataSource ieee14ModifiedRaw35() {
+        return new ResourceDataSource("IEEE_14_bus_rev35_modified", new ResourceSet("/", "IEEE_14_bus_rev35_modified.raw"));
     }
 
     private ReadOnlyDataSource minimalRawx() {
@@ -79,6 +87,22 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusModifiedTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_modified.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14ModifiedRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusRev35ModifiedTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35_modified.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14ModifiedRaw35(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }

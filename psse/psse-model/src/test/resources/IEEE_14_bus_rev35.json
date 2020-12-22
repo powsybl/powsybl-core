@@ -1641,6 +1641,7 @@
     "x31" : "NaN",
     "zcod" : 0
   } ],
+  "transformerImpedanceCorrectionTables" : [ ],
   "areas" : [ {
     "i" : 1,
     "isw" : 2,

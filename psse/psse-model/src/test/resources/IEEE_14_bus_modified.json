@@ -1324,7 +1324,23 @@
     "x23" : "NaN",
     "x31" : "NaN"
   } ],
-  "transformerImpedanceCorrectionTables" : [ ],
+  "transformerImpedanceCorrectionTables" : [ {
+    "i" : 1,
+    "t1" : -30.0,
+    "ref1" : 1.1,
+    "t2" : -24.0,
+    "ref2" : 1.091,
+    "t3" : 30.0,
+    "ref3" : 1.11
+  }, {
+    "i" : 2,
+    "t1" : 0.6,
+    "ref1" : 1.06,
+    "t2" : 1.4,
+    "ref2" : 0.95,
+    "t3" : 0.0,
+    "ref3" : 0.0
+  } ],
   "areas" : [ {
     "i" : 1,
     "isw" : 2,

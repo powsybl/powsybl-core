@@ -83,11 +83,6 @@ public abstract class AbstractRecordGroup<T> {
         return fieldNamesVersion;
     }
 
-    // Record groups with multiline records
-    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
-        throw new PsseException("Multiline records no supported at this level");
-    }
-
     public String[] quotedFields() {
         return quotedFields;
     }
