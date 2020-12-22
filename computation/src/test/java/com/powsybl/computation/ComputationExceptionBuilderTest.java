@@ -114,10 +114,11 @@ public class ComputationExceptionBuilderTest {
                 .build();
         byte[] bytes = computationException.toZipBytes();
         IOUtils.copy(new ByteArrayInputStream(bytes), Files.newOutputStream(workingDir.resolve("test.zip")));
-        ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test.zip")));
 
         assertEquals("foo", new String(computationException.getFileBytes().get("f1.out")));
-        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("f1.out"))), StandardCharsets.UTF_8));
+        try (ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test.zip")))) {
+            assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("f1.out"))), StandardCharsets.UTF_8));
+        }
     }
 
     @Test
@@ -131,9 +132,10 @@ public class ComputationExceptionBuilderTest {
 
         byte[] bytes = computationException.toZipBytes();
         IOUtils.copy(new ByteArrayInputStream(bytes), Files.newOutputStream(workingDir.resolve("test.zip")));
-        ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test.zip")));
-        assertEquals("outLog", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("out"))), StandardCharsets.UTF_8));
-        assertEquals("errLog", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("err"))), StandardCharsets.UTF_8));
+        try (ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test.zip")))) {
+            assertEquals("outLog", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("out"))), StandardCharsets.UTF_8));
+            assertEquals("errLog", IOUtils.toString(Objects.requireNonNull(zip.getInputStream(zip.getEntry("err"))), StandardCharsets.UTF_8));
+        }
     }
 
     @Test
@@ -147,8 +149,9 @@ public class ComputationExceptionBuilderTest {
 
         // test after serialized
         IOUtils.copy(new ByteArrayInputStream(computationException.toZipBytes()), Files.newOutputStream(workingDir.resolve("test3.zip")));
-        ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test3.zip")));
-        assertEquals("someBytes", IOUtils.toString(zip.getInputStream(zip.getEntry(key)), StandardCharsets.UTF_8));
+        try (ZipFile zip = new ZipFile(Files.newByteChannel(workingDir.resolve("test3.zip")))) {
+            assertEquals("someBytes", IOUtils.toString(zip.getInputStream(zip.getEntry(key)), StandardCharsets.UTF_8));
+        }
     }
 
     @After
