@@ -48,9 +48,11 @@ public enum UcteCountryCode {
     UA('U', "Ukraine"),
     ME('0', "Montenegro"),
     RS('J', "Serbia"),
+    KS('_', "Kosovo"),
     XX('X', "Fictitious border node");
 
     private final char ucteCode;
+
     private final String prettyName;
 
     UcteCountryCode(char ucteCode, String prettyName) {
@@ -103,6 +105,7 @@ public enum UcteCountryCode {
             case 'U': return UA;
             case '0': return ME;
             case 'J': return RS;
+            case '_': return KS;
             case 'X': return XX;
             default: throw new IllegalArgumentException("Unknown UCTE country code " + ucteCode);
         }
