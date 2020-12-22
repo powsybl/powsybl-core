@@ -298,7 +298,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
-                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) throws IOException {
+                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) {
         int currentVersion = Integer.MIN_VALUE;
         while (iterator.hasNext()) {
             String[] tokens = iterator.next();
@@ -321,7 +321,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
 
-    static CsvParsingContext readCsvHeader(ResultIterator<String[], ParsingContext> iterator, String separatorStr) throws IOException {
+    static CsvParsingContext readCsvHeader(ResultIterator<String[], ParsingContext> iterator, String separatorStr) {
         if (!iterator.hasNext()) {
             throw new TimeSeriesException("CSV header is missing");
         }
@@ -352,18 +352,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = new HashMap<>();
         String separatorStr = Character.toString(separator);
 
-        try {
-            CsvParserSettings settings = new CsvParserSettings();
-            settings.getFormat().setDelimiter(separator);
-            settings.getFormat().setQuoteEscape('"');
-            settings.getFormat().setLineSeparator(System.lineSeparator());
-            CsvParser csvParser = new CsvParser(settings);
-            ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
-            CsvParsingContext context = readCsvHeader(iterator, separatorStr);
-            readCsvValues(iterator, context, timeSeriesPerVersion);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.getFormat().setDelimiter(separator);
+        settings.getFormat().setQuoteEscape('"');
+        settings.getFormat().setLineSeparator(System.lineSeparator());
+        CsvParser csvParser = new CsvParser(settings);
+        ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
+        CsvParsingContext context = readCsvHeader(iterator, separatorStr);
+        readCsvValues(iterator, context, timeSeriesPerVersion);
 
         LoggerFactory.getLogger(TimeSeries.class)
                 .info("{} time series loaded from CSV in {} ms",
