@@ -1643,26 +1643,38 @@
   } ],
   "transformerImpedanceCorrectionTables" : [ {
     "i" : 1,
-    "t1" : -30.0,
-    "ref1" : 1.1,
-    "imf1" : 0.0,
-    "t2" : -24.0,
-    "ref2" : 1.091,
-    "imf2" : 0.0,
-    "t3" : 30.0,
-    "ref3" : 1.11,
-    "imf3" : 0.0
+    "factors" : [ {
+      "tap" : -30.0,
+      "reFactor" : 1.1,
+      "imFactor" : 0.3
+    }, {
+      "tap" : -24.0,
+      "reFactor" : 1.09,
+      "imFactor" : 0.4
+    }, {
+      "tap" : 30.0,
+      "reFactor" : 1.11,
+      "imFactor" : 0.5
+    } ]
   }, {
     "i" : 2,
-    "t1" : 0.6,
-    "ref1" : 1.06,
-    "imf1" : 0.0,
-    "t2" : 1.4,
-    "ref2" : 0.95,
-    "imf2" : 0.0,
-    "t3" : 0.0,
-    "ref3" : 0.0,
-    "imf3" : 0.0
+    "factors" : [ {
+      "tap" : 0.6,
+      "reFactor" : 1.06,
+      "imFactor" : 0.1
+    }, {
+      "tap" : 0.8,
+      "reFactor" : 1.05,
+      "imFactor" : 0.2
+    }, {
+      "tap" : 0.7,
+      "reFactor" : 1.04,
+      "imFactor" : 0.3
+    }, {
+      "tap" : 1.4,
+      "reFactor" : 0.95,
+      "imFactor" : 0.0
+    } ]
   } ],
   "areas" : [ {
     "i" : 1,

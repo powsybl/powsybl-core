@@ -29,17 +29,47 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
         super(recordGroup);
     }
 
+    @Override
+    public List<T> read(BufferedReader reader, Context context) throws IOException {
+        return readMultiLineRecords(reader, context);
+    }
+
     protected static class MultiLineRecord {
         private final String[][] fieldNamesByLine;
         private final String[] lines;
+        private String[] actualFieldNames;
 
         public MultiLineRecord(String[][] fieldNamesByLine, String[] lines) {
             this.fieldNamesByLine = fieldNamesByLine;
             this.lines = lines;
         }
+
+        public void setActualFieldNames(String[] actualFieldNames) {
+            this.actualFieldNames = actualFieldNames;
+        }
+
+        public String[][] getFieldNamesByLine() {
+            return fieldNamesByLine;
+        }
+
+        public String[] getActualFieldNames() {
+            return actualFieldNames;
+        }
+
+        public String[] getLines() {
+            return lines;
+        }
     }
 
     protected abstract MultiLineRecord readMultiLineRecord(List<String> recordsLines, int currentLine, Context context);
+
+    protected T parseMultiLineRecord(MultiLineRecord mlrecord, Context context) {
+        // Default parsing builds a single line record adjusting headers and concatenating all the original lines
+        mlrecord.actualFieldNames = actualFieldNames(mlrecord.fieldNamesByLine, mlrecord.lines, context);
+        String record = String.join(Character.toString(context.getDelimiter()), mlrecord.lines);
+        T object = recordGroup.parseSingleRecord(record, mlrecord.actualFieldNames, context);
+        return object;
+    }
 
     protected List<T> readMultiLineRecords(BufferedReader reader, Context context) throws IOException {
         List<T> objects = new ArrayList<>();
@@ -51,15 +81,13 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
             MultiLineRecord mlrecord = readMultiLineRecord(recordsLines, i, context);
             i += mlrecord.lines.length;
 
-            String[] actualFieldNames = actualFieldNames(mlrecord.fieldNamesByLine, mlrecord.lines, context);
-            String record = String.join(Character.toString(context.getDelimiter()), mlrecord.lines);
-            T object = recordGroup.parseSingleRecord(record, actualFieldNames, context);
+            T object = parseMultiLineRecord(mlrecord, context);
             objects.add(object);
 
             // Some record groups have a fine level of detail on which fields should be saved depending on each record
             // (We want to save different field names for transformers with 2 / 3 windings)
             RecordGroupIdentification detailedRecordGroupForThisRecord = recordGroup.getIdentificationFor(object);
-            context.setFieldNames(detailedRecordGroupForThisRecord, actualFieldNames);
+            context.setFieldNames(detailedRecordGroupForThisRecord, mlrecord.actualFieldNames);
         }
         return objects;
     }
