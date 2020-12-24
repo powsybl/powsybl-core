@@ -25,7 +25,6 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -171,8 +170,19 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
 
         @Override
         protected List<MultiLineRecord> buildMultiLineRecords(List<PsseTransformerImpedanceCorrectionTable> objects, Context context) {
-            // XXX(Luma) not implemented yet
-            return Collections.emptyList();
+            List<MultiLineRecord> mlrecords = new ArrayList<>();
+            ZCorrData zCorrData = new ZCorrData();
+            for (PsseTransformerImpedanceCorrectionTable t : objects) {
+                // XXX(Luma) 1 table --> multiple zcorr objects --> each zcorr one line
+                List<ZCorr> zcorrs = ZCorr.multipleFromTable(t, 6);
+                String[] lines = new String[zcorrs.size()];
+                lines[0] = zCorrData.buildSingleRecord(zcorrs.get(0), FIELD_NAMES[0], Util.retainAll(recordGroup.quotedFields(), FIELD_NAMES[0]), context);
+                for (int k = 1; k < lines.length; k++) {
+                    lines[k] = zCorrData.buildSingleRecord(zcorrs.get(k), FIELD_NAMES[1], Util.retainAll(recordGroup.quotedFields(), FIELD_NAMES[1]), context);
+                }
+                mlrecords.add(new MultiLineRecord(FIELD_NAMES, lines));
+            }
+            return mlrecords;
         }
     }
 
@@ -250,6 +260,62 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
             zcorr.item10 = items.get(9);
             zcorr.item11 = items.get(10);
             return zcorr;
+        }
+
+        public static List<ZCorr> multipleFromTable(PsseTransformerImpedanceCorrectionTable table, int maxItemsPerZCorr) {
+            List<ZCorr> zcorrs = new ArrayList<>();
+            // RAW 35 format has table factors split in multiple lines
+            // Each line contains up to 6 factors
+            // We have to write all factors plus an item (0, 0, 0) that marks the end of the table
+            int numItems = table.getFactors().size() + 1;
+            // Each line can have a maximum number of zcorr items
+            int numZCorrs = (numItems - 1) / maxItemsPerZCorr + 1;
+            for (int k = 0; k < numZCorrs; k++) {
+                ZCorr zcorr = new ZCorr();
+                zcorr.setI(table.getI());
+                zcorrs.add(zcorr);
+            }
+            for (int k = 0; k < table.getFactors().size(); k++) {
+                ZCorr zcorr = zcorrs.get(k / maxItemsPerZCorr);
+                ZCorrItem item = zcorr.createGetItem(k % maxItemsPerZCorr + 1);
+                item.t = table.getFactors().get(k).getTap();
+                item.ref = table.getFactors().get(k).getReFactor();
+                item.imf = table.getFactors().get(k).getImFactor();
+            }
+            // Mark the end of the table
+            int k = table.getFactors().size();
+            ZCorr zcorr = zcorrs.get(k / maxItemsPerZCorr);
+            ZCorrItem item = zcorr.createGetItem(k % maxItemsPerZCorr + 1);
+            // Explicit assignment of value 0
+            item.t = 0.0;
+            item.ref = 0.0;
+            item.imf = 0.0;
+            return zcorrs;
+        }
+
+        private ZCorrItem createGetItem(int num) {
+            switch (num) {
+                case 1:
+                    item1 = new ZCorrItem();
+                    return item1;
+                case 2:
+                    item2 = new ZCorrItem();
+                    return item2;
+                case 3:
+                    item3 = new ZCorrItem();
+                    return item3;
+                case 4:
+                    item4 = new ZCorrItem();
+                    return item4;
+                case 5:
+                    item5 = new ZCorrItem();
+                    return item5;
+                case 6:
+                    item6 = new ZCorrItem();
+                    return item6;
+                default:
+                    throw new PsseException("XXX(Luma) should not happen, version 35 uses only 6 items");
+            }
         }
 
         public PsseTransformerImpedanceCorrectionTable toTable() {

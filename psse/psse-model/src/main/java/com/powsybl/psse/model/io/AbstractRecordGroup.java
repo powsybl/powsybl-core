@@ -163,6 +163,10 @@ public abstract class AbstractRecordGroup<T> {
         return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects);
     }
 
+    public String buildSingleRecord(T object, String[] headers, String[] quoteFields, Context context) {
+        return buildRecords(Collections.singletonList(object), headers, quoteFields, context).get(0);
+    }
+
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
         BeanWriterProcessor<T> processor = new BeanWriterProcessor<>(psseTypeClass());
         CsvWriterSettings settings = new CsvWriterSettings();

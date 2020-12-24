@@ -26,7 +26,6 @@ import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -438,7 +437,6 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
-    @Ignore("mapping of transformer impedance table to zcorr for writing")
     public void ieee14BusRev35ModifiedWriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
