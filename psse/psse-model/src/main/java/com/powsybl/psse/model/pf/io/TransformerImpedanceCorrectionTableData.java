@@ -65,6 +65,9 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
 
     private static class IOLegacyText33 extends RecordGroupIOLegacyText<PsseTransformerImpedanceCorrectionTable> {
 
+        // For version 33, RAW as a single-line record format with these fields:
+        // I, T1, F1, T2, F2, T3, F3, ... T11, F11
+
         IOLegacyText33(AbstractRecordGroup<PsseTransformerImpedanceCorrectionTable> recordGroup) {
             super(recordGroup);
         }
@@ -93,25 +96,29 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
             super(recordGroup);
         }
 
+        // The RAW record format for Transformer Impedance Correction Tables:
+        // I, T1, Re(F1), Im(F1), T2, Re(F2), Im(F2), ... T6,  Re(F6),  Im(F6)
+        //   T7, Re(F7), Im(F7), T8, Re(F8), Im(F8), ... T12, Re(F12), Im(F12)
+        //   .
+        //   .
+        //   Tn, Re(Fn), Im(Fn), 0.0, 0.0, 0.0
+
         private static final String[][] FIELD_NAMES = {
+            // XXX(Luma) extend to six factors per line
             {"i", "t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3"},
             {"t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3"},
         };
 
         private boolean isLastLine(String line, Context context) {
-            switch (context.getVersion().major()) {
-                case V33:
-                    return true;
-                case V35:
-                    String[] s = line.split("" + context.getDelimiter());
-                    int n = s.length;
-                    if (n < 3) {
-                        return true;
-                    }
-                    return Double.valueOf(s[n - 1]) == 0.0 && Double.valueOf(s[n - 2]) == 0.0 && Double.valueOf(s[n - 3]) == 0.0;
-                default:
-                    throw new PsseException("Unsupported version " + context.getVersion());
+            // From PSSE documentation:
+            // "End of data for a table is specified by specifying an additional point
+            // with the three values defining the point all specified as 0.0."
+            String[] s = line.split("" + context.getDelimiter());
+            int n = s.length;
+            if (n < 3) {
+                return true;
             }
+            return Double.valueOf(s[n - 1]) == 0.0 && Double.valueOf(s[n - 2]) == 0.0 && Double.valueOf(s[n - 3]) == 0.0;
         }
 
         @Override
@@ -125,7 +132,9 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
                 }
             }
             String[][] fieldNamesByLine = new String[lines.size()][];
+            // First line has different field names, it contains the table number "i" and 6 factors
             fieldNamesByLine[0] = FIELD_NAMES[0];
+            // Rest of lines have the same fields, 6 factors
             for (int k = 1; k < fieldNamesByLine.length; k++) {
                 fieldNamesByLine[k] = FIELD_NAMES[1];
             }
