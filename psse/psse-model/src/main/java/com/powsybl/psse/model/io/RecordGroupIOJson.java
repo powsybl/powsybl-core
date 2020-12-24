@@ -107,7 +107,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return recordGroup.parseRecords(records, actualFieldNames, context);
     }
 
-    static String[] readFieldNames(JsonNode n) {
+    protected static String[] readFieldNames(JsonNode n) {
         JsonNode fieldsNode = n.get("fields");
         if (!fieldsNode.isArray()) {
             throw new PowsyblException("Expecting array reading fields");
@@ -119,7 +119,7 @@ public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
         return fields.toArray(new String[0]);
     }
 
-    private List<String> readRecords(JsonNode n) {
+    protected List<String> readRecords(JsonNode n) {
         JsonNode dataNode = n.get("data");
         if (!dataNode.isArray()) {
             throw new PowsyblException("Expecting array reading data");

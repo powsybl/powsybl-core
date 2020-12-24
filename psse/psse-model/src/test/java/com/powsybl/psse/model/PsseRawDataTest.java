@@ -65,6 +65,10 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_rev35_modified", new ResourceSet("/", "IEEE_14_bus_rev35_modified.raw"));
     }
 
+    private ReadOnlyDataSource ieee14ModifiedRawx35() {
+        return new ResourceDataSource("IEEE_14_bus_rev35_modified", new ResourceSet("/", "IEEE_14_bus_rev35_modified.rawx"));
+    }
+
     private ReadOnlyDataSource minimalRawx() {
         return new ResourceDataSource("MinimalExample", new ResourceSet("/", "MinimalExample.rawx"));
     }
@@ -277,6 +281,13 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusRev35RawxTest() throws IOException {
         PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", new Context());
         String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35.json")), StandardCharsets.UTF_8);
+        assertEquals(jsonRef, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusRev35ModifiedRawxTest() throws IOException {
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14ModifiedRawx35(), "rawx", new Context());
+        String jsonRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_rev35_modified.json")), StandardCharsets.UTF_8);
         assertEquals(jsonRef, toJson(rawData));
     }
 

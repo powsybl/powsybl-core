@@ -26,6 +26,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
@@ -63,8 +64,34 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
 
         @Override
         public List<PsseTransformerImpedanceCorrectionTable> readJson(JsonNode networkNode, Context context) {
-            // XXX(Luma) pending implementation
-            throw new PsseException("Not implemented");
+            JsonNode jsonNode = networkNode.get(recordGroup.getIdentification().getJsonNodeName());
+            if (jsonNode == null) {
+                return new ArrayList<>();
+            }
+            String[] actualFieldNames = readFieldNames(jsonNode);
+            List<String> records = readRecords(jsonNode);
+            context.setFieldNames(recordGroup.getIdentification(), actualFieldNames);
+
+            // Parse the records using an internal class
+            List<ZCorr1> allZcorr1s = new ZCorr1Data().parseRecords(records, actualFieldNames, context);
+            // Group the parsed records by table numbers
+            Map<Integer, List<ZCorr1>> ztables = allZcorr1s
+                .stream()
+                .collect(Collectors.groupingBy(ZCorr1::getItable, Collectors.collectingAndThen(Collectors.toList(), list -> list)));
+            // Then we create one table for each entry in the map,
+            // converting the zcorrs entry to psse factors
+            List<PsseTransformerImpedanceCorrectionTable> tables = ztables.entrySet().stream()
+                .map(entry -> {
+                    int itable = entry.getKey();
+                    List<ZCorr1> zcorr1s =  entry.getValue();
+                    List<PsseTransformerImpedanceCorrectionTable.Entry> entries = zcorr1s.stream()
+                        .map(zcorr -> new PsseTransformerImpedanceCorrectionTable.Entry(zcorr.getTap(), zcorr.getRefact(), zcorr.getImfact()))
+                        .collect(Collectors.toList());
+                    PsseTransformerImpedanceCorrectionTable table = new PsseTransformerImpedanceCorrectionTable(itable, entries);
+                    return table;
+                })
+                .collect(Collectors.toList());
+            return tables;
         }
     }
 
@@ -186,6 +213,66 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
         }
     }
 
+    static class ZCorr1Data extends AbstractRecordGroup<ZCorr1> {
+        ZCorr1Data() {
+            // XXX(Luma) fieldNames should not be always required (check what happens when we remove them here)
+            super(INTERNAL_TRANSFORMER_IMPEDANCE_CORRECTION_TABLE, "itable", "tap", "refact", "imfact");
+        }
+
+        @Override
+        public Class<ZCorr1> psseTypeClass() {
+            return ZCorr1.class;
+        }
+    }
+
+    // For RAWX there is a DataTable of fields: (itable, tap, refact, imfat)
+
+    @JsonPropertyOrder(alphabetic = false)
+    public static class ZCorr1 extends PsseVersioned {
+        @Parsed
+        private int itable;
+        @Parsed
+        private double tap;
+        @Parsed
+        private double refact;
+        @Parsed
+        private double imfact;
+
+        public int getItable() {
+            return itable;
+        }
+
+        public void setItable(int itable) {
+            this.itable = itable;
+        }
+
+        public double getTap() {
+            return tap;
+        }
+
+        public void setTap(double tap) {
+            this.tap = tap;
+        }
+
+        public double getRefact() {
+            return refact;
+        }
+
+        public void setRefact(double refact) {
+            this.refact = refact;
+        }
+
+        public double getImfact() {
+            return imfact;
+        }
+
+        public void setImfact(double imfact) {
+            this.imfact = imfact;
+        }
+    }
+
+    // Internal class to bridge the common model for correction tables and the specific format used in RAW files
+
     static class ZCorrData extends AbstractRecordGroup<ZCorr> {
         ZCorrData() {
             super(INTERNAL_TRANSFORMER_IMPEDANCE_CORRECTION_TABLE);
@@ -197,10 +284,6 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
             return ZCorr.class;
         }
     }
-
-    // XXX(Luma) For RAWX 35 there is a DataTable of fields: (itable, tap, refact, imfat)
-
-    // Internal class to bridge the common model for correction tables and the specific format used in RAW files
 
     @JsonPropertyOrder(alphabetic = false)
     public static class ZCorr extends PsseVersioned {
