@@ -104,14 +104,20 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             if (!transformers2Windings.isEmpty()) {
                 String[] contextFieldNames = context.getFieldNames(TRANSFORMER_2);
                 String[][] fieldNamesByLine = transformerData.fieldNames2Winding(context.getVersion());
-                writeMultiLineRecords(transformers2Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
+                writeMultiLineRecords0(
+                    buildMultiLineRecordsFixedLines(transformers2Windings, fieldNamesByLine, contextFieldNames, context),
+                    context,
+                    outputStream);
             }
             // Process all transformers with 3 windings together
             List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
             if (!transformers3Windings.isEmpty()) {
                 String[] contextFieldNames = context.getFieldNames(TRANSFORMER_3);
                 String[][] fieldNamesByLine = transformerData.fieldNames3Winding(context.getVersion());
-                writeMultiLineRecords(transformers3Windings, fieldNamesByLine, contextFieldNames, context, outputStream);
+                writeMultiLineRecords0(
+                    buildMultiLineRecordsFixedLines(transformers3Windings, fieldNamesByLine, contextFieldNames, context),
+                    context,
+                    outputStream);
             }
 
             writeEnd(outputStream);

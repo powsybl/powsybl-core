@@ -25,6 +25,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -165,10 +166,13 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
 
         @Override
         public void write(List<PsseTransformerImpedanceCorrectionTable> transformers, Context context, OutputStream outputStream) {
-            writeBegin(outputStream);
-            writeEnd(outputStream);
-            // XXX(Luma) pending implementation
-            throw new PsseException("Not implemented");
+            super.writeMultiLineRecords(transformers, context, outputStream);
+        }
+
+        @Override
+        protected List<MultiLineRecord> buildMultiLineRecords(List<PsseTransformerImpedanceCorrectionTable> objects, Context context) {
+            // XXX(Luma) not implemented yet
+            return Collections.emptyList();
         }
     }
 

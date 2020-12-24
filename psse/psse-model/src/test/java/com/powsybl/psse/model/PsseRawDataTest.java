@@ -19,10 +19,14 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.psse.model.io.Context;
-import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.PsseGenerator;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import com.powsybl.psse.model.pf.PsseRates;
+import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -430,6 +434,20 @@ public class PsseRawDataTest extends AbstractConverterTest {
         rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_exported.raw"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_exported.raw"), is);
+        }
+    }
+
+    @Test
+    @Ignore("mapping of transformer impedance table to zcorr for writing")
+    public void ieee14BusRev35ModifiedWriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
+        PssePowerFlowModel rawData = rawData35.read(ieee14ModifiedRaw35(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_modified_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_rev35_modified_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_rev35_modified_exported.raw"), is);
         }
     }
 

@@ -92,9 +92,29 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
         return objects;
     }
 
-    protected void writeMultiLineRecords(List<T> objects, String[][] fieldNamesByLine, String[] contextFieldNames, Context context, OutputStream outputStream) {
-        int numLines = fieldNamesByLine.length;
+    protected void writeMultiLineRecords(List<T> objects, Context context, OutputStream outputStream) {
+        writeBegin(outputStream);
+        List<MultiLineRecord> mlrecords = buildMultiLineRecords(objects, context);
+        writeMultiLineRecords0(mlrecords, context, outputStream);
+        writeEnd(outputStream);
+    }
 
+    protected void writeMultiLineRecords0(List<MultiLineRecord> mlrecords, Context context, OutputStream outputStream) {
+        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
+        for (MultiLineRecord mlrecord : mlrecords) {
+            for (String line : mlrecord.getLines()) {
+                writer.writeRow(line);
+            }
+        }
+        writer.flush();
+    }
+
+    protected List<MultiLineRecord> buildMultiLineRecords(List<T> objects, Context context) {
+        throw new PsseException("Not implemented");
+    }
+
+    protected List<MultiLineRecord> buildMultiLineRecordsFixedLines(List<T> objects, String[][] fieldNamesByLine, String[] contextFieldNames, Context context) {
+        int numLines = fieldNamesByLine.length;
         // Entries of the array are the lists of first, second, third lines of all records
         // A complete record k is built using recordsLines[0].get(k), recordsLines[1].get(k) ...
         List<String>[] recordsLines = new ArrayList[numLines];
@@ -104,15 +124,18 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
             recordsLines[l] = recordGroup.buildRecords(objects, headersLine, Util.retainAll(recordGroup.quotedFields(), headersLine), context);
         }
         checkAllRecordsHaveAllLines(recordsLines);
-        // All lines of all records have been built, now write them
-        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
-        int numRecords = recordsLines[0].size();
-        for (int k = 0; k < numRecords; k++) {
+
+        // XXX(Luma) build and store in mlrecords at the same time
+        int numObjects = objects.size();
+        List<MultiLineRecord> mlrecords = new ArrayList<>(numObjects);
+        for (int k = 0; k < numObjects; k++) {
+            String[] linesk = new String[numLines];
             for (int l = 0; l < numLines; l++) {
-                writer.writeRow(recordsLines[l].get(k));
+                linesk[l] = recordsLines[l].get(k);
             }
+            mlrecords.add(new MultiLineRecord(fieldNamesByLine, linesk));
         }
-        writer.flush();
+        return mlrecords;
     }
 
     private static String[] actualFieldNames(String[][] fieldNamesByLine, String[] recordLines, Context context) {
