@@ -8,6 +8,7 @@ package com.powsybl.psse.model.pf;
 
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseVersioned;
+import com.powsybl.psse.model.Revision;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,6 +28,12 @@ public class PsseTransformerImpedanceCorrectionTable extends PsseVersioned {
         this.factors = factors;
     }
 
+    @Override
+    public void setModel(PssePowerFlowModel model) {
+        super.setModel(model);
+        factors.forEach(f -> f.setModel(model));
+    }
+
     public int getI() {
         return i;
     }
@@ -35,9 +42,10 @@ public class PsseTransformerImpedanceCorrectionTable extends PsseVersioned {
         return Collections.unmodifiableList(factors);
     }
 
-    public static class Entry {
+    public static class Entry extends PsseVersioned {
         private final double tap;
         private final double reFactor;
+        @Revision(since = 35)
         private final double imFactor;
 
         public Entry(double tap, double reFactor, double imFactor) {

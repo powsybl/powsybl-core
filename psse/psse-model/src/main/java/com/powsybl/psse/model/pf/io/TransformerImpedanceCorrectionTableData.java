@@ -13,13 +13,18 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseTransformerImpedanceCorrectionTable;
+import com.univocity.parsers.annotations.HeaderTransformer;
+import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -104,9 +109,8 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
         //   Tn, Re(Fn), Im(Fn), 0.0, 0.0, 0.0
 
         private static final String[][] FIELD_NAMES = {
-            // XXX(Luma) extend to six factors per line
-            {"i", "t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3"},
-            {"t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3"},
+            {"i", "t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
+            {"t1", "ref1", "imf1", "t2", "ref2", "imf2", "t3", "ref3", "imf3", "t4", "ref4", "imf4", "t5", "ref5", "imf5", "t6", "ref6", "imf6"},
         };
 
         private boolean isLastLine(String line, Context context) {
@@ -170,8 +174,7 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
     static class ZCorrData extends AbstractRecordGroup<ZCorr> {
         ZCorrData() {
             super(INTERNAL_TRANSFORMER_IMPEDANCE_CORRECTION_TABLE);
-            // XXX(Luma) should complete to t11
-            withFieldNames(V33, "i", "t1", "f1", "t2", "f2", "t3", "f3");
+            withFieldNames(V33, "i", "t1", "ref1", "t2", "ref2", "t3", "ref3", "t4", "ref4", "t5", "ref5", "t6", "ref6", "t7", "ref7", "t8", "ref8", "t9", "ref9", "t10", "ref10", "t11", "ref11");
         }
 
         @Override
@@ -180,44 +183,103 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
         }
     }
 
+    // XXX(Luma) For RAWX 35 there is a DataTable of fields: (itable, tap, refact, imfat)
+
+    // Internal class to bridge the common model for correction tables and the specific format used in RAW files
+
     @JsonPropertyOrder(alphabetic = false)
     public static class ZCorr extends PsseVersioned {
 
-        @Parsed(field = {"i", "itable"})
+        public static class ZCorrItem extends PsseVersioned {
+            @Parsed
+            private double t = 0;
+
+            @Parsed
+            private double ref = 0;
+
+            @Parsed
+            @Revision(since = 35)
+            private double imf = 0;
+
+            public double getT() {
+                return t;
+            }
+
+            public void setT(double t) {
+                this.t = t;
+            }
+
+            public double getRef() {
+                return ref;
+            }
+
+            public void setRef(double ref) {
+                this.ref = ref;
+            }
+
+            public double getImf() {
+                return imf;
+            }
+
+            public void setImf(double imf) {
+                this.imf = imf;
+            }
+        }
+
+        public static class ZCorrItemHeaderTransformer extends HeaderTransformer {
+            private final String itemNumber;
+
+            public ZCorrItemHeaderTransformer(String... args) {
+                itemNumber = args[0];
+            }
+
+            @Override
+            public String transformName(Field field, String name) {
+                // Add "<itemNumber>" as a suffix
+                return name + itemNumber;
+            }
+        }
+
+        @Override
+        public void setModel(PssePowerFlowModel model) {
+            super.setModel(model);
+            item1.setModel(model);
+            item2.setModel(model);
+            item3.setModel(model);
+            item4.setModel(model);
+            item5.setModel(model);
+            item6.setModel(model);
+            item7.setModel(model);
+            item8.setModel(model);
+            item9.setModel(model);
+            item10.setModel(model);
+            item11.setModel(model);
+        }
+
+        @Parsed
         private int i;
-
-        // XXX(Luma) First attempt to read impedance correction tables, we define as fields a subset of taps and factors (only 3 sets)
-        // XXX(Luma) For RAWX 35 there is a DataTable of fields: (itable, tap, refact, imfat)
-
-        @Parsed(field = {"t1", "tap1"})
-        private double t1 = 0;
-
-        @Parsed(field = {"f1", "ref1", "refact1"})
-        private double ref1 = 0;
-
-        @Parsed(field = {"imf1", "imfact1"})
-        @Revision(since = 35)
-        private double imf1 = 0;
-
-        @Parsed(field = {"t2", "tap2"})
-        private double t2 = 0;
-
-        @Parsed(field = {"f2", "ref2"})
-        private double ref2 = 0;
-
-        @Parsed(field = {"imf2", "imfact2"})
-        @Revision(since = 35)
-        private double imf2 = 0;
-
-        @Parsed(field = {"t3", "tap3"})
-        private double t3 = 0;
-
-        @Parsed(field = {"f3", "ref3"})
-        private double ref3 = 0;
-
-        @Parsed(field = {"imf3", "imfact3"})
-        @Revision(since = 35)
-        private double imf3 = 0;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "1")
+        private ZCorrItem item1;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "2")
+        private ZCorrItem item2;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "3")
+        private ZCorrItem item3;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "4")
+        private ZCorrItem item4;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "5")
+        private ZCorrItem item5;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "6")
+        private ZCorrItem item6;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "7")
+        private ZCorrItem item7;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "8")
+        private ZCorrItem item8;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "9")
+        private ZCorrItem item9;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "10")
+        private ZCorrItem item10;
+        @Nested(headerTransformer = ZCorrItemHeaderTransformer.class, args = "11")
+        private ZCorrItem item11;
 
         public int getI() {
             return i;
@@ -227,90 +289,15 @@ class TransformerImpedanceCorrectionTableData extends AbstractRecordGroup<PsseTr
             this.i = i;
         }
 
-        public double getT1() {
-            return t1;
-        }
-
-        public void setT1(double t1) {
-            this.t1 = t1;
-        }
-
-        public double getT2() {
-            return t2;
-        }
-
-        public void setT2(double t2) {
-            this.t2 = t2;
-        }
-
-        public double getT3() {
-            return t3;
-        }
-
-        public void setT3(double t3) {
-            this.t3 = t3;
-        }
-
-        public double getRef1() {
-            return ref1;
-        }
-
-        public void setRef1(double ref1) {
-            this.ref1 = ref1;
-        }
-
-        public double getImf1() {
-            return imf1;
-        }
-
-        public void setImf1(double imf1) {
-            this.imf1 = imf1;
-        }
-
-        public double getRef2() {
-            return ref2;
-        }
-
-        public void setRef2(double ref2) {
-            this.ref2 = ref2;
-        }
-
-        public double getImf2() {
-            return imf2;
-        }
-
-        public void setImf2(double imf2) {
-            this.imf2 = imf2;
-        }
-
-        public double getRef3() {
-            return ref3;
-        }
-
-        public void setRef3(double ref3) {
-            this.ref3 = ref3;
-        }
-
-        public double getImf3() {
-            return imf3;
-        }
-
-        public void setImf3(double imf3) {
-            this.imf3 = imf3;
-        }
-
         public List<PsseTransformerImpedanceCorrectionTable.Entry> mapImpedanceCorrectionTableEntries() {
             List<PsseTransformerImpedanceCorrectionTable.Entry> entries = new ArrayList<>(11);
-            addIfNotEmpty(t1, ref1, imf1, entries);
-            addIfNotEmpty(t2, ref2, imf2, entries);
-            addIfNotEmpty(t3, ref3, imf3, entries);
-            return entries;
-        }
-
-        private static void addIfNotEmpty(double tap, double ref, double imf, List<PsseTransformerImpedanceCorrectionTable.Entry> entries) {
-            if (tap != 0.0 || ref != 0.0 || imf != 0.0) {
-                entries.add(new PsseTransformerImpedanceCorrectionTable.Entry(tap, ref, imf));
+            for (ZCorrItem item : Arrays.asList(item1, item2, item3, item4, item5, item6, item7, item8, item9, item10, item11)) {
+                if (item.t == 0.0 && item.ref == 0.0 && item.imf == 0.0) {
+                    break;
+                }
+                entries.add(new PsseTransformerImpedanceCorrectionTable.Entry(item.t, item.ref, item.imf));
             }
+            return entries;
         }
     }
 }

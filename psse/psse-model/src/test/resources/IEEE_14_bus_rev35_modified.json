@@ -1675,6 +1675,65 @@
       "reFactor" : 0.95,
       "imFactor" : 0.0
     } ]
+  }, {
+    "i" : 3,
+    "factors" : [ {
+      "tap" : 0.01,
+      "reFactor" : 1.14,
+      "imFactor" : 2.14
+    }, {
+      "tap" : 0.02,
+      "reFactor" : 1.13,
+      "imFactor" : 2.13
+    }, {
+      "tap" : 0.03,
+      "reFactor" : 1.12,
+      "imFactor" : 2.12
+    }, {
+      "tap" : 0.04,
+      "reFactor" : 1.11,
+      "imFactor" : 2.11
+    }, {
+      "tap" : 0.05,
+      "reFactor" : 1.1,
+      "imFactor" : 2.1
+    }, {
+      "tap" : 0.06,
+      "reFactor" : 1.09,
+      "imFactor" : 2.09
+    }, {
+      "tap" : 0.07,
+      "reFactor" : 1.08,
+      "imFactor" : 2.08
+    }, {
+      "tap" : 0.08,
+      "reFactor" : 1.07,
+      "imFactor" : 2.07
+    }, {
+      "tap" : 0.09,
+      "reFactor" : 1.06,
+      "imFactor" : 2.06
+    }, {
+      "tap" : 0.1,
+      "reFactor" : 1.05,
+      "imFactor" : 2.05
+    }, {
+      "tap" : 0.11,
+      "reFactor" : 1.04,
+      "imFactor" : 2.04
+    }, {
+      "tap" : 0.12,
+      "reFactor" : 1.03,
+      "imFactor" : 2.03
+    }, {
+      "tap" : 0.13,
+      "reFactor" : 1.02,
+      "imFactor" : 2.02
+    }, {
+      "tap" : 0.14,
+      "reFactor" : 1.01,
+      "imFactor" : 2.01
+    } ]
   } ],
   "areas" : [ {
     "i" : 1,
