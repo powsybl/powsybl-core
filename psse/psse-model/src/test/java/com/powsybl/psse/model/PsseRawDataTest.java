@@ -408,6 +408,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
+    public void ieee14BusModifiedWriteTest() throws IOException {
+        Context context = new Context();
+
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14ModifiedRaw(), "raw", context);
+        assertNotNull(rawData);
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_modified_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_modified_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_modified_exported.raw"), is);
+        }
+    }
+
+    @Test
     public void ieee14BusRev35WriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawData35 rawData35 = new PowerFlowRawData35();

@@ -88,7 +88,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
 
         writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
         writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
-        writeEmpty(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, outputStream);
+        new TransformerImpedanceCorrectionTableData().write(model.getTransformerImpedanceCorrectionTables(), context, outputStream);
         writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
         writeEmpty(MULTI_SECTION_LINE_GROUPING, outputStream);
 
