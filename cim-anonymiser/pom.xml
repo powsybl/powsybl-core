@@ -45,10 +45,6 @@
             <artifactId>stax-utils</artifactId>
         </dependency>
         <dependency>
-            <groupId>net.java.truevfs</groupId>
-            <artifactId>truevfs-driver-zip</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
