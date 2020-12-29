@@ -49,7 +49,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             model.addAreas(new AreaInterchangeData().read(reader, context));
             skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
             skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
-            skip(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, reader);
+            model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
             skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
             skip(MULTI_SECTION_LINE_GROUPING, reader);
             model.addZones(new ZoneData().read(reader, context));
@@ -101,7 +101,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
 
         writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
         writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
-        writeEmpty(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, outputStream);
+        new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
         writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
 
         writeEmpty(MULTI_SECTION_LINE_GROUPING, outputStream);

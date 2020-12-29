@@ -1648,7 +1648,41 @@
     "ptol" : 999.99,
     "arname" : "IEEE14      "
   } ],
-  "transformerImpedanceCorrections" : [ ],
+  "transformerImpedanceCorrections" : [ {
+    "i" : 1,
+    "points" : [ {
+      "t" : -30.0,
+      "ref" : 1.1,
+      "imf" : 0.1
+    }, {
+      "t" : -24.0,
+      "ref" : 1.091,
+      "imf" : 0.0
+    }, {
+      "t" : 30.0,
+      "ref" : 1.11,
+      "imf" : 0.0
+    } ]
+  }, {
+    "i" : 2,
+    "points" : [ {
+      "t" : 0.6,
+      "ref" : 1.06,
+      "imf" : 0.0
+    }, {
+      "t" : 0.7,
+      "ref" : 1.07,
+      "imf" : 0.0
+    }, {
+      "t" : 0.8,
+      "ref" : 1.08,
+      "imf" : 0.0
+    }, {
+      "t" : 0.9,
+      "ref" : 1.09,
+      "imf" : 0.1
+    } ]
+  } ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "IEEE 14 "

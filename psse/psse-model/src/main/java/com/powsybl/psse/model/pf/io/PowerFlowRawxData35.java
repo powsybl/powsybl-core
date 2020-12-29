@@ -56,6 +56,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         model.addTransformers(new TransformerData().read(null, context));
 
         model.addAreas(new AreaInterchangeData().read(null, context));
+        model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(null, context));
         model.addZones(new ZoneData().read(null, context));
         model.addOwners(new OwnerData().read(null, context));
 
@@ -93,6 +94,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, null);
             new TransformerData().write(model.getTransformers(), context, null);
             new AreaInterchangeData().write(model.getAreas(), context, null);
+            new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, null);
             new ZoneData().write(model.getZones(), context, null);
             new OwnerData().write(model.getOwners(), context, null);
             new SwitchedShuntData().write(model.getSwitchedShunts(), context, null);

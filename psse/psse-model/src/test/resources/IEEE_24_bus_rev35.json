@@ -3047,6 +3047,7 @@
     "ptol" : 1.0,
     "arname" : "1           "
   } ],
+  "transformerImpedanceCorrections" : [ ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "1       "

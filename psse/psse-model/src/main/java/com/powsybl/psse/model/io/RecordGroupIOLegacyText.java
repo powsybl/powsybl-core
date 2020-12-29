@@ -83,6 +83,10 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         writer.flush();
     }
 
+    protected static List<String> readBlock(BufferedReader reader) throws IOException {
+        return readRecords(reader);
+    }
+
     protected List<T> readMultiLineRecords(BufferedReader reader, Context context) throws IOException {
         List<T> objects = new ArrayList<>();
         // Read all records in data section

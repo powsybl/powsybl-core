@@ -35,6 +35,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseArea> areas = new ArrayList<>();
 
+    private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
+
     private final List<PsseZone> zones = new ArrayList<>();
 
     private final List<PsseOwner> owners = new ArrayList<>();
@@ -103,6 +105,14 @@ public class PssePowerFlowModel {
 
     public List<PsseArea> getAreas() {
         return Collections.unmodifiableList(areas);
+    }
+
+    public void addTransformerImpedanceCorrections(List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections) {
+        this.transformerImpedanceCorrections.addAll(transformerImpedanceCorrections);
+    }
+
+    public List<PsseTransformerImpedanceCorrection> getTransformerImpedanceCorrections() {
+        return transformerImpedanceCorrections;
     }
 
     public void addZones(List<PsseZone> zones) {
