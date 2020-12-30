@@ -155,7 +155,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         @Override
         public List<PsseTransformerImpedanceCorrection> read(BufferedReader reader, Context context) throws IOException {
-            List<String> records = readBlock(reader);
+            List<String> records = readRecords(reader);
 
             PsseTransformerImpedanceCorrection35ParserRecord1Data record1Data = new PsseTransformerImpedanceCorrection35ParserRecord1Data();
             PsseTransformerImpedanceCorrection35ParserRecord2Data record2Data = new PsseTransformerImpedanceCorrection35ParserRecord2Data();
