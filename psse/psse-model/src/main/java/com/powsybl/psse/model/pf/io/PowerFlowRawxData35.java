@@ -62,6 +62,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         model.addInterareaTransfer(new InterareaTransferData().read(null, context));
         model.addOwners(new OwnerData().read(null, context));
 
+        model.addFacts(new FactsDeviceData().read(null, context));
         model.addSwitchedShunts(new SwitchedShuntData().read(null, context));
 
         return model;
@@ -101,6 +102,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new ZoneData().write(model.getZones(), context, null);
             new InterareaTransferData().write(model.getInterareaTransfer(), context, null);
             new OwnerData().write(model.getOwners(), context, null);
+            new FactsDeviceData().write(model.getFacts(), context, null);
             new SwitchedShuntData().write(model.getSwitchedShunts(), context, null);
 
             generator.writeEndObject(); // network

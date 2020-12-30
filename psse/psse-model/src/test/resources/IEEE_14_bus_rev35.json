@@ -1659,5 +1659,6 @@
     "i" : 1,
     "owname" : "1"
   } ],
+  "facts" : [ ],
   "switchedShunts" : [ ]
 }

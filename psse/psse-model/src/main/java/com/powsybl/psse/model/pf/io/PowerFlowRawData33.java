@@ -52,7 +52,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             model.addZones(new ZoneData().read(reader, context));
             model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
             model.addOwners(new OwnerData().read(reader, context));
-            skip(FACTS_CONTROL_DEVICE, reader);
+            model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             skip(GNE_DEVICE, reader);
             skip(INDUCTION_MACHINE, reader);
@@ -96,7 +96,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
 
-        writeEmpty(FACTS_CONTROL_DEVICE, outputStream);
+        new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
         writeEmpty(GNE_DEVICE, outputStream);
         writeEmpty(INDUCTION_MACHINE, outputStream);

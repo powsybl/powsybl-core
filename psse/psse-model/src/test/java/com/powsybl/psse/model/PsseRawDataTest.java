@@ -149,6 +149,25 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
+    public void testAccessToFieldNotPresentInVersionCompleted() throws IOException {
+        PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14CompletedRaw(), "raw", new Context());
+        assertNotNull(raw33);
+
+        PsseFacts f33 = raw33.getFacts().get(0);
+        // Trying to get a field only available since version 35 gives an error
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(f33::getNreg)
+            .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
+
+        PssePowerFlowModel raw35 = new PowerFlowRawData35().read(ieee14CompletedRaw35(), "raw", new Context());
+        assertNotNull(raw35);
+        PsseFacts f35 = raw35.getFacts().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(f35::getRemot)
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
+    }
+
+    @Test
     public void ieee14BusReadFieldsTest() throws IOException {
         Context context = new Context();
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14Raw(), "raw", context);

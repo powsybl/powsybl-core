@@ -3058,6 +3058,7 @@
     "i" : 1,
     "owname" : "1"
   } ],
+  "facts" : [ ],
   "switchedShunts" : [ {
     "i" : 1,
     "modsw" : 0,

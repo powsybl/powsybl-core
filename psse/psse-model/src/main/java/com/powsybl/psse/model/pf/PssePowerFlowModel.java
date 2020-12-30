@@ -45,6 +45,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseOwner> owners = new ArrayList<>();
 
+    private final List<PsseFacts> facts = new ArrayList<>();
+
     private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
 
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
@@ -149,6 +151,14 @@ public class PssePowerFlowModel {
 
     public List<PsseOwner> getOwners() {
         return Collections.unmodifiableList(owners);
+    }
+
+    public void addFacts(List<PsseFacts> facts) {
+        this.facts.addAll(modelled(facts));
+    }
+
+    public List<PsseFacts> getFacts() {
+        return facts;
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {
