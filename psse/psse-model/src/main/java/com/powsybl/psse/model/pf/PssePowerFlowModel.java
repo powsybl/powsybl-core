@@ -37,6 +37,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
 
+    private final List<PsseLineGrouping> lineGrouping = new ArrayList<>();
+
     private final List<PsseZone> zones = new ArrayList<>();
 
     private final List<PsseOwner> owners = new ArrayList<>();
@@ -113,6 +115,14 @@ public class PssePowerFlowModel {
 
     public List<PsseTransformerImpedanceCorrection> getTransformerImpedanceCorrections() {
         return transformerImpedanceCorrections;
+    }
+
+    public void addLineGrouping(List<PsseLineGrouping> lineGrouping) {
+        this.lineGrouping.addAll(lineGrouping);
+    }
+
+    public List<PsseLineGrouping> getLineGrouping() {
+        return lineGrouping;
     }
 
     public void addZones(List<PsseZone> zones) {

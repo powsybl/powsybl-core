@@ -103,6 +103,13 @@
         [ 2,0.9,1.09,0.1 ]
       ]
     },
+    "msline" : {
+      "fields" : [ "ibus", "jbus", "mslid", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9" ],
+      "data" : [
+        [ 1,2,"&1",2,102,103,104,null,null,null,null,null,null ],
+        [ 1,5,"&1",2,121,122,123,124,125,126,127,128,129 ]
+      ]
+    },
     "zone" : {
       "fields" : [ "izone", "zoname" ],
       "data" : [

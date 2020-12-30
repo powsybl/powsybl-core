@@ -1649,6 +1649,7 @@
     "arname" : "IEEE14      "
   } ],
   "transformerImpedanceCorrections" : [ ],
+  "lineGrouping" : [ ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "IEEE 14 "

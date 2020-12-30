@@ -1359,6 +1359,35 @@
       "f" : 1.09
     } ]
   } ],
+  "lineGrouping" : [ {
+    "i" : 1,
+    "j" : 2,
+    "id" : "&1",
+    "met" : 2,
+    "dum1" : 102,
+    "dum2" : 103,
+    "dum3" : 104,
+    "dum4" : null,
+    "dum5" : null,
+    "dum6" : null,
+    "dum7" : null,
+    "dum8" : null,
+    "dum9" : null
+  }, {
+    "i" : 1,
+    "j" : 5,
+    "id" : "&1",
+    "met" : 2,
+    "dum1" : 121,
+    "dum2" : 122,
+    "dum3" : 123,
+    "dum4" : 124,
+    "dum5" : 125,
+    "dum6" : 126,
+    "dum7" : 127,
+    "dum8" : 128,
+    "dum9" : 129
+  } ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "IEEE 14 "
