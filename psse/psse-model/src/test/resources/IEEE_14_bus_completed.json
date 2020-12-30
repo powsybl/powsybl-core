@@ -1392,6 +1392,17 @@
     "i" : 1,
     "zoname" : "IEEE 14 "
   } ],
+  "interareaTransfer" : [ {
+    "arfrom" : 1,
+    "arto" : 2,
+    "trid" : "A",
+    "ptran" : 1000.0
+  }, {
+    "arfrom" : 3,
+    "arto" : 5,
+    "trid" : "D",
+    "ptran" : 2900.0
+  } ],
   "owners" : [ {
     "i" : 1,
     "owname" : "1"

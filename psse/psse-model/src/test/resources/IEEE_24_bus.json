@@ -2461,6 +2461,7 @@
     "i" : 1,
     "zoname" : "1       "
   } ],
+  "interareaTransfer" : [ ],
   "owners" : [ {
     "i" : 1,
     "owname" : "1"

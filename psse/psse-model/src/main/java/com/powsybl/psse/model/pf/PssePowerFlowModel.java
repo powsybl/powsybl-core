@@ -41,6 +41,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseZone> zones = new ArrayList<>();
 
+    private final List<PsseInterareaTransfer> interareaTransfer = new ArrayList<>();
+
     private final List<PsseOwner> owners = new ArrayList<>();
 
     private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
@@ -131,6 +133,14 @@ public class PssePowerFlowModel {
 
     public List<PsseZone> getZones() {
         return Collections.unmodifiableList(zones);
+    }
+
+    public void addInterareaTransfer(List<PsseInterareaTransfer> interareaTransfer) {
+        this.interareaTransfer.addAll(interareaTransfer);
+    }
+
+    public List<PsseInterareaTransfer> getInterareaTransfer() {
+        return interareaTransfer;
     }
 
     public void addOwners(List<PsseOwner> owners) {

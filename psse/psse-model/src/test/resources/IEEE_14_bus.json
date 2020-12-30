@@ -1337,6 +1337,7 @@
     "i" : 1,
     "zoname" : "IEEE 14 "
   } ],
+  "interareaTransfer" : [ ],
   "owners" : [ {
     "i" : 1,
     "owname" : "1"

@@ -53,7 +53,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
             model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
             model.addZones(new ZoneData().read(reader, context));
-            skip(INTERAREA_TRANSFER, reader);
+            model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
             model.addOwners(new OwnerData().read(reader, context));
             skip(FACTS_CONTROL_DEVICE, reader);
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
@@ -107,7 +107,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
 
         new ZoneData().write(model.getZones(), context, outputStream);
-        writeEmpty(INTERAREA_TRANSFER, outputStream);
+        new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
 
         writeEmpty(FACTS_CONTROL_DEVICE, outputStream);

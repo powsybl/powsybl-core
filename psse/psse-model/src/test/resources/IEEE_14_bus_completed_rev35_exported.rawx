@@ -116,6 +116,13 @@
         [ 1,"IEEE 14 " ]
       ]
     },
+    "iatransfer" : {
+      "fields" : [ "arfrom", "arto", "trid", "ptran" ],
+      "data" : [
+        [ 1,2,"A",1000.0 ],
+        [ 3,5,"D",2900.0 ]
+      ]
+    },
     "owner" : {
       "fields" : [ "iowner", "owname" ],
       "data" : [
