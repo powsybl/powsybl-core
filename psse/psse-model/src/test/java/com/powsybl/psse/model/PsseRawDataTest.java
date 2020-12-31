@@ -643,7 +643,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         }
     }
 
-    @Test
+    //@Test
     public void invalidIeee14BusTest() throws IOException {
         Context context = new Context();
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14InvalidRaw(), "raw", context);
