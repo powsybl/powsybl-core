@@ -30,11 +30,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -84,6 +86,10 @@ public class PsseRawDataTest extends AbstractConverterTest {
 
     private ReadOnlyDataSource ieee14CompletedRawx35() {
         return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.rawx"));
+    }
+
+    private ReadOnlyDataSource ieee14InvalidRaw() {
+        return new ResourceDataSource("IEEE_14_bus_invalid", new ResourceSet("/", "IEEE_14_bus_invalid.raw"));
     }
 
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
@@ -635,6 +641,24 @@ public class PsseRawDataTest extends AbstractConverterTest {
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.rawx"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
         }
+    }
+
+    @Test
+    public void invalidIeee14BusTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14InvalidRaw(), "raw", context);
+        assertNotNull(rawData);
+
+        PsseValidation psseValidation = new PsseValidation(rawData, context.getVersion());
+        List<String> warnings = psseValidation.getWarnings();
+        StringBuilder sb = new StringBuilder();
+        warnings.forEach(warning -> {
+            String s = String.format("%s%n", warning);
+            sb.append(s);
+        });
+        String warningsRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_invalid.txt")), StandardCharsets.UTF_8);
+        assertEquals(warningsRef, sb.toString());
+        assertFalse(psseValidation.isValidCase());
     }
 
     private void assertArrayEquals(String[] expected, String[] actual) {
