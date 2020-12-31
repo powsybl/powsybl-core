@@ -173,9 +173,8 @@ public class PsseImporter implements Importer {
         }
 
         // Create switched shunts
-        Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab = createSwitchedShuntBlockMap(psseModel);
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network).create(stoBlockiTab);
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version).create();
         }
 
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
@@ -192,6 +191,11 @@ public class PsseImporter implements Importer {
 
         // Attach a slack bus
         new SlackConverter(psseModel.getAreas(), containersMapping, network).create();
+
+        // Add controls
+        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
+            new SwitchedShuntCompensatorConverter(psseSwShunt, containersMapping, network, version).addControl();
+        }
 
         return network;
     }
@@ -225,60 +229,6 @@ public class PsseImporter implements Importer {
             new BusConverter(psseBus, containersMapping, network).create(voltageLevel);
 
             busNumToPsseBus.put(psseBus.getI(), psseBus);
-        }
-    }
-
-    private Map<PsseSwitchedShunt, ShuntBlockTab> createSwitchedShuntBlockMap(PssePowerFlowModel psseModel) {
-        Map<PsseSwitchedShunt, ShuntBlockTab> stoBlockiTab = new HashMap<>();
-
-        /* Creates a map between the PSSE switched shunt and the blocks info of this shunt
-        A switched shunt may contain up to 8 blocks and each block may contain up to 9 steps of the same value (in MVAR)
-        A block may be capacitive or inductive */
-        for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {
-            ShuntBlockTab sbt = new ShuntBlockTab();
-
-            int[] ni = {
-                    psseSwShunt.getN1(), psseSwShunt.getN2(), psseSwShunt.getN3(), psseSwShunt.getN4(),
-                    psseSwShunt.getN5(), psseSwShunt.getN6(), psseSwShunt.getN7(), psseSwShunt.getN8()
-            };
-
-            double[] bi = {
-                    psseSwShunt.getB1(), psseSwShunt.getB2(), psseSwShunt.getB3(), psseSwShunt.getB4(),
-                    psseSwShunt.getB5(), psseSwShunt.getB6(), psseSwShunt.getB7(), psseSwShunt.getB8()
-            };
-
-            int i = 0;
-            while (i <= 7 && ni[i] > 0) {
-                sbt.add(i + 1, ni[i], bi[i]);
-                i++;
-            }
-
-            stoBlockiTab.put(psseSwShunt, sbt);
-        }
-
-        return stoBlockiTab;
-    }
-
-    public static final class ShuntBlockTab {
-
-        private final Map<Integer, Integer> ni = new HashMap<>();
-        private final Map<Integer, Double> bi = new HashMap<>();
-
-        private void add(int i, int nni, double bni) {
-            ni.put(i, nni);
-            bi.put(i, bni);
-        }
-
-        private int getNi(int i) {
-            return ni.get(i);
-        }
-
-        private double getBi(int i) {
-            return bi.get(i);
-        }
-
-        public int getSize() {
-            return ni.size();
         }
     }
 
