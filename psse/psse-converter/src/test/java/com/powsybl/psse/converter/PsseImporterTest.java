@@ -6,12 +6,6 @@
  */
 package com.powsybl.psse.converter;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ser.FilterProvider;
-import com.fasterxml.jackson.databind.ser.PropertyWriter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
-import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -23,8 +17,6 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
-import com.powsybl.psse.model.PsseVersioned;
-import com.powsybl.psse.model.Revision;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
@@ -38,7 +30,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.*;
 
@@ -149,19 +140,6 @@ public class PsseImporterTest extends AbstractConverterTest {
         assertEquals(301.0, model.getTransformers().get(1).getWinding3Rates().getRatea(), 0);
         assertEquals(302.0, model.getTransformers().get(1).getWinding3Rates().getRateb(), 0);
         assertEquals(303.0, model.getTransformers().get(1).getWinding3Rates().getRatec(), 0);
-    }
-
-    private static String toJson(PssePowerFlowModel model) throws JsonProcessingException {
-        PsseVersion version = fromRevision(model.getCaseIdentification().getRev());
-        SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
-            @Override
-            protected boolean include(PropertyWriter writer) {
-                Revision rev = writer.getAnnotation(Revision.class);
-                return rev == null || PsseVersioned.isValidVersion(version, rev);
-            }
-        };
-        FilterProvider filters = new SimpleFilterProvider().addFilter("PsseVersionFilter", filter);
-        return new ObjectMapper().writerWithDefaultPrettyPrinter().with(filters).writeValueAsString(model);
     }
 
     @Test()

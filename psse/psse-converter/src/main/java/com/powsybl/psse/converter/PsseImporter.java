@@ -190,7 +190,7 @@ public class PsseImporter implements Importer {
         }
 
         // Attach a slack bus
-        new SlackConverter(psseModel.getAreas(), containersMapping, network).create();
+        new SlackConverter(psseModel.getBuses(), containersMapping, network).create();
 
         // Add controls
         for (PsseSwitchedShunt psseSwShunt : psseModel.getSwitchedShunts()) {

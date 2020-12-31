@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.model.pf.PsseArea;
+import com.powsybl.psse.model.pf.PsseBus;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -20,21 +20,23 @@ import com.powsybl.psse.model.pf.PsseArea;
  */
 public class SlackConverter extends AbstractConverter {
 
-    public SlackConverter(List<PsseArea> psseAreaList, ContainersMapping containerMapping, Network network) {
+    public SlackConverter(List<PsseBus> psseBusList, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseAreaList = psseAreaList;
+        this.psseBusList = psseBusList;
     }
 
     public void create() {
 
-        for (PsseArea psseArea : psseAreaList) {
-            if (psseArea.getIsw() != 0) {
-                String busId = AbstractConverter.getBusId(psseArea.getIsw());
+        for (PsseBus psseBus : psseBusList) {
+            if (psseBus.getIde() == 3) {
+                String busId = AbstractConverter.getBusId(psseBus.getI());
                 Bus bus = getNetwork().getBusBreakerView().getBus(busId);
-                SlackTerminal.attach(bus);
+                if (bus != null) {
+                    SlackTerminal.attach(bus);
+                }
             }
         }
     }
 
-    private final List<PsseArea> psseAreaList;
+    private final List<PsseBus> psseBusList;
 }

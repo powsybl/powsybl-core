@@ -1378,7 +1378,7 @@
     <iidm:line id="L-110-111-1 " r="4.18968" x="14.37822" g1="0.0" b1="5.250997689561016E-5" g2="0.0" b2="5.250997689561016E-5" bus1="B110" connectableBus1="B110" voltageLevelId1="VL110" bus2="B111" connectableBus2="B111" voltageLevelId2="VL111"/>
     <iidm:line id="L-110-112-1 " r="4.703868" x="12.18816" g1="0.0" b1="1.627809283763915E-4" g2="0.0" b2="1.627809283763915E-4" bus1="B110" connectableBus1="B110" voltageLevelId1="VL110" bus2="B112" connectableBus2="B112" voltageLevelId2="VL112"/>
     <iidm:line id="L-114-115-1 " r="0.438012" x="1.9805760000000001" g1="0.0" b1="7.246376811594202E-6" g2="0.0" b2="7.246376811594202E-6" bus1="B114" connectableBus1="B114" voltageLevelId1="VL114" bus2="B115" connectableBus2="B115" voltageLevelId2="VL115"/>
-    <iidm:extension id="VL80">
-        <slt:slackTerminal id="B80-L1 "/>
+    <iidm:extension id="VL69">
+        <slt:slackTerminal id="B69-G1 "/>
     </iidm:extension>
 </iidm:network>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" id="IEEE_57_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0" id="IEEE_57_bus" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S15">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -590,4 +590,7 @@
     <iidm:line id="L-53-54-1 " r="35.764632" x="44.18208" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B53" connectableBus1="B53" voltageLevelId1="VL53" bus2="B54" connectableBus2="B54" voltageLevelId2="VL54"/>
     <iidm:line id="L-54-55-1 " r="32.984207999999995" x="43.134660000000004" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B54" connectableBus1="B54" voltageLevelId1="VL54" bus2="B55" connectableBus2="B55" voltageLevelId2="VL55"/>
     <iidm:line id="L-57-56-1 " r="33.136559999999996" x="49.5144" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B57" connectableBus1="B57" voltageLevelId1="VL57" bus2="B56" connectableBus2="B56" voltageLevelId2="VL56"/>
+    <iidm:extension id="VL1">
+        <slt:slackTerminal id="B1-L1 "/>
+    </iidm:extension>
 </iidm:network>
