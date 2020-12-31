@@ -392,7 +392,7 @@ public class PsseValidation {
                 validCase = false;
             }
             if (switchedShunt.getModsw() != 0 && (switchedShunt.getVswlo() <= 0.0 || switchedShunt.getVswhi() <= 0.0 || switchedShunt.getVswhi() < switchedShunt.getVswlo())) {
-                warnings.add(String.format("SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
+                warnings.add(String.format(Locale.US, "SwitchedShunt: %s Unexpected Vswlo Vswhi: %.5f %.5f", id, switchedShunt.getVswlo(), switchedShunt.getVswhi()));
                 validCase = false;
             }
             addSwitchedShuntBusesMap(busesSwitchedShunts, switchedShunt, psseVersion);
