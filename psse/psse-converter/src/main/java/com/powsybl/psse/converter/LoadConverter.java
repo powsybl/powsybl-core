@@ -30,7 +30,12 @@ public class LoadConverter extends AbstractConverter {
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
         // TODO: take into account Ip, Yp when iidm static load will have exponential modelling
-        // TODO: take into account Iq, Yq when iidm static load will have exponential modelling
+        // S = VI*, S = YVV*
+        // .setIp(psseLoad.getIp())
+        // .setIq(psseLoad.getIq())
+        // .setYp(psseLoad.getYp())
+        // .setYq(psseLoad.getYq())
+
         Load load = voltageLevel.newLoad()
             .setId(getLoadId(busId))
             .setConnectableBus(busId)
