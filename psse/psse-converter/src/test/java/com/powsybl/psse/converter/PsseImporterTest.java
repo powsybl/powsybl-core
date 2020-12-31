@@ -103,27 +103,27 @@ public class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     public void importTest14() throws IOException {
-        importTest("IEEE_14_bus", "IEEE_14_bus.raw", true);
+        importTest("IEEE_14_bus", "IEEE_14_bus.raw", false);
     }
 
     @Test
     public void importTest24() throws IOException {
-        importTest("IEEE_24_bus", "IEEE_24_bus.raw", true);
+        importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
     }
 
     @Test
     public void importTest57() throws IOException {
-        importTest("IEEE_57_bus", "IEEE_57_bus.RAW", true);
+        importTest("IEEE_57_bus", "IEEE_57_bus.RAW", false);
     }
 
     @Test
     public void importTest118() throws IOException {
-        importTest("IEEE_118_bus", "IEEE_118_bus.RAW", true);
+        importTest("IEEE_118_bus", "IEEE_118_bus.RAW", false);
     }
 
     @Test
     public void importTestT3W() throws IOException {
-        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", true);
+        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", false);
     }
 
     @Test
