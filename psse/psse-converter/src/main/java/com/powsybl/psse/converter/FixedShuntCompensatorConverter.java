@@ -28,9 +28,8 @@ public class FixedShuntCompensatorConverter extends AbstractConverter {
     }
 
     public void create() {
-        if (psseFixedShunt.getBl() == 0) {
-            // TODO : allow import of shunts with Bl= 0 in iidm?
-            LOGGER.warn("Shunt ({}) has Bl = 0, not imported ", psseFixedShunt.getI());
+        if (psseFixedShunt.getGl() == 0 && psseFixedShunt.getBl() == 0.0) {
+            LOGGER.warn("Shunt ({}) has Gl and Bl = 0, not imported ", psseFixedShunt.getI());
             return;
         }
 
@@ -43,17 +42,14 @@ public class FixedShuntCompensatorConverter extends AbstractConverter {
             .setBus(busId)
             .setSectionCount(1);
         adder.newLinearModel()
-            .setBPerSection(psseFixedShunt.getBl())// TODO: take into account gl
+            .setGPerSection(powerToShuntAdmittance(psseFixedShunt.getGl(), voltageLevel.getNominalV()))
+            .setBPerSection(powerToShuntAdmittance(psseFixedShunt.getBl(), voltageLevel.getNominalV()))
             .setMaximumSectionCount(1)
             .add();
         ShuntCompensator shunt = adder.add();
 
         if (psseFixedShunt.getStatus() == 1) {
             shunt.getTerminal().connect();
-        }
-
-        if (psseFixedShunt.getGl() != 0) {
-            LOGGER.warn("Shunt Gl not supported ({})", psseFixedShunt.getI());
         }
     }
 

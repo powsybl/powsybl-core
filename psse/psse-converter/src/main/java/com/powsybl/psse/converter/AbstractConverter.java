@@ -40,6 +40,10 @@ public abstract class AbstractConverter {
         return admittance * sbase / (vnom * vnom);
     }
 
+    public static double powerToShuntAdmittance(double power, double vnom) {
+        return power / (vnom * vnom);
+    }
+
     private final ContainersMapping containersMapping;
     private final Network network;
 }
