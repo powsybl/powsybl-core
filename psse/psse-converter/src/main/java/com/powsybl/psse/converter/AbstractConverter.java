@@ -1,0 +1,37 @@
+/**
+ * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.psse.converter;
+
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.ContainersMapping;
+
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
+ */
+public abstract class AbstractConverter {
+
+    public AbstractConverter(ContainersMapping containersMapping, Network network) {
+        this.containersMapping = containersMapping;
+        this.network = network;
+    }
+
+    public ContainersMapping getContainersMapping() {
+        return containersMapping;
+    }
+
+    public Network getNetwork() {
+        return network;
+    }
+
+    public static String getBusId(int busNum) {
+        return "B" + busNum;
+    }
+
+    private final ContainersMapping containersMapping;
+    private final Network network;
+}
