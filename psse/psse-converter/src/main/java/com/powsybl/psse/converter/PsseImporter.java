@@ -186,7 +186,7 @@ public class PsseImporter implements Importer {
         }
 
         for (PsseTransformer psseTfo : psseModel.getTransformers()) {
-            new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase()).create();
+            new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version).create();
         }
 
         // Attach a slack bus
@@ -198,6 +198,9 @@ public class PsseImporter implements Importer {
         }
         for (PsseGenerator psseGen : psseModel.getGenerators()) {
             new GeneratorConverter(psseGen, containersMapping, network).addControl(busNumToPsseBus.get(psseGen.getI()));
+        }
+        for (PsseTransformer psseTransformer : psseModel.getTransformers()) {
+            new TransformerConverter(psseTransformer, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version).addControl();
         }
 
         return network;

@@ -41,7 +41,10 @@
                 <iidm:bus id="B24" name="24          " v="0.85521" angle="24.7952"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-24-3-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B24" connectableBus1="B24" voltageLevelId1="VL24" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3"/>
+        <iidm:twoWindingsTransformer id="T-24-3-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B24" connectableBus1="B24" voltageLevelId1="VL24" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3">
+            <iidm:currentLimits1 permanentLimit="230940.10767585033"/>
+            <iidm:currentLimits2 permanentLimit="230940.10767585033"/>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S18">
         <iidm:voltageLevel id="VL4" nominalV="1.0" topologyKind="BUS_BREAKER">
@@ -80,11 +83,26 @@
                 <iidm:bus id="B12" name="12          " v="0.84016" angle="11.7711"/>
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
-        <iidm:twoWindingsTransformer id="T-5-10-1 " r="2.334E-4" x="8.837000000000001E-4" g="0.0" b="2.54" ratedU1="1.0" ratedU2="1.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
-        <iidm:twoWindingsTransformer id="T-11-9-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B11" connectableBus1="B11" voltageLevelId1="VL11" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9"/>
-        <iidm:twoWindingsTransformer id="T-9-12-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B12" connectableBus2="B12" voltageLevelId2="VL12"/>
-        <iidm:twoWindingsTransformer id="T-11-10-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B11" connectableBus1="B11" voltageLevelId1="VL11" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
-        <iidm:twoWindingsTransformer id="T-12-10-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
+        <iidm:twoWindingsTransformer id="T-5-10-1 " r="2.334E-4" x="8.837000000000001E-4" g="0.0" b="2.54" ratedU1="1.0" ratedU2="1.0" bus1="B5" connectableBus1="B5" voltageLevelId1="VL5" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
+            <iidm:currentLimits1 permanentLimit="101036.29710818452"/>
+            <iidm:currentLimits2 permanentLimit="101036.29710818452"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T-11-9-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B11" connectableBus1="B11" voltageLevelId1="VL11" bus2="B9" connectableBus2="B9" voltageLevelId2="VL9">
+            <iidm:currentLimits1 permanentLimit="230940.10767585033"/>
+            <iidm:currentLimits2 permanentLimit="230940.10767585033"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T-9-12-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B12" connectableBus2="B12" voltageLevelId2="VL12">
+            <iidm:currentLimits1 permanentLimit="230940.10767585033"/>
+            <iidm:currentLimits2 permanentLimit="230940.10767585033"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T-11-10-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B11" connectableBus1="B11" voltageLevelId1="VL11" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
+            <iidm:currentLimits1 permanentLimit="230940.10767585033"/>
+            <iidm:currentLimits2 permanentLimit="230940.10767585033"/>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="T-12-10-1 " r="2.3E-5" x="8.39E-4" g="0.0" b="0.0" ratedU1="1.0" ratedU2="1.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10">
+            <iidm:currentLimits1 permanentLimit="230940.10767585033"/>
+            <iidm:currentLimits2 permanentLimit="230940.10767585033"/>
+        </iidm:twoWindingsTransformer>
     </iidm:substation>
     <iidm:substation id="S2">
         <iidm:voltageLevel id="VL6" nominalV="1.0" topologyKind="BUS_BREAKER">
