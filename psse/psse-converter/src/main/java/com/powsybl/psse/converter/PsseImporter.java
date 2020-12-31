@@ -137,14 +137,14 @@ public class PsseImporter implements Importer {
 
             Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
             // TODO store the PsseContext with the Network to be able to export back using its information
-            convert(pssePowerFlowModel, network, parameters);
+            convert(pssePowerFlowModel, network, parameters, version);
             return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private Network convert(PssePowerFlowModel psseModel, Network network, Properties parameters) {
+    private Network convert(PssePowerFlowModel psseModel, Network network, Properties parameters, PsseVersion version) {
         // set date and time
         // TODO
 
@@ -183,7 +183,7 @@ public class PsseImporter implements Importer {
         }
 
         for (PsseNonTransformerBranch psseLine : psseModel.getNonTransformerBranches()) {
-            new LineConverter(psseLine, containersMapping, perUnitContext, network).create();
+            new LineConverter(psseLine, containersMapping, perUnitContext, network, version).create();
         }
 
         for (PsseTransformer psseTfo : psseModel.getTransformers()) {

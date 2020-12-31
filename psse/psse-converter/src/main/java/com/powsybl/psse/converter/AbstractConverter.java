@@ -32,6 +32,14 @@ public abstract class AbstractConverter {
         return "B" + busNum;
     }
 
+    public static double impedanceToEngineeringUnits(double impedance, double vnom, double sbase) {
+        return impedance * vnom * vnom / sbase;
+    }
+
+    public static double admittanceToEngineeringUnits(double admittance, double vnom, double sbase) {
+        return admittance * sbase / (vnom * vnom);
+    }
+
     private final ContainersMapping containersMapping;
     private final Network network;
 }
