@@ -3047,6 +3047,7 @@
     "ptol" : 1.0,
     "arname" : "1           "
   } ],
+  "twoTerminalDcTransmissionLines" : [ ],
   "transformerImpedanceCorrections" : [ ],
   "lineGrouping" : [ ],
   "zones" : [ {

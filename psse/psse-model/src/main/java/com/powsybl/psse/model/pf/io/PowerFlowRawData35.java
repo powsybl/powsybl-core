@@ -47,7 +47,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             skip(SYSTEM_SWITCHING_DEVICE, reader);
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
-            skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
+            model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
             skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
             skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
@@ -99,7 +99,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
 
-        writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
+        new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
         writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
         new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
         writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);

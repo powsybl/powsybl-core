@@ -35,6 +35,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseArea> areas = new ArrayList<>();
 
+    private final List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines = new ArrayList<>();
+
     private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
 
     private final List<PsseLineGrouping> lineGrouping = new ArrayList<>();
@@ -111,6 +113,14 @@ public class PssePowerFlowModel {
 
     public List<PsseArea> getAreas() {
         return Collections.unmodifiableList(areas);
+    }
+
+    public void addTwoTerminalDcTransmissionLines(List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines) {
+        this.twoTerminalDcTransmissionLines.addAll(modelled(twoTerminalDcTransmissionLines));
+    }
+
+    public List<PsseTwoTerminalDcTransmissionLine> getTwoTerminalDcTransmissionLines() {
+        return twoTerminalDcTransmissionLines;
     }
 
     public void addTransformerImpedanceCorrections(List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections) {

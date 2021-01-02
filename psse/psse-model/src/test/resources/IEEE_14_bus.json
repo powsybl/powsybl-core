@@ -1331,6 +1331,7 @@
     "ptol" : 999.99,
     "arname" : "IEEE14      "
   } ],
+  "twoTerminalDcTransmissionLines" : [ ],
   "transformerImpedanceCorrections" : [ ],
   "lineGrouping" : [ ],
   "zones" : [ {
