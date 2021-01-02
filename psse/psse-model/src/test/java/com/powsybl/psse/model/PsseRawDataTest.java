@@ -169,11 +169,21 @@ public class PsseRawDataTest extends AbstractConverterTest {
             .isThrownBy(c33::getNd)
             .withMessage("Wrong version of PSSE RAW model (33). Field 'nd' is valid since version 35");
 
+        PsseVoltageSourceConverter vc33 = raw33.getVoltageSourceConverterDcTransmissionLines().get(0).getConverter2();
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(vc33::getNreg)
+            .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
+
         PssePowerFlowModel raw35 = new PowerFlowRawData35().read(ieee14CompletedRaw35(), "raw", new Context());
         assertNotNull(raw35);
         PsseFacts f35 = raw35.getFacts().get(0);
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(f35::getRemot)
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
+
+        PsseVoltageSourceConverter vc35 = raw35.getVoltageSourceConverterDcTransmissionLines().get(0).getConverter1();
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(vc35::getRemot)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
     }
 

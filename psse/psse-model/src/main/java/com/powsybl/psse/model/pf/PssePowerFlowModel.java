@@ -37,6 +37,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines = new ArrayList<>();
 
+    private final List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines = new ArrayList<>();
+
     private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
 
     private final List<PsseLineGrouping> lineGrouping = new ArrayList<>();
@@ -121,6 +123,14 @@ public class PssePowerFlowModel {
 
     public List<PsseTwoTerminalDcTransmissionLine> getTwoTerminalDcTransmissionLines() {
         return twoTerminalDcTransmissionLines;
+    }
+
+    public void addVoltageSourceConverterDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines) {
+        this.voltageSourceConverterDcTransmissionLines.addAll(modelled(voltageSourceConverterDcTransmissionLines));
+    }
+
+    public List<PsseVoltageSourceConverterDcTransmissionLine> getVoltageSourceConverterDcTransmissionLines() {
+        return voltageSourceConverterDcTransmissionLines;
     }
 
     public void addTransformerImpedanceCorrections(List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections) {

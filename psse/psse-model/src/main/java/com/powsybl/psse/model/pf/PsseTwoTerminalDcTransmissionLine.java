@@ -182,7 +182,6 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
 
         @Override
         public String transformName(Field field, String name) {
-            System.err.printf("Field %s name %s %n", field.toString(), name);
             if (name.equals("ifx")) {
                 return "if" + converterChar;
             }

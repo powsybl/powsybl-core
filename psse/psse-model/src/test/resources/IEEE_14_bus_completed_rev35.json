@@ -1755,6 +1755,107 @@
       "if" : 0
     }
   } ],
+  "voltageSourceConverterDcTransmissionLines" : [ {
+    "name" : "VDCLINE1",
+    "mdc" : 1,
+    "rdc" : 0.71,
+    "ownership" : {
+      "o1" : 1,
+      "f1" : 0.3204,
+      "o2" : 2,
+      "f2" : 0.3883,
+      "o3" : 3,
+      "f3" : 0.1942,
+      "o4" : 4,
+      "f4" : 0.0971
+    },
+    "converter1" : {
+      "ibus" : 7,
+      "type" : 2,
+      "mode" : 2,
+      "dcset" : -209.0,
+      "acset" : 0.95,
+      "aloss" : 100.0,
+      "bloss" : 0.1,
+      "minloss" : 50.0,
+      "smax" : 400.0,
+      "imax" : 1200.0,
+      "pwf" : 0.1,
+      "maxq" : 100.0,
+      "minq" : -110.0,
+      "rmpct" : 100.0,
+      "vsreg" : 7,
+      "nreg" : 0
+    },
+    "converter2" : {
+      "ibus" : 9,
+      "type" : 1,
+      "mode" : 1,
+      "dcset" : 100.0,
+      "acset" : 0.99,
+      "aloss" : 90.0,
+      "bloss" : 0.15,
+      "minloss" : 40.0,
+      "smax" : 350.0,
+      "imax" : 1200.0,
+      "pwf" : 0.15,
+      "maxq" : 150.0,
+      "minq" : -140.0,
+      "rmpct" : 100.0,
+      "vsreg" : 9,
+      "nreg" : 0
+    }
+  }, {
+    "name" : "VDCLINE2",
+    "mdc" : 1,
+    "rdc" : 0.35,
+    "ownership" : {
+      "o1" : 1,
+      "f1" : 0.3705,
+      "o2" : 2,
+      "f2" : 0.3597,
+      "o3" : 3,
+      "f3" : 0.1799,
+      "o4" : 4,
+      "f4" : 0.0899
+    },
+    "converter1" : {
+      "ibus" : 11,
+      "type" : 2,
+      "mode" : 1,
+      "dcset" : -100.0,
+      "acset" : 1.0,
+      "aloss" : 100.0,
+      "bloss" : 0.15,
+      "minloss" : 123.0,
+      "smax" : 200.0,
+      "imax" : 1200.0,
+      "pwf" : 1.0,
+      "maxq" : 200.0,
+      "minq" : -150.0,
+      "rmpct" : 100.0,
+      "vsreg" : 11,
+      "nreg" : 0
+    },
+    "converter2" : {
+      "ibus" : 13,
+      "type" : 1,
+      "mode" : 1,
+      "dcset" : 100.0,
+      "acset" : 1.0,
+      "aloss" : 93.0,
+      "bloss" : 0.12,
+      "minloss" : 98.0,
+      "smax" : 250.0,
+      "imax" : 1250.0,
+      "pwf" : 1.0,
+      "maxq" : 225.0,
+      "minq" : -250.0,
+      "rmpct" : 99.0,
+      "vsreg" : 13,
+      "nreg" : 0
+    }
+  } ],
   "transformerImpedanceCorrections" : [ {
     "i" : 1,
     "points" : [ {
