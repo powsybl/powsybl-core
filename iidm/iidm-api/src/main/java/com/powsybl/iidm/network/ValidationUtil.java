@@ -197,13 +197,6 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkDefinedVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
-        if (Double.isNaN(lowVoltageLimit) && Double.isNaN(highVoltageLimit)) {
-            throw new ValidationException(validable, "At least the low or the high voltage limit must be defined.");
-        }
-        ValidationUtil.checkVoltageLimits(validable, lowVoltageLimit, highVoltageLimit);
-    }
-
     public static void checkVoltageLimits(Validable validable, double lowVoltageLimit, double highVoltageLimit) {
         if (lowVoltageLimit < 0) {
             throw new ValidationException(validable, "low voltage limit is < 0");
