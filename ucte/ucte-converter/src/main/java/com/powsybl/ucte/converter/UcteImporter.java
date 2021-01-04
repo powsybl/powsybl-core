@@ -152,7 +152,7 @@ public class UcteImporter implements Importer {
 
             Substation substation = network.newSubstation()
                     .setId(ucteSubstation.getName())
-                    .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
+                    .setCountry(EntsoeGeographicalCode.valueOf(firstUcteNodeCode.getUcteCountryCode().name()).getCountry())
                     .add();
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
