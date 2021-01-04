@@ -14,11 +14,8 @@ import com.powsybl.iidm.network.*;
  */
 class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
-
     BusbarSectionImpl(String id, String name, boolean fictitious) {
         super(id, name, fictitious);
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -44,15 +41,5 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
     @Override
     public double getAngle() {
         return ((NodeTerminal) getTerminal()).getAngle();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return operationalLimitsHolder.newVoltageLimits();
     }
 }

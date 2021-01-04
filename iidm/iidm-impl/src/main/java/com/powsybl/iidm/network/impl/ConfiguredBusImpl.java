@@ -34,8 +34,6 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     private final TIntArrayList synchronousComponentNumber;
 
-    private final OperationalLimitsHolderImpl operationalLimitsHolder;
-
     ConfiguredBusImpl(String id, String name, boolean fictitious, VoltageLevelExt voltageLevel) {
         super(id, name, fictitious, voltageLevel);
         network = voltageLevel.getNetwork().getRef();
@@ -52,7 +50,6 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
             connectedComponentNumber.add(-1);
             synchronousComponentNumber.add(-1);
         }
-        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
     }
 
     @Override
@@ -155,16 +152,6 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
         return scm.getComponent(synchronousComponentNumber.get(network.get().getVariantIndex()));
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return operationalLimitsHolder.newVoltageLimits();
     }
 
     @Override

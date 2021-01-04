@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -197,39 +196,6 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
             }
         }
         throw new AssertionError("Should not happen");
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        if (buses.stream().map(VoltageLimitsHolder::getVoltageLimits).anyMatch(Objects::nonNull)) {
-            return new CalculatedVoltageLimitsImpl(this);
-        }
-        return null;
-    }
-
-    @Override
-    public double getHighVoltageLimit() {
-        return buses.stream()
-                .map(VoltageLimitsHolder::getVoltageLimits)
-                .filter(Objects::nonNull)
-                .map(VoltageLimits::getHighVoltage)
-                .max(Double::compare)
-                .orElse(Double.NaN);
-    }
-
-    @Override
-    public double getLowVoltageLimit() {
-        return buses.stream()
-                .map(VoltageLimitsHolder::getVoltageLimits)
-                .filter(Objects::nonNull)
-                .map(VoltageLimits::getLowVoltage)
-                .min(Double::compare)
-                .orElse(Double.NaN);
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        throw new ValidationException(this, "no voltage limit can be created on a calculated object: directly set on the configured object");
     }
 
     @Override

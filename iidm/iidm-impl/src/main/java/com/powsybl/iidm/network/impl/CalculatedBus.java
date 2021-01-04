@@ -15,8 +15,4 @@ import com.powsybl.iidm.network.Validable;
 interface CalculatedBus extends BusExt, Validable {
 
     void invalidate();
-
-    double getHighVoltageLimit();
-
-    double getLowVoltageLimit();
 }

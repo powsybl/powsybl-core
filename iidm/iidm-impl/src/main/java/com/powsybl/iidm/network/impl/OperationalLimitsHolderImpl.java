@@ -62,10 +62,6 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
         return new ActivePowerLimitsAdderImpl(this);
     }
 
-    VoltageLimitsAdder newVoltageLimits() {
-        return new VoltageLimitsAdderImpl(this);
-    }
-
     @Override
     public String getMessageHeader() {
         return identifiable.getMessageHeader();

@@ -200,16 +200,6 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
     }
 
     @Override
-    public VoltageLimits getVoltageLimits() {
-        return getDelegate().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return getDelegate().newVoltageLimits();
-    }
-
-    @Override
     public void visitConnectedEquipments(final TopologyVisitor visitor) {
         getDelegate().visitConnectedEquipments(new TopologyVisitorAdapter(visitor, getIndex()));
     }

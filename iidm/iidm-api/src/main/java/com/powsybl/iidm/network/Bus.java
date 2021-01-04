@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Bus extends Identifiable<Bus>, VoltageLimitsHolder {
+public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get the voltage level to which the bus belongs.

@@ -7,8 +7,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.VoltageLimits;
-import com.powsybl.iidm.network.VoltageLimitsAdder;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -30,15 +28,5 @@ public class BusbarSectionAdapter extends AbstractInjectionAdapter<BusbarSection
     @Override
     public double getAngle() {
         return getDelegate().getAngle();
-    }
-
-    @Override
-    public VoltageLimits getVoltageLimits() {
-        return getDelegate().getVoltageLimits();
-    }
-
-    @Override
-    public VoltageLimitsAdder newVoltageLimits() {
-        return getDelegate().newVoltageLimits();
     }
 }
