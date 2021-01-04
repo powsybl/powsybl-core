@@ -9,7 +9,6 @@ package com.powsybl.psse.model.io;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +48,8 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         // We store the "actual" field names in the context for potential later use.
         // For parsing records we use all the field names defined for the record group.
 
-        String[] allFieldNames = recordGroup.fieldNames(context.getVersion());
         List<String> records = readRecords(reader);
-        List<T> psseObjects = recordGroup.parseRecords(records, allFieldNames, context);
-        String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
-        context.setFieldNames(recordGroup.identification, actualFieldNames);
-        return psseObjects;
+        return recordGroup.readFromStrings(records, context);
     }
 
     @Override
@@ -125,6 +120,10 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
 
     public static void writeQ(OutputStream outputStream) {
         write(String.format("%nQ%n"), outputStream);
+    }
+
+    public static void write(List<String> ss, OutputStream outputStream) {
+        ss.forEach(s -> write(String.format("%s%n", s), outputStream));
     }
 
     public static void write(String s, OutputStream outputStream) {

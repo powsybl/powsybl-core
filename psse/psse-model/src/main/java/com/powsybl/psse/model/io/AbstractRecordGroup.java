@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
 
@@ -145,6 +147,14 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
+    public List<T> readFromStrings(List<String> records, Context context) {
+        String[] allFieldNames = fieldNames(context.getVersion());
+        List<T> psseObjects = parseRecords(records, allFieldNames, context);
+        String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
+        context.setFieldNames(identification, actualFieldNames);
+        return psseObjects;
+    }
+
     public List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
         BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
@@ -168,7 +178,7 @@ public abstract class AbstractRecordGroup<T> {
         return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object);
     }
 
-    protected List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
+    public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
         return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects);
     }
 

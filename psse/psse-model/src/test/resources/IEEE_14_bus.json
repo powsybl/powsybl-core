@@ -1334,6 +1334,7 @@
   "twoTerminalDcTransmissionLines" : [ ],
   "voltageSourceConverterDcTransmissionLines" : [ ],
   "transformerImpedanceCorrections" : [ ],
+  "multiTerminalDcTransmissionLines" : [ ],
   "lineGrouping" : [ ],
   "zones" : [ {
     "i" : 1,

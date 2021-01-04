@@ -166,6 +166,40 @@
                  [2,   0.9, 1.090, 0.100]
              ]
          },
+         "ntermdc":{
+             "fields":["name","nconv","ndcbs","ndcln","mdc","vconv","vcmod","vconvn"],
+             "data":[
+                 ["MULTERM_DC_1", 4, 5, 4, 1, 212, 400.0, 0]
+             ]
+         },
+         "ntermdcconv":{
+             "fields":["name", "ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod"],
+             "data":[
+                 ["MULTERM_DC_1", 20, 4, 10.0, 8.0, 0.0, 19.0, 500.0, 0.22, 1.01, 1.1, 0.97, 0.01, 321.0, 1.0, 0.15, 3],
+                 ["MULTERM_DC_1", 21, 4, 10.0, 8.0, 0.0, 19.0, 500.0, 0.22, 1.01, 1.1, 0.97, 0.01, 321.0, 1.0, 0.15, 3],
+                 ["MULTERM_DC_1", 22, 4, 10.0, 8.0, 0.0, 19.0, 500.0, 0.22, 1.01, 1.1, 0.97, 0.01, 321.0, 1.0, 0.15, 3],
+                 ["MULTERM_DC_1", 23, 4, 20.0, 18.0, 0.0, 10.0, 230.0, 0.452, 1.1, 1.1, 0.9, 0.01, -303.8, 1.0, 0.0, 4]
+             ]
+         },
+         "ntermdcbus":{
+             "fields":["name","idc","ib","area","zone","dcname","idc2","rgrnd","owner"],
+             "data":[
+                 ["MULTERM_DC_1", 1, 401, 4, 4, "DC1", 0, 0.0, 4],
+                 ["MULTERM_DC_1", 2, 401, 4, 4, "DC2", 0, 0.0, 4],
+                 ["MULTERM_DC_1", 3, 401, 4, 4, "DC3", 0, 0.0, 4],
+                 ["MULTERM_DC_1", 4, 401, 4, 4, "DC4", 0, 0.0, 4],
+                 ["MULTERM_DC_1", 5, 0, 4, 4, "DC5", 0, 0.0, 4]
+             ]
+         }, 
+         "ntermdclink":{
+             "fields":["name", "idc", "jdc", "dcckt", "met", "rdc", "ldc"],
+             "data":[
+                 ["MULTERM_DC_1", 1, 5, "1", 1, 29.0000, 0.00],
+                 ["MULTERM_DC_1", 2, 5, "1", 1, 29.0000, 0.00],
+                 ["MULTERM_DC_1", 3, 5, "1", 1, 29.0000, 0.00],
+                 ["MULTERM_DC_1", 4, 5, "1", 1, 29.0000, 0.00]
+             ]
+         },
          "msline":{
              "fields":["ibus", "jbus", "mslid", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9"],
              "data":[

@@ -47,7 +47,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
             model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
-            skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
+            model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(reader, context));
             model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
             model.addZones(new ZoneData().read(reader, context));
             model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
@@ -89,7 +89,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
         new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
         new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
-        writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
+        new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
         new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
 
         new ZoneData().write(model.getZones(), context, outputStream);

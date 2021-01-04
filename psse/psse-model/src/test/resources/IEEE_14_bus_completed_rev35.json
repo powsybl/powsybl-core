@@ -1891,6 +1891,160 @@
       "imf" : 0.1
     } ]
   } ],
+  "multiTerminalDcTransmissionLines" : [ {
+    "name" : "MULTERM_DC_1",
+    "nconv" : 4,
+    "ndcbs" : 5,
+    "ndcln" : 4,
+    "mdc" : 1,
+    "vconv" : 212,
+    "vcmod" : 400.0,
+    "vconvn" : 0,
+    "dcConverters" : [ {
+      "ib" : 20,
+      "n" : 4,
+      "angmx" : 10.0,
+      "angmn" : 8.0,
+      "rc" : 0.0,
+      "xc" : 19.0,
+      "ebas" : 500.0,
+      "tr" : 0.22,
+      "tap" : 1.01,
+      "tpmx" : 1.1,
+      "tpmn" : 0.97,
+      "tstp" : 0.01,
+      "setvl" : 321.0,
+      "dcpf" : 1.0,
+      "marg" : 0.15,
+      "cnvcod" : 3
+    }, {
+      "ib" : 21,
+      "n" : 4,
+      "angmx" : 10.0,
+      "angmn" : 8.0,
+      "rc" : 0.0,
+      "xc" : 19.0,
+      "ebas" : 500.0,
+      "tr" : 0.22,
+      "tap" : 1.01,
+      "tpmx" : 1.1,
+      "tpmn" : 0.97,
+      "tstp" : 0.01,
+      "setvl" : 321.0,
+      "dcpf" : 1.0,
+      "marg" : 0.15,
+      "cnvcod" : 3
+    }, {
+      "ib" : 22,
+      "n" : 4,
+      "angmx" : 10.0,
+      "angmn" : 8.0,
+      "rc" : 0.0,
+      "xc" : 19.0,
+      "ebas" : 500.0,
+      "tr" : 0.22,
+      "tap" : 1.01,
+      "tpmx" : 1.1,
+      "tpmn" : 0.97,
+      "tstp" : 0.01,
+      "setvl" : 321.0,
+      "dcpf" : 1.0,
+      "marg" : 0.15,
+      "cnvcod" : 3
+    }, {
+      "ib" : 23,
+      "n" : 4,
+      "angmx" : 20.0,
+      "angmn" : 18.0,
+      "rc" : 0.0,
+      "xc" : 10.0,
+      "ebas" : 230.0,
+      "tr" : 0.452,
+      "tap" : 1.1,
+      "tpmx" : 1.1,
+      "tpmn" : 0.9,
+      "tstp" : 0.01,
+      "setvl" : -303.8,
+      "dcpf" : 1.0,
+      "marg" : 0.0,
+      "cnvcod" : 4
+    } ],
+    "dcBuses" : [ {
+      "idc" : 1,
+      "ib" : 401,
+      "area" : 4,
+      "zone" : 4,
+      "dcname" : "DC1",
+      "idc2" : 0,
+      "rgrnd" : 0.0,
+      "owner" : 4
+    }, {
+      "idc" : 2,
+      "ib" : 401,
+      "area" : 4,
+      "zone" : 4,
+      "dcname" : "DC2",
+      "idc2" : 0,
+      "rgrnd" : 0.0,
+      "owner" : 4
+    }, {
+      "idc" : 3,
+      "ib" : 401,
+      "area" : 4,
+      "zone" : 4,
+      "dcname" : "DC3",
+      "idc2" : 0,
+      "rgrnd" : 0.0,
+      "owner" : 4
+    }, {
+      "idc" : 4,
+      "ib" : 401,
+      "area" : 4,
+      "zone" : 4,
+      "dcname" : "DC4",
+      "idc2" : 0,
+      "rgrnd" : 0.0,
+      "owner" : 4
+    }, {
+      "idc" : 5,
+      "ib" : 0,
+      "area" : 4,
+      "zone" : 4,
+      "dcname" : "DC5",
+      "idc2" : 0,
+      "rgrnd" : 0.0,
+      "owner" : 4
+    } ],
+    "dcLinks" : [ {
+      "idc" : 1,
+      "jdc" : 5,
+      "dcckt" : "1",
+      "met" : 1,
+      "rdc" : 29.0,
+      "ldc" : 0.0
+    }, {
+      "idc" : 2,
+      "jdc" : 5,
+      "dcckt" : "1",
+      "met" : 1,
+      "rdc" : 29.0,
+      "ldc" : 0.0
+    }, {
+      "idc" : 3,
+      "jdc" : 5,
+      "dcckt" : "1",
+      "met" : 1,
+      "rdc" : 29.0,
+      "ldc" : 0.0
+    }, {
+      "idc" : 4,
+      "jdc" : 5,
+      "dcckt" : "1",
+      "met" : 1,
+      "rdc" : 29.0,
+      "ldc" : 0.0
+    } ]
+  } ],
   "lineGrouping" : [ {
     "i" : 1,
     "j" : 2,
