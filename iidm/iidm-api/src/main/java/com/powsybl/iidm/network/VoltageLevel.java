@@ -383,7 +383,7 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see VoltageLevelAdder
  */
-public interface VoltageLevel extends Container<VoltageLevel>, VoltageLimitsHolder {
+public interface VoltageLevel extends Container<VoltageLevel> {
 
     /**
      * A node/breaker view of the topology.
@@ -828,50 +828,32 @@ public interface VoltageLevel extends Container<VoltageLevel>, VoltageLimitsHold
     VoltageLevel setNominalV(double nominalV);
 
     /**
-     * @deprecated Use {@link VoltageLimits#getLowVoltage()} instead.
+     * Get the low voltage limit in KV.
+     *
+     * @return the low voltage limit or NaN if undefined
      */
-    @Deprecated
-    default double getLowVoltageLimit() {
-        return getVoltageLimits() == null ? Double.NaN : getVoltageLimits().getLowVoltage();
-    }
+    double getLowVoltageLimit();
 
     /**
-     * @deprecated Use {@link VoltageLimits#setLowVoltage(double)} instead.
+     * Set the low voltage limit in KV.
+     *
+     * @param lowVoltageLimit the low voltage limit in KV
      */
-    @Deprecated
-    default VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
-        if (getVoltageLimits() != null) {
-            getVoltageLimits().setLowVoltage(lowVoltageLimit);
-        } else {
-            newVoltageLimits()
-                    .setLowVoltage(lowVoltageLimit)
-                    .add();
-        }
-        return this;
-    }
+    VoltageLevel setLowVoltageLimit(double lowVoltageLimit);
 
     /**
-     * @deprecated Use {@link VoltageLimits#getHighVoltage()} instead.
+     * Get the high voltage limit in KV.
+     *
+     * @return the high voltage limit or NaN if undefined
      */
-    @Deprecated
-    default double getHighVoltageLimit() {
-        return getVoltageLimits() == null ? Double.NaN : getVoltageLimits().getHighVoltage();
-    }
+    double getHighVoltageLimit();
 
     /**
-     * @deprecated Use {@link VoltageLimits#setHighVoltage(double)} instead.
+     * Set the high voltage limit in KV.
+     *
+     * @param highVoltageLimit the high voltage limit in KV
      */
-    @Deprecated
-    default VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
-        if (getVoltageLimits() != null) {
-            getVoltageLimits().setHighVoltage(highVoltageLimit);
-        } else {
-            newVoltageLimits()
-                    .setHighVoltage(highVoltageLimit)
-                    .add();
-        }
-        return this;
-    }
+    VoltageLevel setHighVoltageLimit(double highVoltageLimit);
 
     /**
      * Get an equipment connected to this substation voltage level.

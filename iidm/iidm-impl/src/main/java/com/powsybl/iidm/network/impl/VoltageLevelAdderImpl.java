@@ -47,21 +47,13 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         return this;
     }
 
-    /**
-     * @deprecated Only kept for compatibility.
-     */
     @Override
-    @Deprecated
     public VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit) {
         this.lowVoltageLimit = lowVoltageLimit;
         return this;
     }
 
-    /**
-     * @deprecated Only kept for compatibility.
-     */
     @Override
-    @Deprecated
     public VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit) {
         this.highVoltageLimit = highVoltageLimit;
         return this;
@@ -85,15 +77,16 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         // TODO : ckeck that there are not another voltage level with same base voltage
 
         ValidationUtil.checkNominalV(this, nominalV);
+        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, nominalV, lowVoltageLimit, highVoltageLimit);
                 break;
             default:
                 throw new AssertionError();
@@ -101,12 +94,6 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         getNetwork().getIndex().checkAndAdd(voltageLevel);
         substation.addVoltageLevel(voltageLevel);
         getNetwork().getListeners().notifyCreation(voltageLevel);
-        if (!Double.isNaN(lowVoltageLimit) || !Double.isNaN(highVoltageLimit)) {
-            voltageLevel.newVoltageLimits()
-                    .setHighVoltage(highVoltageLimit)
-                    .setLowVoltage(lowVoltageLimit)
-                    .add();
-        }
         return voltageLevel;
     }
 

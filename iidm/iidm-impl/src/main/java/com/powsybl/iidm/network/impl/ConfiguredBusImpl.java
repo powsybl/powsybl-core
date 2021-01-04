@@ -159,11 +159,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus {
 
     @Override
     public VoltageLimits getVoltageLimits() {
-        VoltageLimits voltageLimits = operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-        if (voltageLimits != null) {
-            return voltageLimits;
-        }
-        return getVoltageLevel().getVoltageLimits();
+        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
     }
 
     @Override

@@ -14,21 +14,9 @@ public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> 
 
     VoltageLevelAdder setNominalV(double nominalV);
 
-    /**
-     * @deprecated Use {@link VoltageLimitsAdder#setLowVoltage(double)} instead.
-     */
-    @Deprecated
-    default VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit) {
-        return this;
-    }
+    VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit);
 
-    /**
-     * @deprecated Use {@link VoltageLimitsAdder#setHighVoltage(double)} instead.
-     */
-    @Deprecated
-    default VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit) {
-        return this;
-    }
+    VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit);
 
     VoltageLevelAdder setTopologyKind(String topologyKind);
 

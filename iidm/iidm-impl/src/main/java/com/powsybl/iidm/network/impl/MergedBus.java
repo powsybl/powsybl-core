@@ -201,7 +201,7 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public VoltageLimits getVoltageLimits() {
-        if (buses.stream().map(VoltageLimitsHolder::getVoltageLimits).anyMatch(Objects::nonNull) || getVoltageLevel().getVoltageLimits() != null) {
+        if (buses.stream().map(VoltageLimitsHolder::getVoltageLimits).anyMatch(Objects::nonNull)) {
             return new CalculatedVoltageLimitsImpl(this);
         }
         return null;
@@ -213,13 +213,8 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 .map(VoltageLimitsHolder::getVoltageLimits)
                 .filter(Objects::nonNull)
                 .map(VoltageLimits::getHighVoltage)
-                .min(Double::compare)
-                .orElseGet(() -> {
-                    if (getVoltageLevel().getVoltageLimits() != null) {
-                        return getVoltageLevel().getVoltageLimits().getHighVoltage();
-                    }
-                    return Double.NaN;
-                });
+                .max(Double::compare)
+                .orElse(Double.NaN);
     }
 
     @Override
@@ -228,13 +223,8 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
                 .map(VoltageLimitsHolder::getVoltageLimits)
                 .filter(Objects::nonNull)
                 .map(VoltageLimits::getLowVoltage)
-                .max(Double::compare)
-                .orElseGet(() -> {
-                    if (getVoltageLevel().getVoltageLimits() != null) {
-                        return getVoltageLevel().getVoltageLimits().getLowVoltage();
-                    }
-                    return Double.NaN;
-                });
+                .min(Double::compare)
+                .orElse(Double.NaN);
     }
 
     @Override

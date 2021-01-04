@@ -48,11 +48,7 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
 
     @Override
     public VoltageLimits getVoltageLimits() {
-        VoltageLimits voltageLimits = operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
-        if (voltageLimits != null) {
-            return voltageLimits;
-        }
-        return getTerminal().getVoltageLevel().getVoltageLimits();
+        return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);
     }
 
     @Override

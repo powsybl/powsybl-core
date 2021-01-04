@@ -35,6 +35,18 @@ class VoltageLevelAdderAdapter extends AbstractIdentifiableAdderAdapter<VoltageL
     }
 
     @Override
+    public VoltageLevelAdder setLowVoltageLimit(final double lowVoltageLimit) {
+        getDelegate().setLowVoltageLimit(lowVoltageLimit);
+        return this;
+    }
+
+    @Override
+    public VoltageLevelAdder setHighVoltageLimit(final double highVoltageLimit) {
+        getDelegate().setHighVoltageLimit(highVoltageLimit);
+        return this;
+    }
+
+    @Override
     public VoltageLevelAdder setTopologyKind(final String topologyKind) {
         getDelegate().setTopologyKind(topologyKind);
         return this;
