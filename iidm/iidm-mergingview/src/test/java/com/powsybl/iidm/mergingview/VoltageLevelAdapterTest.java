@@ -50,13 +50,10 @@ public class VoltageLevelAdapterTest {
         assertSame(mergingView.getIdentifiable(vlId), vlActual);
         assertEquals(vlExpected.getContainerType(), vlActual.getContainerType());
 
-        vlActual.newVoltageLimits()
-                .setHighVoltage(300.0)
-                .setLowVoltage(200.0)
-                .add();
-        assertNotNull(vlActual.getVoltageLimits());
-        assertEquals(300.0, vlActual.getVoltageLimits().getHighVoltage(), 0.0);
-        assertEquals(200.0, vlActual.getVoltageLimits().getLowVoltage(), 0.0);
+        vlActual.setHighVoltageLimit(300.0);
+        assertEquals(300.0, vlActual.getHighVoltageLimit(), 0.0);
+        vlActual.setLowVoltageLimit(200.0);
+        assertEquals(200.0, vlActual.getLowVoltageLimit(), 0.0);
         vlActual.setNominalV(500.0);
         assertEquals(500.0, vlActual.getNominalV(), 0.0);
         assertEquals(vlExpected.getShuntCompensatorCount(), vlActual.getShuntCompensatorCount());
@@ -375,12 +372,10 @@ public class VoltageLevelAdapterTest {
                                                                                     .setId("nbVL")
                                                                                     .setName("nbVL_name")
                                                                                     .setNominalV(200.0)
+                                                                                    .setLowVoltageLimit(100.0)
+                                                                                    .setHighVoltageLimit(200.0)
                                                                                     .setEnsureIdUnicity(false)
                                                                                  .add();
-        voltageLevelNB.newVoltageLimits()
-                .setLowVoltage(100.0)
-                .setHighVoltage(200.0)
-                .add();
 
         final VoltageLevel.NodeBreakerView nbv = voltageLevelNB.getNodeBreakerView();
         assertTrue(nbv instanceof NodeBreakerVoltageLevelAdapter.NodeBreakerViewAdapter);

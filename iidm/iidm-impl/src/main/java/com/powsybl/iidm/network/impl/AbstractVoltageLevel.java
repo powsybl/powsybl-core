@@ -68,6 +68,40 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return this;
     }
 
+    /**
+     * @deprecated Only kept for compatibility (notifications).
+     */
+    @Override
+    @Deprecated
+    public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
+        if (getVoltageLimits() != null) {
+            getVoltageLimits().setLowVoltage(lowVoltageLimit);
+        } else {
+            newVoltageLimits()
+                    .setLowVoltage(lowVoltageLimit)
+                    .add();
+            operationalLimitsHolder.notifyUpdate(LimitType.VOLTAGE, "lowVoltage", Double.NaN, lowVoltageLimit);
+        }
+        return this;
+    }
+
+    /**
+     * @deprecated Only kept for compatibility (notifications).
+     */
+    @Override
+    @Deprecated
+    public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
+        if (getVoltageLimits() != null) {
+            getVoltageLimits().setHighVoltage(highVoltageLimit);
+        } else {
+            newVoltageLimits()
+                    .setHighVoltage(highVoltageLimit)
+                    .add();
+            operationalLimitsHolder.notifyUpdate(LimitType.VOLTAGE, "highVoltage", Double.NaN, highVoltageLimit);
+        }
+        return this;
+    }
+
     @Override
     public VoltageLimits getVoltageLimits() {
         return operationalLimitsHolder.getOperationalLimits(LimitType.VOLTAGE, VoltageLimits.class);

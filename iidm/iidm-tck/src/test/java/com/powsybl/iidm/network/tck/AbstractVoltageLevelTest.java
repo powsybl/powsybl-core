@@ -14,7 +14,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 
 public abstract class AbstractVoltageLevelTest {
@@ -47,23 +46,20 @@ public abstract class AbstractVoltageLevelTest {
                                                 .setId("bbVL")
                                                 .setName("bbVL_name")
                                                 .setNominalV(200.0)
+                                                .setLowVoltageLimit(100.0)
+                                                .setHighVoltageLimit(200.0)
                                             .add();
-        voltageLevel.newVoltageLimits()
-                .setLowVoltage(100.0)
-                .setHighVoltage(200.0)
-                .add();
         assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
-        assertNotNull(voltageLevel.getVoltageLimits());
-        assertEquals(100.0, voltageLevel.getVoltageLimits().getLowVoltage(), 0.0);
-        assertEquals(200.0, voltageLevel.getVoltageLimits().getHighVoltage(), 0.0);
+        assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+        assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
         assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
         assertSame(substation, voltageLevel.getSubstation());
 
         // setter getter
-        voltageLevel.getVoltageLimits().setHighVoltage(300.0);
-        assertEquals(300.0, voltageLevel.getVoltageLimits().getHighVoltage(), 0.0);
-        voltageLevel.getVoltageLimits().setLowVoltage(200.0);
-        assertEquals(200.0, voltageLevel.getVoltageLimits().getLowVoltage(), 0.0);
+        voltageLevel.setHighVoltageLimit(300.0);
+        assertEquals(300.0, voltageLevel.getHighVoltageLimit(), 0.0);
+        voltageLevel.setLowVoltageLimit(200.0);
+        assertEquals(200.0, voltageLevel.getLowVoltageLimit(), 0.0);
         voltageLevel.setNominalV(500.0);
         assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
     }
@@ -109,10 +105,8 @@ public abstract class AbstractVoltageLevelTest {
                     .setName(name)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .setNominalV(v)
-                .add()
-                .newVoltageLimits()
-                    .setLowVoltage(low)
-                    .setHighVoltage(high)
+                    .setLowVoltageLimit(low)
+                    .setHighVoltageLimit(high)
                 .add();
     }
 

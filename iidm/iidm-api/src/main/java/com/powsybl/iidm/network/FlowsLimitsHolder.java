@@ -30,7 +30,11 @@ public interface FlowsLimitsHolder {
 
     CurrentLimitsAdder newCurrentLimits();
 
-    ApparentPowerLimitsAdder newApparentPowerLimits();
+    default ApparentPowerLimitsAdder newApparentPowerLimits() {
+        throw new UnsupportedOperationException();
+    }
 
-    ActivePowerLimitsAdder newActivePowerLimits();
+    default ActivePowerLimitsAdder newActivePowerLimits() {
+        throw new UnsupportedOperationException();
+    }
 }

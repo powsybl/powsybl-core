@@ -89,11 +89,9 @@ public final class DanglingLineNetworkFactory {
         VoltageLevel voltageLevel = substation.newVoltageLevel()
                 .setId("VL")
                 .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        voltageLevel.newVoltageLimits()
-                .setLowVoltage(80.0)
-                .setHighVoltage(120.0)
                 .add();
         voltageLevel.getBusBreakerView().newBus()
                 .setId("BUS")

@@ -15,5 +15,7 @@ public interface VoltageLimitsHolder {
         return null;
     }
 
-    VoltageLimitsAdder newVoltageLimits();
+    default VoltageLimitsAdder newVoltageLimits() {
+        throw new UnsupportedOperationException();
+    }
 }

@@ -30,10 +30,8 @@ public abstract class AbstractMainConnectedComponentWithSwitchTest {
         VoltageLevel vl1 = s1.newVoltageLevel()
                 .setId("B")
                 .setNominalV(225.0)
+                .setLowVoltageLimit(0.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl1.newVoltageLimits()
-                .setLowVoltage(0.0)
                 .add();
         vl1.getNodeBreakerView().newBusbarSection()
                 .setId("C")
@@ -63,10 +61,8 @@ public abstract class AbstractMainConnectedComponentWithSwitchTest {
         VoltageLevel vl2 = s2.newVoltageLevel()
                 .setId("G")
                 .setNominalV(225.0)
+                .setLowVoltageLimit(0.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        vl2.newVoltageLimits()
-                .setLowVoltage(0.0)
                 .add();
         vl2.getNodeBreakerView().newBusbarSection()
                 .setId("H")

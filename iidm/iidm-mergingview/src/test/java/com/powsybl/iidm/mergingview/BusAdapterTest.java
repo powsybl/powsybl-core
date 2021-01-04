@@ -111,11 +111,9 @@ public class BusAdapterTest {
                 .setId("vl3")
                 .setName("vl3")
                 .setNominalV(440.0)
+                .setHighVoltageLimit(400.0)
+                .setLowVoltageLimit(200.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl3.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(400.0)
                 .add();
         vl3.getBusBreakerView().newBus()
                 .setId("busC")
@@ -285,11 +283,9 @@ public class BusAdapterTest {
         VoltageLevel vl = substation.newVoltageLevel()
                 .setId("S1_VL")
                 .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl.newVoltageLimits()
-                .setLowVoltage(80.0)
-                .setHighVoltage(120.0)
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("B1")
@@ -344,11 +340,9 @@ public class BusAdapterTest {
         VoltageLevel vl = substation.newVoltageLevel()
                 .setId("S2_VL")
                 .setNominalV(100.0)
+                .setLowVoltageLimit(80.0)
+                .setHighVoltageLimit(120.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl.newVoltageLimits()
-                .setLowVoltage(80.0)
-                .setHighVoltage(120.0)
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("B3")

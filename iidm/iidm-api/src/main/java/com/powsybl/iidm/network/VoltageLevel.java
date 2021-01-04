@@ -840,14 +840,6 @@ public interface VoltageLevel extends Container<VoltageLevel>, VoltageLimitsHold
      */
     @Deprecated
     default VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
-        if (Double.isNaN(lowVoltageLimit)) {
-            if (getVoltageLimits() != null && Double.isNaN(getVoltageLimits().getHighVoltage())) {
-                getVoltageLimits().remove();
-            }
-            if (getVoltageLimits() == null) {
-                return this;
-            }
-        }
         if (getVoltageLimits() != null) {
             getVoltageLimits().setLowVoltage(lowVoltageLimit);
         } else {
@@ -871,14 +863,6 @@ public interface VoltageLevel extends Container<VoltageLevel>, VoltageLimitsHold
      */
     @Deprecated
     default VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
-        if (Double.isNaN(highVoltageLimit)) {
-            if (getVoltageLimits() != null && Double.isNaN(getVoltageLimits().getLowVoltage())) {
-                getVoltageLimits().remove();
-            }
-            if (getVoltageLimits() == null) {
-                return this;
-            }
-        }
         if (getVoltageLimits() != null) {
             getVoltageLimits().setHighVoltage(highVoltageLimit);
         } else {

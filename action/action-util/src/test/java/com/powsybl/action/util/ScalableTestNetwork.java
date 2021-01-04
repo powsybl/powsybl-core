@@ -25,11 +25,9 @@ public final class ScalableTestNetwork {
         VoltageLevel vl = s.newVoltageLevel()
                 .setId("vl1")
                 .setNominalV(380.0)
+                .setLowVoltageLimit(0.8 * 380.0)
+                .setHighVoltageLimit(1.2 * 380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl.newVoltageLimits()
-                .setLowVoltage(0.8 * 380.0)
-                .setHighVoltage(1.2 * 380.0)
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("bus1")

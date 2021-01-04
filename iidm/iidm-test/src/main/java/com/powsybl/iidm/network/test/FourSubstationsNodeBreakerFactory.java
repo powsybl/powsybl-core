@@ -47,11 +47,9 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s1vl1 = s1.newVoltageLevel()
                 .setId("S1VL1")
                 .setNominalV(225.0)
+                .setLowVoltageLimit(220.0)
+                .setHighVoltageLimit(240.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        s1vl1.newVoltageLimits()
-                .setLowVoltage(220.0)
-                .setHighVoltage(240.0)
                 .add();
         BusbarSection busbarSectionS1VL1 = s1vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S1VL1_BBS")
@@ -61,11 +59,9 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s1vl2 = s1.newVoltageLevel()
                 .setId("S1VL2")
                 .setNominalV(400.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        s1vl2.newVoltageLimits()
-                .setLowVoltage(390.0)
-                .setHighVoltage(440.0)
                 .add();
         BusbarSection busbarSectionS1VL21 = s1vl2.getNodeBreakerView().newBusbarSection()
                 .setId("S1VL2_BBS1")
@@ -85,11 +81,9 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s2vl1 = s2.newVoltageLevel()
                 .setId("S2VL1")
                 .setNominalV(400.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        s2vl1.newVoltageLimits()
-                .setLowVoltage(390.0)
-                .setHighVoltage(440.0)
                 .add();
         BusbarSection busbarSectionS2VL1 = s2vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S2VL1_BBS")
@@ -104,11 +98,9 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s3vl1 = s3.newVoltageLevel()
                 .setId("S3VL1")
                 .setNominalV(400.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        s3vl1.newVoltageLimits()
-                .setLowVoltage(390.0)
-                .setHighVoltage(440.0)
                 .add();
         BusbarSection busbarSectionS3VL1 = s3vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S3VL1_BBS")
@@ -123,11 +115,9 @@ public final class FourSubstationsNodeBreakerFactory {
         VoltageLevel s4vl1 = s4.newVoltageLevel()
                 .setId("S4VL1")
                 .setNominalV(400.0)
+                .setLowVoltageLimit(390.0)
+                .setHighVoltageLimit(440.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
-                .add();
-        s4vl1.newVoltageLimits()
-                .setLowVoltage(390.0)
-                .setHighVoltage(440.0)
                 .add();
         BusbarSection busbarSectionS4VL1 = s4vl1.getNodeBreakerView().newBusbarSection()
                 .setId("S4VL1_BBS")

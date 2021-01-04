@@ -32,11 +32,9 @@ public final class ThreeWindingsTransformerNetworkFactory {
         VoltageLevel vl1 = substation.newVoltageLevel()
                 .setId("VL_132")
                 .setNominalV(132.0)
+                .setLowVoltageLimit(118.8)
+                .setHighVoltageLimit(145.2)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl1.newVoltageLimits()
-                .setLowVoltage(118.8)
-                .setHighVoltage(145.2)
                 .add();
         Bus bus132 = vl1.getBusBreakerView().newBus()
                 .setId("BUS_132")
@@ -55,11 +53,9 @@ public final class ThreeWindingsTransformerNetworkFactory {
         VoltageLevel vl2 = substation.newVoltageLevel()
                 .setId("VL_33")
                 .setNominalV(33.0)
+                .setLowVoltageLimit(29.7)
+                .setHighVoltageLimit(36.3)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl2.newVoltageLimits()
-                .setLowVoltage(29.7)
-                .setHighVoltage(36.3)
                 .add();
         Bus bus33 = vl2.getBusBreakerView().newBus()
                 .setId("BUS_33")
@@ -78,11 +74,9 @@ public final class ThreeWindingsTransformerNetworkFactory {
         VoltageLevel vl3 = substation.newVoltageLevel()
                 .setId("VL_11")
                 .setNominalV(11.0)
+                .setLowVoltageLimit(9.9)
+                .setHighVoltageLimit(12.1)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl3.newVoltageLimits()
-                .setLowVoltage(9.9)
-                .setHighVoltage(12.1)
                 .add();
         Bus bus11 = vl3.getBusBreakerView().newBus()
                 .setId("BUS_11")

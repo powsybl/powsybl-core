@@ -146,11 +146,9 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                     .setId("vl3")
                     .setName("vl3")
                     .setNominalV(200.0)
+                    .setHighVoltageLimit(400.0)
+                    .setLowVoltageLimit(200.0)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        voltageLevelC.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(400.0)
                 .add();
         voltageLevelC.getBusBreakerView().newBus()
                     .setId("busC")

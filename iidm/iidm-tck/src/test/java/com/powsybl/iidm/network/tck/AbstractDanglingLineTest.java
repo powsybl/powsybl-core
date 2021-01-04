@@ -48,12 +48,10 @@ public abstract class AbstractDanglingLineTest {
                                     .setId("vl")
                                     .setName("vl")
                                     .setNominalV(440.0)
+                                    .setHighVoltageLimit(400.0)
+                                    .setLowVoltageLimit(200.0)
                                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                                 .add();
-        voltageLevel.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(400.0)
-                .add();
         voltageLevel.getBusBreakerView().newBus()
                                             .setId(BUS_VL_ID)
                                             .setName(BUS_VL_ID)

@@ -14,10 +14,37 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Battery;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.ComponentConstants;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.LccConverterStation;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
+import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -241,13 +268,8 @@ public class AmplNetworkWriter {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
                 double nomV = vl.getNominalV();
-                VoltageLimits voltageLimits = vl.getVoltageLimits();
-                double minV = Double.NaN;
-                double maxV = Double.NaN;
-                if (voltageLimits != null) {
-                    minV = voltageLimits.getLowVoltage() / nomV;
-                    maxV = voltageLimits.getHighVoltage() / nomV;
-                }
+                double minV = vl.getLowVoltageLimit() / nomV;
+                double maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell("")
@@ -288,13 +310,8 @@ public class AmplNetworkWriter {
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
                 double nomV = vl.getNominalV();
-                double minV = Double.NaN;
-                double maxV = Double.NaN;
-                VoltageLimits voltageLimits = vl.getVoltageLimits();
-                if (voltageLimits != null) {
-                    minV = vl.getVoltageLimits().getLowVoltage() / nomV;
-                    maxV = vl.getVoltageLimits().getHighVoltage() / nomV;
-                }
+                double minV = vl.getLowVoltageLimit() / nomV;
+                double maxV = vl.getHighVoltageLimit() / nomV;
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell("")

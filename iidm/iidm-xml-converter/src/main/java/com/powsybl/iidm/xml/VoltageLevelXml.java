@@ -47,10 +47,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
-        if (vl.getVoltageLimits() != null) {
-            XmlUtil.writeDouble("lowVoltageLimit", vl.getVoltageLimits().getLowVoltage(), context.getWriter());
-            XmlUtil.writeDouble("highVoltageLimit", vl.getVoltageLimits().getHighVoltage(), context.getWriter());
-        }
+        XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
+        XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
@@ -239,17 +237,12 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
         double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
-        VoltageLevel vl = adder
+        return adder
                 .setNominalV(nominalV)
+                .setLowVoltageLimit(lowVoltageLimit)
+                .setHighVoltageLimit(highVoltageLimit)
                 .setTopologyKind(topologyKind)
                 .add();
-        if (!Double.isNaN(lowVoltageLimit) || !Double.isNaN(highVoltageLimit)) {
-            vl.newVoltageLimits()
-                    .setLowVoltage(lowVoltageLimit)
-                    .setHighVoltage(highVoltageLimit)
-                    .add();
-        }
-        return vl;
     }
 
     @Override

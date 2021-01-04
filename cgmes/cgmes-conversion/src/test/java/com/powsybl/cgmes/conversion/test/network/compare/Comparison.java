@@ -223,22 +223,12 @@ public class Comparison {
         equivalent("Substation", expected.getSubstation(), actual.getSubstation());
         compare("nominalV", expected.getNominalV(), actual.getNominalV());
         if (config.checkVoltageLevelLimits) {
-            VoltageLimits expVl = expected.getVoltageLimits();
-            VoltageLimits actVl = actual.getVoltageLimits();
-            if (expVl == null && actVl != null) {
-                diff.unexpected("voltageLimits");
-            }
-            if (expVl != null && actVl == null) {
-                diff.missing("voltageLimits");
-            }
-            if (expVl != null && actVl != null) {
-                compare("voltageLimits.lowVoltage",
-                        expVl.getLowVoltage(),
-                        actVl.getLowVoltage());
-                compare("voltageLimits.highVoltage",
-                        expVl.getHighVoltage(),
-                        actVl.getHighVoltage());
-            }
+            compare("lowVoltageLimit",
+                    expected.getLowVoltageLimit(),
+                    actual.getLowVoltageLimit());
+            compare("highVoltageLimit",
+                    expected.getHighVoltageLimit(),
+                    actual.getHighVoltageLimit());
         }
         SlackTerminal expectedSlackTerminal = expected.getExtension(SlackTerminal.class);
         SlackTerminal actualSlackTerminal = actual.getExtension(SlackTerminal.class);

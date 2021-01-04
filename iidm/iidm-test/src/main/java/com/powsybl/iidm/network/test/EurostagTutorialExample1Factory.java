@@ -422,16 +422,8 @@ public final class EurostagTutorialExample1Factory {
                 .setTargetQ(301.0)
                 .add();
 
-        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel()
-                .newVoltageLimits()
-                .setLowVoltage(400)
-                .setHighVoltage(500)
-                .add();
-        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel()
-                .newVoltageLimits()
-                .setLowVoltage(300)
-                .setHighVoltage(500)
-                .add();
+        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
 
         Line line = network.getLine("NHV1_NHV2_1");
         line.getTerminal1().setP(560.0).setQ(550.0);

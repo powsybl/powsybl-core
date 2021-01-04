@@ -32,11 +32,9 @@ public final class NoEquipmentNetworkFactory {
                     .setId("vl1")
                     .setName("vl1")
                     .setNominalV(440.0)
+                    .setHighVoltageLimit(400.0)
+                    .setLowVoltageLimit(200.0)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        voltageLevelA.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(400.0)
                 .add();
         voltageLevelA.getBusBreakerView().newBus()
                     .setId("busA")
@@ -45,11 +43,9 @@ public final class NoEquipmentNetworkFactory {
         VoltageLevel voltageLevelB = substation.newVoltageLevel()
                     .setId("vl2").setName("vl2")
                     .setNominalV(200.0)
+                    .setHighVoltageLimit(400.0)
+                    .setLowVoltageLimit(200.0)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        voltageLevelB.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(400.0)
                 .add();
         voltageLevelB.getBusBreakerView().newBus()
                     .setId("busB")

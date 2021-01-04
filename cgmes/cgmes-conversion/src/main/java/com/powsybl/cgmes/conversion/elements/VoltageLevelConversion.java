@@ -59,15 +59,11 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setTopologyKind(
                             context.nodeBreaker()
                                     ? TopologyKind.NODE_BREAKER
-                                    : TopologyKind.BUS_BREAKER);
+                                    : TopologyKind.BUS_BREAKER)
+                    .setLowVoltageLimit(lowVoltageLimit)
+                    .setHighVoltageLimit(highVoltageLimit);
             identify(adder);
             VoltageLevel vl = adder.add();
-            if (!Double.isNaN(lowVoltageLimit) || !Double.isNaN(highVoltageLimit)) {
-                vl.newVoltageLimits()
-                        .setLowVoltage(lowVoltageLimit)
-                        .setHighVoltage(highVoltageLimit)
-                        .add();
-            }
             addAliases(vl);
         }
     }

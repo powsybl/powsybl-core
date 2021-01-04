@@ -47,6 +47,26 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         return this;
     }
 
+    /**
+     * @deprecated Only kept for compatibility.
+     */
+    @Override
+    @Deprecated
+    public VoltageLevelAdder setLowVoltageLimit(double lowVoltageLimit) {
+        this.lowVoltageLimit = lowVoltageLimit;
+        return this;
+    }
+
+    /**
+     * @deprecated Only kept for compatibility.
+     */
+    @Override
+    @Deprecated
+    public VoltageLevelAdder setHighVoltageLimit(double highVoltageLimit) {
+        this.highVoltageLimit = highVoltageLimit;
+        return this;
+    }
+
     @Override
     public VoltageLevelAdder setTopologyKind(String topologyKind) {
         this.topologyKind = TopologyKind.valueOf(topologyKind);

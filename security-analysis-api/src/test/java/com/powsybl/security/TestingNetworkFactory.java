@@ -26,24 +26,20 @@ public final class TestingNetworkFactory {
         VoltageLevel vl1 = s1.newVoltageLevel()
             .setId("VL1")
             .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setLowVoltageLimit(200.0)
+            .setHighVoltageLimit(250.0)
             .setNominalV(220.)
             .add();
-        vl1.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(250.0)
-                .add();
         vl1.getBusBreakerView().newBus()
             .setId("BUS1")
             .add();
         VoltageLevel vl2 = s1.newVoltageLevel()
             .setId("VL2")
             .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setLowVoltageLimit(340.0)
+            .setHighVoltageLimit(420.0)
             .setNominalV(380.)
             .add();
-        vl2.newVoltageLimits()
-                .setLowVoltage(340.0)
-                .setHighVoltage(420.0)
-                .add();
         vl2.getBusBreakerView().newBus()
             .setId("BUS2")
             .add();
@@ -55,24 +51,20 @@ public final class TestingNetworkFactory {
         VoltageLevel vl3 = s2.newVoltageLevel()
             .setId("VL3")
             .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setLowVoltageLimit(200.0)
+            .setHighVoltageLimit(250.0)
             .setNominalV(220.0)
             .add();
-        vl3.newVoltageLimits()
-                .setLowVoltage(200.0)
-                .setHighVoltage(250.0)
-                .add();
         vl3.getBusBreakerView().newBus()
             .setId("BUS3")
             .add();
         VoltageLevel vl4 = s2.newVoltageLevel()
             .setId("VL4")
             .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .setLowVoltageLimit(340.0)
+            .setHighVoltageLimit(420.0)
             .setNominalV(380.)
             .add();
-        vl4.newVoltageLimits()
-                .setLowVoltage(340.0)
-                .setHighVoltage(420.0)
-                .add();
         vl4.getBusBreakerView().newBus()
             .setId("BUS4")
             .add();
