@@ -28,24 +28,11 @@ public final class UcteValidation {
     }
 
     public static void run(Network network) {
-        checkNodesReferenceVoltage(network);
         checkGenerators(network);
         checkTransformers(network);
     }
 
-    // Data: node voltage
-    private static void checkNodesReferenceVoltage(Network network) {
-        double nominalVoltage;
-        double voltage;
-        for (Bus bus : network.getBusView().getBuses()) {
-            nominalVoltage = bus.getVoltageLevel().getNominalV();
-            voltage = bus.getV();
-            if (voltage < LOW_VOLTAGE_FACTOR * nominalVoltage || voltage > HIGH_VOLTAGE_FACTOR * nominalVoltage) {
-                LOGGER.warn(errorFormat, bus.getId(), errorMessage, voltage + " kV");
-            }
-        }
-    }
-
+    // Data: generator targetV
     private static void checkGenerators(Network network) {
         for (Generator generator : network.getGenerators()) {
             if (generator.isVoltageRegulatorOn()) {
@@ -59,7 +46,7 @@ public final class UcteValidation {
         }
     }
 
-    // Data: transformer voltage
+    // Data: transformer targetV
     private static void checkTransformers(Network network) {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
