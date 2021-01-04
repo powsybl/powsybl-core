@@ -32,7 +32,6 @@ class ConfiguredVoltageLimitsImpl extends AbstractOperationalLimits implements V
     @Override
     public VoltageLimits setHighVoltage(double highVoltage) {
         ValidationUtil.checkDefinedVoltageLimits(owner, lowVoltage, highVoltage);
-        ValidationUtil.checkVoltageLimits(owner, lowVoltage, highVoltage);
         double oldValue = this.highVoltage;
         this.highVoltage = highVoltage;
         owner.notifyUpdate(LimitType.VOLTAGE, "highVoltage", oldValue, this.highVoltage);
@@ -47,7 +46,6 @@ class ConfiguredVoltageLimitsImpl extends AbstractOperationalLimits implements V
     @Override
     public VoltageLimits setLowVoltage(double lowVoltage) {
         ValidationUtil.checkDefinedVoltageLimits(owner, lowVoltage, highVoltage);
-        ValidationUtil.checkVoltageLimits(owner, lowVoltage, highVoltage);
         double oldValue = this.lowVoltage;
         this.lowVoltage = lowVoltage;
         owner.notifyUpdate(LimitType.VOLTAGE, "lowVoltage", oldValue, this.lowVoltage);
