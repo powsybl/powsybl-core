@@ -6,7 +6,7 @@
  */
 package com.powsybl.psse.model.pf;
 
-import com.powsybl.psse.model.PsseException;
+import com.univocity.parsers.annotations.NullString;
 import com.univocity.parsers.annotations.Parsed;
 
 /**
@@ -26,42 +26,51 @@ public class PsseLineGrouping {
         this.met = met;
     }
 
-    @Parsed
+    @Parsed(field = {"i", "ibus"})
     private int i;
 
-    @Parsed
+    @Parsed(field = {"j", "jbus"})
     private int j;
 
-    @Parsed(defaultNullRead = "&1")
+    @Parsed(field = {"id", "mslid"}, defaultNullRead = "&1")
     private String id;
 
     @Parsed
     private int met = 1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum1;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum2;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum3;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum4;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum5;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum6;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum7;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum8;
 
+    @NullString(nulls = {"null"})
     @Parsed
     private Integer dum9;
 
@@ -101,7 +110,7 @@ public class PsseLineGrouping {
         return dum1;
     }
 
-    public void setDum1(int dum1) {
+    public void setDum1(Integer dum1) {
         this.dum1 = dum1;
     }
 
@@ -109,7 +118,7 @@ public class PsseLineGrouping {
         return dum2;
     }
 
-    public void setDum2(int dum2) {
+    public void setDum2(Integer dum2) {
         this.dum2 = dum2;
     }
 
@@ -117,7 +126,7 @@ public class PsseLineGrouping {
         return dum3;
     }
 
-    public void setDum3(int dum3) {
+    public void setDum3(Integer dum3) {
         this.dum3 = dum3;
     }
 
@@ -125,7 +134,7 @@ public class PsseLineGrouping {
         return dum4;
     }
 
-    public void setDum4(int dum4) {
+    public void setDum4(Integer dum4) {
         this.dum4 = dum4;
     }
 
@@ -133,7 +142,7 @@ public class PsseLineGrouping {
         return dum5;
     }
 
-    public void setDum5(int dum5) {
+    public void setDum5(Integer dum5) {
         this.dum5 = dum5;
     }
 
@@ -141,7 +150,7 @@ public class PsseLineGrouping {
         return dum6;
     }
 
-    public void setDum6(int dum6) {
+    public void setDum6(Integer dum6) {
         this.dum6 = dum6;
     }
 
@@ -149,7 +158,7 @@ public class PsseLineGrouping {
         return dum7;
     }
 
-    public void setDum7(int dum7) {
+    public void setDum7(Integer dum7) {
         this.dum7 = dum7;
     }
 
@@ -157,7 +166,7 @@ public class PsseLineGrouping {
         return dum8;
     }
 
-    public void setDum8(int dum8) {
+    public void setDum8(Integer dum8) {
         this.dum8 = dum8;
     }
 
@@ -165,187 +174,7 @@ public class PsseLineGrouping {
         return dum9;
     }
 
-    public void setDum9(int dum9) {
+    public void setDum9(Integer dum9) {
         this.dum9 = dum9;
-    }
-
-    public void setDum(int point, Integer dum) {
-        switch (point) {
-            case 1:
-                this.dum1 = dum;
-                break;
-            case 2:
-                this.dum2 = dum;
-                break;
-            case 3:
-                this.dum3 = dum;
-                break;
-            case 4:
-                this.dum4 = dum;
-                break;
-            case 5:
-                this.dum5 = dum;
-                break;
-            case 6:
-                this.dum6 = dum;
-                break;
-            case 7:
-                this.dum7 = dum;
-                break;
-            case 8:
-                this.dum8 = dum;
-                break;
-            case 9:
-                this.dum9 = dum;
-                break;
-            default:
-                throw new PsseException("Unexpected point " + point);
-        }
-    }
-
-    public static class PsseLineGroupingParserX {
-
-        @Parsed
-        private int ibus;
-
-        @Parsed
-        private int jbus;
-
-        @Parsed(defaultNullRead = "&1")
-        private String mslid;
-
-        @Parsed
-        private int met = 1;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum1;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum2;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum3;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum4;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum5;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum6;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum7;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum8;
-
-        @Parsed(defaultNullRead = "null")
-        private String dum9;
-
-        public int getIbus() {
-            return ibus;
-        }
-
-        public void setIbus(int ibus) {
-            this.ibus = ibus;
-        }
-
-        public int getJbus() {
-            return jbus;
-        }
-
-        public void setJbus(int jbus) {
-            this.jbus = jbus;
-        }
-
-        public String getMslid() {
-            return mslid;
-        }
-
-        public void setMslid(String mslid) {
-            this.mslid = mslid;
-        }
-
-        public int getMet() {
-            return met;
-        }
-
-        public void setMet(int met) {
-            this.met = met;
-        }
-
-        public String getDum1() {
-            return dum1;
-        }
-
-        public void setDum1(String dum1) {
-            this.dum1 = dum1;
-        }
-
-        public String getDum2() {
-            return dum2;
-        }
-
-        public void setDum2(String dum2) {
-            this.dum2 = dum2;
-        }
-
-        public String getDum3() {
-            return dum3;
-        }
-
-        public void setDum3(String dum3) {
-            this.dum3 = dum3;
-        }
-
-        public String getDum4() {
-            return dum4;
-        }
-
-        public void setDum4(String dum4) {
-            this.dum4 = dum4;
-        }
-
-        public String getDum5() {
-            return dum5;
-        }
-
-        public void setDum5(String dum5) {
-            this.dum5 = dum5;
-        }
-
-        public String getDum6() {
-            return dum6;
-        }
-
-        public void setDum6(String dum6) {
-            this.dum6 = dum6;
-        }
-
-        public String getDum7() {
-            return dum7;
-        }
-
-        public void setDum7(String dum7) {
-            this.dum7 = dum7;
-        }
-
-        public String getDum8() {
-            return dum8;
-        }
-
-        public void setDum8(String dum8) {
-            this.dum8 = dum8;
-        }
-
-        public String getDum9() {
-            return dum9;
-        }
-
-        public void setDum9(String dum9) {
-            this.dum9 = dum9;
-        }
     }
 }

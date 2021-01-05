@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.JSON;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -165,11 +166,22 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public String buildRecord(T object, String[] headers, String[] quoteFields, Context context) {
-        return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object);
+        return unquoteNullString(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object));
     }
 
-    protected List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
-        return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects);
+    public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
+        return unquoteNullStrings(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects));
+    }
+
+    // In rawx it is possible to define null as the value of the field
+    // If the field is String when it is exported the result is quoted ("null") as the field is included in the
+    // quoted fields. The final strings are processed to eliminate quotes in the null string fields.
+    private static List<String> unquoteNullStrings(List<String> stringList) {
+        return stringList.stream().map(AbstractRecordGroup::unquoteNullString).collect(Collectors.toList());
+    }
+
+    private static String unquoteNullString(String string) {
+        return string.replaceAll("\"null\"", "null");
     }
 
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
