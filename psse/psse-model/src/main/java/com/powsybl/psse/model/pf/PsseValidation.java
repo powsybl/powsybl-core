@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.psse.model.PsseVersion;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -406,7 +407,7 @@ public class PsseValidation {
     }
 
     private static String switchedShuntId(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
-        if (psseVersion.getNumber() == 35) {
+        if (psseVersion.major() == V35) {
             return String.format("%d %s", switchedShunt.getI(), switchedShunt.getId());
         } else {
             return String.format("%d", switchedShunt.getI());
@@ -414,7 +415,7 @@ public class PsseValidation {
     }
 
     private static void addSwitchedShuntBusesMap(Map<String, List<String>> busesSwitchedShunts, PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
-        if (psseVersion.getNumber() == 35) {
+        if (psseVersion.major() == V35) {
             addBusesMap(busesSwitchedShunts, switchedShunt.getI(), switchedShunt.getId());
         } else {
             addBusesMap(busesSwitchedShunts, switchedShunt.getI(), "1");
@@ -422,7 +423,7 @@ public class PsseValidation {
     }
 
     private static String multipleSwitchedShuntString(String key, List<String> value, PsseVersion psseVersion) {
-        if (psseVersion.getNumber() == 35) {
+        if (psseVersion.major() == V35) {
             return String.format("SwitchedShunt: Multiple fixed shunts (%d) at bus %d with the same Id %s", value.size(), Integer.valueOf(key), value.get(0));
         } else {
             return String.format("SwitchedShunt: Multiple fixed shunts (%d) at bus %d", value.size(), Integer.valueOf(key));
