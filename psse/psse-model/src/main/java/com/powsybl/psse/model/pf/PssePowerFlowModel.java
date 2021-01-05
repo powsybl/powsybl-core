@@ -55,6 +55,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
 
+    private final List<PsseInductionMachine> inductionMachines = new ArrayList<>();
+
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
     }
@@ -197,6 +199,14 @@ public class PssePowerFlowModel {
 
     public List<PsseSwitchedShunt> getSwitchedShunts() {
         return Collections.unmodifiableList(switchedShunts);
+    }
+
+    public void addInductionMachines(List<PsseInductionMachine> inductionMachines) {
+        this.inductionMachines.addAll(inductionMachines);
+    }
+
+    public List<PsseInductionMachine> getInductionMachines() {
+        return inductionMachines;
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {

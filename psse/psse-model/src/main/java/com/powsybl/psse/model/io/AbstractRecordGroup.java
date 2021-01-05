@@ -21,6 +21,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -175,11 +176,19 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     public String buildRecord(T object, String[] headers, String[] quoteFields, Context context) {
-        return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object);
+        return unquoteNullString(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object));
     }
 
     public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
-        return new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects);
+        return unquoteNullStrings(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects));
+    }
+
+    private static List<String> unquoteNullStrings(List<String> stringList) {
+        return stringList.stream().map(AbstractRecordGroup::unquoteNullString).collect(Collectors.toList());
+    }
+
+    private static String unquoteNullString(String string) {
+        return string.replaceAll("\"null\"", "null");
     }
 
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {

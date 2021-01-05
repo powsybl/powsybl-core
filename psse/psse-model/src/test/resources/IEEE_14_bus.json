@@ -1346,5 +1346,6 @@
     "owname" : "1"
   } ],
   "facts" : [ ],
-  "switchedShunts" : [ ]
+  "switchedShunts" : [ ],
+  "inductionMachines" : [ ]
 }

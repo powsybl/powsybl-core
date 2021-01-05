@@ -638,6 +638,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PssePowerFlowModel rawData = rawData35.read(ieee14CompletedRaw35(), "raw", context);
         assertNotNull(rawData);
 
+        //System.err.printf("%f %s %n", rawData.getInductionMachines().get(1).getR2(), rawData.getInductionMachines().get(1).getS2());
         rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.raw"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.raw"), is);
