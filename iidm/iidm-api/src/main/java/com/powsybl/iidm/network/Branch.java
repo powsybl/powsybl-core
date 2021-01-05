@@ -159,13 +159,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     CurrentLimitsAdder newCurrentLimits1();
 
-    default ActivePowerLimitsAdder newActivePowerLimits1() {
-        throw new UnsupportedOperationException();
-    }
+    ActivePowerLimitsAdder newActivePowerLimits1();
 
-    default ApparentPowerLimitsAdder newApparentPowerLimits1() {
-        throw new UnsupportedOperationException();
-    }
+    ApparentPowerLimitsAdder newApparentPowerLimits1();
 
     default Collection<OperationalLimits> getOperationalLimits2() {
         return getCurrentLimits2() != null ? Collections.singletonList(getCurrentLimits2()) : Collections.emptyList();
@@ -183,13 +179,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     CurrentLimitsAdder newCurrentLimits2();
 
-    default ActivePowerLimitsAdder newActivePowerLimits2() {
-        throw new UnsupportedOperationException();
-    }
+    ActivePowerLimitsAdder newActivePowerLimits2();
 
-    default ApparentPowerLimitsAdder newApparentPowerLimits2() {
-        throw new UnsupportedOperationException();
-    }
+    ApparentPowerLimitsAdder newApparentPowerLimits2();
 
     default CurrentLimits getCurrentLimits(Branch.Side side) {
         if (side == Branch.Side.ONE) {
