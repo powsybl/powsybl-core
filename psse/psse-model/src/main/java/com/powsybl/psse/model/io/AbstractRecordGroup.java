@@ -144,16 +144,16 @@ public abstract class AbstractRecordGroup<T> {
         ioFor(context).writeHead(psseObject, context, outputStream);
     }
 
-    public T parseSingleRecord(String record, String[] headers, Context context) {
-        return parseRecords(Collections.singletonList(record), headers, context).get(0);
-    }
-
     public List<T> readFromStrings(List<String> records, Context context) {
         String[] allFieldNames = fieldNames(context.getVersion());
         List<T> psseObjects = parseRecords(records, allFieldNames, context);
         String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
         context.setFieldNames(identification, actualFieldNames);
         return psseObjects;
+    }
+
+    public T parseSingleRecord(String record, String[] headers, Context context) {
+        return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
     public List<T> parseRecords(List<String> records, String[] headers, Context context) {

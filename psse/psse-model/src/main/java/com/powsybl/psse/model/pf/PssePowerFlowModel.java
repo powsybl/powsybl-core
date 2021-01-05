@@ -55,6 +55,8 @@ public class PssePowerFlowModel {
 
     private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
 
+    private final List<PsseGneDevice> gneDevice = new ArrayList<>();
+
     private final List<PsseInductionMachine> inductionMachines = new ArrayList<>();
 
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
@@ -126,7 +128,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseTwoTerminalDcTransmissionLine> getTwoTerminalDcTransmissionLines() {
-        return twoTerminalDcTransmissionLines;
+        return Collections.unmodifiableList(twoTerminalDcTransmissionLines);
     }
 
     public void addVoltageSourceConverterDcTransmissionLines(List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines) {
@@ -134,7 +136,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseVoltageSourceConverterDcTransmissionLine> getVoltageSourceConverterDcTransmissionLines() {
-        return voltageSourceConverterDcTransmissionLines;
+        return Collections.unmodifiableList(voltageSourceConverterDcTransmissionLines);
     }
 
     public void addTransformerImpedanceCorrections(List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections) {
@@ -150,7 +152,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseMultiTerminalDcTransmissionLine> getMultiTerminalDcTransmissionLines() {
-        return multiTerminalDcTransmissionLines;
+        return Collections.unmodifiableList(multiTerminalDcTransmissionLines);
     }
 
     public void addLineGrouping(List<PsseLineGrouping> lineGrouping) {
@@ -201,12 +203,20 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(switchedShunts);
     }
 
+    public void addGneDevice(List<PsseGneDevice> gneDevice) {
+        this.gneDevice.addAll(gneDevice);
+    }
+
+    public List<PsseGneDevice> getGneDevice() {
+        return Collections.unmodifiableList(gneDevice);
+    }
+
     public void addInductionMachines(List<PsseInductionMachine> inductionMachines) {
         this.inductionMachines.addAll(inductionMachines);
     }
 
     public List<PsseInductionMachine> getInductionMachines() {
-        return inductionMachines;
+        return Collections.unmodifiableList(inductionMachines);
     }
 
     private <T extends PsseVersioned> List<T> modelled(List<T> elements) {

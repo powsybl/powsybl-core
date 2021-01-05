@@ -3137,5 +3137,6 @@
     "s7" : 1,
     "s8" : 1
   } ],
+  "gneDevice" : [ ],
   "inductionMachines" : [ ]
 }

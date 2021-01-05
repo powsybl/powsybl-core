@@ -57,7 +57,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             model.addOwners(new OwnerData().read(reader, context));
             model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
-            skip(GNE_DEVICE, reader);
+            model.addGneDevice(new GneDeviceData().read(reader, context));
             model.addInductionMachines(new InductionMachineData().read(reader, context));
             skip(SUBSTATION, reader);
 
@@ -112,7 +112,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
 
         new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
-        writeEmpty(GNE_DEVICE, outputStream);
+        new GneDeviceData().write(model.getGneDevice(), context, outputStream);
         new InductionMachineData().write(model.getInductionMachines(), context, outputStream);
 
         writeEmpty(SUBSTATION, outputStream);

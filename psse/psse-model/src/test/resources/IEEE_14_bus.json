@@ -1347,5 +1347,6 @@
   } ],
   "facts" : [ ],
   "switchedShunts" : [ ],
+  "gneDevice" : [ ],
   "inductionMachines" : [ ]
 }

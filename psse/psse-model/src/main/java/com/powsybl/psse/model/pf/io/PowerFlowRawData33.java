@@ -43,7 +43,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
-            // TODO complete discarded record groups
+
             model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
             model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
@@ -54,7 +54,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             model.addOwners(new OwnerData().read(reader, context));
             model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
-            skip(GNE_DEVICE, reader);
+            model.addGneDevice(new GneDeviceData().read(reader, context));
             model.addInductionMachines(new InductionMachineData().read(reader, context));
 
             return model;
@@ -98,7 +98,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
 
         new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
-        writeEmpty(GNE_DEVICE, outputStream);
+        new GneDeviceData().write(model.getGneDevice(), context, outputStream);
         new InductionMachineData().write(model.getInductionMachines(), context, outputStream);
 
         writeQ(outputStream);

@@ -67,6 +67,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
 
         model.addFacts(new FactsDeviceData().read(null, context));
         model.addSwitchedShunts(new SwitchedShuntData().read(null, context));
+        model.addGneDevice(new GneDeviceData().read(null, context));
         model.addInductionMachines(new InductionMachineData().read(null, context));
 
         return model;
@@ -111,6 +112,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new OwnerData().write(model.getOwners(), context, null);
             new FactsDeviceData().write(model.getFacts(), context, null);
             new SwitchedShuntData().write(model.getSwitchedShunts(), context, null);
+            new GneDeviceData().write(model.getGneDevice(), context, null);
             new InductionMachineData().write(model.getInductionMachines(), context, null);
 
             generator.writeEndObject(); // network
