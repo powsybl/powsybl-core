@@ -184,7 +184,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     // In rawx it is possible to define null as the value of the field
-    // If the field is String when it is exported the result is quoted ("null") as the field is included in the 
+    // If the field is String when it is exported the result is quoted ("null") as the field is included in the
     // quoted fields. The final strings are processed to eliminate quotes in the null string fields.
     private static List<String> unquoteNullStrings(List<String> stringList) {
         return stringList.stream().map(AbstractRecordGroup::unquoteNullString).collect(Collectors.toList());
