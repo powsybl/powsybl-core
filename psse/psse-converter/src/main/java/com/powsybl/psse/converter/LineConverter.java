@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -70,7 +71,7 @@ public class LineConverter extends AbstractConverter {
 
     private void defineOperationalLimits(Line line, double vnom1, double vnom2) {
         double rateMva;
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             rateMva = psseLine.getRates().getRate1();
         } else {
             rateMva = psseLine.getRates().getRatea();

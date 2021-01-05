@@ -33,6 +33,7 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -532,7 +533,7 @@ public class TransformerConverter extends AbstractConverter {
 
     private double getRateWinding1() {
         double rateMva;
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             rateMva = psseTransformer.getWinding1Rates().getRate1();
         } else {
             rateMva = psseTransformer.getWinding1Rates().getRatea();
@@ -542,7 +543,7 @@ public class TransformerConverter extends AbstractConverter {
 
     private double getRateWinding2() {
         double rateMva;
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             rateMva = psseTransformer.getWinding2Rates().getRate1();
         } else {
             rateMva = psseTransformer.getWinding2Rates().getRatea();
@@ -552,7 +553,7 @@ public class TransformerConverter extends AbstractConverter {
 
     private double getRateWinding3() {
         double rateMva;
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             rateMva = psseTransformer.getWinding3Rates().getRate1();
         } else {
             rateMva = psseTransformer.getWinding3Rates().getRatea();

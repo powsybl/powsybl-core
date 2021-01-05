@@ -25,6 +25,7 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -188,7 +189,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
 // defined blocks can be reactors (< 0) or / and capacitors ( > 0)
     private static List<ShuntBlock> collectShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS1(), psseSwitchedShunt.getN1(), psseSwitchedShunt.getB1());
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS2(), psseSwitchedShunt.getN2(), psseSwitchedShunt.getB2());
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS3(), psseSwitchedShunt.getN3(), psseSwitchedShunt.getB3());
@@ -243,7 +244,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static String defineShuntId(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             return psseSwitchedShunt.getId();
         } else {
             return "1";
