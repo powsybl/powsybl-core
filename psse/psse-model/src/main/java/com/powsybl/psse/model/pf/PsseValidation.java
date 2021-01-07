@@ -94,7 +94,7 @@ public class PsseValidation {
 
         for (int i = 0; i < psseBuses.size(); i++) {
             PsseBus psseBus = psseBuses.get(i);
-            if (psseBus.getI() < 1) {
+            if (psseBus.getI() < 1 || psseBus.getI() > 999997) {
                 warnings.add(String.format("Bus: Unexpected I: %d", psseBus.getI()));
                 validCase = false;
             }
