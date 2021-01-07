@@ -56,7 +56,9 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public UcteNode getNode(UcteNodeCode code) {
         Objects.requireNonNull(code);
-        return nodes.get(code);
+        return nodes.computeIfAbsent(code, c -> {
+            throw new UcteException(String.format("Node %s not found", c));
+        });
     }
 
     @Override
@@ -73,7 +75,9 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public UcteLine getLine(UcteElementId id) {
         Objects.requireNonNull(id);
-        return lines.get(id);
+        return lines.computeIfAbsent(id, c -> {
+            throw new UcteException(String.format("Line %s not found", id));
+        });
     }
 
     @Override
@@ -90,7 +94,9 @@ public class UcteNetworkImpl implements UcteNetwork {
     @Override
     public UcteTransformer getTransformer(UcteElementId id) {
         Objects.requireNonNull(id);
-        return transformers.get(id);
+        return transformers.computeIfAbsent(id, c -> {
+            throw new UcteException(String.format("Transformer %s not found", id));
+        });
     }
 
     @Override

@@ -10,9 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.junit.Assert.*;
 
@@ -57,16 +57,17 @@ public class CimAnonymizerTest {
         try (ZipOutputStream zos = new ZipOutputStream(Files.newOutputStream(cimZipFile))) {
             zos.putNextEntry(new ZipEntry("sample_EQ.xml"));
             zos.write(ByteStreams.toByteArray(getClass().getResourceAsStream("/sample_EQ.xml")));
+            zos.closeEntry();
         }
 
         new CimAnonymizer().anonymizeZip(cimZipFile, anonymizedCimFileDir, dictionaryFile, new CimAnonymizer.DefaultLogger(), false);
 
         Path anonymizedCimZipFile = anonymizedCimFileDir.resolve("sample.zip");
         assertTrue(Files.exists(anonymizedCimZipFile));
-        try (ZipFile anonymizedCimZipFileData = new ZipFile(anonymizedCimZipFile)) {
-            assertNotNull(anonymizedCimZipFileData.entry("sample_EQ.xml"));
+        try (ZipFile anonymizedCimZipFileData = new ZipFile(Files.newByteChannel(anonymizedCimZipFile))) {
+            assertNotNull(anonymizedCimZipFileData.getEntry("sample_EQ.xml"));
             Source control = Input.fromStream(getClass().getResourceAsStream("/sample_EQ_anonymized.xml")).build();
-            try (InputStream is = anonymizedCimZipFileData.getInputStream("sample_EQ.xml")) {
+            try (InputStream is = anonymizedCimZipFileData.getInputStream(anonymizedCimZipFileData.getEntry("sample_EQ.xml"))) {
                 Source test = Input.fromStream(is).build();
                 Diff myDiff = DiffBuilder.compare(control)
                         .withTest(test)

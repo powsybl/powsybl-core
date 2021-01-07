@@ -121,10 +121,8 @@
         <slf4j.version>1.7.22</slf4j.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
-        <supercsv.version>2.4.0</supercsv.version>
         <threeten.version>1.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
-        <truevfs.version>0.12.0</truevfs.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
 
@@ -246,16 +244,6 @@
                         <artifactId>jsr173-ri</artifactId>
                     </exclusion>
                 </exclusions>
-            </dependency>
-            <dependency>
-                <groupId>net.java.truevfs</groupId>
-                <artifactId>truevfs-driver-zip</artifactId>
-                <version>${truevfs.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>net.sf.supercsv</groupId>
-                <artifactId>super-csv</artifactId>
-                <version>${supercsv.version}</version>
             </dependency>
             <dependency>
                 <groupId>net.sf.trove4j</groupId>
