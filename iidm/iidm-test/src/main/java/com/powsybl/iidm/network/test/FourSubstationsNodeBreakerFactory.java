@@ -537,7 +537,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .beginTemporaryLimit()
                 .setName("IST")
                 .setValue(1640.0)
-                .setOverloadingProtection(false)
+                .setFictitious(true)
                 .setAcceptableDuration(Integer.MAX_VALUE)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()

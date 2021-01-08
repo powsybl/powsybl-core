@@ -20,17 +20,7 @@ public interface LoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLi
 
         TemporaryLimitAdder<A> setAcceptableDuration(int duration);
 
-        /**
-         * @deprecated Use {@link #setOverloadingProtection(boolean)} instead e.g. {@code adder.setOverloadingProtection(!fictitious)}.
-         */
-        @Deprecated
-        default TemporaryLimitAdder<A> setFictitious(boolean fictitious) {
-            return setOverloadingProtection(!fictitious);
-        }
-
-        default TemporaryLimitAdder<A> setOverloadingProtection(boolean hasOverloadingProtection) {
-            return setFictitious(!hasOverloadingProtection);
-        }
+        TemporaryLimitAdder<A> setFictitious(boolean fictitious);
 
         TemporaryLimitAdder<A> ensureNameUnicity();
 

@@ -41,7 +41,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
         private Integer acceptableDuration;
 
-        private boolean hasOverloadingProtection = true;
+        private boolean fictitious = false;
 
         private boolean ensureNameUnicity = false;
 
@@ -64,8 +64,8 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         }
 
         @Override
-        public TemporaryLimitAdder<B> setOverloadingProtection(boolean hasOverloadingProtection) {
-            this.hasOverloadingProtection = hasOverloadingProtection;
+        public TemporaryLimitAdder<B> setFictitious(boolean fictitious) {
+            this.fictitious = fictitious;
             return this;
         }
 
@@ -90,7 +90,7 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
             }
             checkAndGetUniqueName();
-            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, hasOverloadingProtection));
+            temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return (B) AbstractLoadingLimitsAdder.this;
         }
 

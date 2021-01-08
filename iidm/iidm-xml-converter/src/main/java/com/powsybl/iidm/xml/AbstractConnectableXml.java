@@ -156,7 +156,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                         .setName(name)
                         .setAcceptableDuration(acceptableDuration)
                         .setValue(value)
-                        .setOverloadingProtection(!fictitious)
+                        .setFictitious(fictitious)
                         .endTemporaryLimit();
             }
         });
@@ -199,7 +199,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 writer.writeAttribute("name", tl.getName());
                 XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
                 XmlUtil.writeOptionalDouble("value", tl.getValue(), Double.MAX_VALUE, writer);
-                XmlUtil.writeOptionalBoolean("fictitious", !tl.hasOverloadingProtection(), false, writer);
+                XmlUtil.writeOptionalBoolean("fictitious", tl.isFictitious(), false, writer);
             }
             if (!limits.getTemporaryLimits().isEmpty()) {
                 writer.writeEndElement();

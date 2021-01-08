@@ -30,13 +30,13 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
         private final int acceptableDuration;
 
-        private boolean hasOverloadingProtection;
+        private boolean fictitious;
 
         TemporaryLimitImpl(String name, double value, int acceptableDuration, boolean hasOverloadingProtection) {
             this.name = Objects.requireNonNull(name);
             this.value = value;
             this.acceptableDuration = acceptableDuration;
-            this.hasOverloadingProtection = hasOverloadingProtection;
+            this.fictitious = hasOverloadingProtection;
         }
 
         @Override
@@ -55,8 +55,8 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
         }
 
         @Override
-        public boolean hasOverloadingProtection() {
-            return hasOverloadingProtection;
+        public boolean isFictitious() {
+            return fictitious;
         }
     }
 

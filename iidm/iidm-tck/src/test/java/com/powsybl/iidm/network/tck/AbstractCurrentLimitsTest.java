@@ -129,7 +129,7 @@ public abstract class AbstractCurrentLimitsTest {
             currentLimitsAdder.beginTemporaryLimit()
                     .setAcceptableDuration(5 * 60)
                     .setName("fail")
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -141,7 +141,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .setAcceptableDuration(5 * 60)
                     .setName("fail")
                     .setValue(-1200.0)
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -153,7 +153,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .setAcceptableDuration(-1)
                     .setName("fail")
                     .setValue(1200.0)
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -164,7 +164,7 @@ public abstract class AbstractCurrentLimitsTest {
             currentLimitsAdder.beginTemporaryLimit()
                     .setName("fail")
                     .setValue(1200.0)
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -175,7 +175,7 @@ public abstract class AbstractCurrentLimitsTest {
             currentLimitsAdder.beginTemporaryLimit()
                     .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit();
             fail();
         } catch (ValidationException ignored) {
@@ -187,7 +187,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
                     .setName("20'")
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                     .endTemporaryLimit()
                     .add();
             fail();
@@ -199,7 +199,7 @@ public abstract class AbstractCurrentLimitsTest {
                     .setName("5'")
                     .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
-                    .setOverloadingProtection(false)
+                    .setFictitious(true)
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("1'")
