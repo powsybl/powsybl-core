@@ -111,11 +111,11 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
     private static Terminal defineRegulatingTerminal(PsseSwitchedShunt psseSwitchedShunt, Network network, PsseVersion version) {
         String defaultRegulatingBusId = getBusId(psseSwitchedShunt.getI());
         Terminal regulatingTerminal = null;
-        if (psseSwitchedShunt.getSwrem() == 0) {
+        if (switchedShuntRegulatingBus(psseSwitchedShunt, version) == 0) {
             Bus bus = network.getBusBreakerView().getBus(defaultRegulatingBusId);
             regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
         } else {
-            String regulatingBusId = getBusId(psseSwitchedShunt.getSwrem());
+            String regulatingBusId = getBusId(switchedShuntRegulatingBus(psseSwitchedShunt, version));
             Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
             if (bus != null) {
                 regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
@@ -126,6 +126,14 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
                 + defineShuntId(psseSwitchedShunt, version) + ". Unexpected regulatingTerminal.");
         }
         return regulatingTerminal;
+    }
+
+    private static int switchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
+        if (psseVersion.major() == V35) {
+            return switchedShunt.getSwreg();
+        } else {
+            return switchedShunt.getSwrem();
+        }
     }
 
     private static int defineSectionCount(double binit, List<ShuntBlock> shuntBlocks) {
