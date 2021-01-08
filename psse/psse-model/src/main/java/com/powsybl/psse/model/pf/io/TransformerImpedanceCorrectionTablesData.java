@@ -439,8 +439,8 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
                 while (indexPoints <= impedanceCorrection.getPoints().size()) {
                     ZCorr35Points r2 = convertToRecord2(impedanceCorrection, indexPoints);
                     writeHeaders = ArrayUtils.subarray(FIELD_NAMES[1], 0, 3 * pointsInsideRecord(indexPoints, impedanceCorrection.getPoints().size()));
-                    record = record2Data.buildRecord(r2, writeHeaders, QUOTED_FIELDS, context);
-                    write(String.format("%s%n", record), outputStream);
+                    String recordPoints = record2Data.buildRecord(r2, writeHeaders, QUOTED_FIELDS, context);
+                    write(String.format("%s%n", recordPoints), outputStream);
 
                     indexPoints = indexPoints + 6;
                 }

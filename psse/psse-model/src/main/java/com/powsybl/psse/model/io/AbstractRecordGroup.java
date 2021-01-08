@@ -181,7 +181,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     private static String unquoteNullString(String string) {
-        return string.replaceAll("\"null\"", "null");
+        return string.replace("\"null\"", "null");
     }
 
     CsvWriterSettings settingsForCsvWriter(String[] headers, String[] quotedFields, Context context) {
