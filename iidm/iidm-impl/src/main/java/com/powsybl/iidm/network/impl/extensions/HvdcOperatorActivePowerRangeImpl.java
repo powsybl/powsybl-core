@@ -13,6 +13,8 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 
+import java.util.Objects;
+
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
@@ -62,5 +64,23 @@ public class HvdcOperatorActivePowerRangeImpl extends AbstractExtension<HvdcLine
             throw new IllegalArgumentException(message);
         }
         return opr;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HvdcOperatorActivePowerRangeImpl that = (HvdcOperatorActivePowerRangeImpl) o;
+        return Float.compare(that.oprFromCS1toCS2, oprFromCS1toCS2) == 0 &&
+                Float.compare(that.oprFromCS2toCS1, oprFromCS2toCS1) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(oprFromCS1toCS2, oprFromCS2toCS1);
     }
 }

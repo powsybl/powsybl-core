@@ -12,6 +12,8 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.extensions.HvdcAngleDroopActivePowerControl;
 
+import java.util.Objects;
+
 /**
  * Active power control mode based on an offset in MW and a droop in MW/degree
  * ActivePowerSetpoint = p0 + droop * (angle1 - angle2)
@@ -90,5 +92,24 @@ public class HvdcAngleDroopActivePowerControlImpl extends AbstractExtension<Hvdc
         }
 
         return droop;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        HvdcAngleDroopActivePowerControlImpl that = (HvdcAngleDroopActivePowerControlImpl) o;
+        return Float.compare(that.p0, p0) == 0 &&
+                Float.compare(that.droop, droop) == 0 &&
+                enabled == that.enabled;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(p0, droop, enabled);
     }
 }

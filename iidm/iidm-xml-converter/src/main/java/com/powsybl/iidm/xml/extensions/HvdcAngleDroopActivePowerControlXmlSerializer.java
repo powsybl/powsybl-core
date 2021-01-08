@@ -47,7 +47,8 @@ public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExten
         hvdcLine.newExtension(HvdcAngleDroopActivePowerControlAdder.class)
                 .withP0(p0)
                 .withDroop(droop)
-                .withEnabled(enabled);
+                .withEnabled(enabled)
+                .add();
 
         return hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
     }

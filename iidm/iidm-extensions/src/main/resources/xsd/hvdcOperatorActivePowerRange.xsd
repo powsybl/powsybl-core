@@ -13,8 +13,8 @@
            elementFormDefault="qualified">
     <xs:element name="hvdcOperatorActivePowerRange">
         <xs:complexType>
-            <xs:attribute name="oprFromCS1toCS2" use="required" type="xs:float"/>
-            <xs:attribute name="oprFromCS2toCS1" use="required" type="xs:float"/>
+            <xs:attribute name="fromCS1toCS2" type="xs:float" use="optional"/>
+            <xs:attribute name="fromCS2toCS1" type="xs:float" use="optional"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
