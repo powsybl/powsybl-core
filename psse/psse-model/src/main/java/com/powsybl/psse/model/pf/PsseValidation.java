@@ -186,7 +186,7 @@ public class PsseValidation {
     private void validateGeneratorRegulatingBus(List<PsseBus> psseBuses,  Map<Integer, List<Integer>> buses, PsseGenerator generator) {
         PsseBus regulatingBus = getRegulatingBus(psseBuses, buses, generator.getIreg(), generator.getI());
         if (regulatingBus != null
-            && (regulatingBus.getIde() == 1 || regulatingBus.getIde() == 2 || regulatingBus.getIde() == 3)
+            && (regulatingBus.getIde() == 2 || regulatingBus.getIde() == 3)
             && generator.getVs() <= 0.0) {
             warnings.add(String.format(Locale.US, "Generator: %d %s Unexpected Voltage setpoint: %.2f", generator.getI(), generator.getId(), generator.getVs()));
             validCase = false;
@@ -388,8 +388,9 @@ public class PsseValidation {
                 validCase = false;
             }
             String id = switchedShuntId(switchedShunt, psseVersion);
-            if (switchedShunt.getModsw() != 0 && switchedShunt.getSwrem() != 0 && !buses.containsKey(switchedShunt.getSwrem())) {
-                warnings.add(String.format("SwitchedShunt: %s Unexpected Swrem: %d", id, switchedShunt.getSwrem()));
+            int regulatingBus = switchedShuntRegulatingBus(switchedShunt, psseVersion);
+            if (switchedShunt.getModsw() != 0 && regulatingBus != 0 && !buses.containsKey(regulatingBus)) {
+                warnings.add(String.format("SwitchedShunt: %s Unexpected Swrem/Swreg: %d", id, regulatingBus));
                 validCase = false;
             }
             if (switchedShunt.getModsw() != 0 && (switchedShunt.getVswlo() <= 0.0 || switchedShunt.getVswhi() <= 0.0 || switchedShunt.getVswhi() < switchedShunt.getVswlo())) {
@@ -411,6 +412,14 @@ public class PsseValidation {
             return String.format("%d %s", switchedShunt.getI(), switchedShunt.getId());
         } else {
             return String.format("%d", switchedShunt.getI());
+        }
+    }
+
+    private static int switchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
+        if (psseVersion.major() == V35) {
+            return switchedShunt.getSwreg();
+        } else {
+            return switchedShunt.getSwrem();
         }
     }
 
