@@ -32,7 +32,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
-    protected static boolean hasValidOperationalLimits(Branch branch, NetworkXmlWriterContext context) {
+    protected static boolean hasValidOperationalLimits(Branch<?> branch, NetworkXmlWriterContext context) {
         if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
             return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
         }
