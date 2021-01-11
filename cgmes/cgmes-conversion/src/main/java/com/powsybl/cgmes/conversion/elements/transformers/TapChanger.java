@@ -40,10 +40,12 @@ public class TapChanger {
     private final List<Step> steps = new ArrayList<>();
     private boolean ltcFlag = false;
     private String id = null;
+    private String type = null;
     private boolean regulating = false;
     private String regulatingControlId = null;
     private String tculControlMode = null;
     private boolean tapChangerControlEnabled = false;
+    private TapChanger hiddenCombinedTapChanger = null;
 
     class Step {
         private double angleRad = 0.0;
@@ -148,6 +150,11 @@ public class TapChanger {
         return this;
     }
 
+    public TapChanger setType(String type) {
+        this.type = type;
+        return this;
+    }
+
     public TapChanger setId(String id) {
         this.id = id;
         return this;
@@ -170,6 +177,11 @@ public class TapChanger {
 
     public TapChanger setTapChangerControlEnabled(boolean tapChangerControlEnabled) {
         this.tapChangerControlEnabled = tapChangerControlEnabled;
+        return this;
+    }
+
+    public TapChanger setHiddenCombinedTapChanger(TapChanger hiddenCombinedTapChanger) {
+        this.hiddenCombinedTapChanger = hiddenCombinedTapChanger;
         return this;
     }
 
@@ -197,6 +209,10 @@ public class TapChanger {
         return ltcFlag;
     }
 
+    public String getType() {
+        return type;
+    }
+
     public String getId() {
         return id;
     }
@@ -215,5 +231,9 @@ public class TapChanger {
 
     public boolean isTapChangerControlEnabled() {
         return tapChangerControlEnabled;
+    }
+
+    public TapChanger getHiddenCombinedTapChanger() {
+        return hiddenCombinedTapChanger;
     }
 }

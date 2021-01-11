@@ -13,6 +13,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
+import static com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
 import static org.junit.Assert.*;
 
 /**
@@ -50,7 +51,7 @@ public class ExportOptionsTest {
     public void exportOptionsTest3() {
         Set<String> extensionsList = Sets.newHashSet("loadFoo");
 
-        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE);
+        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE, Boolean.TRUE);
         options.setExtensions(extensionsList);
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
         assertEquals(Boolean.TRUE, options.isIndent());
@@ -58,5 +59,28 @@ public class ExportOptionsTest {
         assertEquals(TopologyLevel.BUS_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(1, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(Boolean.TRUE, options.isSorted());
+    }
+
+    @Test
+    public void defaultExportOptionsTest() {
+        testDefaultExportOptions(new ExportOptions());
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, null));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null));
+        testDefaultExportOptions(new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.NODE_BREAKER, Boolean.FALSE, Boolean.FALSE, null, THROW_EXCEPTION));
+    }
+
+    private void testDefaultExportOptions(ExportOptions options) {
+        assertEquals(-1, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(Boolean.TRUE, options.isWithBranchSV());
+        assertEquals(Boolean.TRUE, options.isIndent());
+        assertEquals(Boolean.FALSE, options.isOnlyMainCc());
+        assertEquals(TopologyLevel.NODE_BREAKER, options.getTopologyLevel());
+        assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
+        assertEquals(Boolean.FALSE, options.isSorted());
+        assertNull(options.getVersion());
+        assertEquals(THROW_EXCEPTION, options.getIidmVersionIncompatibilityBehavior());
     }
 }

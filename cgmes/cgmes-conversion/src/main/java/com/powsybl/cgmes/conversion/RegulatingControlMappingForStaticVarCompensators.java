@@ -123,6 +123,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
         }
         svc.setRegulatingTerminal(terminal);
 
+        svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", rc.regulatingControlId);
         return okSet;
     }
 

@@ -13,10 +13,12 @@ import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.NodeCalc;
+import com.univocity.parsers.common.ParsingContext;
+import com.univocity.parsers.common.ResultIterator;
+import com.univocity.parsers.csv.CsvParser;
+import com.univocity.parsers.csv.CsvParserSettings;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.LoggerFactory;
-import org.supercsv.io.CsvListReader;
-import org.supercsv.prefs.CsvPreference;
 import org.threeten.extra.Interval;
 
 import java.io.*;
@@ -215,17 +217,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
         }
 
-        void parseLine(List<String> tokens) {
-            for (int i = 2; i < tokens.size(); i++) {
-                String token = tokens.get(i) != null ? tokens.get(i).trim() : "";
+        void parseLine(String[] tokens) {
+            for (int i = 2; i < tokens.length; i++) {
+                String token = tokens[i] != null ? tokens[i].trim() : "";
                 parseToken(i, token);
             }
             // empty last cell case
-            if (tokens.size() == names.size() + 1) {
-                parseToken(tokens.size(), "");
+            if (tokens.length == names.size() + 1) {
+                parseToken(tokens.length, "");
             }
 
-            times.add(ZonedDateTime.parse(tokens.get(0)));
+            times.add(ZonedDateTime.parse(tokens[0]));
         }
 
         void reInit() {
@@ -295,17 +297,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         }
     }
 
-    static void readCsvValues(CsvListReader reader, CsvParsingContext context,
-                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) throws IOException {
-        List<String> tokens;
+    static void readCsvValues(ResultIterator<String[], ParsingContext> iterator, CsvParsingContext context,
+                              Map<Integer, List<TimeSeries>> timeSeriesPerVersion) {
         int currentVersion = Integer.MIN_VALUE;
-        while ((tokens = reader.read()) != null) {
+        while (iterator.hasNext()) {
+            String[] tokens = iterator.next();
 
-            if (tokens.size() != context.names.size() + 2 && tokens.size() != context.names.size() + 1) {
+            if (tokens.length != context.names.size() + 2 && tokens.length != context.names.size() + 1) {
                 throw new TimeSeriesException("Columns of line " + context.times.size() + " are inconsistent with header");
             }
 
-            int version = Integer.parseInt(tokens.get(1));
+            int version = Integer.parseInt(tokens[1]);
             if (currentVersion == Integer.MIN_VALUE) {
                 currentVersion = version;
             } else if (version != currentVersion) {
@@ -319,11 +321,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         timeSeriesPerVersion.put(currentVersion, context.createTimeSeries());
     }
 
-    static CsvParsingContext readCsvHeader(CsvListReader csvListReader, String separatorStr) throws IOException {
-        String[] tokens = csvListReader.getHeader(true);
-        if (tokens == null) {
+    static CsvParsingContext readCsvHeader(ResultIterator<String[], ParsingContext> iterator, String separatorStr) {
+        if (!iterator.hasNext()) {
             throw new TimeSeriesException("CSV header is missing");
         }
+        String[] tokens = iterator.next();
 
         if (tokens.length < 2 || !"Time".equals(tokens[0]) || !"Version".equals(tokens[1])) {
             throw new TimeSeriesException("Bad CSV header, should be \nTime" + separatorStr + "Version" + separatorStr + "...");
@@ -350,13 +352,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         Map<Integer, List<TimeSeries>> timeSeriesPerVersion = new HashMap<>();
         String separatorStr = Character.toString(separator);
 
-        try {
-            CsvListReader csvListReader = new CsvListReader(reader, new CsvPreference.Builder('"', separator, System.lineSeparator()).build());
-            CsvParsingContext context = readCsvHeader(csvListReader, separatorStr);
-            readCsvValues(csvListReader, context, timeSeriesPerVersion);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        CsvParserSettings settings = new CsvParserSettings();
+        settings.getFormat().setDelimiter(separator);
+        settings.getFormat().setQuoteEscape('"');
+        settings.getFormat().setLineSeparator(System.lineSeparator());
+        CsvParser csvParser = new CsvParser(settings);
+        ResultIterator<String[], ParsingContext> iterator = csvParser.iterate(reader).iterator();
+        CsvParsingContext context = readCsvHeader(iterator, separatorStr);
+        readCsvValues(iterator, context, timeSeriesPerVersion);
 
         LoggerFactory.getLogger(TimeSeries.class)
                 .info("{} time series loaded from CSV in {} ms",

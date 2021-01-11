@@ -157,9 +157,9 @@ public final class NetworkChanges {
     }
 
     public static void modifyStateVariables(Network network) {
-        network.getBusBreakerView().getBuses().forEach(b -> {
-            b.setAngle(b.getAngle() + 0.01);
-            b.setV(b.getV() + 0.01);
+        network.getBusView().getBuses().forEach(b -> {
+            b.setAngle(b.getAngle() + 0.1);
+            b.setV(b.getV() + 1);
         });
     }
 

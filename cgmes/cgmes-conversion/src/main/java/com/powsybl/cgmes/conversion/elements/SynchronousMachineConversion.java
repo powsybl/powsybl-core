@@ -8,11 +8,13 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForGenerators;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.network.extensions.ActivePowerControlAdder;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -60,6 +62,19 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         if (p.asInt("referencePriority", 0) > 0) {
             SlackTerminal.reset(g.getTerminal().getVoltageLevel(), g.getTerminal());
         }
+        if (p.containsKey("normalPF")) {
+            // Extension power control adder attribute "droop"
+            // is documented as the participation factor when distributed slack is enabled
+            // We map the normal participation factor from CGMES to droop
+            g.newExtension(ActivePowerControlAdder.class)
+                    .withParticipate(true)
+                    .withDroop((float) p.asDouble("normalPF"))
+                    .add();
+        }
+        String generatingUnit = p.getId("GeneratingUnit");
+        if (generatingUnit != null) {
+            g.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "GeneratingUnit", generatingUnit);
+        }
 
         context.regulatingControlMapping().forGenerators().add(g.getId(), p);
     }
@@ -74,6 +89,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             es = EnergySource.THERMAL;
         } else if (gut.contains("WindGeneratingUnit")) {
             es = EnergySource.WIND;
+        } else if (gut.contains("SolarGeneratingUnit")) {
+            es = EnergySource.SOLAR;
         }
         return es;
     }

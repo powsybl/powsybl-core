@@ -58,7 +58,7 @@ public class RegulatingControlMapping {
         return regulatingControlMappingForStaticVarCompensators;
     }
 
-    static class RegulatingControl {
+    public static class RegulatingControl {
         final String mode;
         final String cgmesTerminal;
         final boolean enabled;
@@ -87,11 +87,18 @@ public class RegulatingControlMapping {
             }
         }
 
+        public double getTargetValue() {
+            return targetValue;
+        }
+
+        public double getTargetDeadBand() {
+            return targetDeadband;
+        }
     }
 
     private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
-    Map<String, RegulatingControl> cachedRegulatingControls() {
+    public Map<String, RegulatingControl> cachedRegulatingControls() {
         return cachedRegulatingControls;
     }
 

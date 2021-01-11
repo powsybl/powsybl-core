@@ -190,6 +190,9 @@ public final class CgmesConformity1NetworkCatalog {
                     .setGPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
@@ -283,6 +286,9 @@ public final class CgmesConformity1NetworkCatalog {
                     .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
+        shBrussels110.setTargetV(110.0);
+        shBrussels110.setTargetDeadband(0.5);
+        shBrussels110.setVoltageRegulatorOn(false);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
                 .setId("_f96d552a-618d-4d0c-a39a-2dea3c411dee")
                 .setName("BE-Busbar_5")
@@ -1073,6 +1079,9 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
         return network;
     }

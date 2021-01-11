@@ -127,6 +127,8 @@ public interface CgmesModel {
 
     PropertyBags phaseTapChangerTable(String tableId);
 
+    PropertyBags controlAreas();
+
     PropertyBags acDcConverters();
 
     PropertyBags dcLineSegments();

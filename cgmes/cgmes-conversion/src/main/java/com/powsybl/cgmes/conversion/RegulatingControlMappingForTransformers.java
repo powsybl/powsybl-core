@@ -59,9 +59,10 @@ public class RegulatingControlMappingForTransformers {
         return rtc;
     }
 
-    public CgmesRegulatingControlPhase buildRegulatingControlPhase(String regulatingControlId,
+    public CgmesRegulatingControlPhase buildRegulatingControlPhase(String id, String regulatingControlId,
         boolean tapChangerControlEnabled, boolean ltcFlag) {
         CgmesRegulatingControlPhase rtc = new CgmesRegulatingControlPhase();
+        rtc.id = id;
         rtc.regulatingControlId = regulatingControlId;
         rtc.tapChangerControlEnabled = tapChangerControlEnabled;
         rtc.ltcFlag = ltcFlag;
