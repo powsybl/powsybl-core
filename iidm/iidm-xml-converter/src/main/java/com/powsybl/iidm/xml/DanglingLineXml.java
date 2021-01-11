@@ -18,6 +18,8 @@ import javax.xml.stream.XMLStreamException;
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
 
+    private static final String ACTIVE_POWER_LIMITS = "activePowerLimits";
+    private static final String APPARENT_POWER_LIMITS = "apparentPowerLimits";
     private static final String GENERATION = "generation";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
@@ -31,7 +33,19 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl) {
-        return dl.getCurrentLimits() != null || dl.getGeneration() != null;
+        return false;
+    }
+
+    @Override
+    protected boolean hasSubElements(DanglingLine dl, NetworkXmlWriterContext context) {
+        return hasValidGeneration(dl, context) || hasValidOperationalLimits(dl, context);
+    }
+
+    private static boolean hasValidGeneration(DanglingLine dl, NetworkXmlWriterContext context) {
+        if (dl.getGeneration() != null) {
+            return context.getVersion().compareTo(IidmXmlVersion.V_1_3) > 0;
+        }
+        return false;
     }
 
     @Override
@@ -79,6 +93,14 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getGeneration() != null) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> ReactiveLimitsXml.INSTANCE.write(dl.getGeneration(), context));
+        }
+        if (dl.getActivePowerLimits() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, dl.getActivePowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+        }
+        if (dl.getApparentPowerLimits() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, dl.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
         }
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
@@ -135,6 +157,14 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
+                case ACTIVE_POWER_LIMITS:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl::newActivePowerLimits, context.getReader()));
+                    break;
+                case APPARENT_POWER_LIMITS:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(null, dl::newApparentPowerLimits, context.getReader()));
+                    break;
                 case "currentLimits":
                     readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
                     break;

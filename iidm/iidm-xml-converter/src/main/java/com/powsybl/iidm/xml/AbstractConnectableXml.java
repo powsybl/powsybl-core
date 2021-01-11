@@ -32,6 +32,20 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         return index != null ? index.toString() : "";
     }
 
+    protected static boolean hasValidOperationalLimits(Branch branch, NetworkXmlWriterContext context) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+            return !branch.getOperationalLimits1().isEmpty() || !branch.getOperationalLimits2().isEmpty();
+        }
+        return branch.getCurrentLimits1() != null || branch.getCurrentLimits2() != null;
+    }
+
+    protected static boolean hasValidOperationalLimits(FlowsLimitsHolder limitsHolder, NetworkXmlWriterContext context) {
+        if (context.getVersion().compareTo(IidmXmlVersion.V_1_5) > 0) {
+            return !limitsHolder.getOperationalLimits().isEmpty();
+        }
+        return limitsHolder.getCurrentLimits() != null;
+    }
+
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         switch (topologyLevel) {
@@ -142,11 +156,23 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 .setQ(q);
     }
 
+    public static void readActivePowerLimits(Integer index, Supplier<ActivePowerLimitsAdder> activePowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
+        readLoadingLimits(index, "activePowerLimits", activePowerLimitsOwner, reader);
+    }
+
+    public static void readApparentPowerLimits(Integer index, Supplier<ApparentPowerLimitsAdder> apparentPowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
+        readLoadingLimits(index, "apparentPowerLimits", apparentPowerLimitsOwner, reader);
+    }
+
     public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
-        CurrentLimitsAdder adder = currentLimitOwner.get();
+        readLoadingLimits(index, CURRENT_LIMITS, currentLimitOwner, reader);
+    }
+
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, Supplier<A> limitOwner, XMLStreamReader reader) throws XMLStreamException {
+        A adder = limitOwner.get();
         double permanentLimit = XmlUtil.readOptionalDoubleAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
-        XmlUtil.readUntilEndElement(CURRENT_LIMITS + indexToString(index), reader, () -> {
+        XmlUtil.readUntilEndElement(type + indexToString(index), reader, () -> {
             if ("temporaryLimit".equals(reader.getLocalName())) {
                 String name = reader.getAttributeValue(null, "name");
                 int acceptableDuration = XmlUtil.readOptionalIntegerAttribute(reader, "acceptableDuration", Integer.MAX_VALUE);
@@ -161,6 +187,16 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             }
         });
         adder.add();
+    }
+
+    static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
+                                              ExportOptions exportOptions) throws XMLStreamException {
+        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, "activePowerLimits");
+    }
+
+    static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
+                                              ExportOptions exportOptions) throws XMLStreamException {
+        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, "apparentPowerLimits");
     }
 
     /**
@@ -186,15 +222,20 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     public static void writeCurrentLimits(Integer index, CurrentLimits limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
                                           ExportOptions exportOptions) throws XMLStreamException {
+        writeLoadingLimits(index, limits, writer, nsUri, version, exportOptions, CURRENT_LIMITS);
+    }
+
+    private static <L extends LoadingLimits> void writeLoadingLimits(Integer index, L limits, XMLStreamWriter writer, String nsUri, IidmXmlVersion version,
+                                           ExportOptions exportOptions, String type) throws XMLStreamException {
         if (!Double.isNaN(limits.getPermanentLimit())
                 || !limits.getTemporaryLimits().isEmpty()) {
             if (limits.getTemporaryLimits().isEmpty()) {
-                writer.writeEmptyElement(nsUri, CURRENT_LIMITS + indexToString(index));
+                writer.writeEmptyElement(nsUri, type + indexToString(index));
             } else {
-                writer.writeStartElement(nsUri, CURRENT_LIMITS + indexToString(index));
+                writer.writeStartElement(nsUri, type + indexToString(index));
             }
             XmlUtil.writeDouble("permanentLimit", limits.getPermanentLimit(), writer);
-            for (CurrentLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
+            for (LoadingLimits.TemporaryLimit tl : IidmXmlUtil.sortedTemporaryLimits(limits.getTemporaryLimits(), exportOptions)) {
                 writer.writeEmptyElement(version.getNamespaceURI(), "temporaryLimit");
                 writer.writeAttribute("name", tl.getName());
                 XmlUtil.writeOptionalInt("acceptableDuration", tl.getAcceptableDuration(), Integer.MAX_VALUE, writer);
