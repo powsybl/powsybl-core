@@ -20,21 +20,21 @@ import java.util.function.Supplier;
  */
 public class LoadingLimitsMapping {
 
-    protected final Map<String, LoadingLimitsAdder> adders = new HashMap<>();
+    protected final Map<String, LoadingLimitsAdder<?, ?>> adders = new HashMap<>();
     private final Context context;
 
     LoadingLimitsMapping(Context context) {
         this.context = Objects.requireNonNull(context);
     }
 
-    public LoadingLimitsAdder getLoadingLimitsAdder(String id, Supplier<LoadingLimitsAdder> supplier) {
+    public LoadingLimitsAdder<?, ?> getLoadingLimitsAdder(String id, Supplier<LoadingLimitsAdder<?, ?>> supplier) {
         return adders.computeIfAbsent(id, s -> supplier.get());
     }
 
     void addAll() {
-        for (Map.Entry<String, LoadingLimitsAdder> entry : adders.entrySet()) {
+        for (Map.Entry<String, LoadingLimitsAdder<?, ?>> entry : adders.entrySet()) {
             if (!Double.isNaN(entry.getValue().getPermanentLimit()) || entry.getValue().hasTemporaryLimits()) {
-                LoadingLimits limits = (LoadingLimits) entry.getValue().add();
+                LoadingLimits limits = entry.getValue().add();
                 if (Double.isNaN(limits.getPermanentLimit())) {
                     double fixedPermanentLimit = Iterables.get(limits.getTemporaryLimits(), 0).getValue();
                     context.fixed("Operational Limit Set of " + entry.getKey(),

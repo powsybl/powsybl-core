@@ -50,7 +50,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
             } else if (equipmentId != null) {
                 // The equipment may be a Branch, a Dangling line, a Switch ...
-                Identifiable identifiable = context.network().getIdentifiable(equipmentId);
+                Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
                 createLimitsAdder(-1, limitSubclass, identifiable);
             }
         } else if (limitSubclass.equals("VoltageLimit")) {
@@ -67,7 +67,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private static Supplier<LoadingLimitsAdder> getLoadingLimitAdderSupplier(String limitSubClass, FlowsLimitsHolder holder) {
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, FlowsLimitsHolder holder) {
         if (limitSubClass == null) {
             return holder::newCurrentLimits;
         }
@@ -83,7 +83,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private static Supplier<LoadingLimitsAdder> getLoadingLimitAdder1Supplier(String limitSubClass, Branch b) {
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder1Supplier(String limitSubClass, Branch<?> b) {
         if (limitSubClass == null) {
             return b::newCurrentLimits1;
         }
@@ -99,7 +99,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private static Supplier<LoadingLimitsAdder> getLoadingLimitAdder2Supplier(String limitSubClass, Branch b) {
+    private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdder2Supplier(String limitSubClass, Branch<?> b) {
         if (limitSubClass == null) {
             return b::newCurrentLimits2;
         }
@@ -116,8 +116,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, Branch<?> b) {
-        Supplier<LoadingLimitsAdder> loadingLimitAdder1Supplier = getLoadingLimitAdder1Supplier(limitSubClass, b);
-        Supplier<LoadingLimitsAdder> loadingLimitAdder2Supplier = getLoadingLimitAdder2Supplier(limitSubClass, b);
+        Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder1Supplier = getLoadingLimitAdder1Supplier(limitSubClass, b);
+        Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder2Supplier = getLoadingLimitAdder2Supplier(limitSubClass, b);
         if (terminalNumber == 1) {
             loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass, loadingLimitAdder1Supplier);
         } else if (terminalNumber == 2) {
@@ -228,7 +228,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
     }
 
-    private void addPatl(double value, LoadingLimitsAdder adder) {
+    private void addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
         if (Double.isNaN(adder.getPermanentLimit())) {
             adder.setPermanentLimit(value);
         } else {
@@ -262,7 +262,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
     }
 
-    private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder adder) {
+    private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
         if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)
@@ -345,9 +345,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private final String terminalId;
     private final String equipmentId;
 
-    private LoadingLimitsAdder loadingLimitsAdder;
-    private LoadingLimitsAdder loadingLimitsAdder1;
-    private LoadingLimitsAdder loadingLimitsAdder2;
+    private LoadingLimitsAdder<?, ?> loadingLimitsAdder;
+    private LoadingLimitsAdder<?, ?> loadingLimitsAdder1;
+    private LoadingLimitsAdder<?, ?> loadingLimitsAdder2;
 
     private VoltageLevel vl;
 }
