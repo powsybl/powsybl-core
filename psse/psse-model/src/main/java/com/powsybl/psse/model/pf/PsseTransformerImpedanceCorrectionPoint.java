@@ -10,11 +10,9 @@ import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 
 /**
- *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-
 public class PsseTransformerImpedanceCorrectionPoint extends PsseVersioned {
     private double t;
 

@@ -66,11 +66,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     private static class IOLegacyText extends AbstractRecordGroupIOLegacyTextMultiLine<PsseTransformer> {
-        private final TransformerData transformerData;
 
         IOLegacyText(AbstractRecordGroup<PsseTransformer> recordGroup) {
             super(recordGroup);
-            this.transformerData = (TransformerData) recordGroup;
         }
 
         @Override
@@ -103,57 +101,55 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
             List<PsseTransformer> transformers2Windings = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
             if (!transformers2Windings.isEmpty()) {
                 String[] contextFieldNames = context.getFieldNames(TRANSFORMER_2);
-                String[][] fieldNamesByLine = transformerData.fieldNames2Winding(context.getVersion());
+                String[][] fieldNamesByLine = fieldNames2Winding(context.getVersion());
                 writeMultiLineRecords0(
                     buildMultiLineRecordsFixedLines(transformers2Windings, fieldNamesByLine, contextFieldNames, context),
-                    context,
                     outputStream);
             }
             // Process all transformers with 3 windings together
             List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
             if (!transformers3Windings.isEmpty()) {
                 String[] contextFieldNames = context.getFieldNames(TRANSFORMER_3);
-                String[][] fieldNamesByLine = transformerData.fieldNames3Winding(context.getVersion());
+                String[][] fieldNamesByLine = fieldNames3Winding(context.getVersion());
                 writeMultiLineRecords0(
                     buildMultiLineRecordsFixedLines(transformers3Windings, fieldNamesByLine, contextFieldNames, context),
-                    context,
                     outputStream);
             }
 
             writeEnd(outputStream);
         }
-    }
 
-    private static boolean is3Winding(String record) {
-        try (Scanner scanner = new Scanner(record)) {
-            // Valid delimiters surrounded by any number of whitespace
-            scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
-            int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
-            return i != 0 && j != 0 && k != 0;
+        private static boolean is3Winding(String record) {
+            try (Scanner scanner = new Scanner(record)) {
+                // Valid delimiters surrounded by any number of whitespace
+                scanner.useDelimiter("\\s*[" + VALID_DELIMITERS + "]\\s*");
+                int i = scanner.hasNextInt() ? scanner.nextInt() : 0;
+                int j = scanner.hasNextInt() ? scanner.nextInt() : 0;
+                int k = scanner.hasNextInt() ? scanner.nextInt() : 0;
+                return i != 0 && j != 0 && k != 0;
+            }
         }
-    }
 
-    private static String[][] fieldNames3Winding(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_3_35;
-            case V33:
-                return FIELD_NAMES_3_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
+        private static String[][] fieldNames3Winding(PsseVersion version) {
+            switch (version.major()) {
+                case V35:
+                    return FIELD_NAMES_3_35;
+                case V33:
+                    return FIELD_NAMES_3_33;
+                default:
+                    throw new PsseException("Unsupported version " + version);
+            }
         }
-    }
 
-    private static String[][] fieldNames2Winding(PsseVersion version) {
-        switch (version.major()) {
-            case V35:
-                return FIELD_NAMES_2_35;
-            case V33:
-                return FIELD_NAMES_2_33;
-            default:
-                throw new PsseException("Unsupported version " + version);
+        private static String[][] fieldNames2Winding(PsseVersion version) {
+            switch (version.major()) {
+                case V35:
+                    return FIELD_NAMES_2_35;
+                case V33:
+                    return FIELD_NAMES_2_33;
+                default:
+                    throw new PsseException("Unsupported version " + version);
+            }
         }
     }
 
