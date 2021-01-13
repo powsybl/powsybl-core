@@ -345,12 +345,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEVoltageLimits() {
-        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEVoltageLimits().dataSource(),
+    public void microBELimits() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
                 NetworkFactory.findDefault(), null);
         VoltageLevel vl = network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe");
         assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
         assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_84ed55f4-61f5-4d9d-8755-bba7b877a246");
+        assertNull(twt3.getLeg1().getApparentPowerLimits());
+        assertNull(twt3.getLeg2().getApparentPowerLimits());
+        assertNull(twt3.getLeg3().getApparentPowerLimits());
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
+        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1();
+        assertNotNull(apparentPowerLimits);
+        assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
+        assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
     }
 
     @Test
