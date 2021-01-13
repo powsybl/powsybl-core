@@ -22,7 +22,7 @@ public class CurrentLimitsMapping extends LoadingLimitsMapping {
     }
 
     /**
-     * @deprecated Use {@link LoadingLimitsMapping#getLoadingLimitsAdder(String, Supplier)} instead.
+     * @deprecated Use {@link LoadingLimitsMapping#computeIfAbsentLoadingLimitsAdder(String, Supplier)} instead.
      */
     @Deprecated
     public CurrentLimitsAdder getCurrentLimitsAdder(String id, Supplier<CurrentLimitsAdder> supplier) {

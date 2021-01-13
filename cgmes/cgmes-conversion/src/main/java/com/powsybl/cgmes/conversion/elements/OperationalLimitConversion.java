@@ -118,12 +118,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, Branch<?> b) {
-        Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder1Supplier = getLoadingLimitAdder1Supplier(limitSubClass, b);
-        Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder2Supplier = getLoadingLimitAdder2Supplier(limitSubClass, b);
         if (terminalNumber == 1) {
-            loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass, loadingLimitAdder1Supplier);
+            Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder1Supplier = getLoadingLimitAdder1Supplier(limitSubClass, b);
+            loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1_" + limitSubClass, loadingLimitAdder1Supplier);
         } else if (terminalNumber == 2) {
-            loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(b.getId() + "_2_" + limitSubClass, loadingLimitAdder2Supplier);
+            Supplier<LoadingLimitsAdder<?, ?>> loadingLimitAdder2Supplier = getLoadingLimitAdder2Supplier(limitSubClass, b);
+            loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2_" + limitSubClass, loadingLimitAdder2Supplier);
         } else {
             notAssigned(b);
         }
@@ -131,13 +131,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void createLimitsAdder(int terminalNumber, String limitSubClass, ThreeWindingsTransformer twt) {
         if (terminalNumber == 1) {
-            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass,
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_1_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg1()));
         } else if (terminalNumber == 2) {
-            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass,
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_2_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg2()));
         } else if (terminalNumber == 3) {
-            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass,
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(twt.getId() + "_3_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, twt.getLeg3()));
         } else {
             notAssigned(twt);
@@ -148,8 +148,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
-                loadingLimitsAdder1 = context.loadingLimitsMapping().getLoadingLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
-                loadingLimitsAdder2 = context.loadingLimitsMapping().getLoadingLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
+                loadingLimitsAdder1 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
+                loadingLimitsAdder2 = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
             } else {
                 createLimitsAdder(terminalNumber, limitSubClass, b);
             }
@@ -163,7 +163,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             }
         } else if (identifiable instanceof DanglingLine) {
             DanglingLine danglingLine = (DanglingLine) identifiable;
-            loadingLimitsAdder = context.loadingLimitsMapping().getLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
+            loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(danglingLine.getId() + "_" + limitSubClass,
                     getLoadingLimitAdderSupplier(limitSubClass, danglingLine));
         } else if (identifiable instanceof ThreeWindingsTransformer) {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
