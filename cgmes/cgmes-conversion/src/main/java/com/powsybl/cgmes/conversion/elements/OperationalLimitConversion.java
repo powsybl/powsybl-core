@@ -57,7 +57,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminal != null) {
                 vl = terminal.getVoltageLevel();
             } else if (equipmentId != null) {
-                Identifiable i = context.network().getIdentifiable(equipmentId);
+                Identifiable<?> i = context.network().getIdentifiable(equipmentId);
                 if (i instanceof Injection) {
                     vl = ((Injection) i).getTerminal().getVoltageLevel();
                 }
