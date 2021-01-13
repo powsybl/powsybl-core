@@ -58,7 +58,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 vl = terminal.getVoltageLevel();
             } else if (equipmentId != null) {
                 Identifiable<?> i = context.network().getIdentifiable(equipmentId);
-                if (i instanceof Injection) {
+                if (i == null) {
+                    vl = context.network().getVoltageLevel(p.getId("EquipmentContainer")); // happens in BusBranch when the voltage limit is linked to a busbarSection
+                } else if (i instanceof Injection) {
                     vl = ((Injection) i).getTerminal().getVoltageLevel();
                 }
             }
