@@ -2223,4 +2223,16 @@
 		<cim:OperationalLimit.OperationalLimitType rdf:resource="#low_voltage_limit_type" />
 		<cim:VoltageLimit.value>350.7</cim:VoltageLimit.value>
 	</cim:VoltageLimit>
+    <cim:VoltageLimit rdf:ID="new_voltage_limit_3">
+        <cim:IdentifiedObject.name>low_400</cim:IdentifiedObject.name>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#new_limit_set" />
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#low_voltage_limit_type" />
+        <cim:VoltageLimit.value>349.2</cim:VoltageLimit.value>
+    </cim:VoltageLimit>
+    <cim:VoltageLimit rdf:ID="new_voltage_limit_4">
+        <cim:IdentifiedObject.name>high_400</cim:IdentifiedObject.name>
+        <cim:OperationalLimit.OperationalLimitSet rdf:resource="#new_limit_set" />
+        <cim:OperationalLimit.OperationalLimitType rdf:resource="#high_voltage_limit_type" />
+        <cim:VoltageLimit.value>403.2</cim:VoltageLimit.value>
+    </cim:VoltageLimit>
 </rdf:RDF>
