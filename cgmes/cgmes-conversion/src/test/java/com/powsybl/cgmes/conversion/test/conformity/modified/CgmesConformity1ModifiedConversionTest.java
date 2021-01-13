@@ -345,6 +345,15 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEVoltageLimits() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEVoltageLimits().dataSource(),
+                NetworkFactory.findDefault(), null);
+        VoltageLevel vl = network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe");
+        assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
+        assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
+    }
+
+    @Test
     public void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
