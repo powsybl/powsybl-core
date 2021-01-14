@@ -10,7 +10,6 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
-import com.powsybl.cgmes.conversion.extensions.CgmesIidmMapping;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -61,11 +60,6 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        CgmesIidmMapping cgmesIidmMapping = expected.getExtension(CgmesIidmMapping.class);
-        if (cgmesIidmMapping != null) {
-            context.setTopologicalNodeByBusBreakerBusMapping(expected.getExtension(CgmesIidmMapping.class).toMap());
-            context.setTopologicalMappingUse(CgmesExportContext.TopologicalMappingUse.MAPPING_ONLY);
-        }
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = Files.newOutputStream(exportedSv)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
