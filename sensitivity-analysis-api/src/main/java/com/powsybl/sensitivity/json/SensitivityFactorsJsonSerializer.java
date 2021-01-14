@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -31,25 +32,25 @@ public final class SensitivityFactorsJsonSerializer {
      * @return The sensitivity factors input created
      * @throws IOException
      */
-    public static List<SensitivityFactor> read(Reader reader) throws IOException {
+    public static Map<String, List<SensitivityFactor>> read(Reader reader) throws IOException {
         Objects.requireNonNull(reader);
 
-        ObjectReader objectReader = JsonUtil.createObjectMapper().readerFor(new TypeReference<List<SensitivityFactor>>() { });
+        ObjectReader objectReader = JsonUtil.createObjectMapper().readerFor(new TypeReference<Map<String, List<SensitivityFactor>>>() { });
         return objectReader.readValue(reader);
     }
 
     /**
      * Write sensitivity factors input in JSON format to writer
-     * @param sensitivityFactors The sensitivity factors input to export
+     * @param sensitivityFactorsMap The sensitivity factors input to export
      * @param writer The writer to write to
      * @throws IOException
      */
-    public static void write(List<SensitivityFactor> sensitivityFactors, Writer writer) throws IOException {
-        Objects.requireNonNull(sensitivityFactors);
+    public static void write(Map<String, List<SensitivityFactor>> sensitivityFactorsMap, Writer writer) throws IOException {
+        Objects.requireNonNull(sensitivityFactorsMap);
         Objects.requireNonNull(writer);
 
         ObjectWriter objectWriter = JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter();
-        objectWriter.forType(new TypeReference<List<SensitivityFactor>>() { }).writeValue(writer, sensitivityFactors);
+        objectWriter.forType(new TypeReference<Map<String, List<SensitivityFactor>>>() { }).writeValue(writer, sensitivityFactorsMap);
     }
 
     private SensitivityFactorsJsonSerializer() {

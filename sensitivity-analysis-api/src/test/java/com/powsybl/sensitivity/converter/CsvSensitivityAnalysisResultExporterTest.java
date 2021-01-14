@@ -28,15 +28,17 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
 
     private static SensitivityAnalysisResult createSensitivityResult() {
         // read sensitivity factors
-        List<SensitivityFactor> factors = Collections.emptyList();
+        Map<String, List<SensitivityFactor>> factorsMap;
         try {
-            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
+            factorsMap = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         List<SensitivityValue> sensitivityValues = new ArrayList<>(Collections.emptyList());
-        factors.forEach(factor -> {
-            sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
+        factorsMap.keySet().forEach(contingencyId -> {
+            factorsMap.get(contingencyId).forEach(factor -> {
+                sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
+            });
         });
         Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result

@@ -17,12 +17,12 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvider {
 
     private final List<SensitivityFactor> sensitivityFactors;
+    private final Map<String, List<SensitivityFactor>> sensitivityFactorsMap;
 
     /**
      * Creates a provider by reading the sensitivity factors from a JSON UTF-8 encoded file.
@@ -30,7 +30,12 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
     public JsonSensitivityFactorsProvider(final Path path) {
         Objects.requireNonNull(path);
         try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            sensitivityFactors = SensitivityFactorsJsonSerializer.read(reader);
+            sensitivityFactorsMap = SensitivityFactorsJsonSerializer.read(reader);
+            Set<SensitivityFactor> sensitivityFactorsSet = new HashSet<>();
+            for (List<SensitivityFactor> sensitivityFactors : sensitivityFactorsMap.values()) {
+                sensitivityFactorsSet.addAll(sensitivityFactors);
+            }
+            sensitivityFactors = new ArrayList<>(sensitivityFactorsSet);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -42,7 +47,12 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
     public JsonSensitivityFactorsProvider(final InputStream input) {
         Objects.requireNonNull(input);
         try {
-            sensitivityFactors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(input, StandardCharsets.UTF_8));
+            sensitivityFactorsMap = SensitivityFactorsJsonSerializer.read(new InputStreamReader(input, StandardCharsets.UTF_8));
+            Set<SensitivityFactor> sensitivityFactorsSet = new HashSet<>();
+            for (List<SensitivityFactor> sensitivityFactors : sensitivityFactorsMap.values()) {
+                sensitivityFactorsSet.addAll(sensitivityFactors);
+            }
+            sensitivityFactors = new ArrayList<>(sensitivityFactorsSet);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -55,6 +65,6 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
 
     @Override
     public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
-        return sensitivityFactors;
+        return sensitivityFactorsMap.get(contingencyId);
     }
 }

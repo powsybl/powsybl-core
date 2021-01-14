@@ -19,6 +19,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -26,11 +27,11 @@ import java.util.Objects;
  */
 public class JsonSensitivityFactorsTest extends AbstractConverterTest {
 
-    private static List<SensitivityFactor> create() throws IOException {
+    private static Map<String, List<SensitivityFactor>> create() throws IOException {
         return SensitivityFactorsJsonSerializer.read(new InputStreamReader(JsonSensitivityFactorsTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
     }
 
-    private static List<SensitivityFactor> read(Path jsonFile) {
+    private static Map<String, List<SensitivityFactor>> read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -40,7 +41,7 @@ public class JsonSensitivityFactorsTest extends AbstractConverterTest {
         }
     }
 
-    private static void write(List<SensitivityFactor> cracFile, Path jsonFile) {
+    private static void write(Map<String, List<SensitivityFactor>> cracFile, Path jsonFile) {
         Objects.requireNonNull(cracFile);
         Objects.requireNonNull(jsonFile);
 
