@@ -190,7 +190,7 @@ public class UcteExporterTest extends AbstractConverterTest {
                 rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
             }
         }
-        testExporter(network, "/unvalidVoltageReference.uct");
+        testExporter(network, "/invalidVoltageReference.uct");
     }
 
 }

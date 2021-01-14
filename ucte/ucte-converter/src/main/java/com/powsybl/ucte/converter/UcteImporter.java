@@ -350,7 +350,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z) {
-        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z + " ohm");
+        LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
