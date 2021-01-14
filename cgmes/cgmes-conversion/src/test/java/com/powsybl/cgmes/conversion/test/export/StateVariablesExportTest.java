@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.conversion.extensions.CgmesIidmMapping;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -19,6 +20,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -40,21 +42,33 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    public void smallGrid() throws IOException, XMLStreamException {
+    public void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
+    }
+
+    @Test
+    @Ignore("fails with error: TopologicalNode _048b86b5-c766-11e1-8775-005056c00008 is already mapped to another bus")
+    public void smallGridNodeBreaker() throws IOException, XMLStreamException {
+        test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
     }
 
     private void test(ReadOnlyDataSource dataSource, int svVersion) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
+        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export SV
+        CgmesExportContext context = new CgmesExportContext(expected);
+        CgmesIidmMapping cgmesIidmMapping = expected.getExtension(CgmesIidmMapping.class);
+        if (cgmesIidmMapping != null) {
+            context.setTopologicalNodeByBusBreakerBusMapping(expected.getExtension(CgmesIidmMapping.class).toMap());
+            context.setTopologicalMappingUse(CgmesExportContext.TopologicalMappingUse.MAPPING_ONLY);
+        }
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = Files.newOutputStream(exportedSv)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
-            CgmesExportContext context = new CgmesExportContext(expected);
             context.getSvModelDescription().setVersion(svVersion);
             StateVariablesExport.write(expected, writer, context);
         }
@@ -62,17 +76,17 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Zip with new SV
         Path repackaged = tmpDir.resolve("repackaged.zip");
         Repackager r = new Repackager(dataSource)
-                .with("test_EQ.xml", Repackager::eq)
-                .with("test_TP.xml", Repackager::tp)
-                .with("test_SV.xml", exportedSv)
-                .with("test_SSH.xml", Repackager::ssh)
-                .with("test_EQ_BD.xml", Repackager::eqBd)
-                .with("test_TP_BD.xml", Repackager::tpBd);
+            .with("test_EQ.xml", Repackager::eq)
+            .with("test_TP.xml", Repackager::tp)
+            .with("test_SV.xml", exportedSv)
+            .with("test_SSH.xml", Repackager::ssh)
+            .with("test_EQ_BD.xml", Repackager::eqBd)
+            .with("test_TP_BD.xml", Repackager::tpBd);
         r.zip(repackaged);
 
         // Import with new SV
         Network actual = Importers.loadNetwork(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+            DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Export original and with new SV
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
