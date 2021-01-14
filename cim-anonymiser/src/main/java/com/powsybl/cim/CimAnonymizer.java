@@ -11,9 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.util.StringAnonymizer;
 import javanet.staxutils.helpers.EventWriterDelegate;
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.*;
@@ -26,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -159,11 +160,11 @@ public class CimAnonymizer {
             } else if (startElement.getName().getLocalPart().equals("IdentifiedObject.description")) {
                 identifiedObjectDescription = true;
             } else {
-                Iterator it = startElement.getAttributes();
+                Iterator<Attribute> it = startElement.getAttributes();
                 if (it.hasNext()) {
                     List<Attribute> newAttributes = new ArrayList<>();
                     while (it.hasNext()) {
-                        Attribute attribute = (Attribute) it.next();
+                        Attribute attribute = it.next();
                         Attribute newAttribute = anonymizeAttribute(attribute);
                         newAttributes.add(newAttribute != null ? newAttribute : attribute);
                     }
@@ -245,9 +246,9 @@ public class CimAnonymizer {
             XMLEvent event = eventReader.nextEvent();
             if (event.isStartElement()) {
                 StartElement startElement = event.asStartElement();
-                Iterator it = startElement.getAttributes();
+                Iterator<Attribute> it = startElement.getAttributes();
                 while (it.hasNext()) {
-                    Attribute attribute = (Attribute) it.next();
+                    Attribute attribute = it.next();
                     QName name = attribute.getName();
                     if (RDF_ID.equals(name)) {
                         rdfIdValues.add(attribute.getValue());
@@ -262,8 +263,8 @@ public class CimAnonymizer {
         Set<String> rdfIdValues = new HashSet<>();
 
         // memoize rdf:ID values, will be used to detect outside graph references
-        for (ZipEntry entry : zipFileData) {
-            try (InputStream is = zipFileData.getInputStream(entry.getName())) {
+        for (ZipArchiveEntry entry : Collections.list(zipFileData.getEntries())) {
+            try (InputStream is = zipFileData.getInputStream(zipFileData.getEntry(entry.getName()))) {
                 addRdfIdValues(is, rdfIdValues);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
@@ -291,7 +292,7 @@ public class CimAnonymizer {
         StringAnonymizer dictionary = loadDic(dictionaryFile);
 
         // anonymize each file of the archive
-        try (ZipFile zipFileData = new ZipFile(cimZipFile)) {
+        try (ZipFile zipFileData = new ZipFile(Files.newByteChannel(cimZipFile))) {
 
             Set<String> rdfIdValues = skipExternalRef ? getRdfIdValues(zipFileData) : null;
 
@@ -299,9 +300,9 @@ public class CimAnonymizer {
 
             Path anonymizedCimZipFile = anonymizedCimFileDir.resolve(cimZipFile.getFileName());
             try (ZipOutputStream anonymizedZipOutputStream = new ZipOutputStream(Files.newOutputStream(anonymizedCimZipFile))) {
-                for (ZipEntry entry : zipFileData) {
-                    anonymizedZipOutputStream.putNextEntry(entry);
-                    try (InputStream cimFileInputStream = zipFileData.getInputStream(entry.getName())) {
+                for (ZipEntry entry : Collections.list(zipFileData.getEntries())) {
+                    anonymizedZipOutputStream.putNextEntry(new ZipEntry(entry.getName()));
+                    try (InputStream cimFileInputStream = zipFileData.getInputStream(zipFileData.getEntry(entry.getName()))) {
                         anonymizeFile(cimFileInputStream, anonymizedZipOutputStream, xmlStaxContext, dictionary, rdfIdValues, skipped);
                     }
                     anonymizedZipOutputStream.closeEntry();

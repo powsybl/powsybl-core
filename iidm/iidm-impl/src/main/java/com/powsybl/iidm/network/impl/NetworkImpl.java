@@ -10,7 +10,6 @@ import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
@@ -997,8 +996,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
-            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
+            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
+            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));

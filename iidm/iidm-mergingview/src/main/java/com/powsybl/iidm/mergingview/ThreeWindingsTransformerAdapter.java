@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -88,6 +89,11 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         }
 
         @Override
+        public Collection<OperationalLimits> getOperationalLimits() {
+            return getDelegate().getOperationalLimits();
+        }
+
+        @Override
         public CurrentLimits getCurrentLimits() {
             return getDelegate().getCurrentLimits();
         }
@@ -95,6 +101,26 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
         @Override
         public CurrentLimitsAdder newCurrentLimits() {
             return getDelegate().newCurrentLimits();
+        }
+
+        @Override
+        public ApparentPowerLimits getApparentPowerLimits() {
+            return getDelegate().getApparentPowerLimits();
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            return getDelegate().newApparentPowerLimits();
+        }
+
+        @Override
+        public ActivePowerLimits getActivePowerLimits() {
+            return getDelegate().getActivePowerLimits();
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            return getDelegate().newActivePowerLimits();
         }
 
         @Override
@@ -173,8 +199,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     @Override
     public List<? extends TerminalAdapter> getTerminals() {
         return getDelegate().getTerminals().stream()
-                                           .map(getIndex()::getTerminal)
-                                           .collect(Collectors.toList());
+                .map(getIndex()::getTerminal)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -52,4 +52,9 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
     public List<SensitivityFactor> getFactors(Network network) {
         return sensitivityFactors;
     }
+
+    @Override
+    public List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+        return sensitivityFactors;
+    }
 }

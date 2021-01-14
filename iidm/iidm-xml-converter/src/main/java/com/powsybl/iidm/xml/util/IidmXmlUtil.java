@@ -183,8 +183,8 @@ public final class IidmXmlUtil {
      * If not, throw an exception with a given type of error message.
      */
     public static void assertMinimumVersionIfNotDefault(boolean valueIsNotDefault, String rootElementName,
-                                                                                              String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                                                              NetworkXmlReaderContext context) {
+                                                        String elementName, ErrorMessage type, IidmXmlVersion minVersion,
+                                                        NetworkXmlReaderContext context) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
         }
@@ -211,8 +211,8 @@ public final class IidmXmlUtil {
      * If the value is not default and no exception has been thrown, run a given runnable.
      */
     public static void assertMinimumVersionAndRunIfNotDefault(boolean valueIsNotDefault, String rootElementName,
-                                                                                                    String elementName, ErrorMessage type, IidmXmlVersion minVersion,
-                                                                                                    NetworkXmlReaderContext context, IidmXmlRunnable runnable) {
+                                                              String elementName, ErrorMessage type, IidmXmlVersion minVersion,
+                                                              NetworkXmlReaderContext context, IidmXmlRunnable runnable) {
         if (valueIsNotDefault) {
             assertMinimumVersion(rootElementName, elementName, type, minVersion, context);
             runnable.run();
@@ -383,6 +383,18 @@ public final class IidmXmlUtil {
                                                                          .thenComparing(VoltageLevel.NodeBreakerView.InternalConnection::getNode2))
                                                        .collect(Collectors.toList())
                 : internalConnections;
+    }
+
+    /**
+     * Sort names.
+     */
+    public static Iterable<String> sortedNames(Iterable<String> names, ExportOptions exportOptions) {
+        Objects.requireNonNull(names);
+        Objects.requireNonNull(exportOptions);
+        return exportOptions.isSorted() ? StreamSupport.stream(names.spliterator(), false)
+                .sorted()
+                .collect(Collectors.toList())
+                : names;
     }
 
     private IidmXmlUtil() {
