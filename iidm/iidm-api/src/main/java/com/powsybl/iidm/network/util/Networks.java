@@ -393,7 +393,7 @@ public final class Networks {
         Terminal[] equivalentTerminal = new Terminal[1];
 
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
-            if (sw != null && sw.isOpen()) {
+            if (sw != null && (sw.isOpen() || sw.isRetained())) {
                 return false;
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
