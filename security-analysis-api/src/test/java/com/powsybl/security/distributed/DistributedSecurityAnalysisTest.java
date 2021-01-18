@@ -16,10 +16,7 @@ import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.security.SecurityAnalysis;
-import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +26,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -77,32 +73,6 @@ public class DistributedSecurityAnalysisTest {
         };
     }
 
-    /**
-     * Checks that input files are written to working dir
-     * and that execution count is correctly set.
-     */
-    @Test
-    public void testDistributed() throws IOException {
-        ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
-
-        analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
-
-        checkInvocationOnExecutionHandler(workingDir);
-        checkWorkingDirContent();
-    }
-
-    @Test
-    public void testDistributedWithLog() throws IOException {
-        ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
-
-        analysis.runWithLog(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
-
-        checkInvocationOnExecutionHandler(workingDir);
-        checkWorkingDirContent();
-    }
-
     private void checkInvocationOnExecutionHandler(Path workingDir) throws IOException {
         //Capture the execution handler
         ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
@@ -118,29 +88,6 @@ public class DistributedSecurityAnalysisTest {
         assertTrue(Files.exists(workingDir.resolve("network.xiidm")));
         assertTrue(Files.exists(workingDir.resolve("contingencies.groovy")));
         assertTrue(Files.exists(workingDir.resolve("parameters.json")));
-    }
-
-    /**
-     * Checks that input files are written to working dir
-     * and that execution count is correctly set.
-     */
-    @Test
-    public void testExternal() throws IOException {
-        ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
-        SecurityAnalysis analysis = new ExternalSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
-
-        analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
-
-        //Capture the execution handler
-        ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
-        verify(cm, times(1)).execute(any(), capt.capture());
-
-        //checks methods of the execution handler
-        List<CommandExecution> cmd = capt.getValue().before(workingDir);
-
-        checkWorkingDirContent();
-        assertEquals(1, cmd.size());
-        assertEquals(1, cmd.get(0).getExecutionCount());
     }
 
     /**
