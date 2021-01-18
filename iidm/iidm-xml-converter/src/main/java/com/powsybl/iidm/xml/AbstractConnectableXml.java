@@ -166,11 +166,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     }
 
     public static void readActivePowerLimits(Integer index, Supplier<ActivePowerLimitsAdder> activePowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, "activePowerLimits", activePowerLimitsOwner, reader);
+        readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsOwner, reader);
     }
 
     public static void readApparentPowerLimits(Integer index, Supplier<ApparentPowerLimitsAdder> apparentPowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, "apparentPowerLimits", apparentPowerLimitsOwner, reader);
+        readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsOwner, reader);
     }
 
     public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
@@ -200,12 +200,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     static void writeActivePowerLimits(Integer index, ActivePowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
                                               ExportOptions exportOptions) throws XMLStreamException {
-        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, "activePowerLimits");
+        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, ACTIVE_POWER_LIMITS);
     }
 
     static void writeApparentPowerLimits(Integer index, ApparentPowerLimits limits, XMLStreamWriter writer, IidmXmlVersion version,
                                               ExportOptions exportOptions) throws XMLStreamException {
-        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, "apparentPowerLimits");
+        writeLoadingLimits(index, limits, writer, version.getNamespaceURI(), version, exportOptions, APPARENT_POWER_LIMITS);
     }
 
     /**
