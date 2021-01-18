@@ -18,11 +18,6 @@ import javax.xml.stream.XMLStreamException;
  */
 class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransformer, TwoWindingsTransformerAdder> {
 
-    private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
-    private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
-    private static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
-    private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
-
     static final TwoWindingsTransformerXml INSTANCE = new TwoWindingsTransformerXml();
 
     static final String ROOT_ELEMENT_NAME = "twoWindingsTransformer";
@@ -34,13 +29,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt) {
-        return twt.hasRatioTapChanger()
-                || twt.hasPhaseTapChanger();
+        throw new AssertionError("Should not be called");
     }
 
     @Override
     protected boolean hasSubElements(TwoWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return hasValidOperationalLimits(twt, context) || hasSubElements(twt);
+        return hasValidOperationalLimits(twt, context) || twt.hasRatioTapChanger() || twt.hasPhaseTapChanger();
     }
 
     @Override

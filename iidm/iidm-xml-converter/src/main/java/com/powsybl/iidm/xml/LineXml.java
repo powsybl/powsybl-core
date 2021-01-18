@@ -20,10 +20,6 @@ import javax.xml.stream.XMLStreamException;
  */
 class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
-    private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
-    private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
-    private static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
-    private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
     static final LineXml INSTANCE = new LineXml();
 
     static final String ROOT_ELEMENT_NAME = "line";
@@ -35,7 +31,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected boolean hasSubElements(Line l) {
-        return false;
+        throw new AssertionError("Should not be called");
     }
 
     @Override

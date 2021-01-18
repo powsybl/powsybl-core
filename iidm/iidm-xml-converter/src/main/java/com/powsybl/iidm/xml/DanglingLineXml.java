@@ -17,9 +17,6 @@ import javax.xml.stream.XMLStreamException;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
-
-    private static final String ACTIVE_POWER_LIMITS = "activePowerLimits";
-    private static final String APPARENT_POWER_LIMITS = "apparentPowerLimits";
     private static final String GENERATION = "generation";
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
@@ -33,7 +30,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected boolean hasSubElements(DanglingLine dl) {
-        return false;
+        throw new AssertionError("Should not be called");
     }
 
     @Override

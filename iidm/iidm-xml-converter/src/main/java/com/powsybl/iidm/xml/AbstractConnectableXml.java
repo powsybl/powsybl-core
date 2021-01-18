@@ -26,6 +26,15 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     private static final String CONNECTABLE_BUS = "connectableBus";
     private static final String NODE = "node";
 
+    static final String ACTIVE_POWER_LIMITS = "activePowerLimits";
+    static final String APPARENT_POWER_LIMITS = "apparentPowerLimits";
+    static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
+    static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
+    static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
+    static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
+    static final String ACTIVE_POWER_LIMITS_3 = "activePowerLimits3";
+    static final String APPARENT_POWER_LIMITS_3 = "apparentPowerLimits3";
+
     private static final String CURRENT_LIMITS = "currentLimits";
 
     private static String indexToString(Integer index) {

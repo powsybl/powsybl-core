@@ -22,11 +22,6 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TieLineXml.class);
 
-    private static final String ACTIVE_POWER_LIMITS_1 = "activePowerLimits1";
-    private static final String ACTIVE_POWER_LIMITS_2 = "activePowerLimits2";
-    private static final String APPARENT_POWER_LIMITS_1 = "apparentPowerLimits1";
-    private static final String APPARENT_POWER_LIMITS_2 = "apparentPowerLimits2";
-
     static final TieLineXml INSTANCE = new TieLineXml();
 
     static final String ROOT_ELEMENT_NAME = "tieLine";
@@ -38,7 +33,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected boolean hasSubElements(TieLine tl) {
-        return false;
+        throw new AssertionError("Should not be called");
     }
 
     @Override
