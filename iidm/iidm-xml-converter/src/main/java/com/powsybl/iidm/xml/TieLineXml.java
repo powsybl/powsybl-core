@@ -33,7 +33,12 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected boolean hasSubElements(TieLine tl) {
-        return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
+        throw new AssertionError("Should not be called");
+    }
+
+    @Override
+    protected boolean hasSubElements(TieLine tl, NetworkXmlWriterContext context) {
+        return hasValidOperationalLimits(tl, context);
     }
 
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
@@ -71,8 +76,24 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (tl.getActivePowerLimits1() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, tl.getActivePowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+        }
+        if (tl.getApparentPowerLimits1() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, tl.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+        }
         if (tl.getCurrentLimits1() != null) {
             writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
+        }
+        if (tl.getActivePowerLimits2() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, tl.getActivePowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+        }
+        if (tl.getApparentPowerLimits2() != null) {
+            IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, tl.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
         }
         if (tl.getCurrentLimits2() != null) {
             writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
@@ -138,8 +159,28 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     protected void readSubElements(TieLine tl, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
+                case ACTIVE_POWER_LIMITS_1:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tl::newActivePowerLimits1, context.getReader()));
+                    break;
+
+                case APPARENT_POWER_LIMITS_1:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tl::newApparentPowerLimits1, context.getReader()));
+                    break;
+
                 case "currentLimits1":
                     readCurrentLimits(1, tl::newCurrentLimits1, context.getReader());
+                    break;
+
+                case ACTIVE_POWER_LIMITS_2:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tl::newActivePowerLimits2, context.getReader()));
+                    break;
+
+                case APPARENT_POWER_LIMITS_2:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tl::newApparentPowerLimits2, context.getReader()));
                     break;
 
                 case "currentLimits2":
