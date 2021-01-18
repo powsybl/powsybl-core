@@ -33,78 +33,32 @@ import com.powsybl.security.SecurityAnalysisResult;
 public interface SecurityAnalysisInterceptor {
 
     /**
-     * @deprecated Use {@link #onPreContingencyResult(LimitViolationsResult, SecurityAnalysisResultContext)}
-     * Callback after the pre-contingency analysis result is created
-     * @param context The running context
-     * @param preContingencyResult
-     */
-    @Deprecated
-    default void onPreContingencyResult(RunningContext context, LimitViolationsResult preContingencyResult) {
-        onPreContingencyResult(preContingencyResult, context);
-    }
-
-    /**
-     * @deprecated Use {@link #onPostContingencyResult(PostContingencyResult, SecurityAnalysisResultContext)}
-     * @param context
-     * @param postContingencyResult
-     */
-    @Deprecated
-    default void onPostContingencyResult(RunningContext context, PostContingencyResult postContingencyResult) {
-        onPostContingencyResult(postContingencyResult, context);
-    }
-
-    /**
-     * @deprecated Use {@link #onSecurityAnalysisResult(SecurityAnalysisResult, SecurityAnalysisResultContext)}
-     * Callback after the result is created
-     * @param context
-     * @param result
-     */
-    @Deprecated
-    default void onSecurityAnalysisResult(RunningContext context, SecurityAnalysisResult result) {
-        onSecurityAnalysisResult(result, context);
-    }
-
-    /**
      * Callback after the pre-contingency result is built.
      * @param preContingencyResult
      * @param context
      */
-    default void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context) {
-        if (context instanceof RunningContext) {
-            onPreContingencyResult((RunningContext) context, preContingencyResult);
-        }
-    }
+    void onPreContingencyResult(LimitViolationsResult preContingencyResult, SecurityAnalysisResultContext context);
 
     /**
      * Callback after the post-contingency result is built.
      * @param context
      * @param postContingencyResult
      */
-    default void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context) {
-        if (context instanceof RunningContext) {
-            onPostContingencyResult((RunningContext) context, postContingencyResult);
-        }
-    }
+    void onPostContingencyResult(PostContingencyResult postContingencyResult, SecurityAnalysisResultContext context);
 
     /**
      * Callback after the security-analysis result is built.
      * @param result
      * @param context
      */
-    default void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context) {
-        if (context instanceof RunningContext) {
-            onSecurityAnalysisResult((RunningContext) context, result);
-        }
-    }
+    void onSecurityAnalysisResult(SecurityAnalysisResult result, SecurityAnalysisResultContext context);
 
     /**
      * Callback when a violation is detected on N situation.
      * @param limitViolation
      * @param context
      */
-    default void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context) {
-
-    }
+    void onLimitViolation(LimitViolation limitViolation, SecurityAnalysisResultContext context);
 
     /**
      * Callback when a violation is detected on N-1 situation.
@@ -112,8 +66,5 @@ public interface SecurityAnalysisInterceptor {
      * @param limitViolation
      * @param context
      */
-    default void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context) {
-
-    }
-
+    void onLimitViolation(Contingency contingency, LimitViolation limitViolation, SecurityAnalysisResultContext context);
 }
