@@ -62,17 +62,18 @@ public final class SensitivityFactorsJsonSerializer {
             .readValue(jsonParser, new TypeReference<LinkedHashMap<String, SensitivityVariable>>() { });
 
         jsonToken = jsonParser.nextToken();
-        Map<String, List<List<String>>> sensitivityFactorsStringMap = mapper
-            .readValue(jsonParser, new TypeReference<LinkedHashMap<String, List<List<String>>>>() { });
+        Map<String, Set<String>> sensitivityFunctionStringMap = mapper
+            .readValue(jsonParser, new TypeReference<LinkedHashMap<String, Set<String>>>() { });
         jsonParser.close();
 
         Map<String, List<SensitivityFactor>> sensitivityFactorsMap = new HashMap<>();
-        for (String contingencyId : sensitivityFactorsStringMap.keySet()) {
+        for (String contingencyId : sensitivityFunctionStringMap.keySet()) {
             List<SensitivityFactor> sensitivityFactors = new ArrayList<>();
-            for (List<String> sensitivityFactorString : sensitivityFactorsStringMap.get(contingencyId)) {
-                SensitivityFunction function = sensitivityFunctionMap.get(sensitivityFactorString.get(0));
-                SensitivityVariable variable = sensitivityVariableMap.get(sensitivityFactorString.get(1));
-                sensitivityFactors.add(makeSensitivityFactor(function, variable));
+            for (String sensitivityFunctionString : sensitivityFunctionStringMap.get(contingencyId)) {
+                SensitivityFunction function = sensitivityFunctionMap.get(sensitivityFunctionString);
+                for (SensitivityVariable variable : sensitivityVariableMap.values()) {
+                    sensitivityFactors.add(makeSensitivityFactor(function, variable));
+                }
             }
             sensitivityFactorsMap.put(contingencyId, sensitivityFactors);
         }
@@ -111,25 +112,21 @@ public final class SensitivityFactorsJsonSerializer {
 
         Map<String, SensitivityVariable> sensitivityVariableMap = new LinkedHashMap<>();
         Map<String, SensitivityFunction> sensitivityFunctionMap = new LinkedHashMap<>();
-        Map<String, List<List<String>>> sensitivityFactorsStringMap = new LinkedHashMap<>();
+        Map<String, Set<String>> sensitivityFunctionStringMap = new LinkedHashMap<>();
         for (String contingencyId : sensitivityFactorsMap.keySet()) {
-            List<List<String>> sensitivityFactorsString = new ArrayList<>();
+            Set<String> sensitivityFunctionsString = new LinkedHashSet<>();
             for (SensitivityFactor sensitivityFactor : sensitivityFactorsMap.get(contingencyId)) {
-                List<String> functionVariablePair = new ArrayList<>();
-                functionVariablePair.add(sensitivityFactor.getFunction().getId());
-                functionVariablePair.add(sensitivityFactor.getVariable().getId());
-                sensitivityFactorsString.add(functionVariablePair);
-
+                sensitivityFunctionsString.add(sensitivityFactor.getFunction().getId());
                 sensitivityVariableMap.put(sensitivityFactor.getVariable().getId(), sensitivityFactor.getVariable());
                 sensitivityFunctionMap.put(sensitivityFactor.getFunction().getId(), sensitivityFactor.getFunction());
             }
-            sensitivityFactorsStringMap.put(contingencyId, sensitivityFactorsString);
+            sensitivityFunctionStringMap.put(contingencyId, sensitivityFunctionsString);
         }
 
         jsonGenerator.writeStartArray();
         objectWriter.forType(new TypeReference<Map<String, SensitivityFunction>>() { }).writeValue(jsonGenerator, sensitivityFunctionMap);
         objectWriter.forType(new TypeReference<Map<String, SensitivityVariable>>() { }).writeValue(jsonGenerator, sensitivityVariableMap);
-        objectWriter.forType(new TypeReference<Map<String, List<List<String>>>>() { }).writeValue(jsonGenerator, sensitivityFactorsStringMap);
+        objectWriter.forType(new TypeReference<Map<String, Set<String>>>() { }).writeValue(jsonGenerator, sensitivityFunctionStringMap);
         jsonGenerator.writeEndArray();
         jsonGenerator.close();
     }

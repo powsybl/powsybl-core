@@ -25,5 +25,5 @@
     "injectionId" : "FFR3AA1 _generator"
   }
 }, {
-  "contingency" : [ [ "BBE1AA1  BBE2AA1  1", "FFR1AA1 _generator" ], [ "BBE1AA1  BBE2AA1  1", "FFR2AA1 _generator" ], [ "BBE1AA1  BBE2AA1  1", "FFR3AA1 _generator" ] ]
+  "contingency" : [ "BBE1AA1  BBE2AA1  1" ]
 } ]
