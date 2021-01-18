@@ -302,7 +302,10 @@ WHERE
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
-    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment }
+    OPTIONAL { GRAPH ?graph2 {
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+    }}
     ?OperationalLimitType
         a cim:OperationalLimitType ;
         cim:IdentifiedObject.name ?operationalLimitTypeName .
