@@ -1,0 +1,33 @@
+{
+  "network" : {
+    "caseid" : {
+      "fields" : [ "rev", "title1" ],
+      "data" : [ 35,"PSS(R)E MINIMUM RAWX CASE" ]
+    },
+    "bus" : {
+      "fields" : [ "ibus", "name", "ide" ],
+      "data" : [
+        [ 101,"Source",3 ],
+        [ 102,"Sink",1 ]
+      ]
+    },
+    "load" : {
+      "fields" : [ "ibus", "loadid", "pl", "ql" ],
+      "data" : [
+        [ 102,"1",500.0,200.0 ]
+      ]
+    },
+    "generator" : {
+      "fields" : [ "ibus", "machid" ],
+      "data" : [
+        [ 101,"1" ]
+      ]
+    },
+    "acline" : {
+      "fields" : [ "ibus", "jbus", "ckt", "xpu" ],
+      "data" : [
+        [ 101,102,"1",0.01 ]
+      ]
+    }
+  }
+}

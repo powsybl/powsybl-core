@@ -233,4 +233,8 @@ public interface Scalable {
         List<Scalable> identifierScalables = Arrays.stream(ids).map(ScalableAdapter::new).collect(Collectors.toList());
         return new StackScalable(identifierScalables);
     }
+
+    static UpDownScalable upDown(Scalable upScalable, Scalable downScalable) {
+        return new UpDownScalable(upScalable, downScalable);
+    }
 }

@@ -167,4 +167,10 @@ public class UcteExporterTest extends AbstractConverterTest {
         testExporter(network, "/expectedExport_withoutPermanentLimit.uct");
     }
 
+    @Test
+    public void testXnodeTransformer() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xNodeTransformer.uct");
+        testExporter(network, "/xNodeTransformer.uct");
+    }
+
 }

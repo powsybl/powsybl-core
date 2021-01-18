@@ -23,17 +23,17 @@ public class UcteCountryCodeTest {
             'O', 'A', 'B', 'V', 'W', '3', 'S', 'C', 'D',
             'K', 'E', 'F', '5', 'G', 'M', 'H', 'I', '1',
             '6', '2', '7', 'Y', '9', 'N', 'P', 'Z', 'R',
-            '4', '8', 'Q', 'L', 'T', 'U', '0', 'J', 'X',
+            '4', '8', 'Q', 'L', 'T', 'U', '0', 'J', '_', 'X',
         };
 
         final String[] prettyNames = {
             "Austria", "Albania", "Belgium", "Bulgaria", "Bosnia and Herzegovina", "Belarus", "Switzerland", "Czech Republic", "Germany",
             "Denmark", "Spain", "France", "Great Britain", "Greece", "Hungary", "Croatia", "Italy", "Luxemburg",
             "Lithuania", "Morocco", "Moldavia", "FYROM", "Norway", "Netherlands", "Portugal", "Poland", "Romania",
-            "Russia", "Sweden", "Slovakia", "Slovenia", "Turkey", "Ukraine", "Montenegro", "Serbia", "Fictitious border node"
+            "Russia", "Sweden", "Slovakia", "Slovenia", "Turkey", "Ukraine", "Montenegro", "Serbia", "Kosovo", "Fictitious border node"
         };
 
-        assertEquals(36, UcteCountryCode.values().length);
+        assertEquals(37, UcteCountryCode.values().length);
         for (int i = 0; i < UcteCountryCode.values().length; ++i) {
             UcteCountryCode code = UcteCountryCode.values()[i];
             assertEquals(countryCodeNodes[i], code.getUcteCode());
@@ -44,14 +44,13 @@ public class UcteCountryCodeTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void unknownCountryCode() {
-        UcteCountryCode.fromUcteCode('_');
+        UcteCountryCode.fromUcteCode('&');
     }
 
     @Test
     public void isUcteCountryCodeTest() {
         assertTrue(isUcteCountryCode('A'));
         assertTrue(isUcteCountryCode('1'));
-        assertFalse(isUcteCountryCode('_'));
         assertFalse(isUcteCountryCode('&'));
     }
 }

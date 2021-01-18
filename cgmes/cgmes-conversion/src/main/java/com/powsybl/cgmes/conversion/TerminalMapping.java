@@ -7,10 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -36,11 +33,23 @@ public class TerminalMapping {
     }
 
     public Terminal find(String cgmesTerminalId) {
-        return terminals.get(cgmesTerminalId);
+        if (terminals.get(cgmesTerminalId) != null) {
+            return terminals.get(cgmesTerminalId);
+        }
+        return topologicalNodesMapping.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(cgmesTerminalId))
+                .map(Map.Entry::getKey)
+                .map(this::findFromTopologicalNode)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     public int number(String cgmesTerminalId) {
-        return terminalNumbers.get(cgmesTerminalId);
+        if (terminalNumbers.get(cgmesTerminalId) != null) {
+            return terminalNumbers.get(cgmesTerminalId);
+        }
+        return -1;
     }
 
     public void buildTopologicalNodesMapping(CgmesTerminal t) {
@@ -58,7 +67,7 @@ public class TerminalMapping {
         Terminal disconnectedTerminal = null;
         if (topologicalNodesMapping.containsKey(topologicalNode)) {
             for (String cgmesTerminalId : topologicalNodesMapping.get(topologicalNode)) {
-                Terminal terminal = find(cgmesTerminalId);
+                Terminal terminal = terminals.get(cgmesTerminalId);
                 if (terminal != null) {
                     if (terminal.isConnected()) { // returns the first connected terminal associated with the given topological node
                         return terminal;
