@@ -30,12 +30,12 @@ public class StringTimeSeriesLostColumnsIssueTest {
                 "2016-01-01T01:00:00Z;1;VALUE;VALUE",
                 "2016-01-01T02:00:00Z;1;VALUE;VALUE") + System.lineSeparator();
 
-        Map<Integer, List<TimeSeries>> tsMap = TimeSeries.parseCsv(csv, ';');
+        Map<Integer, List<TimeSeries>> tsMap = TimeSeries.parseCsv(csv);
 
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2016-01-01T01:00:00Z/2016-01-01T02:00:00Z"), Duration.ofHours(1));
         TimeSeriesTable table = new TimeSeriesTable(1, 1, index);
         table.load(1, tsMap.get(1));
-        String csv2 = table.toCsvString(';', ZoneId.of("UTC"));
+        String csv2 = table.toCsvString(new TimeSeriesCsvConfig(ZoneId.of("UTC")));
 
         assertEquals(csv, csv2);
     }
