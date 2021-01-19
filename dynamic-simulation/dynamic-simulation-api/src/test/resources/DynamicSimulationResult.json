@@ -1,5 +1,34 @@
 {
   "version" : "1.0",
   "isOK" : true,
-  "logs" : ""
+  "logs" : "",
+  "curves" : [ {
+    "metadata" : {
+      "name" : "curve1",
+      "dataType" : "DOUBLE",
+      "tags" : [ ],
+      "regularIndex" : {
+        "startTime" : 0,
+        "endTime" : 5,
+        "spacing" : 1
+      }
+    },
+    "chunks" : [ {
+      "offset" : 0,
+      "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
+    } ]
+  } ],
+  "timeLine" : {
+    "metadata" : {
+      "name" : "timeLine",
+      "dataType" : "STRING",
+      "tags" : [ ],
+      "regularIndex" : {
+        "startTime" : 0,
+        "endTime" : 0,
+        "spacing" : 0
+      }
+    },
+    "chunks" : [ ]
+  }
 }

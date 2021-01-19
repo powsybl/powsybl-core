@@ -11,6 +11,9 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonParser;
@@ -22,6 +25,8 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
 import com.powsybl.dynamicsimulation.DynamicSimulationResultImpl;
+import com.powsybl.timeseries.StringTimeSeries;
+import com.powsybl.timeseries.TimeSeries;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -36,6 +41,8 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
     public DynamicSimulationResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
         boolean isOK = false;
         String logs = null;
+        Map<String, TimeSeries> curves = new HashMap<>();
+        StringTimeSeries timeLine = null;
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -49,8 +56,20 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
                     break;
 
                 case "logs":
+                    logs = parser.nextTextValue();
+                    break;
+
+                case "curves":
                     parser.nextToken();
-                    logs = parser.readValueAs(String.class);
+                    deserializeCurves(parser, curves);
+                    break;
+
+                case "timeLine":
+                    parser.nextToken();
+                    timeLine = (StringTimeSeries) deserializeTimeSeries(parser);
+                    if (timeLine == null) {
+                        timeLine = DynamicSimulationResult.emptyTimeLine();
+                    }
                     break;
 
                 default:
@@ -58,7 +77,25 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
             }
         }
 
-        return new DynamicSimulationResultImpl(isOK, logs);
+        return new DynamicSimulationResultImpl(isOK, logs, curves, timeLine);
+    }
+
+    private void deserializeCurves(JsonParser parser, Map<String, TimeSeries> curves) throws IOException {
+        TimeSeries curve = null;
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            curve = deserializeTimeSeries(parser);
+            if (curve != null) {
+                curves.put(curve.getMetadata().getName(), curve);
+            }
+        }
+    }
+
+    private TimeSeries deserializeTimeSeries(JsonParser parser) {
+        List<TimeSeries> timeseries = TimeSeries.parseJson(parser, true);
+        if (!timeseries.isEmpty()) {
+            return timeseries.get(0);
+        }
+        return null;
     }
 
     public static DynamicSimulationResult read(InputStream is) throws IOException {
