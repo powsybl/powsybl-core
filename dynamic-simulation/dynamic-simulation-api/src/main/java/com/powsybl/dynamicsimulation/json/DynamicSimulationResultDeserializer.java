@@ -81,31 +81,11 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
     }
 
     private void deserializeCurves(JsonParser parser, Map<String, TimeSeries> curves) throws IOException {
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            deserializeCurve(parser, curves);
-        }
-    }
-
-    private void deserializeCurve(JsonParser parser, Map<String, TimeSeries> curves) throws IOException, AssertionError {
-        String name = null;
         TimeSeries curve = null;
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "name":
-                    name = parser.nextTextValue();
-                    break;
-
-                case "curve":
-                    parser.nextToken();
-                    curve = deserializeTimeSeries(parser);
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
-            }
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            curve = deserializeTimeSeries(parser);
+            curves.put(curve.getMetadata().getName(), curve);
         }
-
-        curves.put(name, curve);
     }
 
     private TimeSeries deserializeTimeSeries(JsonParser parser) {

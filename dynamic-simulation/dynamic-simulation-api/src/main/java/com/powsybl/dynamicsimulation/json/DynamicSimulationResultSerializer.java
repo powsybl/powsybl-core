@@ -44,11 +44,7 @@ public class DynamicSimulationResultSerializer extends StdSerializer<DynamicSimu
         jsonGenerator.writeFieldName("curves");
         jsonGenerator.writeStartArray();
         for (Entry<String, TimeSeries> entry : result.getCurves().entrySet()) {
-            jsonGenerator.writeStartObject();
-            jsonGenerator.writeStringField("name", entry.getKey());
-            jsonGenerator.writeFieldName("curve");
             entry.getValue().writeJson(jsonGenerator);
-            jsonGenerator.writeEndObject();
         }
         jsonGenerator.writeEndArray();
         jsonGenerator.writeFieldName("timeLine");

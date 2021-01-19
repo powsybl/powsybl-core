@@ -3,23 +3,20 @@
   "isOK" : true,
   "logs" : "",
   "curves" : [ {
-    "name" : "curve1",
-    "curve" : {
-      "metadata" : {
-        "name" : "curve1",
-        "dataType" : "DOUBLE",
-        "tags" : [ ],
-        "regularIndex" : {
-          "startTime" : 0,
-          "endTime" : 5,
-          "spacing" : 1
-        }
-      },
-      "chunks" : [ {
-        "offset" : 0,
-        "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
-      } ]
-    }
+    "metadata" : {
+      "name" : "curve1",
+      "dataType" : "DOUBLE",
+      "tags" : [ ],
+      "regularIndex" : {
+        "startTime" : 0,
+        "endTime" : 5,
+        "spacing" : 1
+      }
+    },
+    "chunks" : [ {
+      "offset" : 0,
+      "values" : [ 0.0, 0.1, 0.1, 0.2, 0.1, 0.0 ]
+    } ]
   } ],
   "timeLine" : {
     "metadata" : {
