@@ -84,7 +84,9 @@ public class DynamicSimulationResultDeserializer extends StdDeserializer<Dynamic
         TimeSeries curve = null;
         while (parser.nextToken() != JsonToken.END_ARRAY) {
             curve = deserializeTimeSeries(parser);
-            curves.put(curve.getMetadata().getName(), curve);
+            if (curve != null) {
+                curves.put(curve.getMetadata().getName(), curve);
+            }
         }
     }
 
