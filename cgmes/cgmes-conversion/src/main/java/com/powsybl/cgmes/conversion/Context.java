@@ -53,7 +53,7 @@ public class Context {
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
-        currentLimitsMapping = new CurrentLimitsMapping(this);
+        loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
@@ -118,8 +118,8 @@ public class Context {
         return dcMapping;
     }
 
-    public CurrentLimitsMapping currentLimitsMapping() {
-        return currentLimitsMapping;
+    public LoadingLimitsMapping loadingLimitsMapping() {
+        return loadingLimitsMapping;
     }
 
     public RegulatingControlMapping regulatingControlMapping() {
@@ -273,7 +273,7 @@ public class Context {
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
     private final DcMapping dcMapping;
-    private final CurrentLimitsMapping currentLimitsMapping;
+    private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
