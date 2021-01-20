@@ -50,6 +50,7 @@
 
     <modules>
         <module>action</module>
+        <module>bom</module>
         <module>ampl-converter</module>
         <module>cgmes</module>
         <module>cim-anonymiser</module>
