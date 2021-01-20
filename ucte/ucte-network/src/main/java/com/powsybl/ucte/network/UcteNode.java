@@ -20,6 +20,9 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteNode.class);
 
     private static final float DEFAULT_POWER_LIMIT = 9999;
+    private static final double LOW_VOLTAGE_FACTOR = 0.8;
+    private static final double HIGH_VOLTAGE_FACTOR = 1.2;
+    private static final double LOW_NOMINAL_VOLTAGE = 110;
 
     private UcteNodeCode code;
     private String geographicalName;
@@ -469,6 +472,16 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
             typeCode = UcteNodeTypeCode.PQ;
+        }
+
+        // PV and incoherent voltage reference
+        if (isRegulatingVoltage()) {
+            double nominalVoltage = code.getVoltageLevelCode().getVoltageLevel();
+            if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (voltageReference < LOW_VOLTAGE_FACTOR * nominalVoltage
+                    || voltageReference > HIGH_VOLTAGE_FACTOR * nominalVoltage)) {
+                LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is too far for nominal voltage ({} kV)",
+                        code, voltageReference);
+            }
         }
     }
 
