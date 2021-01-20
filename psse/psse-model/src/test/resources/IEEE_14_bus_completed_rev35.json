@@ -1648,17 +1648,135 @@
     "ptol" : 999.99,
     "arname" : "IEEE14      "
   } ],
-  "transformerImpedanceCorrections" : [ ],
-  "lineGrouping" : [ ],
+  "transformerImpedanceCorrections" : [ {
+    "i" : 1,
+    "points" : [ {
+      "t" : -30.0,
+      "ref" : 1.1,
+      "imf" : 0.1
+    }, {
+      "t" : -24.0,
+      "ref" : 1.091,
+      "imf" : 0.0
+    }, {
+      "t" : 30.0,
+      "ref" : 1.11,
+      "imf" : 0.0
+    } ]
+  }, {
+    "i" : 2,
+    "points" : [ {
+      "t" : 0.6,
+      "ref" : 1.06,
+      "imf" : 0.0
+    }, {
+      "t" : 0.7,
+      "ref" : 1.07,
+      "imf" : 0.0
+    }, {
+      "t" : 0.8,
+      "ref" : 1.08,
+      "imf" : 0.0
+    }, {
+      "t" : 0.9,
+      "ref" : 1.09,
+      "imf" : 0.1
+    } ]
+  } ],
+  "lineGrouping" : [ {
+    "i" : 1,
+    "j" : 2,
+    "id" : "&1",
+    "met" : 2,
+    "dum1" : 102,
+    "dum2" : 103,
+    "dum3" : 104,
+    "dum4" : null,
+    "dum5" : null,
+    "dum6" : null,
+    "dum7" : null,
+    "dum8" : null,
+    "dum9" : null
+  }, {
+    "i" : 1,
+    "j" : 5,
+    "id" : "&1",
+    "met" : 2,
+    "dum1" : 121,
+    "dum2" : 122,
+    "dum3" : 123,
+    "dum4" : 124,
+    "dum5" : 125,
+    "dum6" : 126,
+    "dum7" : 127,
+    "dum8" : 128,
+    "dum9" : 129
+  } ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "IEEE 14 "
   } ],
-  "interareaTransfer" : [ ],
+  "interareaTransfer" : [ {
+    "arfrom" : 1,
+    "arto" : 2,
+    "trid" : "A",
+    "ptran" : 1000.0
+  }, {
+    "arfrom" : 3,
+    "arto" : 5,
+    "trid" : "D",
+    "ptran" : 2900.0
+  } ],
   "owners" : [ {
     "i" : 1,
     "owname" : "1"
   } ],
-  "facts" : [ ],
+  "facts" : [ {
+    "name" : "FACTS_DVCE_1",
+    "i" : 153,
+    "j" : 0,
+    "mode" : 1,
+    "pdes" : 0.0,
+    "qdes" : 0.0,
+    "vset" : 1.015,
+    "shmx" : 50.0,
+    "trmx" : 100.0,
+    "vtmn" : 0.9263,
+    "vtmx" : 1.134,
+    "vsmx" : 1.0,
+    "imx" : 0.0,
+    "linx" : 0.05652,
+    "rmpct" : 100.0,
+    "owner" : 1,
+    "set1" : 0.0,
+    "set2" : 0.0,
+    "vsref" : 0.0,
+    "mname" : "",
+    "fcreg" : 153,
+    "nreg" : 0
+  }, {
+    "name" : "FACTS_DVCE_2",
+    "i" : 153,
+    "j" : 155,
+    "mode" : 1,
+    "pdes" : 350.0,
+    "qdes" : 40.0,
+    "vset" : 1.015,
+    "shmx" : 25.0,
+    "trmx" : 9999.0,
+    "vtmn" : 0.9,
+    "vtmx" : 1.1,
+    "vsmx" : 1.0,
+    "imx" : 0.0,
+    "linx" : 0.05,
+    "rmpct" : 100.0,
+    "owner" : 1,
+    "set1" : 0.0,
+    "set2" : 0.0,
+    "vsref" : 0.0,
+    "mname" : "",
+    "fcreg" : 153,
+    "nreg" : 0
+  } ],
   "switchedShunts" : [ ]
 }
