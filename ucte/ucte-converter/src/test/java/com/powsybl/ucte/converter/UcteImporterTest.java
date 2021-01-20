@@ -198,13 +198,13 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void testUnvalidRegulation() {
+    public void testInvalidRegulation() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidRegulationNetwork", new ResourceSet("/", "invalidRegulationNetwork.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
     }
 
     @Test
-    public void testUnvalidVoltageReference() {
+    public void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
     }

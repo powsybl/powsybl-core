@@ -233,14 +233,8 @@ public class UcteImporter implements Importer {
             }
         }
 
-        float generatorP = 0;
-        if (isValueValid(ucteNode.getActivePowerGeneration())) {
-            generatorP = ucteNode.getActivePowerGeneration();
-        }
-        float generatorQ = 0;
-        if (isValueValid(ucteNode.getReactivePowerGeneration())) {
-            generatorQ = ucteNode.getReactivePowerGeneration();
-        }
+        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
 
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
@@ -250,8 +244,8 @@ public class UcteImporter implements Importer {
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
-                .setTargetP(-generatorP)
-                .setTargetQ(-generatorQ)
+                .setTargetP(generatorP)
+                .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())
                 .add();
         generator.newMinMaxReactiveLimits()

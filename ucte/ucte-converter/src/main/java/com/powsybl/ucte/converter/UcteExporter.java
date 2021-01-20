@@ -272,8 +272,8 @@ public class UcteExporter implements Exporter {
             // FIXME(mathbagu): what if not all the generators have the same energy source?
             powerPlantType = energySourceToUctePowerPlantType(generator);
         }
-        ucteNode.setActivePowerGeneration(-activePowerGeneration);
-        ucteNode.setReactivePowerGeneration(-reactivePowerGeneration);
+        ucteNode.setActivePowerGeneration(activePowerGeneration != 0 ? -activePowerGeneration : 0);
+        ucteNode.setReactivePowerGeneration(reactivePowerGeneration != 0 ? -reactivePowerGeneration : 0);
         ucteNode.setVoltageReference(voltageReference);
         ucteNode.setPowerPlantType(powerPlantType);
         ucteNode.setTypeCode(nodeType);
