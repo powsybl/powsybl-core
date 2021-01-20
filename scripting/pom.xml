@@ -52,16 +52,8 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-groovysh</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

@@ -57,10 +57,6 @@
             <artifactId>groovy</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-console</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.threeten</groupId>
             <artifactId>threeten-extra</artifactId>
         </dependency>

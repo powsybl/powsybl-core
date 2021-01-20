@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-parent</artifactId>
-        <version>3</version>
+        <version>4</version>
         <relativePath/>
     </parent>
 
@@ -82,6 +82,8 @@
     </modules>
 
     <properties>
+        <java.version>11</java.version>
+
         <sonar.coverage.jacoco.xmlReportPaths>
             ../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
             ../../distribution-core/target/site/jacoco-aggregate/jacoco.xml,
@@ -96,9 +98,11 @@
         <commonsio.version>2.5</commonsio.version>
         <commonslang3.version>3.4</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
+        <findbugs-annotations.version>3.0.1</findbugs-annotations.version>
+        <findbugs-jsr305.version>3.0.2</findbugs-jsr305.version>
         <gdata.version>1.41.1_1</gdata.version>
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
-        <groovy.version>2.5.8</groovy.version>
+        <groovy.version>3.0.7</groovy.version>
         <guava.version>29.0-jre</guava.version>
         <jackson.version>2.10.1</jackson.version>
         <jama.version>1.0.3</jama.version>
@@ -107,7 +111,6 @@
         <jena.version>3.0.0</jena.version>
         <jgrapht.version>1.4.0</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
-        <jline2.version>3.5.1</jline2.version>
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.13.1</junit.version>
         <logback.version>1.1.8</logback.version>
@@ -186,6 +189,16 @@
                 <version>${autoservice.version}</version>
             </dependency>
             <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${findbugs-annotations.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.findbugs</groupId>
+                <artifactId>jsr305</artifactId>
+                <version>${findbugs-jsr305.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
@@ -224,11 +237,6 @@
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
                 <version>${jaxb-api.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.jline</groupId>
-                <artifactId>jline</artifactId>
-                <version>${jline2.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
