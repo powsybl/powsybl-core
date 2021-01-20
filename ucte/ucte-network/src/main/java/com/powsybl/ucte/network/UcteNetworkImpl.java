@@ -122,22 +122,12 @@ public class UcteNetworkImpl implements UcteNetwork {
             node.fix();
         }
         for (UcteLine line : lines.values()) {
-            UcteValidation.checkValidLineCharacteristics(line);
             line.fix();
         }
         for (UcteTransformer transfo : transformers.values()) {
-            UcteValidation.checkValidTransformerCharacteristics(transfo);
             transfo.fix();
         }
         for (UcteRegulation regulation : regulations.values()) {
-            UctePhaseRegulation phaseRegulation = regulation.getPhaseRegulation();
-            UcteAngleRegulation angleRegulation = regulation.getAngleRegulation();
-            if (phaseRegulation != null) {
-                UcteValidation.checkPhaseRegulation(phaseRegulation, regulation.getTransfoId());
-            }
-            if (angleRegulation != null) {
-                UcteValidation.checkAngleRegulation(angleRegulation, regulation.getTransfoId());
-            }
             regulation.fix();
         }
     }

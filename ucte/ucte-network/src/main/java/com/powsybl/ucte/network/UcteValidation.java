@@ -83,7 +83,7 @@ public final class UcteValidation {
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     uctePhaseRegulation.getDu() + " %");
         }
-        if (uctePhaseRegulation.getN() < ZERO_EPS || uctePhaseRegulation.getN() > N_LIMIT) {
+        if (uctePhaseRegulation.getN() != null && (uctePhaseRegulation.getN() < ZERO_EPS || uctePhaseRegulation.getN() > N_LIMIT)) {
             LOGGER.warn(transfoId.toString(), "The number of phase regulating taps cannot be negative and cannot exceed 35", uctePhaseRegulation.getN().toString());
         }
     }
@@ -94,7 +94,7 @@ public final class UcteValidation {
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     ucteAngleRegulation.getDu() + " %");
         }
-        if (ucteAngleRegulation.getN() < ZERO_EPS || ucteAngleRegulation.getN() > N_LIMIT) {
+        if (ucteAngleRegulation.getN() != null && (ucteAngleRegulation.getN() < ZERO_EPS || ucteAngleRegulation.getN() > N_LIMIT)) {
             LOGGER.warn(transfoId.toString(), "The value cannot be negative and cannot exceed 35", ucteAngleRegulation.getN().toString());
         }
         if (Math.abs(ucteAngleRegulation.getTheta()) > THETA_ABS_LIMIT) {
