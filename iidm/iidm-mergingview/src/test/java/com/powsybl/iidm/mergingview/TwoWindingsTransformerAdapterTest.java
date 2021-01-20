@@ -165,8 +165,6 @@ public class TwoWindingsTransformerAdapterTest {
                 .add();
         assertFalse(currentLimits1 instanceof AbstractAdapter<?>);
         assertFalse(currentLimits2 instanceof AbstractAdapter<?>);
-        assertEquals(twt.getCurrentLimits(Side.ONE), twt.getCurrentLimits1());
-        assertEquals(twt.getCurrentLimits(Side.TWO), twt.getCurrentLimits2());
         assertFalse(twt.isOverloaded());
         assertFalse(twt.isOverloaded(0.0f));
         assertEquals(Integer.MAX_VALUE, twt.getOverloadDuration());

@@ -62,6 +62,30 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_whitespaceAsDelimiter", new ResourceSet("/", "IEEE_14_bus_whitespaceAsDelimiter.raw"));
     }
 
+    private ReadOnlyDataSource ieee24Raw() {
+        return new ResourceDataSource("IEEE_24_bus", new ResourceSet("/", "IEEE_24_bus.raw"));
+    }
+
+    private ReadOnlyDataSource ieee24Raw35() {
+        return new ResourceDataSource("IEEE_24_bus_rev35", new ResourceSet("/", "IEEE_24_bus_rev35.raw"));
+    }
+
+    private ReadOnlyDataSource ieee24Rawx35() {
+        return new ResourceDataSource("IEEE_24_bus_rev35", new ResourceSet("/", "IEEE_24_bus_rev35.rawx"));
+    }
+
+    private ReadOnlyDataSource ieee14CompletedRaw() {
+        return new ResourceDataSource("IEEE_14_bus_completed", new ResourceSet("/", "IEEE_14_bus_completed.raw"));
+    }
+
+    private ReadOnlyDataSource ieee14CompletedRaw35() {
+        return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.raw"));
+    }
+
+    private ReadOnlyDataSource ieee14CompletedRawx35() {
+        return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.rawx"));
+    }
+
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
@@ -122,6 +146,25 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(winding135Rates::getRatea)
             .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
+    }
+
+    @Test
+    public void testAccessToFieldNotPresentInVersionCompleted() throws IOException {
+        PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14CompletedRaw(), "raw", new Context());
+        assertNotNull(raw33);
+
+        PsseFacts f33 = raw33.getFacts().get(0);
+        // Trying to get a field only available since version 35 gives an error
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(f33::getNreg)
+            .withMessage("Wrong version of PSSE RAW model (33). Field 'nreg' is valid since version 35");
+
+        PssePowerFlowModel raw35 = new PowerFlowRawData35().read(ieee14CompletedRaw35(), "raw", new Context());
+        assertNotNull(raw35);
+        PsseFacts f35 = raw35.getFacts().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(f35::getRemot)
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
     }
 
     @Test
@@ -400,7 +443,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void minimalExampleRawxWriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
-        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(minimalRawx(), "rawx", context);
+        PssePowerFlowModel rawData = rawXData35.read(minimalRawx(), "rawx", context);
         assertNotNull(rawData);
 
         rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "MinimalExample_exported"));
@@ -413,7 +456,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusRev35RawxWriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawxData35 rawXData35 = new PowerFlowRawxData35();
-        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14Rawx35(), "rawx", context);
+        PssePowerFlowModel rawData = rawXData35.read(ieee14Rawx35(), "rawx", context);
         assertNotNull(rawData);
 
         rawXData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_rev35_exported"));
@@ -432,6 +475,165 @@ public class PsseRawDataTest extends AbstractConverterTest {
         rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_whitespaceAsDelimiter_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee24BusTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee24Raw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee24BusSwitchedShuntDataReadFieldsTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee24Raw(), "raw", context);
+        assertNotNull(rawData);
+
+        String[] expectedSwitchedShuntDataReadFields = new String[] {"i", "modsw", "adjm", "stat", "vswhi", "vswlo", "swrem", "rmpct", "rmidnt", "binit", "n1", "b1"};
+        String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
+        assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
+    }
+
+    @Test
+    public void ieee24BusRev35Test() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus_rev35.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee24Raw35(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee24BusRev35SwitchedShuntDataReadReadFieldsTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee24Raw35(), "raw", context);
+        assertNotNull(rawData);
+
+        String[] expectedSwitchedShuntDataReadFields = new String[] {"i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
+        String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
+        assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
+    }
+
+    @Test
+    public void ieee24BusRev35RawxTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus_rev35.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee24BusRev35RawxSwitchedShuntDataReadFieldsTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawXData35 = new PowerFlowRawxData35().read(ieee24Rawx35(), "rawx", context);
+        assertNotNull(rawXData35);
+
+        String[] expectedSwitchedShuntDataReadFields = new String[] {"i", "id", "modsw", "adjm", "stat", "vswhi", "vswlo", "swreg", "nreg", "rmpct", "rmidnt", "binit", "s1", "n1", "b1"};
+        String[] actualSwitchedShuntDataReadFields = context.getFieldNames(SWITCHED_SHUNT);
+        assertArrayEquals(expectedSwitchedShuntDataReadFields, actualSwitchedShuntDataReadFields);
+    }
+
+    @Test
+    public void ieee24BusWriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee24Raw(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_24_bus_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee24BusRev35WriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
+        PssePowerFlowModel rawData = rawData35.read(ieee24Raw35(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_24_bus_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_rev35_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee24BusRev35RawxWriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawxData35 rawxData35 = new PowerFlowRawxData35();
+        PssePowerFlowModel rawData = rawxData35.read(ieee24Rawx35(), "rawx", context);
+        assertNotNull(rawData);
+
+        rawxData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_24_bus_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_24_bus_rev35_exported.rawx"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_24_bus_rev35_exported.rawx"), is);
+        }
+    }
+
+    @Test
+    public void ieee14BusCompletedTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14CompletedRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusCompletedRev35Test() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed_rev35.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData35().read(ieee14CompletedRaw35(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusCompletedRev35RawxTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_completed_rev35.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawxData35().read(ieee14CompletedRawx35(), "rawx", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14BusCompletedWriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14CompletedRaw(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee14BusCompletedRev35WriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData35 rawData35 = new PowerFlowRawData35();
+        PssePowerFlowModel rawData = rawData35.read(ieee14CompletedRaw35(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee14BusCompletedRev35RawxWriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawxData35 rawxData35 = new PowerFlowRawxData35();
+        PssePowerFlowModel rawData = rawxData35.read(ieee14CompletedRawx35(), "rawx", context);
+        assertNotNull(rawData);
+
+        rawxData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_rev35_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.rawx"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
         }
     }
 

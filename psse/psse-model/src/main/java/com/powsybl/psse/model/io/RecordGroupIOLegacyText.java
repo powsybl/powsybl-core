@@ -83,55 +83,6 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         writer.flush();
     }
 
-    protected List<T> readMultiLineRecords(BufferedReader reader, Context context) throws IOException {
-        List<T> objects = new ArrayList<>();
-        // Read all records in data section
-        List<String> records = readRecords(reader);
-        int i = 0;
-        while (i < records.size()) {
-            String line0 = records.get(i++);
-            String[][] fieldNamesByLine = recordGroup.getFieldNamesByLine(context.getVersion(), line0);
-            String[] lines = new String[fieldNamesByLine.length];
-            lines[0] = line0;
-            for (int k = 1; k < lines.length; k++) {
-                lines[k] = records.get(i++);
-            }
-            String[] actualFieldNames = actualFieldNames(fieldNamesByLine, lines, context);
-            String record = String.join(Character.toString(context.getDelimiter()), lines);
-            T object = recordGroup.parseSingleRecord(record, actualFieldNames, context);
-            objects.add(object);
-
-            // Some record groups have a fine level of detail on which fields should be saved depending on each record
-            // (We want to save different field names for transformers with 2 / 3 windings)
-            RecordGroupIdentification detailedRecordGroupForThisRecord = recordGroup.getIdentificationFor(object);
-            context.setFieldNames(detailedRecordGroupForThisRecord, actualFieldNames);
-        }
-        return objects;
-    }
-
-    protected void writeMultiLineRecords(List<T> objects, String[][] fieldNamesByLine, String[] contextFieldNames, Context context, OutputStream outputStream) {
-        int numLines = fieldNamesByLine.length;
-
-        // Entries of the array are the lists of first, second, third lines of all records
-        // A complete record k is built using recordsLines[0].get(k), recordsLines[1].get(k) ...
-        List<String>[] recordsLines = new ArrayList[numLines];
-
-        for (int l = 0; l < numLines; l++) {
-            String[] headersLine = Util.retainAll(fieldNamesByLine[l], contextFieldNames);
-            recordsLines[l] = recordGroup.buildRecords(objects, headersLine, Util.retainAll(recordGroup.quotedFields(), headersLine), context);
-        }
-        checkAllRecordsHaveAllLines(recordsLines);
-        // All lines of all records have been built, now write them
-        CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
-        int numRecords = recordsLines[0].size();
-        for (int k = 0; k < numRecords; k++) {
-            for (int l = 0; l < numLines; l++) {
-                writer.writeRow(recordsLines[l].get(k));
-            }
-        }
-        writer.flush();
-    }
-
     public static void skip(RecordGroupIdentification recordGroup, BufferedReader reader) throws IOException {
         LOG.debug("read and ignore record group {}", recordGroup);
         int number = -1;
@@ -184,7 +135,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         }
     }
 
-    private static List<String> readRecords(BufferedReader reader) throws IOException {
+    protected static List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
         String line = readRecordLine(reader);
         while (!line.trim().equals("0")) {
@@ -222,55 +173,5 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
             return line;
         }
         return line.substring(0, slashIndex);
-    }
-
-    private static String[] actualFieldNames(String[][] fieldNamesByLine, String[] recordLines, Context context) {
-        // Obtain the list of actual field names separately for each line of the record
-        String[][] actualFieldNames0 = new String[recordLines.length][];
-        int totalFieldNames = 0;
-        String delimiter = Character.toString(context.getDelimiter());
-        for (int k = 0; k < recordLines.length; k++) {
-            int numFields = numFields(recordLines[k], delimiter);
-            actualFieldNames0[k] = ArrayUtils.subarray(fieldNamesByLine[k], 0, numFields);
-            totalFieldNames += numFields;
-        }
-        // Concat all actual field names in a single array
-        String[] actualFieldNames = new String[totalFieldNames];
-        int k = 0;
-        for (String[] fieldNames : actualFieldNames0) {
-            System.arraycopy(fieldNames, 0, actualFieldNames, k, fieldNames.length);
-            k += fieldNames.length;
-        }
-        return actualFieldNames;
-    }
-
-    private static int numFields(String record, String delimiter) {
-        int fields = 0;
-        Matcher m = FileFormat.LEGACY_TEXT_UNQUOTED_OR_QUOTED.matcher(record);
-        while (m.find()) {
-            if (m.group().indexOf(LEGACY_TEXT.getQuote()) >= 0) {
-                fields++;
-            } else {
-                for (String field : m.group().split(delimiter)) {
-                    if (!field.equals("")) {
-                        fields++;
-                    }
-                }
-            }
-        }
-        return fields;
-    }
-
-    private static void checkAllRecordsHaveAllLines(List<String>[] recordsLines) {
-        int expectedSize = recordsLines[0].size();
-        for (int k = 1; k < recordsLines.length; k++) {
-            int actualSize = recordsLines[k].size();
-            if (expectedSize != actualSize) {
-                throw new PsseException(String.format("PSSE multi-line number of records do not match. Line %d; expected number of records %d, actual %d",
-                    k,
-                    expectedSize,
-                    actualSize));
-            }
-        }
     }
 }

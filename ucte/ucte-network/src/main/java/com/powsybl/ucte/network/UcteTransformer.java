@@ -101,4 +101,9 @@ public class UcteTransformer extends UcteElement {
         this.conductance = conductance;
     }
 
+    @Override
+    public void fix() {
+        UcteValidation.checkValidTransformerCharacteristics(this);
+        super.fix();
+    }
 }
