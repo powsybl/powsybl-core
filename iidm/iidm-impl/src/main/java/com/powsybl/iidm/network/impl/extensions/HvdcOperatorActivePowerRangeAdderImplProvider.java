@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.extensions.HvdcOperatorActivePowerRange;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
 public class HvdcOperatorActivePowerRangeAdderImplProvider

@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.HvdcLine;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 public interface HvdcOperatorActivePowerRangeAdder extends ExtensionAdder<HvdcLine, HvdcOperatorActivePowerRange> {
 

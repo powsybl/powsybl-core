@@ -19,6 +19,7 @@ import java.util.Objects;
  * ActivePowerSetpoint = p0 + droop * (angle1 - angle2)
  *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 public class HvdcAngleDroopActivePowerControlImpl extends AbstractExtension<HvdcLine> implements HvdcAngleDroopActivePowerControl {
 

@@ -21,6 +21,7 @@ import javax.xml.stream.XMLStreamException;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Paul Bui-Quang <paul.buiquang at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
 public class HvdcAngleDroopActivePowerControlXmlSerializer extends AbstractExtensionXmlSerializer<HvdcLine, HvdcAngleDroopActivePowerControl> {
