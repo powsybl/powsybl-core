@@ -34,7 +34,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param parameters specific security analysis parameters
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
-     * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers sensitivity factor values
+     * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
     CompletableFuture<SecurityAnalysisResult> run(Network network,
                                                   String workingVariantId,

@@ -11,7 +11,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationManagerFactory;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
@@ -25,11 +25,12 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  *
- * Sensitivity analysis main API. It is a utility class (so with only static methods) used as an entry point for running
- * a sensitivity analysis allowing to choose either a specific implementation or just to rely on the default one.
+ * Security analysis main API. It is a utility class (so with only static methods) used as an entry point for running
+ * a security analysis allowing to choose either a specific implementation or just to rely on the default one.
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
+// FIXME : rename this class to SecurityAnalysis in next PR
 public final class SecurityAnalysis2 {
 
     private SecurityAnalysis2() {
@@ -37,7 +38,7 @@ public final class SecurityAnalysis2 {
     }
 
     /**
-     * A sensitivity analysis runner is responsible for providing convenient methods on top of {@link SecurityAnalysisProvider}:
+     * A security analysis runner is responsible for providing convenient methods on top of {@link SecurityAnalysisProvider}:
      * several variants of synchronous and asynchronous run with default parameters.
      */
     public static final class Runner implements Versionable {
@@ -62,7 +63,7 @@ public final class SecurityAnalysis2 {
             Objects.requireNonNull(filter, "LimitViolation filter should not be null");
             Objects.requireNonNull(computationManager, "ComputationManager should not be null");
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
+            Objects.requireNonNull(parameters, "Security analysis parameters should not be null");
             Objects.requireNonNull(interceptors, "Interceptor list should not be null");
             return provider.run(network, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
         }
@@ -77,7 +78,7 @@ public final class SecurityAnalysis2 {
         }
 
         public CompletableFuture<SecurityAnalysisResult> runAsync(Network network) {
-            return runAsync(network, new LocalComputationManagerFactory().create());
+            return runAsync(network, LocalComputationManager.getDefault());
         }
 
         public CompletableFuture<SecurityAnalysisResultWithLog> runAsyncWithLog(Network network,
@@ -94,7 +95,7 @@ public final class SecurityAnalysis2 {
             Objects.requireNonNull(filter, "LimitViolation filter should not be null");
             Objects.requireNonNull(computationManager, "ComputationManager should not be null");
             Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
+            Objects.requireNonNull(parameters, "Security analysis parameters should not be null");
             Objects.requireNonNull(interceptors, "Interceptor list should not be null");
             return provider.runWithLog(network, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
         }
@@ -109,7 +110,7 @@ public final class SecurityAnalysis2 {
         }
 
         public CompletableFuture<SecurityAnalysisResultWithLog> runAsyncWithLog(Network network) {
-            return runAsyncWithLog(network, new LocalComputationManagerFactory().create());
+            return runAsyncWithLog(network, LocalComputationManager.getDefault());
         }
 
         public SecurityAnalysisResult run(Network network,
@@ -133,7 +134,7 @@ public final class SecurityAnalysis2 {
         }
 
         public SecurityAnalysisResult run(Network network) {
-            return run(network, new LocalComputationManagerFactory().create());
+            return run(network, LocalComputationManager.getDefault());
         }
 
         public SecurityAnalysisResultWithLog runWithLog(Network network,
@@ -157,7 +158,7 @@ public final class SecurityAnalysis2 {
         }
 
         public SecurityAnalysisResultWithLog runWithLog(Network network) {
-            return runWithLog(network, new LocalComputationManagerFactory().create());
+            return runWithLog(network, LocalComputationManager.getDefault());
         }
 
         @Override

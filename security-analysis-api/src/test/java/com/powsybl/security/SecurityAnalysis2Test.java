@@ -28,6 +28,7 @@ import static org.junit.Assert.*;
 /**
  * @author Thomas Adam<tadam at silicom.fr>
  */
+// FIXME : rename this class to SecurityAnalysisTest in next PR
 public class SecurityAnalysis2Test {
 
     private static final String DEFAULT_PROVIDER_NAME = "SecurityAnalysisImpl";
