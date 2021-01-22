@@ -1331,13 +1331,17 @@
     "ptol" : 999.99,
     "arname" : "IEEE14      "
   } ],
+  "transformerImpedanceCorrections" : [ ],
+  "lineGrouping" : [ ],
   "zones" : [ {
     "i" : 1,
     "zoname" : "IEEE 14 "
   } ],
+  "interareaTransfer" : [ ],
   "owners" : [ {
     "i" : 1,
     "owname" : "1"
   } ],
+  "facts" : [ ],
   "switchedShunts" : [ ]
 }

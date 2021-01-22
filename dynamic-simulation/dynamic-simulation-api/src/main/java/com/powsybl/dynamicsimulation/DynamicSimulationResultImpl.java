@@ -6,6 +6,13 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+
+import com.powsybl.timeseries.StringTimeSeries;
+import com.powsybl.timeseries.TimeSeries;
+
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
@@ -13,10 +20,14 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
 
     private final boolean status;
     private final String logs;
+    private final Map<String, TimeSeries> curves;
+    private final StringTimeSeries timeLine;
 
-    public DynamicSimulationResultImpl(boolean status, String logs) {
+    public DynamicSimulationResultImpl(boolean status, String logs, Map<String, TimeSeries> curves, StringTimeSeries timeLine) {
         this.status = status;
         this.logs = logs;
+        this.curves = Objects.requireNonNull(curves);
+        this.timeLine = Objects.requireNonNull(timeLine);
     }
 
     @Override
@@ -29,4 +40,18 @@ public class DynamicSimulationResultImpl implements DynamicSimulationResult {
         return logs;
     }
 
+    @Override
+    public Map<String, TimeSeries> getCurves() {
+        return Collections.unmodifiableMap(curves);
+    }
+
+    @Override
+    public TimeSeries getCurve(String curve) {
+        return curves.get(curve);
+    }
+
+    @Override
+    public StringTimeSeries getTimeLine() {
+        return timeLine;
+    }
 }

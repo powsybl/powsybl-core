@@ -8,43 +8,6 @@ package com.powsybl.iidm.network;
 
 /**
  *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface CurrentLimitsAdder {
-
-    interface TemporaryLimitAdder {
-
-        TemporaryLimitAdder setName(String name);
-
-        TemporaryLimitAdder setValue(double value);
-
-        TemporaryLimitAdder setAcceptableDuration(int duration);
-
-        TemporaryLimitAdder setFictitious(boolean fictitious);
-
-        default TemporaryLimitAdder ensureNameUnicity() {
-            return this;
-        }
-
-        CurrentLimitsAdder endTemporaryLimit();
-    }
-
-    CurrentLimitsAdder setPermanentLimit(double limit);
-
-    TemporaryLimitAdder beginTemporaryLimit();
-
-    default double getPermanentLimit() {
-        return Double.NaN;
-    }
-
-    default double getTemporaryLimitValue(int acceptableDuration) {
-        return Double.NaN;
-    }
-
-    default boolean hasTemporaryLimits() {
-        return false;
-    }
-
-    CurrentLimits add();
-
+public interface CurrentLimitsAdder extends LoadingLimitsAdder<CurrentLimits, CurrentLimitsAdder> {
 }
