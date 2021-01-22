@@ -254,6 +254,15 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBETieFlow() {
+        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource();
+        String impl = TripleStoreFactory.defaultImplementation();
+
+        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
+        assertEquals(5, cgmes.tieFlows().size());
+    }
+
+    @Test
     public void microBEInvalidSvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
