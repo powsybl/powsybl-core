@@ -972,6 +972,26 @@ WHERE {
 }}
 }
 
+# query: tieFlows
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?TieFlow
+        a cim:TieFlow ;
+        cim:TieFlow.Terminal ?Terminal ;
+        cim:TieFlow.ControlArea ?ControlArea .
+}}
+UNION 
+{ GRAPH ?graphCA {
+    ?ControlArea
+        cim:IdentifiedObject.name ?controlAreaName ;
+        cim:ControArea.type ?controlAreaType .
+    FILTER (regex(?controlAreaType, "Interchange", "i"))
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange
+}}}
+
 # query: update
 DELETE { GRAPH <{0}>
     { ?subject ?predicate ?value }
