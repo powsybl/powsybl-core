@@ -8,7 +8,8 @@
     <md:Model.description>CGMES Conformity Assessment: 'MicroGridTestConfiguration....BC (MAS BE) Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
     <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
     <md:Model.profile>http://entsoe.eu/CIM/SteadyStateHypothesis/1/1</md:Model.profile>
-  </md:FullModel>  <cim:ControlArea rdf:about="#_R0CONTROLAREA1-0_CONTROLAREA_0">
+  </md:FullModel>  
+  <cim:ControlArea rdf:about="#_BECONTROLAREA">
     <cim:ControlArea.netInterchange>196.9</cim:ControlArea.netInterchange>
   </cim:ControlArea>
   <cim:Terminal rdf:about="#_57ae9251-c022-4c67-a8eb-611ad54c963c">
