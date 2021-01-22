@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractHvdcOperatorActivePowerRangeTest {
 
-    Network network;
+    private Network network;
 
     @Before
     public void initNetwork() {
@@ -42,13 +42,13 @@ public abstract class AbstractHvdcOperatorActivePowerRangeTest {
                 .add();
         hopc = hvdcLine.getExtension(HvdcOperatorActivePowerRange.class);
         assertNotNull(hopc);
-        assertEquals(hopc.getOprFromCS1toCS2(), 2.0f, 0f);
-        assertEquals(hopc.getOprFromCS2toCS1(), 1.0f, 0f);
-        assertEquals(hopc.getName(), "hvdcOperatorActivePowerRange");
+        assertEquals(2.0f, hopc.getOprFromCS1toCS2(), 0f);
+        assertEquals(1.0f, hopc.getOprFromCS2toCS1(), 0f);
+        assertEquals("hvdcOperatorActivePowerRange", hopc.getName());
 
         hopc.setOprFromCS1toCS2(1.1f);
         hopc.setOprFromCS2toCS1(2.1f);
-        assertEquals(hopc.getOprFromCS1toCS2(), 1.1f, 0f);
-        assertEquals(hopc.getOprFromCS2toCS1(), 2.1f, 0f);
+        assertEquals(1.1f, hopc.getOprFromCS1toCS2(), 0f);
+        assertEquals(2.1f, hopc.getOprFromCS2toCS1(), 0f);
     }
 }

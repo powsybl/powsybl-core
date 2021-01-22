@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractHvdcAngleDroopActivePowerTest {
 
-    Network network;
+    private Network network;
 
     @Before
     public void initNetwork() {
@@ -43,16 +43,16 @@ public abstract class AbstractHvdcAngleDroopActivePowerTest {
                 .add();
         hadpc = hvdcLine.getExtension(HvdcAngleDroopActivePowerControl.class);
         assertNotNull(hadpc);
-        assertEquals(hadpc.getP0(), 200.0f, 0f);
-        assertEquals(hadpc.getDroop(), 0.9f, 0f);
+        assertEquals(200.0f, hadpc.getP0(), 0f);
+        assertEquals(0.9f, hadpc.getDroop(), 0f);
         assertTrue(hadpc.isEnabled());
-        assertEquals(hadpc.getName(), "hvdcAngleDroopActivePowerControl");
+        assertEquals("hvdcAngleDroopActivePowerControl", hadpc.getName());
 
         hadpc.setP0(300.0f);
         hadpc.setDroop(0.0f);
         hadpc.setEnabled(false);
-        assertEquals(hadpc.getP0(), 300.0f, 0f);
-        assertEquals(hadpc.getDroop(), 0.0f, 0f);
+        assertEquals(300.0f, hadpc.getP0(), 0f);
+        assertEquals(0.0f, hadpc.getDroop(), 0f);
         assertFalse(hadpc.isEnabled());
     }
 }
