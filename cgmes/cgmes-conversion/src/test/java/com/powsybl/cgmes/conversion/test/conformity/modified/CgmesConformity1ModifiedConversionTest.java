@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.List;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -262,12 +261,13 @@ public class CgmesConformity1ModifiedConversionTest {
             NetworkFactory.findDefault(), null);
 
         CgmesControlAreaMapping cgmesControlAreaMapping = network.getExtension(CgmesControlAreaMapping.class);
-        List<CgmesControlArea> cgmesControlArea = cgmesControlAreaMapping.getCgmesControlAreas();
-        assertEquals(1, cgmesControlArea.size());
-        assertEquals("BE", cgmesControlArea.get(0).getName());
-        assertEquals("10BE------1", cgmesControlArea.get(0).getEnergyIdentCodeEic());
-        assertEquals(196.9, cgmesControlArea.get(0).getNetInterchange(), 0.0);
-        assertEquals(5, cgmesControlArea.get(0).getTieFlows().size());
+        assertEquals(1, cgmesControlAreaMapping.getCgmesControlAreas().size());
+
+        CgmesControlArea cgmesControlArea = cgmesControlAreaMapping.getCgmesControlAreas().get("_BECONTROLAREA");
+        assertEquals("BE", cgmesControlArea.getName());
+        assertEquals("10BE------1", cgmesControlArea.getEnergyIdentCodeEic());
+        assertEquals(196.9, cgmesControlArea.getNetInterchange(), 0.0);
+        assertEquals(5, cgmesControlArea.getTieFlows().size());
     }
 
     @Test

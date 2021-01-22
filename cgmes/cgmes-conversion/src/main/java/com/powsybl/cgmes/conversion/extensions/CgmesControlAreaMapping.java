@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import java.util.List;
+import java.util.Map;
 
 import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.commons.extensions.Extension;
@@ -17,7 +17,7 @@ import com.powsybl.iidm.network.Network;
  */
 public interface CgmesControlAreaMapping extends Extension<Network> {
 
-    List<CgmesControlArea> getCgmesControlAreas();
+    Map<String, CgmesControlArea> getCgmesControlAreas();
 
     @Override
     default String getName() {

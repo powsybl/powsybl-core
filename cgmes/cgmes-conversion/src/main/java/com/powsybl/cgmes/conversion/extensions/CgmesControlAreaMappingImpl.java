@@ -6,8 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
@@ -19,14 +17,14 @@ import com.powsybl.iidm.network.Network;
  */
 public class CgmesControlAreaMappingImpl extends AbstractExtension<Network> implements CgmesControlAreaMapping {
 
-    private final List<CgmesControlArea> cgmesControlAreas = new ArrayList();
+    private final Map<String, CgmesControlArea> cgmesControlAreas;
 
     CgmesControlAreaMappingImpl(Map<String, CgmesControlArea> cgmesControlAreas) {
-        cgmesControlAreas.values().forEach(cca -> this.cgmesControlAreas.add(cca));
+        this.cgmesControlAreas = cgmesControlAreas;
     }
 
     @Override
-    public List<CgmesControlArea> getCgmesControlAreas() {
+    public Map<String, CgmesControlArea> getCgmesControlAreas() {
         return cgmesControlAreas;
     }
 
