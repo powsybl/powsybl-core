@@ -985,6 +985,7 @@ UNION
 { GRAPH ?graphCA {
     ?ControlArea
         cim:IdentifiedObject.name ?controlAreaName ;
+        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
         cim:ControArea.type ?controlAreaType .
     FILTER (regex(?controlAreaType, "Interchange", "i"))
 }}
