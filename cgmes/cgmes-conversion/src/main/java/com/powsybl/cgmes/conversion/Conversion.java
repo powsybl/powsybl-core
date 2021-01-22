@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaMappingAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
@@ -154,6 +155,10 @@ public class Conversion {
         addCgmesSshMetadata(network);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
+
+        CgmesControlAreaMappingAdder cgmesControlAreaMappingAdder = network.newExtension(CgmesControlAreaMappingAdder.class);
+        cgmes.tieFlows().forEach(tf -> cgmesControlAreaMappingAdder.addTieFLow(tf));
+        cgmesControlAreaMappingAdder.add();
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 

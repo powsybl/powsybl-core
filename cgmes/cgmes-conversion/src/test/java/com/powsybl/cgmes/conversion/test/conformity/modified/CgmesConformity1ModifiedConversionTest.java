@@ -12,6 +12,8 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -27,6 +29,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.List;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
@@ -255,11 +258,16 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBETieFlow() {
-        ReadOnlyDataSource ds = CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource();
-        String impl = TripleStoreFactory.defaultImplementation();
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
+            NetworkFactory.findDefault(), null);
 
-        CgmesModel cgmes = CgmesModelFactory.create(ds, impl);
-        assertEquals(5, cgmes.tieFlows().size());
+        CgmesControlAreaMapping cgmesControlAreaMapping = network.getExtension(CgmesControlAreaMapping.class);
+        List<CgmesControlArea> cgmesControlArea = cgmesControlAreaMapping.getCgmesControlAreas();
+        assertEquals(1, cgmesControlArea.size());
+        assertEquals("BE", cgmesControlArea.get(0).getName());
+        assertEquals("10BE------1", cgmesControlArea.get(0).getEnergyIdentCodeEic());
+        assertEquals(196.9, cgmesControlArea.get(0).getNetInterchange(), 0.0);
+        assertEquals(5, cgmesControlArea.get(0).getTieFlows().size());
     }
 
     @Test
