@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -99,15 +99,11 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             .setRegulatingTerminal(regulatingTerminal);
     }
 
-    // TODO complete all cases
     private static boolean defineVoltageRegulatorOn(PsseSwitchedShunt psseSwitchedShunt) {
-        if (psseSwitchedShunt.getModsw() == 0) {
-            return false;
-        }
-        return true;
+        return !(psseSwitchedShunt.getModsw() == 0);
     }
 
-    // TODO complete all cases. Consider Nreg (version 35)
+    // Nreg (version 35) is not yet considered
     private static Terminal defineRegulatingTerminal(PsseSwitchedShunt psseSwitchedShunt, Network network, PsseVersion version) {
         String defaultRegulatingBusId = getBusId(psseSwitchedShunt.getI());
         Terminal regulatingTerminal = null;

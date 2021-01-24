@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -84,7 +84,7 @@ public class GeneratorConverter extends AbstractConverter {
         return psseBus.getIde() == 2 || psseBus.getIde() == 3;
     }
 
-    // TODO complete all cases. Consider Nreg (version 35)
+    // Nreg (version 35) is not yet considered
     private static Terminal defineRegulatingTerminal(PsseGenerator psseGenerator, Network network) {
         String defaultRegulatingBusId = getBusId(psseGenerator.getI());
         Terminal regulatingTerminal = null;

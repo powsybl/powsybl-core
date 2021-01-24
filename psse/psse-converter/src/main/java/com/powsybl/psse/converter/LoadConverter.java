@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -29,7 +29,7 @@ public class LoadConverter extends AbstractConverter {
         VoltageLevel voltageLevel = getNetwork()
             .getVoltageLevel(getContainersMapping().getVoltageLevelId(psseLoad.getI()));
 
-        // TODO: take into account Ip, Yp when iidm static load will have exponential modelling
+        // Only constant power is considered at the moment
         // S = VI*, S = YVV*
         // .setIp(psseLoad.getIp())
         // .setIq(psseLoad.getIq())

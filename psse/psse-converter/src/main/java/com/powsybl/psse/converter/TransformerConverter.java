@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -94,10 +94,10 @@ public class TransformerConverter extends AbstractConverter {
 
         // move w2 to side 1
         z = impedanceAdjustmentAfterMovingRatio(z, w2);
-        tapChanger = tapChangerAdjustmentAfterMovingRatio(tapChanger, w2);
+        TapChanger tapChangerAdjustedRatio = tapChangerAdjustmentAfterMovingRatio(tapChanger, w2);
 
         // move ysh between w1 and z
-        tapChanger = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger);
+        TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChangerAdjustedRatio);
 
         TwoWindingsTransformer twt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
             .setId(id)
@@ -114,7 +114,7 @@ public class TransformerConverter extends AbstractConverter {
             .setB(ysh.getImaginary())
             .add();
 
-        tapChangerToIidm(tapChanger, twt);
+        tapChangerToIidm(tapChangerAdjustedYsh, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV());
 
         if (psseTransformer.getStat() == 1) {
@@ -180,7 +180,7 @@ public class TransformerConverter extends AbstractConverter {
         ysh = admittanceToEngineeringUnits(ysh, v0, perUnitContext.getSb());
 
         // move ysh between w1 and z
-        tapChanger1 = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger1);
+        TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger1);
 
         ThreeWindingsTransformer twt = voltageLevel1.getSubstation().newThreeWindingsTransformer()
             .setRatedU0(v0)
@@ -215,7 +215,7 @@ public class TransformerConverter extends AbstractConverter {
             .add()
             .add();
 
-        tapChangersToIidm(tapChanger1, tapChanger2, tapChanger3, twt);
+        tapChangersToIidm(tapChanger1AdjustedYsh, tapChanger2, tapChanger3, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
 
         if (psseTransformer.getStat() == 1) {
@@ -430,15 +430,14 @@ public class TransformerConverter extends AbstractConverter {
             .setLowTapPosition(0)
             .setTapPosition(tapChanger.getTapPosition());
 
-        tapChanger.getSteps().forEach(step -> {
+        tapChanger.getSteps().forEach(step ->
             rtc.beginStep()
                 .setRho(1 / step.getRatio())
                 .setR(step.getR())
                 .setX(step.getX())
                 .setB(step.getB1())
                 .setG(step.getG1())
-                .endStep();
-        });
+                .endStep());
         rtc.add();
 
     }
@@ -447,7 +446,7 @@ public class TransformerConverter extends AbstractConverter {
         ptc.setLowTapPosition(0)
             .setTapPosition(tapChanger.getTapPosition());
 
-        tapChanger.getSteps().forEach(step -> {
+        tapChanger.getSteps().forEach(step ->
             ptc.beginStep()
                 .setRho(1 / step.getRatio())
                 .setAlpha(-step.getAngle())
@@ -455,8 +454,7 @@ public class TransformerConverter extends AbstractConverter {
                 .setX(step.getX())
                 .setB(step.getB1())
                 .setG(step.getG1())
-                .endStep();
-        });
+                .endStep());
         ptc.add();
     }
 
@@ -754,8 +752,9 @@ public class TransformerConverter extends AbstractConverter {
     }
 
     private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff) {
+        boolean regulating = false;
         if (Math.abs(winding.getCod()) != 3) {
-            return false;
+            return regulating;
         }
 
         double activePowerMin = winding.getVmi();
@@ -763,7 +762,7 @@ public class TransformerConverter extends AbstractConverter {
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
         Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
-        boolean regulating = false;
+        regulating = true;
         if (targetDeadBand < 0.0) {
             regulating = false;
         }
