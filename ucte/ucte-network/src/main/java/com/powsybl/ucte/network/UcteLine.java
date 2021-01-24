@@ -20,4 +20,9 @@ public class UcteLine extends UcteElement {
         }
     }
 
+    @Override
+    public void fix() {
+        UcteValidation.checkValidLineCharacteristics(this);
+        super.fix();
+    }
 }

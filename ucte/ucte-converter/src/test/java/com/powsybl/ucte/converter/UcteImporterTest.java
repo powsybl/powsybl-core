@@ -13,6 +13,7 @@ import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -182,6 +183,30 @@ public class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("xNodeTransformer", new ResourceSet("/", "xNodeTransformer.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
         assertEquals(2, network.getBusBreakerView().getBusStream().count());
+    }
+
+    @Test
+    public void substationNameInvariance() {
+        ResourceDataSource dataSource = new ResourceDataSource("substationName", new ResourceSet("/", "substationName.uct"));
+
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertEquals(2, network.getSubstationCount());
+        assertNotNull(network.getSubstation("F1TEST"));
+        assertNotNull(network.getSubstation("FTEST1"));
+        assertNull(network.getSubstation("FTESTA"));
+        assertNull(network.getSubstation("FTESTB"));
+    }
+
+    @Test
+    public void testInvalidRegulation() {
+        ResourceDataSource dataSource = new ResourceDataSource("invalidRegulationNetwork", new ResourceSet("/", "invalidRegulationNetwork.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+    }
+
+    @Test
+    public void testInvalidVoltageReference() {
+        ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
     }
 }
 

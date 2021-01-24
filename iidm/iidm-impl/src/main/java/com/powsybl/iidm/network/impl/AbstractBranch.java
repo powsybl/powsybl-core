@@ -8,23 +8,24 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side>, Branch<I> {
+abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements Branch<I> {
 
-    private CurrentLimits limits1;
+    private final OperationalLimitsHolderImpl operationalLimitsHolder1;
 
-    private CurrentLimits limits2;
+    private final OperationalLimitsHolderImpl operationalLimitsHolder2;
 
     AbstractBranch(String id, String name, boolean fictitious) {
         super(id, name, fictitious);
+        operationalLimitsHolder1 = new OperationalLimitsHolderImpl(this, "limits1");
+        operationalLimitsHolder2 = new OperationalLimitsHolderImpl(this, "limits2");
     }
 
     @Override
@@ -80,54 +81,111 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
-    public void setCurrentLimits(Branch.Side side, CurrentLimitsImpl limits) {
-        switch (side) {
-            case ONE:
-                CurrentLimits oldValue1 = limits1;
-                limits1 = limits;
-                notifyUpdate("currentLimits1", oldValue1, limits1);
-                break;
-            case TWO:
-                CurrentLimits oldValue2 = limits2;
-                limits2 = limits;
-                notifyUpdate("currentLimits2", oldValue2, limits2);
-                break;
-            default:
-                throw new AssertionError("Unexpected Branch.Side value: " + side);
-        }
-    }
-
-    @Override
-    public CurrentLimits getCurrentLimits(Side side) {
-        switch (side) {
-            case ONE:
-                return limits1;
-            case TWO:
-                return limits2;
-            default:
-                throw new AssertionError("Unexpected Branch.Side value: " + side);
-        }
-
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return operationalLimitsHolder1.getOperationalLimits();
     }
 
     @Override
     public CurrentLimits getCurrentLimits1() {
-        return limits1;
+        return operationalLimitsHolder1.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits1() {
-        return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
+        return operationalLimitsHolder1.newCurrentLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits1() {
+        return operationalLimitsHolder1.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return operationalLimitsHolder1.newApparentPowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits1() {
+        return operationalLimitsHolder1.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return operationalLimitsHolder1.newActivePowerLimits();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits();
     }
 
     @Override
     public CurrentLimits getCurrentLimits2() {
-        return limits2;
+        return operationalLimitsHolder2.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
-        return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
+        return operationalLimitsHolder2.newCurrentLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return operationalLimitsHolder2.newApparentPowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits2() {
+        return operationalLimitsHolder2.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return operationalLimitsHolder2.newActivePowerLimits();
+    }
+
+    @Override
+    public CurrentLimits getCurrentLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getCurrentLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getCurrentLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getActivePowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getActivePowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getApparentPowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getApparentPowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    OperationalLimitsHolderImpl getLimitsHolder1() {
+        return operationalLimitsHolder1;
+    }
+
+    OperationalLimitsHolderImpl getLimitsHolder2() {
+        return operationalLimitsHolder2;
     }
 
     @Override

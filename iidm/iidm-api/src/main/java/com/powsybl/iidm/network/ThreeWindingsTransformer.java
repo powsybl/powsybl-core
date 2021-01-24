@@ -210,7 +210,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      *     </tbody>
      * </table>
      */
-    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder {
+    public interface Leg extends RatioTapChangerHolder, PhaseTapChangerHolder, FlowsLimitsHolder {
 
         /**
          * Get the terminal the leg is connected to.
@@ -274,10 +274,6 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          * Set the rated voltage in kV.
          */
         Leg setRatedU(double ratedU);
-
-        CurrentLimits getCurrentLimits();
-
-        CurrentLimitsAdder newCurrentLimits();
 
         /**
          * Get the normal apparent power rating in MVA (optional).

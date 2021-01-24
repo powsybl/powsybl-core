@@ -385,8 +385,9 @@ public final class ValidationUtil {
     }
 
     public static void checkPermanentLimit(Validable validable, double permanentLimit) {
+        // TODO: if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
         if (permanentLimit <= 0) {
-            throw new ValidationException(validable, "permanent limit must be > 0");
+            throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
     }
 
