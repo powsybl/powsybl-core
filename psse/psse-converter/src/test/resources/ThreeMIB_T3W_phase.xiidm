@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0" id="ThreeMIB_T3W_modified" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0" id="ThreeMIB_T3W_phase" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -58,30 +58,31 @@
             <iidm:currentLimits2 permanentLimit="11708.663459165611"/>
         </iidm:twoWindingsTransformer>
         <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2" bus3="B7" connectableBus3="B7" voltageLevelId3="VL7">
-            <iidm:ratioTapChanger1 lowTapPosition="0" tapPosition="21" loadTapChangingCapabilities="false">
-                <iidm:step r="0.0" x="0.0" g="97.26044691326854" b="97.26044691326854" rho="1.404494382022472"/>
-                <iidm:step r="0.0" x="0.0" g="92.69726816971813" b="92.69726816971813" rho="1.3881544156530934"/>
-                <iidm:step r="0.0" x="0.0" g="88.29061564353613" b="88.29061564353613" rho="1.3721902770517511"/>
-                <iidm:step r="0.0" x="0.0" g="84.0334114536386" b="84.0334114536386" rho="1.356589147286822"/>
-                <iidm:step r="0.0" x="0.0" g="79.9189733067805" b="79.9189733067805" rho="1.3413387838528361"/>
-                <iidm:step r="0.0" x="0.0" g="75.94098825949374" b="75.94098825949374" rho="1.3264274886306213"/>
-                <iidm:step r="0.0" x="0.0" g="72.0934884881397" b="72.0934884881397" rho="1.3118440779610194"/>
-                <iidm:step r="0.0" x="0.0" g="68.37082889333223" b="68.37082889333223" rho="1.2975778546712804"/>
-                <iidm:step r="0.0" x="0.0" g="64.76766638171702" b="64.76766638171702" rho="1.2836185819070907"/>
-                <iidm:step r="0.0" x="0.0" g="61.27894068305382" b="61.27894068305382" rho="1.269956458635704"/>
-                <iidm:step r="0.0" x="0.0" g="57.89985657393888" b="57.89985657393888" rho="1.256582096696984"/>
-                <iidm:step r="0.0" x="0.0" g="54.62586739150974" b="54.62586739150974" rho="1.2434864992894363"/>
-                <iidm:step r="0.0" x="0.0" g="51.45265973124759" b="51.45265973124759" rho="1.2306610407876233"/>
-                <iidm:step r="0.0" x="0.0" g="48.37613923266992" b="48.37613923266992" rho="1.2180974477958235"/>
-                <iidm:step r="0.0" x="0.0" g="45.392417365411845" b="45.392417365411845" rho="1.2057877813504823"/>
-                <iidm:step r="0.0" x="0.0" g="42.49779913603293" b="42.49779913603293" rho="1.1937244201909958"/>
-                <iidm:step r="0.0" x="0.0" g="39.68877164295381" b="39.68877164295381" rho="1.1819000450247636"/>
-                <iidm:step r="0.0" x="0.0" g="36.96199341330208" b="36.96199341330208" rho="1.1703076237182344"/>
-                <iidm:step r="0.0" x="0.0" g="34.31428446120783" b="34.31428446120783" rho="1.1589403973509933"/>
-                <iidm:step r="0.0" x="0.0" g="31.74261701229879" b="31.74261701229879" rho="1.1477918670747707"/>
-                <iidm:step r="0.0" x="0.0" g="29.24410684385821" b="29.24410684385821" rho="1.13685578172369"/>
-                <iidm:step r="0.0" x="0.0" g="26.816005194383564" b="26.816005194383564" rho="1.1261261261261262"/>
-            </iidm:ratioTapChanger1>
+            <iidm:phaseTapChanger1 lowTapPosition="0" tapPosition="2" targetDeadband="2.0" regulationMode="ACTIVE_POWER_CONTROL" regulationValue="9.0" regulating="true">
+                <iidm:terminalRef id="B2-G1 "/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.1904761904761905"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-2.380952380952381"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-3.571428571428571"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-4.761904761904762"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.9523809523809526"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-7.142857142857142"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-8.333333333333334"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-9.523809523809524"/>
+                <iidm:step r="0.0" x="0.0" g="-4.440892098500626E-14" b="-4.440892098500626E-14" rho="1.0" alpha="-10.714285714285714"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-11.904761904761905"/>
+                <iidm:step r="0.0" x="0.0" g="-4.440892098500626E-14" b="-4.440892098500626E-14" rho="1.0" alpha="-13.095238095238095"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-14.285714285714285"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-15.476190476190476"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-16.666666666666668"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-17.857142857142858"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-19.047619047619047"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-20.238095238095237"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-21.428571428571427"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-22.61904761904762"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-23.80952380952381"/>
+                <iidm:step r="0.0" x="0.0" g="2.220446049250313E-14" b="2.220446049250313E-14" rho="1.0" alpha="-25.0"/>
+            </iidm:phaseTapChanger1>
             <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987004441519987"/>
             </iidm:ratioTapChanger2>
@@ -110,8 +111,7 @@
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="10" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulating="true" targetV="18.45">
-                <iidm:terminalRef id="B5-L1 "/>
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="10" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="10.803324099723" b="10.803324099723" rho="1.0526315789473684"/>
                 <iidm:step r="0.0" x="0.0" g="9.7008103183438" b="9.7008103183438" rho="1.0473815461346634"/>
                 <iidm:step r="0.0" x="0.0" g="8.614670369252941" b="8.614670369252941" rho="1.0421836228287842"/>

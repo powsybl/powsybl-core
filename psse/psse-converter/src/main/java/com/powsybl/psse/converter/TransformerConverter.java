@@ -322,9 +322,6 @@ public class TransformerConverter extends AbstractConverter {
             winding.getNtp(), winding.getCod(), baskv, nomv, cw);
         tapChanger.setTapPosition(defineTapPosition(complexRatio, tapChanger));
 
-        // Adjust the current complexRatio to the tapChanger (modifies min and max ratio)
-        adjustTapChangerToComplexRatio(complexRatio, tapChanger);
-
         return tapChanger;
     }
 
@@ -338,17 +335,14 @@ public class TransformerConverter extends AbstractConverter {
         }
 
         // RatioTapChanger
-        if (cod == 1 || cod == 2) {
+        if (complexRatio.getAngle() == 0.0) {
             double stepRatioIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double ratio = defineRatio(rmi + stepRatioIncrement * i, baskv, nomv, cw);
                 tapChanger.getSteps().add(new TapChangerStep(ratio, complexRatio.getAngle()));
             }
             return tapChanger;
-        }
-
-        // PhaseTapChanger
-        if (cod == 3) {
+        } else { // PhaseTapChanger
             double stepAngleIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double angle = defineAngle(rmi + stepAngleIncrement * i);
@@ -356,9 +350,6 @@ public class TransformerConverter extends AbstractConverter {
             }
             return tapChanger;
         }
-
-        tapChanger.getSteps().add(new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
-        return tapChanger;
     }
 
     private static int defineTapPosition(ComplexRatio complexRatio, TapChanger tapChanger) {
@@ -377,18 +368,6 @@ public class TransformerConverter extends AbstractConverter {
         }
 
         return tapPosition;
-    }
-
-    private static void adjustTapChangerToComplexRatio(ComplexRatio complexRatio, TapChanger tapChanger) {
-        List<TapChangerStep> steps = tapChanger.getSteps();
-        TapChangerStep stepTp = steps.get(tapChanger.getTapPosition());
-
-        ComplexRatio factor = new ComplexRatio(complexRatio.getRatio() / stepTp.getRatio(), complexRatio.getAngle() - stepTp.getAngle());
-        for (int i = 0; i < steps.size(); i++) {
-            TapChangerStep step = steps.get(i);
-            step.setRatio(step.getRatio() * factor.getRatio());
-            step.setAngle(step.getAngle() + factor.getAngle());
-        }
     }
 
     private static void tapChangerToIidm(TapChanger tapChanger, TwoWindingsTransformer twt) {
@@ -752,9 +731,8 @@ public class TransformerConverter extends AbstractConverter {
     }
 
     private static boolean defineActivePowerControl(Network network, String id, PsseTransformerWinding winding, PhaseTapChanger ptc, boolean regulatingForcedToOff) {
-        boolean regulating = false;
         if (Math.abs(winding.getCod()) != 3) {
-            return regulating;
+            return false;
         }
 
         double activePowerMin = winding.getVmi();
@@ -762,7 +740,7 @@ public class TransformerConverter extends AbstractConverter {
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
         Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
-        regulating = true;
+        boolean regulating = true;
         if (targetDeadBand < 0.0) {
             regulating = false;
         }
@@ -771,10 +749,10 @@ public class TransformerConverter extends AbstractConverter {
             regulating = false;
         }
 
-        ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-            .setRegulationValue(targetValue)
+        ptc.setRegulationValue(targetValue)
             .setTargetDeadband(targetDeadBand)
             .setRegulationTerminal(regulatingTerminal)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setRegulating(regulating);
 
         return regulating;

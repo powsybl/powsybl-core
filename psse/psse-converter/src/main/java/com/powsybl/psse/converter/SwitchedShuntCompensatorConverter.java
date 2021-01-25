@@ -100,7 +100,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static boolean defineVoltageRegulatorOn(PsseSwitchedShunt psseSwitchedShunt) {
-        return !(psseSwitchedShunt.getModsw() == 0);
+        return psseSwitchedShunt.getModsw() != 0;
     }
 
     // Nreg (version 35) is not yet considered
