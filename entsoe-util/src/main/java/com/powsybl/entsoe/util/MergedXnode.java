@@ -43,13 +43,53 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ2(double xNodeQ2);
 
+    boolean isLine1Fictitious();
+
+    MergedXnode setLine1Fictitious(boolean line1Fictitious);
+
     String getLine1Name();
 
     MergedXnode setLine1Name(String line1Name);
 
+    double getLine1B1();
+
+    MergedXnode setLine1B1(double line1B1);
+
+    double getLine1B2();
+
+    MergedXnode setLine1B2(double line1B2);
+
+    double getLine1G1();
+
+    MergedXnode setLine1G1(double line1G1);
+
+    double getLine1G2();
+
+    MergedXnode setLine1G2(double line1G2);
+
     String getLine2Name();
 
     MergedXnode setLine2Name(String line2Name);
+
+    boolean isLine2Fictitious();
+
+    MergedXnode setLine2Fictitious(boolean line2Fictitious);
+
+    double getLine2B1();
+
+    MergedXnode setLine2B1(double line2B1);
+
+    double getLine2B2();
+
+    MergedXnode setLine2B2(double line2B2);
+
+    double getLine2G1();
+
+    MergedXnode setLine2G1(double line2G1);
+
+    double getLine2G2();
+
+    MergedXnode setLine2G2(double line2G2);
 
     String getCode();
 
