@@ -319,14 +319,14 @@ public class TransformerConverter extends AbstractConverter {
         double nomv, int cw) {
 
         TapChanger tapChanger = defineRawTapChanger(complexRatio, winding.getRma(), winding.getRmi(),
-            winding.getNtp(), winding.getCod(), baskv, nomv, cw);
+            winding.getNtp(), baskv, nomv, cw);
         tapChanger.setTapPosition(defineTapPosition(complexRatio, tapChanger));
 
         return tapChanger;
     }
 
     private static TapChanger defineRawTapChanger(ComplexRatio complexRatio, double rma, double rmi,
-        int ntp, int cod, double baskv, double nomv, int cw) {
+        int ntp, double baskv, double nomv, int cw) {
         TapChanger tapChanger = new TapChanger();
 
         if (ntp <= 1) {
