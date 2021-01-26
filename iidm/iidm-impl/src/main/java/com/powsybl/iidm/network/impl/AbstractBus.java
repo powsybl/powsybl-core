@@ -135,7 +135,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                              .filter(clazz);
     }
 
-    private <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
+    protected <C extends Connectable> Stream<C> getConnectableStream(Class<C> clazz) {
         if (getConnectedTerminalCount() == 0) {
             return Stream.empty();
         }

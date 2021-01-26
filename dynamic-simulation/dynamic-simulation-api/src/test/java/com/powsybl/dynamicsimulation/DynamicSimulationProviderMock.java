@@ -6,6 +6,7 @@
  */
 package com.powsybl.dynamicsimulation;
 
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 import com.google.auto.service.AutoService;
@@ -31,7 +32,7 @@ public class DynamicSimulationProviderMock implements DynamicSimulationProvider 
     @Override
     public CompletableFuture<DynamicSimulationResult> run(Network network, DynamicModelsSupplier dynamicModelsSupplier, EventModelsSupplier eventModelsSupplier, CurvesSupplier curvesSupplier,
                                                         String workingVariantId, ComputationManager computationManager, DynamicSimulationParameters parameters) {
-        return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, ""));
+        return CompletableFuture.completedFuture(new DynamicSimulationResultImpl(true, null, Collections.emptyMap(), DynamicSimulationResult.emptyTimeLine()));
     }
 
 }

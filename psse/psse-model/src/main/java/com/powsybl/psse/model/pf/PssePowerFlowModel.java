@@ -35,9 +35,17 @@ public class PssePowerFlowModel {
 
     private final List<PsseArea> areas = new ArrayList<>();
 
+    private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
+
+    private final List<PsseLineGrouping> lineGrouping = new ArrayList<>();
+
     private final List<PsseZone> zones = new ArrayList<>();
 
+    private final List<PsseInterareaTransfer> interareaTransfer = new ArrayList<>();
+
     private final List<PsseOwner> owners = new ArrayList<>();
+
+    private final List<PsseFacts> facts = new ArrayList<>();
 
     private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
 
@@ -105,6 +113,22 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(areas);
     }
 
+    public void addTransformerImpedanceCorrections(List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections) {
+        this.transformerImpedanceCorrections.addAll(transformerImpedanceCorrections);
+    }
+
+    public List<PsseTransformerImpedanceCorrection> getTransformerImpedanceCorrections() {
+        return Collections.unmodifiableList(transformerImpedanceCorrections);
+    }
+
+    public void addLineGrouping(List<PsseLineGrouping> lineGrouping) {
+        this.lineGrouping.addAll(lineGrouping);
+    }
+
+    public List<PsseLineGrouping> getLineGrouping() {
+        return Collections.unmodifiableList(lineGrouping);
+    }
+
     public void addZones(List<PsseZone> zones) {
         this.zones.addAll(zones);
     }
@@ -113,12 +137,28 @@ public class PssePowerFlowModel {
         return Collections.unmodifiableList(zones);
     }
 
+    public void addInterareaTransfer(List<PsseInterareaTransfer> interareaTransfer) {
+        this.interareaTransfer.addAll(interareaTransfer);
+    }
+
+    public List<PsseInterareaTransfer> getInterareaTransfer() {
+        return Collections.unmodifiableList(interareaTransfer);
+    }
+
     public void addOwners(List<PsseOwner> owners) {
         this.owners.addAll(owners);
     }
 
     public List<PsseOwner> getOwners() {
         return Collections.unmodifiableList(owners);
+    }
+
+    public void addFacts(List<PsseFacts> facts) {
+        this.facts.addAll(modelled(facts));
+    }
+
+    public List<PsseFacts> getFacts() {
+        return Collections.unmodifiableList(facts);
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {

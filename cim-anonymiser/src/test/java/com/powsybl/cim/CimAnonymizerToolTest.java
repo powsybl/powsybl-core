@@ -10,14 +10,14 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipOutputStream;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import static org.junit.Assert.assertTrue;
 

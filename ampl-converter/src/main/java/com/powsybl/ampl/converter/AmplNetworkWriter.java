@@ -19,10 +19,10 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ComponentConstants;
 import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -1705,7 +1705,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
-        for (Branch branch : network.getBranches()) {
+        for (Branch<?> branch : network.getBranches()) {
             String branchId = branch.getId();
             if (branch.getCurrentLimits1() != null) {
                 writeTemporaryCurrentLimits(branch.getCurrentLimits1(), formatter, branchId, true, "_1_");

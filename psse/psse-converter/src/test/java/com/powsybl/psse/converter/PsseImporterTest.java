@@ -108,7 +108,7 @@ public class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     public void importTest24() throws IOException {
-        importTest("IEEE_24_bus", "IEEE_24_bus.RAW", true);
+        importTest("IEEE_24_bus", "IEEE_24_bus.raw", true);
     }
 
     @Test
