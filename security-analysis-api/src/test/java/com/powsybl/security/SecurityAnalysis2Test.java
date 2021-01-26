@@ -87,30 +87,6 @@ public class SecurityAnalysis2Test {
     }
 
     @Test
-    public void testAsyncWithLogDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResultWithLog> result = SecurityAnalysis2.runAsyncWithLog(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-        assertNotNull(result.get());
-    }
-
-    @Test
-    public void testAsyncWithLogDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResultWithLog> result = SecurityAnalysis2.runAsyncWithLog(network, filter, computationManager);
-        assertNotNull(result.get());
-    }
-
-    @Test
-    public void testAsyncWithLogDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResultWithLog> result = SecurityAnalysis2.runAsyncWithLog(network, computationManager);
-        assertNotNull(result.get());
-    }
-
-    @Test
-    public void testAsyncWithLogDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResultWithLog> result = SecurityAnalysis2.runAsyncWithLog(network);
-        assertNotNull(result.get());
-    }
-
-    @Test
     public void testSyncDefaultProvider() {
         SecurityAnalysisResult result = SecurityAnalysis2.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
         assertNotNull(result);
@@ -131,30 +107,6 @@ public class SecurityAnalysis2Test {
     @Test
     public void testSyncDefaultProviderWithMiminumArguments() {
         SecurityAnalysisResult result = SecurityAnalysis2.run(network);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testSyncWithLogDefaultProvider() {
-        SecurityAnalysisResultWithLog result = SecurityAnalysis2.runWithLog(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testSyncWithLogDefaultProviderWithFilter() {
-        SecurityAnalysisResultWithLog result = SecurityAnalysis2.runWithLog(network, filter, computationManager);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testSyncWithLogDefaultProviderWithComputationManager() {
-        SecurityAnalysisResultWithLog result = SecurityAnalysis2.runWithLog(network, computationManager);
-        assertNotNull(result);
-    }
-
-    @Test
-    public void testSyncWithLogDefaultProviderWithMiminumArguments() {
-        SecurityAnalysisResultWithLog result = SecurityAnalysis2.runWithLog(network);
         assertNotNull(result);
     }
 }
