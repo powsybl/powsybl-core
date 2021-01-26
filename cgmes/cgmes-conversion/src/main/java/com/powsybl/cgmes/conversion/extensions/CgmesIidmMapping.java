@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.Network;
 import java.util.Map;
 import java.util.Set;
 
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  * <p>
