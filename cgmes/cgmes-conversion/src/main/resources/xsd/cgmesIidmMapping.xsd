@@ -18,7 +18,7 @@
             <xs:sequence>
                 <xs:element name="link" type="ci:Link" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="unmappedTopologicalNodeIds" use="optional" type="ci:nonEmptyString"/>
+            <xs:attribute name="unmappedTopologicalNodeIds" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>
