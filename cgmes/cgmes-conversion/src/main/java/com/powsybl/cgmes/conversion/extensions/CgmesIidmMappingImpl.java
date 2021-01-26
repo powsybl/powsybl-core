@@ -85,40 +85,13 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     private void calculate() {
         equipmentEndTopologicalNodeMap.forEach((equipmentEnd, tn) -> {
             Identifiable i = getExtendable().getIdentifiable(equipmentEnd.equipmentId);
-            if (i instanceof Injection) {
-                String busId = ((Injection) i).getTerminal().getBusBreakerView().getBus().getId();
+            if (i instanceof Connectable) {
+                Connectable c = (Connectable) i;
+                Terminal t = (Terminal) c.getTerminals().get(equipmentEnd.end - 1);
+                String busId = t.getBusBreakerView().getBus().getId();
                 checkAlreadyMapped(busId, tn);
-                busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
+                busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
                 unmapped.remove(tn);
-            } else if (i instanceof Branch) {
-                if (equipmentEnd.end == 1) {
-                    String busId = ((Branch) i).getTerminal1().getBusBreakerView().getBus().getId();
-                    checkAlreadyMapped(busId, tn);
-                    busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
-                } else if (equipmentEnd.end == 2) {
-                    String busId = ((Branch) i).getTerminal2().getBusBreakerView().getBus().getId();
-                    checkAlreadyMapped(busId, tn);
-                    busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
-                }
-            } else if (i instanceof ThreeWindingsTransformer) {
-                if (equipmentEnd.end == 1) {
-                    String busId = ((ThreeWindingsTransformer) i).getTerminal(ThreeWindingsTransformer.Side.ONE).getBusBreakerView().getBus().getId();
-                    checkAlreadyMapped(busId, tn);
-                    busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
-                } else if (equipmentEnd.end == 2) {
-                    String busId = ((ThreeWindingsTransformer) i).getTerminal(ThreeWindingsTransformer.Side.TWO).getBusBreakerView().getBus().getId();
-                    checkAlreadyMapped(busId, tn);
-                    busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
-                } else if (equipmentEnd.end == 3) {
-                    String busId = ((ThreeWindingsTransformer) i).getTerminal(ThreeWindingsTransformer.Side.THREE).getBusBreakerView().getBus().getId();
-                    checkAlreadyMapped(busId, tn);
-                    busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(tn);
-                    unmapped.remove(tn);
-                }
             }
         });
     }
@@ -129,7 +102,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         }
     }
 
-    private class EquipmentEnd {
+    private static class EquipmentEnd {
         EquipmentEnd(String equipmentId, int end) {
             this.equipmentId = Objects.requireNonNull(equipmentId);
             this.end = end;
