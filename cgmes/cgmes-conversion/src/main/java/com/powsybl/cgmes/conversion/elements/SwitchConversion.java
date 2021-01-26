@@ -58,19 +58,19 @@ public class SwitchConversion extends AbstractConnectorConversion {
 
     private void convertSwitchAtBoundary(int boundarySide) {
         if (context.config().convertBoundary()) {
-            convertToSwitch();
+            convertToSwitch().setRetained(true);
         } else {
             warnDanglingLineCreated();
             convertToDanglingLine(boundarySide);
         }
     }
 
-    private void convertToSwitch() {
+    private Switch convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
         Switch s;
         if (context.nodeBreaker()) {
-            VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setRetained(true).setKind(kind());
+            VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
             s = adder.add();
@@ -81,6 +81,7 @@ public class SwitchConversion extends AbstractConnectorConversion {
             s = adder.add();
         }
         addAliasesAndProperties(s);
+        return s;
     }
 
     private SwitchKind kind() {

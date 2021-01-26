@@ -19,7 +19,6 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -46,7 +45,6 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
-    @Ignore("fails with error: TopologicalNode _048b86b5-c766-11e1-8775-005056c00008 is already mapped to another bus")
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
     }
