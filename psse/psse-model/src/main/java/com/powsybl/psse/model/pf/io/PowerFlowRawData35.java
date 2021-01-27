@@ -49,13 +49,13 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
             model.addAreas(new AreaInterchangeData().read(reader, context));
             skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
             skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
-            skip(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, reader);
+            model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
             skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
-            skip(MULTI_SECTION_LINE_GROUPING, reader);
+            model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
             model.addZones(new ZoneData().read(reader, context));
-            skip(INTERAREA_TRANSFER, reader);
+            model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
             model.addOwners(new OwnerData().read(reader, context));
-            skip(FACTS_CONTROL_DEVICE, reader);
+            model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             skip(GNE_DEVICE, reader);
             skip(INDUCTION_MACHINE, reader);
@@ -101,17 +101,17 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
 
         writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
         writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
-        writeEmpty(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, outputStream);
+        new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
         writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
 
-        writeEmpty(MULTI_SECTION_LINE_GROUPING, outputStream);
+        new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
 
         new ZoneData().write(model.getZones(), context, outputStream);
-        writeEmpty(INTERAREA_TRANSFER, outputStream);
+        new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
 
-        writeEmpty(FACTS_CONTROL_DEVICE, outputStream);
-        writeEmpty(SWITCHED_SHUNT, outputStream);
+        new FactsDeviceData().write(model.getFacts(), context, outputStream);
+        new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
         writeEmpty(GNE_DEVICE, outputStream);
         writeEmpty(INDUCTION_MACHINE, outputStream);
 

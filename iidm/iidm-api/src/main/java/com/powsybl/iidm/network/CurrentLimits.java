@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Collection;
-
 /**
  * Current limits are defined by:
  * <ul>
@@ -30,71 +28,10 @@ import java.util.Collection;
  *</p>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface CurrentLimits {
+public interface CurrentLimits extends LoadingLimits {
 
-    /**
-     * Temporary current limit.
-     */
-    interface TemporaryLimit {
-
-        /**
-         * Get the temporary limit name
-         * @return the temporary limit name
-         */
-        String getName();
-
-        /**
-         * Get the temporary limit value in A.
-         * @return the temporary limit value in A
-         */
-        double getValue();
-
-        /**
-         * Get the acceptable duration of the limit in second.
-         * @return the acceptable duration of the limit in second
-         */
-        int getAcceptableDuration();
-
-        /**
-         * Check if the temporary limit is a real limit corresponding to an overloading  protection or just an operating
-         * rule
-         * @return false if it is a real limit, false otherwise
-         */
-        boolean isFictitious();
+    @Override
+    default LimitType getLimitType() {
+        return LimitType.CURRENT;
     }
-
-    /**
-     * Get the permanent limit in A.
-     * @return the permanent limit in A.
-     */
-    double getPermanentLimit();
-
-    /**
-     * Set the permanent limit in A.
-     * @param permanentLimit the permanent limit in A
-     * @return itself for method chaining
-     */
-    CurrentLimits setPermanentLimit(double permanentLimit);
-
-    /**
-     * Get a list of temporary limits ordered by descending duration.
-     * @return a list of temporary limits ordered by descending duration
-     */
-    Collection<TemporaryLimit> getTemporaryLimits();
-
-    /**
-     * Get a temporary limit from its acceptable duration. Return null if there is non temporary limit with this
-     * acceptable duration.
-     * @param acceptableDuration acceptable duration in second
-     * @return the temporary limit
-     */
-    TemporaryLimit getTemporaryLimit(int acceptableDuration);
-
-    /**
-     * Get a temporary limit value from its acceptable duration. Return NaN if there is non temporary limit with this
-     * acceptable duration.
-     * @param acceptableDuration acceptable duration in second
-     * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration
-     */
-    double getTemporaryLimitValue(int acceptableDuration);
 }

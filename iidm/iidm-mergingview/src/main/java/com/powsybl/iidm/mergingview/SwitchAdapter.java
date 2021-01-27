@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

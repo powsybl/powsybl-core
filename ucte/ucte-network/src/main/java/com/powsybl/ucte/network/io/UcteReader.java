@@ -122,10 +122,8 @@ public class UcteReader {
     }
 
     private static UcteElementId parseElementId(UcteRecordParser parser) {
-        UcteNodeCode nodeId1 = parseNodeCode(parser, 0);
-        UcteNodeCode nodeId2 = parseNodeCode(parser, 9);
-        char orderCode = parser.parseChar(18);
-        return new UcteElementId(nodeId1, nodeId2, orderCode);
+        String elementId = parser.parseString(0, 19);
+        return UcteElementId.parseUcteElementId(elementId).orElseThrow(() -> new UcteIoException("Invalid element ID: " + elementId));
     }
 
     private void parseLine(UcteRecordParser parser, UcteNetwork network) {

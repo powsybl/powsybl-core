@@ -19,6 +19,10 @@ public class UcteRegulation implements UcteRecord {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteRegulation.class);
 
+    private static final double LOW_VOLTAGE_FACTOR = 0.8;
+    private static final double HIGH_VOLTAGE_FACTOR = 1.2;
+    private static final double LOW_NOMINAL_VOLTAGE = 110;
+
     private final UcteElementId transfoId;
 
     private UctePhaseRegulation phaseRegulation;
@@ -76,10 +80,17 @@ public class UcteRegulation implements UcteRecord {
     @Override
     public void fix() {
         if (phaseRegulation != null) {
+            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId);
             if (phaseRegulation.getU() <= 0) {
                 LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
                         transfoId, phaseRegulation.getU());
                 phaseRegulation.setU(Float.NaN);
+            }
+            double nominalVoltage = transfoId.getNodeCode2().getVoltageLevelCode().getVoltageLevel();
+            if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (phaseRegulation.getU() < LOW_VOLTAGE_FACTOR * nominalVoltage
+                    || phaseRegulation.getU() > HIGH_VOLTAGE_FACTOR * nominalVoltage)) {
+                LOGGER.warn("Phase regulation of transformer '{}' has a target voltage {} kV too far from nominal voltage",
+                        transfoId, phaseRegulation.getU());
             }
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (phaseRegulation.getN() == null || phaseRegulation.getN() == 0
@@ -89,6 +100,7 @@ public class UcteRegulation implements UcteRecord {
             }
         }
         if (angleRegulation != null) {
+            UcteValidation.checkAngleRegulation(angleRegulation, transfoId);
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (angleRegulation.getN() == null || angleRegulation.getN() == 0
                     || angleRegulation.getNp() == null || Float.isNaN(angleRegulation.getDu())

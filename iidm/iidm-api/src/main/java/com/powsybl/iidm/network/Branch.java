@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Collection;
+import java.util.Collections;
+
 /**
  * An equipment with two terminals.
  *
@@ -140,15 +143,72 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
 
     Side getSide(Terminal terminal);
 
-    CurrentLimits getCurrentLimits(Side side);
+    default Collection<OperationalLimits> getOperationalLimits1() {
+        return getCurrentLimits1() != null ? Collections.singletonList(getCurrentLimits1()) : Collections.emptyList();
+    }
 
     CurrentLimits getCurrentLimits1();
 
+    default ActivePowerLimits getActivePowerLimits1() {
+        return null;
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits1() {
+        return null;
+    }
+
     CurrentLimitsAdder newCurrentLimits1();
+
+    ActivePowerLimitsAdder newActivePowerLimits1();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits1();
+
+    default Collection<OperationalLimits> getOperationalLimits2() {
+        return getCurrentLimits2() != null ? Collections.singletonList(getCurrentLimits2()) : Collections.emptyList();
+    }
 
     CurrentLimits getCurrentLimits2();
 
+    default ActivePowerLimits getActivePowerLimits2() {
+        return null;
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits2() {
+        return null;
+    }
+
     CurrentLimitsAdder newCurrentLimits2();
+
+    ActivePowerLimitsAdder newActivePowerLimits2();
+
+    ApparentPowerLimitsAdder newApparentPowerLimits2();
+
+    default CurrentLimits getCurrentLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getCurrentLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getCurrentLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    default ActivePowerLimits getActivePowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getActivePowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getActivePowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    default ApparentPowerLimits getApparentPowerLimits(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return getApparentPowerLimits1();
+        } else if (side == Branch.Side.TWO) {
+            return getApparentPowerLimits2();
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
 
     boolean isOverloaded();
 
