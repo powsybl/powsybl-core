@@ -29,12 +29,6 @@ public class PropertyBags extends ArrayList<PropertyBag> {
         super(ps);
     }
 
-    public Map<String, PropertyBag> toMap(String keyProperty) {
-        Map<String, PropertyBag> map = new HashMap<>();
-        forEach(r -> map.put(r.getId(keyProperty), r));
-        return map;
-    }
-
     public List<String> pluck(String property) {
         return stream()
                 .map(r -> r.get(property))

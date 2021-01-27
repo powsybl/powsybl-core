@@ -6,17 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.joda.time.DateTime;
@@ -24,10 +17,10 @@ import org.joda.time.format.ISODateTimeFormat;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.nio.file.Path;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.*;
+import java.util.Locale;
+import java.util.UUID;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
@@ -106,78 +99,5 @@ public final class CgmesExportUtil {
         Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
         Complex s1 = new Complex(p, q);
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
-    }
-
-    public static Map<String, Set<String>> buildTopologicalNodesByBusBreakerBusMapping(Network network, Path path) {
-        return buildTopologicalNodesByBusBreakerBusMapping(network, path, TripleStoreFactory.defaultImplementation());
-    }
-
-    public static Map<String, Set<String>> buildTopologicalNodesByBusBreakerBusMapping(Network network, Path path, String tripleStoreImpl) {
-        DataSource dataSource = Importers.createDataSource(path);
-        return buildTopologicalNodesByBusBreakerBusMapping(network, dataSource, tripleStoreImpl);
-    }
-
-    public static Map<String, Set<String>> buildTopologicalNodesByBusBreakerBusMapping(Network network, DataSource dataSource) {
-        return buildTopologicalNodesByBusBreakerBusMapping(network, dataSource, TripleStoreFactory.defaultImplementation());
-    }
-
-    public static Map<String, Set<String>> buildTopologicalNodesByBusBreakerBusMapping(Network network, DataSource dataSource, String tripleStoreImpl) {
-        CgmesModel model = CgmesModelFactory.create(dataSource, null, tripleStoreImpl);
-        return buildTopologicalNodesByBusBreakerBusMapping(network, model);
-    }
-
-    public static Map<String, Set<String>> buildTopologicalNodesByBusBreakerBusMapping(Network network, CgmesModel model) {
-        Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping = new HashMap<>();
-        Map<String, PropertyBag> connectivityNodes = model.connectivityNodes().toMap(CgmesNames.CONNECTIVITY_NODE);
-        List<String> set = new ArrayList<>();
-        network.getConnectableStream(Injection.class)
-                .forEach(i -> buildTopologicalNodesByBusBreakerBusMappingFromTerminal(i.getProperty(CONNECTIVITY_NODE_1), i.getTerminal(), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes));
-        network.getBranchStream()
-                .forEach(b -> {
-                    buildTopologicalNodesByBusBreakerBusMappingFromTerminal(b.getProperty(CONNECTIVITY_NODE_1), b.getTerminal1(), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes);
-                    buildTopologicalNodesByBusBreakerBusMappingFromTerminal(b.getProperty(CONNECTIVITY_NODE_2), b.getTerminal2(), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes);
-                });
-        network.getThreeWindingsTransformerStream()
-                .forEach(twt -> {
-                    buildTopologicalNodesByBusBreakerBusMappingFromTerminal(twt.getProperty(CONNECTIVITY_NODE_1), twt.getTerminal(ThreeWindingsTransformer.Side.ONE), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes);
-                    buildTopologicalNodesByBusBreakerBusMappingFromTerminal(twt.getProperty(CONNECTIVITY_NODE_2), twt.getTerminal(ThreeWindingsTransformer.Side.TWO), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes);
-                    buildTopologicalNodesByBusBreakerBusMappingFromTerminal(twt.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE + "3"), twt.getTerminal(ThreeWindingsTransformer.Side.THREE), topologicalNodeByBusBreakerBusMapping, set, connectivityNodes);
-                });
-        network.getSwitchStream()
-                .forEach(ss -> {
-                    VoltageLevel.BusBreakerView bbv = ss.getVoltageLevel().getBusBreakerView();
-                    String connectivityNode1 = ss.getProperty(CONNECTIVITY_NODE_1);
-                    if (connectivityNode1 != null && !set.contains(connectivityNode1)) {
-                        set.add(connectivityNode1);
-                        PropertyBag p = connectivityNodes.get(connectivityNode1);
-                        if (p != null) {
-                            topologicalNodeByBusBreakerBusMapping.computeIfAbsent(bbv.getBus1(ss.getId()).getId(), s ->  new HashSet<>()).add(p.getId(CgmesNames.TOPOLOGICAL_NODE));
-                        }
-                    }
-                    String connectivityNode2 = ss.getProperty(CONNECTIVITY_NODE_2);
-                    if (connectivityNode2 != null && !set.contains(connectivityNode2)) {
-                        set.add(connectivityNode2);
-                        PropertyBag p = connectivityNodes.get(connectivityNode2);
-                        if (p != null) {
-                            topologicalNodeByBusBreakerBusMapping.computeIfAbsent(bbv.getBus2(ss.getId()).getId(), s -> new HashSet<>()).add(p.getId(CgmesNames.TOPOLOGICAL_NODE));
-                        }
-                    }
-                });
-        return Collections.unmodifiableMap(topologicalNodeByBusBreakerBusMapping);
-    }
-
-    private static void buildTopologicalNodesByBusBreakerBusMappingFromTerminal(String cn, Terminal t, Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping, List<String> set, Map<String, PropertyBag> connectivityNodes) {
-        if (cn == null || set.contains(cn)) {
-            return;
-        }
-        Bus b = t.getBusBreakerView().getBus();
-        if (b == null) {
-            return;
-        }
-        set.add(cn);
-        PropertyBag p = connectivityNodes.get(cn);
-        if (p != null) {
-            topologicalNodeByBusBreakerBusMapping.computeIfAbsent(b.getId(), s -> new HashSet<>()).add(p.getId(CgmesNames.TOPOLOGICAL_NODE));
-        }
     }
 }
