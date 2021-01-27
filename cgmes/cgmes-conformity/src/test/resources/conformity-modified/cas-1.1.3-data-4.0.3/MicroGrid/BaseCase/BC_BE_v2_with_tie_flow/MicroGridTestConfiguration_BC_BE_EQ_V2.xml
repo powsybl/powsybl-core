@@ -2198,27 +2198,27 @@
 		<cim:VoltageLevel.BaseVoltage rdf:resource="#_35cf638d-9a9d-4ae5-ae90-2f01ef898cb6"/>
 	</cim:VoltageLevel>
 	<cim:TieFlow rdf:ID="_TIEFLOW_LINE5">
-		<cim:TieFlow.Terminal rdf:resource="#_02a244ca-8bcb-4e25-8613-e948b8ba1f22"/>
+		<cim:TieFlow.Terminal rdf:resource="#_051d49ba-4360-4372-86bf-50eb8cf29778"/>
 		<cim:TieFlow.ControlArea rdf:resource="#_BECONTROLAREA"/>
 		<cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
 	</cim:TieFlow>
 	<cim:TieFlow rdf:ID="_TIEFLOW_LINE4">
-		<cim:TieFlow.Terminal rdf:resource="#_f9f29835-8a31-4310-9780-b1ad26f3cbb0"/>
+		<cim:TieFlow.Terminal rdf:resource="#_c14d2036-72ec-4df3-b1b7-75d8afd9a1fe"/>
 		<cim:TieFlow.ControlArea rdf:resource="#_BECONTROLAREA"/>
 		<cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
 	</cim:TieFlow>
 	<cim:TieFlow rdf:ID="_TIEFLOW_LINE3">
-		<cim:TieFlow.Terminal rdf:resource="#_f3b56334-4638-49d3-a6a0-3f417422b8f5"/>
+		<cim:TieFlow.Terminal rdf:resource="#_231a4cf8-5069-4d53-96e4-e839f073f1ea"/>
 		<cim:TieFlow.ControlArea rdf:resource="#_BECONTROLAREA"/>
 		<cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
 	</cim:TieFlow>
 	<cim:TieFlow rdf:ID="_TIEFLOW_LINE7">
-		<cim:TieFlow.Terminal rdf:resource="#_57ae9251-c022-4c67-a8eb-611ad54c963c"/>
+		<cim:TieFlow.Terminal rdf:resource="#_5b2c65b0-68ce-4530-85b7-385346a3b5e1"/>
 		<cim:TieFlow.ControlArea rdf:resource="#_BECONTROLAREA"/>
 		<cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
 	</cim:TieFlow>
 	<cim:TieFlow rdf:ID="_TIEFLOW_LINE1">
-		<cim:TieFlow.Terminal rdf:resource="#_1ef0715a-d5a9-477b-b6e7-b635529ac140"/>
+		<cim:TieFlow.Terminal rdf:resource="#_70d962fb-a492-4c36-8cad-b5c584df53bd"/>
 		<cim:TieFlow.ControlArea rdf:resource="#_BECONTROLAREA"/>
 		<cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
 	</cim:TieFlow>

@@ -6,21 +6,25 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import java.util.Map;
+import java.util.Set;
 
 import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public interface CgmesControlAreaMapping extends Extension<Network> {
 
-    Map<String, CgmesControlArea> getCgmesControlAreas();
+    CgmesControlArea getCgmesControlArea(String controlAreaId);
+
+    Set<Terminal> getTerminals(String controlAreaId);
 
     @Override
     default String getName() {
         return "cgmesControlArea";
     }
+
 }

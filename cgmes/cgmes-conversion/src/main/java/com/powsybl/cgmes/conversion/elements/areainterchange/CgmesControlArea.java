@@ -6,8 +6,14 @@
  */
 package com.powsybl.cgmes.conversion.elements.areainterchange;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -16,7 +22,8 @@ public class CgmesControlArea {
     private final String id;
     private final String name;
     private final String energyIdentCodeEic;
-    private final List<CgmesTieFlow> tieFlows = new ArrayList<>();
+    private final Set<EquipmentEnd> equipmentEns = new HashSet<>();
+    private final Set<Terminal> terminals = new HashSet<>();
     private final double netInterchange;
 
     public CgmesControlArea(String id, String name, String energyIdentCodeEic, double netInterchange) {
@@ -26,8 +33,8 @@ public class CgmesControlArea {
         this.netInterchange = netInterchange;
     }
 
-    public void addTieFLow(String tieFlowId, String tieFlowTerminal) {
-        tieFlows.add(new CgmesTieFlow(tieFlowId, tieFlowTerminal));
+    public void addTerminal(String equipmentId, int end) {
+        equipmentEns.add(new EquipmentEnd(equipmentId, end));
     }
 
     public String getId() {
@@ -42,12 +49,34 @@ public class CgmesControlArea {
         return energyIdentCodeEic;
     }
 
-    public List<CgmesTieFlow> getTieFlows() {
-        return tieFlows;
+    public Set<Terminal> getTerminals(Network network) {
+        if (terminals.isEmpty()) {
+            calculate(network);
+        }
+        return terminals;
     }
 
     public double getNetInterchange() {
         return netInterchange;
     }
 
+    private void calculate(Network network) {
+        equipmentEns.forEach(equipmentEnd -> {
+            Identifiable i = network.getIdentifiable(equipmentEnd.equipmentId);
+            if (i instanceof Connectable) {
+                Connectable c = (Connectable) i;
+                terminals.add((Terminal) c.getTerminals().get(equipmentEnd.end - 1));
+            }
+        });
+    }
+
+    private class EquipmentEnd {
+        EquipmentEnd(String equipmentId, int end) {
+            this.equipmentId = Objects.requireNonNull(equipmentId);
+            this.end = end;
+        }
+
+        private final String equipmentId;
+        private final int end;
+    }
 }

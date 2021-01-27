@@ -8,10 +8,11 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaMappingAdder;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
@@ -22,8 +23,10 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.joda.time.DateTime;
@@ -156,10 +159,6 @@ public class Conversion {
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
 
-        CgmesControlAreaMappingAdder cgmesControlAreaMappingAdder = network.newExtension(CgmesControlAreaMappingAdder.class);
-        cgmes.tieFlows().forEach(tf -> cgmesControlAreaMappingAdder.addTieFLow(tf));
-        cgmesControlAreaMappingAdder.add();
-
         Function<PropertyBag, AbstractObjectConversion> convf;
 
         cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodesMapping(t));
@@ -211,6 +210,10 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
 
+        CgmesControlAreaAdder cgmesControlAreaAdder = network.newExtension(CgmesControlAreaAdder.class);
+        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreaAdder, tf));
+        cgmesControlAreaAdder.add();
+
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
@@ -243,6 +246,22 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private void addControlArea(Context context, CgmesControlAreaAdder cgmesControlAreaAdder, PropertyBag tf) {
+        String controlAreaId = tf.getId("ControlArea");
+        String controlAreaName = tf.getLocal("controlAreaName");
+        String energyIdentCodeEic = tf.getLocal("energyIdentCodeEic");
+        double netInterchange = tf.asDouble("netInterchange");
+        CgmesControlArea cgmesControlArea = cgmesControlAreaAdder.newCgmesControlArea(controlAreaId, controlAreaName, energyIdentCodeEic, netInterchange);
+
+        String terminalId = tf.getId("terminal");
+        Terminal terminal = context.terminalMapping().find(terminalId);
+        if (terminal != null) {
+            int end = context.terminalMapping().number(terminalId);
+            Identifiable<?> identifiable = terminal.getConnectable();
+            cgmesControlArea.addTerminal(identifiable.getId(), end);
+        }
     }
 
     private void convert(

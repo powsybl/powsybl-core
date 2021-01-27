@@ -6,20 +6,19 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface CgmesControlAreaMappingAdder extends ExtensionAdder<Network, CgmesControlAreaMapping> {
+public interface CgmesControlAreaAdder extends ExtensionAdder<Network, CgmesControlAreaMapping> {
 
-    CgmesControlAreaMappingAdder addTieFLow(PropertyBag tf);
+    CgmesControlArea newCgmesControlArea(String controlAreaId, String controlAreaName, String energyIdentCodeEic, double netInterchange);
 
     @Override
     default Class<CgmesControlAreaMapping> getExtensionClass() {
         return CgmesControlAreaMapping.class;
     }
-
 }
