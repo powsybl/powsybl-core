@@ -62,15 +62,15 @@ public class CgmesControlArea {
 
     private void calculate(Network network) {
         equipmentEns.forEach(equipmentEnd -> {
-            Identifiable i = network.getIdentifiable(equipmentEnd.equipmentId);
+            Identifiable<?> i = network.getIdentifiable(equipmentEnd.equipmentId);
             if (i instanceof Connectable) {
-                Connectable c = (Connectable) i;
-                terminals.add((Terminal) c.getTerminals().get(equipmentEnd.end - 1));
+                Connectable<?> c = (Connectable<?>) i;
+                terminals.add(c.getTerminals().get(equipmentEnd.end - 1));
             }
         });
     }
 
-    private class EquipmentEnd {
+    private static class EquipmentEnd {
         EquipmentEnd(String equipmentId, int end) {
             this.equipmentId = Objects.requireNonNull(equipmentId);
             this.end = end;
