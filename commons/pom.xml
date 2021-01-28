@@ -52,10 +52,6 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
         </dependency>
@@ -114,6 +110,11 @@
         </dependency>
 
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava-testlib</artifactId>
