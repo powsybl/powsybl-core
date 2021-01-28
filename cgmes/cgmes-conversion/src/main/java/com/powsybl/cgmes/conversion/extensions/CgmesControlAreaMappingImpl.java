@@ -11,9 +11,9 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
+import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea.EquipmentEnd;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -32,7 +32,7 @@ public class CgmesControlAreaMappingImpl extends AbstractExtension<Network> impl
     }
 
     @Override
-    public Set<Terminal> getTerminals(String controlAreaId) {
-        return cgmesControlAreas.get(controlAreaId).getTerminals(getExtendable());
+    public Set<EquipmentEnd> getTerminals(String controlAreaId) {
+        return cgmesControlAreas.get(controlAreaId).getTerminals();
     }
 }
