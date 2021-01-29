@@ -77,7 +77,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
         if (Strings.isNullOrEmpty(aliasType)) {
-            throw new PowsyblException("Invalid alias type: " + aliasType);
+            throw new PowsyblException("Alias type must not be null or empty");
         }
         return Optional.ofNullable(aliasesByType.get(aliasType));
     }
