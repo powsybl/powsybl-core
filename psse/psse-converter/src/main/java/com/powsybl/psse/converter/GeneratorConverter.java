@@ -66,10 +66,10 @@ public class GeneratorConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = generator.getTerminal().getVoltageLevel().getNominalV();
-        double targetV = psseGenerator.getVs() * vnom;
         boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
         Terminal regulatingTerminal = defineRegulatingTerminal(psseGenerator, getNetwork());
+        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
+        double targetV = psseGenerator.getVs() * vnom;
         boolean voltageRegulatorOn = false;
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
             voltageRegulatorOn = psseVoltageRegulatorOn;

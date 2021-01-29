@@ -80,12 +80,12 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = shunt.getTerminal().getVoltageLevel().getNominalV();
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
+        Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
+        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
         double targetV = 0.5 * (vLow + vHigh);
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
-        Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
         boolean voltageRegulatorOn = false;
         double targetDeadband = 0.0;
         if (targetV != 0.0) {

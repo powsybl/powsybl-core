@@ -662,8 +662,7 @@ public class TransformerConverter extends AbstractConverter {
         }
         boolean regulatingForcedToOff = false;
         if (twt.hasRatioTapChanger()) {
-            boolean regulating = defineVoltageControl(getNetwork(), twt.getId(), psseTransformer.getWinding1(),
-                twt.getRatioTapChanger(), twt.getTerminal1().getVoltageLevel().getNominalV(), regulatingForcedToOff);
+            boolean regulating = defineVoltageControl(getNetwork(), twt.getId(), psseTransformer.getWinding1(), twt.getRatioTapChanger(), regulatingForcedToOff);
             regulatingForcedToOff = forceRegulatingToOff(regulatingForcedToOff, regulating);
         }
         if (twt.hasPhaseTapChanger()) {
@@ -687,8 +686,7 @@ public class TransformerConverter extends AbstractConverter {
         PsseTransformerWinding winding, boolean regulatingForcedToOffInput) {
         boolean regulatingForcedToOff = regulatingForcedToOffInput;
         if (leg.hasRatioTapChanger()) {
-            boolean regulating = defineVoltageControl(network, id, winding, leg.getRatioTapChanger(),
-                leg.getTerminal().getVoltageLevel().getNominalV(), regulatingForcedToOff);
+            boolean regulating = defineVoltageControl(network, id, winding, leg.getRatioTapChanger(), regulatingForcedToOff);
             regulatingForcedToOff = forceRegulatingToOff(regulatingForcedToOff, regulating);
         }
         if (leg.hasPhaseTapChanger()) {
@@ -699,7 +697,7 @@ public class TransformerConverter extends AbstractConverter {
     }
 
     private static boolean defineVoltageControl(Network network, String id, PsseTransformerWinding winding, RatioTapChanger rtc,
-        double vnom, boolean regulatingForcedToOff) {
+        boolean regulatingForcedToOff) {
         if (Math.abs(winding.getCod()) == 2) {
             LOGGER.warn("Transformer {}. Reactive power control not supported", id);
             return false;
@@ -708,11 +706,12 @@ public class TransformerConverter extends AbstractConverter {
             return false;
         }
 
+        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
+        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vmin = winding.getVmi() * vnom;
         double vmax = winding.getVma() * vnom;
         double targetV = (vmin + vmax) * 0.5;
         double targetDeadBand = vmax - vmin;
-        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
 
         boolean regulating = true;
         if (targetV <= 0.0 || targetDeadBand < 0.0) {

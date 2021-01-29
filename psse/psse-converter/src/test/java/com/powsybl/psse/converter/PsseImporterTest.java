@@ -123,6 +123,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void remoteControl() throws IOException {
+        importTest("remoteControl", "remoteControl.raw", false);
+    }
+
+    @Test
     public void testRates() throws IOException {
         Context context = new Context();
         ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));
