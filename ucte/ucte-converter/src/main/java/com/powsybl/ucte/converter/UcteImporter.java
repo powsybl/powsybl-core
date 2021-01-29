@@ -233,6 +233,9 @@ public class UcteImporter implements Importer {
             }
         }
 
+        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
@@ -241,8 +244,8 @@ public class UcteImporter implements Importer {
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
-                .setTargetP(-ucteNode.getActivePowerGeneration())
-                .setTargetQ(-ucteNode.getReactivePowerGeneration())
+                .setTargetP(generatorP)
+                .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())
                 .add();
         generator.newMinMaxReactiveLimits()
@@ -341,7 +344,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z) {
-        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+        LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");

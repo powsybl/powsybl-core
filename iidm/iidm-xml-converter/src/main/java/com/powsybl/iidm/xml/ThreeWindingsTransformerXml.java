@@ -41,12 +41,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt, NetworkXmlWriterContext context) {
-        return twt.getLeg1().hasRatioTapChanger()
+        return (twt.getLeg1().hasRatioTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
                 || twt.getLeg2().hasRatioTapChanger()
                 || twt.getLeg3().hasRatioTapChanger()
-                || twt.getLeg1().hasPhaseTapChanger()
-                || twt.getLeg2().hasPhaseTapChanger()
-                || twt.getLeg3().hasPhaseTapChanger()
+                || (twt.getLeg1().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
+                || (twt.getLeg2().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
+                || (twt.getLeg3().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
                 || hasValidOperationalLimits(twt.getLeg1(), context)
                 || hasValidOperationalLimits(twt.getLeg2(), context)
                 || hasValidOperationalLimits(twt.getLeg3(), context);
@@ -90,20 +90,16 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg1().hasRatioTapChanger(), ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
-                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context);
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg1().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
-                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context);
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasRatioTapChanger(), ROOT_ELEMENT_NAME, RATIO_TAP_CHANGER_1,
+                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writeRatioTapChanger(twt.getLeg1().getRatioTapChanger(), 1, context));
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg1().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_1,
+                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writePhaseTapChanger(twt.getLeg1().getPhaseTapChanger(), 1, context));
         writeRatioTapChanger(twt.getLeg2().getRatioTapChanger(), 2, context);
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg2().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2,
-                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context);
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg2().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_2,
+                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writePhaseTapChanger(twt.getLeg2().getPhaseTapChanger(), 2, context));
         writeRatioTapChanger(twt.getLeg3().getRatioTapChanger(), 3, context);
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(twt.getLeg3().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3,
-                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
-        writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context);
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(twt.getLeg3().hasPhaseTapChanger(), ROOT_ELEMENT_NAME, PHASE_TAP_CHANGER_3,
+                IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context, () -> writePhaseTapChanger(twt.getLeg3().getPhaseTapChanger(), 3, context));
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
