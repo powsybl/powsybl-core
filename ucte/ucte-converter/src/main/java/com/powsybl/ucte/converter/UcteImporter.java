@@ -577,9 +577,9 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
-                    .add()
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
+                .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
@@ -938,19 +938,20 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp)
+        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
+        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
+        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
+        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        mergeLine.newExtension(MergedXnodeAdder.class)
+                .withRdp(rdp).withXdp(xdp)
                 .withLine1Name(dlAtSideOne.getId())
                 .withLine1Fictitious(dlAtSideOne.isFictitious())
-                .withLine1B1(dlAtSideOne.getB())
-                .withLine1B2(0.0)
-                .withLine1G1(dlAtSideOne.getG())
-                .withLine1G2(0.0)
+                .withB1dp((float) b1dp)
+                .withG1dp((float) g1dp)
                 .withLine2Name(dlAtSideTwo.getId())
                 .withLine2Fictitious(dlAtSideTwo.isFictitious())
-                .withLine2B1(0.0)
-                .withLine2B2(dlAtSideTwo.getB())
-                .withLine2G1(0.0)
-                .withLine2G2(dlAtSideTwo.getG())
+                .withB2dp((float) b2dp)
+                .withG2dp((float) g2dp)
                 .withCode(xnodeCode)
                 .add();
     }

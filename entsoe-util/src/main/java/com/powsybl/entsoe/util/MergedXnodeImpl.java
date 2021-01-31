@@ -20,63 +20,51 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private float xdp; // x divider position 1 -> 2
 
-    private double xnodeP1;
-
-    private double xnodeQ1;
-
-    private double xnodeP2;
-
-    private double xnodeQ2;
-
     private String line1Name;
 
     private boolean line1Fictitious;
 
-    private double line1G1;
+    private double xnodeP1;
 
-    private double line1B1;
+    private double xnodeQ1;
 
-    private double line1G2;
+    private float b1dp; // b1 divider position 1 -> 2
+
+    private float g1dp; // g1 divider position 1 -> 2
 
     private String line2Name;
 
     private boolean line2Fictitious;
 
-    private double line1B2;
+    private double xnodeP2;
 
-    private double line2G1;
+    private double xnodeQ2;
 
-    private double line2B1;
+    private float b2dp; // b2 divider position 1 -> 2
 
-    private double line2G2;
-
-    private double line2B2;
+    private float g2dp; // g2 divider position 1 -> 2
 
     private String code;
 
-    public MergedXnodeImpl(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
-                           String line1Name, boolean line1Fictitious, double line1B1, double line1B2, double line1G1, double line1G2,
-                           String line2Name, boolean line2Fictitious, double line2B1, double line2B2, double line2G1, double line2G2,
+    public MergedXnodeImpl(Line line, float rdp, float xdp,
+                           String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, float b1dp, float g1dp,
+                           String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, float b2dp, float g2dp,
                            String code) {
         super(line);
         this.rdp = checkDividerPosition(rdp);
         this.xdp = checkDividerPosition(xdp);
-        this.xnodeP1 = checkPowerFlow(xnodeP1);
-        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
-        this.xnodeP2 = checkPowerFlow(xnodeP2);
-        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
         this.line1Name = Objects.requireNonNull(line1Name);
         this.line1Fictitious = line1Fictitious;
-        this.line1B1 = checkValue(line1B1);
-        this.line1B2 = checkValue(line1B2);
-        this.line1G1 = checkValue(line1G1);
-        this.line1G2 = checkValue(line1G2);
+        this.xnodeP1 = checkPowerFlow(xnodeP1);
+        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
+        this.b1dp = checkDividerPosition(b1dp);
+        this.g1dp = checkDividerPosition(g1dp);
         this.line2Name = Objects.requireNonNull(line2Name);
         this.line2Fictitious = line2Fictitious;
-        this.line2B1 = checkValue(line2B1);
-        this.line2B2 = checkValue(line2B2);
-        this.line2G1 = checkValue(line2G1);
-        this.line2G2 = checkValue(line2G2);
+        this.xnodeP2 = checkPowerFlow(xnodeP2);
+        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
+        this.b2dp = checkDividerPosition(b2dp);
+        this.g2dp = checkDividerPosition(g2dp);
         this.code = Objects.requireNonNull(code);
     }
 
@@ -91,14 +79,6 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
         if (Double.isNaN(value)) {
             throw new IllegalArgumentException("Power flow is invalid");
         }
-        return value;
-    }
-
-    private static double checkValue(double value) {
-        if (Double.isNaN(value)) {
-            throw new IllegalArgumentException("Value is undefined");
-        }
-
         return value;
     }
 
@@ -125,6 +105,28 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     @Override
+    public String getLine1Name() {
+        return line1Name;
+    }
+
+    @Override
+    public MergedXnodeImpl setLine1Name(String line1Name) {
+        this.line1Name = Objects.requireNonNull(line1Name);
+        return this;
+    }
+
+    @Override
+    public boolean isLine1Fictitious() {
+        return line1Fictitious;
+    }
+
+    @Override
+    public MergedXnodeImpl setLine1Fictitious(boolean line1Fictitious) {
+        this.line1Fictitious = line1Fictitious;
+        return this;
+    }
+
+    @Override
     public double getXnodeP1() {
         return xnodeP1;
     }
@@ -143,6 +145,50 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     @Override
     public MergedXnodeImpl setXnodeQ1(double xnodeQ1) {
         this.xnodeQ1 = checkPowerFlow(xnodeQ1);
+        return this;
+    }
+
+    @Override
+    public MergedXnodeImpl setB1dp(float b1dp) {
+        this.b1dp = checkDividerPosition(b1dp);
+        return this;
+    }
+
+    @Override
+    public float getB1dp() {
+        return b1dp;
+    }
+
+    @Override
+    public MergedXnodeImpl setG1dp(float g1dp) {
+        this.g1dp = checkDividerPosition(g1dp);
+        return this;
+    }
+
+    @Override
+    public float getG1dp() {
+        return g1dp;
+    }
+
+    @Override
+    public String getLine2Name() {
+        return line2Name;
+    }
+
+    @Override
+    public MergedXnodeImpl setLine2Name(String line2Name) {
+        this.line2Name = Objects.requireNonNull(line2Name);
+        return this;
+    }
+
+    @Override
+    public boolean isLine2Fictitious() {
+        return line2Fictitious;
+    }
+
+    @Override
+    public MergedXnodeImpl setLine2Fictitious(boolean line2Fictitious) {
+        this.line2Fictitious = line2Fictitious;
         return this;
     }
 
@@ -169,135 +215,25 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     @Override
-    public String getLine1Name() {
-        return line1Name;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine1Name(String line1Name) {
-        this.line1Name = Objects.requireNonNull(line1Name);
+    public MergedXnodeImpl setB2dp(float b2dp) {
+        this.b2dp = checkDividerPosition(b2dp);
         return this;
     }
 
     @Override
-    public boolean isLine1Fictitious() {
-        return line1Fictitious;
+    public float getB2dp() {
+        return b2dp;
     }
 
     @Override
-    public MergedXnodeImpl setLine1Fictitious(boolean line1Fictitious) {
-        this.line1Fictitious = line1Fictitious;
+    public MergedXnodeImpl setG2dp(float g2dp) {
+        this.g2dp = checkDividerPosition(g2dp);
         return this;
     }
 
     @Override
-    public double getLine1G1() {
-        return line1G1;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine1G1(double line1G1) {
-        this.line1G1 = checkValue(line1G1);
-        return this;
-    }
-
-    @Override
-    public double getLine1B1() {
-        return line1B1;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine1B1(double line1B1) {
-        this.line1B1 = checkValue(line1B1);
-        return this;
-    }
-
-    @Override
-    public double getLine1G2() {
-        return line1G2;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine1G2(double line1G2) {
-        this.line1G2 = checkValue(line1G2);
-        return this;
-    }
-
-    @Override
-    public double getLine1B2() {
-        return line1B2;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine1B2(double line1B2) {
-        this.line1B2 = checkValue(line1B2);
-        return this;
-    }
-
-    @Override
-    public String getLine2Name() {
-        return line2Name;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2Name(String line2Name) {
-        this.line2Name = Objects.requireNonNull(line2Name);
-        return this;
-    }
-
-    @Override
-    public boolean isLine2Fictitious() {
-        return line2Fictitious;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2Fictitious(boolean line2Fictitious) {
-        this.line2Fictitious = line2Fictitious;
-        return this;
-    }
-
-    @Override
-    public double getLine2G1() {
-        return line2G1;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2G1(double line2G1) {
-        this.line2G1 = checkValue(line2G1);
-        return this;
-    }
-
-    @Override
-    public double getLine2B1() {
-        return line2B1;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2B1(double line2B1) {
-        this.line2B1 = checkValue(line2B1);
-        return this;
-    }
-
-    @Override
-    public double getLine2G2() {
-        return line2G2;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2G2(double line2G2) {
-        this.line2G2 = checkValue(line2G2);
-        return this;
-    }
-
-    @Override
-    public double getLine2B2() {
-        return line2B2;
-    }
-
-    @Override
-    public MergedXnodeImpl setLine2B2(double line2B2) {
-        this.line2B2 = checkValue(line2B2);
-        return this;
+    public float getG2dp() {
+        return g2dp;
     }
 
     @Override

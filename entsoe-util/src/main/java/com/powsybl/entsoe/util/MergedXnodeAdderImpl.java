@@ -19,37 +19,29 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     private float xdp; // x divider position 1 -> 2
 
-    private double xnodeP1;
-
-    private double xnodeQ1;
-
-    private double xnodeP2;
-
-    private double xnodeQ2;
-
     private String line1Name;
 
     private boolean line1Fictitious;
 
-    private double line1B1;
+    private double xnodeP1;
 
-    private double line1B2;
+    private double xnodeQ1;
 
-    private double line1G1;
+    private float b1dp; // b1 divider position 1 -> 2
 
-    private double line1G2;
+    private float g1dp; // g1 divider position 1 -> 2
 
     private String line2Name;
 
     private boolean line2Fictitious;
 
-    private double line2B1;
+    private double xnodeP2;
 
-    private double line2B2;
+    private double xnodeQ2;
 
-    private double line2G1;
+    private float b2dp; // b2 divider position 1 -> 2
 
-    private double line2G2;
+    private float g2dp; // g2 divider position 1 -> 2
 
     private String code;
 
@@ -59,9 +51,9 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     @Override
     protected MergedXnode createExtension(Line extendable) {
-        return new MergedXnodeImpl(extendable, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2,
-                line1Name, line1Fictitious, line1B1, line1B2, line1G1, line1G2,
-                line2Name, line2Fictitious, line2B1, line2B2, line2G1, line2G2,
+        return new MergedXnodeImpl(extendable, rdp, xdp,
+                line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
+                line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
                 code);
     }
 
@@ -78,30 +70,6 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withXnodeP1(double xnodeP1) {
-        this.xnodeP1 = xnodeP1;
-        return this;
-    }
-
-    @Override
-    public MergedXnodeAdderImpl withXnodeQ1(double xnodeQ1) {
-        this.xnodeQ1 = xnodeQ1;
-        return this;
-    }
-
-    @Override
-    public MergedXnodeAdderImpl withXnodeP2(double xnodeP2) {
-        this.xnodeP2 = xnodeP2;
-        return this;
-    }
-
-    @Override
-    public MergedXnodeAdderImpl withXnodeQ2(double xnodeQ2) {
-        this.xnodeQ2 = xnodeQ2;
-        return this;
-    }
-
-    @Override
     public MergedXnodeAdderImpl withLine1Name(String line1Name) {
         this.line1Name = line1Name;
         return this;
@@ -114,26 +82,26 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine1B1(double line1B1) {
-        this.line1B1 = line1B1;
+    public MergedXnodeAdderImpl withXnodeP1(double xnodeP1) {
+        this.xnodeP1 = xnodeP1;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine1B2(double line1B2) {
-        this.line1B2 = line1B2;
+    public MergedXnodeAdderImpl withXnodeQ1(double xnodeQ1) {
+        this.xnodeQ1 = xnodeQ1;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine1G1(double line1G1) {
-        this.line1G1 = line1G1;
+    public MergedXnodeAdderImpl withB1dp(float b1dp) {
+        this.b1dp = b1dp;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine1G2(double line1G2) {
-        this.line1G2 = line1G2;
+    public MergedXnodeAdderImpl withG1dp(float g1dp) {
+        this.g1dp = g1dp;
         return this;
     }
 
@@ -150,26 +118,26 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine2B1(double line2B1) {
-        this.line2B1 = line2B1;
+    public MergedXnodeAdderImpl withXnodeP2(double xnodeP2) {
+        this.xnodeP2 = xnodeP2;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine2B2(double line2B2) {
-        this.line2B2 = line2B2;
+    public MergedXnodeAdderImpl withXnodeQ2(double xnodeQ2) {
+        this.xnodeQ2 = xnodeQ2;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine2G1(double line2G1) {
-        this.line2G1 = line2G1;
+    public MergedXnodeAdderImpl withB2dp(float b2dp) {
+        this.b2dp = b2dp;
         return this;
     }
 
     @Override
-    public MergedXnodeAdderImpl withLine2G2(double line2G2) {
-        this.line2G2 = line2G2;
+    public MergedXnodeAdderImpl withG2dp(float g2dp) {
+        this.g2dp = g2dp;
         return this;
     }
 

@@ -27,22 +27,6 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXdp(float xdp);
 
-    double getXnodeP1();
-
-    MergedXnode setXnodeP1(double xNodeP1);
-
-    double getXnodeQ1();
-
-    MergedXnode setXnodeQ1(double xNodeQ1);
-
-    double getXnodeP2();
-
-    MergedXnode setXnodeP2(double xNodeP2);
-
-    double getXnodeQ2();
-
-    MergedXnode setXnodeQ2(double xNodeQ2);
-
     boolean isLine1Fictitious();
 
     MergedXnode setLine1Fictitious(boolean line1Fictitious);
@@ -51,21 +35,21 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setLine1Name(String line1Name);
 
-    double getLine1B1();
+    double getXnodeP1();
 
-    MergedXnode setLine1B1(double line1B1);
+    MergedXnode setXnodeP1(double xNodeP1);
 
-    double getLine1B2();
+    double getXnodeQ1();
 
-    MergedXnode setLine1B2(double line1B2);
+    MergedXnode setXnodeQ1(double xNodeQ1);
 
-    double getLine1G1();
+    float getB1dp();
 
-    MergedXnode setLine1G1(double line1G1);
+    MergedXnode setB1dp(float b1dp);
 
-    double getLine1G2();
+    float getG1dp();
 
-    MergedXnode setLine1G2(double line1G2);
+    MergedXnode setG1dp(float g1dp);
 
     String getLine2Name();
 
@@ -75,21 +59,21 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setLine2Fictitious(boolean line2Fictitious);
 
-    double getLine2B1();
+    double getXnodeP2();
 
-    MergedXnode setLine2B1(double line2B1);
+    MergedXnode setXnodeP2(double xNodeP2);
 
-    double getLine2B2();
+    double getXnodeQ2();
 
-    MergedXnode setLine2B2(double line2B2);
+    MergedXnode setXnodeQ2(double xNodeQ2);
 
-    double getLine2G1();
+    float getB2dp();
 
-    MergedXnode setLine2G1(double line2G1);
+    MergedXnode setB2dp(float b2dp);
 
-    double getLine2G2();
+    float getG2dp();
 
-    MergedXnode setLine2G2(double line2G2);
+    MergedXnode setG2dp(float g2dp);
 
     String getCode();
 

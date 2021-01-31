@@ -70,17 +70,14 @@ public class MergedXnodeTest {
                 .withXnodeP2(1.5).withXnodeQ2(2.5)
                 .withLine1Name("")
                 .withLine1Fictitious(true)
-                .withLine1B1(3)
-                .withLine1B2(4)
-                .withLine1G1(5)
-                .withLine1G2(6)
+                .withB1dp(3f / 7)
+                .withG1dp(5f / 11)
                 .withLine2Name("")
                 .withLine2Fictitious(true)
-                .withLine2B1(3.5)
-                .withLine2B2(4.5)
-                .withLine2G1(5.5)
-                .withLine2G2(6.5)
-                .withCode("XXXXXX11").add();
+                .withB2dp((float) 3.5 / 8)
+                .withG2dp((float) 5.5 / 12)
+                .withCode("XXXXXX11")
+                .add();
         MergedXnode xnode = line.getExtension(MergedXnode.class);
 
         assertEquals("mergedXnode", xnode.getName());
@@ -93,16 +90,11 @@ public class MergedXnodeTest {
         assertEquals(1.5, xnode.getXnodeP2(), 0.0);
         assertEquals(2.5, xnode.getXnodeQ2(), 0.0);
         assertTrue(xnode.isLine1Fictitious());
-        assertEquals(3, xnode.getLine1B1(), 0.0);
-        assertEquals(4, xnode.getLine1B2(), 0.0);
-        assertEquals(5, xnode.getLine1G1(), 0.0);
-        assertEquals(6, xnode.getLine1G2(), 0.0);
         assertTrue(xnode.isLine1Fictitious());
-        assertEquals(3.5, xnode.getLine2B1(), 0.0);
-        assertEquals(4.5, xnode.getLine2B2(), 0.0);
-        assertEquals(5.5, xnode.getLine2G1(), 0.0);
-        assertEquals(6.5, xnode.getLine2G2(), 0.0);
-
+        assertEquals(3f / 7, xnode.getB1dp(), 0f);
+        assertEquals(5f / 11, xnode.getG1dp(), 0f);
+        assertEquals(3.5f / 8, xnode.getB2dp(), 0f);
+        assertEquals(5.5f / 12, xnode.getG2dp(), 0f);
         assertEquals("XXXXXX11", xnode.getCode());
 
         try {
@@ -131,42 +123,42 @@ public class MergedXnodeTest {
         } catch (NullPointerException ignored) {
         }
         try {
-            xnode.setLine1B1(Double.NaN);
+            xnode.setB1dp(2f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine1B2(Double.NaN);
+            xnode.setB1dp(-1f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine1G1(Double.NaN);
+            xnode.setG1dp(2f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine1G2(Double.NaN);
+            xnode.setG1dp(-1f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine2B1(Double.NaN);
+            xnode.setB2dp(2f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine2B2(Double.NaN);
+            xnode.setB2dp(-1f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine2G1(Double.NaN);
+            xnode.setG2dp(2f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setLine2G2(Double.NaN);
+            xnode.setG2dp(-1f);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -181,16 +173,11 @@ public class MergedXnodeTest {
         xnode.setLine1Name("Line1");
         xnode.setLine2Name("Line2");
         xnode.setLine1Fictitious(false);
-        xnode.setLine1B1(12);
-        xnode.setLine1B2(13);
-        xnode.setLine1G1(14);
-        xnode.setLine1G2(15);
         xnode.setLine2Fictitious(false);
-        xnode.setLine2B1(22);
-        xnode.setLine2B2(23);
-        xnode.setLine2G1(24);
-        xnode.setLine2G2(25);
-
+        xnode.setB1dp(12f / 25);
+        xnode.setG1dp(14f / 29);
+        xnode.setB2dp(22f / 35);
+        xnode.setG2dp(24f / 39);
         assertEquals(0.6f, xnode.getRdp(), 0f);
         assertEquals(0.6f, xnode.getXdp(), 0f);
         assertEquals(10.0, xnode.getXnodeP1(), 0.0);
@@ -200,15 +187,11 @@ public class MergedXnodeTest {
         assertEquals("Line1", xnode.getLine1Name());
         assertEquals("Line2", xnode.getLine2Name());
         assertFalse(xnode.isLine1Fictitious());
-        assertEquals(12, xnode.getLine1B1(), 0.0);
-        assertEquals(13, xnode.getLine1B2(), 0.0);
-        assertEquals(14, xnode.getLine1G1(), 0.0);
-        assertEquals(15, xnode.getLine1G2(), 0.0);
-        assertEquals(22, xnode.getLine2B1(), 0.0);
-        assertEquals(23, xnode.getLine2B2(), 0.0);
-        assertEquals(24, xnode.getLine2G1(), 0.0);
-        assertEquals(25, xnode.getLine2G2(), 0.0);
         assertFalse(xnode.isLine2Fictitious());
+        assertEquals(12f / 25, xnode.getB1dp(), 0f);
+        assertEquals(14f / 29, xnode.getG1dp(), 0f);
+        assertEquals(22f / 35, xnode.getB2dp(), 0f);
+        assertEquals(24f / 39, xnode.getG2dp(), 0f);
     }
 
 }
