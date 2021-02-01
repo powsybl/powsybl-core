@@ -32,7 +32,6 @@ public interface SensitivityFactorsProvider {
      */
     List<SensitivityFactor> getFactors(Network network);
 
-
     /**
      * Get the list of factors generated based on the given network and a contingency
      *
