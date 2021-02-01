@@ -68,4 +68,28 @@ public class GroovyDynamicModelSupplierTest {
         assertEquals("LOAD", dynamicModel2.getId());
         assertEquals("LOAD", dynamicModel2.getParameterSetId());
     }
+
+    @Test
+    public void testWithInputStream() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        List<DynamicModelGroovyExtension> extensions = GroovyExtension.find(DynamicModelGroovyExtension.class, "dummy");
+        assertEquals(1, extensions.size());
+        assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
+
+        DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(getClass().getResourceAsStream("/dynamicModels.groovy"), extensions);
+
+        List<DynamicModel> dynamicModels = supplier.get(network);
+        assertEquals(2, dynamicModels.size());
+
+        assertTrue(dynamicModels.get(0) instanceof DummyDynamicModel);
+        DummyDynamicModel dynamicModel1 = (DummyDynamicModel) dynamicModels.get(0);
+        assertEquals("id", dynamicModel1.getId());
+        assertEquals("parameterSetId", dynamicModel1.getParameterSetId());
+
+        assertTrue(dynamicModels.get(1) instanceof DummyDynamicModel);
+        DummyDynamicModel dynamicModel2 = (DummyDynamicModel) dynamicModels.get(1);
+        assertEquals("LOAD", dynamicModel2.getId());
+        assertEquals("LOAD", dynamicModel2.getParameterSetId());
+    }
 }
