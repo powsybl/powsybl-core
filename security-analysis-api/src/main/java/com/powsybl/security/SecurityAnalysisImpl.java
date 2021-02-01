@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
-import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import org.slf4j.Logger;
@@ -72,15 +71,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     }
 
     private final ComputationManager computationManager;
-
-    public SecurityAnalysisImpl(Network network, ComputationManager computationManager) {
-        this(network, new LimitViolationFilter(), computationManager);
-    }
-
-    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter,
-                                ComputationManager computationManager) {
-        this(network, new DefaultLimitViolationDetector(), filter, computationManager);
-    }
 
     public SecurityAnalysisImpl(Network network, LimitViolationDetector detector,
                                 LimitViolationFilter filter, ComputationManager computationManager) {
