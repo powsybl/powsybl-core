@@ -51,10 +51,11 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     @Override
     protected MergedXnode createExtension(Line extendable) {
-        return new MergedXnodeImpl(extendable, rdp, xdp,
-                line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
-                line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
-                code);
+        return MergedXnodeImpl.create(extendable)
+                .setRdp(rdp).setXdp(xdp)
+                .setLine1Name(line1Name).setLine1Fictitious(line1Fictitious).setXnodeP1(xnodeP1).setXnodeQ1(xnodeQ1).setB1dp(b1dp).setG1dp(g1dp)
+                .setLine2Name(line2Name).setLine2Fictitious(line2Fictitious).setXnodeP2(xnodeP2).setXnodeQ2(xnodeQ2).setB2dp(b2dp).setG2dp(g2dp)
+                .setCode(code);
     }
 
     @Override

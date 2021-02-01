@@ -43,7 +43,7 @@ public class MergedXnodeTest {
         vl2.getBusBreakerView().newBus()
                 .setId("B2")
                 .add();
-        network.newLine()
+        Line line = network.newLine()
                 .setId("L")
                 .setVoltageLevel1("VL1")
                 .setBus1("B1")
@@ -56,16 +56,9 @@ public class MergedXnodeTest {
                 .setB1(0.0)
                 .setB2(0.0)
                 .add();
-        return network;
-    }
-
-    @Test
-    public void test() {
-        Network network = createTestNetwork();
 
         // extends line
-        Line line = network.getLine("L");
-        line.newExtension(MergedXnodeAdder.class).withRdp(0.5f).withXdp(0.5f)
+        line.newExtension(MergedXnodeAdder.class).withRdp(0.5f).withXdp(0.75f)
                 .withXnodeP1(1.0).withXnodeQ1(2.0)
                 .withXnodeP2(1.5).withXnodeQ2(2.5)
                 .withLine1Name("")
@@ -78,13 +71,23 @@ public class MergedXnodeTest {
                 .withG2dp((float) 5.5 / 12)
                 .withCode("XXXXXX11")
                 .add();
+
+        return network;
+    }
+
+    @Test
+    public void testCreate() {
+        Network network = createTestNetwork();
+
+        // extends line
+        Line line = network.getLine("L");
         MergedXnode xnode = line.getExtension(MergedXnode.class);
 
         assertEquals("mergedXnode", xnode.getName());
         assertSame(line, xnode.getExtendable());
 
         assertEquals(0.5f, xnode.getRdp(), 0f);
-        assertEquals(0.5f, xnode.getXdp(), 0f);
+        assertEquals(0.75f, xnode.getXdp(), 0f);
         assertEquals(1.0, xnode.getXnodeP1(), 0.0);
         assertEquals(2.0, xnode.getXnodeQ1(), 0.0);
         assertEquals(1.5, xnode.getXnodeP2(), 0.0);
@@ -96,6 +99,12 @@ public class MergedXnodeTest {
         assertEquals(3.5f / 8, xnode.getB2dp(), 0f);
         assertEquals(5.5f / 12, xnode.getG2dp(), 0f);
         assertEquals("XXXXXX11", xnode.getCode());
+    }
+
+    @Test
+    public void testControls() {
+        Network network = createTestNetwork();
+        MergedXnode xnode = network.getLine("L").getExtension(MergedXnode.class);
 
         try {
             xnode.setCode(null);
@@ -162,6 +171,12 @@ public class MergedXnodeTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
+    }
+
+    @Test
+    public void testSetters() {
+        Network network = createTestNetwork();
+        MergedXnode xnode = network.getLine("L").getExtension(MergedXnode.class);
 
         xnode.setRdp(0.6f);
         xnode.setXdp(0.6f);
@@ -193,5 +208,4 @@ public class MergedXnodeTest {
         assertEquals(22f / 35, xnode.getB2dp(), 0f);
         assertEquals(24f / 39, xnode.getG2dp(), 0f);
     }
-
 }

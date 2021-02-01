@@ -46,26 +46,12 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private String code;
 
-    public MergedXnodeImpl(Line line, float rdp, float xdp,
-                           String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, float b1dp, float g1dp,
-                           String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, float b2dp, float g2dp,
-                           String code) {
+    public static MergedXnode create(Line line) {
+        return new MergedXnodeImpl(line);
+    }
+
+    protected MergedXnodeImpl(Line line) {
         super(line);
-        this.rdp = checkDividerPosition(rdp);
-        this.xdp = checkDividerPosition(xdp);
-        this.line1Name = Objects.requireNonNull(line1Name);
-        this.line1Fictitious = line1Fictitious;
-        this.xnodeP1 = checkPowerFlow(xnodeP1);
-        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
-        this.b1dp = checkDividerPosition(b1dp);
-        this.g1dp = checkDividerPosition(g1dp);
-        this.line2Name = Objects.requireNonNull(line2Name);
-        this.line2Fictitious = line2Fictitious;
-        this.xnodeP2 = checkPowerFlow(xnodeP2);
-        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
-        this.b2dp = checkDividerPosition(b2dp);
-        this.g2dp = checkDividerPosition(g2dp);
-        this.code = Objects.requireNonNull(code);
     }
 
     private static float checkDividerPosition(float dp) {
