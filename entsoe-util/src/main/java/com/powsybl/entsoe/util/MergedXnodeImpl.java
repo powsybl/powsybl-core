@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
+public final class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
 
     private float rdp; // r divider position 1 -> 2
 
@@ -46,12 +46,104 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private String code;
 
-    public static MergedXnode create(Line line) {
-        return new MergedXnodeImpl(line);
-    }
+    static class MergedXnodeBuilder {
+        MergedXnodeImpl mergedXnode;
 
-    protected MergedXnodeImpl(Line line) {
-        super(line);
+        MergedXnodeBuilder(Line line) {
+            this.mergedXnode = new MergedXnodeImpl(line);
+        }
+
+        MergedXnode build() {
+            checkDividerPosition(mergedXnode.rdp);
+            checkDividerPosition(mergedXnode.xdp);
+            Objects.requireNonNull(mergedXnode.line1Name);
+            checkPowerFlow(mergedXnode.xnodeP1);
+            checkPowerFlow(mergedXnode.xnodeQ1);
+            checkDividerPosition(mergedXnode.b1dp);
+            checkDividerPosition(mergedXnode.g1dp);
+            Objects.requireNonNull(mergedXnode.line2Name);
+            checkPowerFlow(mergedXnode.xnodeP2);
+            checkPowerFlow(mergedXnode.xnodeQ2);
+            checkDividerPosition(mergedXnode.b2dp);
+            checkDividerPosition(mergedXnode.g2dp);
+            Objects.requireNonNull(mergedXnode.code);
+            return mergedXnode;
+        }
+
+        MergedXnodeBuilder setRdp(float rdp) {
+            mergedXnode.rdp = rdp;
+            return this;
+        }
+
+        MergedXnodeBuilder setXdp(float xdp) {
+            mergedXnode.xdp = xdp;
+            return this;
+        }
+
+        MergedXnodeBuilder setLine1Name(String line1Name) {
+            mergedXnode.line1Name = line1Name;
+            return this;
+        }
+
+        MergedXnodeBuilder setLine1Fictitious(boolean line1Fictitious) {
+            mergedXnode.line1Fictitious = line1Fictitious;
+            return this;
+        }
+
+        MergedXnodeBuilder setXnodeP1(double xnodeP1) {
+            mergedXnode.xnodeP1 = xnodeP1;
+            return this;
+        }
+
+        MergedXnodeBuilder setXnodeQ1(double xnodeQ1) {
+            mergedXnode.xnodeQ1 = xnodeQ1;
+            return this;
+        }
+
+        MergedXnodeBuilder setB1dp(float b1dp) {
+            mergedXnode.b1dp = b1dp;
+            return this;
+        }
+
+        MergedXnodeBuilder setG1dp(float g1dp) {
+            mergedXnode.g1dp = g1dp;
+            return this;
+        }
+
+        MergedXnodeBuilder setLine2Name(String line2Name) {
+            mergedXnode.line2Name = line2Name;
+            return this;
+        }
+
+        MergedXnodeBuilder setLine2Fictitious(boolean line2Fictitious) {
+            mergedXnode.line2Fictitious = line2Fictitious;
+            return this;
+        }
+
+        MergedXnodeBuilder setXnodeP2(double xnodeP2) {
+            mergedXnode.xnodeP2 = xnodeP2;
+            return this;
+        }
+
+        MergedXnodeBuilder setXnodeQ2(double xnodeQ2) {
+            mergedXnode.xnodeQ2 = xnodeQ2;
+            return this;
+        }
+
+        MergedXnodeBuilder setB2dp(float b2dp) {
+            mergedXnode.b2dp = b2dp;
+            return this;
+        }
+
+        MergedXnodeBuilder setG2dp(float g2dp) {
+            mergedXnode.g2dp = g2dp;
+            return this;
+        }
+
+        MergedXnodeBuilder setCode(String code) {
+            mergedXnode.code = code;
+            return this;
+        }
     }
 
     private static float checkDividerPosition(float dp) {
@@ -66,6 +158,10 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
             throw new IllegalArgumentException("Power flow is invalid");
         }
         return value;
+    }
+
+    private MergedXnodeImpl(Line line) {
+        super(line);
     }
 
     @Override
