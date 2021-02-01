@@ -8,6 +8,7 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -39,5 +40,7 @@ public interface SensitivityFactorsProvider {
      * @param contingencyId Id of the contingency for which we want the factors. Set to null for base case factors.
      * @return A list of sensitivity factors
      */
-    List<SensitivityFactor> getFactors(Network network, String contingencyId);
+    default List<SensitivityFactor> getFactors(Network network, String contingencyId) {
+        return Collections.emptyList();
+    }
 }
