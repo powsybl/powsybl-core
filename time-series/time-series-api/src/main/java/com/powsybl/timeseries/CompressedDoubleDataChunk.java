@@ -149,6 +149,60 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
     }
 
     @Override
+    public DoubleDataChunk merge(final DoubleDataChunk otherChunk)
+    {
+        if(getOffset() + getLength() != otherChunk.getOffset())
+        {
+            throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
+                                               + " and first size is " + getLength() + "; second offset should be " +
+                                               (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
+        }
+        if(!(otherChunk instanceof CompressedDoubleDataChunk))
+        {
+            throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
+                    + ", the other one is " + otherChunk.getClass());
+        }
+        CompressedDoubleDataChunk chunk = (CompressedDoubleDataChunk) otherChunk;
+        int[] newStepLengths;
+        double[] newStepValues;
+
+        if(stepValues[stepValues.length-1] == chunk.getStepValues()[0])
+        {
+            //The last value of the first chunk is equals to the first value of the second one
+            // -> the first step of the second chunk needs to be erased
+
+            //Step lengths
+            newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
+            System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
+            newStepLengths[stepLengths.length-1] = stepLengths[stepLengths.length-1] + newStepLengths[0];
+            System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length-1);
+
+            //Step values
+            newStepValues = new double[newStepLengths.length];
+            System.arraycopy(stepValues, 0, newStepValues, 0, stepValues.length);
+            System.arraycopy(chunk.getStepValues(), 1, newStepValues, stepValues.length, chunk.getStepValues().length-1);
+        }
+        else
+        {
+            //The last value of the first chunk is different from to the first value of the second one
+            // -> both chunks have to be copied completely
+
+            //Step lengths
+            newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length];
+            System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
+            System.arraycopy(chunk.getStepLengths(), 0, newStepLengths, stepLengths.length, chunk.getStepLengths().length);
+
+            //Step values
+            newStepValues = new double[newStepLengths.length];
+            System.arraycopy(stepValues, 0, newStepValues, 0, stepValues.length);
+            System.arraycopy(chunk.getStepValues(), 0, newStepValues, stepValues.length, chunk.getStepValues().length);
+
+        }
+
+        return new CompressedDoubleDataChunk(offset, uncompressedLength + chunk.getUncompressedLength(), newStepValues, newStepLengths);
+    }
+
+    @Override
     protected void writeStepValuesJson(JsonGenerator generator) throws IOException {
         generator.writeArray(stepValues, 0, stepValues.length);
     }

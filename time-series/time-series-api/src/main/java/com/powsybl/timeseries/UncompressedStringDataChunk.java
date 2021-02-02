@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import gnu.trove.list.array.TIntArrayList;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.util.*;
@@ -122,6 +123,24 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
         System.arraycopy(values, values1.length, values2, 0, values2.length);
         return new Split<>(new UncompressedStringDataChunk(offset, values1),
                            new UncompressedStringDataChunk(splitIndex, values2));
+    }
+
+    @Override
+    public StringDataChunk merge(final StringDataChunk otherChunk)
+    {
+        if(getOffset() + getLength() != otherChunk.getOffset())
+        {
+            throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
+                                               + " and first size is " + getLength() + "; second offset should be " +
+                                               (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
+        }
+        if(!(otherChunk instanceof UncompressedStringDataChunk))
+        {
+            throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
+                                               + ", the other one is " + otherChunk.getClass());
+        }
+        UncompressedStringDataChunk chunk = (UncompressedStringDataChunk) otherChunk;
+        return new UncompressedStringDataChunk(offset, ArrayUtils.addAll(getValues(), chunk.getValues()));
     }
 
     @Override

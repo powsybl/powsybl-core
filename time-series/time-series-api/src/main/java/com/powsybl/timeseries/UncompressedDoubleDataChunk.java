@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
+import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.IOException;
 import java.nio.DoubleBuffer;
@@ -111,6 +112,24 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
         System.arraycopy(values, values1.length, values2, 0, values2.length);
         return new Split<>(new UncompressedDoubleDataChunk(offset, values1),
                            new UncompressedDoubleDataChunk(splitIndex, values2));
+    }
+
+    @Override
+    public DoubleDataChunk merge(final DoubleDataChunk otherChunk)
+    {
+        if(getOffset() + getLength() != otherChunk.getOffset())
+        {
+            throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
+                                               + " and first size is " + getLength() + "; second offset should be " +
+                                               (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
+        }
+        if(!(otherChunk instanceof UncompressedDoubleDataChunk))
+        {
+            throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
+                                               + ", the other one is " + otherChunk.getClass());
+        }
+        UncompressedDoubleDataChunk chunk = (UncompressedDoubleDataChunk) otherChunk;
+        return new UncompressedDoubleDataChunk(offset, ArrayUtils.addAll(getValues(), chunk.getValues()));
     }
 
     @Override

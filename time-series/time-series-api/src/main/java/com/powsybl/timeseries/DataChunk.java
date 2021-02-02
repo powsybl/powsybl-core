@@ -119,6 +119,14 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     Split<P, A> splitAt(int splitIndex);
 
     /**
+     * Merge the chunk with the one given in argument, and return the result.
+     * The two chunks have to be successive, i.e : this.getOffset() + this.length() = otherChunk.getOffset()
+     * @param otherChunk : the chunk to merge with this object. It has to be the same implementation as this object.
+     * @return
+     */
+    A merge(A otherChunk);
+
+    /**
      * Serialize this data chunk to json.
      *
      * @param generator a json generator (jackson)
