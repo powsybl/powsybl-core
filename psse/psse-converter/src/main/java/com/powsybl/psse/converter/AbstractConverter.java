@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.iidm.network.Network;
@@ -18,8 +20,8 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 public abstract class AbstractConverter {
 
     protected AbstractConverter(ContainersMapping containersMapping, Network network) {
-        this.containersMapping = containersMapping;
-        this.network = network;
+        this.containersMapping = Objects.requireNonNull(containersMapping);
+        this.network = Objects.requireNonNull(network);
     }
 
     public ContainersMapping getContainersMapping() {

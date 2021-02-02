@@ -7,6 +7,7 @@
 package com.powsybl.psse.converter;
 
 import java.util.List;
+import java.util.Objects;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -22,7 +23,7 @@ public class SlackConverter extends AbstractConverter {
 
     public SlackConverter(List<PsseBus> psseBusList, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseBusList = psseBusList;
+        this.psseBusList = Objects.requireNonNull(psseBusList);
     }
 
     public void create() {

@@ -6,11 +6,14 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -27,21 +30,23 @@ public class GeneratorConverter extends AbstractConverter {
 
     public GeneratorConverter(PsseGenerator psseGenerator, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseGenerator = psseGenerator;
+        this.psseGenerator = Objects.requireNonNull(psseGenerator);
     }
 
     public void create() {
         String busId = getBusId(psseGenerator.getI());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseGenerator.getI()));
-        Generator generator = voltageLevel.newGenerator()
+        GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(getGeneratorId(busId, psseGenerator))
                 .setConnectableBus(busId)
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
                 .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false)
-                .add();
+                .setVoltageRegulatorOn(false);
+
+        adder.setBus(psseGenerator.getStat() == 1 ? busId : null);
+        Generator generator = adder.add();
 
         generator.newMinMaxReactiveLimits()
                 .setMinQ(psseGenerator.getQb())
@@ -50,10 +55,6 @@ public class GeneratorConverter extends AbstractConverter {
 
         if (psseGenerator.getRt() != 0.0 || psseGenerator.getXt() != 0.0) {
             LOGGER.warn("Implicit method where a transformer is specified with the generator is not supported ({})", generator.getId());
-        }
-
-        if (psseGenerator.getStat() == 1) {
-            generator.getTerminal().connect();
         }
     }
 

@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -35,8 +36,8 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
     public SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
         super(containerMapping, network);
-        this.psseSwitchedShunt = psseSwitchedShunt;
-        this.version = version;
+        this.psseSwitchedShunt = Objects.requireNonNull(psseSwitchedShunt);
+        this.version = Objects.requireNonNull(version);
     }
 
     public void create() {
@@ -63,11 +64,9 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         });
         modelAdder.add();
-        ShuntCompensator shunt = adder.add();
 
-        if (psseSwitchedShunt.getStat() == 1) {
-            shunt.getTerminal().connect();
-        }
+        adder.setBus(psseSwitchedShunt.getStat() == 1 ? busId : null);
+        adder.add();
     }
 
     public void addControl() {

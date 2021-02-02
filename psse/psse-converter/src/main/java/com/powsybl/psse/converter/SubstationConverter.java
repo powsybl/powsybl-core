@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -19,7 +21,7 @@ public class SubstationConverter extends AbstractConverter {
 
     public SubstationConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseBus = psseBus;
+        this.psseBus = Objects.requireNonNull(psseBus);
     }
 
     public Substation create() {

@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -22,8 +24,8 @@ public class VoltageLevelConverter extends AbstractConverter {
 
     public VoltageLevelConverter(PsseBus psseBus, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network) {
         super(containerMapping, network);
-        this.psseBus = psseBus;
-        this.perUnitContext = perUnitContext;
+        this.psseBus = Objects.requireNonNull(psseBus);
+        this.perUnitContext = Objects.requireNonNull(perUnitContext);
     }
 
     public VoltageLevel create(Substation substation) {

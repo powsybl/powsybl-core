@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -18,6 +19,8 @@ import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -27,9 +30,9 @@ public class LineConverter extends AbstractConverter {
 
     public LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
         super(containerMapping, network);
-        this.psseLine = psseLine;
-        this.perUnitContext = perUnitContext;
-        this.version = version;
+        this.psseLine = Objects.requireNonNull(psseLine);
+        this.perUnitContext = Objects.requireNonNull(perUnitContext);
+        this.version = Objects.requireNonNull(version);
     }
 
     public void create() {
@@ -41,7 +44,7 @@ public class LineConverter extends AbstractConverter {
         String voltageLevel2Id = getContainersMapping().getVoltageLevelId(psseLine.getJ());
         VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(voltageLevel2Id);
 
-        Line line = getNetwork().newLine()
+        LineAdder adder = getNetwork().newLine()
             .setId(id)
             .setEnsureIdUnicity(true)
             .setConnectableBus1(bus1Id)
@@ -53,13 +56,11 @@ public class LineConverter extends AbstractConverter {
             .setG1(admittanceToEngineeringUnits(psseLine.getGi(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
             .setB1(admittanceToEngineeringUnits(psseLine.getB() * 0.5 + psseLine.getBi(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
             .setG2(admittanceToEngineeringUnits(psseLine.getGj(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setB2(admittanceToEngineeringUnits(psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .add();
+            .setB2(admittanceToEngineeringUnits(psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel2.getNominalV(), perUnitContext.getSb()));
 
-        if (psseLine.getSt() == 1) {
-            line.getTerminal1().connect();
-            line.getTerminal2().connect();
-        }
+        adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
+        adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
+        Line line = adder.add();
 
         VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevel1Id);
         defineOperationalLimits(line, voltageLevel1.getNominalV(), voltageLevel2.getNominalV());

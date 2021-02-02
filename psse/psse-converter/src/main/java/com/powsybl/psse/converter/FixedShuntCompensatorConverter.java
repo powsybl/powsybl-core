@@ -6,11 +6,12 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
@@ -24,7 +25,7 @@ public class FixedShuntCompensatorConverter extends AbstractConverter {
 
     public FixedShuntCompensatorConverter(PsseFixedShunt psseFixedShunt, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseFixedShunt = psseFixedShunt;
+        this.psseFixedShunt = Objects.requireNonNull(psseFixedShunt);
     }
 
     public void create() {
@@ -45,11 +46,9 @@ public class FixedShuntCompensatorConverter extends AbstractConverter {
             .setBPerSection(powerToShuntAdmittance(psseFixedShunt.getBl(), voltageLevel.getNominalV()))
             .setMaximumSectionCount(1)
             .add();
-        ShuntCompensator shunt = adder.add();
 
-        if (psseFixedShunt.getStatus() == 1) {
-            shunt.getTerminal().connect();
-        }
+        adder.setBus(psseFixedShunt.getStatus() == 1 ? busId : null);
+        adder.add();
     }
 
     private String getShuntId(String busId) {

@@ -6,6 +6,8 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -20,7 +22,7 @@ public class BusConverter extends AbstractConverter {
 
     public BusConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseBus = psseBus;
+        this.psseBus = Objects.requireNonNull(psseBus);
     }
 
     public void create(VoltageLevel voltageLevel) {
