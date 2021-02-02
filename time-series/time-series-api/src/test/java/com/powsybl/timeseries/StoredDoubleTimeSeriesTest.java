@@ -146,6 +146,43 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
+    public void splitMultiChunkTimeSeriesTest()
+    {
+        TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
+        Mockito.when(index.getPointCount()).thenReturn(6);
+        TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(0,
+                new double[]{0d, 1d, 2d, 3d, 4d, 5d});
+        DataChunk.Split<DoublePoint, DoubleDataChunk> splitChunk = chunk.splitAt(3);
+        StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, splitChunk.getChunk1(), splitChunk.getChunk2());
+        List<DoubleTimeSeries> split = timeSeries.split(2);
+
+        // check there is 3 new chunks
+        assertEquals(3, split.size());
+
+        // check first chunk
+        assertTrue(split.get(0) instanceof StoredDoubleTimeSeries);
+        assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
+        assertTrue(((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertEquals(0, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
+        assertEquals(2, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
+
+        // check second chunk
+        assertTrue(split.get(1) instanceof StoredDoubleTimeSeries);
+        assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
+        assertTrue(((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
+        assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
+
+        // check third chunk
+        assertTrue(split.get(2) instanceof StoredDoubleTimeSeries);
+        assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
+        assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
+        assertEquals(4, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
+        assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
+    }
+
+        @Test
     public void testCreateError() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Bad number of values 2, expected 3");
