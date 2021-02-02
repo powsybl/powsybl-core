@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Network;
 

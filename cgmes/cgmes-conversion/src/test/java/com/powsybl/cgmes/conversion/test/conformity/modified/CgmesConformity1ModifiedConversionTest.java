@@ -12,7 +12,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlArea;
 import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaMapping;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;

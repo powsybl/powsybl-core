@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.extensions;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Network;
 
@@ -20,13 +19,13 @@ public class CgmesControlAreaAdderImpl extends AbstractExtensionAdder<Network, C
 
     private Map<String, CgmesControlArea> cgmesControlAreas = new HashMap<>();
 
+    public CgmesControlAreaAdderImpl(Network extendable) {
+        super(extendable);
+    }
+
     @Override
     public CgmesControlArea newCgmesControlArea(String controlAreaId, String controlAreaName, String energyIdentCodeEic, double netInterchange) {
         return cgmesControlAreas.computeIfAbsent(controlAreaId, s -> new CgmesControlArea(controlAreaId, controlAreaName, energyIdentCodeEic, netInterchange));
-    }
-
-    public CgmesControlAreaAdderImpl(Network extendable) {
-        super(extendable);
     }
 
     @Override

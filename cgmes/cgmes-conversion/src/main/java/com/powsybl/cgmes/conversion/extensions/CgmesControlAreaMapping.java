@@ -6,10 +6,10 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import java.util.List;
 import java.util.Set;
 
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea.EquipmentEnd;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlArea.EquipmentEnd;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
@@ -17,6 +17,8 @@ import com.powsybl.iidm.network.Network;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public interface CgmesControlAreaMapping extends Extension<Network> {
+
+    List<Object> getCgmesControlAreaIds();
 
     CgmesControlArea getCgmesControlArea(String controlAreaId);
 

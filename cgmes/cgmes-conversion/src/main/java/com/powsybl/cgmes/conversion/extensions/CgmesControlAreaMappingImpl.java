@@ -6,12 +6,9 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea;
-import com.powsybl.cgmes.conversion.elements.areainterchange.CgmesControlArea.EquipmentEnd;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlArea.EquipmentEnd;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
@@ -24,6 +21,11 @@ public class CgmesControlAreaMappingImpl extends AbstractExtension<Network> impl
 
     CgmesControlAreaMappingImpl(Map<String, CgmesControlArea> cgmesControlAreas) {
         this.cgmesControlAreas = Objects.requireNonNull(cgmesControlAreas);
+    }
+
+    @Override
+    public List<Object> getCgmesControlAreaIds() {
+        return Collections.unmodifiableList(Arrays.asList(cgmesControlAreas.keySet().toArray()));
     }
 
     @Override
