@@ -14,140 +14,67 @@ import java.util.Objects;
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
  */
-public final class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
+public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
 
-    private float rdp; // r divider position 1 -> 2
+    private float rdp = Float.NaN; // r divider position 1 -> 2
 
-    private float xdp; // x divider position 1 -> 2
+    private float xdp = Float.NaN; // x divider position 1 -> 2
 
     private String line1Name;
 
-    private boolean line1Fictitious;
+    private boolean line1Fictitious = false;
 
     private double xnodeP1;
 
     private double xnodeQ1;
 
-    private float b1dp; // b1 divider position 1 -> 2
+    private float b1dp = Float.NaN; // b1 divider position 1 -> 2
 
-    private float g1dp; // g1 divider position 1 -> 2
+    private float g1dp = Float.NaN; // g1 divider position 1 -> 2
 
     private String line2Name;
 
-    private boolean line2Fictitious;
+    private boolean line2Fictitious = false;
 
     private double xnodeP2;
 
     private double xnodeQ2;
 
-    private float b2dp; // b2 divider position 1 -> 2
+    private float b2dp = Float.NaN; // b2 divider position 1 -> 2
 
-    private float g2dp; // g2 divider position 1 -> 2
+    private float g2dp = Float.NaN; // g2 divider position 1 -> 2
 
     private String code;
 
-    static class MergedXnodeBuilder {
-        MergedXnodeImpl mergedXnode;
-
-        MergedXnodeBuilder(Line line) {
-            this.mergedXnode = new MergedXnodeImpl(line);
-        }
-
-        MergedXnode build() {
-            checkDividerPosition(mergedXnode.rdp);
-            checkDividerPosition(mergedXnode.xdp);
-            Objects.requireNonNull(mergedXnode.line1Name);
-            checkPowerFlow(mergedXnode.xnodeP1);
-            checkPowerFlow(mergedXnode.xnodeQ1);
-            checkDividerPosition(mergedXnode.b1dp);
-            checkDividerPosition(mergedXnode.g1dp);
-            Objects.requireNonNull(mergedXnode.line2Name);
-            checkPowerFlow(mergedXnode.xnodeP2);
-            checkPowerFlow(mergedXnode.xnodeQ2);
-            checkDividerPosition(mergedXnode.b2dp);
-            checkDividerPosition(mergedXnode.g2dp);
-            Objects.requireNonNull(mergedXnode.code);
-            return mergedXnode;
-        }
-
-        MergedXnodeBuilder setRdp(float rdp) {
-            mergedXnode.rdp = rdp;
-            return this;
-        }
-
-        MergedXnodeBuilder setXdp(float xdp) {
-            mergedXnode.xdp = xdp;
-            return this;
-        }
-
-        MergedXnodeBuilder setLine1Name(String line1Name) {
-            mergedXnode.line1Name = line1Name;
-            return this;
-        }
-
-        MergedXnodeBuilder setLine1Fictitious(boolean line1Fictitious) {
-            mergedXnode.line1Fictitious = line1Fictitious;
-            return this;
-        }
-
-        MergedXnodeBuilder setXnodeP1(double xnodeP1) {
-            mergedXnode.xnodeP1 = xnodeP1;
-            return this;
-        }
-
-        MergedXnodeBuilder setXnodeQ1(double xnodeQ1) {
-            mergedXnode.xnodeQ1 = xnodeQ1;
-            return this;
-        }
-
-        MergedXnodeBuilder setB1dp(float b1dp) {
-            mergedXnode.b1dp = b1dp;
-            return this;
-        }
-
-        MergedXnodeBuilder setG1dp(float g1dp) {
-            mergedXnode.g1dp = g1dp;
-            return this;
-        }
-
-        MergedXnodeBuilder setLine2Name(String line2Name) {
-            mergedXnode.line2Name = line2Name;
-            return this;
-        }
-
-        MergedXnodeBuilder setLine2Fictitious(boolean line2Fictitious) {
-            mergedXnode.line2Fictitious = line2Fictitious;
-            return this;
-        }
-
-        MergedXnodeBuilder setXnodeP2(double xnodeP2) {
-            mergedXnode.xnodeP2 = xnodeP2;
-            return this;
-        }
-
-        MergedXnodeBuilder setXnodeQ2(double xnodeQ2) {
-            mergedXnode.xnodeQ2 = xnodeQ2;
-            return this;
-        }
-
-        MergedXnodeBuilder setB2dp(float b2dp) {
-            mergedXnode.b2dp = b2dp;
-            return this;
-        }
-
-        MergedXnodeBuilder setG2dp(float g2dp) {
-            mergedXnode.g2dp = g2dp;
-            return this;
-        }
-
-        MergedXnodeBuilder setCode(String code) {
-            mergedXnode.code = code;
-            return this;
-        }
+    public MergedXnodeImpl(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
+                           String line1Name, String line2Name, String code) {
+        super(line);
+        this.rdp = checkDividerPosition(rdp);
+        this.xdp = checkDividerPosition(xdp);
+        this.line1Name = Objects.requireNonNull(line1Name);
+        this.xnodeP1 = checkPowerFlow(xnodeP1);
+        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
+        this.line2Name = Objects.requireNonNull(line2Name);
+        this.xnodeP2 = checkPowerFlow(xnodeP2);
+        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
+        this.code = Objects.requireNonNull(code);
     }
 
-    private static float checkDividerPosition(float dp) {
-        if (dp < 0f || dp > 1f || Double.isNaN(dp)) {
+    public MergedXnodeImpl(Line line, float rdp, float xdp,
+                           String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, float b1dp, float g1dp,
+                           String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, float b2dp, float g2dp,
+                           String code) {
+        this(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, line1Name, line2Name, code);
+        this.line1Fictitious = line1Fictitious;
+        this.b1dp = checkDividerPosition(b1dp);
+        this.g1dp = checkDividerPosition(g1dp);
+        this.line2Fictitious = line2Fictitious;
+        this.b2dp = checkDividerPosition(b2dp);
+        this.g2dp = checkDividerPosition(g2dp);
+    }
+
+    private float checkDividerPosition(float dp) {
+        if (dp < 0f || dp > 1f) {
             throw new IllegalArgumentException("Invalid divider postion: " + dp);
         }
         return dp;
@@ -160,13 +87,9 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
         return value;
     }
 
-    private MergedXnodeImpl(Line line) {
-        super(line);
-    }
-
     @Override
     public float getRdp() {
-        return rdp;
+        return Float.isNaN(rdp) ? MergedXnode.super.getRdp() : rdp;
     }
 
     @Override
@@ -177,7 +100,7 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
 
     @Override
     public float getXdp() {
-        return xdp;
+        return Float.isNaN(xdp) ? MergedXnode.super.getXdp() : xdp;
     }
 
     @Override
@@ -238,7 +161,7 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
 
     @Override
     public float getB1dp() {
-        return b1dp;
+        return Float.isNaN(b1dp) ? MergedXnode.super.getB1dp() : b1dp;
     }
 
     @Override
@@ -249,7 +172,7 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
 
     @Override
     public float getG1dp() {
-        return g1dp;
+        return Float.isNaN(g1dp) ? MergedXnode.super.getG1dp() : g1dp;
     }
 
     @Override
@@ -304,7 +227,7 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
 
     @Override
     public float getB2dp() {
-        return b2dp;
+        return Float.isNaN(b2dp) ? MergedXnode.super.getB2dp() : b2dp;
     }
 
     @Override
@@ -315,7 +238,7 @@ public final class MergedXnodeImpl extends AbstractExtension<Line> implements Me
 
     @Override
     public float getG2dp() {
-        return g2dp;
+        return Float.isNaN(g2dp) ? MergedXnode.super.getG2dp() : g2dp;
     }
 
     @Override

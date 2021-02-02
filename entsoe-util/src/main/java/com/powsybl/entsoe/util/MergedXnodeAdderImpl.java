@@ -15,33 +15,33 @@ import com.powsybl.iidm.network.Line;
 public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXnode>
         implements MergedXnodeAdder {
 
-    private float rdp; // r divider position 1 -> 2
+    private float rdp = Float.NaN; // r divider position 1 -> 2
 
-    private float xdp; // x divider position 1 -> 2
+    private float xdp = Float.NaN; // x divider position 1 -> 2
 
     private String line1Name;
 
-    private boolean line1Fictitious;
+    private boolean line1Fictitious = false;
 
     private double xnodeP1;
 
     private double xnodeQ1;
 
-    private float b1dp; // b1 divider position 1 -> 2
+    private float b1dp = Float.NaN; // b1 divider position 1 -> 2
 
-    private float g1dp; // g1 divider position 1 -> 2
+    private float g1dp = Float.NaN; // g1 divider position 1 -> 2
 
     private String line2Name;
 
-    private boolean line2Fictitious;
+    private boolean line2Fictitious = false;
 
     private double xnodeP2;
 
     private double xnodeQ2;
 
-    private float b2dp; // b2 divider position 1 -> 2
+    private float b2dp = Float.NaN; // b2 divider position 1 -> 2
 
-    private float g2dp; // g2 divider position 1 -> 2
+    private float g2dp = Float.NaN; // g2 divider position 1 -> 2
 
     private String code;
 
@@ -51,12 +51,10 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     @Override
     protected MergedXnode createExtension(Line extendable) {
-        return new MergedXnodeImpl.MergedXnodeBuilder(extendable)
-                .setRdp(rdp).setXdp(xdp)
-                .setLine1Name(line1Name).setLine1Fictitious(line1Fictitious).setXnodeP1(xnodeP1).setXnodeQ1(xnodeQ1).setB1dp(b1dp).setG1dp(g1dp)
-                .setLine2Name(line2Name).setLine2Fictitious(line2Fictitious).setXnodeP2(xnodeP2).setXnodeQ2(xnodeQ2).setB2dp(b2dp).setG2dp(g2dp)
-                .setCode(code)
-                .build();
+        return new MergedXnodeImpl(extendable, rdp, xdp,
+                line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
+                line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
+                code);
     }
 
     @Override

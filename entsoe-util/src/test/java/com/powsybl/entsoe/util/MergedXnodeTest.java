@@ -208,4 +208,41 @@ public class MergedXnodeTest {
         assertEquals(22f / 35, xnode.getB2dp(), 0f);
         assertEquals(24f / 39, xnode.getG2dp(), 0f);
     }
+
+    @Test
+    public void testDefaultValues() {
+        Network network = createTestNetwork();
+        Line line = network.getLine("L");
+
+        line.newExtension(MergedXnodeAdder.class)
+                .withXnodeP1(1.0).withXnodeQ1(2.0)
+                .withXnodeP2(1.5).withXnodeQ2(2.5)
+                .withLine1Name("")
+                .withLine2Name("")
+                .withCode("XXXXXX11")
+                .add();
+
+        MergedXnode xnode = line.getExtension(MergedXnode.class);
+        assertEquals(0.5f, xnode.getRdp(), 0f);
+        assertEquals(0.5f, xnode.getXdp(), 0f);
+        assertEquals(0.5f, xnode.getB1dp(), 0f);
+        assertEquals(0.5f, xnode.getG1dp(), 0f);
+        assertEquals(0.5f, xnode.getB2dp(), 0f);
+        assertEquals(0.5f, xnode.getB2dp(), 0f);
+        assertFalse(xnode.isLine1Fictitious());
+        assertFalse(xnode.isLine2Fictitious());
+
+        xnode.setRdp(Float.NaN);
+        xnode.setXdp(Float.NaN);
+        xnode.setB1dp(Float.NaN);
+        xnode.setG1dp(Float.NaN);
+        xnode.setB2dp(Float.NaN);
+        xnode.setG2dp(Float.NaN);
+        assertEquals(0.5f, xnode.getRdp(), 0f);
+        assertEquals(0.5f, xnode.getXdp(), 0f);
+        assertEquals(0.5f, xnode.getB1dp(), 0f);
+        assertEquals(0.5f, xnode.getG1dp(), 0f);
+        assertEquals(0.5f, xnode.getB2dp(), 0f);
+        assertEquals(0.5f, xnode.getB2dp(), 0f);
+    }
 }

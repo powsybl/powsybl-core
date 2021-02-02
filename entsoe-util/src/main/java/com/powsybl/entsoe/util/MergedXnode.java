@@ -19,21 +19,33 @@ public interface MergedXnode extends Extension<Line> {
         return "mergedXnode";
     }
 
-    float getRdp();
+    default float getRdp() {
+        return 0.5f;
+    }
 
-    MergedXnode setRdp(float rdp);
+    default MergedXnode setRdp(float rdp) {
+        return this;
+    }
 
-    float getXdp();
+    default float getXdp() {
+        return 0.5f;
+    }
 
-    MergedXnode setXdp(float xdp);
-
-    boolean isLine1Fictitious();
-
-    MergedXnode setLine1Fictitious(boolean line1Fictitious);
+    default MergedXnode setXdp(float xdp) {
+        return this;
+    }
 
     String getLine1Name();
 
     MergedXnode setLine1Name(String line1Name);
+
+    default boolean isLine1Fictitious() {
+        return false;
+    }
+
+    default MergedXnode setLine1Fictitious(boolean line1Fictitious) {
+        return this;
+    }
 
     double getXnodeP1();
 
@@ -43,21 +55,33 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ1(double xNodeQ1);
 
-    float getB1dp();
+    default float getB1dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setB1dp(float b1dp);
+    default MergedXnode setB1dp(float b1dp) {
+        return this;
+    }
 
-    float getG1dp();
+    default float getG1dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setG1dp(float g1dp);
+    default MergedXnode setG1dp(float g1dp) {
+        return this;
+    }
 
     String getLine2Name();
 
     MergedXnode setLine2Name(String line2Name);
 
-    boolean isLine2Fictitious();
+    default boolean isLine2Fictitious() {
+        return false;
+    }
 
-    MergedXnode setLine2Fictitious(boolean line2Fictitious);
+    default MergedXnode setLine2Fictitious(boolean line1Fictitious) {
+        return this;
+    }
 
     double getXnodeP2();
 
@@ -67,13 +91,21 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ2(double xNodeQ2);
 
-    float getB2dp();
+    default float getB2dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setB2dp(float b2dp);
+    default MergedXnode setB2dp(float b2dp) {
+        return this;
+    }
 
-    float getG2dp();
+    default float getG2dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setG2dp(float g2dp);
+    default MergedXnode setG2dp(float g2dp) {
+        return this;
+    }
 
     String getCode();
 
