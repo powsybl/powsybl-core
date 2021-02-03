@@ -122,25 +122,22 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             LOGGER.trace("Split chunk [{}, {}]", chunkToSplit.getOffset(), chunkToSplit.getOffset() + chunkToSplit.getLength() - 1);
         }
 
-        C previousChunk = null;
+        boolean usePreviousChunk = false;
+        C previousChunk = splitChunks.isEmpty() ? null : splitChunks.get(splitChunks.size() - 1);
         int previousChunkSize = 0;
-        if(!splitChunks.isEmpty() && splitChunks.get(splitChunks.size()-1).getLength()<newChunkSize)
-        {
-             previousChunk = splitChunks.get(splitChunks.size()-1);
-             previousChunkSize = previousChunk.getLength();
+        //We can complete the previous chunk if 1) it is uncomplete and 2) the current offset is not a multiple of newChunkSize
+        if (previousChunk != null && previousChunk.getLength() < newChunkSize && chunkToSplit.getOffset() % newChunkSize != 0) {
+            usePreviousChunk = true;
+            previousChunkSize = previousChunk.getLength();
         }
         int correctedChunkSize = newChunkSize - previousChunkSize;
 
-        if(previousChunk != null)
-        {
+        if (usePreviousChunk) {
             LOGGER.trace("Previous output chunk's size is {} ; {} elements can be added.", previousChunkSize, correctedChunkSize);
-        }
-        else
-        {
+        } else {
             LOGGER.trace("The previous chunk was complete (or there was no previous chunk). Starting a new one.");
         }
 
-        C chunkToAdd;
         if (chunkToSplit.getLength() > correctedChunkSize) {
             // compute lower intersection index with new chunk size
             int newChunkLowIndex = (int) Math.round(0.5f + (double) chunkToSplit.getOffset() / correctedChunkSize) * correctedChunkSize;
@@ -152,14 +149,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
                 LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
             }
 
-            if(previousChunk != null)
-            {
+            if (usePreviousChunk) {
                 C mergedChunk = previousChunk.merge(split.getChunk1());
                 splitChunks.remove(previousChunk);
                 splitChunks.add(mergedChunk);
-            }
-            else
-            {
+            } else {
                 splitChunks.add(split.getChunk1());
             }
             split(split.getChunk2(), splitChunks, newChunkSize);
@@ -167,18 +161,14 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   Too small...");
             }
-            if(previousChunk != null)
-            {
+            if (usePreviousChunk) {
                 C mergedChunk = previousChunk.merge(chunkToSplit);
                 splitChunks.remove(previousChunk);
                 splitChunks.add(mergedChunk);
-            }
-            else
-            {
+            } else {
                 splitChunks.add(chunkToSplit);
             }
         }
-
     }
 
     public List<T> split(int newChunkSize) {
@@ -186,7 +176,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         for (C chunkToSplit : getCheckedChunks(false)) {
             split(chunkToSplit, splitNewChunks, newChunkSize);
         }
-        return splitNewChunks.stream().map(chunk->createTimeSeries(chunk)).collect(Collectors.toList());
+        return splitNewChunks.stream().map(chunk -> createTimeSeries(chunk)).collect(Collectors.toList());
     }
 
     public void writeJson(JsonGenerator generator) {
