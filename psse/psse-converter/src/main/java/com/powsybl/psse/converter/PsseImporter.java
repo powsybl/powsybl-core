@@ -189,6 +189,10 @@ public class PsseImporter implements Importer {
             new TransformerConverter(psseTfo, containersMapping, perUnitContext, network, busNumToPsseBus, psseModel.getCaseIdentification().getSbase(), version).create();
         }
 
+        for (PsseTwoTerminalDcTransmissionLine psseTwoTerminaDc : psseModel.getTwoTerminalDcTransmissionLines()) {
+            new TwoTerminalDcConverter(psseTwoTerminaDc, containersMapping, network).create();
+        }
+
         // Attach a slack bus
         new SlackConverter(psseModel.getBuses(), containersMapping, network).create();
 
