@@ -115,16 +115,13 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
     }
 
     @Override
-    public DoubleDataChunk merge(final DoubleDataChunk otherChunk)
-    {
-        if(getOffset() + getLength() != otherChunk.getOffset())
-        {
+    public DoubleDataChunk merge(final DoubleDataChunk otherChunk) {
+        if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
                                                + " and first size is " + getLength() + "; second offset should be " +
                                                (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
         }
-        if(!(otherChunk instanceof UncompressedDoubleDataChunk))
-        {
+        if (!(otherChunk instanceof UncompressedDoubleDataChunk)) {
             throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
                                                + ", the other one is " + otherChunk.getClass());
         }

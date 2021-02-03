@@ -168,16 +168,13 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
     }
 
     @Override
-    public StringDataChunk merge(final StringDataChunk otherChunk)
-    {
-        if(getOffset() + getLength() != otherChunk.getOffset())
-        {
+    public StringDataChunk merge(final StringDataChunk otherChunk) {
+        if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
                                                + " and first size is " + getLength() + "; second offset should be " +
                                                (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
         }
-        if(!(otherChunk instanceof CompressedStringDataChunk))
-        {
+        if (!(otherChunk instanceof CompressedStringDataChunk)) {
             throw new IllegalArgumentException("The chunks to merge have to have the same implementation. One of them is " + this.getClass()
                                                + ", the other one is " + otherChunk.getClass());
         }
@@ -185,24 +182,21 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         int[] newStepLengths;
         String[] newStepValues;
 
-        if(stepValues[stepValues.length-1] == chunk.getStepValues()[0])
-        {
+        if (stepValues[stepValues.length - 1] == chunk.getStepValues()[0]) {
             //The last value of the first chunk is equals to the first value of the second one
             // -> the first step of the second chunk needs to be erased
 
             //Step lengths
             newStepLengths = new int[stepLengths.length + chunk.getStepLengths().length - 1];
             System.arraycopy(stepLengths, 0, newStepLengths, 0, stepLengths.length);
-            newStepLengths[stepLengths.length-1] = stepLengths[stepLengths.length-1] + newStepLengths[0];
-            System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length-1);
+            newStepLengths[stepLengths.length - 1] = stepLengths[stepLengths.length - 1] + newStepLengths[0];
+            System.arraycopy(chunk.getStepLengths(), 1, newStepLengths, stepLengths.length, chunk.getStepLengths().length - 1);
 
             //Step values
             newStepValues = new String[newStepLengths.length];
             System.arraycopy(stepValues, 0, newStepValues, 0, stepValues.length);
-            System.arraycopy(chunk.getStepValues(), 1, newStepValues, stepValues.length, chunk.getStepValues().length-1);
-        }
-        else
-        {
+            System.arraycopy(chunk.getStepValues(), 1, newStepValues, stepValues.length, chunk.getStepValues().length - 1);
+        } else {
             //The last value of the first chunk is different from to the first value of the second one
             // -> both chunks have to be copied completely
 

@@ -146,8 +146,7 @@ public class StoredDoubleTimeSeriesTest {
     }
 
     @Test
-    public void splitMultiChunkTimeSeriesTest()
-    {
+    public void splitMultiChunkTimeSeriesTest() {
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(6);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
@@ -182,7 +181,7 @@ public class StoredDoubleTimeSeriesTest {
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
     }
 
-        @Test
+    @Test
     public void testCreateError() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Bad number of values 2, expected 3");

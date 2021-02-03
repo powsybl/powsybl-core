@@ -126,16 +126,13 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
     }
 
     @Override
-    public StringDataChunk merge(final StringDataChunk otherChunk)
-    {
-        if(getOffset() + getLength() != otherChunk.getOffset())
-        {
+    public StringDataChunk merge(final StringDataChunk otherChunk) {
+        if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
                                                + " and first size is " + getLength() + "; second offset should be " +
                                                (getOffset() + getLength()) + "but is " + otherChunk.getOffset());
         }
-        if(!(otherChunk instanceof UncompressedStringDataChunk))
-        {
+        if (!(otherChunk instanceof UncompressedStringDataChunk)) {
             throw new IllegalArgumentException("The chunks to merge have to have the same implentation. One of them is " + this.getClass()
                                                + ", the other one is " + otherChunk.getClass());
         }
