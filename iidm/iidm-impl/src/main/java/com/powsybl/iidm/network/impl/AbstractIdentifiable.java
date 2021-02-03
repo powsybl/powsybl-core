@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.base.Strings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
@@ -75,7 +76,9 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     @Override
     public Optional<String> getAliasFromType(String aliasType) {
-        Objects.requireNonNull(aliasType);
+        if (Strings.isNullOrEmpty(aliasType)) {
+            throw new PowsyblException("Alias type must not be null or empty");
+        }
         return Optional.ofNullable(aliasesByType.get(aliasType));
     }
 
@@ -101,14 +104,14 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         if (ensureAliasUnicity) {
             uniqueAlias = Identifiables.getUniqueId(alias, getNetwork().getIndex()::contains);
         }
-        if (aliasType != null && aliasesByType.containsKey(aliasType)) {
+        if (!Strings.isNullOrEmpty(aliasType) && aliasesByType.containsKey(aliasType)) {
             throw new PowsyblException(id + " already has an alias of type " + aliasType);
         }
         if (getNetwork().getIndex().addAlias(this, uniqueAlias)) {
-            if (aliasType != null) {
-                aliasesByType.put(aliasType, uniqueAlias);
-            } else {
+            if (Strings.isNullOrEmpty(aliasType)) {
                 aliasesWithoutType.add(uniqueAlias);
+            } else {
+                aliasesByType.put(aliasType, uniqueAlias);
             }
         }
     }
@@ -118,10 +121,10 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         Objects.requireNonNull(alias);
         getNetwork().getIndex().removeAlias(this, alias);
         String type = aliasesByType.entrySet().stream().filter(entry -> entry.getValue().equals(alias)).map(Map.Entry::getKey).filter(Objects::nonNull).findFirst().orElse(null);
-        if (type != null) {
-            aliasesByType.remove(type);
-        } else {
+        if (Strings.isNullOrEmpty(type)) {
             aliasesWithoutType.remove(alias);
+        } else {
+            aliasesByType.remove(type);
         }
     }
 
