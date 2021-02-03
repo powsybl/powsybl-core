@@ -21,6 +21,9 @@ public final class SecurityAnalysisToolConstants {
     public static final String EXTERNAL = "external";
     public static final String OUTPUT_LOG_OPTION = "log-file";
 
+    public static final String MODULE_CONFIG_NAME_PROPERTY = "security-analysis";
+    public static final String DEFAULT_SERVICE_IMPL_NAME_PROPERTY = "default-impl-name";
+
     private SecurityAnalysisToolConstants() {
     }
 }
