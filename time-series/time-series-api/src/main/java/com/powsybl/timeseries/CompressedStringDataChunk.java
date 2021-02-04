@@ -182,7 +182,7 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         int[] newStepLengths;
         String[] newStepValues;
 
-        if (stepValues[stepValues.length - 1] == chunk.getStepValues()[0]) {
+        if (stepValues[stepValues.length - 1].equals(chunk.getStepValues()[0])) {
             //The last value of the first chunk is equals to the first value of the second one
             // -> the first step of the second chunk needs to be erased
 
