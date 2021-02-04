@@ -6,6 +6,8 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Objects;
 
 /**
@@ -49,6 +51,12 @@ class CgmesControlAdderImpl implements CgmesControlAreaAdder {
 
     @Override
     public CgmesControlAreaImpl add() {
+        if (id == null) {
+            throw new PowsyblException("Undefined ID for CGMES control area");
+        }
+        if (Double.isNaN(netInterchange)) {
+            throw new PowsyblException("Undefined net interchange for CGMES control area");
+        }
         return new CgmesControlAreaImpl(id, name, energyIdentCodeEic, netInterchange, mapping);
     }
 }

@@ -23,8 +23,8 @@
                             </xs:element>
                         </xs:sequence>
                         <xs:attribute name="id" use="required" type="xs:string"/>
-                        <xs:attribute name="name" use="required" type="xs:string"/>
-                        <xs:attribute name="energyIdentCodeEic" use="required" type="xs:string"/>
+                        <xs:attribute name="name" use="optional" type="xs:string"/>
+                        <xs:attribute name="energyIdentCodeEic" use="optional" type="xs:string"/>
                         <xs:attribute name="netInterchange" use="required" type="csm:nonEmptyString"/>
                     </xs:complexType>
                 </xs:element>

@@ -6,9 +6,11 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -22,10 +24,10 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     private final double netInterchange;
 
     CgmesControlAreaImpl(String id, String name, String energyIdentCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
         this.name = name;
         this.energyIdentCodeEic = energyIdentCodeEic;
-        this.netInterchange = netInterchange;
+        this.netInterchange = checkNetInterchange(netInterchange);
         attach(mapping);
     }
 
@@ -60,6 +62,13 @@ class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public double getNetInterchange() {
+        return netInterchange;
+    }
+
+    private static double checkNetInterchange(double netInterchange) {
+        if (Double.isNaN(netInterchange)) {
+            throw new PowsyblException("Undefined net interchange");
+        }
         return netInterchange;
     }
 }
