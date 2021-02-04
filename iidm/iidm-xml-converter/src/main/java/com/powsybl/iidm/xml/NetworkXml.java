@@ -428,7 +428,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
                         "not found !");
             } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+                LOGGER.warn("Extensions {} not found", extensionNamesNotFound);
             }
         }
     }

@@ -204,7 +204,7 @@ public class Conversion {
         cgmesDcConversion.convert();
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
-        context.currentLimitsMapping().addAll();
+        context.loadingLimitsMapping().addAll();
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));

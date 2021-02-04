@@ -118,6 +118,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .endTemporaryLimit()
             .add();
         assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
+                .setPermanentLimit(400)
+                .add();
+        assertSame(activePowerLimits1, leg1.getActivePowerLimits());
+        ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
+                .setPermanentLimit(2.4)
+                .add();
+        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits());
+        assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
