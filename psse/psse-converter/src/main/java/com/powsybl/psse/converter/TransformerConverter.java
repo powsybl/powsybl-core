@@ -317,14 +317,14 @@ public class TransformerConverter extends AbstractConverter {
         double nomv, int cw) {
 
         TapChanger tapChanger = defineRawTapChanger(complexRatio, winding.getRma(), winding.getRmi(),
-            winding.getNtp(), baskv, nomv, cw);
+            winding.getNtp(), baskv, nomv, cw, winding.getCod());
         tapChanger.setTapPosition(defineTapPosition(complexRatio, tapChanger));
 
         return tapChanger;
     }
 
     private static TapChanger defineRawTapChanger(ComplexRatio complexRatio, double rma, double rmi,
-        int ntp, double baskv, double nomv, int cw) {
+        int ntp, double baskv, double nomv, int cw, int cod) {
         TapChanger tapChanger = new TapChanger();
 
         if (ntp <= 1) {
@@ -333,19 +333,22 @@ public class TransformerConverter extends AbstractConverter {
         }
 
         // RatioTapChanger
-        if (complexRatio.getAngle() == 0.0) {
+        if (complexRatio.getAngle() == 0.0 && (cod == 1 || cod == 2)) {
             double stepRatioIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double ratio = defineRatio(rmi + stepRatioIncrement * i, baskv, nomv, cw);
                 tapChanger.getSteps().add(new TapChangerStep(ratio, complexRatio.getAngle()));
             }
             return tapChanger;
-        } else { // PhaseTapChanger
+        } else if (cod == 3) { // PhaseTapChanger
             double stepAngleIncrement = (rma - rmi) / (ntp - 1);
             for (int i = 0; i < ntp; i++) {
                 double angle = rmi + stepAngleIncrement * i;
                 tapChanger.getSteps().add(new TapChangerStep(complexRatio.getRatio(), angle));
             }
+            return tapChanger;
+        } else {
+            tapChanger.getSteps().add(new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
             return tapChanger;
         }
     }
