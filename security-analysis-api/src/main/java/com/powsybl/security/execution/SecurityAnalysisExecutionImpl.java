@@ -56,7 +56,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     @Override
     public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        return SecurityAnalysis2.find(providerName).runAsync(input.getNetworkVariant().getNetwork(),
+        return SecurityAnalysis.find(providerName).runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getLimitViolationDetector(),
                 input.getFilter(),
@@ -69,7 +69,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     @Override
     public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        return SecurityAnalysis2.find(providerName).runAsyncWithLog(input.getNetworkVariant().getNetwork(),
+        return SecurityAnalysis.find(providerName).runAsyncWithLog(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getLimitViolationDetector(),
                 input.getFilter(),

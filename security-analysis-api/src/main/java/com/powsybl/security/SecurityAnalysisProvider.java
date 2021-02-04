@@ -17,7 +17,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Security analysis provider
+ *
+ * A {@link SecurityAnalysisProvider} is a power system computation which computes, for a {@link com.powsybl.iidm.network.Network Network},
+ * the {@link LimitViolation LimitViolations} on N-situation
+ * and the ones caused by a specified list of {@link com.powsybl.contingency.Contingency Contingencies}.
+ *
+ * <p>Computation results are provided asynchronously as a {@link SecurityAnalysisResult}.
+ *
+ * <p>Implementations of that interface may typically rely on an external tool.
+ *
+ * <p>{@link SecurityAnalysisInterceptor Interceptors} might be used to execute client user-specific code
+ * on events such as the availability of N-situation results, for example to further customize the results content
+ * through {@link com.powsybl.commons.extensions.Extension Extensions}.
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
