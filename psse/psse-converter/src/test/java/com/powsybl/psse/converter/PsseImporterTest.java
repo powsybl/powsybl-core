@@ -83,7 +83,7 @@ public class PsseImporterTest extends AbstractConverterTest {
         Assert.assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    private void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 

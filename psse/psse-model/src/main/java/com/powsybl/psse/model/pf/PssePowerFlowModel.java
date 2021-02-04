@@ -21,46 +21,106 @@ public class PssePowerFlowModel {
 
     private final PsseCaseIdentification caseIdentification;
 
-    private final List<PsseBus> buses = new ArrayList<>();
+    private final List<PsseBus> buses;
 
-    private final List<PsseLoad> loads = new ArrayList<>();
+    private final List<PsseLoad> loads;
 
-    private final List<PsseFixedShunt> fixedShunts = new ArrayList<>();
+    private final List<PsseFixedShunt> fixedShunts;
 
-    private final List<PsseGenerator> generators = new ArrayList<>();
+    private final List<PsseGenerator> generators;
 
-    private final List<PsseNonTransformerBranch> nonTransformerBranches = new ArrayList<>();
+    private final List<PsseNonTransformerBranch> nonTransformerBranches;
 
-    private final List<PsseTransformer> transformers = new ArrayList<>();
+    private final List<PsseTransformer> transformers;
 
-    private final List<PsseArea> areas = new ArrayList<>();
+    private final List<PsseArea> areas;
 
-    private final List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines = new ArrayList<>();
+    private final List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines;
 
-    private final List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines = new ArrayList<>();
+    private final List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines;
 
-    private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections = new ArrayList<>();
+    private final List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections;
 
-    private final List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLines = new ArrayList<>();
+    private final List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLines;
 
-    private final List<PsseLineGrouping> lineGrouping = new ArrayList<>();
+    private final List<PsseLineGrouping> lineGrouping;
 
-    private final List<PsseZone> zones = new ArrayList<>();
+    private final List<PsseZone> zones;
 
-    private final List<PsseInterareaTransfer> interareaTransfer = new ArrayList<>();
+    private final List<PsseInterareaTransfer> interareaTransfer;
 
-    private final List<PsseOwner> owners = new ArrayList<>();
+    private final List<PsseOwner> owners;
 
-    private final List<PsseFacts> facts = new ArrayList<>();
+    private final List<PsseFacts> facts;
 
-    private final List<PsseSwitchedShunt> switchedShunts = new ArrayList<>();
+    private final List<PsseSwitchedShunt> switchedShunts;
 
-    private final List<PsseGneDevice> gneDevice = new ArrayList<>();
+    private final List<PsseGneDevice> gneDevice;
 
-    private final List<PsseInductionMachine> inductionMachines = new ArrayList<>();
+    private final List<PsseInductionMachine> inductionMachines;
 
     public PssePowerFlowModel(PsseCaseIdentification caseIdentification) {
         this.caseIdentification = Objects.requireNonNull(caseIdentification);
+        buses = new ArrayList<>();
+        loads = new ArrayList<>();
+        fixedShunts = new ArrayList<>();
+        generators = new ArrayList<>();
+        nonTransformerBranches = new ArrayList<>();
+        transformers = new ArrayList<>();
+        areas = new ArrayList<>();
+        twoTerminalDcTransmissionLines = new ArrayList<>();
+        voltageSourceConverterDcTransmissionLines = new ArrayList<>();
+        transformerImpedanceCorrections = new ArrayList<>();
+        multiTerminalDcTransmissionLines = new ArrayList<>();
+        lineGrouping = new ArrayList<>();
+        zones = new ArrayList<>();
+        interareaTransfer = new ArrayList<>();
+        owners = new ArrayList<>();
+        facts = new ArrayList<>();
+        switchedShunts = new ArrayList<>();
+        gneDevice = new ArrayList<>();
+        inductionMachines = new ArrayList<>();
+    }
+
+    public PssePowerFlowModel(PsseCaseIdentification caseIdentification,
+        List<PsseLoad> loads,
+        List<PsseFixedShunt> fixedShunts,
+        List<PsseGenerator> generators,
+        List<PsseNonTransformerBranch> nonTransformerBranches,
+        List<PsseTransformer> transformers,
+        List<PsseArea> areas,
+        List<PsseTwoTerminalDcTransmissionLine> twoTerminalDcTransmissionLines,
+        List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcTransmissionLines,
+        List<PsseTransformerImpedanceCorrection> transformerImpedanceCorrections,
+        List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLines,
+        List<PsseLineGrouping> lineGrouping,
+        List<PsseZone> zones,
+        List<PsseInterareaTransfer> interareaTransfer,
+        List<PsseOwner> owners,
+        List<PsseFacts> facts,
+        List<PsseSwitchedShunt> switchedShunts,
+        List<PsseGneDevice> gneDevice,
+        List<PsseInductionMachine> inductionMachines) {
+        this.caseIdentification = Objects.requireNonNull(caseIdentification);
+        buses = new ArrayList<>();
+        this.loads = Objects.requireNonNull(loads);
+        this.fixedShunts = Objects.requireNonNull(fixedShunts);
+        this.generators = Objects.requireNonNull(generators);
+        this.nonTransformerBranches = Objects.requireNonNull(nonTransformerBranches);
+        this.transformers = Objects.requireNonNull(transformers);
+        this.areas = Objects.requireNonNull(areas);
+        this.twoTerminalDcTransmissionLines = Objects.requireNonNull(twoTerminalDcTransmissionLines);
+        this.voltageSourceConverterDcTransmissionLines = Objects.requireNonNull(voltageSourceConverterDcTransmissionLines);
+        this.transformerImpedanceCorrections = Objects.requireNonNull(transformerImpedanceCorrections);
+        this.multiTerminalDcTransmissionLines = Objects.requireNonNull(multiTerminalDcTransmissionLines);
+        this.lineGrouping = Objects.requireNonNull(lineGrouping);
+        this.zones = Objects.requireNonNull(zones);
+        this.interareaTransfer = Objects.requireNonNull(interareaTransfer);
+        this.owners = Objects.requireNonNull(owners);
+        this.facts = Objects.requireNonNull(facts);
+        this.switchedShunts = Objects.requireNonNull(switchedShunts);
+        this.gneDevice = Objects.requireNonNull(gneDevice);
+        this.inductionMachines = Objects.requireNonNull(inductionMachines);
     }
 
     public PsseCaseIdentification getCaseIdentification() {

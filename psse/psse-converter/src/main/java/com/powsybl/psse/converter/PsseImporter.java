@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.psse.converter.extensions.PsseConversionContextExtensionAdder;
+import com.powsybl.psse.converter.extensions.PsseModelExtensionAdder;
 import com.powsybl.psse.model.*;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.*;
@@ -138,6 +140,11 @@ public class PsseImporter implements Importer {
             Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
             // TODO store the PsseContext with the Network to be able to export back using its information
             convert(pssePowerFlowModel, network, parameters, version);
+
+            // Add the model and context as extensions
+            network.newExtension(PsseModelExtensionAdder.class).withModel(pssePowerFlowModel).add();
+            network.newExtension(PsseConversionContextExtensionAdder.class).withContext(context).add();
+
             return network;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
