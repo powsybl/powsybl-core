@@ -18,7 +18,7 @@
                             <xs:element name="terminal" minOccurs="0" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:attribute name="id" use="required" type="xs:string"/>
-                                    <xs:attribute name="side" use="required" type="csm:nonEmptyString"/>
+                                    <xs:attribute name="side" use="optional" type="csm:nonEmptyString"/> <!-- if there is no side, it means it is a dangling line -->
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
