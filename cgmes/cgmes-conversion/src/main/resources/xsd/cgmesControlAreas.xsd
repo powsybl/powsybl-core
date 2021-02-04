@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:csm="http://www.powsybl.org/schema/iidm/ext/cgmes_control_area/1_0"
-           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_control_area/1_0"
+           xmlns:csm="http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0"
            elementFormDefault="qualified">
     <xs:simpleType name='nonEmptyString'>
         <xs:restriction base='xs:string'>
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:element name="cgmesControlArea">
+    <xs:element name="cgmesControlAreas">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="controlArea" minOccurs="0" maxOccurs="unbounded">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="terminal" minOccurs="1" maxOccurs="unbounded">
+                            <xs:element name="terminal" minOccurs="0" maxOccurs="unbounded">
                                 <xs:complexType>
-                                    <xs:attribute name="equipment" use="required" type="xs:string"/>
-                                    <xs:attribute name="end" use="required" type="csm:nonEmptyString"/>
+                                    <xs:attribute name="id" use="required" type="xs:string"/>
+                                    <xs:attribute name="side" use="required" type="csm:nonEmptyString"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>

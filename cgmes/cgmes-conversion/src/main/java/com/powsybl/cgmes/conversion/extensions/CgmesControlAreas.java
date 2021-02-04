@@ -6,27 +6,33 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 
-import com.powsybl.cgmes.conversion.extensions.CgmesControlArea.EquipmentEnd;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Network;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public interface CgmesControlAreaMapping extends Extension<Network> {
+public interface CgmesControlAreas extends Extension<Network> {
 
-    List<Object> getCgmesControlAreaIds();
+    CgmesControlAreaAdder newCgmesControlArea();
+
+    Collection<CgmesControlArea> getCgmesControlAreas();
 
     CgmesControlArea getCgmesControlArea(String controlAreaId);
 
-    Set<EquipmentEnd> getTerminals(String controlAreaId);
+    boolean containsCgmesControlAreaId(String controlAreaId);
+
+    default void cleanIfEmpty() {
+        if (getCgmesControlAreas().isEmpty()) {
+            getExtendable().removeExtension(CgmesControlAreas.class);
+        }
+    }
 
     @Override
     default String getName() {
-        return "cgmesControlArea";
+        return "cgmesControlAreas";
     }
 
 }

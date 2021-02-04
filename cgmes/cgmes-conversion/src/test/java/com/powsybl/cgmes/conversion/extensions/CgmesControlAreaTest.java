@@ -21,22 +21,25 @@ public class CgmesControlAreaTest {
     @Test
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
-        CgmesControlAreaAdder adder = network.newExtension(CgmesControlAreaAdder.class);
-        adder.newCgmesControlArea("cgmesControlAreaId", "cgmesControlAreaName",
-                "energyIdentCodeEic", 100.0)
-                .addTerminal("equipmentId", 1);
-        adder.add();
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas extension = network.getExtension(CgmesControlAreas.class);
+        extension.newCgmesControlArea()
+                .setId("cgmesControlAreaId")
+                .setName("cgmesControlAreaName")
+                .setEnergyIdentCodeEic("energyIdentCodeEic")
+                .setNetInterchange(100.0)
+                .add()
+                .addTerminal(network.getLine("NHV1_NHV2_1").getTerminal1());
 
-        CgmesControlAreaMapping extension = network.getExtension(CgmesControlAreaMapping.class);
         assertNotNull(extension);
-        assertEquals("cgmesControlAreaId", extension.getCgmesControlArea("cgmesControlAreaId").getId());
-        assertEquals("cgmesControlAreaName", extension.getCgmesControlArea("cgmesControlAreaId").getName());
-        assertEquals("energyIdentCodeEic", extension.getCgmesControlArea("cgmesControlAreaId").getEnergyIdentCodeEic());
-        assertEquals(100.0, extension.getCgmesControlArea("cgmesControlAreaId").getNetInterchange(), 0.0);
-        assertEquals(1, extension.getTerminals("cgmesControlAreaId").size());
-        extension.getTerminals("cgmesControlAreaId").stream().forEach(eqEnd -> {
-            assertEquals("equipmentId", eqEnd.getEquipmentId());
-            assertEquals(1, eqEnd.getEnd());
-        });
+        assertTrue(extension.containsCgmesControlAreaId("cgmesControlAreaId"));
+        CgmesControlArea controlArea = extension.getCgmesControlArea("cgmesControlAreaId");
+        assertNotNull(controlArea);
+        assertEquals("cgmesControlAreaId", controlArea.getId());
+        assertEquals("cgmesControlAreaName", controlArea.getName());
+        assertEquals("energyIdentCodeEic", controlArea.getEnergyIdentCodeEic());
+        assertEquals(100.0, controlArea.getNetInterchange(), 0.0);
+        assertEquals(1, controlArea.getTerminals().size());
+        controlArea.getTerminals().forEach(t -> assertSame(network.getLine("NHV1_NHV2_1").getTerminal1(), t));
     }
 }

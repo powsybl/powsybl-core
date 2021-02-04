@@ -13,7 +13,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.extensions.CgmesControlArea;
-import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaMapping;
+import com.powsybl.cgmes.conversion.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -260,12 +260,12 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        CgmesControlAreaMapping cgmesControlAreaMapping = network.getExtension(CgmesControlAreaMapping.class);
-        CgmesControlArea cgmesControlArea = cgmesControlAreaMapping.getCgmesControlArea("_BECONTROLAREA");
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("_BECONTROLAREA");
         assertEquals("BE", cgmesControlArea.getName());
         assertEquals("10BE------1", cgmesControlArea.getEnergyIdentCodeEic());
         assertEquals(-205.90011555672567, cgmesControlArea.getNetInterchange(), 0.0);
-        assertEquals(5, cgmesControlAreaMapping.getTerminals("_BECONTROLAREA").size());
+        assertEquals(5, cgmesControlArea.getTerminals().size());
     }
 
     @Test

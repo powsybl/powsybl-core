@@ -14,8 +14,10 @@ import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
+import com.powsybl.iidm.xml.TerminalRefXml;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -25,59 +27,65 @@ import javax.xml.stream.XMLStreamWriter;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesControlAreaMapping> {
+public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesControlAreas> {
+
+    private static final String CONTROL_AREA = "controlArea";
 
     public CgmesControlAreaXmlSerializer() {
-        super("cgmesControlArea", "network", CgmesControlAreaMapping.class, true, "cgmesControlArea.xsd",
-                "http://www.powsybl.org/schema/iidm/ext/cgmes_control_area/1_0", "cca");
+        super("cgmesControlAreas", "network", CgmesControlAreas.class, true, "cgmesControlAreas.xsd",
+                "http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0", "cca");
     }
 
     @Override
-    public void write(CgmesControlAreaMapping extension, XmlWriterContext context) throws XMLStreamException {
+    public boolean isSerializable(CgmesControlAreas extension) {
+        return !extension.getCgmesControlAreas().isEmpty();
+    }
+
+    @Override
+    public void write(CgmesControlAreas extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        for (Object id : extension.getCgmesControlAreaIds()) {
-            String cgmesControlAreaId = (String) id;
-            writer.writeStartElement(getNamespaceUri(), "controlArea");
-            writer.writeAttribute("id", cgmesControlAreaId);
-            writer.writeAttribute("name", extension.getCgmesControlArea(cgmesControlAreaId).getName());
-            writer.writeAttribute("energyIdentCodeEic", extension.getCgmesControlArea(cgmesControlAreaId).getEnergyIdentCodeEic());
-            XmlUtil.writeDouble("netInterchange", extension.getCgmesControlArea(cgmesControlAreaId).getNetInterchange(), writer);
-            for (CgmesControlArea.EquipmentEnd eqEnd : extension.getTerminals(cgmesControlAreaId)) {
-                writer.writeStartElement(getNamespaceUri(), "terminal");
-                writer.writeAttribute("equipment", eqEnd.getEquipmentId());
-                XmlUtil.writeInt("end", eqEnd.getEnd(), writer);
-                writer.writeEndElement();
+        for (CgmesControlArea controlArea : extension.getCgmesControlAreas()) {
+            writer.writeStartElement(getNamespaceUri(), CONTROL_AREA);
+            writer.writeAttribute("id", controlArea.getId());
+            writer.writeAttribute("name", controlArea.getName());
+            writer.writeAttribute("energyIdentCodeEic", controlArea.getEnergyIdentCodeEic());
+            XmlUtil.writeDouble("netInterchange", controlArea.getNetInterchange(), writer);
+            for (Terminal terminal : controlArea.getTerminals()) {
+                TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             writer.writeEndElement();
         }
     }
 
     @Override
-    public CgmesControlAreaMapping read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+    public CgmesControlAreas read(Network extendable, XmlReaderContext context) throws XMLStreamException {
         NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         XMLStreamReader reader = networkContext.getReader();
-        CgmesControlAreaAdder adder = extendable.newExtension(CgmesControlAreaAdder.class);
-        XmlUtil.readUntilEndElement("cgmesControlArea", reader, () -> {
-            if (reader.getLocalName().equals("controlArea")) {
-                CgmesControlArea cgmesControlArea = adder.newCgmesControlArea(reader.getAttributeValue(null, "id"),
-                        reader.getAttributeValue(null, "name"),
-                        reader.getAttributeValue(null, "energyIdentCodeEic"),
-                        XmlUtil.readDoubleAttribute(reader, "netInterchange"));
-                readTerminals(networkContext, reader, cgmesControlArea);
+        extendable.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas mapping = extendable.getExtension(CgmesControlAreas.class);
+        XmlUtil.readUntilEndElement(getExtensionName(), reader, () -> {
+            if (reader.getLocalName().equals(CONTROL_AREA)) {
+                CgmesControlArea cgmesControlArea = mapping.newCgmesControlArea()
+                        .setId(reader.getAttributeValue(null, "id"))
+                        .setName(reader.getAttributeValue(null, "name"))
+                        .setEnergyIdentCodeEic(reader.getAttributeValue(null, "energyIdentCodeEic"))
+                        .setNetInterchange(XmlUtil.readDoubleAttribute(reader, "netInterchange"))
+                        .add();
+                readTerminals(networkContext, reader, cgmesControlArea, extendable);
             } else {
                 throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesControlArea>");
             }
         });
-        adder.add();
-        return extendable.getExtension(CgmesControlAreaMapping.class);
+        return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readTerminals(NetworkXmlReaderContext networkContext, XMLStreamReader reader, CgmesControlArea cgmesControlArea) throws XMLStreamException {
-        XmlUtil.readUntilEndElement("controlArea", reader, () -> {
+    private void readTerminals(NetworkXmlReaderContext networkContext, XMLStreamReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
+        XmlUtil.readUntilEndElement(CONTROL_AREA, reader, () -> {
             if (reader.getLocalName().equals("terminal")) {
-                cgmesControlArea.addTerminal(reader.getAttributeValue(null, "equipment"),
-                        XmlUtil.readIntAttribute(reader, "end"));
+                String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
+                String side = networkContext.getReader().getAttributeValue(null, "side");
+                cgmesControlArea.addTerminal(TerminalRefXml.readTerminalRef(network, id, side));
             } else {
                 throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <controlArea>");
             }

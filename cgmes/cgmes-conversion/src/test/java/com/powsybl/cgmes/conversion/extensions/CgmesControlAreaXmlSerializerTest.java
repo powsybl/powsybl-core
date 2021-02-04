@@ -24,11 +24,14 @@ public class CgmesControlAreaXmlSerializerTest extends AbstractConverterTest {
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2021-02-02T09:27:39.856+01:00"));
-        CgmesControlAreaAdder adder = network.newExtension(CgmesControlAreaAdder.class);
-        adder.newCgmesControlArea("cgmesControlAreaId", "cgmesControlAreaName",
-                "energyIdentCodeEic", 100.0)
-                .addTerminal("equipmentId", 1);
-        adder.add();
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        network.getExtension(CgmesControlAreas.class).newCgmesControlArea()
+                .setId("cgmesControlAreaId")
+                .setName("cgmesControlAreaName")
+                .setEnergyIdentCodeEic("energyIdentCodeEic")
+                .setNetInterchange(100.0)
+                .add()
+                .addTerminal(network.getLine("NHV1_NHV2_1").getTerminal1());
 
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/extensions/eurostag_cgmes_control_area.xml");
     }

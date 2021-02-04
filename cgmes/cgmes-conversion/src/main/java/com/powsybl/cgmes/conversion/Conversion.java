@@ -8,14 +8,10 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.extensions.CgmesControlArea;
+import com.powsybl.cgmes.conversion.extensions.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.extensions.CgmesControlAreaAdder;
-import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadataAdder;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadataAdder;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristicsAdder;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -23,10 +19,8 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.joda.time.DateTime;
@@ -210,9 +204,10 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
 
-        CgmesControlAreaAdder cgmesControlAreaAdder = network.newExtension(CgmesControlAreaAdder.class);
-        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreaAdder, tf));
-        cgmesControlAreaAdder.add();
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreas, tf));
+        cgmesControlAreas.cleanIfEmpty();
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
@@ -248,20 +243,22 @@ public class Conversion {
         return network;
     }
 
-    private void addControlArea(Context context, CgmesControlAreaAdder cgmesControlAreaAdder, PropertyBag tf) {
+    private void addControlArea(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
-        String controlAreaName = tf.getLocal("controlAreaName");
-        String energyIdentCodeEic = tf.getLocal("energyIdentCodeEic");
-        double netInterchange = tf.asDouble("netInterchange");
-        CgmesControlArea cgmesControlArea = cgmesControlAreaAdder.newCgmesControlArea(controlAreaId, controlAreaName, energyIdentCodeEic, netInterchange);
+        CgmesControlArea cgmesControlArea;
+        if (cgmesControlAreas.containsCgmesControlAreaId(controlAreaId)) {
+            cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
+        } else {
+            cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId(controlAreaId)
+                    .setName(tf.getLocal("controlAreaName"))
+                    .setEnergyIdentCodeEic(tf.getLocal("energyIdentCodeEic"))
+                    .setNetInterchange(tf.asDouble("netInterchange"))
+                    .add();
+        }
 
         String terminalId = tf.getId("terminal");
-        Terminal terminal = context.terminalMapping().find(terminalId);
-        if (terminal != null) {
-            int end = context.terminalMapping().number(terminalId);
-            Identifiable<?> identifiable = terminal.getConnectable();
-            cgmesControlArea.addTerminal(identifiable.getId(), end);
-        }
+        Optional.ofNullable(context.terminalMapping().find(terminalId)).ifPresent(cgmesControlArea::addTerminal);
     }
 
     private void convert(

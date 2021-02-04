@@ -6,18 +6,18 @@
  */
 package com.powsybl.cgmes.conversion.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Network;
-
 /**
- * @author Marcos de Miguel <demiguelm at aia.es>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface CgmesControlAreaAdder extends ExtensionAdder<Network, CgmesControlAreaMapping> {
+public interface CgmesControlAreaAdder {
 
-    CgmesControlArea newCgmesControlArea(String controlAreaId, String controlAreaName, String energyIdentCodeEic, double netInterchange);
+    CgmesControlAreaAdder setId(String id);
 
-    @Override
-    default Class<CgmesControlAreaMapping> getExtensionClass() {
-        return CgmesControlAreaMapping.class;
-    }
+    CgmesControlAreaAdder setName(String name);
+
+    CgmesControlAreaAdder setEnergyIdentCodeEic(String energyIdentCodeEic);
+
+    CgmesControlAreaAdder setNetInterchange(double netInterchange);
+
+    CgmesControlAreaImpl add();
 }
