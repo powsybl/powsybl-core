@@ -78,6 +78,7 @@
         <iidm:twoWindingsTransformer id="T-4-8-1" r="0.0" x="67.29778" g="0.0" b="0.0" ratedU1="230.0" ratedU2="110.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B8" connectableBus2="B8" voltageLevelId2="VL8">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="0" targetDeadband="0.3999999999999986" loadTapChangingCapabilities="false" regulating="true" targetV="20.2">
                 <iidm:terminalRef id="B9-L1"/>
+                <iidm:step r="0.0" x="0.0" g="6.500695982048255" b="6.500695982048255" rho="1.0319917440660475"/>
                 <iidm:step r="0.0" x="0.0" g="4.1232819658475695" b="4.1232819658475695" rho="1.0204081632653061"/>
                 <iidm:step r="0.0" x="0.0" g="3.185239160454323" b="3.185239160454323" rho="1.0158013544018059"/>
                 <iidm:step r="0.0" x="0.0" g="2.259815679838395" b="2.259815679838395" rho="1.0112359550561798"/>

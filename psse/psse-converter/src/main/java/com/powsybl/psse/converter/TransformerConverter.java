@@ -44,6 +44,8 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 public class TransformerConverter extends AbstractConverter {
 
+    private static final double TOLERANCE = 0.00001;
+
     public TransformerConverter(PsseTransformer psseTransformer, ContainersMapping containersMapping,
         PerUnitContext perUnitContext, Network network, Map<Integer, PsseBus> busNumToPsseBus, double sbase,
         PsseVersion version) {
@@ -318,7 +320,7 @@ public class TransformerConverter extends AbstractConverter {
 
         TapChanger tapChanger = defineRawTapChanger(complexRatio, winding.getRma(), winding.getRmi(),
             winding.getNtp(), baskv, nomv, cw, winding.getCod());
-        tapChanger.setTapPosition(defineTapPosition(complexRatio, tapChanger));
+        tapChanger.setTapPosition(defineTapPositionAndAdjustTapChangerToCurrentRatio(complexRatio, tapChanger));
 
         return tapChanger;
     }
@@ -353,22 +355,33 @@ public class TransformerConverter extends AbstractConverter {
         }
     }
 
-    private static int defineTapPosition(ComplexRatio complexRatio, TapChanger tapChanger) {
-        double maxDistance = Double.MAX_VALUE;
-        int tapPosition = 0;
+    private static int defineTapPositionAndAdjustTapChangerToCurrentRatio(ComplexRatio complexRatio, TapChanger tapChanger) {
         List<TapChangerStep> steps = tapChanger.getSteps();
 
         for (int i = 0; i < steps.size(); i++) {
             TapChangerStep step = steps.get(i);
-            double distance = Math.abs(step.getRatio() - complexRatio.getRatio())
-                + Math.abs(step.getAngle() - complexRatio.getAngle());
-            if (distance < maxDistance) {
-                maxDistance = distance;
-                tapPosition = i;
+            double distanceRatio = distance(step.getRatio(), complexRatio.getRatio());
+            double distanceAngle = distance(step.getAngle(), complexRatio.getAngle());
+
+            if (distanceRatio == 0.0 && distanceAngle == 0.0) {
+                return i;
+            }
+            if (distanceAngle > 0.0 || (distanceAngle == 0.0 && distanceRatio > 0.0)) {
+                tapChanger.getSteps().add(i, new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
+                return i;
             }
         }
 
-        return tapPosition;
+        tapChanger.getSteps().add(new TapChangerStep(complexRatio.getRatio(), complexRatio.getAngle()));
+        return tapChanger.getSteps().size() - 1;
+    }
+
+    private static double distance(double stepValue, double currentValue) {
+        double distance = stepValue - currentValue;
+        if (Math.abs(distance) <= TOLERANCE) {
+            return 0.0;
+        }
+        return distance;
     }
 
     private static void tapChangerToIidm(TapChanger tapChanger, TwoWindingsTransformer twt) {

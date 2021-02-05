@@ -62,7 +62,7 @@
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
-            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="10" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulating="true" targetV="18.45">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulating="true" targetV="18.45">
                 <iidm:terminalRef id="B3-G1 "/>
                 <iidm:step r="0.0" x="0.0" g="10.803324099723" b="10.803324099723" rho="1.0526315789473684"/>
                 <iidm:step r="0.0" x="0.0" g="9.7008103183438" b="9.7008103183438" rho="1.0473815461346634"/>
@@ -75,6 +75,7 @@
                 <iidm:step r="0.0" x="0.0" g="2.424154449121785" b="2.424154449121785" rho="1.0120481927710843"/>
                 <iidm:step r="0.0" x="0.0" g="1.4440246364059828" b="1.4440246364059828" rho="1.0071942446043165"/>
                 <iidm:step r="0.0" x="0.0" g="0.4778965715620087" b="0.4778965715620087" rho="1.0023866348448687"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
                 <iidm:step r="0.0" x="0.0" g="-0.47449517888071835" b="-0.47449517888071835" rho="0.997624703087886"/>
                 <iidm:step r="0.0" x="0.0" g="-1.4134097882400165" b="-1.4134097882400165" rho="0.9929078014184397"/>
                 <iidm:step r="0.0" x="0.0" g="-2.3391003460207505" b="-2.3391003460207505" rho="0.9882352941176471"/>
