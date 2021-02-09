@@ -80,8 +80,8 @@ public class TransformerConverter extends AbstractConverter {
         double baskv2 = busNumToPsseBus.get(psseTransformer.getJ()).getBaskv();
 
         double sbase12 = psseTransformer.getSbase12();
-        double nomV1 = psseTransformer.getWinding1().getNomv();
-        double nomV2 = psseTransformer.getWinding2().getNomv();
+        double nomV1 = getNomV(psseTransformer.getWinding1(), voltageLevel1);
+        double nomV2 = getNomV(psseTransformer.getWinding2(), voltageLevel2);
 
         Complex z = defineImpedanceBetweenWindings(psseTransformer.getR12(), psseTransformer.getX12(), sbase, sbase12, psseTransformer.getCz());
 
@@ -148,9 +148,9 @@ public class TransformerConverter extends AbstractConverter {
         double sbase23 = psseTransformer.getSbase23();
         double sbase31 = psseTransformer.getSbase31();
 
-        double nomV1 = psseTransformer.getWinding1().getNomv();
-        double nomV2 = psseTransformer.getWinding2().getNomv();
-        double nomV3 = psseTransformer.getWinding3().getNomv();
+        double nomV1 = getNomV(psseTransformer.getWinding1(), voltageLevel1);
+        double nomV2 = getNomV(psseTransformer.getWinding2(), voltageLevel2);
+        double nomV3 = getNomV(psseTransformer.getWinding3(), voltageLevel3);
 
         Complex z12 = defineImpedanceBetweenWindings(psseTransformer.getR12(), psseTransformer.getX12(), sbase, sbase12, psseTransformer.getCz());
         Complex z23 = defineImpedanceBetweenWindings(psseTransformer.getR23(), psseTransformer.getX23(), sbase, sbase23, psseTransformer.getCz());
@@ -224,6 +224,14 @@ public class TransformerConverter extends AbstractConverter {
 
         tapChangersToIidm(tapChanger1AdjustedYsh, tapChanger2, tapChanger3, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
+    }
+
+    private static double getNomV(PsseTransformerWinding winding, VoltageLevel voltageLevel) {
+        double nomV = winding.getNomv();
+        if (nomV == 0.0) {
+            nomV = voltageLevel.getNominalV();
+        }
+        return nomV;
     }
 
     private boolean leg1IsConnected() {
