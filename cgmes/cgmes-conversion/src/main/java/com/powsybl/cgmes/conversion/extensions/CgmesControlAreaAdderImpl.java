@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class CgmesControlAdderImpl implements CgmesControlAreaAdder {
+class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
 
     private final CgmesControlAreasImpl mapping;
     private String id;
@@ -21,7 +21,7 @@ class CgmesControlAdderImpl implements CgmesControlAreaAdder {
     private String energyIdentCodeEic;
     private double netInterchange;
 
-    CgmesControlAdderImpl(CgmesControlAreasImpl mapping) {
+    CgmesControlAreaAdderImpl(CgmesControlAreasImpl mapping) {
         this.mapping = Objects.requireNonNull(mapping);
     }
 

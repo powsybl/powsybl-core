@@ -25,7 +25,7 @@ class CgmesControlAreasImpl extends AbstractExtension<Network> implements CgmesC
 
     @Override
     public CgmesControlAreaAdder newCgmesControlArea() {
-        return new CgmesControlAdderImpl(this);
+        return new CgmesControlAreaAdderImpl(this);
     }
 
     @Override
