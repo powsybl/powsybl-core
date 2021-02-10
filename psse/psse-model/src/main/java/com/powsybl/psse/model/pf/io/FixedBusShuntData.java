@@ -9,6 +9,7 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseFixedShunt;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -20,6 +21,7 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
     public FixedBusShuntData() {
         super(PowerFlowRecordGroup.FIXED_BUS_SHUNT);
+        withFieldNames(V32, "i", "id", "status", "gl", "bl");
         withFieldNames(V33, "i", "id", "status", "gl", "bl");
         withFieldNames(V35, "ibus", "shntid", "stat", "gl", "bl");
         withQuotedFields("shntid", "id");

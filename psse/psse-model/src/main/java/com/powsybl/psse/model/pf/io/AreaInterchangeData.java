@@ -9,6 +9,7 @@ package com.powsybl.psse.model.pf.io;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseArea;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
@@ -20,6 +21,7 @@ class AreaInterchangeData extends AbstractRecordGroup<PsseArea> {
 
     AreaInterchangeData() {
         super(PowerFlowRecordGroup.AREA_INTERCHANGE);
+        withFieldNames(V32, "i", "isw", "pdes", "ptol", "arname");
         withFieldNames(V33, "i", "isw", "pdes", "ptol", "arname");
         withFieldNames(V35, "iarea", "isw", "pdes", "ptol", "arname");
         withQuotedFields("arname");

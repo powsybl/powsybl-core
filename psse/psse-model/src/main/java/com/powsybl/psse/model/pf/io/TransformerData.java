@@ -135,6 +135,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 case V35:
                     return FIELD_NAMES_3_35;
                 case V33:
+                case V32:
                     return FIELD_NAMES_3_33;
                 default:
                     throw new PsseException("Unsupported version " + version);
@@ -146,6 +147,7 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 case V35:
                     return FIELD_NAMES_2_35;
                 case V33:
+                case V32:
                     return FIELD_NAMES_2_33;
                 default:
                     throw new PsseException("Unsupported version " + version);

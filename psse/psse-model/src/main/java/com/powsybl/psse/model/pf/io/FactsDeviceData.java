@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.pf.io;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.FACTS_CONTROL_DEVICE;
@@ -22,6 +23,8 @@ class FactsDeviceData extends AbstractRecordGroup<PsseFacts> {
 
     FactsDeviceData() {
         super(FACTS_CONTROL_DEVICE);
+        withFieldNames(V32, "name", "i", "j", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vxmx", "imx", "linx",
+            "rmpct", "owner", "set1", "set2", "vsref", "remot", "mname");
         withFieldNames(V33, "name", "i", "j", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vxmx", "imx", "linx",
             "rmpct", "owner", "set1", "set2", "vsref", "remot", "mname");
         withFieldNames(V35, "name", "ibus", "jbus", "mode", "pdes", "qdes", "vset", "shmx", "trmx", "vtmn", "vtmx", "vxmx", "imx", "linx",

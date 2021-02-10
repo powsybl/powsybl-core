@@ -10,6 +10,7 @@ import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseOwner;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -20,6 +21,7 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
 
     OwnerData() {
         super(PowerFlowRecordGroup.OWNER);
+        withFieldNames(V32, "i", "owname");
         withFieldNames(V33, "i", "owname");
         withFieldNames(V35, "iowner", "owname");
         withQuotedFields("owname");
