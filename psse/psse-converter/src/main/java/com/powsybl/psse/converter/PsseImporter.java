@@ -219,11 +219,9 @@ public class PsseImporter implements Importer {
         ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
         Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
 
-        ContainersMapping containersMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
+        return ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
             branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
             busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
-
-        return containersMapping;
     }
 
     private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,

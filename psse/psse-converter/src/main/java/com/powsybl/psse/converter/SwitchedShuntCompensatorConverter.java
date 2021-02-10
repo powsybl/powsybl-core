@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -9,6 +9,7 @@ package com.powsybl.psse.converter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -34,8 +36,8 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
     public SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
         super(containerMapping, network);
-        this.psseSwitchedShunt = psseSwitchedShunt;
-        this.version = version;
+        this.psseSwitchedShunt = Objects.requireNonNull(psseSwitchedShunt);
+        this.version = Objects.requireNonNull(version);
     }
 
     public void create() {
@@ -62,11 +64,9 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         });
         modelAdder.add();
-        ShuntCompensator shunt = adder.add();
 
-        if (psseSwitchedShunt.getStat() == 1) {
-            shunt.getTerminal().connect();
-        }
+        adder.setBus(psseSwitchedShunt.getStat() == 1 ? busId : null);
+        adder.add();
     }
 
     public void addControl() {
@@ -79,12 +79,12 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = shunt.getTerminal().getVoltageLevel().getNominalV();
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
+        Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
+        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
         double targetV = 0.5 * (vLow + vHigh);
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
-        Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
         boolean voltageRegulatorOn = false;
         double targetDeadband = 0.0;
         if (targetV != 0.0) {
@@ -98,23 +98,19 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             .setRegulatingTerminal(regulatingTerminal);
     }
 
-    // TODO complete all cases
     private static boolean defineVoltageRegulatorOn(PsseSwitchedShunt psseSwitchedShunt) {
-        if (psseSwitchedShunt.getModsw() == 0) {
-            return false;
-        }
-        return true;
+        return psseSwitchedShunt.getModsw() != 0;
     }
 
-    // TODO complete all cases. Consider Nreg (version 35)
+    // Nreg (version 35) is not yet considered
     private static Terminal defineRegulatingTerminal(PsseSwitchedShunt psseSwitchedShunt, Network network, PsseVersion version) {
         String defaultRegulatingBusId = getBusId(psseSwitchedShunt.getI());
         Terminal regulatingTerminal = null;
-        if (psseSwitchedShunt.getSwrem() == 0) {
+        if (switchedShuntRegulatingBus(psseSwitchedShunt, version) == 0) {
             Bus bus = network.getBusBreakerView().getBus(defaultRegulatingBusId);
             regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
         } else {
-            String regulatingBusId = getBusId(psseSwitchedShunt.getSwrem());
+            String regulatingBusId = getBusId(switchedShuntRegulatingBus(psseSwitchedShunt, version));
             Bus bus = network.getBusBreakerView().getBus(regulatingBusId);
             if (bus != null) {
                 regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
@@ -125,6 +121,14 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
                 + defineShuntId(psseSwitchedShunt, version) + ". Unexpected regulatingTerminal.");
         }
         return regulatingTerminal;
+    }
+
+    private static int switchedShuntRegulatingBus(PsseSwitchedShunt switchedShunt, PsseVersion psseVersion) {
+        if (psseVersion.major() == V35) {
+            return switchedShunt.getSwreg();
+        } else {
+            return switchedShunt.getSwrem();
+        }
     }
 
     private static int defineSectionCount(double binit, List<ShuntBlock> shuntBlocks) {
@@ -188,7 +192,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
 // defined blocks can be reactors (< 0) or / and capacitors ( > 0)
     private static List<ShuntBlock> collectShuntBlocks(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS1(), psseSwitchedShunt.getN1(), psseSwitchedShunt.getB1());
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS2(), psseSwitchedShunt.getN2(), psseSwitchedShunt.getB2());
             addShuntBlock(shuntBlocks, psseSwitchedShunt.getS3(), psseSwitchedShunt.getN3(), psseSwitchedShunt.getB3());
@@ -243,7 +247,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static String defineShuntId(PsseSwitchedShunt psseSwitchedShunt, PsseVersion version) {
-        if (version.getNumber() == 35) {
+        if (version.major() == V35) {
             return psseSwitchedShunt.getId();
         } else {
             return "1";

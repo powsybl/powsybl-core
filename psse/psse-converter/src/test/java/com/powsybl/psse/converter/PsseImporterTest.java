@@ -62,7 +62,7 @@ public class PsseImporterTest extends AbstractConverterTest {
 
         // test with a valid raw/RAW file
         assertTrue(importer.exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.raw"))));
-        assertTrue(importer.exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.RAW"))));
+        assertTrue(importer.exists(new ResourceDataSource("IEEE_30_bus", new ResourceSet("/", "IEEE_30_bus.raw"))));
 
         // test with an invalid extension
         assertFalse(importer.exists(new ResourceDataSource("IEEE_14_bus", new ResourceSet("/", "IEEE_14_bus.json"))));
@@ -104,24 +104,34 @@ public class PsseImporterTest extends AbstractConverterTest {
 
     @Test
     public void importTest57() throws IOException {
-        importTest("IEEE_57_bus", "IEEE_57_bus.RAW", false);
+        importTest("IEEE_57_bus", "IEEE_57_bus.raw", false);
     }
 
     @Test
     public void importTest118() throws IOException {
-        importTest("IEEE_118_bus", "IEEE_118_bus.RAW", false);
+        importTest("IEEE_118_bus", "IEEE_118_bus.raw", false);
     }
 
     @Test
     public void importTestT3W() throws IOException {
-        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.RAW", false);
+        importTest("ThreeMIB_T3W_modified", "ThreeMIB_T3W_modified.raw", false);
+    }
+
+    @Test
+    public void importTestT3Wphase() throws IOException {
+        importTest("ThreeMIB_T3W_phase", "ThreeMIB_T3W_phase.raw", false);
+    }
+
+    @Test
+    public void remoteControl() throws IOException {
+        importTest("remoteControl", "remoteControl.raw", false);
     }
 
     @Test
     public void testRates() throws IOException {
         Context context = new Context();
-        ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.RAW"));
-        PssePowerFlowModel model = new PowerFlowRawData33().read(ds, "RAW", context);
+        ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));
+        PssePowerFlowModel model = new PowerFlowRawData33().read(ds, "raw", context);
         assertEquals(10451.0, model.getNonTransformerBranches().get(0).getRates().getRatea(), 0);
         assertEquals(10452.0, model.getNonTransformerBranches().get(0).getRates().getRateb(), 0);
         assertEquals(10453.0, model.getNonTransformerBranches().get(0).getRates().getRatec(), 0);

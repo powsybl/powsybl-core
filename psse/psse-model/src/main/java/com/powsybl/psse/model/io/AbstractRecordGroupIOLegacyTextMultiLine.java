@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -25,7 +25,7 @@ import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends RecordGroupIOLegacyText<T> {
-    public AbstractRecordGroupIOLegacyTextMultiLine(AbstractRecordGroup<T> recordGroup) {
+    protected AbstractRecordGroupIOLegacyTextMultiLine(AbstractRecordGroup<T> recordGroup) {
         super(recordGroup);
     }
 
@@ -67,8 +67,7 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
         // Default parsing builds a single line record adjusting headers and concatenating all the original lines
         mlrecord.actualFieldNames = actualFieldNames(mlrecord.fieldNamesByLine, mlrecord.lines, context);
         String record = String.join(Character.toString(context.getDelimiter()), mlrecord.lines);
-        T object = recordGroup.parseSingleRecord(record, mlrecord.actualFieldNames, context);
-        return object;
+        return recordGroup.parseSingleRecord(record, mlrecord.actualFieldNames, context);
     }
 
     protected List<T> readMultiLineRecords(BufferedReader reader, Context context) throws IOException {
@@ -95,11 +94,11 @@ public abstract class AbstractRecordGroupIOLegacyTextMultiLine<T> extends Record
     protected void writeMultiLineRecords(List<T> objects, Context context, OutputStream outputStream) {
         writeBegin(outputStream);
         List<MultiLineRecord> mlrecords = buildMultiLineRecords(objects, context);
-        writeMultiLineRecords0(mlrecords, context, outputStream);
+        writeMultiLineRecords0(mlrecords, outputStream);
         writeEnd(outputStream);
     }
 
-    protected void writeMultiLineRecords0(List<MultiLineRecord> mlrecords, Context context, OutputStream outputStream) {
+    protected void writeMultiLineRecords0(List<MultiLineRecord> mlrecords, OutputStream outputStream) {
         CsvWriter writer = new CsvWriter(outputStream, new CsvWriterSettings());
         for (MultiLineRecord mlrecord : mlrecords) {
             for (String line : mlrecord.getLines()) {
