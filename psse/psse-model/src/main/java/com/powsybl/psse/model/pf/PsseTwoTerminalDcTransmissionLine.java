@@ -165,8 +165,16 @@ public class PsseTwoTerminalDcTransmissionLine extends PsseVersioned {
         this.cccacc = cccacc;
     }
 
+    public void setRectifier(PsseTwoTerminalDcConverter rectifier) {
+        this.rectifier = rectifier;
+    }
+
     public PsseTwoTerminalDcConverter getRectifier() {
         return rectifier;
+    }
+
+    public void setInverter(PsseTwoTerminalDcConverter inverter) {
+        this.inverter = inverter;
     }
 
     public PsseTwoTerminalDcConverter getInverter() {

@@ -6,18 +6,23 @@
  */
 package com.powsybl.psse.model.pf.io;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.AbstractRecordGroup;
-import com.powsybl.psse.model.io.AbstractRecordGroupIOLegacyTextMultiLine;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
+import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
+import com.powsybl.psse.model.pf.PsseVoltageSourceConverter;
 import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
 
 /**
@@ -28,7 +33,7 @@ import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
 class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<PsseVoltageSourceConverterDcTransmissionLine> {
 
     VoltageSourceConverterDcTransmissionLineData() {
-        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE);
+        super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, "name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
         withQuotedFields("name");
     }
@@ -38,47 +43,82 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
         return PsseVoltageSourceConverterDcTransmissionLine.class;
     }
 
-    private static class IOLegacyText extends AbstractRecordGroupIOLegacyTextMultiLine<PsseVoltageSourceConverterDcTransmissionLine> {
+    private static class IOLegacyText extends RecordGroupIOLegacyText<PsseVoltageSourceConverterDcTransmissionLine> {
 
         IOLegacyText(AbstractRecordGroup<PsseVoltageSourceConverterDcTransmissionLine> recordGroup) {
             super(recordGroup);
         }
 
         @Override
-        protected MultiLineRecord readMultiLineRecord(List<String> recordsLines, int currentLine, Context context) {
-            int i = currentLine;
-            String[][] fieldNamesByLine = getFieldNamesByLine(context.getVersion());
-            String[] lines = new String[fieldNamesByLine.length];
-            for (int k = 0; k < lines.length; k++) {
-                lines[k] = recordsLines.get(i++);
+        public List<PsseVoltageSourceConverterDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
+            List<String> mainRecords = new ArrayList<>();
+            List<String> converterRecords = new ArrayList<>();
+            String line = readRecordLine(reader);
+            while (!endOfBlock(line)) {
+                mainRecords.add(line);
+                converterRecords.add(readRecordLine(reader));
+                converterRecords.add(readRecordLine(reader));
+                line = readRecordLine(reader);
             }
-            return new MultiLineRecord(fieldNamesByLine, lines);
-        }
 
-        private String[][] getFieldNamesByLine(PsseVersion version) {
-            switch (version.major()) {
-                case V35:
-                    return FIELD_NAMES_35;
-                case V33:
-                    return FIELD_NAMES_33;
-                default:
-                    throw new PsseException("Unsupported version " + version);
+            List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcList = super.recordGroup.readFromStrings(mainRecords, context);
+            List<PsseVoltageSourceConverter> convertersList = new PsseVoltageSourceConverterRecordData().readFromStrings(converterRecords, context);
+
+            int index = 0;
+            for (PsseVoltageSourceConverterDcTransmissionLine voltageSourceConverterDc : voltageSourceConverterDcList) {
+                voltageSourceConverterDc.setConverter1(convertersList.get(index));
+                index = index + 1;
+                voltageSourceConverterDc.setConverter2(convertersList.get(index));
+                index = index + 1;
             }
+
+            return voltageSourceConverterDcList;
         }
 
         @Override
-        public List<PsseVoltageSourceConverterDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
-            return super.readMultiLineRecords(reader, context);
+        public void write(List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcList, Context context, OutputStream outputStream) {
+
+            PsseVoltageSourceConverterRecordData converterRecordData = new PsseVoltageSourceConverterRecordData();
+            String[] mainHeaders = super.recordGroup.fieldNames(context.getVersion());
+            String[] quotedFields = super.recordGroup.quotedFields();
+            String[] converterHeaders = converterRecordData.fieldNames(context.getVersion());
+
+            List<PsseVoltageSourceConverterDcTransmissionLine> mainList = new ArrayList<>();
+            List<PsseVoltageSourceConverter> converterList = new ArrayList<>();
+
+            voltageSourceConverterDcList.forEach(voltageSourceConverterDc -> {
+                mainList.add(voltageSourceConverterDc);
+                converterList.add(voltageSourceConverterDc.getConverter1());
+                converterList.add(voltageSourceConverterDc.getConverter2());
+            });
+
+            List<String> mainStringList = super.recordGroup.buildRecords(mainList, mainHeaders, quotedFields, context);
+            List<String> converterStringList = converterRecordData.buildRecords(converterList, converterHeaders, quotedFields, context);
+
+            writeBegin(outputStream);
+            int index = 0;
+            for (String main : mainStringList) {
+                String rectifier = converterStringList.get(index);
+                index = index + 1;
+                String inverter = converterStringList.get(index);
+                index = index + 1;
+                write(Arrays.asList(main, rectifier, inverter), outputStream);
+            }
+            writeEnd(outputStream);
+        }
+
+        private static class PsseVoltageSourceConverterRecordData extends AbstractRecordGroup<PsseVoltageSourceConverter> {
+            PsseVoltageSourceConverterRecordData() {
+                super(INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER);
+                withFieldNames(V33, "ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "remot", "rmpct");
+                withFieldNames(V35, "ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "vsreg", "nreg", "rmpct");
+                withQuotedFields();
+            }
+
+            @Override
+            public Class<PsseVoltageSourceConverter> psseTypeClass() {
+                return PsseVoltageSourceConverter.class;
+            }
         }
     }
-
-    private static final String[][] FIELD_NAMES_35 = {
-        {"name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
-        {"ibus1", "type1", "mode1", "dcset1", "acset1", "aloss1", "bloss1", "minloss1", "smax1", "imax1", "pwf1", "maxq1", "minq1", "vsreg1", "nreg1", "rmpct1"},
-        {"ibus2", "type2", "mode2", "dcset2", "acset2", "aloss2", "bloss2", "minloss2", "smax2", "imax2", "pwf2", "maxq2", "minq2", "vsreg2", "nreg2", "rmpct2"}};
-
-    private static final String[][] FIELD_NAMES_33 = {
-        {"name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
-        {"ibus1", "type1", "mode1", "dcset1", "acset1", "aloss1", "bloss1", "minloss1", "smax1", "imax1", "pwf1", "maxq1", "minq1", "remot1", "rmpct1"},
-        {"ibus2", "type2", "mode2", "dcset2", "acset2", "aloss2", "bloss2", "minloss2", "smax2", "imax2", "pwf2", "maxq2", "minq2", "remot2", "rmpct2"}};
 }
