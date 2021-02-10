@@ -19,21 +19,13 @@ public interface MergedXnode extends Extension<Line> {
         return "mergedXnode";
     }
 
-    default float getRdp() {
-        return 0.5f;
-    }
+    float getRdp();
 
-    default MergedXnode setRdp(float rdp) {
-        return this;
-    }
+    MergedXnode setRdp(float rdp);
 
-    default float getXdp() {
-        return 0.5f;
-    }
+    float getXdp();
 
-    default MergedXnode setXdp(float xdp) {
-        return this;
-    }
+    MergedXnode setXdp(float xdp);
 
     String getLine1Name();
 
