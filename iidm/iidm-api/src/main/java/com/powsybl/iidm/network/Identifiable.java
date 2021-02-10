@@ -47,6 +47,8 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Get the alias of the object with a given alias type if it exists. Else return an empty optional.
+     *
+     * @throws {@link com.powsybl.commons.PowsyblException} if the aliasType is null or empty
      */
     default Optional<String> getAliasFromType(String aliasType) {
         return Optional.empty();
@@ -76,7 +78,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Add an alias to the object. Aliases must be unique in associated Network, and different
      * from any identifiable ID. This alias is associated to a given alias type.
-     * If the given alias type is null, no alias type is considered associated to the alias.
+     * If the given alias type is null or empty, no alias type is considered associated to the alias.
      * Only one alias can be associated to a non null given alias type for one object.
      *
      * If the alias already exists (i.e. is not unique) or equals an identifiable ID, throw a {@link com.powsybl.commons.PowsyblException}

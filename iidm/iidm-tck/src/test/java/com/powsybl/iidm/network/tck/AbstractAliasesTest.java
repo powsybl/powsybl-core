@@ -34,6 +34,16 @@ public abstract class AbstractAliasesTest {
         assertNotNull(network.getLoad("Load alias"));
         assertEquals(network.getLoad("Load alias"), load);
         assertFalse(network.getLoad("load1").getAliasType("Load alias").isPresent());
+
+        String alias = "alias2";
+        load.addAlias(alias, null);
+        assertTrue(load.getAliases().contains(alias));
+        assertTrue(load.getAliasType(alias).isEmpty());
+
+        alias = "alias3";
+        load.addAlias(alias, "");
+        assertTrue(load.getAliases().contains(alias));
+        assertTrue(load.getAliasType(alias).isEmpty());
     }
 
     @Test
@@ -133,6 +143,20 @@ public abstract class AbstractAliasesTest {
         Network network = NetworkTest1Factory.create();
         Load load = network.getLoad("load1");
         load.removeAlias("Load alias");
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failWhenAliasTypeIsNull() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.getAliasFromType(null);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void failWhenAliasTypeIsEmpty() {
+        Network network = NetworkTest1Factory.create();
+        Load load = network.getLoad("load1");
+        load.getAliasFromType("");
     }
 
     @Test(expected = PowsyblException.class)
