@@ -186,6 +186,8 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         }
 
+        shuntBlocks.sort(Comparator.comparing(ShuntBlock::getB));
+
         return shuntBlocks;
     }
 
