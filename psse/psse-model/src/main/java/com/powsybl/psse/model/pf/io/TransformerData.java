@@ -41,12 +41,12 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     }
 
     @Override
-    public Class<PsseTransformer> psseTypeClass() {
+    protected Class<PsseTransformer> psseTypeClass() {
         return PsseTransformer.class;
     }
 
     @Override
-    public RecordGroupIdentification getIdentificationFor(PsseTransformer transformer) {
+    protected RecordGroupIdentification getIdentificationFor(PsseTransformer transformer) {
         return transformer.getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
     }
 

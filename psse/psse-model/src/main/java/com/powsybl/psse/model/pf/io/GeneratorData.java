@@ -26,7 +26,7 @@ class GeneratorData extends AbstractRecordGroup<PsseGenerator> {
     }
 
     @Override
-    public Class<PsseGenerator> psseTypeClass() {
+    protected Class<PsseGenerator> psseTypeClass() {
         return PsseGenerator.class;
     }
 }

@@ -37,7 +37,7 @@ class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping>
     }
 
     @Override
-    public Class<PsseLineGrouping> psseTypeClass() {
+    protected Class<PsseLineGrouping> psseTypeClass() {
         return PsseLineGrouping.class;
     }
 

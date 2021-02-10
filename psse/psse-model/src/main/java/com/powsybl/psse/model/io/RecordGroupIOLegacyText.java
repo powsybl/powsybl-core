@@ -35,7 +35,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
 
     protected final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
+    protected RecordGroupIOLegacyText(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
     }

@@ -27,7 +27,7 @@ class ZoneData extends AbstractRecordGroup<PsseZone> {
     }
 
     @Override
-    public Class<PsseZone> psseTypeClass() {
+    protected Class<PsseZone> psseTypeClass() {
         return PsseZone.class;
     }
 }

@@ -18,7 +18,7 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
-    public FixedBusShuntData() {
+    FixedBusShuntData() {
         super(PowerFlowRecordGroup.FIXED_BUS_SHUNT);
         withFieldNames(V33, "i", "id", "status", "gl", "bl");
         withFieldNames(V35, "ibus", "shntid", "stat", "gl", "bl");
@@ -26,7 +26,7 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     }
 
     @Override
-    public Class<PsseFixedShunt> psseTypeClass() {
+    protected Class<PsseFixedShunt> psseTypeClass() {
         return PsseFixedShunt.class;
     }
 }

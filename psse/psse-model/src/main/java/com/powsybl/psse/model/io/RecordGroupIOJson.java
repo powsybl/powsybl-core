@@ -32,7 +32,7 @@ import static com.powsybl.psse.model.io.RecordGroupIdentification.JsonObjectType
 public class RecordGroupIOJson<T> implements RecordGroupIO<T> {
     private final AbstractRecordGroup<T> recordGroup;
 
-    public RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
+    protected RecordGroupIOJson(AbstractRecordGroup<T> recordGroup) {
         Objects.requireNonNull(recordGroup);
         this.recordGroup = recordGroup;
     }

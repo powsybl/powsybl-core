@@ -78,7 +78,7 @@ public abstract class AbstractRecordGroup<T> {
      * @param object the object to be evaluated for a specific record group identification
      * @return the specific record group identification for the object
      */
-    public RecordGroupIdentification getIdentificationFor(T object) {
+    protected RecordGroupIdentification getIdentificationFor(T object) {
         return this.identification;
     }
 
@@ -102,16 +102,16 @@ public abstract class AbstractRecordGroup<T> {
         return quotedFields;
     }
 
-    public abstract Class<T> psseTypeClass();
+    protected abstract Class<T> psseTypeClass();
 
-    public RecordGroupIO<T> ioFor(FileFormat fileFormat, PsseVersion.Major version) {
+    protected RecordGroupIO<T> ioFor(FileFormat fileFormat, PsseVersion.Major version) {
         if (ioFormatVersion.contains(fileFormat, version)) {
             return ioFormatVersion.get(fileFormat, version);
         }
         return ioFor(fileFormat);
     }
 
-    public RecordGroupIO<T> ioFor(FileFormat fileFormat) {
+    protected RecordGroupIO<T> ioFor(FileFormat fileFormat) {
         RecordGroupIO<T> r = ioFormat.get(fileFormat);
         if (r == null) {
             throw new PsseException("No reader/writer for file format " + fileFormat);
@@ -119,7 +119,7 @@ public abstract class AbstractRecordGroup<T> {
         return r;
     }
 
-    public RecordGroupIO<T> ioFor(Context context) {
+    protected RecordGroupIO<T> ioFor(Context context) {
         if (context.getVersion() == null) {
             return ioFor(context.getFileFormat());
         }
@@ -146,7 +146,7 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
-    public List<T> parseRecords(List<String> records, String[] headers, Context context) {
+    protected List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
         BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
         CsvParserSettings settings = context.getCsvParserSettings();
@@ -169,7 +169,7 @@ public abstract class AbstractRecordGroup<T> {
         return unquoteNullString(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordToString(object));
     }
 
-    public List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
+    protected List<String> buildRecords(List<T> objects, String[] headers, String[] quoteFields, Context context) {
         return unquoteNullStrings(new CsvWriter(settingsForCsvWriter(headers, quoteFields, context)).processRecordsToString(objects));
     }
 

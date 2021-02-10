@@ -26,7 +26,7 @@ class NonTransformerBranchData extends AbstractRecordGroup<PsseNonTransformerBra
     }
 
     @Override
-    public Class<PsseNonTransformerBranch> psseTypeClass() {
+    protected Class<PsseNonTransformerBranch> psseTypeClass() {
         return PsseNonTransformerBranch.class;
     }
 }
