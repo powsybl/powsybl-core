@@ -119,7 +119,28 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testAccessToFieldNotPresentInVersion() throws IOException {
+    public void testAccessToFieldNotPresentInVersion32() throws IOException {
+        PssePowerFlowModel raw32 = new PowerFlowRawData32().read(exampleVersion32(), "raw", new Context());
+        assertNotNull(raw32);
+
+        PsseBus b = raw32.getBuses().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(b::getNvhi)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'nvhi' is valid since version 33");
+
+        PsseLoad l = raw32.getLoads().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(l::getIntrpt)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'intrpt' is valid since version 33");
+
+        PsseTransformer t = raw32.getTransformers().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(t::getVecgrp)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'vecgrp' is valid since version 33");
+    }
+
+    @Test
+    public void testAccessToFieldNotPresentInVersion33() throws IOException {
         PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(raw33);
 

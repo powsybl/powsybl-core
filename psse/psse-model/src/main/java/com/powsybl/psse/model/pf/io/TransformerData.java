@@ -135,8 +135,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 case V35:
                     return FIELD_NAMES_3_35;
                 case V33:
-                case V32:
                     return FIELD_NAMES_3_33;
+                case V32:
+                    return FIELD_NAMES_3_32;
                 default:
                     throw new PsseException("Unsupported version " + version);
             }
@@ -147,8 +148,9 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 case V35:
                     return FIELD_NAMES_2_35;
                 case V33:
-                case V32:
                     return FIELD_NAMES_2_33;
+                case V32:
+                    return FIELD_NAMES_2_32;
                 default:
                     throw new PsseException("Unsupported version " + version);
             }
@@ -169,6 +171,14 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         {"windv2", "nomv2", "ang2", "rata2", "ratb2", "ratc2", "cod2", "cont2", "rma2", "rmi2", "vma2", "vmi2", "ntp2", "tab2", "cr2", "cx2", "cnxa2"},
         {"windv3", "nomv3", "ang3", "rata3", "ratb3", "ratc3", "cod3", "cont3", "rma3", "rmi3", "vma3", "vmi3", "ntp3", "tab3", "cr3", "cx3", "cnxa3"}
     };
+    private static final String[][] FIELD_NAMES_3_32 = {
+        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
+        {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar"},
+        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
+        {"windv2", "nomv2", "ang2", "rata2", "ratb2", "ratc2", "cod2", "cont2", "rma2", "rmi2", "vma2", "vmi2", "ntp2", "tab2", "cr2", "cx2", "cnxa2"},
+        {"windv3", "nomv3", "ang3", "rata3", "ratb3", "ratc3", "cod3", "cont3", "rma3", "rmi3", "vma3", "vmi3", "ntp3", "tab3", "cr3", "cx3", "cnxa3"}
+    };
+
     private static final String[][] FIELD_NAMES_2_35 = {
         {"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"},
         {"r1_2", "x1_2", "sbase1_2"},
@@ -177,6 +187,12 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
     };
     private static final String[][] FIELD_NAMES_2_33 = {
         {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"},
+        {"r12", "x12", "sbase12"},
+        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
+        {"windv2", "nomv2"}
+    };
+    private static final String[][] FIELD_NAMES_2_32 = {
+        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
         {"r12", "x12", "sbase12"},
         {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
         {"windv2", "nomv2"}
