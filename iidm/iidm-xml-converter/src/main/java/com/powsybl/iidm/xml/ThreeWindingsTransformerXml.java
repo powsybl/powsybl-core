@@ -47,9 +47,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                 || (twt.getLeg1().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
                 || (twt.getLeg2().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
                 || (twt.getLeg3().hasPhaseTapChanger() && context.getVersion().compareTo(IidmXmlVersion.V_1_1) > 0)
-                || hasValidOperationalLimits(twt.getLeg1(), context)
-                || hasValidOperationalLimits(twt.getLeg2(), context)
-                || hasValidOperationalLimits(twt.getLeg3(), context);
+                || twt.getLeg1().getCurrentLimits() != null
+                || twt.getLeg2().getCurrentLimits() != null
+                || twt.getLeg3().getCurrentLimits() != null;
     }
 
     @Override
@@ -103,14 +103,6 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         int[] i = new int[1];
         i[0] = 1;
         for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-            if (leg.getActivePowerLimits() != null) {
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(i[0], leg.getActivePowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
-            }
-            if (leg.getApparentPowerLimits() != null) {
-                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(i[0], leg.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
-            }
             if (leg.getCurrentLimits() != null) {
                 writeCurrentLimits(i[0], leg.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
             }
@@ -185,42 +177,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     protected void readSubElements(ThreeWindingsTransformer tx, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case ACTIVE_POWER_LIMITS_1:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, tx.getLeg1()::newActivePowerLimits, context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_1:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, tx.getLeg1()::newApparentPowerLimits, context.getReader()));
-                    break;
-
                 case "currentLimits1":
                     readCurrentLimits(1, tx.getLeg1()::newCurrentLimits, context.getReader());
                     break;
 
-                case ACTIVE_POWER_LIMITS_2:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, tx.getLeg2()::newActivePowerLimits, context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_2:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, tx.getLeg2()::newApparentPowerLimits, context.getReader()));
-                    break;
-
                 case "currentLimits2":
                     readCurrentLimits(2, tx.getLeg2()::newCurrentLimits, context.getReader());
-                    break;
-
-                case ACTIVE_POWER_LIMITS_3:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_3, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(3, tx.getLeg3()::newActivePowerLimits, context.getReader()));
-                    break;
-
-                case APPARENT_POWER_LIMITS_3:
-                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_3, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(3, tx.getLeg3()::newApparentPowerLimits, context.getReader()));
                     break;
 
                 case "currentLimits3":
