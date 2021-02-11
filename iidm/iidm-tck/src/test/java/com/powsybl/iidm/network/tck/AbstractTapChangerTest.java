@@ -464,10 +464,20 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void invalidTargetV() {
+    public void undefinedTargetV() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a target voltage has to be set for a regulating ratio tap changer");
         createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal);
+    }
+
+    @Test
+    public void undefinedTargetVOnlyWarning() {
+        createRatioTapChangerWith3Steps(0, 1, false, true, Double.NaN, 1.0, terminal);
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.isRegulating());
+        assertTrue(Double.isNaN(rtc.getTargetV()));
     }
 
     @Test
@@ -475,6 +485,16 @@ public abstract class AbstractTapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("bad target voltage");
         createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal);
+    }
+
+    @Test
+    public void negativeTargetVOnlyWarning() {
+        createRatioTapChangerWith3Steps(0, 1, false, true, -10.0, 1.0, terminal);
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.isRegulating());
+        assertEquals(-10.0, rtc.getTargetV(), 0.0);
     }
 
     @Test
@@ -489,6 +509,16 @@ public abstract class AbstractTapChangerTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
+    }
+
+    @Test
+    public void nullRegulatingTerminalOnlyWarning() {
+        createRatioTapChangerWith3Steps(0, 1, false, true, 10.0, 1.0, null);
+        RatioTapChanger rtc = twt.getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.isRegulating());
+        assertNull(rtc.getRegulationTerminal());
     }
 
     private void createRatioTapChangerWith3Steps(int low, int tap, boolean load, boolean regulating,
