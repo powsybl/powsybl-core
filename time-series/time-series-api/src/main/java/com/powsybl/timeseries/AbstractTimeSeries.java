@@ -151,7 +151,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
 
             if (usePreviousChunk) {
                 C mergedChunk = previousChunk.merge(split.getChunk1());
-                splitChunks.remove(previousChunk);
+                splitChunks.remove(splitChunks.size() - 1);
                 splitChunks.add(mergedChunk);
             } else {
                 splitChunks.add(split.getChunk1());
@@ -163,7 +163,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
             }
             if (usePreviousChunk) {
                 C mergedChunk = previousChunk.merge(chunkToSplit);
-                splitChunks.remove(previousChunk);
+                splitChunks.remove(splitChunks.size() - 1);
                 splitChunks.add(mergedChunk);
             } else {
                 splitChunks.add(chunkToSplit);
