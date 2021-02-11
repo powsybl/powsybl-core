@@ -174,6 +174,10 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         }
 
+        if (psseSwitchedShunt.getAdjm() == 1) {
+            bAdd = 0.0;
+        }
+
         if (!psseCapacitorBlocks.isEmpty()) {
             for (int i = 0; i < psseCapacitorBlocks.size(); i++) {
                 for (int j = 0; j < psseCapacitorBlocks.get(i).getN(); j++) {
