@@ -115,7 +115,7 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
     }
 
     @Override
-    public DoubleDataChunk merge(final DoubleDataChunk otherChunk) {
+    public DoubleDataChunk append(final DoubleDataChunk otherChunk) {
         if (getOffset() + getLength() != otherChunk.getOffset()) {
             throw new IllegalArgumentException("Chunks are not successive. First offset is " + getOffset()
                                                + " and first size is " + getLength() + "; second offset should be " +

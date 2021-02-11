@@ -199,7 +199,7 @@ public class DoubleDataChunkTest {
         UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(1, new double[]{6d, 7d, 8d});
 
         //Merge chunk1 + chunk2
-        DoubleDataChunk merge = chunk1.merge(chunk2);
+        DoubleDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
         assertTrue(merge instanceof UncompressedDoubleDataChunk);
         assertEquals(1, merge.getOffset());
@@ -207,7 +207,7 @@ public class DoubleDataChunkTest {
 
         //Merge chunk1 + chunk3
         try {
-            chunk1.merge(chunk3);
+            chunk1.append(chunk3);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -221,7 +221,7 @@ public class DoubleDataChunkTest {
         CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(11, 3, new double[]{4d, 5d}, new int[]{2, 1});
 
         //Merge chunk1 + chunk2
-        DoubleDataChunk merge = chunk1.merge(chunk2);
+        DoubleDataChunk merge = chunk1.append(chunk2);
         assertNotNull(merge);
         assertTrue(merge instanceof CompressedDoubleDataChunk);
         assertEquals(1, merge.getOffset());
@@ -230,7 +230,7 @@ public class DoubleDataChunkTest {
         assertArrayEquals(new int[] {2, 3, 2, 3}, ((CompressedDoubleDataChunk) merge).getStepLengths());
 
         //Merge chunk2 + chunk3
-        merge = chunk2.merge(chunk3);
+        merge = chunk2.append(chunk3);
         assertNotNull(merge);
         assertTrue(merge instanceof CompressedDoubleDataChunk);
         assertEquals(6, merge.getOffset());
@@ -240,7 +240,7 @@ public class DoubleDataChunkTest {
 
         //Merge chunk1 + chunk3
         try {
-            chunk1.merge(chunk3);
+            chunk1.append(chunk3);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
