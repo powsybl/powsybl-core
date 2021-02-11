@@ -74,11 +74,11 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     private float checkDividerPosition(float dp) {
-        if (Double.isNaN(dp)) {
+        if (Float.isNaN(dp)) {
             return 0.5f;
         }
         if (dp < 0f || dp > 1f) {
-            throw new IllegalArgumentException("Invalid divider postion: " + dp);
+            throw new IllegalArgumentException("Invalid divider position: " + dp);
         }
         return dp;
     }
@@ -164,7 +164,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     @Override
     public float getB1dp() {
-        return Float.isNaN(b1dp) ? MergedXnode.super.getB1dp() : b1dp;
+        return b1dp;
     }
 
     @Override
@@ -175,7 +175,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     @Override
     public float getG1dp() {
-        return Float.isNaN(g1dp) ? MergedXnode.super.getG1dp() : g1dp;
+        return g1dp;
     }
 
     @Override
@@ -230,7 +230,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     @Override
     public float getB2dp() {
-        return Float.isNaN(b2dp) ? MergedXnode.super.getB2dp() : b2dp;
+        return b2dp;
     }
 
     @Override
@@ -241,7 +241,7 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     @Override
     public float getG2dp() {
-        return Float.isNaN(g2dp) ? MergedXnode.super.getG2dp() : g2dp;
+        return g2dp;
     }
 
     @Override

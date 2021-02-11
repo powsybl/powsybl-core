@@ -245,4 +245,176 @@ public class MergedXnodeTest {
         assertEquals(0.5f, xnode.getB2dp(), 0f);
         assertEquals(0.5f, xnode.getB2dp(), 0f);
     }
+
+    @Test
+    public void testDefaultImplAdder() {
+        MergedXnodeAdder mergedXnodeAdder = new MergedXnodeAdder() {
+            @Override
+            public Line add() {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withLine1Name(String line1Name) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withXnodeP1(double xnodeP1) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withXnodeQ1(double xnodeQ1) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withLine2Name(String line2Name) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withXnodeP2(double xnodeP2) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withXnodeQ2(double xnodeQ2) {
+                return null;
+            }
+
+            @Override
+            public MergedXnodeAdderImpl withCode(String code) {
+                return null;
+            }
+        };
+
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withRdp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withXdp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withLine1Fictitious(false));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB1dp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG1dp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withLine2Fictitious(false));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB2dp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG2dp(Float.NaN));
+    }
+
+    @Test
+    public void testDefaultImpl() {
+        MergedXnode mergedXnode = new MergedXnode() {
+            @Override
+            public Line getExtendable() {
+                return null;
+            }
+
+            @Override
+            public void setExtendable(Line extendable) {
+            }
+
+            @Override
+            public float getRdp() {
+                return Float.NaN;
+            }
+
+            @Override
+            public MergedXnode setRdp(float rdp) {
+                return this;
+            }
+
+            @Override
+            public float getXdp() {
+                return Float.NaN;
+            }
+
+            @Override
+            public MergedXnode setXdp(float xdp) {
+                return this;
+            }
+
+            @Override
+            public String getLine1Name() {
+                return "";
+            }
+
+            @Override
+            public MergedXnode setLine1Name(String line1Name) {
+                return this;
+            }
+
+            @Override
+            public double getXnodeP1() {
+                return Double.NaN;
+            }
+
+            @Override
+            public MergedXnode setXnodeP1(double xnodeP1) {
+                return this;
+            }
+
+            @Override
+            public double getXnodeQ1() {
+                return Double.NaN;
+            }
+
+            @Override
+            public MergedXnode setXnodeQ1(double xnodeQ1) {
+                return this;
+            }
+
+            @Override
+            public String getLine2Name() {
+                return "";
+            }
+
+            @Override
+            public MergedXnode setLine2Name(String line2Name) {
+                return this;
+            }
+
+            @Override
+            public double getXnodeP2() {
+                return Double.NaN;
+            }
+
+            @Override
+            public MergedXnode setXnodeP2(double xnodeP2) {
+                return this;
+            }
+
+            @Override
+            public double getXnodeQ2() {
+                return Double.NaN;
+            }
+
+            @Override
+            public MergedXnode setXnodeQ2(double xnodeQ2) {
+                return this;
+            }
+
+            @Override
+            public String getCode() {
+                return "";
+            }
+
+            @Override
+            public MergedXnode setCode(String code) {
+                return this;
+            }
+        };
+
+        assertEquals(mergedXnode, mergedXnode.setLine1Fictitious(false));
+        assertEquals(false, mergedXnode.isLine1Fictitious());
+        assertEquals(mergedXnode, mergedXnode.setB1dp(Float.NaN));
+        assertEquals(0.5f, mergedXnode.getB1dp(), 0f);
+        assertEquals(mergedXnode, mergedXnode.setG1dp(Float.NaN));
+        assertEquals(0.5f, mergedXnode.getG1dp(), 0f);
+
+        assertEquals(mergedXnode, mergedXnode.setLine2Fictitious(false));
+        assertEquals(false, mergedXnode.isLine2Fictitious());
+        assertEquals(mergedXnode, mergedXnode.setB2dp(Float.NaN));
+        assertEquals(0.5f, mergedXnode.getB2dp(), 0f);
+        assertEquals(mergedXnode, mergedXnode.setG2dp(Float.NaN));
+        assertEquals(0.5f, mergedXnode.getG2dp(), 0f);
+    }
 }
