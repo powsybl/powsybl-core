@@ -38,12 +38,12 @@ public abstract class AbstractAliasesTest {
         String alias = "alias2";
         load.addAlias(alias, null);
         assertTrue(load.getAliases().contains(alias));
-        assertTrue(load.getAliasType(alias).isEmpty());
+        assertFalse(load.getAliasType(alias).isPresent());
 
         alias = "alias3";
         load.addAlias(alias, "");
         assertTrue(load.getAliases().contains(alias));
-        assertTrue(load.getAliasType(alias).isEmpty());
+        assertFalse(load.getAliasType(alias).isPresent());
     }
 
     @Test
