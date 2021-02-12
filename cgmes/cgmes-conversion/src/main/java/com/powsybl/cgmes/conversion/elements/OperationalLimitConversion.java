@@ -45,7 +45,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalId != null) {
             terminal = context.terminalMapping().find(terminalId);
         }
-        if (limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT)) {
+        if (isFlowLimit(limitSubclass)) {
             if (terminal != null && !(terminal instanceof Boundary.BoundaryTerminal)) {
                 createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
             } else if (equipmentId != null) {
@@ -67,6 +67,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else {
             notAssigned();
         }
+    }
+
+    private static boolean isFlowLimit(String limitSubclass) {
+        return limitSubclass == null || limitSubclass.equals(ACTIVE_POWER_LIMIT) || limitSubclass.equals(APPARENT_POWER_LIMIT) || limitSubclass.equals(CURRENT_LIMIT);
     }
 
     private static Supplier<LoadingLimitsAdder<?, ?>> getLoadingLimitAdderSupplier(String limitSubClass, FlowsLimitsHolder holder) {
