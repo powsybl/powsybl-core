@@ -31,7 +31,10 @@ public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
-            return read32(reader, context);
+            PssePowerFlowModel model = readCaseIdentification(reader, context);
+            readBlocksA(model, reader, context);
+            readBlocksB(model, reader, context);
+            return model;
         }
     }
 
@@ -50,7 +53,9 @@ public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 
     private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
 
-        write32(model, context, outputStream);
+        writeCaseIdentification(model, context, outputStream);
+        writeBlocksA(model, context, outputStream);
+        writeBlocksB(model, context, outputStream);
         writeQ(outputStream);
     }
 }

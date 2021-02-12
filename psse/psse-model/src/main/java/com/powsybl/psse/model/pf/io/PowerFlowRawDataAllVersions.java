@@ -63,16 +63,21 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
         throw new PsseException("Here we don't know how to write a complete data file. Specific version instance is required");
     }
 
-    PssePowerFlowModel read32(BufferedReader reader, Context context) throws IOException {
+    PssePowerFlowModel readCaseIdentification(BufferedReader reader, Context context) throws IOException {
         PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
         caseIdentification.validate();
+        return new PssePowerFlowModel(caseIdentification);
+    }
 
-        PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
+    void readBlocksA(PssePowerFlowModel model, BufferedReader reader, Context context) throws IOException {
         model.addBuses(new BusData().read(reader, context));
         model.addLoads(new LoadData().read(reader, context));
         model.addFixedShunts(new FixedBusShuntData().read(reader, context));
         model.addGenerators(new GeneratorData().read(reader, context));
         model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
+    }
+
+    void readBlocksB(PssePowerFlowModel model, BufferedReader reader, Context context) throws IOException {
         model.addTransformers(new TransformerData().read(reader, context));
         model.addAreas(new AreaInterchangeData().read(reader, context));
         // Complete discarded record groups
@@ -87,19 +92,21 @@ public class PowerFlowRawDataAllVersions implements PowerFlowData {
         model.addFacts(new FactsDeviceData().read(reader, context));
         model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
         skip(GNE_DEVICE, reader);
-
-        return model;
     }
 
-    void write32(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
-
+    void writeCaseIdentification(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
         new CaseIdentificationData().writeHead(model.getCaseIdentification(), context, outputStream);
+    }
 
+    void writeBlocksA(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
         new BusData().write(model.getBuses(), context, outputStream);
         new LoadData().write(model.getLoads(), context, outputStream);
         new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
         new GeneratorData().write(model.getGenerators(), context, outputStream);
         new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
+    }
+
+    void writeBlocksB(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
 
