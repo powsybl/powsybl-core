@@ -125,6 +125,12 @@ public class PsseCaseIdentification {
         if (!v.isSupported()) {
             throw new PsseException(String.format("Version %s not supported. Supported versions are: %s", v, PsseVersion.supportedVersions()));
         }
+        if (sbase <= 0.) {
+            throw new PsseException("Unexpected System MVA base " + sbase);
+        }
+        if (basfrq <= 0.) {
+            throw new PsseException("Unexpected System base frequency " + basfrq);
+        }
     }
 
     public static class RevisionSerializer extends JsonSerializer<Float> {
