@@ -8,7 +8,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
@@ -19,6 +18,7 @@ import java.util.Objects;
 public class HalfLineAdapter implements TieLine.HalfLine {
 
     private final DanglingLine danglingLine;
+    private final MergingViewIndex index;
 
     private double g1;
 
@@ -28,8 +28,9 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     private double b2;
 
-    public HalfLineAdapter(DanglingLine danglingLine) {
+    public HalfLineAdapter(DanglingLine danglingLine, MergingViewIndex index) {
         this.danglingLine = Objects.requireNonNull(danglingLine);
+        this.index = Objects.requireNonNull(index);
         // TODO(mathbagu): is it correct? should we initialize only b1/g1 (resp. b2/g2) like it's done in the destructive merge?
         this.g1 = danglingLine.getG() / 2.0;
         this.g2 = danglingLine.getG() / 2.0;
@@ -129,8 +130,8 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     }
 
     @Override
-    public Boundary getBoundary() {
-        return danglingLine.getBoundary();
+    public BoundaryAdapter getBoundary() {
+        return new BoundaryAdapter(true, danglingLine.getBoundary(), index);
     }
 
     public TieLine.HalfLine setB(double b) {

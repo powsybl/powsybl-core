@@ -6,10 +6,55 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface Boundary {
+
+    interface BoundaryTerminal extends Terminal {
+
+        @Override
+        default Terminal.NodeBreakerView getNodeBreakerView() {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default Terminal.BusBreakerView getBusBreakerView() {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default Terminal.BusView getBusView() {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default BoundaryTerminal setP(double p) {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default BoundaryTerminal setQ(double q) {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default boolean connect() {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default boolean disconnect() {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+
+        @Override
+        default void traverse(VoltageLevel.TopologyTraverser traverser) {
+            throw new PowsyblException("Not supported for boundary terminals");
+        }
+    }
 
     double getV();
 
@@ -18,4 +63,6 @@ public interface Boundary {
     double getP();
 
     double getQ();
+
+    BoundaryTerminal getTerminal();
 }

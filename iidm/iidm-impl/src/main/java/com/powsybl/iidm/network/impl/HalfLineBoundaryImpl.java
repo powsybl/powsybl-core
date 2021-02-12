@@ -6,10 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
@@ -19,6 +17,40 @@ import java.util.function.Supplier;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class HalfLineBoundaryImpl implements Boundary {
+
+    class HalfLineBoundaryTerminalImpl implements BoundaryTerminal {
+
+        @Override
+        public VoltageLevel getVoltageLevel() {
+            return terminalSupplier.get().getVoltageLevel();
+        }
+
+        @Override
+        public Connectable getConnectable() {
+            return terminalSupplier.get().getConnectable();
+        }
+
+        @Override
+        public double getP() {
+            return HalfLineBoundaryImpl.this.getP();
+        }
+
+        @Override
+        public double getQ() {
+            return HalfLineBoundaryImpl.this.getQ();
+        }
+
+        @Override
+        public double getI() {
+            return Math.hypot(getP(), getQ())
+                    / (Math.sqrt(3.) * getV() / 1000);
+        }
+
+        @Override
+        public boolean isConnected() {
+            return true;
+        }
+    }
 
     private final Supplier<Terminal> terminalSupplier;
 
@@ -55,6 +87,11 @@ class HalfLineBoundaryImpl implements Boundary {
         Terminal t = terminalSupplier.get();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(halfLine);
+    }
+
+    @Override
+    public BoundaryTerminal getTerminal() {
+        return new HalfLineBoundaryTerminalImpl();
     }
 
     private static double getV(Bus b) {

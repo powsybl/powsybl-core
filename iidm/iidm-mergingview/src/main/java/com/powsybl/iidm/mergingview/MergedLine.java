@@ -42,8 +42,8 @@ class MergedLine implements TieLine {
 
     MergedLine(final MergingViewIndex index, final DanglingLine dl1, final DanglingLine dl2, boolean ensureIdUnicity) {
         this.index = Objects.requireNonNull(index, "merging view index is null");
-        this.half1 = new HalfLineAdapter(dl1);
-        this.half2 = new HalfLineAdapter(dl2);
+        this.half1 = new HalfLineAdapter(dl1, index);
+        this.half2 = new HalfLineAdapter(dl2, index);
         this.id = ensureIdUnicity ? Identifiables.getUniqueId(buildIdOrName(dl1.getId(), dl2.getId()), index::contains) : buildIdOrName(dl1.getId(), dl2.getId());
         this.name = buildName(dl1, dl2);
         mergeProperties(dl1, dl2);
