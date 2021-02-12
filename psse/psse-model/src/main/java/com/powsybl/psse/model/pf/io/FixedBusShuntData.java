@@ -19,10 +19,12 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
+    private static final String[] FIELD_NAMES_32_33 = {"i", "id", "status", "gl", "bl"};
+
     public FixedBusShuntData() {
         super(PowerFlowRecordGroup.FIXED_BUS_SHUNT);
-        withFieldNames(V32, "i", "id", "status", "gl", "bl");
-        withFieldNames(V33, "i", "id", "status", "gl", "bl");
+        withFieldNames(V32, FIELD_NAMES_32_33);
+        withFieldNames(V33, FIELD_NAMES_32_33);
         withFieldNames(V35, "ibus", "shntid", "stat", "gl", "bl");
         withQuotedFields("shntid", "id");
     }
