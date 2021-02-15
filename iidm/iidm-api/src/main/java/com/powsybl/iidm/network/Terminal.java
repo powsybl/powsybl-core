@@ -50,7 +50,7 @@ public interface Terminal {
     /**
      * A bus view of the terminal.
      */
-    public static interface BusView {
+    interface BusView {
 
         /**
          * Get the connection bus of this terminal in the bus only topology.
