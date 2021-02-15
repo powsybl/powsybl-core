@@ -14,7 +14,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-contingency</artifactId>
-        <version>3.8.0</version>
+        <version>3.8.1</version>
     </parent>
 
     <artifactId>powsybl-contingency-dsl</artifactId>

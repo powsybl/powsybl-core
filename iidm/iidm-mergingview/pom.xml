@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-iidm</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.8.0</version>
+        <version>3.8.1</version>
     </parent>
 
     <artifactId>powsybl-iidm-mergingview</artifactId>
