@@ -256,7 +256,7 @@ public class DanglingLineAdapterTest {
         t1.getBusView().getBus().setV(v1).setAngle(angle1);
         t2.getBusView().getBus().setV(v2).setAngle(angle2);
 
-        // Check P & Q are computed by Listener
+        // Check P & Q are computed
         SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
         SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);

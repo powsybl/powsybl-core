@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -137,6 +138,28 @@ public abstract class AbstractDanglingLineTest {
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();
         assertSame(bus, terminal);
+
+        double p = -605.0;
+        double q = -302.5;
+        double v = 420.0;
+        double angle = -1e-4;
+        danglingLine.getTerminal().setP(p).setQ(q);
+        danglingLine.getTerminal().getBusView().getBus().setV(v).setAngle(angle);
+        SV expectedSV = new SV(p, q, v, angle).otherSide(danglingLine);
+        Boundary boundary = danglingLine.getBoundary();
+        assertNotNull(boundary);
+        assertEquals(expectedSV.getP(), boundary.getP(), 0.0);
+        assertEquals(expectedSV.getQ(), boundary.getQ(), 0.0);
+        assertEquals(expectedSV.getU(), boundary.getV(), 0.0);
+        assertEquals(expectedSV.getA(), boundary.getAngle(), 0.0);
+        Boundary.BoundaryTerminal boundaryTerminal = boundary.getTerminal();
+        assertNotNull(boundaryTerminal);
+        assertEquals(expectedSV.getP(), boundaryTerminal.getP(), 0.0);
+        assertEquals(expectedSV.getQ(), boundaryTerminal.getQ(), 0.0);
+        double expectedI = Math.hypot(expectedSV.getP(), expectedSV.getQ()) / (Math.sqrt(3.) * expectedSV.getU() / 1000);
+        assertEquals(expectedI, boundaryTerminal.getI(), 0.0);
+        assertSame(danglingLine.getTerminal().getVoltageLevel(), boundaryTerminal.getVoltageLevel());
+        assertSame(danglingLine, boundaryTerminal.getConnectable());
     }
 
     @Test
