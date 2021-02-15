@@ -125,7 +125,7 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
 
     @Override
     public Boundary getBoundary() {
-        return new BoundaryAdapter(false, getDelegate().getBoundary(), getIndex());
+        return new BoundaryAdapter(getIndex().isMerged(this), getDelegate().getBoundary(), getIndex());
     }
 
     @Override
