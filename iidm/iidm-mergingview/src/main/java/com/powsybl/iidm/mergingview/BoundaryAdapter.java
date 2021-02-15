@@ -11,87 +11,82 @@ import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class BoundaryAdapter implements Boundary {
+public class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
 
-    static class BoundaryTerminalAdapter implements BoundaryTerminal {
+    static class BoundaryTerminalAdapter extends AbstractAdapter<BoundaryTerminal> implements BoundaryTerminal {
 
-        private final boolean merged;
-        private final BoundaryTerminal delegate;
-        private final MergingViewIndex index;
+        private final BooleanSupplier isMerged;
 
-        BoundaryTerminalAdapter(boolean merged, BoundaryTerminal delegate, MergingViewIndex index) {
-            this.merged = merged;
-            this.delegate = Objects.requireNonNull(delegate);
-            this.index = Objects.requireNonNull(index);
+        BoundaryTerminalAdapter(BooleanSupplier isMerged, BoundaryTerminal delegate, MergingViewIndex index) {
+            super(delegate, index);
+            this.isMerged = Objects.requireNonNull(isMerged);
         }
 
         @Override
         public VoltageLevel getVoltageLevel() {
-            return index.getVoltageLevel(delegate.getVoltageLevel());
+            return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
         }
 
         @Override
         public Connectable getConnectable() {
-            return index.getConnectable(delegate.getConnectable());
+            return getIndex().getConnectable(getDelegate().getConnectable());
         }
 
         @Override
         public double getP() {
-            return delegate.getP();
+            return getDelegate().getP();
         }
 
         @Override
         public double getQ() {
-            return delegate.getQ();
+            return getDelegate().getQ();
         }
 
         @Override
         public double getI() {
-            return delegate.getI();
+            return getDelegate().getI();
         }
 
         @Override
         public boolean isConnected() {
-            return merged || delegate.isConnected();
+            return isMerged.getAsBoolean() || getDelegate().isConnected();
         }
     }
 
-    private final boolean merged;
-    private final Boundary delegate;
-    private final MergingViewIndex index;
+    private final BooleanSupplier isMerged;
 
-    BoundaryAdapter(boolean merged, Boundary delegate, MergingViewIndex index) {
-        this.merged = merged;
-        this.delegate = Objects.requireNonNull(delegate);
-        this.index = Objects.requireNonNull(index);
+    BoundaryAdapter(BooleanSupplier isMerged, Boundary delegate, MergingViewIndex index) {
+        super(delegate, index);
+        this.isMerged = Objects.requireNonNull(isMerged);
     }
 
     @Override
     public double getV() {
-        return delegate.getV();
+        return getDelegate().getV();
     }
 
     @Override
     public double getAngle() {
-        return delegate.getAngle();
+        return getDelegate().getAngle();
     }
 
     @Override
     public double getP() {
-        return delegate.getP();
+        return getDelegate().getP();
     }
 
     @Override
     public double getQ() {
-        return delegate.getQ();
+        return getDelegate().getQ();
     }
 
     @Override
     public BoundaryTerminal getTerminal() {
-        return new BoundaryTerminalAdapter(merged, delegate.getTerminal(), index);
+        return getIndex().getBoundaryTerminal(isMerged, getDelegate().getTerminal());
     }
 }

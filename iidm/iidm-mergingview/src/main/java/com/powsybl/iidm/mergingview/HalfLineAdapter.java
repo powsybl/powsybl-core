@@ -131,7 +131,7 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     @Override
     public BoundaryAdapter getBoundary() {
-        return new BoundaryAdapter(true, danglingLine.getBoundary(), index);
+        return index.getBoundary(() -> true, danglingLine.getBoundary());
     }
 
     public TieLine.HalfLine setB(double b) {

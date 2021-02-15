@@ -19,6 +19,11 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
         super(delegate, index);
     }
 
+    @Override
+    public Boundary getBoundary() {
+        return getIndex().getBoundary(() -> getIndex().isMerged(this), getDelegate().getBoundary());
+    }
+
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
@@ -121,11 +126,6 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return getDelegate().newCurrentLimits();
-    }
-
-    @Override
-    public Boundary getBoundary() {
-        return new BoundaryAdapter(getIndex().isMerged(this), getDelegate().getBoundary(), getIndex());
     }
 
     @Override

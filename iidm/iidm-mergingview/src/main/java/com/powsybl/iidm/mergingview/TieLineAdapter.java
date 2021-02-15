@@ -103,7 +103,7 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
 
         @Override
         public Boundary getBoundary() {
-            return new BoundaryAdapter(false, delegate.getBoundary(), index);
+            return index.getBoundary(() -> false, delegate.getBoundary());
         }
 
         @Override
@@ -118,8 +118,33 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
         }
     }
 
+    private final HalfLine half1;
+    private final HalfLine half2;
+
     TieLineAdapter(final TieLine delegate, final MergingViewIndex index) {
         super(delegate, index);
+        half1 = new TieLineHalfLineAdapter(((TieLine) getDelegate()).getHalf1(), getIndex());
+        half2 = new TieLineHalfLineAdapter(((TieLine) getDelegate()).getHalf2(), getIndex());
+    }
+
+    @Override
+    public HalfLine getHalf1() {
+        return half1;
+    }
+
+    @Override
+    public HalfLine getHalf2() {
+        return half2;
+    }
+
+    @Override
+    public HalfLine getHalf(Side side) {
+        if (side == Side.ONE) {
+            return half1;
+        } else if (side == Side.TWO) {
+            return half2;
+        }
+        throw new AssertionError("Unexpected side: " + side);
     }
 
     // -------------------------------
@@ -128,20 +153,5 @@ public class TieLineAdapter extends LineAdapter implements TieLine {
     @Override
     public String getUcteXnodeCode() {
         return ((TieLine) getDelegate()).getUcteXnodeCode();
-    }
-
-    @Override
-    public HalfLine getHalf1() {
-        return new TieLineHalfLineAdapter(((TieLine) getDelegate()).getHalf1(), getIndex());
-    }
-
-    @Override
-    public HalfLine getHalf2() {
-        return new TieLineHalfLineAdapter(((TieLine) getDelegate()).getHalf2(), getIndex());
-    }
-
-    @Override
-    public HalfLine getHalf(Side side) {
-        return ((TieLine) getDelegate()).getHalf(side);
     }
 }

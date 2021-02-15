@@ -34,6 +34,8 @@ class MergingViewIndex {
 
     private final Map<RatioTapChanger, AbstractAdapter<? extends RatioTapChanger>> rtcCached = new WeakHashMap<>();
 
+    private final Map<Boundary, AbstractAdapter<? extends Boundary>> boundaryCached = new WeakHashMap<>();
+
     /** Network asked to be merged */
     private final Collection<Network> networks = new ArrayList<>();
 
@@ -402,12 +404,20 @@ class MergingViewIndex {
         return terminal == null ? null : (TerminalAdapter) terminalCached.computeIfAbsent(terminal, key -> new TerminalAdapter(terminal, this));
     }
 
+    BoundaryAdapter.BoundaryTerminalAdapter getBoundaryTerminal(BooleanSupplier isMerged, final Boundary.BoundaryTerminal terminal) {
+        return terminal == null ? null : (BoundaryAdapter.BoundaryTerminalAdapter) terminalCached.computeIfAbsent(terminal, key -> new BoundaryAdapter.BoundaryTerminalAdapter(isMerged, terminal, this));
+    }
+
     PhaseTapChangerAdapter getPhaseTapChanger(final PhaseTapChanger ptc) {
         return ptc == null ? null : (PhaseTapChangerAdapter) ptcCached.computeIfAbsent(ptc, key -> new PhaseTapChangerAdapter(ptc, this));
     }
 
     RatioTapChangerAdapter getRatioTapChanger(final RatioTapChanger rtc) {
         return rtc == null ? null : (RatioTapChangerAdapter) rtcCached.computeIfAbsent(rtc, key -> new RatioTapChangerAdapter(rtc, this));
+    }
+
+    BoundaryAdapter getBoundary(BooleanSupplier isMerged, final Boundary boundary) {
+        return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(isMerged, boundary, this));
     }
 
     Line getLine(final Line line) {
