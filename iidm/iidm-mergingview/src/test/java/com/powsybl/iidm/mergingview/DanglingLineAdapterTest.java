@@ -261,12 +261,20 @@ public class DanglingLineAdapterTest {
         SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.getP(), dl1.getBoundary().getTerminal().getP(), 0.0d);
+        assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getTerminal().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV1.getQ(), mergedLine.getHalf1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.getQ(), dl1.getBoundary().getTerminal().getQ(), 0.0d);
+        assertEquals(expectedSV1.getQ(), mergedLine.getHalf1().getBoundary().getTerminal().getQ(), 0.0d);
         assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.getP(), dl2.getBoundary().getTerminal().getP(), 0.0d);
+        assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getBoundary().getTerminal().getP(), 0.0d);
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.getQ(), dl2.getBoundary().getTerminal().getQ(), 0.0d);
+        assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getTerminal().getQ(), 0.0d);
         // Check V & Angle are computed
         assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
         assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 0.0d);
@@ -276,6 +284,28 @@ public class DanglingLineAdapterTest {
         assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 0.0d);
         assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
         assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 0.0d);
+
+        double expectedI1 = Math.hypot(expectedSV1.getP(), expectedSV1.getQ()) / (Math.sqrt(3.) * expectedSV1.getU() / 1000);
+        double expectedI2 = Math.hypot(expectedSV2.getP(), expectedSV2.getQ()) / (Math.sqrt(3.) * expectedSV2.getU() / 1000);
+        assertEquals(expectedI1, dl1.getBoundary().getTerminal().getI(), 0.0d);
+        assertEquals(expectedI1, mergedLine.getHalf1().getBoundary().getTerminal().getI(), 0.0d);
+        assertEquals(expectedI2, dl2.getBoundary().getTerminal().getI(), 0.0d);
+        assertEquals(expectedI2, mergedLine.getHalf2().getBoundary().getTerminal().getI(), 0.0d);
+
+        assertSame(line.getTerminal1().getVoltageLevel(), dl1.getBoundary().getTerminal().getVoltageLevel());
+        assertSame(line.getTerminal1().getVoltageLevel(), mergedLine.getHalf1().getBoundary().getTerminal().getVoltageLevel());
+        assertSame(line.getTerminal2().getVoltageLevel(), dl2.getBoundary().getTerminal().getVoltageLevel());
+        assertSame(line.getTerminal2().getVoltageLevel(), mergedLine.getHalf2().getBoundary().getTerminal().getVoltageLevel());
+
+        assertSame(line, dl1.getBoundary().getTerminal().getConnectable());
+        assertSame(line, dl2.getBoundary().getTerminal().getConnectable());
+        assertSame(line, mergedLine.getHalf1().getBoundary().getTerminal().getConnectable());
+        assertSame(line, mergedLine.getHalf2().getBoundary().getTerminal().getConnectable());
+
+        assertTrue(dl1.getBoundary().getTerminal().isConnected());
+        assertTrue(dl2.getBoundary().getTerminal().isConnected());
+        assertTrue(mergedLine.getHalf1().getBoundary().getTerminal().isConnected());
+        assertTrue(mergedLine.getHalf2().getBoundary().getTerminal().isConnected());
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
