@@ -34,6 +34,56 @@ public class TieLineAdapterTest {
         assertEquals("XNODE", tieLine.getUcteXnodeCode());
         assertNotNull(tieLine.getHalf1());
         assertNotNull(tieLine.getHalf2());
+
+        TieLine.HalfLine half1 = tieLine.getHalf1();
+        TieLine.HalfLine half2 = tieLine.getHalf2();
+
+        assertEquals(1.0, half1.getR(), 0.0);
+        assertEquals(1.0, half1.getX(), 0.0);
+        assertEquals(0.0, half1.getG1(), 0.0);
+        assertEquals(0.0, half1.getG2(), 0.0);
+        assertEquals(0.0, half1.getB1(), 0.0);
+        assertEquals(0.0, half1.getB2(), 0.0);
+        assertEquals("l1", half1.getId());
+        assertEquals("l1", half1.getName());
+
+        assertEquals(1.0, half2.getR(), 0.0);
+        assertEquals(1.0, half2.getX(), 0.0);
+        assertEquals(0.0, half2.getG1(), 0.0);
+        assertEquals(0.0, half2.getG2(), 0.0);
+        assertEquals(0.0, half2.getB1(), 0.0);
+        assertEquals(0.0, half2.getB2(), 0.0);
+        assertEquals("l2", half2.getId());
+        assertEquals("l2", half2.getName());
+
+        Boundary boundary1 = half1.getBoundary();
+        Boundary boundary2 = half2.getBoundary();
+
+        assertTrue(Double.isNaN(boundary1.getP()));
+        assertTrue(Double.isNaN(boundary1.getQ()));
+        assertTrue(Double.isNaN(boundary1.getV()));
+        assertTrue(Double.isNaN(boundary1.getAngle()));
+
+        assertTrue(Double.isNaN(boundary2.getP()));
+        assertTrue(Double.isNaN(boundary2.getQ()));
+        assertTrue(Double.isNaN(boundary2.getV()));
+        assertTrue(Double.isNaN(boundary2.getAngle()));
+
+        Terminal boundaryTerminal1 = boundary1.getTerminal();
+        Terminal boundaryTerminal2 = boundary2.getTerminal();
+
+        assertTrue(Double.isNaN(boundaryTerminal1.getP()));
+        assertTrue(Double.isNaN(boundaryTerminal1.getQ()));
+        assertTrue(Double.isNaN(boundaryTerminal2.getP()));
+        assertTrue(Double.isNaN(boundaryTerminal2.getQ()));
+
+        assertSame(tieLine.getTerminal1().getVoltageLevel(), boundaryTerminal1.getVoltageLevel());
+        assertSame(tieLine.getTerminal2().getVoltageLevel(), boundaryTerminal2.getVoltageLevel());
+        assertSame(tieLine, boundaryTerminal1.getConnectable());
+        assertSame(tieLine, boundaryTerminal2.getConnectable());
+
+        assertTrue(boundaryTerminal1.isConnected());
+        assertTrue(boundaryTerminal2.isConnected());
     }
 
     private static Network createNetwork() {
@@ -47,7 +97,7 @@ public class TieLineAdapterTest {
                 .setNominalV(380.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
-        Bus b1 = vl1.getBusBreakerView().newBus()
+        vl1.getBusBreakerView().newBus()
                 .setId("b1")
                 .add();
         vl1.newGenerator()
