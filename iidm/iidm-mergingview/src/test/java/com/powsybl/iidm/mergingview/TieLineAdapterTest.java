@@ -46,6 +46,7 @@ public class TieLineAdapterTest {
         assertEquals(0.0, half1.getB2(), 0.0);
         assertEquals("l1", half1.getId());
         assertEquals("l1", half1.getName());
+        assertFalse(half1.isFictitious());
 
         assertEquals(1.0, half2.getR(), 0.0);
         assertEquals(1.0, half2.getX(), 0.0);
@@ -55,6 +56,16 @@ public class TieLineAdapterTest {
         assertEquals(0.0, half2.getB2(), 0.0);
         assertEquals("l2", half2.getId());
         assertEquals("l2", half2.getName());
+        assertFalse(half2.isFictitious());
+
+        half2.setR(2.0).setX(2.0).setG1(1.0).setG2(1.0).setB1(1.0).setB2(1.0).setFictitious(true);
+        assertEquals(2.0, half2.getR(), 0.0);
+        assertEquals(2.0, half2.getX(), 0.0);
+        assertEquals(1.0, half2.getG1(), 0.0);
+        assertEquals(1.0, half2.getG2(), 0.0);
+        assertEquals(1.0, half2.getB1(), 0.0);
+        assertEquals(1.0, half2.getB2(), 0.0);
+        assertTrue(half2.isFictitious());
 
         Boundary boundary1 = half1.getBoundary();
         Boundary boundary2 = half2.getBoundary();
