@@ -467,6 +467,8 @@ public abstract class AbstractLineTest {
         assertSame(tieLine.getTerminal2().getVoltageLevel(), boundaryTerminal2.getVoltageLevel());
         assertSame(tieLine, boundaryTerminal1.getConnectable());
         assertSame(tieLine, boundaryTerminal2.getConnectable());
+        assertTrue(boundaryTerminal1.isConnected());
+        assertTrue(boundaryTerminal2.isConnected());
 
         // Reuse adder
         TieLine tieLine2 = adder.setId("testTie2").add();

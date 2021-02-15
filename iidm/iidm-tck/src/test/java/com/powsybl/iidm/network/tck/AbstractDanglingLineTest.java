@@ -160,6 +160,7 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(expectedI, boundaryTerminal.getI(), 0.0);
         assertSame(danglingLine.getTerminal().getVoltageLevel(), boundaryTerminal.getVoltageLevel());
         assertSame(danglingLine, boundaryTerminal.getConnectable());
+        assertFalse(boundaryTerminal.isConnected());
     }
 
     @Test
