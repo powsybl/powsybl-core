@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -425,6 +426,47 @@ public abstract class AbstractLineTest {
         half2.setB2(hl2b2);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
+
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        double v1 = 420.0;
+        double v2 = 380.0;
+        double angle1 = -1e-4;
+        double angle2 = -1.7e-3;
+        tieLine.getTerminal1().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2);
+        Boundary boundary1 = tieLine.getHalf1().getBoundary();
+        Boundary boundary2 = tieLine.getHalf2().getBoundary();
+        assertNotNull(boundary1);
+        assertNotNull(boundary2);
+        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), boundary1.getP(), 0.0);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), boundary1.getQ(), 0.0);
+        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), boundary2.getP(), 0.0);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), boundary2.getQ(), 0.0);
+        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1()), boundary1.getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1()), boundary1.getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2()), boundary2.getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2()), boundary2.getAngle(), 0.0d);
+        Boundary.BoundaryTerminal boundaryTerminal1 = boundary1.getTerminal();
+        Boundary.BoundaryTerminal boundaryTerminal2 = boundary2.getTerminal();
+        assertNotNull(boundaryTerminal1);
+        assertNotNull(boundaryTerminal2);
+        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), boundaryTerminal1.getP(), 0.0);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), boundaryTerminal1.getQ(), 0.0);
+        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), boundaryTerminal2.getP(), 0.0);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), boundaryTerminal2.getQ(), 0.0);
+        double expectedI1 = Math.hypot(expectedSV1.otherSideP(tieLine.getHalf1()), expectedSV1.otherSideQ(tieLine.getHalf1())) / (Math.sqrt(3.) * expectedSV1.otherSideU(tieLine.getHalf1()) / 1000);
+        double expectedI2 = Math.hypot(expectedSV2.otherSideP(tieLine.getHalf2()), expectedSV2.otherSideQ(tieLine.getHalf2())) / (Math.sqrt(3.) * expectedSV2.otherSideU(tieLine.getHalf2()) / 1000);
+        assertEquals(expectedI1, boundaryTerminal1.getI(), 0.0);
+        assertEquals(expectedI2, boundaryTerminal2.getI(), 0.0);
+        assertSame(tieLine.getTerminal1().getVoltageLevel(), boundaryTerminal1.getVoltageLevel());
+        assertSame(tieLine.getTerminal2().getVoltageLevel(), boundaryTerminal2.getVoltageLevel());
+        assertSame(tieLine, boundaryTerminal1.getConnectable());
+        assertSame(tieLine, boundaryTerminal2.getConnectable());
 
         // Reuse adder
         TieLine tieLine2 = adder.setId("testTie2").add();

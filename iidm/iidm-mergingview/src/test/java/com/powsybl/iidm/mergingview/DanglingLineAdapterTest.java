@@ -267,7 +267,7 @@ public class DanglingLineAdapterTest {
         assertEquals(expectedSV2.getP(), mergedLine.getHalf2().getBoundary().getP(), 0.0d);
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
-        // Check V & Angle are computed by Listener
+        // Check V & Angle are computed
         assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
         assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 0.0d);
         assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
