@@ -55,10 +55,12 @@ class HalfLineBoundaryImpl implements Boundary {
     private final Supplier<Terminal> terminalSupplier;
 
     private final TieLine.HalfLine halfLine;
+    private final BoundaryTerminal boundaryTerminal;
 
     HalfLineBoundaryImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalSupplier) {
         this.halfLine = Objects.requireNonNull(halfLine);
         this.terminalSupplier = Objects.requireNonNull(terminalSupplier);
+        boundaryTerminal = new HalfLineBoundaryTerminalImpl();
     }
 
     @Override
@@ -91,7 +93,7 @@ class HalfLineBoundaryImpl implements Boundary {
 
     @Override
     public BoundaryTerminal getTerminal() {
-        return new HalfLineBoundaryTerminalImpl();
+        return boundaryTerminal;
     }
 
     private static double getV(Bus b) {

@@ -52,9 +52,11 @@ class DanglingLineBoundaryImpl implements Boundary {
     }
 
     private final DanglingLine parent;
+    private final BoundaryTerminal terminal;
 
     DanglingLineBoundaryImpl(DanglingLine parent) {
         this.parent = Objects.requireNonNull(parent);
+        terminal = new DanglingLineBoundaryTerminalImpl();
     }
 
     @Override
@@ -87,7 +89,7 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     @Override
     public BoundaryTerminal getTerminal() {
-        return new DanglingLineBoundaryTerminalImpl();
+        return terminal;
     }
 
     private static double getV(Bus b) {
