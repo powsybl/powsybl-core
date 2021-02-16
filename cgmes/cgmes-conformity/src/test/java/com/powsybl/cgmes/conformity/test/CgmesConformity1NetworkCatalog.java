@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conformity.test;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.BoundaryFlowLimits;
+import com.powsybl.iidm.network.extensions.BoundaryFlowLimitsAdder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,7 +128,21 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-
+        be7.newExtension(BoundaryFlowLimitsAdder.class).add();
+        be7.getExtension(BoundaryFlowLimits.class)
+                .newCurrentLimits()
+                    .setPermanentLimit(1180.0)
+                    .beginTemporaryLimit()
+                        .setName("_6623e566-3111-4050-9b4e-c98d89ba3e69")
+                        .setValue(1312.0)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_cce95c87-f08f-47b7-9cdf-f0189a92572f")
+                        .setValue(1443.0)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
         DanglingLine be1 = vlAnvers220.newDanglingLine()
                 .setId("_17086487-56ba-4979-b8de-064025a6b4da")
                 .setName("BE-Line_1")
@@ -220,7 +236,20 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
-
+        be3.newExtension(BoundaryFlowLimitsAdder.class).add();
+        be3.getExtension(BoundaryFlowLimits.class)
+                .newCurrentLimits().setPermanentLimit(1371)
+                    .beginTemporaryLimit()
+                        .setName("_e537f16f-6107-47a6-a728-797ac246d777")
+                        .setValue(1443.0)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_235676b8-e13c-4400-878f-b0ddc4c9aeae")
+                        .setValue(1515.0)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
         DanglingLine be5 = vlBrussels380.newDanglingLine()
                 .setId("_b18cd1aa-7808-49b9-a7cf-605eaf07b006")
                 .setName("BE-Line_5")
@@ -246,6 +275,20 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
+        be5.newExtension(BoundaryFlowLimitsAdder.class).add();
+        be5.getExtension(BoundaryFlowLimits.class)
+                .newCurrentLimits().setPermanentLimit(1804)
+                    .beginTemporaryLimit()
+                        .setName("_be0d07fc-d20a-430d-82e3-93d48d3f220f")
+                        .setValue(1876.0)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_a3ecec82-f9e9-4a3c-9cd9-23ae8756ba3c")
+                        .setValue(1948.0)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
 
         DanglingLine be4 = vlBrussels380.newDanglingLine()
                 .setId("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
@@ -268,6 +311,19 @@ public final class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("_e6c72199-8db4-4674-bdd8-d6808afb115e")
+                    .setValue(1371.0)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
+        be4.newExtension(BoundaryFlowLimitsAdder.class).add();
+        be4.getExtension(BoundaryFlowLimits.class).newCurrentLimits().setPermanentLimit(1226)
+                .beginTemporaryLimit()
+                    .setName("_217293df-7f75-4838-8557-d422f7b83c2f")
+                    .setValue(1299.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("_6db95b07-f943-465c-b6ff-844929c07c8b")
                     .setValue(1371.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
@@ -832,6 +888,30 @@ public final class CgmesConformity1NetworkCatalog {
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
+        be1.newExtension(BoundaryFlowLimitsAdder.class).add();
+        be1.getExtension(BoundaryFlowLimits.class)
+                .newCurrentLimits().setPermanentLimit(1443)
+                    .beginTemporaryLimit()
+                        .setName("_8447ed5e-3d27-42c0-9e67-9affdda0be45")
+                        .setValue(1500.0)
+                        .setAcceptableDuration(30)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_ebe4f8e3-7bc8-4162-8bdf-e100742b2363")
+                        .setValue(1550.0)
+                        .setAcceptableDuration(25)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_7156a0ea-cf7a-46b0-91c0-a973e1c6feb2")
+                        .setValue(1574.0)
+                        .setAcceptableDuration(20)
+                        .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_e9171d11-8877-48ab-a50a-7ede9d4ec4b6")
+                        .setValue(1705.0)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
         TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
@@ -1062,7 +1142,8 @@ public final class CgmesConformity1NetworkCatalog {
         network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
                 .setP0(-86.814383)
                 .setQ0(4.958972);
-        network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da")
+        DanglingLine dl = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        dl
                 .setP0(-89.462903)
                 .setQ0(1.519011)
                 .newCurrentLimits()
@@ -1078,6 +1159,22 @@ public final class CgmesConformity1NetworkCatalog {
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                 .add();
+        dl.newExtension(BoundaryFlowLimitsAdder.class).add();
+        dl.getExtension(BoundaryFlowLimits.class)
+                .newCurrentLimits()
+                    .setPermanentLimit(1443)
+                    .beginTemporaryLimit()
+                        .setName("_7156a0ea-cf7a-46b0-91c0-a973e1c6feb2")
+                        .setValue(1574.0)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("_e9171d11-8877-48ab-a50a-7ede9d4ec4b6")
+                        .setValue(1705.0)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
+
         network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6")
                 .setP0(-16.452662)
                 .setQ0(64.018020);

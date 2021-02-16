@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
+import com.powsybl.iidm.network.extensions.BoundaryFlowLimits;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +46,11 @@ public class LoadingLimitsMapping {
                 }
             }
         }
+        context.network().getDanglingLineStream()
+                .map(dl -> dl.getExtension(BoundaryFlowLimits.class))
+                .filter(Objects::nonNull)
+                .filter(bfl -> ((BoundaryFlowLimits) bfl).isEmpty())
+                .forEach(bfl -> ((BoundaryFlowLimits) bfl).getExtendable().removeExtension(BoundaryFlowLimits.class));
         adders.clear();
     }
 }

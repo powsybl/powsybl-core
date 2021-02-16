@@ -31,7 +31,7 @@ class BoundaryFlowLimitsImpl extends AbstractExtension<DanglingLine> implements 
 
     @Override
     public boolean isEmpty() {
-        return getOperationalLimits().isEmpty();
+        return operationalLimits.isEmpty();
     }
 
     @Override
@@ -41,7 +41,7 @@ class BoundaryFlowLimitsImpl extends AbstractExtension<DanglingLine> implements 
 
     @Override
     public CurrentLimits getCurrentLimits() {
-        OperationalLimits ol = this.operationalLimits.get(LimitType.CURRENT);
+        OperationalLimits ol = operationalLimits.get(LimitType.CURRENT);
         if (ol == null || ol instanceof CurrentLimits) {
             return (CurrentLimits) ol;
         }
@@ -50,7 +50,7 @@ class BoundaryFlowLimitsImpl extends AbstractExtension<DanglingLine> implements 
 
     @Override
     public ActivePowerLimits getActivePowerLimits() {
-        OperationalLimits ol = this.operationalLimits.get(LimitType.ACTIVE_POWER);
+        OperationalLimits ol = operationalLimits.get(LimitType.ACTIVE_POWER);
         if (ol == null || ol instanceof ActivePowerLimits) {
             return (ActivePowerLimits) ol;
         }
@@ -59,7 +59,7 @@ class BoundaryFlowLimitsImpl extends AbstractExtension<DanglingLine> implements 
 
     @Override
     public ApparentPowerLimits getApparentPowerLimits() {
-        OperationalLimits ol = this.operationalLimits.get(LimitType.APPARENT_POWER);
+        OperationalLimits ol = operationalLimits.get(LimitType.APPARENT_POWER);
         if (ol == null || ol instanceof ApparentPowerLimits) {
             return (ApparentPowerLimits) ol;
         }

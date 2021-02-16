@@ -51,7 +51,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (terminal != null) {
                 if (terminal instanceof Boundary.BoundaryTerminal && terminal.getConnectable() instanceof DanglingLine) {
                     DanglingLine dl = (DanglingLine) terminal.getConnectable();
-                    dl.newExtension(BoundaryFlowLimitsAdder.class).add();
+                    if (dl.getExtension(BoundaryFlowLimits.class) == null) {
+                        dl.newExtension(BoundaryFlowLimitsAdder.class).add();
+                    }
                     loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(dl.getId() + "_boundary_" + limitSubclass,
                             getLoadingLimitAdderSupplier(limitSubclass, dl.getExtension(BoundaryFlowLimits.class)));
                 } else if (!(terminal instanceof Boundary.BoundaryTerminal)) {
