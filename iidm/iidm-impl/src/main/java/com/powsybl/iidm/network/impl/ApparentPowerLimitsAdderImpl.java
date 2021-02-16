@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.LimitType;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
+public class ApparentPowerLimitsAdderImpl extends AbstractLoadingLimitsAdder<ApparentPowerLimits, ApparentPowerLimitsAdder> implements ApparentPowerLimitsAdder {
 
-    ApparentPowerLimitsAdderImpl(OperationalLimitsOwner owner) {
+    public ApparentPowerLimitsAdderImpl(OperationalLimitsOwner owner) {
         super(owner);
     }
 

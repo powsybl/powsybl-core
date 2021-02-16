@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.extensions.BoundaryFlowLimits;
+import com.powsybl.iidm.network.extensions.BoundaryFlowLimitsAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.function.Supplier;
@@ -46,8 +48,15 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             terminal = context.terminalMapping().find(terminalId);
         }
         if (isFlowLimit(limitSubclass)) {
-            if (terminal != null && !(terminal instanceof Boundary.BoundaryTerminal)) {
-                createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
+            if (terminal != null) {
+                if (terminal instanceof Boundary.BoundaryTerminal && terminal.getConnectable() instanceof DanglingLine) {
+                    DanglingLine dl = (DanglingLine) terminal.getConnectable();
+                    dl.newExtension(BoundaryFlowLimitsAdder.class).add();
+                    loadingLimitsAdder = context.loadingLimitsMapping().computeIfAbsentLoadingLimitsAdder(dl.getId() + "_boundary_" + limitSubclass,
+                            getLoadingLimitAdderSupplier(limitSubclass, dl.getExtension(BoundaryFlowLimits.class)));
+                } else if (!(terminal instanceof Boundary.BoundaryTerminal)) {
+                    createLimitsAdder(context.terminalMapping().number(terminalId), limitSubclass, terminal.getConnectable());
+                }
             } else if (equipmentId != null) {
                 // The equipment may be a Branch, a Dangling line, a Switch ...
                 Identifiable<?> identifiable = context.network().getIdentifiable(equipmentId);
