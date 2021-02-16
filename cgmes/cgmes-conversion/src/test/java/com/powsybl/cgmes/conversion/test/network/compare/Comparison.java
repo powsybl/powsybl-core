@@ -582,6 +582,26 @@ public class Comparison {
         compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits(),
                 actual.getCurrentLimits());
+        compareBoundaryFlowLimits(expected, actual,
+                expected.getExtension(BoundaryFlowLimits.class),
+                actual.getExtension(BoundaryFlowLimits.class));
+    }
+
+    private void compareBoundaryFlowLimits(DanglingLine bexpected, DanglingLine bactual,
+                                           BoundaryFlowLimits expected, BoundaryFlowLimits actual) {
+        if (expected == null) {
+            if (actual != null) {
+                diff.unexpected(bactual);
+            }
+        } else {
+            if (actual == null) {
+                diff.missing(bexpected);
+                return;
+            }
+            compareLoadingLimits(bexpected, bactual, expected.getActivePowerLimits(), actual.getActivePowerLimits());
+            compareLoadingLimits(bexpected, bactual, expected.getApparentPowerLimits(), actual.getApparentPowerLimits());
+            compareLoadingLimits(bexpected, bactual, expected.getCurrentLimits(), actual.getCurrentLimits());
+        }
     }
 
     private void compareLoadingLimits(
@@ -592,7 +612,6 @@ public class Comparison {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected(bactual);
-                return;
             }
         } else {
             if (actual == null) {
