@@ -1147,7 +1147,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             busColor.put(bus.getId(), colors[i]);
         }
 
-        for (int n = 0; n < graph.getVertexCount(); n++) {
+        for (int n = 0; n < graph.getVertexCapacity(); n++) {
             if (!graph.vertexExists(n)) {
                 continue;
             }
