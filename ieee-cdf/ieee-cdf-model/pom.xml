@@ -55,6 +55,12 @@
 
         <!-- Test dependencies -->
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>test</scope>
