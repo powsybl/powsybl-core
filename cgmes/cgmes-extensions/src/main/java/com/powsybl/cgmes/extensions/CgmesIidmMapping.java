@@ -24,7 +24,9 @@ public interface CgmesIidmMapping extends Extension<Network> {
         return "cgmesIidmMapping";
     }
 
-    Set<String> get(String busId);
+    Set<String> getTopologicalNodes(String busId);
+
+    String getTopologicalNode(String equipmentId, int side);
 
     boolean isMapped(String busId);
 

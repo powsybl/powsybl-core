@@ -17,23 +17,28 @@ import java.util.*;
  */
 class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIidmMapping {
 
-    private final Map<EquipmentEnd, String> equipmentEndTopologicalNodeMap;
+    private final Map<EquipmentSide, String> equipmentSideTopologicalNodeMap;
     private final Map<String, Set<String>> busTopologicalNodeMap;
     private final Set<String> unmapped;
 
     CgmesIidmMappingImpl(Set<String> topologicalNodes) {
-        equipmentEndTopologicalNodeMap = new HashMap<>();
+        equipmentSideTopologicalNodeMap = new HashMap<>();
         busTopologicalNodeMap = new HashMap<>();
         unmapped = new HashSet<>();
         unmapped.addAll(Objects.requireNonNull(topologicalNodes));
     }
 
     @Override
-    public Set<String> get(String busId) {
+    public Set<String> getTopologicalNodes(String busId) {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
         return busTopologicalNodeMap.get(busId);
+    }
+
+    @Override
+    public String getTopologicalNode(String equipmentId, int side) {
+        return equipmentSideTopologicalNodeMap.get(new EquipmentSide(equipmentId, side));
     }
 
     @Override
@@ -54,7 +59,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId) {
-        equipmentEndTopologicalNodeMap.put(new EquipmentEnd(equipmentId, side), topologicalNodeId);
+        equipmentSideTopologicalNodeMap.put(new EquipmentSide(equipmentId, side), topologicalNodeId);
         return this;
     }
 
@@ -83,11 +88,11 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     private void calculate() {
-        equipmentEndTopologicalNodeMap.forEach((equipmentEnd, tn) -> {
-            Identifiable i = getExtendable().getIdentifiable(equipmentEnd.equipmentId);
+        equipmentSideTopologicalNodeMap.forEach((equipmentSide, tn) -> {
+            Identifiable i = getExtendable().getIdentifiable(equipmentSide.equipmentId);
             if (i instanceof Connectable) {
                 Connectable c = (Connectable) i;
-                Terminal t = (Terminal) c.getTerminals().get(equipmentEnd.end - 1);
+                Terminal t = (Terminal) c.getTerminals().get(equipmentSide.side - 1);
                 String busId = t.getBusBreakerView().getBus().getId();
                 checkAlreadyMapped(busId, tn);
                 busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
@@ -102,13 +107,30 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         }
     }
 
-    private static class EquipmentEnd {
-        EquipmentEnd(String equipmentId, int end) {
+    private static class EquipmentSide {
+        EquipmentSide(String equipmentId, int side) {
             this.equipmentId = Objects.requireNonNull(equipmentId);
-            this.end = end;
+            this.side = side;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == this) {
+                return true;
+            }
+            if (!(o instanceof EquipmentSide)) {
+                return false;
+            }
+            EquipmentSide other = (EquipmentSide) o;
+            return this.equipmentId.equals(other.equipmentId) && this.side == other.side;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(equipmentId, side);
         }
 
         private final String equipmentId;
-        private final int end;
+        private final int side;
     }
 }

@@ -41,7 +41,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                     try {
                         context.getWriter().writeEmptyElement(getNamespaceUri(), "link");
                         context.getWriter().writeAttribute("busId", b.getId());
-                        context.getWriter().writeAttribute("topologicalNodeIds", String.join(",", extension.get(b.getId())));
+                        context.getWriter().writeAttribute("topologicalNodeIds", String.join(",", extension.getTopologicalNodes(b.getId())));
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }
