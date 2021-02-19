@@ -453,11 +453,15 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 return;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
-            if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
-                CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-                mapping.put(identifiable.getId(), i, td.t.topologicalNode());
-            }
+            addMappingForTopologicalNode(identifiable, i);
             i++;
+        }
+    }
+
+    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int terminalNumber) {
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+            mapping.put(identifiable.getId(), terminalNumber, terminals[terminalNumber - 1].t.topologicalNode());
         }
     }
 
