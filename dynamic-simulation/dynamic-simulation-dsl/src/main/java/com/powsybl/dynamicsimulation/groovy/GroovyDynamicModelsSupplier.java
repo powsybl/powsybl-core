@@ -7,6 +7,7 @@
 
 package com.powsybl.dynamicsimulation.groovy;
 
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,6 +41,11 @@ public class GroovyDynamicModelsSupplier implements DynamicModelsSupplier {
 
     public GroovyDynamicModelsSupplier(Path path, List<DynamicModelGroovyExtension> extensions) {
         this.codeSource = GroovyScripts.load(path);
+        this.extensions = Objects.requireNonNull(extensions);
+    }
+
+    public GroovyDynamicModelsSupplier(InputStream is, List<DynamicModelGroovyExtension> extensions) {
+        this.codeSource = GroovyScripts.load(is);
         this.extensions = Objects.requireNonNull(extensions);
     }
 

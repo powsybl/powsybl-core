@@ -78,9 +78,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
         }
-        if (rtc.hasLoadTapChangingCapabilities() || !Double.isNaN(rtc.getTargetV())) {
-            XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
-        }
+        XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         if (rtc.getRegulationTerminal() != null) {
             TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
@@ -103,10 +101,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                 .setTapPosition(tapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
-                .setTargetV(targetV);
-        if (loadTapChangingCapabilities) {
-            adder.setRegulating(regulating);
-        }
+                .setTargetV(targetV)
+                .setRegulating(regulating);
         boolean[] hasTerminalRef = new boolean[1];
         XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
