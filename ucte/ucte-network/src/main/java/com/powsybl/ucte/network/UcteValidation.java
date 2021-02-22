@@ -33,8 +33,8 @@ public final class UcteValidation {
                 if (line.getResistance() < ZERO_EPS) {
                     LOGGER.error(lineId, "Real line resistance cannot be negative", line.getResistance() + " ohm");
                 }
-                if (Math.abs(line.getReactance()) > ZERO_EPS) {
-                    LOGGER.warn(lineId, "Busbar coupler reactance must be zero. For lines this value must be larger than 0.05 ohm",
+                if (Math.abs(line.getReactance()) < REACTANCE_EPS) {
+                    LOGGER.warn(lineId, "Real line reactance must be larger than 0.05 ohm",
                             line.getReactance() + " ohm");
                 }
                 break;
@@ -58,20 +58,20 @@ public final class UcteValidation {
     // Data: transformer characteristics
     public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer) {
         String transformerId = ucteTransformer.getId().toString();
-        if (ucteTransformer.getNominalPower() > ZERO_EPS) {
+        if (ucteTransformer.getNominalPower() < ZERO_EPS) {
             LOGGER.error(transformerId, "Value must be positive, blank and zero is not allowed", ucteTransformer.getNominalPower() + " MW");
         }
-        if (ucteTransformer.getResistance() > ZERO_EPS) {
+        if (ucteTransformer.getResistance() < ZERO_EPS) {
             LOGGER.error(transformerId, "Blank is not allowed, real transformer resistance must be greater than or equal to zero",
                     ucteTransformer.getResistance() + " ohm");
         }
-        if (ucteTransformer.getReactance() > REACTANCE_EPS) {
+        if (ucteTransformer.getReactance() < REACTANCE_EPS) {
             LOGGER.error(transformerId, "Blank is not allowed, absolute value of reactance must be greater than 0.05 ohm", ucteTransformer.getReactance() + " ohm");
         }
-        if (ucteTransformer.getSusceptance() > ZERO_EPS) {
+        if (ucteTransformer.getSusceptance() < ZERO_EPS) {
             LOGGER.warn(transformerId, "Blank is not allowed", ucteTransformer.getSusceptance() + " S");
         }
-        if (ucteTransformer.getConductance() > ZERO_EPS) {
+        if (ucteTransformer.getConductance() < ZERO_EPS) {
             LOGGER.warn(transformerId, "Transformer shunt conductance must be greater than or equal to zero", ucteTransformer.getConductance() + " S");
         }
     }
