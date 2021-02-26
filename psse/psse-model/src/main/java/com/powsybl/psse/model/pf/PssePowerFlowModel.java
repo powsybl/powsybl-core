@@ -58,7 +58,7 @@ public class PssePowerFlowModel {
     }
 
     public void addBuses(List<PsseBus> buses) {
-        this.buses.addAll(buses);
+        this.buses.addAll(modelled(buses));
     }
 
     public List<PsseBus> getBuses() {

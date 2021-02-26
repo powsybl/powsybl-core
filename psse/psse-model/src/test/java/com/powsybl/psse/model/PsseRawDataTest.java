@@ -20,6 +20,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.io.PowerFlowRawData32;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
@@ -86,6 +87,10 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.rawx"));
     }
 
+    private ReadOnlyDataSource exampleVersion32() {
+        return new ResourceDataSource("ExampleVersion32", new ResourceSet("/", "ExampleVersion32.raw"));
+    }
+
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
@@ -108,7 +113,28 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testAccessToFieldNotPresentInVersion() throws IOException {
+    public void testAccessToFieldNotPresentInVersion32() throws IOException {
+        PssePowerFlowModel raw32 = new PowerFlowRawData32().read(exampleVersion32(), "raw", new Context());
+        assertNotNull(raw32);
+
+        PsseBus b = raw32.getBuses().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(b::getNvhi)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'nvhi' is valid since version 33");
+
+        PsseLoad l = raw32.getLoads().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(l::getIntrpt)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'intrpt' is valid since version 33");
+
+        PsseTransformer t = raw32.getTransformers().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(t::getVecgrp)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'vecgrp' is valid since version 33");
+    }
+
+    @Test
+    public void testAccessToFieldNotPresentInVersion33() throws IOException {
         PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(raw33);
 
@@ -139,13 +165,13 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PsseRates br35 = raw35.getNonTransformerBranches().get(0).getRates();
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(br35::getRatea)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 32 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
         PsseRates winding135Rates = twt35.getWinding1Rates();
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(winding135Rates::getRatea)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 32 until 33");
     }
 
     @Test
@@ -164,7 +190,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PsseFacts f35 = raw35.getFacts().get(0);
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(f35::getRemot)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 32 until 33");
     }
 
     @Test
@@ -634,6 +660,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
         rawxData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.rawx"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
+        }
+    }
+
+    @Test
+    public void exampleVersion32WriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
+        PssePowerFlowModel rawData = rawData32.read(exampleVersion32(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData32.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "ExampleVersion32_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "ExampleVersion32_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "ExampleVersion32_exported.raw"), is);
         }
     }
 
