@@ -18,7 +18,19 @@ public interface DataSourceUtil {
 
     static String getFileName(String baseName, String suffix, String ext) {
         Objects.requireNonNull(baseName);
-        return baseName + (suffix != null ? suffix : "") + (ext == null || ext.isEmpty() ? "" : "." + ext);
+        return sanitizeFileName(baseName + (suffix != null ? suffix : "") + (ext == null || ext.isEmpty() ? "" : "." + ext));
+    }
+
+    /**
+     * Replace forbidden character that may render the file name impossible to use
+     * Pretty much any character is acceptable for Linux OS, but Windows forbids the following : \ / ? * < > : |
+     * Using this methods ensures that both platforms will accept the file
+     *
+     * @param fileName a file name to sanitize
+     * @return a cross-platform ready file name
+     */
+    private static String sanitizeFileName(String fileName) {
+        return fileName.replaceAll("[\\\\/?*<>:|]", "_");
     }
 
     static OpenOption[] getOpenOptions(boolean append) {
