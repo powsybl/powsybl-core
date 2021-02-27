@@ -333,6 +333,7 @@ public abstract class AbstractLineTest {
         assertTrue(tieLine.isTieLine());
         assertEquals(ConnectableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
+        assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
         assertEquals(r + r2, tieLine.getR(), 0.0);

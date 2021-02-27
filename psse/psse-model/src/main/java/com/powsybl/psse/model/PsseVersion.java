@@ -16,9 +16,10 @@ import java.util.stream.Collectors;
 public final class PsseVersion {
     private static final int MAJOR_FACTOR = 100;
     static final PsseVersion MAX_VERSION = PsseVersion.fromRevision(Revision.MAX_REVISION);
+    private static final PsseVersion VERSION_32 = new PsseVersion(32 * MAJOR_FACTOR);
     private static final PsseVersion VERSION_33 = new PsseVersion(33 * MAJOR_FACTOR);
     private static final PsseVersion VERSION_35 = new PsseVersion(35 * MAJOR_FACTOR);
-    private static final List<PsseVersion> SUPPORTED_VERSIONS = Arrays.asList(VERSION_33, VERSION_35);
+    private static final List<PsseVersion> SUPPORTED_VERSIONS = Arrays.asList(VERSION_32, VERSION_33, VERSION_35);
     private static final Set<Integer> SUPPORTED_MAJORS = SUPPORTED_VERSIONS.stream().map(PsseVersion::getMajorNumber).collect(Collectors.toSet());
     private static final String STR_SUPPORTED_MAJORS = SUPPORTED_MAJORS.stream()
         .sorted()
@@ -86,6 +87,7 @@ public final class PsseVersion {
     }
 
     public enum Major {
+        V32(32),
         V33(33),
         V35(35);
 

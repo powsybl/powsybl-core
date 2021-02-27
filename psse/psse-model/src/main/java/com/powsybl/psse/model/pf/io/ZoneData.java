@@ -10,6 +10,7 @@ import com.powsybl.psse.model.io.AbstractRecordGroup;
 import com.powsybl.psse.model.pf.PsseZone;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
 /**
@@ -19,9 +20,12 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  */
 class ZoneData extends AbstractRecordGroup<PsseZone> {
 
+    private static final String[] FIELD_NAMES_32_33 = {"i", "zoname"};
+
     ZoneData() {
         super(PowerFlowRecordGroup.ZONE);
-        withFieldNames(V33, "i", "zoname");
+        withFieldNames(V32, FIELD_NAMES_32_33);
+        withFieldNames(V33, FIELD_NAMES_32_33);
         withFieldNames(V35, "izone", "zoname");
         withQuotedFields("zoname");
     }

@@ -18,8 +18,6 @@ import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.io.RecordGroupIOLegacyText;
 import com.powsybl.psse.model.pf.PsseLineGrouping;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LINE_GROUPING;
 /**
  *
@@ -29,9 +27,7 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_SECTION_LI
 class MultiSectionLineGroupingData extends AbstractRecordGroup<PsseLineGrouping> {
 
     MultiSectionLineGroupingData() {
-        super(MULTI_SECTION_LINE_GROUPING);
-        withFieldNames(V33, "i", "j", "id", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9");
-        withFieldNames(V35, "i", "j", "id", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9");
+        super(MULTI_SECTION_LINE_GROUPING, "i", "j", "id", "met", "dum1", "dum2", "dum3", "dum4", "dum5", "dum6", "dum7", "dum8", "dum9");
         withQuotedFields("id", "mslid");
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
     }
