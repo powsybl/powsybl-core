@@ -366,4 +366,19 @@ public class PsseTransformer extends PsseVersioned {
     public PsseOwnership getOwnership() {
         return ownership;
     }
+
+    public void setWinding1(PsseTransformerWinding winding1, PsseRates winding1Rates) {
+        this.winding1 = winding1;
+        this.winding1Rates = winding1Rates;
+    }
+
+    public void setWinding2(PsseTransformerWinding winding2, PsseRates winding2Rates) {
+        this.winding2 = winding2;
+        this.winding2Rates = winding2Rates;
+    }
+
+    public void setWinding3(PsseTransformerWinding winding3, PsseRates winding3Rates) {
+        this.winding3 = winding3;
+        this.winding3Rates = winding3Rates;
+    }
 }

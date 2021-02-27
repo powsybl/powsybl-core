@@ -6,20 +6,25 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.powsybl.psse.model.PsseException;
-import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.*;
+import com.powsybl.psse.model.pf.PsseRates;
 import com.powsybl.psse.model.pf.PsseTransformer;
+import com.powsybl.psse.model.pf.PsseTransformerWinding;
+import com.univocity.parsers.annotations.Nested;
+import com.univocity.parsers.annotations.Parsed;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
 
 import static com.powsybl.psse.model.io.FileFormat.VALID_DELIMITERS;
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
+import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 
 /**
@@ -28,16 +33,17 @@ import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
  */
 class TransformerData extends AbstractRecordGroup<PsseTransformer> {
 
+    private static final String[] FIELD_NAMES_T2W_SECOND_RECORD = {"r12", "x12", "sbase12"};
+    private static final String[] FIELD_NAMES_T2W_SECOND_WINDING_RECORD = {"windv", "nomv"};
+    private static final String[] FIELD_NAMES_WINDING_32_33 = {"windv", "nomv", "ang", "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa"};
+
     TransformerData() {
         super(TRANSFORMER);
+        withFieldNames(V32, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
+        withFieldNames(V33, "i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp");
+        withFieldNames(V35, "ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp", "zcod");
         withQuotedFields("ckt", "name", "vecgrp");
         withIO(FileFormat.LEGACY_TEXT, new IOLegacyText(this));
-        withIO(FileFormat.JSON, new IOJson(this));
-    }
-
-    @Override
-    public String[] fieldNames(PsseVersion version) {
-        throw new PsseException("Should not occur");
     }
 
     @Override
@@ -45,78 +51,179 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
         return PsseTransformer.class;
     }
 
-    @Override
-    public RecordGroupIdentification getIdentificationFor(PsseTransformer transformer) {
-        return transformer.getK() == 0 ? PowerFlowRecordGroup.TRANSFORMER_2 : PowerFlowRecordGroup.TRANSFORMER_3;
-    }
-
-    private static class IOJson extends RecordGroupIOJson<PsseTransformer> {
-        IOJson(AbstractRecordGroup<PsseTransformer> recordGroup) {
-            super(recordGroup);
-        }
-
-        @Override
-        public List<PsseTransformer> readJson(JsonNode networkNode, Context context) {
-            List<PsseTransformer> transformers = super.readJson(networkNode, context);
-            // Same field names for 2 and 3 winding transformers
-            context.setFieldNames(TRANSFORMER_2, context.getFieldNames(TRANSFORMER));
-            context.setFieldNames(TRANSFORMER_3, context.getFieldNames(TRANSFORMER));
-            return transformers;
-        }
-    }
-
-    private static class IOLegacyText extends AbstractRecordGroupIOLegacyTextMultiLine<PsseTransformer> {
+    private static class IOLegacyText extends RecordGroupIOLegacyText<PsseTransformer> {
 
         IOLegacyText(AbstractRecordGroup<PsseTransformer> recordGroup) {
             super(recordGroup);
         }
 
         @Override
-        protected MultiLineRecord readMultiLineRecord(List<String> recordsLines, int currentLine, Context context) {
-            int i = currentLine;
-            String line0 = recordsLines.get(i++);
-            String[][] fieldNamesByLine = getFieldNamesByLine(context.getVersion(), line0);
-            String[] lines = new String[fieldNamesByLine.length];
-            lines[0] = line0;
-            for (int k = 1; k < lines.length; k++) {
-                lines[k] = recordsLines.get(i++);
-            }
-            return new MultiLineRecord(fieldNamesByLine, lines);
-        }
-
-        private String[][] getFieldNamesByLine(PsseVersion version, String line0) {
-            return is3Winding(line0) ? fieldNames3Winding(version) : fieldNames2Winding(version);
-        }
-
-        @Override
         public List<PsseTransformer> read(BufferedReader reader, Context context) throws IOException {
-            return super.readMultiLineRecords(reader, context);
+            List<String> mainRecords = new ArrayList<>();
+            List<String> secondRecords = new ArrayList<>();
+            List<String> windingRecords = new ArrayList<>();
+            String line = readRecordLine(reader);
+            while (!endOfBlock(line)) {
+                mainRecords.add(line);
+                secondRecords.add(readRecordLine(reader));
+                windingRecords.add(readRecordLine(reader));
+                windingRecords.add(readRecordLine(reader));
+                if (is3Winding(line)) {
+                    windingRecords.add(readRecordLine(reader));
+                }
+                line = readRecordLine(reader);
+            }
+
+            List<PsseTransformer> transformerList = super.recordGroup.readFromStrings(mainRecords, context);
+            List<TransformerSecondRecord> secondList = new PsseTransformerSecondRecordData().readFromStrings(secondRecords, context);
+            List<TransformerWindingRecord> windingList = new PsseTransformerWindingRecordData().readFromStrings(windingRecords, context);
+
+            int indexSecond = 0;
+            int indexWinding = 0;
+            for (PsseTransformer transformer : transformerList) {
+                setSecondRecord(transformer, secondList.get(indexSecond));
+                indexSecond = indexSecond + 1;
+                transformer.setWinding1(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                indexWinding = indexWinding + 1;
+                transformer.setWinding2(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                indexWinding = indexWinding + 1;
+                if (transformer.getK() != 0) {
+                    transformer.setWinding3(windingList.get(indexWinding).winding, windingList.get(indexWinding).windingRates);
+                    indexWinding = indexWinding + 1;
+                }
+            }
+
+            return transformerList;
         }
 
         @Override
-        public void write(List<PsseTransformer> transformers, Context context, OutputStream outputStream) {
+        public void write(List<PsseTransformer> transformerList, Context context, OutputStream outputStream) {
+
+            List<TransformerSecondRecord> secondList = new ArrayList<>();
+            List<TransformerSecondRecord> secondT2wList = new ArrayList<>();
+            List<TransformerWindingRecord> windingList = new ArrayList<>();
+            List<TransformerWindingRecord> windingT2wList = new ArrayList<>();
+
+            transformerList.forEach(transformer -> {
+                if (transformer.getK() == 0) {
+                    secondT2wList.add(getSecondRecord(transformer));
+                    windingList.add(getWindingRecord(transformer.getWinding1(), transformer.getWinding1Rates()));
+                    windingT2wList.add(getWindingRecord(transformer.getWinding2(), transformer.getWinding2Rates()));
+                } else {
+                    secondList.add(getSecondRecord(transformer));
+                    windingList.add(getWindingRecord(transformer.getWinding1(), transformer.getWinding1Rates()));
+                    windingList.add(getWindingRecord(transformer.getWinding2(), transformer.getWinding2Rates()));
+                    windingList.add(getWindingRecord(transformer.getWinding3(), transformer.getWinding3Rates()));
+                }
+            });
+
+            String[] mainHeaders = context.getFieldNames(TRANSFORMER);
+            String[] quotedFields = super.recordGroup.quotedFields();
+            List<String> firstRecordList = super.recordGroup.buildRecords(transformerList, mainHeaders, quotedFields, context);
+
+            PsseTransformerSecondRecordData secondRecordData = new PsseTransformerSecondRecordData();
+            String[] secondHeaders = context.getFieldNames(INTERNAL_TRANSFORMER_SECOND_RECORD);
+            List<String> secondRecordList = secondRecordData.buildRecords(secondList, secondHeaders, quotedFields, context);
+            List<String> secondRecordT2wList = secondRecordData.buildRecords(secondT2wList, FIELD_NAMES_T2W_SECOND_RECORD, quotedFields, context);
+
+            PsseTransformerWindingRecordData windingRecordData = new PsseTransformerWindingRecordData();
+            String[] windingHeaders = context.getFieldNames(INTERNAL_TRANSFORMER_WINDING);
+            List<String> windingRecordList = windingRecordData.buildRecords(windingList, windingHeaders, quotedFields, context);
+            List<String> windingRecordT2wList = windingRecordData.buildRecords(windingT2wList, FIELD_NAMES_T2W_SECOND_WINDING_RECORD, quotedFields, context);
+
             writeBegin(outputStream);
+            int indexFirst = 0;
+            int indexSecond = 0;
+            int indexSecondT2w = 0;
+            int indexWinding = 0;
+            int indexWindingT2w = 0;
+            for (PsseTransformer transformer : transformerList) {
+                String first = firstRecordList.get(indexFirst);
+                indexFirst = indexFirst + 1;
+                if (transformer.getK() == 0) {
+                    String second = secondRecordT2wList.get(indexSecondT2w);
+                    indexSecondT2w = indexSecondT2w + 1;
+                    String winding1 = windingRecordList.get(indexWinding);
+                    indexWinding = indexWinding + 1;
+                    String winding2 = windingRecordT2wList.get(indexWindingT2w);
+                    indexWindingT2w = indexWindingT2w + 1;
+                    write(Arrays.asList(first, second, winding1, winding2), outputStream);
 
-            // Process all transformers with 2 windings together
-            List<PsseTransformer> transformers2Windings = transformers.stream().filter(t -> t.getK() == 0).collect(Collectors.toList());
-            if (!transformers2Windings.isEmpty()) {
-                String[] contextFieldNames = context.getFieldNames(TRANSFORMER_2);
-                String[][] fieldNamesByLine = fieldNames2Winding(context.getVersion());
-                writeMultiLineRecords0(
-                    buildMultiLineRecordsFixedLines(transformers2Windings, fieldNamesByLine, contextFieldNames, context),
-                    outputStream);
+                } else {
+                    String second = secondRecordList.get(indexSecond);
+                    indexSecond = indexSecond + 1;
+                    String winding1 = windingRecordList.get(indexWinding);
+                    indexWinding = indexWinding + 1;
+                    String winding2 = windingRecordList.get(indexWinding);
+                    indexWinding = indexWinding + 1;
+                    String winding3 = windingRecordList.get(indexWinding);
+                    indexWinding = indexWinding + 1;
+                    write(Arrays.asList(first, second, winding1, winding2, winding3), outputStream);
+                }
             }
-            // Process all transformers with 3 windings together
-            List<PsseTransformer> transformers3Windings = transformers.stream().filter(t -> t.getK() != 0).collect(Collectors.toList());
-            if (!transformers3Windings.isEmpty()) {
-                String[] contextFieldNames = context.getFieldNames(TRANSFORMER_3);
-                String[][] fieldNamesByLine = fieldNames3Winding(context.getVersion());
-                writeMultiLineRecords0(
-                    buildMultiLineRecordsFixedLines(transformers3Windings, fieldNamesByLine, contextFieldNames, context),
-                    outputStream);
-            }
-
             writeEnd(outputStream);
+        }
+
+        private static class PsseTransformerSecondRecordData extends AbstractRecordGroup<TransformerSecondRecord> {
+            PsseTransformerSecondRecordData() {
+                super(INTERNAL_TRANSFORMER_SECOND_RECORD, "r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar");
+            }
+
+            @Override
+            public Class<TransformerSecondRecord> psseTypeClass() {
+                return TransformerSecondRecord.class;
+            }
+        }
+
+        private static class PsseTransformerWindingRecordData extends AbstractRecordGroup<TransformerWindingRecord> {
+            PsseTransformerWindingRecordData() {
+                super(INTERNAL_TRANSFORMER_WINDING);
+                withFieldNames(V32, FIELD_NAMES_WINDING_32_33);
+                withFieldNames(V33, FIELD_NAMES_WINDING_32_33);
+                withFieldNames(V35, "windv", "nomv", "ang", "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7", "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx", "cnxa");
+            }
+
+            @Override
+            public Class<TransformerWindingRecord> psseTypeClass() {
+                return TransformerWindingRecord.class;
+            }
+        }
+
+        private static void setSecondRecord(PsseTransformer transformer, TransformerSecondRecord secondRecord) {
+            transformer.setR12(secondRecord.r12);
+            transformer.setX12(secondRecord.x12);
+            transformer.setSbase12(secondRecord.sbase12);
+            transformer.setR23(secondRecord.r23);
+            transformer.setX23(secondRecord.x23);
+            transformer.setSbase23(secondRecord.sbase23);
+            transformer.setR31(secondRecord.r31);
+            transformer.setX31(secondRecord.x31);
+            transformer.setSbase31(secondRecord.sbase31);
+            transformer.setVmstar(secondRecord.vmstar);
+            transformer.setAnstar(secondRecord.anstar);
+        }
+
+        private TransformerSecondRecord getSecondRecord(PsseTransformer transformer) {
+            TransformerSecondRecord secondRecord = new TransformerSecondRecord();
+            secondRecord.r12 = transformer.getR12();
+            secondRecord.x12 = transformer.getX12();
+            secondRecord.sbase12 = transformer.getSbase12();
+            secondRecord.r23 = transformer.getR23();
+            secondRecord.x23 = transformer.getX23();
+            secondRecord.sbase23 = transformer.getSbase23();
+            secondRecord.r31 = transformer.getR31();
+            secondRecord.x31 = transformer.getX31();
+            secondRecord.sbase31 = transformer.getSbase31();
+            secondRecord.vmstar = transformer.getVmstar();
+            secondRecord.anstar = transformer.getAnstar();
+            return secondRecord;
+        }
+
+        private TransformerWindingRecord getWindingRecord(PsseTransformerWinding winding, PsseRates windingRates) {
+            TransformerWindingRecord windingRecord = new TransformerWindingRecord();
+            windingRecord.winding = winding;
+            windingRecord.windingRates = windingRates;
+            return windingRecord;
         }
 
         private static boolean is3Winding(String record) {
@@ -129,72 +236,48 @@ class TransformerData extends AbstractRecordGroup<PsseTransformer> {
                 return i != 0 && j != 0 && k != 0;
             }
         }
-
-        private static String[][] fieldNames3Winding(PsseVersion version) {
-            switch (version.major()) {
-                case V35:
-                    return FIELD_NAMES_3_35;
-                case V33:
-                    return FIELD_NAMES_3_33;
-                case V32:
-                    return FIELD_NAMES_3_32;
-                default:
-                    throw new PsseException("Unsupported version " + version);
-            }
-        }
-
-        private static String[][] fieldNames2Winding(PsseVersion version) {
-            switch (version.major()) {
-                case V35:
-                    return FIELD_NAMES_2_35;
-                case V33:
-                    return FIELD_NAMES_2_33;
-                case V32:
-                    return FIELD_NAMES_2_32;
-                default:
-                    throw new PsseException("Unsupported version " + version);
-            }
-        }
     }
 
-    private static final String[][] FIELD_NAMES_3_35 = {
-        {"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp", "zcod"},
-        {"r1_2", "x1_2", "sbase1_2", "r2_3", "x2_3", "sbase2_3", "r3_1", "x3_1", "sbase3_1", "vmstar", "anstar"},
-        {"windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "wdg1rate4", "wdg1rate5", "wdg1rate6", "wdg1rate7", "wdg1rate8", "wdg1rate9", "wdg1rate10", "wdg1rate11", "wdg1rate12", "cod1", "cont1", "node1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2", "ang2", "wdg2rate1", "wdg2rate2", "wdg2rate3", "wdg2rate4", "wdg2rate5", "wdg2rate6", "wdg2rate7", "wdg2rate8", "wdg2rate9", "wdg2rate10", "wdg2rate11", "wdg2rate12", "cod2", "cont2", "node2", "rma2", "rmi2", "vma2", "vmi2", "ntp2", "tab2", "cr2", "cx2", "cnxa2"},
-        {"windv3", "nomv3", "ang3", "wdg3rate1", "wdg3rate2", "wdg3rate3", "wdg3rate4", "wdg3rate5", "wdg3rate6", "wdg3rate7", "wdg3rate8", "wdg3rate9", "wdg3rate10", "wdg3rate11", "wdg3rate12", "cod3", "cont3", "node3", "rma3", "rmi3", "vma3", "vmi3", "ntp3", "tab3", "cr3", "cx3", "cnxa3"}
-    };
-    private static final String[][] FIELD_NAMES_3_33 = {
-        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"},
-        {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar"},
-        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2", "ang2", "rata2", "ratb2", "ratc2", "cod2", "cont2", "rma2", "rmi2", "vma2", "vmi2", "ntp2", "tab2", "cr2", "cx2", "cnxa2"},
-        {"windv3", "nomv3", "ang3", "rata3", "ratb3", "ratc3", "cod3", "cont3", "rma3", "rmi3", "vma3", "vmi3", "ntp3", "tab3", "cr3", "cx3", "cnxa3"}
-    };
-    private static final String[][] FIELD_NAMES_3_32 = {
-        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
-        {"r12", "x12", "sbase12", "r23", "x23", "sbase23", "r31", "x31", "sbase31", "vmstar", "anstar"},
-        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2", "ang2", "rata2", "ratb2", "ratc2", "cod2", "cont2", "rma2", "rmi2", "vma2", "vmi2", "ntp2", "tab2", "cr2", "cx2", "cnxa2"},
-        {"windv3", "nomv3", "ang3", "rata3", "ratb3", "ratc3", "cod3", "cont3", "rma3", "rmi3", "vma3", "vmi3", "ntp3", "tab3", "cr3", "cx3", "cnxa3"}
-    };
+    public static class TransformerWindingRecord {
+        @Nested()
+        private PsseTransformerWinding winding;
 
-    private static final String[][] FIELD_NAMES_2_35 = {
-        {"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"},
-        {"r1_2", "x1_2", "sbase1_2"},
-        {"windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "wdg1rate4", "wdg1rate5", "wdg1rate6", "wdg1rate7", "wdg1rate8", "wdg1rate9", "wdg1rate10", "wdg1rate11", "wdg1rate12", "cod1", "cont1", "node1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2"}
-    };
-    private static final String[][] FIELD_NAMES_2_33 = {
-        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "vecgrp"},
-        {"r12", "x12", "sbase12"},
-        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2"}
-    };
-    private static final String[][] FIELD_NAMES_2_32 = {
-        {"i", "j", "k", "ckt", "cw", "cz", "cm", "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"},
-        {"r12", "x12", "sbase12"},
-        {"windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1", "ntp1", "tab1", "cr1", "cx1", "cnxa1"},
-        {"windv2", "nomv2"}
-    };
+        @Nested()
+        private PsseRates windingRates;
+    }
+
+    public static class TransformerSecondRecord {
+        @Parsed(field = {"r12", "r1_2"})
+        private double r12 = 0;
+
+        @Parsed(field = {"x12", "x1_2"})
+        private double x12;
+
+        @Parsed(field = {"sbase12", "sbase1_2"})
+        private double sbase12 = Double.NaN;
+
+        @Parsed(field = {"r23", "r2_3"})
+        private double r23 = 0;
+
+        @Parsed(field = {"x23", "x2_3"})
+        private double x23 = Double.NaN;
+
+        @Parsed(field = {"sbase23", "sbase2_3"})
+        private double sbase23 = Double.NaN;
+
+        @Parsed(field = {"r31", "r3_1"})
+        private double r31 = 0;
+
+        @Parsed(field = {"x31", "x3_1"})
+        private double x31 = Double.NaN;
+
+        @Parsed(field = {"sbase31", "sbase3_1"})
+        private double sbase31 = Double.NaN;
+
+        @Parsed
+        private double vmstar = 1;
+
+        @Parsed
+        private double anstar = 0;
+    }
 }
