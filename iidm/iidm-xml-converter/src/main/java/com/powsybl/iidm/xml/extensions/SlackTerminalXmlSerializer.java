@@ -7,7 +7,9 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -15,21 +17,41 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.iidm.network.extensions.SlackTerminalAdder;
+import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.InputStream;
+import java.util.List;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
+public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtensionXmlSerializer<VoltageLevel, SlackTerminal> {
 
     public SlackTerminalXmlSerializer() {
-        super("slackTerminal", "network", SlackTerminal.class, false, "slackTerminal.xsd",
-            "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0", "slt");
+        super("slackTerminal", SlackTerminal.class, false, "slt",
+                ImmutableMap.of(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"),
+                        IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"),
+                        IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2")),
+                ImmutableMap.of("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0",
+                        "1.1", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1",
+                        "1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2"));
+    }
+
+    @Override
+    public InputStream getXsdAsStream() {
+        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd");
+    }
+
+    @Override
+    public List<InputStream> getXsdAsStreamList() {
+        return ImmutableList.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"));
     }
 
     @Override
@@ -53,6 +75,7 @@ public class SlackTerminalXmlSerializer extends AbstractExtensionXmlSerializer<V
 
     /**
      * A {@link SlackTerminal} extension is serializable if the terminal for the current variant is not null
+     *
      * @param slackTerminal The extension to check
      * @return true if the terminal for the current variant is not null, false otherwise
      */

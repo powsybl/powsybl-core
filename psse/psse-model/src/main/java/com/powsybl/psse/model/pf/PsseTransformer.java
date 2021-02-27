@@ -78,6 +78,7 @@ public class PsseTransformer extends PsseVersioned {
     // the previous annotation will be correctly processed
     // and there would be no need to initialize vecgrp with default value
     // (https://github.com/uniVocity/univocity-parsers/issues/432)
+    @Revision(since = 33)
     private String vecgrp = "            ";
 
     @Parsed
@@ -232,10 +233,12 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public String getVecgrp() {
+        checkVersion("vecgrp");
         return vecgrp;
     }
 
     public void setVecgrp(String vecgrp) {
+        checkVersion("vecgrp");
         this.vecgrp = vecgrp;
     }
 
