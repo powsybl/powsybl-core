@@ -283,8 +283,8 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
                 .add()
                 .add();
 
@@ -577,9 +577,9 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
-                    .add()
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
+                .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
@@ -904,25 +904,25 @@ public class UcteImporter implements Importer {
                 .setConnectableBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
                 .newHalfLine1()
-                    .setId(dlAtSideOne.getId())
-                    .setR(dlAtSideOne.getR())
-                    .setX(dlAtSideOne.getX())
-                    .setG1(dlAtSideOne.getG())
-                    .setG2(0.0)
-                    .setB1(dlAtSideOne.getB())
-                    .setB2(0.0)
-                    .setFictitious(dlAtSideOne.isFictitious())
-                    .add()
+                .setId(dlAtSideOne.getId())
+                .setR(dlAtSideOne.getR())
+                .setX(dlAtSideOne.getX())
+                .setB1(dlAtSideOne.getB())
+                .setB2(0.0)
+                .setG1(dlAtSideOne.getG())
+                .setG2(0.0)
+                .setFictitious(dlAtSideOne.isFictitious())
+                .add()
                 .newHalfLine2()
-                    .setId(dlAtSideTwo.getId())
-                    .setR(dlAtSideTwo.getR())
-                    .setX(dlAtSideTwo.getX())
-                    .setG1(0.0)
-                    .setG2(dlAtSideTwo.getG())
-                    .setB1(0.0)
-                    .setB2(dlAtSideTwo.getB())
-                    .setFictitious(dlAtSideTwo.isFictitious())
-                    .add()
+                .setId(dlAtSideTwo.getId())
+                .setR(dlAtSideTwo.getR())
+                .setX(dlAtSideTwo.getX())
+                .setB1(0.0)
+                .setB2(dlAtSideTwo.getB())
+                .setG1(0.0)
+                .setG2(dlAtSideTwo.getG())
+                .setFictitious(dlAtSideTwo.isFictitious())
+                .add()
                 .setUcteXnodeCode(xnodeCode)
                 .add();
 
@@ -938,8 +938,22 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp)
-                .withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
+        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
+        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
+        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
+        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        mergeLine.newExtension(MergedXnodeAdder.class)
+                .withRdp(rdp).withXdp(xdp)
+                .withLine1Name(dlAtSideOne.getId())
+                .withLine1Fictitious(dlAtSideOne.isFictitious())
+                .withB1dp((float) b1dp)
+                .withG1dp((float) g1dp)
+                .withLine2Name(dlAtSideTwo.getId())
+                .withLine2Fictitious(dlAtSideTwo.isFictitious())
+                .withB2dp((float) b2dp)
+                .withG2dp((float) g2dp)
+                .withCode(xnodeCode)
+                .add();
     }
 
     @Override

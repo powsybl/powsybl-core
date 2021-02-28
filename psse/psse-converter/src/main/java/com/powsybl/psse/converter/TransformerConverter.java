@@ -222,6 +222,9 @@ public class TransformerConverter extends AbstractConverter {
 
         ThreeWindingsTransformer twt = adder.add();
 
+        twt.setProperty("v", Double.toString(psseTransformer.getVmstar() * v0));
+        twt.setProperty("angle", Double.toString(psseTransformer.getAnstar()));
+
         tapChangersToIidm(tapChanger1AdjustedYsh, tapChanger2, tapChanger3, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
     }
