@@ -6,8 +6,6 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERAREA_TRANSFER;
 
 import com.powsybl.psse.model.io.AbstractRecordGroup;
@@ -21,9 +19,7 @@ import com.powsybl.psse.model.pf.PsseInterareaTransfer;
 class InterareaTransferData extends AbstractRecordGroup<PsseInterareaTransfer> {
 
     InterareaTransferData() {
-        super(INTERAREA_TRANSFER);
-        withFieldNames(V33, "arfrom", "arto", "trid", "ptran");
-        withFieldNames(V35, "arfrom", "arto", "trid", "ptran");
+        super(INTERAREA_TRANSFER, "arfrom", "arto", "trid", "ptran");
         withQuotedFields("trid");
     }
 

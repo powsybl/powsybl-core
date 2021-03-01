@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -19,15 +19,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Objects;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE;
+import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
+public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
@@ -57,7 +60,6 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
             model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
             skip(GNE_DEVICE, reader);
-            skip(INDUCTION_MACHINE, reader);
 
             return model;
         }
@@ -68,7 +70,7 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         Objects.requireNonNull(model);
         Objects.requireNonNull(context);
         Objects.requireNonNull(dataSource);
-        if (context.getVersion().major() != V33) {
+        if (context.getVersion().major() != V32) {
             throw new PsseException("Unexpected version " + context.getVersion().getMajorNumber());
         }
         try (BufferedOutputStream outputStream = new BufferedOutputStream(dataSource.newOutputStream(null, "raw", false));) {
@@ -99,7 +101,6 @@ public class PowerFlowRawData33 extends PowerFlowRawDataAllVersions {
         new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
         writeEmpty(GNE_DEVICE, outputStream);
-        writeEmpty(INDUCTION_MACHINE, outputStream);
 
         writeQ(outputStream);
     }

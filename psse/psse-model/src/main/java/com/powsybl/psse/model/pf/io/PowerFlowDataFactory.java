@@ -43,6 +43,8 @@ public final class PowerFlowDataFactory {
                     return new PowerFlowRawData35();
                 case V33:
                     return new PowerFlowRawData33();
+                case V32:
+                    return new PowerFlowRawData32();
                 default:
                     throw new PsseException("Unsupported version " + version);
             }
