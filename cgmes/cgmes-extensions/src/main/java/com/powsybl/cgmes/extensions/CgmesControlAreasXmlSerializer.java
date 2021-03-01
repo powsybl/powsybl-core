@@ -26,11 +26,11 @@ import javax.xml.stream.XMLStreamWriter;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesControlAreas> {
+public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializer<Network, CgmesControlAreas> {
 
     private static final String CONTROL_AREA = "controlArea";
 
-    public CgmesControlAreaXmlSerializer() {
+    public CgmesControlAreasXmlSerializer() {
         super("cgmesControlAreas", "network", CgmesControlAreas.class, true, "cgmesControlAreas.xsd",
                 "http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0", "cca");
     }
@@ -55,11 +55,8 @@ public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerialize
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
                 writer.writeEmptyElement(getNamespaceUri(), "boundary");
-                Connectable c = boundary.getConnectable();
-                writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(c.getId()));
-                if (c instanceof DanglingLine) {
-                    // do nothing
-                } else if (c instanceof TieLine) {
+                writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
+                if (boundary.getSide() != null) {
                     writer.writeAttribute("side", boundary.getSide().name());
                 }
             }
@@ -81,7 +78,7 @@ public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerialize
                         .setEnergyIdentCodeEic(reader.getAttributeValue(null, "energyIdentCodeEic"))
                         .setNetInterchange(XmlUtil.readDoubleAttribute(reader, "netInterchange"))
                         .add();
-                readTerminals(networkContext, reader, cgmesControlArea, extendable);
+                readBoundariesAndTerminals(networkContext, reader, cgmesControlArea, extendable);
             } else {
                 throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesControlArea>");
             }
@@ -89,14 +86,32 @@ public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerialize
         return extendable.getExtension(CgmesControlAreas.class);
     }
 
-    private void readTerminals(NetworkXmlReaderContext networkContext, XMLStreamReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
+    private void readBoundariesAndTerminals(NetworkXmlReaderContext networkContext, XMLStreamReader reader, CgmesControlArea cgmesControlArea, Network network) throws XMLStreamException {
         XmlUtil.readUntilEndElement(CONTROL_AREA, reader, () -> {
-            if (reader.getLocalName().equals("terminal")) {
-                String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
-                String side = networkContext.getReader().getAttributeValue(null, "side");
-                cgmesControlArea.add(TerminalRefXml.readTerminalRef(network, id, side));
-            } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <controlArea>");
+            String id;
+            String side;
+            switch (reader.getLocalName()) {
+                case "boundary":
+                    id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
+                    Identifiable identifiable = network.getIdentifiable(id);
+                    if (identifiable instanceof DanglingLine) {
+                        DanglingLine dl = (DanglingLine) identifiable;
+                        cgmesControlArea.add(dl.getBoundary());
+                    } else if (identifiable instanceof TieLine) {
+                        side = networkContext.getReader().getAttributeValue(null, "side");
+                        TieLine tl = (TieLine) identifiable;
+                        cgmesControlArea.add(tl.getHalf(Branch.Side.valueOf(side)).getBoundary());
+                    } else {
+                        throw new PowsyblException("Unexpected Identifiable instance: " + identifiable.getClass());
+                    }
+                    break;
+                case "terminal":
+                    id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
+                    side = networkContext.getReader().getAttributeValue(null, "side");
+                    cgmesControlArea.add(TerminalRefXml.readTerminalRef(network, id, side));
+                    break;
+                default:
+                    throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <controlArea>");
             }
         });
     }

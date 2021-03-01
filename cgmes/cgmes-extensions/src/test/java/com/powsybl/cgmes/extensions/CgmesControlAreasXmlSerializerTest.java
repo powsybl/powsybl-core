@@ -18,7 +18,7 @@ import java.io.IOException;
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
-public class CgmesControlAreaXmlSerializerTest extends AbstractConverterTest {
+public class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
 
     @Test
     public void test() throws IOException {
