@@ -258,7 +258,11 @@ public class Conversion {
         }
 
         String terminalId = tf.getId("terminal");
-        Optional.ofNullable(context.terminalMapping().find(terminalId)).ifPresent(cgmesControlArea::addTerminal);
+        if (context.terminalMapping().find(terminalId) != null) {
+            cgmesControlArea.add(context.terminalMapping().find(terminalId));
+        } else if (context.terminalMapping().findBoundary(terminalId) != null) {
+            cgmesControlArea.add(context.terminalMapping().findBoundary(terminalId));
+        }
     }
 
     private void convert(

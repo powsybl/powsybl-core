@@ -13,8 +13,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.TerminalRefXml;
@@ -54,6 +53,16 @@ public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerialize
             for (Terminal terminal : controlArea.getTerminals()) {
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
+            for (Boundary boundary : controlArea.getBoundaries()) {
+                writer.writeEmptyElement(getNamespaceUri(), "boundary");
+                Connectable c = boundary.getConnectable();
+                writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(c.getId()));
+                if (c instanceof DanglingLine) {
+                    // do nothing
+                } else if (c instanceof TieLine) {
+                    writer.writeAttribute("side", boundary.getSide().name());
+                }
+            }
             writer.writeEndElement();
         }
     }
@@ -85,7 +94,7 @@ public class CgmesControlAreaXmlSerializer extends AbstractExtensionXmlSerialize
             if (reader.getLocalName().equals("terminal")) {
                 String id = networkContext.getAnonymizer().deanonymizeString(networkContext.getReader().getAttributeValue(null, "id"));
                 String side = networkContext.getReader().getAttributeValue(null, "side");
-                cgmesControlArea.addTerminal(TerminalRefXml.readTerminalRef(network, id, side));
+                cgmesControlArea.add(TerminalRefXml.readTerminalRef(network, id, side));
             } else {
                 throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <controlArea>");
             }

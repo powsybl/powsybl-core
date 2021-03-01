@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.Set;
@@ -23,7 +24,11 @@ public interface CgmesControlArea {
 
     double getNetInterchange();
 
-    void addTerminal(Terminal terminal);
+    void add(Terminal terminal);
+
+    void add(Boundary boundary);
 
     Set<Terminal> getTerminals();
+
+    Set<Boundary> getBoundaries();
 }

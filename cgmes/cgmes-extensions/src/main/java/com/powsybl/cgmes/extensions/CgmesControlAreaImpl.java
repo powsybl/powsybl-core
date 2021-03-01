@@ -7,8 +7,10 @@
 package com.powsybl.cgmes.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -21,6 +23,7 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     private final String name;
     private final String energyIdentCodeEic;
     private final Set<Terminal> terminals = new HashSet<>();
+    private final Set<Boundary> boundaries = new HashSet<>();
     private final double netInterchange;
 
     CgmesControlAreaImpl(String id, String name, String energyIdentCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
@@ -33,11 +36,6 @@ class CgmesControlAreaImpl implements CgmesControlArea {
 
     private void attach(CgmesControlAreasImpl mapping) {
         mapping.putCgmesControlArea(this);
-    }
-
-    @Override
-    public void addTerminal(Terminal terminal) {
-        terminals.add(terminal);
     }
 
     @Override
@@ -57,12 +55,27 @@ class CgmesControlAreaImpl implements CgmesControlArea {
 
     @Override
     public Set<Terminal> getTerminals() {
-        return terminals;
+        return Collections.unmodifiableSet(terminals);
+    }
+
+    @Override
+    public Set<Boundary> getBoundaries() {
+        return Collections.unmodifiableSet(boundaries);
     }
 
     @Override
     public double getNetInterchange() {
         return netInterchange;
+    }
+
+    @Override
+    public void add(Terminal terminal) {
+        terminals.add(terminal);
+    }
+
+    @Override
+    public void add(Boundary boundary) {
+        boundaries.add(boundary);
     }
 
     private static double checkNetInterchange(double netInterchange) {

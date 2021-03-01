@@ -31,7 +31,7 @@ public class CgmesControlAreaXmlSerializerTest extends AbstractConverterTest {
                 .setEnergyIdentCodeEic("energyIdentCodeEic")
                 .setNetInterchange(100.0)
                 .add()
-                .addTerminal(network.getLine("NHV1_NHV2_1").getTerminal1());
+                .add(network.getLine("NHV1_NHV2_1").getTerminal1());
 
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_control_area.xml");
     }

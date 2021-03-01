@@ -29,7 +29,7 @@ public class CgmesControlAreaTest {
                 .setEnergyIdentCodeEic("energyIdentCodeEic")
                 .setNetInterchange(100.0)
                 .add()
-                .addTerminal(network.getLine("NHV1_NHV2_1").getTerminal1());
+                .add(network.getLine("NHV1_NHV2_1").getTerminal1());
 
         assertNotNull(extension);
         assertTrue(extension.containsCgmesControlAreaId("cgmesControlAreaId"));
