@@ -176,7 +176,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         for (C chunkToSplit : getCheckedChunks(false)) {
             split(chunkToSplit, splitNewChunks, newChunkSize);
         }
-        return splitNewChunks.stream().map(chunk -> createTimeSeries(chunk)).collect(Collectors.toList());
+        return splitNewChunks.stream().map(this::createTimeSeries).collect(Collectors.toList());
     }
 
     public void writeJson(JsonGenerator generator) {
