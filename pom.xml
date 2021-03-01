@@ -73,7 +73,6 @@
         <module>scripting</module>
         <module>security-analysis-api</module>
         <module>sensitivity-analysis-api</module>
-        <module>simulation-api</module>
         <module>time-series</module>
         <module>tools</module>
         <module>triple-store</module>
@@ -533,11 +532,6 @@
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>powsybl-sensitivity-analysis-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>powsybl-simulation-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

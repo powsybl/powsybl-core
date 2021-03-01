@@ -334,12 +334,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-simulation-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-time-series-api</artifactId>
             <version>${project.version}</version>
         </dependency>
