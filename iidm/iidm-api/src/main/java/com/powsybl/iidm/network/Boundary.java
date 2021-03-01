@@ -18,4 +18,10 @@ public interface Boundary {
     double getP();
 
     double getQ();
+
+    default Branch.Side getSide() {
+        return null;
+    }
+
+    Connectable getConnectable();
 }
