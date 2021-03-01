@@ -174,7 +174,7 @@ public class TransformerConverter extends AbstractConverter {
         Complex ysh = defineShuntAdmittance(id, psseTransformer.getMag1(), psseTransformer.getMag2(), sbase, sbase12, baskv1, nomV1, psseTransformer.getCm());
 
         // set a voltage base at star node with the associated Zbase
-        double v0 = 1.0;
+        double v0 = nomV1;
 
         // To engineering units
         z1 = impedanceToEngineeringUnits(z1, v0, perUnitContext.getSb());
