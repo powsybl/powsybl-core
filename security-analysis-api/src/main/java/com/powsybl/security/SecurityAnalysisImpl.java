@@ -16,10 +16,12 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
+import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,7 +33,7 @@ import java.util.stream.IntStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
+public class SecurityAnalysisImpl {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisImpl.class);
 
@@ -71,27 +73,34 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     }
 
     private final ComputationManager computationManager;
+    private final Network network;
+    private final LimitViolationDetector violationDetector;
+    private final LimitViolationFilter violationFilter;
+    private final List<SecurityAnalysisInterceptor> interceptors;
 
     public SecurityAnalysisImpl(Network network, LimitViolationDetector detector,
                                 LimitViolationFilter filter, ComputationManager computationManager) {
-        super(network, detector, filter);
-
+        this.network = Objects.requireNonNull(network);
+        this.violationDetector = Objects.requireNonNull(detector);
+        this.violationFilter = Objects.requireNonNull(filter);
+        this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
 
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
-    @Override
     public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
         interceptors.add(Objects.requireNonNull(interceptor));
     }
 
-    @Override
     public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
         return interceptors.remove(interceptor);
     }
 
-    @Override
+    private SecurityAnalysisResultBuilder createResultBuilder(String initialWorkingStateId) {
+        return new SecurityAnalysisResultBuilder(violationFilter, new RunningContext(network, initialWorkingStateId), interceptors);
+    }
+
     public CompletableFuture<SecurityAnalysisResult> run(String workingVariantId,
                                                          SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(workingVariantId);

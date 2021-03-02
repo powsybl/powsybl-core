@@ -6,18 +6,22 @@
  */
 package com.powsybl.security.tools;
 
+import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationException;
+import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.tools.AbstractToolTest;
@@ -32,22 +36,22 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class SecurityAnalysisToolTest extends AbstractToolTest {
+
+    private static final String OUTPUT_LOG_FILENAME = "out.zip";
 
     private SecurityAnalysisTool tool;
 
@@ -184,49 +188,111 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
              PrintStream err = new PrintStream(berr);
              ComputationManager cm = mock(ComputationManager.class)) {
             CommandLine cl = mockCommandLine(ImmutableMap.of("case-file", "network.xml",
-                    "log-file", "out.zip"), ImmutableSet.of("skip-postproc"));
+                    SecurityAnalysisToolConstants.OUTPUT_LOG_OPTION, OUTPUT_LOG_FILENAME), ImmutableSet.of("skip-postproc"));
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
-            SecurityAnalysisFactory saFactory = new SecurityAnalysisMockFactory();
-            SecurityAnalysis sa = saFactory.create(null, cm, 1);
+            SecurityAnalysisExecutionBuilder builderRunWithLog = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
+                    "SecurityAnalysisToolProviderMock",
+                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant().getNetwork(), "runWithLog"));
 
-            SecurityAnalysisExecutionBuilder builder = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
-                () -> saFactory,
+            // Invoked methods run() & runWithLog() now are controlled by variantId
+            // run() should run only when variantId 'run'
+            // runWithLog() should run only when variantId 'runWithLog'
+
+            // Check runWithLog execution
+            tool.run(cl, context, builderRunWithLog,
+                    SecurityAnalysisParameters::new,
+                    new ImportersLoaderList(new NetworkImporterMock()),
+                    TableFormatterConfig::new);
+            // Check log-file creation
+            Path logPath = context.getFileSystem().getPath(OUTPUT_LOG_FILENAME);
+            assertTrue(Files.exists(logPath));
+            // Need to clean for next test
+            Files.delete(logPath);
+
+            // Check run execution
+            when(cl.hasOption("log-file")).thenReturn(false);
+            SecurityAnalysisExecutionBuilder builderRun = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
+                "SecurityAnalysisToolProviderMock",
                 executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
 
-            // execute
-            tool.run(cl, context, builder,
+            tool.run(cl, context, builderRun,
                     SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
-            // verify that runWithLog() called instead of run();
-            verify(sa, never()).run(any(), any(), any());
-            verify(sa, times(1)).runWithLog(any(), any(), any());
-
-            when(cl.hasOption("log-file")).thenReturn(false);
-            // execute
-            tool.run(cl, context, builder,
-                    SecurityAnalysisParameters::new,
-                    new ImportersLoaderList(new NetworkImporterMock()),
-                    TableFormatterConfig::new);
-            verify(sa, times(1)).run(any(), any(), any());
+            // Check no log-file creation
+            assertFalse(Files.exists(logPath));
 
             // exception happens
-            SecurityAnalysisFactory saFactory2 = new SecurityAnalysisMockFactory(true);
-            SecurityAnalysisExecutionBuilder builder2 = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
-                () -> saFactory2,
+            SecurityAnalysisExecutionBuilder builderException = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
+                "SecurityAnalysisToolExceptionProviderMock",
                 executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
             try {
-                tool.run(cl, context, builder2,
+                tool.run(cl, context, builderException,
                         SecurityAnalysisParameters::new,
                         new ImportersLoaderList(new NetworkImporterMock()),
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
                 assertTrue(exception.getCause() instanceof ComputationException);
+                assertEquals("outLog", ((ComputationException) exception.getCause()).getOutLogs().get("out"));
+                assertEquals("errLog", ((ComputationException) exception.getCause()).getErrLogs().get("err"));
             }
+        }
+    }
+
+    @AutoService(SecurityAnalysisProvider.class)
+    public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
+        @Override
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            CompletableFuture<SecurityAnalysisResult> cfSar = mock(CompletableFuture.class);
+            SecurityAnalysisResult result = mock(SecurityAnalysisResult.class);
+            when(result.getPreContingencyResult()).thenReturn(mock(LimitViolationsResult.class));
+            when(cfSar.join()).thenReturn(result);
+            return cfSar;
+        }
+
+        @Override
+        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            CompletableFuture<SecurityAnalysisResultWithLog> cfSar = mock(CompletableFuture.class);
+            SecurityAnalysisResultWithLog result = mock(SecurityAnalysisResultWithLog.class);
+            when(result.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
+            when(cfSar.join()).thenReturn(result);
+            return cfSar;
+        }
+
+        @Override
+        public String getName() {
+            return "SecurityAnalysisToolProviderMock";
+        }
+
+        @Override
+        public String getVersion() {
+            return "1.0";
+        }
+    }
+
+    @AutoService(SecurityAnalysisProvider.class)
+    public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
+        @Override
+        public CompletableFuture<SecurityAnalysisResult> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
+            ceb.addOutLog("out", "outLog")
+                    .addErrLog("err", "errLog");
+            ComputationException computationException = ceb.build();
+            throw new CompletionException(computationException);
+        }
+
+        @Override
+        public String getName() {
+            return "SecurityAnalysisToolExceptionProviderMock";
+        }
+
+        @Override
+        public String getVersion() {
+            return "1.0";
         }
     }
 }

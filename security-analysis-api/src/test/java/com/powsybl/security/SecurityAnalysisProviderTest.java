@@ -28,8 +28,7 @@ import static org.junit.Assert.*;
 /**
  * @author Thomas Adam<tadam at silicom.fr>
  */
-// FIXME : rename this class to SecurityAnalysisTest in next PR
-public class SecurityAnalysis2Test {
+public class SecurityAnalysisProviderTest {
 
     private static final String DEFAULT_PROVIDER_NAME = "SecurityAnalysisImpl";
 
@@ -57,56 +56,56 @@ public class SecurityAnalysis2Test {
 
     @Test
     public void testDefaultProvider() {
-        SecurityAnalysis2.Runner defaultSecurityAnalysisRunner = SecurityAnalysis2.find();
+        SecurityAnalysis.Runner defaultSecurityAnalysisRunner = SecurityAnalysis.find();
         assertEquals(DEFAULT_PROVIDER_NAME, defaultSecurityAnalysisRunner.getName());
         assertEquals("1.0", defaultSecurityAnalysisRunner.getVersion());
     }
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis2.runAsync(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
         assertNotNull(result.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis2.runAsync(network, filter, computationManager);
+        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, filter, computationManager);
         assertNotNull(result.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis2.runAsync(network, computationManager);
+        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, computationManager);
         assertNotNull(result.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis2.runAsync(network);
+        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network);
         assertNotNull(result.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        SecurityAnalysisResult result = SecurityAnalysis2.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        SecurityAnalysisResult result = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithFilter() {
-        SecurityAnalysisResult result = SecurityAnalysis2.run(network, filter, computationManager);
+        SecurityAnalysisResult result = SecurityAnalysis.run(network, filter, computationManager);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithComputationManager() {
-        SecurityAnalysisResult result = SecurityAnalysis2.run(network, computationManager);
+        SecurityAnalysisResult result = SecurityAnalysis.run(network, computationManager);
         assertNotNull(result);
     }
 
     @Test
     public void testSyncDefaultProviderWithMiminumArguments() {
-        SecurityAnalysisResult result = SecurityAnalysis2.run(network);
+        SecurityAnalysisResult result = SecurityAnalysis.run(network);
         assertNotNull(result);
     }
 }
