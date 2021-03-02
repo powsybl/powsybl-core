@@ -23,7 +23,7 @@ import static java.util.Objects.requireNonNull;
  */
 public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution {
 
-    private final String providerName;
+    private final SecurityAnalysis.Runner runner;
     private final SecurityAnalysisInputBuildStrategy inputBuildStrategy;
 
     /**
@@ -36,12 +36,12 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     /**
      * The execution will use the {@literal providerName} implementation.
      */
-    public SecurityAnalysisExecutionImpl(String providerName) {
-        this(providerName, SecurityAnalysisExecutionImpl::buildDefault);
+    public SecurityAnalysisExecutionImpl(SecurityAnalysis.Runner runner) {
+        this(runner, SecurityAnalysisExecutionImpl::buildDefault);
     }
 
-    public SecurityAnalysisExecutionImpl(String providerName, SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
-        this.providerName = requireNonNull(providerName);
+    public SecurityAnalysisExecutionImpl(SecurityAnalysis.Runner runner, SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
+        this.runner = requireNonNull(runner);
         this.inputBuildStrategy = requireNonNull(inputBuildStrategy);
     }
 
@@ -56,7 +56,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     @Override
     public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        return SecurityAnalysis.find(providerName).runAsync(input.getNetworkVariant().getNetwork(),
+        return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getLimitViolationDetector(),
                 input.getFilter(),
@@ -69,7 +69,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     @Override
     public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        return SecurityAnalysis.find(providerName).runAsyncWithLog(input.getNetworkVariant().getNetwork(),
+        return runner.runAsyncWithLog(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),
                 input.getLimitViolationDetector(),
                 input.getFilter(),

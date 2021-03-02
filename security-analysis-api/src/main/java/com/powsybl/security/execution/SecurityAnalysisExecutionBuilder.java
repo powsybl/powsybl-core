@@ -8,6 +8,7 @@ package com.powsybl.security.execution;
 
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
+import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisInput;
 import com.powsybl.security.distributed.DistributedSecurityAnalysisExecution;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -68,7 +69,7 @@ public class SecurityAnalysisExecutionBuilder {
         } else if (taskCount != null) {
             return new DistributedSecurityAnalysisExecution(externalConfig.get(), taskCount);
         } else {
-            return new SecurityAnalysisExecutionImpl(providerName, inputBuildStrategy());
+            return new SecurityAnalysisExecutionImpl(SecurityAnalysis.find(providerName), inputBuildStrategy());
         }
     }
 

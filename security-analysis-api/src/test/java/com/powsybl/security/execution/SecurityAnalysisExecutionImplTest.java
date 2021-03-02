@@ -45,7 +45,7 @@ public class SecurityAnalysisExecutionImplTest {
         contingencies = Mockito.mock(ContingenciesProvider.class);
         parameters = Mockito.mock(SecurityAnalysisParameters.class);
 
-        execution = new SecurityAnalysisExecutionImpl("ExecutionImplTestProvider",
+        execution = new SecurityAnalysisExecutionImpl(SecurityAnalysis.find("ExecutionImplTestProvider"),
             execInput -> new SecurityAnalysisInput(execInput.getNetworkVariant())
                     .setFilter(filter)
                     .setDetector(detector)

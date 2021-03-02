@@ -56,6 +56,43 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   ContingenciesProvider contingenciesProvider,
                                                   List<SecurityAnalysisInterceptor> interceptors);
 
+    /**
+     * To be consistent with {@link #run(Network, String, LimitViolationDetector, LimitViolationFilter, ComputationManager, SecurityAnalysisParameters, ContingenciesProvider, List)}, this method would also complete exceptionally
+     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
+     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+     *
+     *
+     * <pre> {@code
+     * try {
+     *       SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runAsyncWithLog(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
+     *       result = resultWithLog.getResult();
+     *   } catch (CompletionException e) {
+     *       if (e.getCause() instanceof ComputationException) {
+     *           ComputationException computationException = (ComputationException) e.getCause();
+     *           System.out.println("Consume exception...");
+     *           computationException.getOutLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *           computationException.getErrLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *       }
+     *       throw e;
+     *   }
+     * }</pre>
+     * @param network IIDM network on which the security analysis will be performed
+     * @param workingVariantId network variant ID on which the analysis will be performed
+     * @param detector
+     * @param filter
+     * @param computationManager
+     * @param parameters specific security analysis parameters
+     * @param contingenciesProvider provides list of contingencies
+     * @param interceptors
+     * @return
+     */
+
     default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network,
                                                                         String workingVariantId,
                                                                         LimitViolationDetector detector,
