@@ -44,8 +44,6 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisTest {
 
-    private static final String PROVIDER_NAME = "SecurityAnalysisImpl";
-
     private FileSystem fileSystem;
 
     private PlatformConfig platformConfig;
@@ -98,7 +96,7 @@ public class SecurityAnalysisTest {
         List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         interceptors.add(interceptorMock);
 
-        SecurityAnalysisResult result = SecurityAnalysis2.find(PROVIDER_NAME).run(network,
+        SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 detector,
                 filter,
@@ -142,7 +140,7 @@ public class SecurityAnalysisTest {
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
         interceptors.add(interceptorMock);
 
-        SecurityAnalysisResult result = SecurityAnalysis2.find(PROVIDER_NAME).run(network,
+        SecurityAnalysisResult result = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 new DefaultLimitViolationDetector(),
                 new LimitViolationFilter(),

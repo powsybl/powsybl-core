@@ -9,6 +9,7 @@ package com.powsybl.security.execution;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.security.*;
 
+import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
 import static java.util.Objects.requireNonNull;
@@ -22,15 +23,25 @@ import static java.util.Objects.requireNonNull;
  */
 public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution {
 
-    private final SecurityAnalysisFactory factory;
+    private final SecurityAnalysis.Runner runner;
     private final SecurityAnalysisInputBuildStrategy inputBuildStrategy;
 
-    public SecurityAnalysisExecutionImpl(SecurityAnalysisFactory factory) {
-        this(factory, SecurityAnalysisExecutionImpl::buildDefault);
+    /**
+     * The execution will use the default security-analysis implementation defined in the platform.
+     */
+    public SecurityAnalysisExecutionImpl() {
+        this(null, SecurityAnalysisExecutionImpl::buildDefault);
     }
 
-    public SecurityAnalysisExecutionImpl(SecurityAnalysisFactory factory, SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
-        this.factory = requireNonNull(factory);
+    /**
+     * The execution will use the {@literal providerName} implementation.
+     */
+    public SecurityAnalysisExecutionImpl(SecurityAnalysis.Runner runner) {
+        this(runner, SecurityAnalysisExecutionImpl::buildDefault);
+    }
+
+    public SecurityAnalysisExecutionImpl(SecurityAnalysis.Runner runner, SecurityAnalysisInputBuildStrategy inputBuildStrategy) {
+        this.runner = requireNonNull(runner);
         this.inputBuildStrategy = requireNonNull(inputBuildStrategy);
     }
 
@@ -42,24 +53,29 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
         return inputBuildStrategy.buildFrom(executionInput);
     }
 
-    private SecurityAnalysis buildSecurityAnalysis(SecurityAnalysisInput input, ComputationManager computationManager) {
-        SecurityAnalysis securityAnalysis = factory.create(input.getNetworkVariant().getNetwork(), input.getLimitViolationDetector(),
-                input.getFilter(), computationManager, 0);
-        input.getInterceptors().forEach(securityAnalysis::addInterceptor);
-        return securityAnalysis;
-    }
-
     @Override
     public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        SecurityAnalysis securityAnalysis = buildSecurityAnalysis(input, computationManager);
-        return securityAnalysis.run(input.getNetworkVariant().getVariantId(), input.getParameters(), input.getContingenciesProvider());
+        return runner.runAsync(input.getNetworkVariant().getNetwork(),
+                input.getNetworkVariant().getVariantId(),
+                input.getLimitViolationDetector(),
+                input.getFilter(),
+                computationManager,
+                input.getParameters(),
+                input.getContingenciesProvider(),
+                new ArrayList<>(input.getInterceptors()));
     }
 
     @Override
     public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
-        SecurityAnalysis securityAnalysis = buildSecurityAnalysis(input, computationManager);
-        return securityAnalysis.runWithLog(input.getNetworkVariant().getVariantId(), input.getParameters(), input.getContingenciesProvider());
+        return runner.runAsyncWithLog(input.getNetworkVariant().getNetwork(),
+                input.getNetworkVariant().getVariantId(),
+                input.getLimitViolationDetector(),
+                input.getFilter(),
+                computationManager,
+                input.getParameters(),
+                input.getContingenciesProvider(),
+                new ArrayList<>(input.getInterceptors()));
     }
 }
