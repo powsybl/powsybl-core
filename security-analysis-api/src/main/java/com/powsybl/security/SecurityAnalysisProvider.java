@@ -17,7 +17,18 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Security analysis provider
+ *
+ * A {@link SecurityAnalysisProvider} is a power system computation which computes, for a {@link com.powsybl.iidm.network.Network Network},
+ * the {@link LimitViolation LimitViolations} on N-situation
+ * and the ones caused by a specified list of {@link com.powsybl.contingency.Contingency Contingencies}.
+ *
+ * <p>Computation results are provided asynchronously as a {@link SecurityAnalysisResult}.
+ *
+ * <p>Implementations of that interface may typically rely on an external tool.
+ *
+ * <p>{@link SecurityAnalysisInterceptor Interceptors} might be used to execute client user-specific code
+ * on events such as the availability of N-situation results, for example to further customize the results content
+ * through {@link com.powsybl.commons.extensions.Extension Extensions}.
  *
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -44,4 +55,52 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                   SecurityAnalysisParameters parameters,
                                                   ContingenciesProvider contingenciesProvider,
                                                   List<SecurityAnalysisInterceptor> interceptors);
+
+    /**
+     * To be consistent with {@link #run(Network, String, LimitViolationDetector, LimitViolationFilter, ComputationManager, SecurityAnalysisParameters, ContingenciesProvider, List)}, this method would also complete exceptionally
+     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
+     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+     *
+     *
+     * <pre> {@code
+     * try {
+     *       SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runAsyncWithLog(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
+     *       result = resultWithLog.getResult();
+     *   } catch (CompletionException e) {
+     *       if (e.getCause() instanceof ComputationException) {
+     *           ComputationException computationException = (ComputationException) e.getCause();
+     *           System.out.println("Consume exception...");
+     *           computationException.getOutLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *           computationException.getErrLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *       }
+     *       throw e;
+     *   }
+     * }</pre>
+     * @param network IIDM network on which the security analysis will be performed
+     * @param workingVariantId network variant ID on which the analysis will be performed
+     * @param detector
+     * @param filter
+     * @param computationManager
+     * @param parameters specific security analysis parameters
+     * @param contingenciesProvider provides list of contingencies
+     * @param interceptors
+     * @return
+     */
+
+    default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network,
+                                                                        String workingVariantId,
+                                                                        LimitViolationDetector detector,
+                                                                        LimitViolationFilter filter,
+                                                                        ComputationManager computationManager,
+                                                                        SecurityAnalysisParameters parameters,
+                                                                        ContingenciesProvider contingenciesProvider,
+                                                                        List<SecurityAnalysisInterceptor> interceptors) {
+        return run(network, workingVariantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
+    }
 }

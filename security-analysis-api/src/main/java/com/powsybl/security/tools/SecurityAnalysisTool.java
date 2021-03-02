@@ -209,7 +209,7 @@ public class SecurityAnalysisTool implements Tool {
 
     private static SecurityAnalysisExecutionBuilder createBuilder(PlatformConfig platformConfig) {
         return new SecurityAnalysisExecutionBuilder(() -> ExternalSecurityAnalysisConfig.load(platformConfig),
-            () -> SecurityAnalysisFactories.newDefaultFactory(platformConfig),
+            platformConfig.getModuleConfig(MODULE_CONFIG_NAME_PROPERTY).getStringProperty(DEFAULT_SERVICE_IMPL_NAME_PROPERTY),
             configBasedInputBuildStrategy(platformConfig));
     }
 
