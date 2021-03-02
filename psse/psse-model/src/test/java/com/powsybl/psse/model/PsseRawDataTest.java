@@ -233,7 +233,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertArrayEquals(expected2wTransformerDataFirstRecordReadFields, actual2wTransformerDataFirstRecordReadFields);
 
         String[] expected2wTransformerDataSecondRecordReadFields = new String[]{"r12", "x12", "sbase12"};
-        String[] actual2wTransformerDataSecondRecordReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_SECOND_RECORD);
+        String[] actual2wTransformerDataSecondRecordReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_IMPEDANCES);
         assertArrayEquals(expected2wTransformerDataSecondRecordReadFields, actual2wTransformerDataSecondRecordReadFields);
 
         String[] expected2wTransformerDataWindingRecordReadFields = new String[] {"windv", "nomv", "ang",
@@ -431,7 +431,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertArrayEquals(expected2wTransformerDataFirstRecordReadFields, actual2wTransformerDataFirstRecrodReadFields);
 
         String[] expected2wTransformerDataSecondRecordReadFields = new String[]{"r12", "x12", "sbase12"};
-        String[] actual2wTransformerDataSecondRecrodReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_SECOND_RECORD);
+        String[] actual2wTransformerDataSecondRecrodReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_IMPEDANCES);
         assertArrayEquals(expected2wTransformerDataSecondRecordReadFields, actual2wTransformerDataSecondRecrodReadFields);
 
         String[] expected2wTransformerDataWindingRecordReadFields = new String[]{"windv", "nomv", "ang",

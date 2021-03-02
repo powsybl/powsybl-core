@@ -22,7 +22,7 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     NON_TRANSFORMER_BRANCH("acline", "BRANCH"),
     SYSTEM_SWITCHING_DEVICE("sysswd", "SYSTEM SWITCHING DEVICE"),
     TRANSFORMER("transformer"),
-    INTERNAL_TRANSFORMER_SECOND_RECORD("transformerSecond"),
+    INTERNAL_TRANSFORMER_IMPEDANCES("transformerImpedances"),
     INTERNAL_TRANSFORMER_WINDING("transformerWinding"),
     AREA_INTERCHANGE("area", "AREA"),
     TWO_TERMINAL_DC_TRANSMISSION_LINE("twotermdc", "TWO-TERMINAL DC"),
