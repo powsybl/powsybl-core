@@ -185,7 +185,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected boolean isBoundary(int n) {
-        return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
+        return context.boundary().containsNode(nodeId(n));
     }
 
     public void convertToDanglingLine(int boundarySide) {
@@ -390,7 +390,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    VoltageLevel voltageLevel(int n) {
+    public VoltageLevel voltageLevel(int n) {
         if (terminals[n - 1].iidmVoltageLevelId != null) {
             return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
         } else {

@@ -16,7 +16,9 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.*;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -189,8 +191,11 @@ public class Conversion {
         // They have to be processed after all lines/switches have been reviewed
         // FIXME(Luma) store delayedBoundaryNodes in context
         Set<String> delayedBoundaryNodes = new HashSet<>();
+        Map<String, PropertyBags> lines = new HashMap<>();
         convertSwitches(context, delayedBoundaryNodes);
-        convertACLineSegmentsToLines(context, delayedBoundaryNodes);
+        convertACLineSegmentsToLines(context, delayedBoundaryNodes, lines);
+        delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
+        lines.forEach((lineId, segments) -> convertLine(context, lineId, segments));
 
         convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
@@ -378,7 +383,7 @@ public class Conversion {
         }
     }
 
-    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
+    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes, Map<String, PropertyBags> lines) {
         Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
@@ -391,11 +396,79 @@ public class Conversion {
                 if (node != null && !context.config().convertBoundary()) {
                     context.boundary().addAcLineSegmentAtNode(line, node);
                     delayedBoundaryNodes.add(node);
+                } else if (c.voltageLevel(1) == null || c.voltageLevel(2) == null) {
+                    String lineId = line.getId("Line");
+                    lines.computeIfAbsent(lineId, l -> new PropertyBags()).add(line);
                 } else {
                     c.convert();
                 }
             }
         }
+    }
+
+    private void convertLine(Context context, String lineId, PropertyBags lineSegments) {
+        CgmesTerminal t1 = null;
+        String vl1Id = null;
+        CgmesTerminal t2 = null;
+        String vl2Id = null;
+        for (PropertyBag p : lineSegments) {
+            t1 = cgmes.terminal(p.getId("Terminal1"));
+            vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
+            if (vl1Id != null) {
+                break;
+            }
+            t1 = cgmes.terminal(p.getId("Terminal2"));
+            vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
+            if (vl1Id != null) {
+                break;
+            }
+        }
+        if (vl1Id == null) {
+            throw new PowsyblException("vl1 null");
+        }
+        for (PropertyBag p : lineSegments) {
+            t2 = cgmes.terminal(p.getId("Terminal1"));
+            vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
+            if (vl2Id != null && t1 != t2) {
+                break;
+            }
+            t2 = cgmes.terminal(p.getId("Terminal2"));
+            vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
+            if (vl2Id != null && t1 != t2) {
+                break;
+            }
+        }
+        double r = lineSegments.stream().mapToDouble(s -> s.asDouble("r")).sum();
+        double x = lineSegments.stream().mapToDouble(s -> s.asDouble("x")).sum();
+        double b = lineSegments.stream().mapToDouble(s -> s.asDouble("bch")).sum();
+        double g = lineSegments.stream().mapToDouble(s -> s.asDouble("gch", 0)).sum();
+        if (vl2Id == null) {
+            context.network().getVoltageLevel(vl1Id)
+                    .newDanglingLine()
+                    .setId(lineId)
+                    .setP0(1) // FIXME
+                    .setQ0(1) // FIXME
+                    .setR(r)
+                    .setX(x)
+                    .setG(g)
+                    .setB(b)
+                    .setNode(context.nodeMapping().iidmNodeForTerminal(t1, context.network().getVoltageLevel(vl1Id)))
+                    .add();
+            return;
+        }
+        context.network().newLine()
+                .setId(lineId)
+                .setR(r)
+                .setX(x)
+                .setG1(g / 2)
+                .setG2(g / 2)
+                .setB1(b / 2)
+                .setB2(b / 2)
+                .setVoltageLevel1(vl1Id)
+                .setVoltageLevel2(vl2Id)
+                .setNode1(context.nodeMapping().iidmNodeForTerminal(t1, context.network().getVoltageLevel(vl1Id)))
+                .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, context.network().getVoltageLevel(vl2Id)))
+                .add();
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
