@@ -193,6 +193,61 @@ public class DoubleDataChunkTest {
     }
 
     @Test
+    public void uncompressedMergeTest() {
+        UncompressedDoubleDataChunk chunk1 = new UncompressedDoubleDataChunk(1, new double[]{1d, 2d, 3d, 4d, 5d});
+        UncompressedDoubleDataChunk chunk2 = new UncompressedDoubleDataChunk(6, new double[]{6d, 7d, 8d});
+        UncompressedDoubleDataChunk chunk3 = new UncompressedDoubleDataChunk(1, new double[]{6d, 7d, 8d});
+
+        //Merge chunk1 + chunk2
+        DoubleDataChunk merge = chunk1.append(chunk2);
+        assertNotNull(merge);
+        assertTrue(merge instanceof UncompressedDoubleDataChunk);
+        assertEquals(1, merge.getOffset());
+        assertArrayEquals(new double[] {1d, 2d, 3d, 4d, 5d, 6d, 7d, 8d}, ((UncompressedDoubleDataChunk) merge).getValues(), 0d);
+
+        //Merge chunk1 + chunk3
+        try {
+            chunk1.append(chunk3);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
+    public void compressedMergeTest() {
+        CompressedDoubleDataChunk chunk1 = new CompressedDoubleDataChunk(1, 5, new double[]{1d, 2d}, new int[]{2, 3});
+        CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(6, 5, new double[]{3d, 4d}, new int[]{2, 3});
+        CompressedDoubleDataChunk chunk3 = new CompressedDoubleDataChunk(11, 3, new double[]{4d, 5d}, new int[]{2, 1});
+
+        //Merge chunk1 + chunk2
+        DoubleDataChunk merge = chunk1.append(chunk2);
+        assertNotNull(merge);
+        assertTrue(merge instanceof CompressedDoubleDataChunk);
+        assertEquals(1, merge.getOffset());
+        assertEquals(10, merge.getLength());
+        assertArrayEquals(new double[] {1d, 2d, 3d, 4d}, ((CompressedDoubleDataChunk) merge).getStepValues(), 0d);
+        assertArrayEquals(new int[] {2, 3, 2, 3}, ((CompressedDoubleDataChunk) merge).getStepLengths());
+
+        //Merge chunk2 + chunk3
+        merge = chunk2.append(chunk3);
+        assertNotNull(merge);
+        assertTrue(merge instanceof CompressedDoubleDataChunk);
+        assertEquals(6, merge.getOffset());
+        assertEquals(8, merge.getLength());
+        assertArrayEquals(new double[] {3d, 4d, 5d}, ((CompressedDoubleDataChunk) merge).getStepValues(), 0d);
+        assertArrayEquals(new int[] {2, 5, 1}, ((CompressedDoubleDataChunk) merge).getStepLengths());
+
+        //Merge chunk1 + chunk3
+        try {
+            chunk1.append(chunk3);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
     public void nanIssueTest() {
         UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, new double[] {1d, Double.NaN, Double.NaN});
         String json = JsonUtil.toJson(chunk::writeJson);
