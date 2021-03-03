@@ -14,7 +14,7 @@
 
     <parent>
         <groupId>com.powsybl</groupId>
-        <artifactId>powsybl-core</artifactId>
+        <artifactId>powsybl-security-analysis</artifactId>
         <version>3.9.0-SNAPSHOT</version>
     </parent>
 
@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.security</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.security.analysis.api</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
