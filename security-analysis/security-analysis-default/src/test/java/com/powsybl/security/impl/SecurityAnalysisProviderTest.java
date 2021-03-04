@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security;
+package com.powsybl.security.impl;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManagerFactory;
@@ -12,6 +12,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.security.*;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import org.junit.Before;
@@ -30,7 +31,7 @@ import static org.junit.Assert.*;
  */
 public class SecurityAnalysisProviderTest {
 
-    private static final String DEFAULT_PROVIDER_NAME = "SecurityAnalysisImpl";
+    private static final String DEFAULT_PROVIDER_NAME = "DefaultSecurityAnalysis";
 
     private Network network;
     private LimitViolationDetector detector;

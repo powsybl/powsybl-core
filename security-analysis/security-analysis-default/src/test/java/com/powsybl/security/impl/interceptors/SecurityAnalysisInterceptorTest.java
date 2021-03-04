@@ -4,8 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.interceptors;
+package com.powsybl.security.impl.interceptors;
 
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
+import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -19,7 +22,7 @@ public class SecurityAnalysisInterceptorTest {
 
     @Test
     public void test() {
-        assertEquals(Collections.singleton("SecurityAnalysisInterceptorMock"), SecurityAnalysisInterceptors.getExtensionNames());
+        Assert.assertEquals(Collections.singleton("SecurityAnalysisInterceptorMock"), SecurityAnalysisInterceptors.getExtensionNames());
 
         SecurityAnalysisInterceptor interceptor = SecurityAnalysisInterceptors.createInterceptor("SecurityAnalysisInterceptorMock");
         assertNotNull(interceptor);

@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security;
+package com.powsybl.security.impl;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.security.*;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
@@ -33,9 +34,9 @@ import java.util.stream.IntStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class SecurityAnalysisImpl {
+public class DefaultSecurityAnalysis {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSecurityAnalysis.class);
 
     /**
      * This executor is used to create the variants of the network, submit the tasks
@@ -78,8 +79,8 @@ public class SecurityAnalysisImpl {
     private final LimitViolationFilter violationFilter;
     private final List<SecurityAnalysisInterceptor> interceptors;
 
-    public SecurityAnalysisImpl(Network network, LimitViolationDetector detector,
-                                LimitViolationFilter filter, ComputationManager computationManager) {
+    public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
+                                   LimitViolationFilter filter, ComputationManager computationManager) {
         this.network = Objects.requireNonNull(network);
         this.violationDetector = Objects.requireNonNull(detector);
         this.violationFilter = Objects.requireNonNull(filter);

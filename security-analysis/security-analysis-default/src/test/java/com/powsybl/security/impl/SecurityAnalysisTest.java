@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security;
+package com.powsybl.security.impl;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
@@ -18,12 +18,14 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.*;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptorMock;
+import com.powsybl.security.impl.interceptors.SecurityAnalysisInterceptorMock;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -123,9 +125,9 @@ public class SecurityAnalysisTest {
         assertNotNull(extension2);
         assertEquals(1192.5631358010583, extension2.getPreContingencyValue(), 0.0);
 
-        assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
-        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
-        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+        Assert.assertEquals(1, interceptorMock.getOnPostContingencyResultCount());
+        Assert.assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        Assert.assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 
     @Test
@@ -153,9 +155,9 @@ public class SecurityAnalysisTest {
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
         assertEquals(0, result.getPostContingencyResults().size());
 
-        assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
-        assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
-        assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
+        Assert.assertEquals(0, interceptorMock.getOnPostContingencyResultCount());
+        Assert.assertEquals(1, interceptorMock.getOnPreContingencyResultCount());
+        Assert.assertEquals(1, interceptorMock.getOnSecurityAnalysisResultCount());
     }
 
     private static ComputationManager createMockComputationManager() {
