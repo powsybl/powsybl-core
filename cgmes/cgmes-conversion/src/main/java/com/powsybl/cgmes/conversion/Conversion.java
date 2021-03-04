@@ -443,6 +443,7 @@ public class Conversion {
         double b = lineSegments.stream().mapToDouble(s -> s.asDouble("bch")).sum();
         double g = lineSegments.stream().mapToDouble(s -> s.asDouble("gch", 0)).sum();
         if (vl2Id == null) {
+            // RQ: not really in the standards, dunno if it should be here
             context.network().getVoltageLevel(vl1Id)
                     .newDanglingLine()
                     .setId(lineId)
