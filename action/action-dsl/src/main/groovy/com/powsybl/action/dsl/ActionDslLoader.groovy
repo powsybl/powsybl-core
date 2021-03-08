@@ -15,6 +15,7 @@ import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
 import com.powsybl.iidm.network.Network
 import org.codehaus.groovy.control.CompilationFailedException
+import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 
 /**
@@ -103,7 +104,11 @@ class ActionDslLoader extends DslLoader {
     }
 
     ActionDb load(Network network) {
-        load(network, null)
+        load(network, null, new ImportCustomizer())
+    }
+
+    ActionDb load(Network network, ImportCustomizer imports) {
+        load(network, null, imports)
     }
 
     /**
@@ -190,7 +195,7 @@ class ActionDslLoader extends DslLoader {
         }
     }
 
-    void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer) {
+    void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer, ImportCustomizer imports) {
 
         LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
         observer?.begin(dslSrc.getName())
@@ -200,7 +205,7 @@ class ActionDslLoader extends DslLoader {
         loadDsl(binding, network, handler, observer)
         try {
 
-            def shell = createShell(binding)
+            def shell = createShell(binding, imports)
 
             shell.evaluate(dslSrc)
 
@@ -210,7 +215,7 @@ class ActionDslLoader extends DslLoader {
         }
     }
 
-    ActionDb load(Network network, ActionDslLoaderObserver observer) {
+    ActionDb load(Network network, ActionDslLoaderObserver observer, ImportCustomizer imports) {
         ActionDb rulesDb = new ActionDb()
 
         //Handler to create an ActionDb instance
@@ -232,7 +237,7 @@ class ActionDslLoader extends DslLoader {
             }
         }
 
-        load(network, actionDbBuilder, observer)
+        load(network, actionDbBuilder, observer, imports)
 
         rulesDb.checkUndefinedActions()
         rulesDb

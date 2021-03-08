@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.MissingMethodException;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -176,7 +177,7 @@ public class ActionDslLoaderTest {
     @Test
     public void testHandler() {
         ActionDslHandler handler = mock(ActionDslHandler.class);
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network, handler, null);
+        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network, handler, null, new ImportCustomizer());
 
         verify(handler, times(1)).addAction(argThat(matches(a -> a.getId().equals("action"))));
         verify(handler, times(2)).addContingency(any());

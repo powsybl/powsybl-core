@@ -7,6 +7,7 @@
 package com.powsybl.contingency;
 
 import com.powsybl.iidm.network.Network;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
 public class EmptyContingencyListProvider implements ContingenciesProvider {
 
     @Override
-    public List<Contingency> getContingencies(Network network) {
+    public List<Contingency> getContingencies(Network network, ImportCustomizer imports) {
         return Collections.emptyList();
     }
 }

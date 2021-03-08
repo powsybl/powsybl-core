@@ -11,6 +11,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.dsl.AbstractDslContingenciesProvider;
 import com.powsybl.iidm.network.Network;
+import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -34,8 +35,8 @@ public class GroovyDslContingenciesProvider extends AbstractDslContingenciesProv
     }
 
     @Override
-    public List<Contingency> getContingencies(Network network) {
-        ActionDb actionDb = new ActionDslLoader(script).load(network);
+    public List<Contingency> getContingencies(Network network, ImportCustomizer imports) {
+        ActionDb actionDb = new ActionDslLoader(script).load(network, imports);
         return ImmutableList.copyOf(actionDb.getContingencies());
     }
 }
