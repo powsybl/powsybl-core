@@ -28,51 +28,51 @@ public class PsseRates extends PsseVersioned {
     @Revision(until = 33)
     private double ratec = 0;
 
-    @Parsed
+    @Parsed(field = {"rate1", "wdgrate1"})
     @Revision(since = 35)
     private double rate1 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate2", "wdgrate2"})
     @Revision(since = 35)
     private double rate2 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate3", "wdgrate3"})
     @Revision(since = 35)
     private double rate3 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate4", "wdgrate4"})
     @Revision(since = 35)
     private double rate4 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate5", "wdgrate5"})
     @Revision(since = 35)
     private double rate5 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate6", "wdgrate6"})
     @Revision(since = 35)
     private double rate6 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate7", "wdgrate7"})
     @Revision(since = 35)
     private double rate7 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate8", "wdgrate8"})
     @Revision(since = 35)
     private double rate8 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate9", "wdgrate9"})
     @Revision(since = 35)
     private double rate9 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate10", "wdgrate10"})
     @Revision(since = 35)
     private double rate10 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate11", "wdgrate11"})
     @Revision(since = 35)
     private double rate11 = 0;
 
-    @Parsed
+    @Parsed(field = {"rate12", "wdgrate12"})
     @Revision(since = 35)
     private double rate12 = 0;
 
