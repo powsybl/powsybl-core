@@ -59,13 +59,13 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         }
         mappingAdder.add();
         CgmesIidmMapping mapping = extendable.getExtension(CgmesIidmMapping.class);
-        XmlUtil.readUntilEndElement(getName(), context.getReader(), () -> XmlUtil.readUntilEndElement("busMapping", context.getReader(), () -> {
+        XmlUtil.readUntilEndElement("cgmesIidmMapping", context.getReader(), () -> {
             String busId = context.getReader().getAttributeValue(null, "busId");
             String[] topologicalNodeIds = context.getReader().getAttributeValue(null, "topologicalNodeIds").split(",");
             for (String topologicalNodeId : topologicalNodeIds) {
                 mapping.put(busId, topologicalNodeId);
             }
-        }));
+        });
         return mapping;
     }
 

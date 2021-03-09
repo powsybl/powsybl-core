@@ -17,6 +17,31 @@ import java.util.*;
  */
 class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIidmMapping {
 
+    // TODO Discuss design
+    // Ideally we would like to store all the mappings (Terminal --> TopologicalNode)
+    // present in the original CGMES TP file
+    // In IIDM we already have, for each (Equiment, Side) (IIDM Terminal) an alias for the CGMES Terminal
+    // With that information we could always obtain the (Equipment, Side) --> TopologicalNode
+    // That would be the basis for the Bus --> TopologicalNode that we finally need
+
+    // But storing all Terminal --> TopologicalNode is a lot of information
+    // Even if we store (TopologicalNode --> Set<Terminal>)
+
+    // So instead we try to reduce it to <Bus> -> Set<TopologicalNode>
+    // that we expect to be close to a 1:1 mapping
+
+    // BUT bus identifiers in node/breaker models are calculated
+    // And do not appear anywhere in the XIIDM file,
+    // so we are storing "virtual references" to buses that are not serialized
+
+    // BusView buses should be used instead of BusBreakerView buses
+    // They are closer to TopologicalNodes
+
+    // Current implementation has the following problem:
+    // checkAlreadyMapped works ok during conversion, when extension is being built
+    // but fails when extension data is de-serialized:
+    // (mapping is empty, unmmapped is empty) ==> put(busId, TN) fails
+
     private final Map<EquipmentSide, String> equipmentSideTopologicalNodeMap;
     private final Map<String, Set<String>> busTopologicalNodeMap;
     private final Set<String> unmapped;
@@ -65,9 +90,16 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping put(String busId, String topologicalNodeId) {
-        checkAlreadyMapped(busId, topologicalNodeId);
+        // TODO Discuss design
+        // This method is called when the unmapped list has already been completed
+        // There are no "pending" TNs to be removed from unmapped
+        // The check to see if this TN has also been mapped to a different bus
+        // can not be the same that we apply when removing elements from "unmapped"
+        // checkAlreadyMapped(busId, topologicalNodeId);
+        if (unmapped.contains(topologicalNodeId)) {
+            throw new PowsyblException("Inconsistency: TN " + topologicalNodeId + " has been considered unmapped, but now a mapping to bus " + busId + " is being added");
+        }
         busTopologicalNodeMap.computeIfAbsent(busId, b -> new HashSet<>()).add(topologicalNodeId);
-        unmapped.remove(topologicalNodeId);
         return this;
     }
 
@@ -93,7 +125,15 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
             if (i instanceof Connectable) {
                 Connectable c = (Connectable) i;
                 Terminal t = (Terminal) c.getTerminals().get(equipmentSide.side - 1);
-                String busId = t.getBusBreakerView().getBus().getId();
+                // TODO Discuss design
+                // BusView Buses should be considered
+                // And it is ok that a Eq,Side does not have a mapping to a BusView bus (it is "disconnected")
+                // but had always a mapping to a BusBreakerView bus (at bus/breaker level even disconnected terminals receive a configured bus)
+                Bus bus = t.getBusView().getBus();
+                if (bus == null) {
+                    return;
+                }
+                String busId = t.getBusView().getBus().getId();
                 checkAlreadyMapped(busId, tn);
                 busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
                 unmapped.remove(tn);
@@ -102,6 +142,11 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     private void checkAlreadyMapped(String busId, String topologicalNodeId) {
+        // TODO Discuss design
+        // TN has been removed from unmapped collection (that starts with all TNs)
+        // and this bus has not received it
+        // because no mappings exist for this bus: get(busId) == null
+        // or because the TN can not be found in the mappings for this bus: !get(busId).contains(TN)
         if (!unmapped.contains(topologicalNodeId) && (busTopologicalNodeMap.get(busId) == null || !busTopologicalNodeMap.get(busId).contains(topologicalNodeId))) {
             throw new PowsyblException("TopologicalNode " + topologicalNodeId + " is already mapped to another bus");
         }

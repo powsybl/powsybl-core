@@ -14,6 +14,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.Properties;
 
 /**
@@ -54,7 +56,11 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+        Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+
+        // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
+        NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
+        Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
@@ -81,8 +87,11 @@ public class StateVariablesExportTest extends AbstractConverterTest {
             DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Export original and with new SV
-        NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
-        NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
+        // comparison without extensions, only Networks
+        ExportOptions exportOptions = new ExportOptions();
+        exportOptions.setExtensions(Collections.emptySet());
+        NetworkXml.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
+        NetworkXml.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
 
         // Compare
         ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
