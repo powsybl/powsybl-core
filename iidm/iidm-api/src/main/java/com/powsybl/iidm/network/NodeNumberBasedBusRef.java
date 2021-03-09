@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Optional;
 
 /**
@@ -15,19 +18,50 @@ public class NodeNumberBasedBusRef extends AbstractVoltageLevelBasedBusRef {
 
     private final int node;
 
-    public NodeNumberBasedBusRef(VoltageLevel voltageLevel, int node) {
-        super(voltageLevel);
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public NodeNumberBasedBusRef(@JsonProperty("voltageLevelId") String voltageLevelId, @JsonProperty("node") int node) {
+        super(voltageLevelId);
         this.node = node;
     }
 
     @Override
-    public Optional<Bus> resolve() {
-        try {
-            final VoltageLevel.NodeBreakerView nodeBreakerView = voltageLevel.getNodeBreakerView();
-            return Optional.ofNullable(nodeBreakerView.getTerminal(node).getBusView().getBus());
-        } catch (Exception e) {
-            return Optional.empty();
+    public Optional<Bus> resolve(Network network) {
+        return safeGetVoltageLevel(network).map(VoltageLevel::getNodeBreakerView)
+                .map(nbb -> {
+                    final Terminal terminal = nbb.getTerminal(node);
+                    if (terminal == null) {
+                        return null;
+                    }
+                    return terminal.getBusView().getBus();
+                });
+    }
+
+    public int getNode() {
+        return node;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
         }
+        if (!(o instanceof NodeNumberBasedBusRef)) {
+            return false;
+        }
+
+        NodeNumberBasedBusRef that = (NodeNumberBasedBusRef) o;
+
+        if (!getVoltageLevelId().equals(that.getVoltageLevelId())) {
+            return false;
+        }
+        return getNode() == that.getNode();
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getVoltageLevelId().hashCode();
+        result = 31 * result + getNode();
+        return result;
     }
 
 }

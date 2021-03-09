@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
-import java.util.Objects;
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Optional;
 
 /**
@@ -14,19 +16,21 @@ import java.util.Optional;
  */
 public class BranchBasedBusRef implements BusRef {
 
-    private final Branch branch;
+    private final String branchId;
 
-    private final Branch.Side side;
+    private final String side;
 
-    public BranchBasedBusRef(Branch branch, Branch.Side side) {
-        this.branch = Objects.requireNonNull(branch);
-        this.side = Objects.requireNonNull(side);
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public BranchBasedBusRef(@JsonProperty("branchId") String branchId, @JsonProperty("side") String side) {
+        this.branchId = branchId;
+        this.side = side;
     }
 
     @Override
-    public Optional<Bus> resolve() {
+    public Optional<Bus> resolve(Network network) {
+        Branch branch = network.getBranch(branchId);
         Terminal terminal;
-        switch (side) {
+        switch (Branch.Side.valueOf(side)) {
             case ONE:
                 terminal = branch.getTerminal1();
                 break;
@@ -37,5 +41,37 @@ public class BranchBasedBusRef implements BusRef {
                 throw new AssertionError("Unexpected side: " + side);
         }
         return Optional.ofNullable(terminal.getBusView().getBus());
+    }
+
+    public String getBranchId() {
+        return branchId;
+    }
+
+    public String getSide() {
+        return side;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BranchBasedBusRef)) {
+            return false;
+        }
+
+        BranchBasedBusRef that = (BranchBasedBusRef) o;
+
+        if (!getBranchId().equals(that.getBranchId())) {
+            return false;
+        }
+        return getSide().equals(that.getSide());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = getBranchId().hashCode();
+        result = 31 * result + getSide().hashCode();
+        return result;
     }
 }

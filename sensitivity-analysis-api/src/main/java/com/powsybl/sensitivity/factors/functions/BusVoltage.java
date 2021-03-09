@@ -8,7 +8,7 @@ package com.powsybl.sensitivity.factors.functions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.iidm.network.AbstractBusRefBean;
+import com.powsybl.iidm.network.BusRef;
 import com.powsybl.sensitivity.SensitivityFunction;
 
 import java.util.Objects;
@@ -22,7 +22,7 @@ import java.util.Objects;
 public class BusVoltage extends SensitivityFunction {
 
     @JsonProperty("busRef")
-    private final AbstractBusRefBean busRef;
+    private final BusRef busRef;
 
     /**
      * Constructor
@@ -35,17 +35,17 @@ public class BusVoltage extends SensitivityFunction {
     @JsonCreator
     public BusVoltage(@JsonProperty("id") String id,
                       @JsonProperty("name") String name,
-                      @JsonProperty("busRef") AbstractBusRefBean busRef) {
+                      @JsonProperty("busRef") BusRef busRef) {
         super(id, name);
         this.busRef = Objects.requireNonNull(busRef);
     }
 
     /**
-     * Get the id of the network terminal composing the sensitivity function
+     * Get the reference to the bus composing the sensitivity function
      *
-     * @return the id of the network terminal
+     * @return the bus ref
      */
-    public AbstractBusRefBean getBusRef() {
+    public BusRef getBusRef() {
         return busRef;
     }
 

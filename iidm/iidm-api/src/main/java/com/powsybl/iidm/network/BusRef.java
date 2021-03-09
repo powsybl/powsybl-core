@@ -6,12 +6,22 @@
  */
 package com.powsybl.iidm.network;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import java.util.Optional;
 
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = BranchBasedBusRef.class),
+        @JsonSubTypes.Type(value = IdBasedBusRef.class),
+        @JsonSubTypes.Type(value = InjectionBasedBusRef.class),
+        @JsonSubTypes.Type(value = NodeNumberBasedBusRef.class)
+})
+@JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface BusRef {
 
     /**
      * @return an empty if not found or underlying implements not supported
      */
-    Optional<Bus> resolve();
+    Optional<Bus> resolve(Network network);
 }

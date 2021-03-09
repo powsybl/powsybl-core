@@ -7,16 +7,31 @@
 package com.powsybl.iidm.network;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public abstract class AbstractVoltageLevelBasedBusRef implements BusRef {
 
-    protected final VoltageLevel voltageLevel;
+    protected final String voltageLevelId;
 
-    public AbstractVoltageLevelBasedBusRef(VoltageLevel voltageLevel) {
-        this.voltageLevel = Objects.requireNonNull(voltageLevel);
+    public AbstractVoltageLevelBasedBusRef(String voltageLevelId) {
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
+    }
+
+    protected Optional<VoltageLevel> safeGetVoltageLevel(Network network) {
+        Objects.requireNonNull(network);
+        try {
+            final VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            return Optional.ofNullable(voltageLevel);
+        } catch (Exception e) {
+            return Optional.empty();
+        }
+    }
+
+    public String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
 }

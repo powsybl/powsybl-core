@@ -6,6 +6,9 @@
  */
 package com.powsybl.iidm.network;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,14 +17,43 @@ import java.util.Optional;
  */
 public class InjectionBasedBusRef implements BusRef {
 
-    protected final Injection injection;
+    private final String injectionId;
 
-    public InjectionBasedBusRef(Injection terminal) {
-        this.injection = Objects.requireNonNull(terminal);
+    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
+    public InjectionBasedBusRef(@JsonProperty("injectionId") String injectionId) {
+        this.injectionId = Objects.requireNonNull(injectionId);
     }
 
     @Override
-    public Optional<Bus> resolve() {
-        return Optional.ofNullable(injection.getTerminal().getBusView().getBus());
+    public Optional<Bus> resolve(Network network) {
+        Identifiable identifiable = network.getIdentifiable(injectionId);
+        if (identifiable instanceof Injection) {
+            Injection injection = (Injection) identifiable;
+            return Optional.ofNullable(injection.getTerminal().getBusView().getBus());
+        }
+        return Optional.empty();
+    }
+
+    public String getInjectionId() {
+        return injectionId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof InjectionBasedBusRef)) {
+            return false;
+        }
+
+        InjectionBasedBusRef that = (InjectionBasedBusRef) o;
+
+        return getInjectionId().equals(that.getInjectionId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getInjectionId().hashCode();
     }
 }
