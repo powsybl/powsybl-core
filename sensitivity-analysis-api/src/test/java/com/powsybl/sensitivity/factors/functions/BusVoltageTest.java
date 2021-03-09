@@ -6,12 +6,17 @@
  */
 package com.powsybl.sensitivity.factors.functions;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.iidm.network.BranchBasedBusBean;
+import com.powsybl.iidm.network.AbstractBusRefBean;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -20,7 +25,7 @@ public class BusVoltageTest {
 
     private static final String FUNCTION_ID = "Function ID";
     private static final String FUNCTION_NAME = "Function name";
-    private static final String TERMINAL_ID = "Terminal ID";
+    private static final AbstractBusRefBean BUS_REF_BEAN = mock(AbstractBusRefBean.class);
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -33,20 +38,27 @@ public class BusVoltageTest {
 
     @Test
     public void getName() {
-        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, TERMINAL_ID);
+        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, BUS_REF_BEAN);
         Assert.assertEquals(FUNCTION_NAME, busVoltage.getName());
     }
 
     @Test
     public void getId() {
-        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, TERMINAL_ID);
+        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, BUS_REF_BEAN);
         Assert.assertEquals(FUNCTION_ID, busVoltage.getId());
     }
 
     @Test
-    public void getBranchId() {
-        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, TERMINAL_ID);
-        assertEquals(TERMINAL_ID, busVoltage.getTerminalId());
+    public void getBranchId() throws JsonProcessingException {
+        BranchBasedBusBean bean = new BranchBasedBusBean("branchId", "ONE");
+        BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, bean);
+        assertEquals(bean, busVoltage.getBusRef());
+        ObjectMapper objectMapper = new ObjectMapper();
+        final String json = objectMapper.writeValueAsString(busVoltage);
+        String expectedJson = "{\"@c\":\".BusVoltage\",\"id\":\"Function ID\",\"name\":\"Function name\",\"busRef\":{\"@c\":\".BranchBasedBusBean\",\"branchId\":\"branchId\",\"side\":\"ONE\"}}";
+        assertEquals(expectedJson, json);
+        final BusVoltage deserialized = objectMapper.readValue(expectedJson, BusVoltage.class);
+        assertEquals(busVoltage, deserialized);
     }
 
 }

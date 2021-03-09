@@ -8,6 +8,7 @@ package com.powsybl.sensitivity.factors.functions;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.iidm.network.AbstractBusRefBean;
 import com.powsybl.sensitivity.SensitivityFunction;
 
 import java.util.Objects;
@@ -20,23 +21,23 @@ import java.util.Objects;
  */
 public class BusVoltage extends SensitivityFunction {
 
-    @JsonProperty("terminalId")
-    private final String terminalId;
+    @JsonProperty("busRef")
+    private final AbstractBusRefBean busRef;
 
     /**
      * Constructor
      *
      * @param id       unique identifier of the function
      * @param name     readable name of the function
-     * @param terminalId id of the network terminal which voltage bus is used as sensitivity function
-     * @throws NullPointerException if terminalId is null
+     * @param busRef   reference to the voltage bus is used as sensitivity function
+     * @throws NullPointerException if busRef is null
      */
     @JsonCreator
     public BusVoltage(@JsonProperty("id") String id,
                       @JsonProperty("name") String name,
-                      @JsonProperty("terminalId") String terminalId) {
+                      @JsonProperty("busRef") AbstractBusRefBean busRef) {
         super(id, name);
-        this.terminalId = Objects.requireNonNull(terminalId);
+        this.busRef = Objects.requireNonNull(busRef);
     }
 
     /**
@@ -44,7 +45,26 @@ public class BusVoltage extends SensitivityFunction {
      *
      * @return the id of the network terminal
      */
-    public String getTerminalId() {
-        return terminalId;
+    public AbstractBusRefBean getBusRef() {
+        return busRef;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof BusVoltage)) {
+            return false;
+        }
+
+        BusVoltage that = (BusVoltage) o;
+
+        return getBusRef().equals(that.getBusRef());
+    }
+
+    @Override
+    public int hashCode() {
+        return getBusRef().hashCode();
     }
 }

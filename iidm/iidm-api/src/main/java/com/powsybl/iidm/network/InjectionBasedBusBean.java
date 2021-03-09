@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class InjectionBasedBusBean {
+public class InjectionBasedBusBean extends AbstractBusRefBean {
 
     private final String injectionId;
 

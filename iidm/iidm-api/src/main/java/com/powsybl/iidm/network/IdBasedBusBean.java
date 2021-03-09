@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class IdBasedBusBean {
+public class IdBasedBusBean extends AbstractBusRefBean {
 
     private final String voltageLevelId;
 

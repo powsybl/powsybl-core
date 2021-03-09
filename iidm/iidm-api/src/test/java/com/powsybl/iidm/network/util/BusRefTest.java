@@ -38,7 +38,7 @@ public class BusRefTest {
         IdBasedBusBean idBasedBusBean = new IdBasedBusBean("vid", "bid");
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(idBasedBusBean);
-        assertEquals("{\"voltageLevelId\":\"vid\",\"busId\":\"bid\"}", json);
+        assertEquals("{\"@c\":\".IdBasedBusBean\",\"voltageLevelId\":\"vid\",\"busId\":\"bid\"}", json);
         final IdBasedBusBean deserialized = objectMapper.readValue(json, IdBasedBusBean.class);
         assertEquals(idBasedBusBean, deserialized);
     }
@@ -57,7 +57,7 @@ public class BusRefTest {
         BranchBasedBusBean bean = new BranchBasedBusBean("branchId", "ONE");
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(bean);
-        assertEquals("{\"branchId\":\"branchId\",\"side\":\"ONE\"}", json);
+        assertEquals("{\"@c\":\".BranchBasedBusBean\",\"branchId\":\"branchId\",\"side\":\"ONE\"}", json);
         final BranchBasedBusBean deserialized = objectMapper.readValue(json, BranchBasedBusBean.class);
         assertEquals(bean, deserialized);
     }
@@ -76,7 +76,7 @@ public class BusRefTest {
         InjectionBasedBusBean bean = new InjectionBasedBusBean("injectionId");
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(bean);
-        assertEquals("{\"injectionId\":\"injectionId\"}", json);
+        assertEquals("{\"@c\":\".InjectionBasedBusBean\",\"injectionId\":\"injectionId\"}", json);
         final InjectionBasedBusBean deserialized = objectMapper.readValue(json, InjectionBasedBusBean.class);
         assertEquals(bean, deserialized);
     }
@@ -99,7 +99,7 @@ public class BusRefTest {
         NodeNumberBasedBusBean bean = new NodeNumberBasedBusBean("vl", 1);
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(bean);
-        assertEquals("{\"voltageLevelId\":\"vl\",\"node\":1}", json);
+        assertEquals("{\"@c\":\".NodeNumberBasedBusBean\",\"voltageLevelId\":\"vl\",\"node\":1}", json);
         assertEquals(bean, objectMapper.readValue(json, NodeNumberBasedBusBean.class));
     }
 

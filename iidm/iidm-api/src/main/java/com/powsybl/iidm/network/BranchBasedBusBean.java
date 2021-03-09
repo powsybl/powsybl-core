@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class BranchBasedBusBean {
+public class BranchBasedBusBean extends AbstractBusRefBean {
 
     private final String branchId;
 

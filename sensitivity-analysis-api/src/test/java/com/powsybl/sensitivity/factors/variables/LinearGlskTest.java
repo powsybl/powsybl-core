@@ -6,6 +6,8 @@
  */
 package com.powsybl.sensitivity.factors.variables;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 import org.junit.Assert;
 import org.junit.Before;
@@ -67,5 +69,13 @@ public class LinearGlskTest {
     public void getGLSKs() {
         LinearGlsk linearGlsk = new LinearGlsk(VARIABLE_ID, VARIABLE_NAME, glskMap);
         assertEquals(2, linearGlsk.getGLSKs().size());
+    }
+
+    @Test
+    public void test() throws JsonProcessingException {
+        LinearGlsk linearGlsk = new LinearGlsk(VARIABLE_ID, VARIABLE_NAME, glskMap);
+        ObjectMapper objectMapper = new ObjectMapper();
+        final String s = objectMapper.writeValueAsString(linearGlsk);
+        System.out.println(s);
     }
 }
