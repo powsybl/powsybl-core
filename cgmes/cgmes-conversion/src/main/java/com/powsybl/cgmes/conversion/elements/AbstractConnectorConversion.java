@@ -99,7 +99,11 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE));
-        addMappingForTopologicalNode(dl, modelSide);
+        // In a Dangling Line the CGMES side and the IIDM side may not be the same
+        // Dangling lines in IIDM only have one terminal, one side
+        int cgmesSide = modelSide;
+        int iidmSide = 1;
+        addMappingForTopologicalNode(dl, modelSide, 1);
         context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,

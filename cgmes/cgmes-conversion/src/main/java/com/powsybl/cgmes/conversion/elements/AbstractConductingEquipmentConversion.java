@@ -458,11 +458,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int terminalNumber) {
+    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
         if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
             CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
-            mapping.put(identifiable.getId(), terminalNumber, terminals[terminalNumber - 1].t.topologicalNode());
+            mapping.put(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
         }
+    }
+
+    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int terminalNumber) {
+        int cgmesTerminalNumber = terminalNumber;
+        int iidmTerminalNumber = cgmesTerminalNumber;
+        addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
     }
 
     private final TerminalData[] terminals;
