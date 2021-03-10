@@ -34,6 +34,14 @@ public class TieLineAdapterTest {
         assertEquals("XNODE", tieLine.getUcteXnodeCode());
         assertNotNull(tieLine.getHalf1());
         assertNotNull(tieLine.getHalf2());
+
+        assertEquals(Branch.Side.ONE, tieLine.getHalf1().getBoundary().getSide());
+        assertSame(tieLine, tieLine.getHalf1().getBoundary().getConnectable());
+        assertSame(tieLine.getTerminal1().getVoltageLevel(), tieLine.getHalf1().getBoundary().getVoltageLevel());
+
+        assertEquals(Branch.Side.TWO, tieLine.getHalf2().getBoundary().getSide());
+        assertSame(tieLine, tieLine.getHalf2().getBoundary().getConnectable());
+        assertSame(tieLine.getTerminal2().getVoltageLevel(), tieLine.getHalf2().getBoundary().getVoltageLevel());
     }
 
     private static Network createNetwork() {
