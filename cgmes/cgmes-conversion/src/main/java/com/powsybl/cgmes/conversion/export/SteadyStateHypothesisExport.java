@@ -11,7 +11,6 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.ActivePowerControl;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import org.slf4j.Logger;
@@ -557,15 +556,12 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static GeneratingUnit generatingUnitForGenerator(Generator g) {
-        if (g.hasProperty(GENERATING_UNIT_PROPERTY)) {
-            ActivePowerControl apc = g.getExtension(ActivePowerControl.class);
-            if (apc != null) {
-                GeneratingUnit gu = new GeneratingUnit();
-                gu.id = g.getProperty(GENERATING_UNIT_PROPERTY);
-                gu.participationFactor = apc.getDroop();
-                gu.className = generatingUnitClassname(g);
-                return gu;
-            }
+        if (g.hasProperty(GENERATING_UNIT_PROPERTY) && g.hasProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF")) {
+            GeneratingUnit gu = new GeneratingUnit();
+            gu.id = g.getProperty(GENERATING_UNIT_PROPERTY);
+            gu.participationFactor = Double.valueOf(g.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "normalPF"));
+            gu.className = generatingUnitClassname(g);
+            return gu;
         }
         return null;
     }

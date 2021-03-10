@@ -76,6 +76,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         @Override
         public Bus getBus(String id) {
+            Bus bus = index.get(id, Bus.class);
+            if (bus != null) {
+                return bus;
+            }
             return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
                     .filter(Objects::nonNull)
                     .findFirst()

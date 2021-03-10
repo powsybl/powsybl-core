@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
@@ -20,6 +21,7 @@ import com.univocity.parsers.annotations.Parsed;
  */
 
 @JsonPropertyOrder(alphabetic = true)
+@JsonIgnoreProperties(value = { "impedances" })
 public class PsseTransformer extends PsseVersioned {
 
     @Override
@@ -85,38 +87,8 @@ public class PsseTransformer extends PsseVersioned {
     @Revision(since = 35)
     private int zcod = 0;
 
-    @Parsed(field = {"r12", "r1_2"})
-    private double r12 = 0;
-
-    @Parsed(field = {"x12", "x1_2"})
-    private double x12;
-
-    @Parsed(field = {"sbase12", "sbase1_2"})
-    private double sbase12 = Double.NaN;
-
-    @Parsed(field = {"r23", "r2_3"})
-    private double r23 = 0;
-
-    @Parsed(field = {"x23", "x2_3"})
-    private double x23 = Double.NaN;
-
-    @Parsed(field = {"sbase23", "sbase2_3"})
-    private double sbase23 = Double.NaN;
-
-    @Parsed(field = {"r31", "r3_1"})
-    private double r31 = 0;
-
-    @Parsed(field = {"x31", "x3_1"})
-    private double x31 = Double.NaN;
-
-    @Parsed(field = {"sbase31", "sbase3_1"})
-    private double sbase31 = Double.NaN;
-
-    @Parsed
-    private double vmstar = 1;
-
-    @Parsed
-    private double anstar = 0;
+    @Nested
+    TransformerImpedances impedances;
 
     @Nested(headerTransformer = WindingHeaderTransformer.class, args = "1")
     private PsseTransformerWinding winding1;
@@ -252,91 +224,91 @@ public class PsseTransformer extends PsseVersioned {
     }
 
     public double getR12() {
-        return r12;
+        return impedances.r12;
     }
 
     public void setR12(double r12) {
-        this.r12 = r12;
+        this.impedances.r12 = r12;
     }
 
     public double getX12() {
-        return x12;
+        return impedances.x12;
     }
 
     public void setX12(double x12) {
-        this.x12 = x12;
+        this.impedances.x12 = x12;
     }
 
     public double getSbase12() {
-        return sbase12;
+        return impedances.sbase12;
     }
 
     public void setSbase12(double sbase12) {
-        this.sbase12 = sbase12;
+        this.impedances.sbase12 = sbase12;
     }
 
     public double getR23() {
-        return r23;
+        return impedances.r23;
     }
 
     public void setR23(double r23) {
-        this.r23 = r23;
+        this.impedances.r23 = r23;
     }
 
     public double getX23() {
-        return x23;
+        return impedances.x23;
     }
 
     public void setX23(double x23) {
-        this.x23 = x23;
+        this.impedances.x23 = x23;
     }
 
     public double getSbase23() {
-        return sbase23;
+        return impedances.sbase23;
     }
 
     public void setSbase23(double sbase23) {
-        this.sbase23 = sbase23;
+        this.impedances.sbase23 = sbase23;
     }
 
     public double getR31() {
-        return r31;
+        return impedances.r31;
     }
 
     public void setR31(double r31) {
-        this.r31 = r31;
+        this.impedances.r31 = r31;
     }
 
     public double getX31() {
-        return x31;
+        return impedances.x31;
     }
 
     public void setX31(double x31) {
-        this.x31 = x31;
+        this.impedances.x31 = x31;
     }
 
     public double getSbase31() {
-        return sbase31;
+        return impedances.sbase31;
     }
 
     public void setSbase31(double sbase31) {
-        this.sbase31 = sbase31;
+        this.impedances.sbase31 = sbase31;
     }
 
     public double getVmstar() {
-        return vmstar;
+        return impedances.vmstar;
     }
 
     public void setVmstar(double vmstar) {
-        this.vmstar = vmstar;
+        this.impedances.vmstar = vmstar;
     }
 
     public double getAnstar() {
-        return anstar;
+        return impedances.anstar;
     }
 
     public void setAnstar(double anstar) {
-        this.anstar = anstar;
+        this.impedances.anstar = anstar;
     }
 
     public PsseTransformerWinding getWinding1() {
@@ -365,5 +337,63 @@ public class PsseTransformer extends PsseVersioned {
 
     public PsseOwnership getOwnership() {
         return ownership;
+    }
+
+    public void setWinding1(PsseTransformerWinding winding1, PsseRates winding1Rates) {
+        this.winding1 = winding1;
+        this.winding1Rates = winding1Rates;
+    }
+
+    public void setWinding2(PsseTransformerWinding winding2, PsseRates winding2Rates) {
+        this.winding2 = winding2;
+        this.winding2Rates = winding2Rates;
+    }
+
+    public void setWinding3(PsseTransformerWinding winding3, PsseRates winding3Rates) {
+        this.winding3 = winding3;
+        this.winding3Rates = winding3Rates;
+    }
+
+    public TransformerImpedances getImpedances() {
+        return impedances;
+    }
+
+    public void setImpedances(TransformerImpedances impedances) {
+        this.impedances = impedances;
+    }
+
+    public static class TransformerImpedances {
+        @Parsed(field = {"r12", "r1_2"})
+        private double r12 = 0;
+
+        @Parsed(field = {"x12", "x1_2"})
+        private double x12;
+
+        @Parsed(field = {"sbase12", "sbase1_2"})
+        private double sbase12 = Double.NaN;
+
+        @Parsed(field = {"r23", "r2_3"})
+        private double r23 = 0;
+
+        @Parsed(field = {"x23", "x2_3"})
+        private double x23 = Double.NaN;
+
+        @Parsed(field = {"sbase23", "sbase2_3"})
+        private double sbase23 = Double.NaN;
+
+        @Parsed(field = {"r31", "r3_1"})
+        private double r31 = 0;
+
+        @Parsed(field = {"x31", "x3_1"})
+        private double x31 = Double.NaN;
+
+        @Parsed(field = {"sbase31", "sbase3_1"})
+        private double sbase31 = Double.NaN;
+
+        @Parsed
+        private double vmstar = 1;
+
+        @Parsed
+        private double anstar = 0;
     }
 }
