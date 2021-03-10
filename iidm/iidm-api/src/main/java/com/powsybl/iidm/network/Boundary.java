@@ -24,4 +24,6 @@ public interface Boundary {
     }
 
     Connectable getConnectable();
+
+    VoltageLevel getVoltageLevel();
 }

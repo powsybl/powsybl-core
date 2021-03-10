@@ -67,6 +67,11 @@ class HalfLineBoundaryImpl implements Boundary {
         return parent;
     }
 
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return parent.getTerminal(side).getVoltageLevel();
+    }
+
     private static double getV(Bus b) {
         return b == null ? Double.NaN : b.getV();
     }

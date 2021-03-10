@@ -61,6 +61,11 @@ class DanglingLineBoundaryImpl implements Boundary {
         return parent;
     }
 
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return parent.getTerminal().getVoltageLevel();
+    }
+
     private static double getV(Bus b) {
         return b == null ? Double.NaN : b.getV();
     }
