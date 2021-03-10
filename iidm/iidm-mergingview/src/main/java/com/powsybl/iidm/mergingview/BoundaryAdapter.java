@@ -9,6 +9,7 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -54,5 +55,10 @@ class BoundaryAdapter extends AbstractAdapter<Boundary> implements Boundary {
     @Override
     public Connectable getConnectable() {
         return getIndex().getConnectable(getDelegate().getConnectable());
+    }
+
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return getIndex().getVoltageLevel(getDelegate().getVoltageLevel());
     }
 }
