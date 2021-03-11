@@ -19,7 +19,7 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     private String id;
     private String name;
     private String energyIdentCodeEic;
-    private double netInterchange;
+    private double netInterchange = Double.NaN;
 
     CgmesControlAreaAdderImpl(CgmesControlAreasImpl mapping) {
         this.mapping = Objects.requireNonNull(mapping);

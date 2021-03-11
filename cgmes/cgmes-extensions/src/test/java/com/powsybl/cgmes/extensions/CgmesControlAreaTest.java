@@ -6,6 +6,7 @@
  */
 package com.powsybl.cgmes.extensions;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
@@ -41,5 +42,37 @@ public class CgmesControlAreaTest {
         assertEquals(100.0, controlArea.getNetInterchange(), 0.0);
         assertEquals(1, controlArea.getTerminals().size());
         controlArea.getTerminals().forEach(t -> assertSame(network.getLine("NHV1_NHV2_1").getTerminal1(), t));
+    }
+
+    @Test
+    public void invalid() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.newExtension(CgmesControlAreasAdder.class).add();
+
+        try {
+            network.getExtension(CgmesControlAreas.class)
+                    .newCgmesControlArea()
+                    .setName("cgmesControlAreaName")
+                    .setEnergyIdentCodeEic("energyIdentCodeEic")
+                    .setNetInterchange(100.0)
+                    .add()
+                    .add(network.getLine("NHV1_NHV2_1").getTerminal1());
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Undefined ID for CGMES control area", e.getMessage());
+        }
+
+        try {
+            network.getExtension(CgmesControlAreas.class)
+                    .newCgmesControlArea()
+                    .setId("cgmesControlAreaId")
+                    .setName("cgmesControlAreaName")
+                    .setEnergyIdentCodeEic("energyIdentCodeEic")
+                    .add()
+                    .add(network.getLine("NHV1_NHV2_1").getTerminal1());
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Undefined net interchange for CGMES control area", e.getMessage());
+        }
     }
 }
