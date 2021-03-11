@@ -24,6 +24,23 @@ public class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2021-02-02T09:27:39.856+01:00"));
+        network.getVoltageLevel("VLGEN")
+                .getBusBreakerView()
+                .newBus()
+                .setId("NDL")
+                .add();
+        network.getVoltageLevel("VLGEN")
+                .newDanglingLine()
+                .setP0(0.0)
+                .setQ0(0.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setB(0.0)
+                .setG(0.0)
+                .setId("DL")
+                .setConnectableBus("NDL")
+                .setBus("NDL")
+                .add();
         network.newExtension(CgmesControlAreasAdder.class).add();
         network.getExtension(CgmesControlAreas.class).newCgmesControlArea()
                 .setId("cgmesControlAreaId")
@@ -32,6 +49,7 @@ public class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
                 .setNetInterchange(100.0)
                 .add()
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
+        network.getExtension(CgmesControlAreas.class).getCgmesControlArea("cgmesControlAreaId").add(network.getDanglingLine("DL").getBoundary());
 
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::validateAndRead, "/eurostag_cgmes_control_area.xml");
     }
