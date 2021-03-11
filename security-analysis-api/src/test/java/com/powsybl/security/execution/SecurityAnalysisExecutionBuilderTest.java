@@ -42,7 +42,7 @@ public class SecurityAnalysisExecutionBuilderTest {
     public void setUp() {
 
         Contingency contingency = new Contingency("cont");
-        ContingenciesProvider provider = (network, imports) -> Collections.nCopies(10, contingency);
+        ContingenciesProvider provider = network -> Collections.nCopies(10, contingency);
 
         actualProvider = new AtomicReference<>();
 

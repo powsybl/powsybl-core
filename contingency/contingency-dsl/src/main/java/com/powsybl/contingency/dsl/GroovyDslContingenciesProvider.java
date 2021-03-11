@@ -8,7 +8,6 @@ package com.powsybl.contingency.dsl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -28,7 +27,7 @@ public class GroovyDslContingenciesProvider extends AbstractDslContingenciesProv
     }
 
     @Override
-    public List<Contingency> getContingencies(Network network, ImportCustomizer imports) {
-        return new ContingencyDslLoader(script).load(network, imports);
+    public List<Contingency> getContingencies(Network network) {
+        return new ContingencyDslLoader(script).load(network);
     }
 }

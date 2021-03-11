@@ -29,7 +29,7 @@ public class SubContingenciesProviderTest {
 
     @Test
     public void test() {
-        ContingenciesProvider provider = (network, imports) -> IntStream.range(1, 5)
+        ContingenciesProvider provider = n -> IntStream.range(1, 5)
                 .mapToObj(i -> new Contingency("contingency-" + i))
                 .collect(Collectors.toList());
 
@@ -49,7 +49,7 @@ public class SubContingenciesProviderTest {
 
     @Test
     public void testEmpty() {
-        ContingenciesProvider provider = (network, imports) -> Collections.emptyList();
+        ContingenciesProvider provider = n -> Collections.emptyList();
 
         Network network = Mockito.mock(Network.class);
 

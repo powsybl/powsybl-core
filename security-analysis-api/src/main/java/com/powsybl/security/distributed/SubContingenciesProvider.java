@@ -10,7 +10,6 @@ import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +36,8 @@ public class SubContingenciesProvider implements ContingenciesProvider {
     }
 
     @Override
-    public List<Contingency> getContingencies(Network network, ImportCustomizer imports) {
-        List<Contingency> fullList = delegate.getContingencies(network, imports);
+    public List<Contingency> getContingencies(Network network) {
+        List<Contingency> fullList = delegate.getContingencies(network);
         int fullSize = fullList.size();
         int start = partition.startIndex(fullSize);
         int end = partition.endIndex(fullSize);

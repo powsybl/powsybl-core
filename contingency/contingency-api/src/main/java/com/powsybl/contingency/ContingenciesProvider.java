@@ -7,7 +7,6 @@
 package com.powsybl.contingency;
 
 import com.powsybl.iidm.network.Network;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
 
 import java.util.List;
 
@@ -15,11 +14,8 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ContingenciesProvider {
-    List<Contingency> getContingencies(Network network, ImportCustomizer imports);
 
-    default List<Contingency> getContingencies(Network network) {
-        return getContingencies(network, new ImportCustomizer());
-    }
+    List<Contingency> getContingencies(Network network);
 
     default String asScript() {
         throw new UnsupportedOperationException("Serialization not supported for contingencies provider of type " + this.getClass().getName());

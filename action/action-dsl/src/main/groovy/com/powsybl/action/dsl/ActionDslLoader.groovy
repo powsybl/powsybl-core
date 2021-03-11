@@ -107,6 +107,14 @@ class ActionDslLoader extends DslLoader {
         load(network, null, new ImportCustomizer())
     }
 
+    ActionDb load(Network network, ActionDslHandler handler) {
+        load(network, handler, null, new ImportCustomizer())
+    }
+
+    ActionDb load(Network network, ActionDslLoaderObserver observer) {
+        load(network, observer, new ImportCustomizer())
+    }
+
     ActionDb load(Network network, ImportCustomizer imports) {
         load(network, null, imports)
     }

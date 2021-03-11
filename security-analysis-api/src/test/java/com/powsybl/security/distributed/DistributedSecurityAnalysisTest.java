@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -65,7 +64,7 @@ public class DistributedSecurityAnalysisTest {
     private static ContingenciesProvider newContingenciesProvider() {
         return new ContingenciesProvider() {
             @Override
-            public List<Contingency> getContingencies(Network network, ImportCustomizer imports) {
+            public List<Contingency> getContingencies(Network network) {
                 return IntStream.range(1, 6)
                         .mapToObj(i -> new Contingency("contingency-" + i))
                         .collect(Collectors.toList());

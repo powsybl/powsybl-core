@@ -34,7 +34,6 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.codehaus.groovy.control.customizers.ImportCustomizer;
 import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -262,7 +261,7 @@ public class ActionSimulatorTool implements Tool {
         try {
             // load actions from Groovy DSL
             ActionDb actionDb = new ActionDslLoader(dslFile.toFile())
-                    .load(network, new ActionDslLoaderObserver(context.getOutputStream(), verbose), new ImportCustomizer());
+                    .load(network, new ActionDslLoaderObserver(context.getOutputStream(), verbose));
 
             if (contingencies.isEmpty()) {
                 contingencies = actionDb.getContingencies().stream().map(Contingency::getId).collect(Collectors.toList());
