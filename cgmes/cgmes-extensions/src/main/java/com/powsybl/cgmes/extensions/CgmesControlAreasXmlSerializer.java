@@ -54,10 +54,12 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
             }
             for (Boundary boundary : controlArea.getBoundaries()) {
-                writer.writeEmptyElement(getNamespaceUri(), "boundary");
-                writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
-                if (boundary.getSide() != null) {
-                    writer.writeAttribute("side", boundary.getSide().name());
+                if (boundary.getConnectable() != null) { // TODO: delete this later, only for compatibility
+                    writer.writeEmptyElement(getNamespaceUri(), "boundary");
+                    writer.writeAttribute("id", networkContext.getAnonymizer().anonymizeString(boundary.getConnectable().getId()));
+                    if (boundary.getSide() != null) {
+                        writer.writeAttribute("side", boundary.getSide().name());
+                    }
                 }
             }
             writer.writeEndElement();
