@@ -23,7 +23,11 @@ public interface Boundary {
         return null;
     }
 
-    Connectable getConnectable();
+    default Connectable getConnectable() {
+        return null;
+    }
 
-    VoltageLevel getVoltageLevel();
+    default VoltageLevel getVoltageLevel() {
+        return null;
+    }
 }
