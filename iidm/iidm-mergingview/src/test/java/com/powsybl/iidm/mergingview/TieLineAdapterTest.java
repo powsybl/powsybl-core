@@ -43,21 +43,29 @@ public class TieLineAdapterTest {
         assertSame(tieLine, tieLine.getHalf2().getBoundary().getConnectable());
         assertSame(tieLine.getTerminal2().getVoltageLevel(), tieLine.getHalf2().getBoundary().getVoltageLevel());
 
-        TieLine.HalfLine half1 = tieLine.getHalf1();
-        assertEquals(1.0, half1.getR(), 0.0);
-        assertEquals(1.0, half1.getX(), 0.0);
-        assertEquals(0.0, half1.getG1(), 0.0);
-        assertEquals(0.0, half1.getG2(), 0.0);
-        assertEquals(0.0, half1.getB1(), 0.0);
-        assertEquals(0.0, half1.getB2(), 0.0);
+        checkHalfLine(tieLine.getHalf1());
+        checkHalfLine(tieLine.getHalf2());
+    }
 
-        TieLine.HalfLine half2 = tieLine.getHalf2();
-        assertEquals(1.0, half2.getR(), 0.0);
-        assertEquals(1.0, half2.getX(), 0.0);
-        assertEquals(0.0, half2.getG1(), 0.0);
-        assertEquals(0.0, half2.getG2(), 0.0);
-        assertEquals(0.0, half2.getB1(), 0.0);
-        assertEquals(0.0, half2.getB2(), 0.0);
+    private static void checkHalfLine(TieLine.HalfLine half) {
+        assertEquals(1.0, half.getR(), 0.0);
+        half.setR(2.0);
+        assertEquals(2.0, half.getR(), 0.0);
+        assertEquals(1.0, half.getX(), 0.0);
+        half.setX(2.0);
+        assertEquals(2.0, half.getX(), 0.0);
+        assertEquals(0.0, half.getG1(), 0.0);
+        half.setG1(0.5);
+        assertEquals(0.5, half.getG1(), 0.0);
+        assertEquals(0.0, half.getG2(), 0.0);
+        half.setG2(0.5);
+        assertEquals(0.5, half.getG2(), 0.0);
+        assertEquals(0.0, half.getB1(), 0.0);
+        half.setB1(0.5);
+        assertEquals(0.5, half.getB1(), 0.0);
+        assertEquals(0.0, half.getB2(), 0.0);
+        half.setB2(0.5);
+        assertEquals(0.5, half.getB2(), 0.0);
     }
 
     private static Network createNetwork() {
