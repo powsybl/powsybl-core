@@ -22,8 +22,8 @@
     <description>PowerFactory parent project</description>
 
     <modules>
-        <module>powerfactory-model</module>
-        <module>powerfactory-dgs</module>
         <module>powerfactory-converter</module>
+        <module>powerfactory-dgs</module>
+        <module>powerfactory-model</module>
     </modules>
 </project>
