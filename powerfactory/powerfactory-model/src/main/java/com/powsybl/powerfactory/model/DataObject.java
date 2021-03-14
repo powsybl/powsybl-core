@@ -45,7 +45,7 @@ public class DataObject {
     }
 
     public String getName() {
-        return findStringAttributeValue("loc_name").orElseThrow(() -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
+        return findStringAttributeValue(DataAttribute.LOC_NAME).orElseThrow(() -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
     }
 
     public DataObject getParent() {
@@ -135,9 +135,9 @@ public class DataObject {
         for (Map.Entry<String, Object> e : other.attributeValues.entrySet()) {
             String attributeName = e.getKey();
             Object attributeValue = e.getValue();
-            if (!attributeName.equals("loc_name")
-                    && !attributeName.equals("fold_id")
-                    && !attributeName.equals("for_name")) {
+            if (!attributeName.equals(DataAttribute.LOC_NAME)
+                    && !attributeName.equals(DataAttribute.FOLD_ID)
+                    && !attributeName.equals(DataAttribute.FOR_NAME)) {
                 attributeValues.put(attributeName, attributeValue);
             }
         }
@@ -149,6 +149,12 @@ public class DataObject {
         }
     }
 
+    private static void checkAttributeType(DataAttribute attribute, DataAttributeType type) {
+        if (attribute.getType() != type) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+    }
+
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
@@ -156,9 +162,7 @@ public class DataObject {
         if (attribute == null) {
             throw new PowerFactoryException("Attribute '" + name + "' not found");
         }
-        if (attribute.getType() != type) {
-            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
-        }
+        checkAttributeType(attribute, type);
         attributeValues.put(name, value);
     }
 
@@ -178,9 +182,7 @@ public class DataObject {
         if (attribute == null) {
             return Optional.empty();
         }
-        if (attribute.getType() != type) {
-            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
-        }
+        checkAttributeType(attribute, type);
         T value = (T) attributeValues.get(name);
         return Optional.ofNullable(value);
     }
@@ -282,9 +284,7 @@ public class DataObject {
         if (attribute == null) {
             return OptionalInt.empty();
         }
-        if (attribute.getType() != DataAttributeType.INTEGER) {
-            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
-        }
+        checkAttributeType(attribute, DataAttributeType.INTEGER);
         Integer value = (Integer) attributeValues.get(name);
         if (value == null) {
             return OptionalInt.empty();
@@ -307,9 +307,7 @@ public class DataObject {
         if (attribute == null) {
             return OptionalLong.empty();
         }
-        if (attribute.getType() != DataAttributeType.INTEGER64) {
-            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
-        }
+        checkAttributeType(attribute, DataAttributeType.INTEGER64);
         Long value = (Long) attributeValues.get(name);
         if (value == null) {
             return OptionalLong.empty();
@@ -332,9 +330,7 @@ public class DataObject {
         if (attribute == null) {
             return OptionalDouble.empty();
         }
-        if (attribute.getType() != DataAttributeType.DOUBLE) {
-            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
-        }
+        checkAttributeType(attribute, DataAttributeType.DOUBLE);
         Double value = (Double) attributeValues.get(name);
         if (value == null) {
             return OptionalDouble.empty();

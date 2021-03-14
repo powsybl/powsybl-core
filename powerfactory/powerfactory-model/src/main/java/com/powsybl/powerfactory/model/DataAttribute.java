@@ -13,6 +13,10 @@ import java.util.Objects;
  */
 public class DataAttribute {
 
+    public static final String LOC_NAME = "loc_name";
+    public static final String FOLD_ID = "fold_id";
+    public static final String FOR_NAME = "for_name";
+
     private final String name;
 
     private final DataAttributeType type;
