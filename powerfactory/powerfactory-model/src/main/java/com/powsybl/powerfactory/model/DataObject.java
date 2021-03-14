@@ -1,0 +1,441 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.powerfactory.model;
+
+import com.google.common.primitives.Ints;
+import org.apache.commons.math3.linear.RealMatrix;
+
+import java.io.PrintStream;
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class DataObject {
+
+    private final long id;
+
+    private DataObject parent;
+
+    private final List<DataObject> children = new ArrayList<>();
+
+    private final DataClass dataClass;
+
+    private Project project;
+
+    private Map<String, Object> attributeValues = new HashMap<>();
+
+    private Map<String, Object> initialAttributeValues;
+
+    public DataObject(long id, DataClass dataClass) {
+        this.id = id;
+        this.dataClass = Objects.requireNonNull(dataClass);
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return findStringAttributeValue("loc_name").orElseThrow(() -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
+    }
+
+    public DataObject getParent() {
+        return parent;
+    }
+
+    public DataObject setParent(DataObject parent) {
+        if (this.parent != null) {
+            this.parent.getChildren().remove(this);
+        }
+        if (parent != null) {
+            parent.getChildren().add(this);
+        }
+        this.parent = parent;
+        return this;
+    }
+
+    public List<DataObject> getChildren() {
+        return children;
+    }
+
+    public List<DataObject> getChildren(String className) {
+        Objects.requireNonNull(className);
+        return children.stream()
+                .filter(child -> child.getDataClass().getName().equals(className))
+                .collect(Collectors.toList());
+    }
+
+    public SchemeStatus getSchemeStatus() {
+        return SchemeStatus.values()[findIntAttributeValue("iSchemeStatus").orElse(0)]; // according to the doc 0 is default value
+    }
+
+    public Optional<DataObject> getChild(String name) {
+        Objects.requireNonNull(name);
+        return children.stream().filter(child -> child.getName().equals(name)).findFirst();
+    }
+
+    public Optional<DataObject> getChild(String... names) {
+        return getChild(0, names);
+    }
+
+    protected Optional<DataObject> getChild(int i, String... names) {
+        Optional<DataObject> child = getChild(names[i]);
+        if (i == names.length - 1) {
+            return child;
+        }
+        return child.flatMap(littleChild -> littleChild.getChild(i + 1, names));
+    }
+
+    public Optional<DataObject> findFirstChildByClass(String className) {
+        Objects.requireNonNull(className);
+        return children.stream()
+                .filter(child -> child.getDataClass().getName().equals(className))
+                .findFirst();
+    }
+
+    public DataClass getDataClass() {
+        return dataClass;
+    }
+
+    public String getDataClassName() {
+        return dataClass.getName();
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        if (this.project != null) {
+            throw new PowerFactoryException("Data object is already assigned to a project");
+        }
+        this.project = Objects.requireNonNull(project);
+    }
+
+    public List<String> getAttributeNames() {
+        return dataClass.getAttributes().stream().map(DataAttribute::getName).collect(Collectors.toList());
+    }
+
+    public void copyAttributeValues(DataObject other) {
+        Objects.requireNonNull(other);
+        if (!getDataClassName().equals(other.getDataClassName())) {
+            throw new PowerFactoryException("It is forbidden to copy attributes from an object with a different class: "
+                    + getDataClassName() + " and " + other.getDataClassName());
+        }
+        initialAttributeValues = new HashMap<>(attributeValues);
+        for (Map.Entry<String, Object> e : other.attributeValues.entrySet()) {
+            String attributeName = e.getKey();
+            Object attributeValue = e.getValue();
+            if (!attributeName.equals("loc_name")
+                    && !attributeName.equals("fold_id")
+                    && !attributeName.equals("for_name")) {
+                attributeValues.put(attributeName, attributeValue);
+            }
+        }
+    }
+
+    public void restoreAttributeValues() {
+        if (initialAttributeValues != null) {
+            attributeValues = initialAttributeValues;
+        }
+    }
+
+    private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(type);
+        DataAttribute attribute = dataClass.getAttributeByName(name);
+        if (attribute == null) {
+            throw new PowerFactoryException("Attribute '" + name + "' not found");
+        }
+        if (attribute.getType() != type) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+        attributeValues.put(name, value);
+    }
+
+    public Optional<Object> findAttributeValue(String name) {
+        Objects.requireNonNull(name);
+        return Optional.ofNullable(attributeValues.get(name));
+    }
+
+    public Object getAttributeValue(String name) {
+        return findAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Attribute '" + name + "' not found"));
+    }
+
+    private <T> Optional<T> findGenericAttributeValue(String name, DataAttributeType type) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(type);
+        DataAttribute attribute = dataClass.getAttributeByName(name);
+        if (attribute == null) {
+            return Optional.empty();
+        }
+        if (attribute.getType() != type) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+        T value = (T) attributeValues.get(name);
+        return Optional.ofNullable(value);
+    }
+
+    public Optional<String> findStringAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.STRING);
+    }
+
+    public String getStringAttributeValue(String name) {
+        return findStringAttributeValue(name).orElseThrow(() -> new PowerFactoryException("String attribute '" + name + "' not found"));
+    }
+
+    public DataObject setStringAttributeValue(String name, String value) {
+        setGenericAttributeValue(name, DataAttributeType.STRING, value);
+        return this;
+    }
+
+    public Optional<DataObject> findObjectAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.OBJECT);
+    }
+
+    public DataObject getObjectAttributeValue(String name) {
+        return findObjectAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Object attribute '" + name + "' not found"));
+    }
+
+    public DataObject setObjectAttributeValue(String name, DataObject value) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT, value);
+        return this;
+    }
+
+    public Optional<List<DataObject>> findObjectVectorAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR);
+    }
+
+    public List<DataObject> getObjectVectorAttributeValue(String name) {
+        return findObjectVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Object vector attribute '" + name + "' not found"));
+    }
+
+    public DataObject setObjectVectorAttributeValue(String name, List<DataObject> value) {
+        setGenericAttributeValue(name, DataAttributeType.OBJECT_VECTOR, value);
+        return this;
+    }
+
+    public Optional<Float> findFloatAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.FLOAT);
+    }
+
+    public float getFloatAttributeValue(String name) {
+        return findFloatAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Float attribute '" + name + "' not found"));
+    }
+
+    public DataObject setFloatAttributeValue(String name, float value) {
+        setGenericAttributeValue(name, DataAttributeType.FLOAT, value);
+        return this;
+    }
+
+    public Optional<List<Integer>> findIntVectorAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.INTEGER_VECTOR);
+    }
+
+    public List<Integer> getIntVectorAttributeValue(String name) {
+        return findIntVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Int vector attribute '" + name + "' not found"));
+    }
+
+    public DataObject setIntVectorAttributeValue(String name, List<Integer> value) {
+        setGenericAttributeValue(name, DataAttributeType.INTEGER_VECTOR, value);
+        return this;
+    }
+
+    public Optional<List<Float>> findFloatVectorAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.FLOAT_VECTOR);
+    }
+
+    public List<Float> getFloatVectorAttributeValue(String name) {
+        return findFloatVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Float vector attribute '" + name + "' not found"));
+    }
+
+    public DataObject setFloatVectorAttributeValue(String name, List<Float> value) {
+        setGenericAttributeValue(name, DataAttributeType.FLOAT_VECTOR, value);
+        return this;
+    }
+
+    public Optional<List<Double>> findDoubleVectorAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.DOUBLE_VECTOR);
+    }
+
+    public List<Double> getDoubleVectorAttributeValue(String name) {
+        return findDoubleVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Double vector attribute '" + name + "' not found"));
+    }
+
+    public DataObject setDoubleVectorAttributeValue(String name, List<Double> value) {
+        setGenericAttributeValue(name, DataAttributeType.DOUBLE_VECTOR, value);
+        return this;
+    }
+
+    public OptionalInt findIntAttributeValue(String name) {
+        Objects.requireNonNull(name);
+        DataAttribute attribute = dataClass.getAttributeByName(name);
+        if (attribute == null) {
+            return OptionalInt.empty();
+        }
+        if (attribute.getType() != DataAttributeType.INTEGER) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+        Integer value = (Integer) attributeValues.get(name);
+        if (value == null) {
+            return OptionalInt.empty();
+        }
+        return OptionalInt.of(value);
+    }
+
+    public int getIntAttributeValue(String name) {
+        return findIntAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Integer attribute '" + name + "' not found"));
+    }
+
+    public DataObject setIntAttributeValue(String name, int value) {
+        setGenericAttributeValue(name, DataAttributeType.INTEGER, value);
+        return this;
+    }
+
+    public OptionalLong findLongAttributeValue(String name) {
+        Objects.requireNonNull(name);
+        DataAttribute attribute = dataClass.getAttributeByName(name);
+        if (attribute == null) {
+            return OptionalLong.empty();
+        }
+        if (attribute.getType() != DataAttributeType.INTEGER64) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+        Long value = (Long) attributeValues.get(name);
+        if (value == null) {
+            return OptionalLong.empty();
+        }
+        return OptionalLong.of(value);
+    }
+
+    public long getLongAttributeValue(String name) {
+        return findLongAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Long attribute '" + name + "' not found"));
+    }
+
+    public DataObject setLongAttributeValue(String name, long value) {
+        setGenericAttributeValue(name, DataAttributeType.INTEGER64, value);
+        return this;
+    }
+
+    public OptionalDouble findDoubleAttributeValue(String name) {
+        Objects.requireNonNull(name);
+        DataAttribute attribute = dataClass.getAttributeByName(name);
+        if (attribute == null) {
+            return OptionalDouble.empty();
+        }
+        if (attribute.getType() != DataAttributeType.DOUBLE) {
+            throw new PowerFactoryException("Incorrect attribute type: " + attribute.getType());
+        }
+        Double value = (Double) attributeValues.get(name);
+        if (value == null) {
+            return OptionalDouble.empty();
+        }
+        return OptionalDouble.of(value);
+    }
+
+    public double getDoubleAttributeValue(String name) {
+        return findDoubleAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Double attribute '" + name + "' not found"));
+    }
+
+    public DataObject setDoubleAttributeValue(String name, double value) {
+        setGenericAttributeValue(name, DataAttributeType.DOUBLE, value);
+        return this;
+    }
+
+    public Optional<RealMatrix> findMatrixAttributeValue(String name) {
+        return findGenericAttributeValue(name, DataAttributeType.MATRIX);
+    }
+
+    public RealMatrix getMatrixAttributeValue(String name) {
+        return findMatrixAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Matrix attribute '" + name + "' not found"));
+    }
+
+    public DataObject setMatrixAttributeValue(String name, RealMatrix value) {
+        setGenericAttributeValue(name, DataAttributeType.MATRIX, value);
+        return this;
+    }
+
+    public Optional<Instant> findInstantAttributeValue(String name) {
+        OptionalInt i = findIntAttributeValue(name);
+        if (i.isPresent()) {
+            return Optional.of(Instant.ofEpochSecond(i.getAsInt()));
+        }
+        return Optional.empty();
+    }
+
+    public Instant getInstantAttributeValue(String name) {
+        return findInstantAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Instant attribute '" + name + "' not found"));
+    }
+
+    public DataObject setInstantAttributeValue(String name, Instant value) {
+        setIntAttributeValue(name, Ints.checkedCast(value.getEpochSecond()));
+        return this;
+    }
+
+    private static void indent(PrintStream out, int depth) {
+        for (int i = 0; i < depth; i++) {
+            out.print("    ");
+        }
+    }
+
+    public void print(PrintStream out, Function<DataObject, String> toString) {
+        Objects.requireNonNull(out);
+        Objects.requireNonNull(toString);
+        print(out, toString, 0);
+    }
+
+    private void print(PrintStream out, Function<DataObject, String> toString, int depth) {
+        indent(out, depth);
+        out.println(toString.apply(this));
+        for (DataObject child : children) {
+            child.print(out, toString, depth + 1);
+        }
+    }
+
+    public List<DataObject> getPath() {
+        List<DataObject> path = new ArrayList<>();
+        DataObject obj = this;
+        while (obj != null) {
+            path.add(0, obj);
+            obj = obj.getParent();
+        }
+        return path;
+    }
+
+    public void traverse(Consumer<DataObject> handler) {
+        Objects.requireNonNull(handler);
+        handler.accept(this);
+        for (DataObject child : children) {
+            child.traverse(handler);
+        }
+    }
+
+    public List<DataObject> search(String regex) {
+        List<DataObject> result = new ArrayList<>();
+        traverse(object -> {
+            if (object.getFullName().matches(regex)) {
+                result.add(object);
+            }
+        });
+        return result;
+    }
+
+    public String getFullName() {
+        return getPath().stream().map(DataObject::getName).collect(Collectors.joining("\\"))
+                + '.' + dataClass.getName();
+    }
+
+    @Override
+    public String toString() {
+        return getFullName();
+    }
+}
