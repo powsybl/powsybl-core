@@ -67,7 +67,7 @@ public class DataObject {
         return children;
     }
 
-    public List<DataObject> getChildren(String className) {
+    public List<DataObject> getChildrenByClass(String className) {
         Objects.requireNonNull(className);
         return children.stream()
                 .filter(child -> child.getDataClass().getName().equals(className))

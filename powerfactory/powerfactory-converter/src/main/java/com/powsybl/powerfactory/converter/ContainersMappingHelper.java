@@ -78,7 +78,7 @@ final class ContainersMappingHelper {
         Map<DataObject, List<DataObject>> branchesByCubicleId = new HashMap<>();
         for (DataObject elmTerm : elmTerms) {
             nodes.add(elmTerm);
-            for (DataObject staCubic : elmTerm.getChildren("StaCubic")) {
+            for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
                 DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
                 if (connectedObj != null) {
                     if (connectedObj.getDataClassName().equals("ElmTr2")

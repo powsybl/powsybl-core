@@ -29,7 +29,7 @@ public class NetworkVariation {
     }
 
     public List<NetworkExpansionStage> getExpansionStages() {
-        return intScheme.getChildren("IntSstage").stream()
+        return intScheme.getChildrenByClass("IntSstage").stream()
                 .map(NetworkExpansionStage::new)
                 .collect(Collectors.toList());
     }

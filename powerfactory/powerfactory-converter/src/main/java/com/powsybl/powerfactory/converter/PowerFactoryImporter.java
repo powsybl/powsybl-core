@@ -546,12 +546,12 @@ public class PowerFactoryImporter implements Importer {
                     .setNode(bbNode)
                     .add();
         }
-        for (DataObject staCubic : elmTerm.getChildren("StaCubic")) {
+        for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
             DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
             if (connectedObj == null) {
                 importContext.cubiclesObjectNotFound.add(staCubic);
             } else {
-                List<DataObject> staSwitches = staCubic.getChildren("StaSwitch");
+                List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
                 if (staSwitches.size() > 1) {
                     throw new PowsyblException("Multiple staSwitch not supported");
                 }

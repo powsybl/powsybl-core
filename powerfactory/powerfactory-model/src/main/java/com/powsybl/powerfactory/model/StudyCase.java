@@ -38,7 +38,7 @@ public class StudyCase {
 
     public List<DataObject> getElmNets() {
         return intCase.findFirstChildByClass("ElmNet")
-                .map(elmNet -> elmNet.getChildren("IntRef").stream()
+                .map(elmNet -> elmNet.getChildrenByClass("IntRef").stream()
                         .map(obj -> obj.getObjectAttributeValue("obj_id"))
                         .collect(Collectors.toList()))
                 .orElseThrow(() -> new PowerFactoryException("ElmNet class not found"));
@@ -46,7 +46,7 @@ public class StudyCase {
 
     public List<NetworkVariation> getNetworkVariations() {
         return intCase.findFirstChildByClass("IntAcscheme")
-                .map(intAcscheme -> intAcscheme.getChildren("IntRef").stream()
+                .map(intAcscheme -> intAcscheme.getChildrenByClass("IntRef").stream()
                         .map(obj -> obj.getObjectAttributeValue("obj_id"))
                         .map(intScheme -> new NetworkVariation(intScheme, this))
                         .collect(Collectors.toList()))
