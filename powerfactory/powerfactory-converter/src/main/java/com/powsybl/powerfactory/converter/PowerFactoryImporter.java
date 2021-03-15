@@ -8,8 +8,6 @@ package com.powsybl.powerfactory.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Stopwatch;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.io.ByteStreams;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -56,7 +54,7 @@ public class PowerFactoryImporter implements Importer {
 
     @Override
     public String getComment() {
-        return "Power Factory to IIDM converter";
+        return "PowerFactory to IIDM converter";
     }
 
     private Optional<ProjectLoader> findProjectLoader(ReadOnlyDataSource dataSource) {
@@ -102,7 +100,7 @@ public class PowerFactoryImporter implements Importer {
         final ContainersMapping containerMapping;
 
         // object id to node (IIDM node/breaker node) mapping
-        final Multimap<Long, NodeRef> objIdToNode = HashMultimap.create();
+        final Map<Long, List<NodeRef>> objIdToNode = new HashMap<>();
 
         final Map<String, MutableInt> nodeCountByVoltageLevelId = new HashMap<>();
 
@@ -131,8 +129,8 @@ public class PowerFactoryImporter implements Importer {
         }
     }
 
-    private static Collection<NodeRef> checkNodes(DataObject obj, Multimap<Long, NodeRef> objIdToNode, int connections) {
-        Collection<NodeRef> nodeRefs = objIdToNode.asMap().get(obj.getId());
+    private static List<NodeRef> checkNodes(DataObject obj, Map<Long, List<NodeRef>> objIdToNode, int connections) {
+        List<NodeRef> nodeRefs = objIdToNode.get(obj.getId());
         if (nodeRefs == null || nodeRefs.size() != connections) {
             throw new PowsyblException("Inconsistent number (" + (nodeRefs != null ? nodeRefs.size() : 0)
                     + ") of connection for '" + obj + "'");
@@ -586,7 +584,8 @@ public class PowerFactoryImporter implements Importer {
                                 .add();
                     }
                 }
-                importContext.objIdToNode.put(connectedObj.getId(), new NodeRef(vl.getId(), node));
+                importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
+                        .add(new NodeRef(vl.getId(), node));
             }
         }
     }
