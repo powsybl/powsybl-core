@@ -271,7 +271,7 @@ public class TransformerConverter extends AbstractConverter {
                 xw = xw * sbase / windingSbase;
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CZ = " + cz);
+                throw new PsseException("Unexpected CZ = " + cz);
         }
         return new Complex(rw, xw);
     }
@@ -299,7 +299,7 @@ public class TransformerConverter extends AbstractConverter {
                 }
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CM = " + cm);
+                throw new PsseException("Unexpected CM = " + cm);
         }
         return new Complex(g, b);
     }
@@ -321,7 +321,7 @@ public class TransformerConverter extends AbstractConverter {
                 ratio = windV * nomV / baskv;
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CW = " + cw);
+                throw new PsseException("Unexpected CW = " + cw);
         }
         return ratio;
     }
@@ -803,7 +803,7 @@ public class TransformerConverter extends AbstractConverter {
             regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
         }
         if (regulatingTerminal == null) {
-            LOGGER.warn("PSSE. Transformer {}. Regulating terminal is not assigned as the bus is isolated", id);
+            LOGGER.warn("Transformer {}. Regulating terminal is not assigned as the bus is isolated", id);
         }
         return regulatingTerminal;
     }

@@ -121,7 +121,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
         }
         if (regulatingTerminal == null) {
             String shuntId = defineShuntId(psseSwitchedShunt, version);
-            LOGGER.warn("PSSE. SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", shuntId);
+            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", shuntId);
         }
         return regulatingTerminal;
     }
