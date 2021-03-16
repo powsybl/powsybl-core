@@ -176,7 +176,7 @@ public class ActionDslLoaderTest {
     @Test
     public void testHandler() {
         ActionDslHandler handler = mock(ActionDslHandler.class);
-        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network, handler);
+        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network, handler, null);
 
         verify(handler, times(1)).addAction(argThat(matches(a -> a.getId().equals("action"))));
         verify(handler, times(2)).addContingency(any());

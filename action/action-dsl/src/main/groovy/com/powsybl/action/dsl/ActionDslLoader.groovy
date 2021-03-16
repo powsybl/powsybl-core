@@ -15,7 +15,6 @@ import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
 import com.powsybl.iidm.network.Network
 import org.codehaus.groovy.control.CompilationFailedException
-import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 
 /**
@@ -104,19 +103,7 @@ class ActionDslLoader extends DslLoader {
     }
 
     ActionDb load(Network network) {
-        load(network, null, new ImportCustomizer())
-    }
-
-    ActionDb load(Network network, ActionDslHandler handler) {
-        load(network, handler, null, new ImportCustomizer())
-    }
-
-    ActionDb load(Network network, ActionDslLoaderObserver observer) {
-        load(network, observer, new ImportCustomizer())
-    }
-
-    ActionDb load(Network network, ImportCustomizer imports) {
-        load(network, null, imports)
+        load(network, null)
     }
 
     /**
@@ -203,7 +190,7 @@ class ActionDslLoader extends DslLoader {
         }
     }
 
-    void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer, ImportCustomizer imports) {
+    void load(Network network, ActionDslHandler handler, ActionDslLoaderObserver observer) {
 
         LOGGER.debug("Loading DSL '{}'", dslSrc.getName())
         observer?.begin(dslSrc.getName())
@@ -213,7 +200,7 @@ class ActionDslLoader extends DslLoader {
         loadDsl(binding, network, handler, observer)
         try {
 
-            def shell = createShell(binding, imports)
+            def shell = createShell(binding)
 
             shell.evaluate(dslSrc)
 
@@ -223,7 +210,7 @@ class ActionDslLoader extends DslLoader {
         }
     }
 
-    ActionDb load(Network network, ActionDslLoaderObserver observer, ImportCustomizer imports) {
+    ActionDb load(Network network, ActionDslLoaderObserver observer) {
         ActionDb rulesDb = new ActionDb()
 
         //Handler to create an ActionDb instance
@@ -245,7 +232,7 @@ class ActionDslLoader extends DslLoader {
             }
         }
 
-        load(network, actionDbBuilder, observer, imports)
+        load(network, actionDbBuilder, observer)
 
         rulesDb.checkUndefinedActions()
         rulesDb
