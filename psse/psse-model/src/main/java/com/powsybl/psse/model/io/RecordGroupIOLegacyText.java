@@ -171,10 +171,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     private static String removeComment(String line) {
-        int slashIndex = line.indexOf('/');
-        if (slashIndex == -1) {
-            return line;
-        }
-        return line.substring(0, slashIndex);
+        // Only outside quotes
+        return line.replaceAll("(?!'[^']*)/(?![^']*')([^/]*)", "");
     }
 }

@@ -23,7 +23,6 @@ import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
@@ -79,8 +78,12 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             return;
         }
 
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
         Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
+        // Discard control if the switchedShunt is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return;
+        }
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
@@ -117,8 +120,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            throw new PsseException("PSSE. SwitchedShunt " + defaultRegulatingBusId + "-"
-                + defineShuntId(psseSwitchedShunt, version) + ". Unexpected regulatingTerminal.");
+            LOGGER.warn("PSSE. SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", defineShuntId(psseSwitchedShunt, version));
         }
         return regulatingTerminal;
     }
