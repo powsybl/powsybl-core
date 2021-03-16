@@ -172,6 +172,6 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
 
     private static String removeComment(String line) {
         // Only outside quotes
-        return line.replaceAll("(?!'[^']*)/(?![^']*')([^/]*)", "");
+        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
     }
 }
