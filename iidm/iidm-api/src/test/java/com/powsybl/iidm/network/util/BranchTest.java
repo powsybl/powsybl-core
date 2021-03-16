@@ -68,12 +68,32 @@ public class BranchTest {
             }
 
             @Override
+            public ActivePowerLimitsAdder newActivePowerLimits1() {
+                return null;
+            }
+
+            @Override
+            public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+                return null;
+            }
+
+            @Override
             public CurrentLimits getCurrentLimits2() {
                 return null;
             }
 
             @Override
             public CurrentLimitsAdder newCurrentLimits2() {
+                return null;
+            }
+
+            @Override
+            public ActivePowerLimitsAdder newActivePowerLimits2() {
+                return null;
+            }
+
+            @Override
+            public ApparentPowerLimitsAdder newApparentPowerLimits2() {
                 return null;
             }
 

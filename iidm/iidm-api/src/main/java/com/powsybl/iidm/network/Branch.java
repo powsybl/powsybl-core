@@ -256,9 +256,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Branch<I> setP1(double p) {
+    default I setP1(double p) {
         getTerminal1().setP(p);
-        return this;
+        return (I) this;
     }
 
     /**
@@ -277,9 +277,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Branch<I> setQ1(double q) {
+    default I setQ1(double q) {
         getTerminal1().setQ(q);
-        return this;
+        return (I) this;
     }
 
     /**
@@ -335,9 +335,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Branch<I> setP2(double p) {
+    default I setP2(double p) {
         getTerminal2().setP(p);
-        return this;
+        return (I) this;
     }
 
     /**
@@ -356,9 +356,9 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Branch<I> setQ2(double q) {
+    default I setQ2(double q) {
         getTerminal2().setQ(q);
-        return this;
+        return (I) this;
     }
 
     /**

@@ -34,9 +34,9 @@ public interface Injection<I extends Injection<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Injection<I> setP(double p) {
+    default I setP(double p) {
         getTerminal().setP(p);
-        return this;
+        return (I) this;
     }
 
     /**
@@ -55,9 +55,9 @@ public interface Injection<I extends Injection<I>> extends Connectable<I> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    default Injection<I> setQ(double q) {
+    default I setQ(double q) {
         getTerminal().setQ(q);
-        return this;
+        return (I) this;
     }
 
     /**
