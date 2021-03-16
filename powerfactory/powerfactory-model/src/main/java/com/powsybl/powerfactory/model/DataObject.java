@@ -87,7 +87,7 @@ public class DataObject {
         return getChild(0, names);
     }
 
-    protected Optional<DataObject> getChild(int i, String... names) {
+    private Optional<DataObject> getChild(int i, String... names) {
         Optional<DataObject> child = getChild(names[i]);
         if (i == names.length - 1) {
             return child;

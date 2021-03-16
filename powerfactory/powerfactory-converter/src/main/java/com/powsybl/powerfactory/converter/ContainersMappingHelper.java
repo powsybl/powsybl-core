@@ -80,16 +80,14 @@ final class ContainersMappingHelper {
             nodes.add(elmTerm);
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
                 DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
-                if (connectedObj != null) {
-                    if (connectedObj.getDataClassName().equals("ElmTr2")
-                            || connectedObj.getDataClassName().equals("ElmTr3")
-                            || connectedObj.getDataClassName().equals("ElmLne")
-                            || connectedObj.getDataClassName().equals("ElmCoup")) {
-                        nodes.add(staCubic);
-                        edges.add(new Edge(elmTerm, staCubic, null, false, 0, 0));
-                        branchesByCubicleId.computeIfAbsent(connectedObj, k -> new ArrayList<>())
-                                .add(staCubic);
-                    }
+                if (connectedObj != null && connectedObj.getDataClassName().equals("ElmTr2")
+                        || connectedObj.getDataClassName().equals("ElmTr3")
+                        || connectedObj.getDataClassName().equals("ElmLne")
+                        || connectedObj.getDataClassName().equals("ElmCoup")) {
+                    nodes.add(staCubic);
+                    edges.add(new Edge(elmTerm, staCubic, null, false, 0, 0));
+                    branchesByCubicleId.computeIfAbsent(connectedObj, k -> new ArrayList<>())
+                            .add(staCubic);
                 }
             }
         }
@@ -115,13 +113,13 @@ final class ContainersMappingHelper {
                         edges.add(new Edge(staCubics.get(0), staCubics.get(1), null, false, 0, 0));
                         break;
                     default:
-                        throw new AssertionError();
+                        throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
             } else if (staCubics.size() == 3) {
                 if (connectedObj.getDataClassName().equals("ElmTr3")) {
                     edges.add(new Edge(staCubics.get(0), staCubics.get(1), staCubics.get(2), true, Double.MAX_VALUE, Double.MAX_VALUE));
                 } else {
-                    throw new AssertionError();
+                    throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
             } else {
                 throw new PowsyblException(connectedObj.getName() + " should be connected at both sides");
@@ -157,7 +155,7 @@ final class ContainersMappingHelper {
                             .map(obj -> obj.findFloatAttributeValue("uknom").orElse(null))
                             .filter(Objects::nonNull)
                             .findFirst()
-                            .orElseThrow(AssertionError::new);
+                            .orElseThrow();
 
                     DataObject container = containers.iterator().next();
                     float unom = container.getFloatAttributeValue("Unom");
