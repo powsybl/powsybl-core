@@ -168,8 +168,9 @@ public final class StateVariablesExport {
             }
             TieLine tieLine = (TieLine) l;
             Optional<String> topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
-            writeVoltage(topologicalNode.get(), tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle(), cimNamespace, writer);
-
+            if (topologicalNode.isPresent()) {
+                writeVoltage(topologicalNode.get(), tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle(), cimNamespace, writer);
+            }
         }
     }
 
