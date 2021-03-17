@@ -24,6 +24,7 @@ public final class CgmesNamespace {
     public static final String ENTSOE_NAMESPACE = "http://entsoe.eu/CIM/SchemaExtension/3/1#";
     public static final String MD_NAMESPACE = "http://iec.ch/TC57/61970-552/ModelDescription/1#";
 
+    public static final String EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
     public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
