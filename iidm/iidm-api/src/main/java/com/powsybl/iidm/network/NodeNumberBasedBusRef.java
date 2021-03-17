@@ -8,36 +8,48 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.PowsyblException;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class NodeNumberBasedBusRef extends AbstractVoltageLevelBasedBusRef {
+public class NodeNumberBasedBusRef implements BusRef {
 
+    private final String voltageLevelId;
     private final int node;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public NodeNumberBasedBusRef(@JsonProperty("voltageLevelId") String voltageLevelId, @JsonProperty("node") int node) {
-        super(voltageLevelId);
+        this.voltageLevelId = Objects.requireNonNull(voltageLevelId);
         this.node = node;
     }
 
     @Override
     public Optional<Bus> resolve(Network network) {
-        return safeGetVoltageLevel(network).map(VoltageLevel::getNodeBreakerView)
-                .map(nbb -> {
-                    final Terminal terminal = nbb.getTerminal(node);
-                    if (terminal == null) {
-                        return null;
-                    }
-                    return terminal.getBusView().getBus();
-                });
+        final VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            return Optional.empty();
+        }
+        if (voltageLevel.getNodeBreakerView() != null) {
+            final Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
+            if (terminal == null) {
+                return Optional.empty();
+            }
+            return Optional.of(terminal.getBusView().getBus());
+        } else {
+            throw new PowsyblException("Underlying topology not supported.");
+        }
     }
 
     public int getNode() {
         return node;
+    }
+
+    public String getVoltageLevelId() {
+        return voltageLevelId;
     }
 
     @Override

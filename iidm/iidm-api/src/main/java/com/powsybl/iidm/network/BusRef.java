@@ -14,14 +14,14 @@ import java.util.Optional;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = BranchBasedBusRef.class),
         @JsonSubTypes.Type(value = IdBasedBusRef.class),
-        @JsonSubTypes.Type(value = InjectionBasedBusRef.class),
         @JsonSubTypes.Type(value = NodeNumberBasedBusRef.class)
 })
 @JsonTypeInfo(use = JsonTypeInfo.Id.MINIMAL_CLASS)
 public interface BusRef {
 
     /**
-     * @return an empty if not found or underlying implements not supported
+     * @return an empty if not found
+     * @throws com.powsybl.commons.PowsyblException if underlying implementation not supported
      */
     Optional<Bus> resolve(Network network);
 }

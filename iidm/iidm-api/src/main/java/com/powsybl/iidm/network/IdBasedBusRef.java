@@ -8,32 +8,46 @@ package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.commons.PowsyblException;
 
 import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * There would be two types of id:
+ * 1. id of equipment:
+ * 2. id of bus itself:
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class IdBasedBusRef extends AbstractVoltageLevelBasedBusRef {
+public class IdBasedBusRef implements BusRef {
 
-    private final String busId;
+    private final String id;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public IdBasedBusRef(@JsonProperty("voltageLevelId") String voltageLevelId, @JsonProperty("busId") String busId) {
-        super(voltageLevelId);
-        this.busId = Objects.requireNonNull(busId);
+    public IdBasedBusRef(@JsonProperty("id") String id) {
+        this.id = Objects.requireNonNull(id);
     }
 
     @Override
     public Optional<Bus> resolve(Network network) {
-        return safeGetVoltageLevel(network)
-                .map(VoltageLevel::getBusView)
-                .map(busView -> busView.getBus(busId));
+        final Bus bus = network.getBusView().getBus(id);
+        if (bus != null) {
+            return Optional.of(bus);
+        }
+        final Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            return Optional.empty();
+        }
+        if (identifiable instanceof Injection) {
+            final Injection injection = (Injection) identifiable;
+            return Optional.of(injection.getTerminal().getBusView().getBus());
+        } else {
+            throw new PowsyblException(id + " is not a bus or injection.");
+        }
     }
 
-    public String getBusId() {
-        return busId;
+    public String getId() {
+        return id;
     }
 
     @Override
@@ -47,16 +61,11 @@ public class IdBasedBusRef extends AbstractVoltageLevelBasedBusRef {
 
         IdBasedBusRef that = (IdBasedBusRef) o;
 
-        if (!getVoltageLevelId().equals(that.getVoltageLevelId())) {
-            return false;
-        }
-        return getBusId().equals(that.getBusId());
+        return getId().equals(that.getId());
     }
 
     @Override
     public int hashCode() {
-        int result = getVoltageLevelId().hashCode();
-        result = 31 * result + getBusId().hashCode();
-        return result;
+        return getId().hashCode();
     }
 }

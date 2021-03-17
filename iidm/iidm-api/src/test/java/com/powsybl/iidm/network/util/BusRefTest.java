@@ -11,8 +11,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -27,21 +26,39 @@ public class BusRefTest {
     @Test
     public void testIdBasedBusRef() throws JsonProcessingException {
         Network network = mock(Network.class);
-        VoltageLevel vl = mock(VoltageLevel.class);
-        when(network.getVoltageLevel(eq("vid"))).thenReturn(vl);
-        VoltageLevel.BusView bv = mock(VoltageLevel.BusView.class);
-        when(vl.getBusView()).thenReturn(bv);
-        when(bv.getBus(eq("id"))).thenReturn(bus);
+        Network.BusView bv = mock(Network.BusView.class);
+        when(network.getBusView()).thenReturn(bv);
+        when(bv.getBus(eq("busId"))).thenReturn(bus);
 
-        final BusRef busRef = new IdBasedBusRef("vid", "id");
+        final BusRef busRef = new IdBasedBusRef("busId");
         assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
-        assertFalse(new IdBasedBusRef("vid", "another").resolve(network).isPresent());
+        assertFalse(new IdBasedBusRef("another").resolve(network).isPresent());
 
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(busRef);
-        assertEquals("{\"@c\":\".IdBasedBusRef\",\"voltageLevelId\":\"vid\",\"busId\":\"id\"}", json);
+        assertEquals("{\"@c\":\".IdBasedBusRef\",\"id\":\"busId\"}", json);
         final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
+
+        Identifiable busbarSection = mock(BusbarSection.class);
+        when(network.getIdentifiable(eq("busbarId"))).thenReturn(busbarSection);
+        final BusbarSection bbs = (BusbarSection) busbarSection;
+        Terminal terminal = mock(Terminal.class);
+        when(bbs.getTerminal()).thenReturn(terminal);
+        Terminal.BusView tbv = mock(Terminal.BusView.class);
+        when(terminal.getBusView()).thenReturn(tbv);
+        when(tbv.getBus()).thenReturn(bus);
+        final IdBasedBusRef busbarRef = new IdBasedBusRef("busbarId");
+        assertEquals(bus, busbarRef.resolve(network).orElseThrow(AssertionError::new));
+
+        Identifiable branch = mock(Branch.class);
+        when(network.getIdentifiable(eq("branchId"))).thenReturn(branch);
+        try {
+            new IdBasedBusRef("branchId").resolve(network);
+            fail();
+        } catch (Exception e) {
+            assertEquals("branchId is not a bus or injection.", e.getMessage());
+        }
     }
 
     @Test
@@ -61,26 +78,6 @@ public class BusRefTest {
         final String json = objectMapper.writeValueAsString(busRef);
         assertEquals("{\"@c\":\".BranchBasedBusRef\",\"branchId\":\"branchId\",\"side\":\"ONE\"}", json);
         final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
-        assertEquals(busRef, deserialized);
-    }
-
-    @Test
-    public void testInjectionBased() throws JsonProcessingException {
-        Network network = mock(Network.class);
-        Injection injection = mock(Injection.class);
-        when(network.getIdentifiable(eq("injectionId"))).thenReturn(injection);
-        Terminal terminal = mock(Terminal.class);
-        Terminal.BusView bv = mock(Terminal.BusView.class);
-        when(injection.getTerminal()).thenReturn(terminal);
-        when(terminal.getBusView()).thenReturn(bv);
-        when(bv.getBus()).thenReturn(bus);
-        final InjectionBasedBusRef busRef = new InjectionBasedBusRef("injectionId");
-        assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        final String json = objectMapper.writeValueAsString(busRef);
-        assertEquals("{\"@c\":\".InjectionBasedBusRef\",\"injectionId\":\"injectionId\"}", json);
-        final InjectionBasedBusRef deserialized = objectMapper.readValue(json, InjectionBasedBusRef.class);
         assertEquals(busRef, deserialized);
     }
 
