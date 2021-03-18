@@ -20,7 +20,7 @@ public interface CgmesControlArea {
 
     String getName();
 
-    String getEnergyIdentCodeEic();
+    String getEnergyIdentificationCodeEIC();
 
     double getNetInterchange();
 

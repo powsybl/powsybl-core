@@ -263,7 +263,7 @@ public class CgmesConformity1ModifiedConversionTest {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("_BECONTROLAREA");
         assertEquals("BE", cgmesControlArea.getName());
-        assertEquals("10BE------1", cgmesControlArea.getEnergyIdentCodeEic());
+        assertEquals("10BE------1", cgmesControlArea.getEnergyIdentificationCodeEIC());
         assertEquals(-205.90011555672567, cgmesControlArea.getNetInterchange(), 0.0);
         assertEquals(5, cgmesControlArea.getTerminals().size());
     }

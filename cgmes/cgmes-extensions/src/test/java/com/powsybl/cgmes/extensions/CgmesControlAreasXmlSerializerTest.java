@@ -45,7 +45,7 @@ public class CgmesControlAreasXmlSerializerTest extends AbstractConverterTest {
         network.getExtension(CgmesControlAreas.class).newCgmesControlArea()
                 .setId("cgmesControlAreaId")
                 .setName("cgmesControlAreaName")
-                .setEnergyIdentCodeEic("energyIdentCodeEic")
+                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                 .setNetInterchange(100.0)
                 .add()
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());

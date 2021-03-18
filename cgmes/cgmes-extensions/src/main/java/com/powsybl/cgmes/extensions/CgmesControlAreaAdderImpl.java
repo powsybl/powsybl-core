@@ -18,7 +18,7 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     private final CgmesControlAreasImpl mapping;
     private String id;
     private String name;
-    private String energyIdentCodeEic;
+    private String energyIdentificationCodeEic;
     private double netInterchange = Double.NaN;
 
     CgmesControlAreaAdderImpl(CgmesControlAreasImpl mapping) {
@@ -38,8 +38,8 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
     }
 
     @Override
-    public CgmesControlAreaAdder setEnergyIdentCodeEic(String energyIdentCodeEic) {
-        this.energyIdentCodeEic = energyIdentCodeEic;
+    public CgmesControlAreaAdder setEnergyIdentificationCodeEic(String energyIdentificationCodeEic) {
+        this.energyIdentificationCodeEic = energyIdentificationCodeEic;
         return this;
     }
 
@@ -57,6 +57,6 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
         if (Double.isNaN(netInterchange)) {
             throw new PowsyblException("Undefined net interchange for CGMES control area");
         }
-        return new CgmesControlAreaImpl(id, name, energyIdentCodeEic, netInterchange, mapping);
+        return new CgmesControlAreaImpl(id, name, energyIdentificationCodeEic, netInterchange, mapping);
     }
 }

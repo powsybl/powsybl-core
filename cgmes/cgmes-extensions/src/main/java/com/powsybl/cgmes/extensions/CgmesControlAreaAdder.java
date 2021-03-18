@@ -15,7 +15,7 @@ public interface CgmesControlAreaAdder {
 
     CgmesControlAreaAdder setName(String name);
 
-    CgmesControlAreaAdder setEnergyIdentCodeEic(String energyIdentCodeEic);
+    CgmesControlAreaAdder setEnergyIdentificationCodeEic(String energyIdentificationCodeEic);
 
     CgmesControlAreaAdder setNetInterchange(double netInterchange);
 

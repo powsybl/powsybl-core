@@ -27,7 +27,7 @@ public class CgmesControlAreaTest {
         extension.newCgmesControlArea()
                 .setId("cgmesControlAreaId")
                 .setName("cgmesControlAreaName")
-                .setEnergyIdentCodeEic("energyIdentCodeEic")
+                .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                 .setNetInterchange(100.0)
                 .add()
                 .add(network.getLine("NHV1_NHV2_1").getTerminal1());
@@ -38,7 +38,7 @@ public class CgmesControlAreaTest {
         assertNotNull(controlArea);
         assertEquals("cgmesControlAreaId", controlArea.getId());
         assertEquals("cgmesControlAreaName", controlArea.getName());
-        assertEquals("energyIdentCodeEic", controlArea.getEnergyIdentCodeEic());
+        assertEquals("energyIdentCodeEic", controlArea.getEnergyIdentificationCodeEIC());
         assertEquals(100.0, controlArea.getNetInterchange(), 0.0);
         assertEquals(1, controlArea.getTerminals().size());
         controlArea.getTerminals().forEach(t -> assertSame(network.getLine("NHV1_NHV2_1").getTerminal1(), t));
@@ -53,7 +53,7 @@ public class CgmesControlAreaTest {
             network.getExtension(CgmesControlAreas.class)
                     .newCgmesControlArea()
                     .setName("cgmesControlAreaName")
-                    .setEnergyIdentCodeEic("energyIdentCodeEic")
+                    .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                     .setNetInterchange(100.0)
                     .add()
                     .add(network.getLine("NHV1_NHV2_1").getTerminal1());
@@ -67,7 +67,7 @@ public class CgmesControlAreaTest {
                     .newCgmesControlArea()
                     .setId("cgmesControlAreaId")
                     .setName("cgmesControlAreaName")
-                    .setEnergyIdentCodeEic("energyIdentCodeEic")
+                    .setEnergyIdentificationCodeEic("energyIdentCodeEic")
                     .add()
                     .add(network.getLine("NHV1_NHV2_1").getTerminal1());
             fail();

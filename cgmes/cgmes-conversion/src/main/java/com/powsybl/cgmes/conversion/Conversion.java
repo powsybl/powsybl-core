@@ -252,7 +252,7 @@ public class Conversion {
             cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
                     .setId(controlAreaId)
                     .setName(tf.getLocal("controlAreaName"))
-                    .setEnergyIdentCodeEic(tf.getLocal("energyIdentCodeEic"))
+                    .setEnergyIdentificationCodeEic(tf.getLocal("energyIdentCodeEic"))
                     .setNetInterchange(tf.asDouble("netInterchange"))
                     .add();
         }

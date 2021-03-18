@@ -21,15 +21,15 @@ import java.util.Set;
 class CgmesControlAreaImpl implements CgmesControlArea {
     private final String id;
     private final String name;
-    private final String energyIdentCodeEic;
+    private final String energyIdentificationCodeEic;
     private final Set<Terminal> terminals = new HashSet<>();
     private final Set<Boundary> boundaries = new HashSet<>();
     private final double netInterchange;
 
-    CgmesControlAreaImpl(String id, String name, String energyIdentCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
+    CgmesControlAreaImpl(String id, String name, String energyIdentificationCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
         this.id = Objects.requireNonNull(id);
         this.name = name;
-        this.energyIdentCodeEic = energyIdentCodeEic;
+        this.energyIdentificationCodeEic = energyIdentificationCodeEic;
         this.netInterchange = checkNetInterchange(netInterchange);
         attach(mapping);
     }
@@ -49,8 +49,8 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     }
 
     @Override
-    public String getEnergyIdentCodeEic() {
-        return energyIdentCodeEic;
+    public String getEnergyIdentificationCodeEIC() {
+        return energyIdentificationCodeEic;
     }
 
     @Override
