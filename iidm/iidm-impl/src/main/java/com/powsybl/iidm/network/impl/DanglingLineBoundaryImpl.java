@@ -6,10 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
@@ -51,6 +49,21 @@ class DanglingLineBoundaryImpl implements Boundary {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
         return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+    }
+
+    @Override
+    public Branch.Side getSide() {
+        return null;
+    }
+
+    @Override
+    public Connectable getConnectable() {
+        return parent;
+    }
+
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return parent.getTerminal().getVoltageLevel();
     }
 
     private static double getV(Bus b) {

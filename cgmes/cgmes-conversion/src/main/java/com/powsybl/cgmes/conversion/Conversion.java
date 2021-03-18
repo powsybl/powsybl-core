@@ -12,11 +12,7 @@ import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
-import com.powsybl.cgmes.extensions.CgmesIidmMappingAdder;
-import com.powsybl.cgmes.extensions.CgmesSshMetadataAdder;
-import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -213,6 +209,11 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
 
+        network.newExtension(CgmesControlAreasAdder.class).add();
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreas, tf));
+        cgmesControlAreas.cleanIfEmpty();
+
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
         }
@@ -245,6 +246,28 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private void addControlArea(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
+        String controlAreaId = tf.getId("ControlArea");
+        CgmesControlArea cgmesControlArea;
+        if (cgmesControlAreas.containsCgmesControlAreaId(controlAreaId)) {
+            cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
+        } else {
+            cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
+                    .setId(controlAreaId)
+                    .setName(tf.getLocal("controlAreaName"))
+                    .setEnergyIdentificationCodeEic(tf.getLocal("energyIdentCodeEic"))
+                    .setNetInterchange(tf.asDouble("netInterchange"))
+                    .add();
+        }
+
+        String terminalId = tf.getId("terminal");
+        if (context.terminalMapping().find(terminalId) != null) {
+            cgmesControlArea.add(context.terminalMapping().find(terminalId));
+        } else if (context.terminalMapping().findBoundary(terminalId) != null) {
+            cgmesControlArea.add(context.terminalMapping().findBoundary(terminalId));
+        }
     }
 
     private void convert(

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:csm="http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_control_areas/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="cgmesControlAreas">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="controlArea" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="terminal" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="id" use="required" type="xs:string"/>
+                                    <xs:attribute name="side" use="optional" type="csm:nonEmptyString"/> <!-- if there is no side, it means it is a dangling line -->
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="boundary" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="id" use="required" type="xs:string"/>
+                                    <xs:attribute name="side" use="optional" type="csm:nonEmptyString"/> <!-- if there is a side, it means it is a tie line. Else it is a dangling line -->
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                        <xs:attribute name="id" use="required" type="xs:string"/>
+                        <xs:attribute name="name" use="optional" type="xs:string"/>
+                        <xs:attribute name="energyIdentificationCodeEic" use="optional" type="xs:string"/>
+                        <xs:attribute name="netInterchange" use="required" type="csm:nonEmptyString"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

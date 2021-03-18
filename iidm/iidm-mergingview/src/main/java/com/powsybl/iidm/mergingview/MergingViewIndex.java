@@ -34,6 +34,8 @@ class MergingViewIndex {
 
     private final Map<RatioTapChanger, AbstractAdapter<? extends RatioTapChanger>> rtcCached = new WeakHashMap<>();
 
+    private final Map<Boundary, AbstractAdapter<? extends Boundary>> boundaryCached = new WeakHashMap<>();
+
     /** Network asked to be merged */
     private final Collection<Network> networks = new ArrayList<>();
 
@@ -408,6 +410,14 @@ class MergingViewIndex {
 
     RatioTapChangerAdapter getRatioTapChanger(final RatioTapChanger rtc) {
         return rtc == null ? null : (RatioTapChangerAdapter) rtcCached.computeIfAbsent(rtc, key -> new RatioTapChangerAdapter(rtc, this));
+    }
+
+    BoundaryAdapter getBoundary(final Boundary boundary) {
+        return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, this));
+    }
+
+    BoundaryAdapter getBoundary(final Boundary boundary, final Branch.Side mergedSide) {
+        return boundary == null ? null : (BoundaryAdapter) boundaryCached.computeIfAbsent(boundary, key -> new BoundaryAdapter(boundary, mergedSide, this));
     }
 
     Line getLine(final Line line) {

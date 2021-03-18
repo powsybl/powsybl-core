@@ -26,15 +26,15 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Boundary {
+public class CgmesBoundary {
 
-    public Boundary(CgmesModel cgmes) {
+    public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
-                        "Boundary nodes",
+                        "CgmesBoundary nodes",
                         System.lineSeparator(),
                         bns.tabulateLocals());
             }
@@ -122,5 +122,5 @@ public class Boundary {
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Boundary.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
 }
