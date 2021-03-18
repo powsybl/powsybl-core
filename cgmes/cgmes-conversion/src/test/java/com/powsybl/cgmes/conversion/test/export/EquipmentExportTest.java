@@ -10,8 +10,14 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
+import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -19,6 +25,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -36,18 +43,17 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     public void microGridBE() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), 2);
+        Properties properties = new Properties();
+        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
-//    @Test
-//    public void smallGrid() throws IOException, XMLStreamException {
-//        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
-//    }
+    @Test
+    public void nordic32() throws IOException, XMLStreamException {
+        XMLImporter xmli = new XMLImporter();
+        test(xmli.importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
+    }
 
-    private void test(ReadOnlyDataSource dataSource, int eqVersion) throws IOException, XMLStreamException {
-        // Import original
-        Properties properties = new Properties();
-        Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
+    private void test(Network expected) throws IOException, XMLStreamException {
 
         // Export EQ
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
@@ -58,20 +64,9 @@ public class EquipmentExportTest extends AbstractConverterTest {
             EquipmentExport.write(expected, writer, context);
         }
 
-        // Zip with new EQ
-        Path repackaged = tmpDir.resolve("repackaged.zip");
-        Repackager r = new Repackager(dataSource)
-                .with("test_EQ.xml", exportedEq)
-                .with("test_TP.xml", Repackager::tp)
-                .with("test_SV.xml", Repackager::sv)
-                .with("test_SSH.xml", Repackager::ssh)
-                .with("test_EQ_BD.xml", Repackager::eqBd)
-                .with("test_TP_BD.xml", Repackager::tpBd);
-        r.zip(repackaged);
-
-        // Import with new EQ
-        Network actual = Importers.loadNetwork(repackaged,
-                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+        // Import EQ
+        Properties properties = new Properties();
+        Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), properties);
 
         // Export original and with new EQ
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
