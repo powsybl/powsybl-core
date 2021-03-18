@@ -18,7 +18,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
 
@@ -67,8 +66,12 @@ public class GeneratorConverter extends AbstractConverter {
             return;
         }
 
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
         Terminal regulatingTerminal = defineRegulatingTerminal(psseGenerator, getNetwork());
+        // Discard control if the generator is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return;
+        }
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetV = psseGenerator.getVs() * vnom;
         boolean voltageRegulatorOn = false;
@@ -100,8 +103,8 @@ public class GeneratorConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            throw new PsseException("PSSE. Generator " + defaultRegulatingBusId + "-"
-                + getGeneratorId(defaultRegulatingBusId, psseGenerator) + ". Unexpected regulatingTerminal.");
+            String generatorId = getGeneratorId(defaultRegulatingBusId, psseGenerator);
+            LOGGER.warn("Generator {}. Regulating terminal is not assigned as the bus is isolated", generatorId);
         }
         return regulatingTerminal;
     }

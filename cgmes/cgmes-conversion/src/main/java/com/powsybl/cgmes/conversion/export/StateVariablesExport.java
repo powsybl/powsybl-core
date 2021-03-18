@@ -12,7 +12,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
-import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +22,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
-import static com.powsybl.cgmes.conversion.export.CgmesExportUtil.complexVoltage;
 import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 
 /**
@@ -181,9 +179,7 @@ public final class StateVariablesExport {
                 if (dl.hasProperty("v") && dl.hasProperty("angle")) {
                     writeVoltage(topologicalNode.get(), Double.valueOf(dl.getProperty("v", "NaN")), Double.valueOf(dl.getProperty("angle", "NaN")), cimNamespace, writer);
                 } else if (b != null) {
-                    // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                    Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(), dl.getP0(), dl.getQ0());
-                    writeVoltage(topologicalNode.get(), v2.abs(), Math.toDegrees(v2.getArgument()), cimNamespace, writer);
+                    writeVoltage(topologicalNode.get(), dl.getBoundary().getV(), dl.getBoundary().getAngle(), cimNamespace, writer);
                 } else {
                     writeVoltage(topologicalNode.get(), 0.0, 0.0, cimNamespace, writer);
                 }
@@ -196,8 +192,10 @@ public final class StateVariablesExport {
                 continue;
             }
             TieLine tieLine = (TieLine) l;
-            // FIXME(Luma) Obtain voltage at inner node
-            LOG.error("Must export topologicalNode voltage for boundary Tie Line {}", tieLine);
+            Optional<String> topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            if (topologicalNode.isPresent()) {
+                writeVoltage(topologicalNode.get(), tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle(), cimNamespace, writer);
+            }
         }
     }
 
