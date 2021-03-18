@@ -36,7 +36,7 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     CgmesIidmMapping put(String busId, String topologicalNodeId);
 
-    Map<String, Set<String>> toMap();
+    Map<String, Set<String>> topologicalNodesByBusViewBusMap();
 
     Set<String> getUnmappedTopologicalNodes();
 }

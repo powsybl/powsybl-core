@@ -6,28 +6,20 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.extensions.CgmesIidmMapping;
-import com.powsybl.cgmes.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
-import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNamespace;
-
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import org.joda.time.DateTime;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesExportContext {
-
-    public enum TopologicalMappingUse {
-        MAPPING_ONLY,
-        PARTIAL_MAPPING,
-        NO_MAPPING
-    }
 
     private int cimVersion = 16;
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
@@ -38,9 +30,7 @@ public class CgmesExportContext {
 
     private boolean exportBoundaryPowerFlows = false;
 
-    private final Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping = new HashMap<>();
-
-    private TopologicalMappingUse topologicalMappingUse = TopologicalMappingUse.NO_MAPPING;
+    private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();
 
     public static final class ModelDescription {
@@ -131,11 +121,40 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
+        addTopologicalNodeMappings(network);
+    }
+
+    public void addTopologicalNodeMappings(Network network) {
+        // For a merging view we plan to call CgmesExportContext() and then addTopologicalNodesMapping(network) for every network
         CgmesIidmMapping cgmesIidmMapping = network.getExtension(CgmesIidmMapping.class);
         if (cgmesIidmMapping != null) {
-            topologicalMappingUse = TopologicalMappingUse.MAPPING_ONLY;
-            topologicalNodeByBusBreakerBusMapping.putAll(cgmesIidmMapping.toMap());
+            Map<String, Set<String>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
+            topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
             unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
+            // And remove from unmapped the currently mapped
+            // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
+            unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(set -> set.stream()).collect(Collectors.toSet()));
+        } else {
+            // If we do not have an explicit mapping
+            // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
+            // We can not obtain the configured buses inside a BusView bus looking only at connected terminals
+            // If we consider only connected terminals we would miss configured buses that only have connections through switches
+            // Switches do not add as terminals
+            // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
+            Map<String, Set<String>> tnsFromBusBreaker = new HashMap<>();
+            Set<String> mappedTns = new HashSet<>();
+            for (VoltageLevel vl : network.getVoltageLevels()) {
+                for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
+                    String topologicalNode = configuredBus.getId();
+                    Bus busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
+                    if (busViewBus != null) {
+                        tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);
+                        mappedTns.add(topologicalNode);
+                    }
+                }
+            }
+            topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
+            unmappedTopologicalNodes.removeAll(mappedTns);
         }
     }
 
@@ -190,25 +209,13 @@ public class CgmesExportContext {
         return CgmesNamespace.getCimNamespace(cimVersion);
     }
 
-    public CgmesExportContext setTopologicalMappingUse(TopologicalMappingUse topologicalMappingUse) {
-        this.topologicalMappingUse = Objects.requireNonNull(topologicalMappingUse);
-        return this;
+    public Set<String> getTopologicalNodesByBusViewBus(String busId) {
+        return topologicalNodeByBusViewBusMapping.get(busId);
     }
 
-    public Set<String> getTopologicalNodesByBusBreakerBus(String busId) {
-        if (topologicalMappingUse == TopologicalMappingUse.MAPPING_ONLY) {
-            return topologicalNodeByBusBreakerBusMapping.get(busId);
-        } else if (topologicalMappingUse == TopologicalMappingUse.NO_MAPPING) {
-            return Collections.singleton(busId);
-        } else if (topologicalMappingUse == TopologicalMappingUse.PARTIAL_MAPPING) {
-            return Optional.ofNullable(topologicalNodeByBusBreakerBusMapping.get(busId)).orElseGet(() -> Collections.singleton(busId));
-        }
-        throw new AssertionError("Unexpected mapping use: " + topologicalMappingUse);
-    }
-
-    public CgmesExportContext setTopologicalNodeByBusBreakerBusMapping(Map<String, Set<String>> topologicalNodeByBusBreakerBusMapping) {
-        this.topologicalNodeByBusBreakerBusMapping.clear();
-        this.topologicalNodeByBusBreakerBusMapping.putAll(topologicalNodeByBusBreakerBusMapping);
+    public CgmesExportContext setTopologicalNodesByBusViewBusMapping(Map<String, Set<String>> topologicalNodeByBusViewBusMapping) {
+        this.topologicalNodeByBusViewBusMapping.clear();
+        this.topologicalNodeByBusViewBusMapping.putAll(topologicalNodeByBusViewBusMapping);
         return this;
     }
 

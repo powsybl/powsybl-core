@@ -17,7 +17,8 @@ import java.util.*;
  */
 class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIidmMapping {
 
-    // TODO Discuss design
+    // TODO(Luma) Improve serialization by not writing calculated bus ids
+
     // Ideally we would like to store all the mappings (Terminal --> TopologicalNode)
     // present in the original CGMES TP file
     // In IIDM we already have, for each (Equiment, Side) (IIDM Terminal) an alias for the CGMES Terminal
@@ -32,15 +33,11 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     // BUT bus identifiers in node/breaker models are calculated
     // And do not appear anywhere in the XIIDM file,
-    // so we are storing "virtual references" to buses that are not serialized
+    // so we are storing "virtual references" to buses that are not serialized with the Network
 
-    // BusView buses should be used instead of BusBreakerView buses
-    // They are closer to TopologicalNodes
-
-    // Current implementation has the following problem:
-    // checkAlreadyMapped works ok during conversion, when extension is being built
-    // but fails when extension data is de-serialized:
-    // (mapping is empty, unmmapped is empty) ==> put(busId, TN) fails
+    // A solution is to serialize bus references without using the bus identifier
+    // That can be achieved by choosing any IIDM "terminal" inside the bus to refer to it
+    // An IIDM "terminal" can be serialized as an (equipmentId, side)
 
     private final Map<EquipmentSide, String> equipmentSideTopologicalNodeMap;
     private final Map<String, Set<String>> busTopologicalNodeMap;
@@ -90,7 +87,6 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
 
     @Override
     public CgmesIidmMapping put(String busId, String topologicalNodeId) {
-        // TODO Discuss design
         // This method is called when the unmapped list has already been completed
         // There are no "pending" TNs to be removed from unmapped
         // The check to see if this TN has also been mapped to a different bus
@@ -104,7 +100,7 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     @Override
-    public Map<String, Set<String>> toMap() {
+    public Map<String, Set<String>> topologicalNodesByBusViewBusMap() {
         if (busTopologicalNodeMap.isEmpty()) {
             calculate();
         }
@@ -125,7 +121,6 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
             if (i instanceof Connectable) {
                 Connectable c = (Connectable) i;
                 Terminal t = (Terminal) c.getTerminals().get(equipmentSide.side - 1);
-                // TODO Discuss design
                 // BusView Buses should be considered
                 // And it is ok that a Eq,Side does not have a mapping to a BusView bus (it is "disconnected")
                 // but had always a mapping to a BusBreakerView bus (at bus/breaker level even disconnected terminals receive a configured bus)
@@ -142,7 +137,6 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
     }
 
     private void checkAlreadyMapped(String busId, String topologicalNodeId) {
-        // TODO Discuss design
         // TN has been removed from unmapped collection (that starts with all TNs)
         // and this bus has not received it
         // because no mappings exist for this bus: get(busId) == null
