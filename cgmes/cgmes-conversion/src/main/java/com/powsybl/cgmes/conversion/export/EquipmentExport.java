@@ -11,6 +11,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -28,9 +29,19 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
 public final class EquipmentExport {
 
     private static final String EQ_BASEVOLTAGE_NOMINALV = "BaseVoltage.nominalVoltage";
+
     private static final String EQ_GENERATINUNIT_MINP = "GeneratingUnit.minOperatingP";
     private static final String EQ_GENERATINUNIT_MAXP = "GeneratingUnit.maxOperatingP";
     private static final String EQ_GENERATINUNIT_INITIALP = "GeneratingUnit.initialP";
+
+    private static final String EQ_SHUNTCOMPENSATOR_NORMALSECTIONS = "ShuntCompensator.normalSections";
+    private static final String EQ_SHUNTCOMPENSATOR_MAXIMUMSECTIONS = "ShuntCompensator.maximumSections";
+
+    private static final String EQ_STATICVARCOMPENSATOR_INDUCTIVERATING = "StaticVarCompensator.inductiveRating";
+    private static final String EQ_STATICVARCOMPENSATOR_CAPACITIVERATING = "StaticVarCompensator.capacitiveRating";
+    private static final String EQ_STATICVARCOMPENSATOR_SLOPE = "StaticVarCompensator.slope";
+    private static final String EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE = "StaticVarCompensator.sVCControlMode";
+    private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -50,6 +61,8 @@ public final class EquipmentExport {
             writeVoltageLevels(network, cimNamespace, writer);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, cimNamespace, writer);
+            writeShuntCompensators(network, cimNamespace, writer);
+            writeStaticVarCompensators(network, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -201,6 +214,75 @@ public final class EquipmentExport {
         writer.writeCharacters(CgmesExportUtil.format(initialP));
         writer.writeEndElement();
         writer.writeEndElement();
+    }
+
+    private static void writeShuntCompensators(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (ShuntCompensator s : network.getShuntCompensators()) {
+            writeEqShuntCompensator(s.getId(), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getModelType(), cimNamespace, writer);
+        }
+    }
+
+    private static void writeEqShuntCompensator(String id, String shuntCompensatorName, int normalSections, int maximumSections, ShuntCompensatorModelType modelType, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, shuntCompensatorModelClassName(modelType));
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(shuntCompensatorName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_NORMALSECTIONS);
+        writer.writeCharacters(CgmesExportUtil.format(normalSections));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_SHUNTCOMPENSATOR_MAXIMUMSECTIONS);
+        writer.writeCharacters(CgmesExportUtil.format(maximumSections));
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static String shuntCompensatorModelClassName(ShuntCompensatorModelType modelType) {
+        if (ShuntCompensatorModelType.LINEAR.equals(modelType)) {
+            return "LinearShuntCompensator";
+        } else if (ShuntCompensatorModelType.NON_LINEAR.equals(modelType)) {
+            return "NonLinearShuntCompensator";
+        }
+        return "LinearShuntCompensator";
+    }
+
+    private static void writeStaticVarCompensators(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
+            writeEqStaticVarCompensator(svc.getId(), svc.getNameOrId(), 1 / svc.getBmin(), 1 / svc.getBmax(), svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer);
+        }
+    }
+
+    private static void writeEqStaticVarCompensator(String id, String svcName, double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl, StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "StaticVarCompensator");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(svcName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_INDUCTIVERATING);
+        writer.writeCharacters(CgmesExportUtil.format(inductiveRating));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_CAPACITIVERATING);
+        writer.writeCharacters(CgmesExportUtil.format(capacitiveRating));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
+        writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
+        writer.writeCharacters(regulationMode(svcControlMode));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
+        writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static String regulationMode(StaticVarCompensator.RegulationMode svcControlMode) {
+        if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
+            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage";
+        } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
+            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.reactivePower";
+        }
+        return "";
     }
 
     private static String generatingUnitClassName(EnergySource energySource) {
