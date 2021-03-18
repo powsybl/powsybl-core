@@ -30,9 +30,9 @@ public final class EquipmentExport {
 
     private static final String EQ_BASEVOLTAGE_NOMINALV = "BaseVoltage.nominalVoltage";
 
-    private static final String EQ_GENERATINUNIT_MINP = "GeneratingUnit.minOperatingP";
-    private static final String EQ_GENERATINUNIT_MAXP = "GeneratingUnit.maxOperatingP";
-    private static final String EQ_GENERATINUNIT_INITIALP = "GeneratingUnit.initialP";
+    private static final String EQ_GENERATINGUNIT_MINP = "GeneratingUnit.minOperatingP";
+    private static final String EQ_GENERATINGUNIT_MAXP = "GeneratingUnit.maxOperatingP";
+    private static final String EQ_GENERATINGUNIT_INITIALP = "GeneratingUnit.initialP";
 
     private static final String EQ_SHUNTCOMPENSATOR_NORMALSECTIONS = "ShuntCompensator.normalSections";
     private static final String EQ_SHUNTCOMPENSATOR_MAXIMUMSECTIONS = "ShuntCompensator.maximumSections";
@@ -42,6 +42,18 @@ public final class EquipmentExport {
     private static final String EQ_STATICVARCOMPENSATOR_SLOPE = "StaticVarCompensator.slope";
     private static final String EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE = "StaticVarCompensator.sVCControlMode";
     private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
+
+    private static final String EQ_ACLINESEGMENT_R = "ACLineSegment.r";
+    private static final String EQ_ACLINESEGMENT_X = "ACLineSegment.x";
+    private static final String EQ_ACLINESEGMENT_BCH = "ACLineSegment.bch";
+
+    private static final String EQ_EQUIVALENTBRANCH_R = "EquivalentBranch.r";
+    private static final String EQ_EQUIVALENTBRANCH_X = "EquivalentBranch.x";
+
+    private static final String EQ_TRANSFORMEREND_NAME = "TransformerEnd.endNumber";
+    private static final String EQ_POWERTRANSFORMEREND_R = "PowerTransformerEnd.r";
+    private static final String EQ_POWERTRANSFORMEREND_X = "PowerTransformerEnd.x";
+    private static final String EQ_POWERTRANSFORMEREND_B = "PowerTransformerEnd.b";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -63,6 +75,9 @@ public final class EquipmentExport {
             writeGenerators(network, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
             writeStaticVarCompensators(network, cimNamespace, writer);
+            writeLine(network, cimNamespace, writer);
+            writeTwoWindingsTransformer(network, cimNamespace, writer);
+            writeThreeWindingsTransformer(network, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -204,13 +219,13 @@ public final class EquipmentExport {
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(generatingUnitName);
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_GENERATINUNIT_MINP);
+        writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MINP);
         writer.writeCharacters(CgmesExportUtil.format(minP));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_GENERATINUNIT_MAXP);
+        writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_MAXP);
         writer.writeCharacters(CgmesExportUtil.format(maxP));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_GENERATINUNIT_INITIALP);
+        writer.writeStartElement(cimNamespace, EQ_GENERATINGUNIT_INITIALP);
         writer.writeCharacters(CgmesExportUtil.format(initialP));
         writer.writeEndElement();
         writer.writeEndElement();
@@ -300,6 +315,77 @@ public final class EquipmentExport {
             return "GeneratingUnit";
         }
         return "GeneratingUnit";
+    }
+
+    private static void writeLine(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (Line line : network.getLines()) {
+            writeEqAcLineSegment(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB1() + line.getB2(), cimNamespace, writer);
+        }
+    }
+
+    private static void writeEqAcLineSegment(String id, String lineSegmentName, double r, double x, double bch, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "AcLineSegment");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(lineSegmentName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_R);
+        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_X);
+        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_BCH);
+        writer.writeCharacters(CgmesExportUtil.format(bch));
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeTwoWindingsTransformer(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            writeEqPowerTransformer(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_1", twt.getId(), twt.getR(), twt.getX(), twt.getB(), cimNamespace, writer);
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 0.0, 0.0, 0.0, cimNamespace, writer);
+        }
+    }
+
+    private static void writeThreeWindingsTransformer(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
+            writeEqPowerTransformer(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_1", twt.getId(), twt.getLeg1().getR(), twt.getLeg1().getX(), twt.getLeg1().getB(), cimNamespace, writer);
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), twt.getLeg2().getR(), twt.getLeg2().getX(), twt.getLeg2().getB(), cimNamespace, writer);
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_3", twt.getId(), twt.getLeg3().getR(), twt.getLeg3().getX(), twt.getLeg3().getB(), cimNamespace, writer);
+        }
+    }
+
+    private static void writeEqPowerTransformer(String id, String transformerName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "PowerTransformer");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(transformerName);
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeEqPowerTransformerEnd(String id, String transformerEndName, String transformerId, double b, double r, double x, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "PowerTransformerEnd");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(transformerEndName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_NAME);
+        writer.writeCharacters(transformerEndName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_R);
+        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_X);
+        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_B);
+        writer.writeCharacters(CgmesExportUtil.format(b));
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private EquipmentExport() {

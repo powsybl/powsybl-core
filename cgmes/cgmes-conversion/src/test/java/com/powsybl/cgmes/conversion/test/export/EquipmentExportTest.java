@@ -43,14 +43,12 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     public void microGridBE() throws IOException, XMLStreamException {
-        Properties properties = new Properties();
-        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties));
+        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), new Properties()));
     }
 
     @Test
     public void nordic32() throws IOException, XMLStreamException {
-        XMLImporter xmli = new XMLImporter();
-        test(xmli.importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
+        test(new XMLImporter().importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
     }
 
     private void test(Network expected) throws IOException, XMLStreamException {
