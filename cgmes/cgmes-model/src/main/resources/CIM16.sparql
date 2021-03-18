@@ -302,7 +302,10 @@ WHERE
     OPTIONAL { ?OperationalLimit cim:VoltageLimit.value ?value }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
-    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment }
+    OPTIONAL { GRAPH ?graph2 {
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+    }}
     ?OperationalLimitType
         a cim:OperationalLimitType ;
         cim:IdentifiedObject.name ?operationalLimitTypeName .
@@ -475,8 +478,6 @@ WHERE {
     }
 }}
 OPTIONAL { GRAPH ?graphSSH {
-    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
-    # When controlEnabled is set to false there is no additional data
     ?RatioTapChanger
         cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
         cim:TapChanger.step ?step
@@ -728,12 +729,14 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
-    OPTIONAL { GRAPH ?graphSSH3 {
-        ?SynchronousMachine 
-            cim:RotatingMachine.p ?p ;
-            cim:RotatingMachine.q ?q ;
-            cim:SynchronousMachine.referencePriority ?referencePriority
-    }}
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?SynchronousMachine
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
 }}
 }
 
@@ -811,10 +814,11 @@ WHERE {
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
-OPTIONAL { GRAPH ?graphSSH3  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?ExternalNetworkInjection
         cim:ExternalNetworkInjection.p ?p ;
-        cim:ExternalNetworkInjection.q ?q
+        cim:ExternalNetworkInjection.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
 }}
 }
 
@@ -857,6 +861,20 @@ OPTIONAL { GRAPH ?graphSSH  {
         cim:RotatingMachine.p ?p ;
         cim:RotatingMachine.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}}
+}
+
+# query: controlAreas
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ControlArea
+        a cim:ControlArea ;
+        cim:IdentifiedObject.name ?name
+}}
+{ GRAPH ?graphSSH {
+    ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
+    OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
 }
 

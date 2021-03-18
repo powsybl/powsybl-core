@@ -10,7 +10,6 @@ import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
@@ -77,6 +76,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         @Override
         public Bus getBus(String id) {
+            Bus bus = index.get(id, Bus.class);
+            if (bus != null) {
+                return bus;
+            }
             return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
                     .filter(Objects::nonNull)
                     .findFirst()
@@ -884,8 +887,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.g2 = 0;
             l.half1.b1 = dl1.getB();
             l.half1.b2 = 0;
-            l.half1.xnodeP = dl1.getP0();
-            l.half1.xnodeQ = dl1.getQ0();
             l.half1.fictitious = dl1.isFictitious();
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
@@ -895,8 +896,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.g1 = 0;
             l.half2.b2 = dl2.getB();
             l.half2.b1 = 0;
-            l.half2.xnodeP = dl2.getP0();
-            l.half2.xnodeQ = dl2.getQ0();
             l.half2.fictitious = dl2.isFictitious();
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
@@ -965,7 +964,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .line1().setId(mergedLine.half1.id)
+                    .newHalfLine1().setId(mergedLine.half1.id)
                         .setName(mergedLine.half1.name)
                         .setR(mergedLine.half1.r)
                         .setX(mergedLine.half1.x)
@@ -973,10 +972,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setG2(mergedLine.half1.g2)
                         .setB1(mergedLine.half1.b1)
                         .setB2(mergedLine.half1.b2)
-                        .setXnodeP(mergedLine.half1.xnodeP)
-                        .setXnodeQ(mergedLine.half1.xnodeQ)
                         .setFictitious(mergedLine.half1.fictitious)
-                    .line2().setId(mergedLine.half2.id)
+                    .add()
+                    .newHalfLine2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
                         .setX(mergedLine.half2.x)
@@ -984,9 +982,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setG2(mergedLine.half2.g2)
                         .setB1(mergedLine.half2.b1)
                         .setB2(mergedLine.half2.b2)
-                        .setXnodeP(mergedLine.half2.xnodeP)
-                        .setXnodeQ(mergedLine.half2.xnodeQ)
                         .setFictitious(mergedLine.half2.fictitious)
+                    .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
@@ -1003,8 +1000,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
-            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
+            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
+            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));
@@ -1037,8 +1034,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double g2;
             double b1;
             double b2;
-            double xnodeP;
-            double xnodeQ;
             boolean fictitious;
         }
 

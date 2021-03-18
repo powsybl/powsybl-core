@@ -149,7 +149,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getExtensionsWriter();
+        XMLStreamWriter writer = context.getWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(), extension);
         if (extensionXmlSerializer == null) {
             throw new AssertionError("Extension XML Serializer of " + extension.getName() + " should not be null");
@@ -221,12 +221,12 @@ public final class NetworkXml {
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
-                context.getExtensionsWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
-                context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     writeExtension(extension, context);
                 }
-                context.getExtensionsWriter().writeEndElement();
+                context.getWriter().writeEndElement();
             }
         }
     }
@@ -428,7 +428,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
                         "not found !");
             } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+                LOGGER.warn("Extensions {} not found", extensionNamesNotFound);
             }
         }
     }

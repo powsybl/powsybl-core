@@ -189,7 +189,7 @@ public class HvdcConversionTest {
 
     @Test
     public void smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments() throws IOException {
-        Conversion.Config config = new Conversion.Config();
+        Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
         Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
 
         assertEquals(6, n.getHvdcConverterStationCount());

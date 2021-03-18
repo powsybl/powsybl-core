@@ -7,13 +7,10 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyVisitor;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -85,9 +82,19 @@ public class LineAdapterTest {
         lineAdapted.setB2(++b2);
         assertEquals(b2, lineAdapted.getB2(), 0.0);
         assertSame(lineRef.getCurrentLimits1(), lineAdapted.getCurrentLimits1());
+        assertSame(lineRef.getActivePowerLimits1(), lineAdapted.getActivePowerLimits1());
+        assertSame(lineRef.getApparentPowerLimits1(), lineAdapted.getApparentPowerLimits1());
         assertSame(lineRef.getCurrentLimits2(), lineAdapted.getCurrentLimits2());
+        assertSame(lineRef.getActivePowerLimits2(), lineAdapted.getActivePowerLimits2());
+        assertSame(lineRef.getApparentPowerLimits2(), lineAdapted.getApparentPowerLimits2());
         assertSame(lineRef.getCurrentLimits(Branch.Side.ONE), lineAdapted.getCurrentLimits(Branch.Side.ONE));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE), lineAdapted.getActivePowerLimits(Branch.Side.ONE));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE), lineAdapted.getApparentPowerLimits(Branch.Side.ONE));
         assertSame(lineRef.getCurrentLimits(Branch.Side.TWO), lineAdapted.getCurrentLimits(Branch.Side.TWO));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO), lineAdapted.getActivePowerLimits(Branch.Side.TWO));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO), lineAdapted.getApparentPowerLimits(Branch.Side.TWO));
+        assertEquals(lineRef.getOperationalLimits1().size(), lineAdapted.getOperationalLimits1().size());
+        assertEquals(lineRef.getOperationalLimits2().size(), lineAdapted.getOperationalLimits2().size());
 
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));
@@ -154,7 +161,7 @@ public class LineAdapterTest {
     }
 
     @Test
-    public void checkP0AndQ0UpdateTests() {
+    public void checkXnodeValuesUpdateTests() {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);
         // adder line with both voltage level in different network
@@ -171,27 +178,40 @@ public class LineAdapterTest {
         final DanglingLine dl2 = networkRef.getDanglingLine("lineOnBothNetworkId_2");
         assertNotNull(dl1);
         assertNotNull(dl2);
-        // Check initial P & Q
-        assertEquals(Double.NaN, dl1.getTerminal().getP(), 0.0);
-        assertEquals(Double.NaN, dl1.getTerminal().getQ(), 0.0);
-        assertEquals(Double.NaN, dl2.getTerminal().getP(), 0.0);
-        assertEquals(Double.NaN, dl2.getTerminal().getQ(), 0.0);
+        // Check initial P, Q, V & Angle
+        assertTrue(Double.isNaN(dl1.getTerminal().getP()));
+        assertTrue(Double.isNaN(dl1.getTerminal().getQ()));
+        assertTrue(Double.isNaN(dl1.getTerminal().getBusView().getBus().getV()));
+        assertTrue(Double.isNaN(dl1.getTerminal().getBusView().getBus().getAngle()));
+        assertTrue(Double.isNaN(dl2.getTerminal().getP()));
+        assertTrue(Double.isNaN(dl2.getTerminal().getQ()));
+        assertTrue(Double.isNaN(dl2.getTerminal().getBusView().getBus().getV()));
+        assertTrue(Double.isNaN(dl2.getTerminal().getBusView().getBus().getAngle()));
         double p1 = -605.0;
         double q1 = -302.5;
+        double v1 = 380.0;
+        double angle1 = -1e-4;
         double p2 = 600.0;
         double q2 = 300.0;
-        double lossesP = p1 + p2;
+        double v2 = 400.0;
+        double angle2 = -1.7e-3;
         double lossesQ = q1 + q2;
         // Update P & Q
-        dl1.getTerminal().setP(p1);
-        dl1.getTerminal().setQ(q1);
-        dl2.getTerminal().setP(p2);
-        dl2.getTerminal().setQ(q2);
+        dl1.getTerminal().setP(p1).setQ(q1);
+        dl1.getTerminal().getBusView().getBus().setV(v1).setAngle(angle1);
+        dl2.getTerminal().setP(p2).setQ(q2);
+        dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
         // Check P & Q are updated
-        assertEquals(p1 + (lossesP / 2.0), dl1.getP0(), 0.0d);
-        assertEquals(q1 + (lossesQ / 2.0), dl1.getQ0(), 0.0d);
-        assertEquals((p2 + (lossesP / 2.0)) * -1, dl2.getP0(), 0.0d);
-        assertEquals((q2 + (lossesQ / 2.0)) * -1, dl2.getQ0(), 0.0d);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
+        assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
     }
 
     @Test
@@ -216,10 +236,10 @@ public class LineAdapterTest {
                           .setEnsureIdUnicity(true)
                           .setR(1.0)
                           .setX(2.0)
-                          .setG1(3.0)
-                          .setG2(3.5)
-                          .setB1(4.0)
-                          .setB2(4.5)
+                          .setG1(1e-8)
+                          .setG2(0.0)
+                          .setB1(1.6e-3)
+                          .setB2(1.6e-3)
                           .setVoltageLevel1(voltageLevelId1)
                           .setVoltageLevel2("VLBAT")
                           .setBus1(busId1)

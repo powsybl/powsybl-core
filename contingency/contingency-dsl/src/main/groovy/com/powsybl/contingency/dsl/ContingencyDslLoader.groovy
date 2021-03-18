@@ -65,27 +65,29 @@ class ContingencyDslLoader extends DslLoader {
             if (contingencySpec.equipments.length == 0) {
                 throw new DslException("'equipments' field is empty")
             }
-            def elements = []
             def valid = true
+            def builder = Contingency.builder(id)
             for (String equipment : contingencySpec.equipments) {
                 Identifiable identifiable = network.getIdentifiable(equipment)
                 if (identifiable == null) {
                     LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
                     valid = false
-                } else if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
-                    elements.add(new BranchContingency(equipment))
+                } else if (identifiable instanceof Line) {
+                    builder.addLine(equipment);
+                } else if (identifiable instanceof TwoWindingsTransformer) {
+                    builder.addTwoWindingsTransformer(equipment);
                 } else if (identifiable instanceof HvdcLine) {
-                    elements.add(new HvdcLineContingency(equipment))
+                    builder.addHvdcLine(equipment);
                 } else if (identifiable instanceof Generator) {
-                    elements.add(new GeneratorContingency(equipment))
+                    builder.addGenerator(equipment);
                 } else if (identifiable instanceof BusbarSection) {
-                    elements.add(new BusbarSectionContingency(equipment))
+                    builder.addBusbarSection(equipment);
                 } else if (identifiable instanceof ShuntCompensator) {
-                    elements.add(new ShuntCompensatorContingency(equipment))
+                    builder.addShuntCompensator(equipment);
                 } else if (identifiable instanceof StaticVarCompensator) {
-                    elements.add(new StaticVarCompensatorContingency(equipment))
+                    builder.addStaticVarCompensator(equipment);
                 } else if (identifiable instanceof DanglingLine) {
-                    elements.add(new DanglingLineContingency(equipment))
+                    builder.addDanglingLine(equipment);
                 } else {
                     LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
                     valid = false
@@ -94,7 +96,7 @@ class ContingencyDslLoader extends DslLoader {
             if (valid) {
                 LOGGER.debug("Found contingency '{}'", id)
                 observer?.contingencyFound(id)
-                Contingency contingency = new Contingency(id, elements)
+                Contingency contingency = builder.build()
                 extensionList.forEach({ ext ->
                     contingency.addExtension(ext.getClass(), ext)
                 })

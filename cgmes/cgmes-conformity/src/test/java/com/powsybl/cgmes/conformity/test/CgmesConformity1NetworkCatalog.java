@@ -190,6 +190,9 @@ public final class CgmesConformity1NetworkCatalog {
                     .setGPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
@@ -283,6 +286,9 @@ public final class CgmesConformity1NetworkCatalog {
                     .add()
                 .add();
         shBrussels110.getTerminal().setQ(-330.75);
+        shBrussels110.setTargetV(110.0);
+        shBrussels110.setTargetDeadband(0.5);
+        shBrussels110.setVoltageRegulatorOn(false);
         Bus busBrussels21 = vlBrussels21.getBusBreakerView().newBus()
                 .setId("_f96d552a-618d-4d0c-a39a-2dea3c411dee")
                 .setName("BE-Busbar_5")
@@ -729,6 +735,45 @@ public final class CgmesConformity1NetworkCatalog {
                     .setVoltageLevel(vlBrussels21.getId())
                 .add()
             .add();
+            txBETR3.getLeg1().newCurrentLimits()
+                    .setPermanentLimit(938.2)
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(20)
+                        .setName("_ddcb76e0-13ea-413f-9a8f-553d78782f76")
+                        .setValue(968.2)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(10)
+                        .setName("_3e9ed732-dd10-4f10-bc9d-d399e1e75a78")
+                        .setValue(998.2)
+                    .endTemporaryLimit()
+                    .add();
+            txBETR3.getLeg2().newCurrentLimits()
+                    .setPermanentLimit(1705.8)
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(20)
+                        .setName("_52d7ccc6-b4a1-48eb-9cfa-f5870b8b7fce")
+                        .setValue(1805.8)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(10)
+                        .setName("_11763596-6f4b-4cd5-a4a0-be649f368e86")
+                        .setValue(1905.8)
+                    .endTemporaryLimit()
+                    .add();
+            txBETR3.getLeg3().newCurrentLimits()
+                    .setPermanentLimit(17870.4)
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(20)
+                        .setName("_50448009-0fad-4656-bce4-438fe76e18cf")
+                        .setValue(18870.4)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setAcceptableDuration(10)
+                        .setName("_df2d3155-4436-4542-8d3b-64241c7433be")
+                        .setValue(19870.4)
+                    .endTemporaryLimit()
+                    .add();
 
             int low = 1;
             int high = 33;
@@ -1073,6 +1118,9 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
         return network;
     }

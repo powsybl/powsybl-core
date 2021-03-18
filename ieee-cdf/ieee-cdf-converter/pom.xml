@@ -13,12 +13,28 @@
     <parent>
         <artifactId>powsybl-ieee-cdf</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.8.0-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ieee-cdf-converter</artifactId>
     <name>IEEE CDF converter</name>
     <description>IEEE Common Data Format to IIDM converter</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.ieeecdf.converter</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <!-- Compile dependencies -->
@@ -34,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-util</artifactId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 

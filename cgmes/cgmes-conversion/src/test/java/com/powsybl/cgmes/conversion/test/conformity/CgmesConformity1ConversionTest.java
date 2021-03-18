@@ -27,8 +27,7 @@ import java.nio.file.FileSystem;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -162,6 +161,11 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void miniBusBranch() throws IOException {
         tester.testConversion(null, CgmesConformity1Catalog.miniBusBranch());
+        // This generator has a regulating control that is enabled
+        // But the SSH data says the synchronous machine has control disabled
+        // So the generator is not participating in the voltage regulation
+        // Voltage regulating must be off
+        assertFalse(tester.lastConvertedNetwork().getGenerator("_2970a2b7-b840-4e9c-b405-0cb854cd2318").isVoltageRegulatorOn());
     }
 
     @Test

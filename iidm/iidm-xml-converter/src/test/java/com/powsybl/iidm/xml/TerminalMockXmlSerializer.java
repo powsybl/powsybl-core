@@ -41,6 +41,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of("1.2"))
                         .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.3"))
                         .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.4"))
+                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.5"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0")
@@ -48,6 +49,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
                         .put("1.2", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_2")
                         .put("1.3", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_3")
                         .put("1.4", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_4")
+                        .put("1.5", "http://www.powsybl.org/schema/iidm/ext/terminal_mock/1_5")
                         .build());
     }
 
@@ -68,7 +70,7 @@ public class TerminalMockXmlSerializer extends AbstractVersionableNetworkExtensi
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         String extensionVersion = networkContext.getOptions().getExtensionVersion(getExtensionName())
                 .orElseGet(() -> getVersion(networkContext.getVersion()));
-        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(extensionVersion), "terminal", context.getExtensionsWriter());
+        TerminalRefXml.writeTerminalRef(extension.getTerminal(), networkContext, getNamespaceUri(extensionVersion), "terminal", context.getWriter());
     }
 
     @Override

@@ -18,6 +18,9 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -26,9 +29,10 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -37,25 +41,31 @@ import java.util.Objects;
  */
 public class ContingencyJsonTest extends AbstractConverterTest {
 
-    private static Contingency create() {
-        List<ContingencyElement> elements = new ArrayList<>();
-        elements.add(new BranchContingency("NHV1_NHV2_2", "VLHV1"));
-        elements.add(new BranchContingency("NHV1_NHV2_1"));
-        elements.add(new HvdcLineContingency("HVDC1"));
-        elements.add(new HvdcLineContingency("HVDC1", "VL1"));
-        elements.add(new GeneratorContingency("GEN"));
-        elements.add(new ShuntCompensatorContingency("SC"));
-        elements.add(new StaticVarCompensatorContingency("SVC"));
-        elements.add(new BusbarSectionContingency("BBS1"));
-        elements.add(new DanglingLineContingency("DL1"));
+    @Before
+    public void setup() throws IOException {
+        super.setUp();
 
-        Contingency contingency = new Contingency("contingency", elements);
+        Files.copy(getClass().getResourceAsStream("/contingencies.json"), fileSystem.getPath("/contingencies.json"));
+    }
+
+    private static Contingency create() {
+        Contingency contingency = Contingency.builder("contingency")
+                                             .addBranch("NHV1_NHV2_2", "VLHV1")
+                                             .addBranch("NHV1_NHV2_1")
+                                             .addHvdcLine("HVDC1")
+                                             .addHvdcLine("HVDC1", "VL1")
+                                             .addGenerator("GEN")
+                                             .addShuntCompensator("SC")
+                                             .addStaticVarCompensator("SVC")
+                                             .addBusbarSection("BBS1")
+                                             .addDanglingLine("DL1")
+                                             .build();
 
         contingency.addExtension(DummyExtension.class, new DummyExtension());
         return contingency;
     }
 
-    private static Contingency read(Path jsonFile) {
+    private static <T> T read(Path jsonFile, Class<T> clazz) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
@@ -63,13 +73,21 @@ public class ContingencyJsonTest extends AbstractConverterTest {
             ContingencyJsonModule module = new ContingencyJsonModule();
             objectMapper.registerModule(module);
 
-            return objectMapper.readValue(is, Contingency.class);
+            return (T) objectMapper.readValue(is, clazz);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static void write(Contingency object, Path jsonFile) {
+    private static Contingency readContingency(Path jsonFile) {
+        return read(jsonFile, Contingency.class);
+    }
+
+    private static DefaultContingencyList readContingencyList(Path jsonFile) {
+        return read(jsonFile, DefaultContingencyList.class);
+    }
+
+    private static <T> void write(T object, Path jsonFile) {
         Objects.requireNonNull(object);
         Objects.requireNonNull(jsonFile);
 
@@ -87,7 +105,24 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::read, "/contingency.json");
+        roundTripTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::readContingency, "/contingency.json");
+    }
+
+    @Test
+    public void readJsonList() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        DefaultContingencyList contingencyList = (DefaultContingencyList) ContingencyList.load(fileSystem.getPath("/contingencies.json"));
+        assertEquals("list", contingencyList.getName());
+
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals("contingency", contingencies.get(0).getId());
+        assertEquals(2, contingencies.get(0).getElements().size());
+        assertEquals("contingency2", contingencies.get(1).getId());
+        assertEquals(1, contingencies.get(1).getElements().size());
+
+        roundTripTest(contingencyList, ContingencyJsonTest::write, ContingencyJsonTest::readContingencyList, "/contingencies.json");
     }
 
     static class DummyExtension implements Extension<Contingency> {

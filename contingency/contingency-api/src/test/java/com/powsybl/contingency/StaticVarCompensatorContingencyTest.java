@@ -8,7 +8,11 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.StaticVarCompensatorTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -19,16 +23,31 @@ public class StaticVarCompensatorContingencyTest {
 
     @Test
     public void test() {
-        StaticVarCompensatorContingency contingency = new StaticVarCompensatorContingency("id");
+        Contingency contingency = Contingency.staticVarCompensator("id");
         assertEquals("id", contingency.getId());
-        assertEquals(ContingencyElementType.STATIC_VAR_COMPENSATOR, contingency.getType());
+        assertEquals(1, contingency.getElements().size());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof StaticVarCompensatorTripping);
+        StaticVarCompensatorContingency svcContingency = new StaticVarCompensatorContingency("id");
+        assertEquals("id", svcContingency.getId());
+        assertEquals(ContingencyElementType.STATIC_VAR_COMPENSATOR, svcContingency.getType());
+
+        assertNotNull(svcContingency.toTask());
+        assertTrue(svcContingency.toTask() instanceof StaticVarCompensatorTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new StaticVarCompensatorContingency("svc1"), new StaticVarCompensatorContingency("svc1"))
                 .addEqualityGroup(new StaticVarCompensatorContingency("svc2"), new StaticVarCompensatorContingency("svc2"))
                 .testEquals();
+    }
+
+    @Test
+    public void test2() {
+        Network network = SvcTestCaseFactory.create();
+        ContingencyList contingencyList = ContingencyList.of(Contingency.staticVarCompensator("SVC2"), Contingency.staticVarCompensator("bbs2"));
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+
+        StaticVarCompensatorContingency svcCtg = (StaticVarCompensatorContingency) contingencies.get(0).getElements().get(0);
+        assertEquals("SVC2", svcCtg.getId());
     }
 }

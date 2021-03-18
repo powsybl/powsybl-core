@@ -115,7 +115,7 @@ package com.powsybl.iidm.network;
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
  * @see DanglingLineAdder
  */
-public interface DanglingLine extends Injection<DanglingLine> {
+public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder {
 
     interface Generation extends ReactiveLimitsHolder {
         /**
@@ -278,4 +278,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
 
     CurrentLimitsAdder newCurrentLimits();
 
+    default Boundary getBoundary() {
+        throw new UnsupportedOperationException();
+    }
 }

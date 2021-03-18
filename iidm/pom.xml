@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>3.8.0-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -34,7 +34,6 @@
         <module>iidm-scripting</module>
         <module>iidm-tck</module>
         <module>iidm-test</module>
-        <module>iidm-util</module>
         <module>iidm-xml-converter</module>
     </modules>
 

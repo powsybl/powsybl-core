@@ -8,7 +8,6 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.GeneratorContingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
@@ -34,8 +33,7 @@ public class GeneratorTrippingTest extends AbstractTrippingTest {
         Network network = EurostagTutorialExample1Factory.create();
         assertTrue(network.getGenerator("GEN").getTerminal().isConnected());
 
-        GeneratorContingency tripping = new GeneratorContingency("GEN");
-        Contingency contingency = new Contingency("contingency", tripping);
+        Contingency contingency = Contingency.generator("GEN");
 
         ModificationTask task = contingency.toTask();
         task.modify(network, null);

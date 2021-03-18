@@ -25,7 +25,7 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         // Only create IIDM Substations for CGMES substations that are not mapped to others
-        return !context.substationIdMapping().isMapped(id);
+        return !context.substationIdMapping().substationIsMapped(id);
     }
 
     @Override
@@ -45,15 +45,24 @@ public class SubstationConversion extends AbstractIdentifiedObjectConversion {
         // already been created
         String geoTag = context.namingStrategy().getGeographicalTag(geo);
 
-        String iidmSubstationId = context.substationIdMapping().iidm(id);
+        String iidmSubstationId = context.substationIdMapping().substationIidm(id);
         Substation substation = context.network().getSubstation(iidmSubstationId);
         assert substation == null;
-        context.network().newSubstation()
+        Substation s = context.network().newSubstation()
                 .setId(iidmSubstationId)
                 .setName(iidmName())
-                .setEnsureIdUnicity(false)
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .setCountry(country)
                 .setGeographicalTags(geoTag)
                 .add();
+        addAliases(s);
+    }
+
+    private void addAliases(Substation s) {
+        int index = 0;
+        for (String mergedSub : context.substationIdMapping().mergedSubstations(s.getId())) {
+            index++;
+            s.addAlias(mergedSub, "MergedSubstation" + index, context.config().isEnsureIdAliasUnicity());
+        }
     }
 }

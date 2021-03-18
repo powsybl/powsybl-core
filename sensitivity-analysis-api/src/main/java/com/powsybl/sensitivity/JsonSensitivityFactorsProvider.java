@@ -49,7 +49,7 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
     }
 
     @Override
-    public List<SensitivityFactor> getFactors(Network network) {
+    public List<SensitivityFactor> getCommonFactors(Network network) {
         return sensitivityFactors;
     }
 }

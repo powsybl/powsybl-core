@@ -11,11 +11,9 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -130,18 +128,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEUsingSshForRtcPtcEnabled() {
+    public void microBEUsingSshForRtcPtcDisabled() {
         Network network = new CgmesImport()
-                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcEnabledBySsh().dataSource(), null);
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERtcPtcDisabled().dataSource(), null);
+
+        // Even if the tap changers keep their controlEnabled flag == true,
+        // Their associated regulating control (tap changer control) is disabled
+        // So in IIDM the tap changers should not be regulating
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertTrue(rtc.isRegulating());
+        assertFalse(rtc.isRegulating());
 
-        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-                .getPhaseTapChanger();
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
-        assertTrue(ptc.isRegulating());
+        assertFalse(ptc.isRegulating());
     }
 
     @Test
@@ -344,6 +345,24 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBELimits() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
+                NetworkFactory.findDefault(), null);
+        VoltageLevel vl = network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe");
+        assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
+        assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_84ed55f4-61f5-4d9d-8755-bba7b877a246");
+        assertNull(twt3.getLeg1().getApparentPowerLimits());
+        assertNull(twt3.getLeg2().getApparentPowerLimits());
+        assertNull(twt3.getLeg3().getApparentPowerLimits());
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
+        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1();
+        assertNotNull(apparentPowerLimits);
+        assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
+        assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
+    }
+
+    @Test
     public void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
@@ -494,6 +513,19 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniBusBranchExternalInjectionControl() throws IOException {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniBusBranchExternalInjectionControl().dataSource(), null);
+        // External network injections with shared control enabled
+        // One external network injection has control enabled
+        // The other one has it disabled
+        assertFalse(network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").isVoltageRegulatorOn());
+        assertTrue(network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").isVoltageRegulatorOn());
+        assertEquals(10.0, network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").getTargetV(), 1e-10);
+        // Even if the control is disabled, the target voltage must be set
+        assertEquals(10.0, network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").getTargetV(), 1e-10);
+    }
+
+    @Test
     public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), null);
@@ -638,39 +670,13 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerSwitchBetweenVoltageLevelsOpen() throws IOException {
-        Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.miniNodeBreakerSwitchBetweenVoltageLevelsOpen(), config);
-        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
-
-        // Original CGMES equipment was a switch (a Breaker)
-        // It has been mapped to a low impedance line
-        Line line = n.getLine("_5e9f0079-647e-46da-b0ee-f5f24e127602");
-        assertNotNull(line);
-
-        // Terminals in original CGMES data were connected
-        CgmesTerminal t1 = cgmes.terminal("_ba0cc755-9201-4d57-8206-3fa57b147583");
-        CgmesTerminal t2 = cgmes.terminal("_43f700ce-3882-4906-b41f-b7c4eb2e74e0");
-        assertTrue(t1.connected());
-        assertTrue(t2.connected());
-        t1.conductingEquipmentType().endsWith("Breaker");
-
-        // But as the switch was open,
-        // the BusView for both ends of the Line
-        // must return a null bus
-        Bus bus1 = line.getTerminal1().getBusView().getBus();
-        Bus bus2 = line.getTerminal2().getBusView().getBus();
-        assertNull(bus1);
-        assertNull(bus2);
-        // End1 must have a connectable bus
-        Bus cbus1 = line.getTerminal1().getBusView().getConnectableBus();
-        assertNotNull(cbus1);
-        assertTrue(cbus1.getConnectedTerminalCount() > 1);
-        // End2 may or may not have a bus defined in BusView,
-        // Depending on the definition of a bus,
-        // that is under review (PR #1316)
-        // The end2 will only be connectable to one end
-        // of a real line segment
+    public void miniNodeBreakerInternalLineZ0() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerInternalLineZ0().dataSource(), null);
+        // The internal z0 line named "INTERCONNECTOR22" has been converted to a switch
+        Switch sw = network.getSwitch("_fdf5cfbe-9bf5-406a-8d04-fafe47afe31d");
+        assertNotNull(sw);
+        assertEquals("INTERCONNECTOR22", sw.getNameOrId());
     }
 
     private FileSystem fileSystem;

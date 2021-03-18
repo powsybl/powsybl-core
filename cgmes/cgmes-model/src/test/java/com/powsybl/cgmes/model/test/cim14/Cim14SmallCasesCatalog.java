@@ -42,7 +42,7 @@ public final class Cim14SmallCasesCatalog {
         return new TestGridModelResources("smallcase1", expectedSmall1(),
                 new ResourceSet("/", "invalidContent_EQ.xml",
                                      "validRdfInvalidContent_EQ.xml",
-                                     "validCimInvalidContent_EQ.xml",
+                                     "validCim14InvalidContent_EQ.xml",
                                      "invalidContent_EQ.notxml"),
                 new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
                                                       "case1_SV.xml",

@@ -15,11 +15,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
+import static com.powsybl.iidm.export.ExportOptions.IidmVersionIncompatibilityBehavior.THROW_EXCEPTION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class ExportOptions extends AbstractOptions<ExportOptions> {
+
+    public enum IidmVersionIncompatibilityBehavior {
+        THROW_EXCEPTION,
+        LOG_ERROR
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
 
@@ -37,15 +44,18 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private String version;
 
+    private IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior = THROW_EXCEPTION;
+
     private Map<String, String> extensionsVersions = new HashMap<>();
 
     /**
      * Sort IIDM objects so that generated XML does not depend on data model object order. Depending on object types the
      * following sorting key has been chosen:
-     *  - the id for identifiables
-     *  - the name for extensions
-     *  - the name for temporary limits
-     *  - node1 then node2 for internal connections
+     * - the id for identifiables
+     * - the name for extensions
+     * - the name for temporary limits
+     * - node1 then node2 for internal connections
+     * - the name for properties of an identifiable
      */
     private boolean sorted = false;
 
@@ -53,16 +63,31 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, null);
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, false);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, null);
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, String version) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, false, version);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version) {
+        this(withBranchSV, indent, onlyMainCc, topologyLevel, throwExceptionIfExtensionNotFound, sorted, version, THROW_EXCEPTION);
+    }
+
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, boolean sorted, String version,
+                         IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+        this.sorted = sorted;
         this.version = version;
+        this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
     }
 
     @Override
@@ -147,6 +172,15 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public ExportOptions setVersion(String version) {
         this.version = version;
+        return this;
+    }
+
+    public IidmVersionIncompatibilityBehavior getIidmVersionIncompatibilityBehavior() {
+        return iidmVersionIncompatibilityBehavior;
+    }
+
+    public ExportOptions setIidmVersionIncompatibilityBehavior(IidmVersionIncompatibilityBehavior iidmVersionIncompatibilityBehavior) {
+        this.iidmVersionIncompatibilityBehavior = Objects.requireNonNull(iidmVersionIncompatibilityBehavior);
         return this;
     }
 

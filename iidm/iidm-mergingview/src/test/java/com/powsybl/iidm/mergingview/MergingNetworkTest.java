@@ -335,7 +335,7 @@ public class MergingNetworkTest {
         Substation autoIdSub = addSubstation(mergingView, "P1", Country.FR, true);
         assertSame(autoIdSub, mergingView.getSubstation("P1#0"));
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The network already contains an object 'SubstationAdderImpl' with the id 'P1'");
+        thrown.expectMessage("The network already contains an object 'SubstationAdapter' with the id 'P1'");
         addSubstation(mergingView, "P1", Country.FR, false);
     }
 

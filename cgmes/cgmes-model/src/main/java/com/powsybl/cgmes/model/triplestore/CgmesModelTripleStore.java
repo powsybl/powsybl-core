@@ -7,6 +7,15 @@
 
 package com.powsybl.cgmes.model.triplestore;
 
+import com.powsybl.cgmes.model.*;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.*;
+import org.apache.commons.lang3.EnumUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -16,24 +25,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang3.EnumUtils;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.cgmes.model.AbstractCgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.CgmesSubset;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.QueryCatalog;
-import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -234,7 +225,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 }
                 String s = r.get(0).get(propertyName);
                 if (s != null && !s.isEmpty()) {
-                    d = DateTime.parse(s);
+                    // Assume date time given as UTC if no explicit zone is specified
+                    d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
                 }
             }
         }
@@ -293,11 +285,17 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public PropertyBags connectivityNodes() {
+        if (cachedNodes) {
+            return cachedConnectivityNodes;
+        }
         return namedQuery("connectivityNodes");
     }
 
     @Override
     public PropertyBags topologicalNodes() {
+        if (cachedNodes) {
+            return cachedTopologicalNodes;
+        }
         return namedQuery("topologicalNodes");
     }
 
@@ -442,6 +440,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public PropertyBags phaseTapChangerTable(String tableId) {
         Objects.requireNonNull(tableId);
         return namedQuery("phaseTapChangerTable", tableId);
+    }
+
+    @Override
+    public PropertyBags controlAreas() {
+        return namedQuery("controlAreas");
     }
 
     @Override

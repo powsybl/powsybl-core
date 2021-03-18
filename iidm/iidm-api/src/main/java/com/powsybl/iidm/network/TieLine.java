@@ -233,24 +233,40 @@ public interface TieLine extends Line {
         String getName();
 
         /**
-         * Get Xnode active power consumption in MW.
+         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getP()} instead.
          */
-        double getXnodeP();
+        @Deprecated
+        default double getXnodeP() {
+            return getBoundary().getP();
+        }
 
         /**
-         * Set Xnode active power consumption in MW.
+         * @deprecated Boundary P is always calculated, never set.
          */
-        HalfLine setXnodeP(double p);
+        @Deprecated
+        default HalfLine setXnodeP(double p) {
+            return this;
+        }
 
         /**
-         * Get Xnode reactive power consumption in MVar.
+         * @deprecated Use {@link #getBoundary()} and {@link Boundary#getQ()} instead.
          */
-        double getXnodeQ();
+        @Deprecated
+        default double getXnodeQ() {
+            return getBoundary().getQ();
+        }
 
         /**
-         * Set Xnode reactive power consumption in MVar.
+         * @deprecated Boundary Q is always calculated, never set.
          */
-        HalfLine setXnodeQ(double q);
+        @Deprecated
+        default HalfLine setXnodeQ(double q) {
+            return this;
+        }
+
+        default Boundary getBoundary() {
+            throw new UnsupportedOperationException();
+        }
 
         /**
          * Get the fictitious status
@@ -288,5 +304,4 @@ public interface TieLine extends Line {
      * Get a given side half of the line characteristics
      */
     HalfLine getHalf(Side side);
-
 }

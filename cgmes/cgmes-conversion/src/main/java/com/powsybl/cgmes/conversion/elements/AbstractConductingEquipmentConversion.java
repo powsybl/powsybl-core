@@ -213,16 +213,24 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected VoltageLevel voltageLevel() {
-        return terminals[0].voltageLevel;
+        if (terminals[0].iidmVoltageLevelId != null) {
+            return context.network().getVoltageLevel(terminals[0].iidmVoltageLevelId);
+        } else {
+            return terminals[0].voltageLevel;
+        }
     }
 
     VoltageLevel voltageLevel(int n) {
-        return terminals[n - 1].voltageLevel;
+        if (terminals[n - 1].iidmVoltageLevelId != null) {
+            return context.network().getVoltageLevel(terminals[n - 1].iidmVoltageLevelId);
+        } else {
+            return terminals[n - 1].voltageLevel;
+        }
     }
 
     protected Substation substation() {
         String sid = context.cgmes().substation(terminals[0].t, context.nodeBreaker());
-        return context.network().getSubstation(context.substationIdMapping().iidm(sid));
+        return context.network().getSubstation(context.substationIdMapping().substationIidm(sid));
     }
 
     private PowerFlow stateVariablesPowerFlow() {
@@ -314,8 +322,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 cgmesVoltageLevelId = context.cgmes().voltageLevel(t, context.nodeBreaker());
             }
             if (cgmesVoltageLevelId != null) {
-                iidmVoltageLevelId = context.namingStrategy().getId("VoltageLevel",
-                    cgmesVoltageLevelId);
+                String iidmVl = context.namingStrategy().getId("VoltageLevel", cgmesVoltageLevelId);
+                iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(iidmVl);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
                 iidmVoltageLevelId = null;
@@ -439,7 +447,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             if (td == null) {
                 return;
             }
-            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS + CgmesNames.TERMINAL + i);
+            identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
             i++;
         }
     }

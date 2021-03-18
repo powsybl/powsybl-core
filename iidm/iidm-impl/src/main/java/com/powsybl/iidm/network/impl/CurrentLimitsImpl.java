@@ -7,92 +7,21 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.ValidationUtil;
-import java.util.Collection;
-import java.util.Objects;
+import com.powsybl.iidm.network.LimitType;
 import java.util.TreeMap;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CurrentLimitsImpl implements CurrentLimits {
+public class CurrentLimitsImpl extends AbstractLoadingLimits<CurrentLimitsImpl> implements CurrentLimits {
 
-    private double permanentLimit;
-
-    private final TreeMap<Integer, TemporaryLimit> temporaryLimits;
-
-    private final CurrentLimitsOwner<?> owner;
-
-    static class TemporaryLimitImpl implements TemporaryLimit {
-
-        private final String name;
-
-        private final double value;
-
-        private final int acceptableDuration;
-
-        private boolean fictitious;
-
-        TemporaryLimitImpl(String name, double value, int acceptableDuration, boolean fictitious) {
-            this.name = Objects.requireNonNull(name);
-            this.value = value;
-            this.acceptableDuration = acceptableDuration;
-            this.fictitious = fictitious;
-        }
-
-        @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public double getValue() {
-            return value;
-        }
-
-        @Override
-        public int getAcceptableDuration() {
-            return acceptableDuration;
-        }
-
-        @Override
-        public boolean isFictitious() {
-            return fictitious;
-        }
-    }
-
-    CurrentLimitsImpl(double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits, CurrentLimitsOwner<?> owner) {
-        this.permanentLimit = permanentLimit;
-        this.temporaryLimits = Objects.requireNonNull(temporaryLimits);
-        this.owner = Objects.requireNonNull(owner);
+    CurrentLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
+        super(owner, permanentLimit, temporaryLimits);
     }
 
     @Override
-    public double getPermanentLimit() {
-        return permanentLimit;
-    }
-
-    @Override
-    public CurrentLimitsImpl setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
-        this.permanentLimit = permanentLimit;
-        return this;
-    }
-
-    @Override
-    public Collection<TemporaryLimit> getTemporaryLimits() {
-        return temporaryLimits.values();
-    }
-
-    @Override
-    public TemporaryLimit getTemporaryLimit(int acceptableDuration) {
-        return temporaryLimits.get(acceptableDuration);
-    }
-
-    @Override
-    public double getTemporaryLimitValue(int acceptableDuration) {
-        TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
-        return tl != null ? tl.getValue() : Double.NaN;
+    public void remove() {
+        owner.setOperationalLimits(LimitType.CURRENT, null);
     }
 }

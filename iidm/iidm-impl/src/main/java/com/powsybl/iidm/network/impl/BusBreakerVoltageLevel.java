@@ -38,7 +38,7 @@ import java.util.stream.Stream;
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
-    private static final boolean DRAW_SWITCH_ID = false;
+    private static final boolean DRAW_SWITCH_ID = true;
 
     private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
 
@@ -938,8 +938,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     .attr(GraphVizAttribute.fillcolor, colors[i]);
             for (TerminalExt terminal : bus.getTerminals()) {
                 AbstractConnectable connectable = terminal.getConnectable();
+                String label = connectable.getType().toString()
+                    + System.lineSeparator() + connectable.getId()
+                    + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
                 gvGraph.node(scope, connectable.getId())
-                        .label(connectable.getType().toString() + System.lineSeparator() + connectable.getId())
+                        .label(label)
                         .shape("ellipse")
                         .style("filled")
                         .attr(GraphVizAttribute.fillcolor, colors[i]);
@@ -960,10 +963,14 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl sw = graph.getEdgeObject(e);
             ConfiguredBus bus1 = graph.getVertexObject(v1);
             ConfiguredBus bus2 = graph.getVertexObject(v2);
-            GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId())
+            // Assign an id to the edge to allow parallel edges (multigraph)
+            GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
                     .style(sw.isOpen() ? "solid" : "dotted");
             if (DRAW_SWITCH_ID) {
-                edge.label(sw.getId())
+                String label = sw.getKind().toString()
+                    + System.lineSeparator() + sw.getId()
+                    + sw.getOptionalName().map(n -> System.lineSeparator() + n).orElse("");
+                edge.label(label)
                         .attr(GraphVizAttribute.fontsize, "10");
             }
         }

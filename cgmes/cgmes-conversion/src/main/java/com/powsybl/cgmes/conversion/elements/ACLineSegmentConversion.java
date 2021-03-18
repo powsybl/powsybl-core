@@ -7,13 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -71,19 +69,46 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        final LineAdder adder = context.network().newLine()
-                .setEnsureIdUnicity(false)
-                .setR(r)
-                .setX(x)
-                .setG1(gch / 2)
-                .setG2(gch / 2)
-                .setB1(bch / 2)
-                .setB2(bch / 2);
-        identify(adder);
-        connect(adder);
-        final Line l = adder.add();
-        addAliases(l);
-        convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        if (isZeroImpedanceInsideVoltageLevel(r, x, bch, gch)) {
+            // Convert to switch
+            Switch sw;
+            boolean open = !(terminalConnected(1) && terminalConnected(2));
+            if (context.nodeBreaker()) {
+                VoltageLevel.NodeBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getNodeBreakerView().newSwitch()
+                        .setKind(SwitchKind.BREAKER)
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            } else {
+                VoltageLevel.BusBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getBusBreakerView().newSwitch()
+                        .setFictitious(true);
+                identify(adder);
+                connect(adder, open);
+                sw = adder.add();
+            }
+            addAliases(sw);
+        } else {
+            final LineAdder adder = context.network().newLine()
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                    .setR(r)
+                    .setX(x)
+                    .setG1(gch / 2)
+                    .setG2(gch / 2)
+                    .setB1(bch / 2)
+                    .setB2(bch / 2);
+            identify(adder);
+            connect(adder);
+            final Line l = adder.add();
+            addAliases(l);
+            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        }
+    }
+
+    private boolean isZeroImpedanceInsideVoltageLevel(double r, double x, double bch, double gch) {
+        return r == 0.0 && x == 0.0 && voltageLevel(1) == voltageLevel(2);
     }
 
     public void convertMergedLinesAtNode(PropertyBag other, String boundaryNode) {
@@ -150,28 +175,26 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         TieLineAdder adder = context.network().newTieLine()
             .setId(boundaryLine1.id + " + " + boundaryLine2.id)
             .setName(boundaryLine1.name + " + " + boundaryLine2.name)
-            .line1()
-            .setId(boundaryLine1.id)
-            .setName(boundaryLine1.name)
-            .setR(boundaryLine1.r)
-            .setX(boundaryLine1.x)
-            .setG1(boundaryLine1.g / 2)
-            .setG2(boundaryLine1.g / 2)
-            .setB1(boundaryLine1.b / 2)
-            .setB2(boundaryLine1.b / 2)
-            .setXnodeP(0)
-            .setXnodeQ(0)
-            .line2()
-            .setId(boundaryLine2.id)
-            .setName(boundaryLine2.name)
-            .setR(boundaryLine2.r)
-            .setX(boundaryLine2.x)
-            .setG1(boundaryLine2.g / 2)
-            .setG2(boundaryLine2.g / 2)
-            .setB1(boundaryLine2.b / 2)
-            .setB2(boundaryLine2.b / 2)
-            .setXnodeP(0)
-            .setXnodeQ(0)
+            .newHalfLine1()
+                .setId(boundaryLine1.id)
+                .setName(boundaryLine1.name)
+                .setR(boundaryLine1.r)
+                .setX(boundaryLine1.x)
+                .setG1(boundaryLine1.g / 2)
+                .setG2(boundaryLine1.g / 2)
+                .setB1(boundaryLine1.b / 2)
+                .setB2(boundaryLine1.b / 2)
+                .add()
+            .newHalfLine2()
+                .setId(boundaryLine2.id)
+                .setName(boundaryLine2.name)
+                .setR(boundaryLine2.r)
+                .setX(boundaryLine2.x)
+                .setG1(boundaryLine2.g / 2)
+                .setG2(boundaryLine2.g / 2)
+                .setB1(boundaryLine2.b / 2)
+                .setB2(boundaryLine2.b / 2)
+                .add()
             .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
         identify(adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
         connect(adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,

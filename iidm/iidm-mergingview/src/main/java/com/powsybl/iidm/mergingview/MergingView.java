@@ -40,7 +40,6 @@ public final class MergingView implements Network, MultiVariantObject {
 
     /** To listen events from merging network */
     private final NetworkListener mergeDanglingLineListener;
-    private final NetworkListener danglingLinePowerListener;
     private final TopologyListener topologyListener;
 
     static PowsyblException createNotImplementedException() {
@@ -150,7 +149,6 @@ public final class MergingView implements Network, MultiVariantObject {
 
         // Listeners creation
         mergeDanglingLineListener = new MergingLineListener(index);
-        danglingLinePowerListener = new DanglingLinePowerListener(index);
         topologyListener = new TopologyListener(index);
         busBreakerView = new BusBreakerViewAdapter(index);
         busView = new BusViewAdapter(index);
@@ -842,7 +840,6 @@ public final class MergingView implements Network, MultiVariantObject {
     private void addInternalListeners(Network network) {
         // Attach all custom listeners
         network.addListener(mergeDanglingLineListener);
-        network.addListener(danglingLinePowerListener);
         network.addListener(topologyListener);
     }
 

@@ -118,6 +118,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .endTemporaryLimit()
             .add();
         assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+        ActivePowerLimits activePowerLimits1 = leg1.newActivePowerLimits()
+                .setPermanentLimit(400)
+                .add();
+        assertSame(activePowerLimits1, leg1.getActivePowerLimits());
+        ApparentPowerLimits apparentPowerLimits1 = leg1.newApparentPowerLimits()
+                .setPermanentLimit(2.4)
+                .add();
+        assertSame(apparentPowerLimits1, leg1.getApparentPowerLimits());
+        assertEquals(3, leg1.getOperationalLimits().size());
 
         RatioTapChanger ratioTapChangerInLeg2 = createRatioTapChanger(leg2,
             transformer.getTerminal(ThreeWindingsTransformer.Side.TWO));
@@ -460,7 +469,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotSet() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1: voltage level is not set");
+        thrown.expectMessage("3 windings transformer leg1 in substation sub: voltage level is not set");
 
         substation.newThreeWindingsTransformer()
                 .setId("twt")
@@ -481,7 +490,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     @Test
     public void invalidLeg1ArgumentVoltageLevelNotFound() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("3 windings transformer leg1: voltage level 'invalid' not found");
+        thrown.expectMessage("3 windings transformer leg1 in substation sub: voltage level 'invalid' not found");
 
         substation.newThreeWindingsTransformer()
                 .setId("twt")

@@ -7,16 +7,17 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
+import com.powsybl.cgmes.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
+import com.powsybl.iidm.network.extensions.*;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
-import com.powsybl.iidm.network.extensions.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -34,6 +35,14 @@ public class Comparison {
         this.diff = config.differences;
     }
 
+    public void compareBuses() {
+        diff.current(expected);
+        compareBuses(
+            expected.getBusBreakerView().getBusStream(),
+            actual.getBusBreakerView().getBusStream(),
+            this::compareBuses);
+    }
+
     public void compare() {
         diff.current(expected);
         if (config.checkNetworkId) {
@@ -45,6 +54,9 @@ public class Comparison {
 
         // Compare SV metadata
         compareCgmesSvMetadata(expected.getExtension(CgmesSvMetadata.class), actual.getExtension(CgmesSvMetadata.class));
+
+        // Compare Ssh metadata
+        compareCgmesSshMetadata(expected.getExtension(CgmesSshMetadata.class), actual.getExtension(CgmesSshMetadata.class));
 
         // TODO Consider other attributes of network (name, caseData, forecastDistance, ...)
         compare(
@@ -159,6 +171,32 @@ public class Comparison {
             }
             compare("description", expected.getDescription(), actual.getDescription());
             compare("svVersion", expected.getSvVersion(), actual.getSvVersion());
+            compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
+            for (String dep : expected.getDependencies()) {
+                if (!actual.getDependencies().contains(dep)) {
+                    diff.missing("dependentOn: " + dep);
+                }
+            }
+            for (String dep : actual.getDependencies()) {
+                if (!expected.getDependencies().contains(dep)) {
+                    diff.unexpected("dependentOn: " + dep);
+                }
+            }
+        }
+    }
+
+    private void compareCgmesSshMetadata(CgmesSshMetadata expected, CgmesSshMetadata actual) {
+        if (expected == null && actual != null) {
+            diff.unexpected(actual.getExtendable().getId() + "_cgmesSshMetadata_extension");
+            return;
+        }
+        if (expected != null) {
+            if (actual == null) {
+                diff.missing(expected.getExtendable().getId() + "_cgmesSshMetadata_extension");
+                return;
+            }
+            compare("description", expected.getDescription(), actual.getDescription());
+            compare("sshVersion", expected.getSshVersion(), actual.getSshVersion());
             compare("modelingAuthoritySet", expected.getModelingAuthoritySet(), actual.getModelingAuthoritySet());
             for (String dep : expected.getDependencies()) {
                 if (!actual.getDependencies().contains(dep)) {
@@ -503,10 +541,22 @@ public class Comparison {
         compare("b1", expected.getB1(), actual.getB1());
         compare("g2", expected.getG2(), actual.getG2());
         compare("b2", expected.getB2(), actual.getB2());
-        compareCurrentLimits(expected, actual,
+        compareLoadingLimits(expected, actual,
+                expected.getActivePowerLimits1(),
+                actual.getActivePowerLimits1());
+        compareLoadingLimits(expected, actual,
+                expected.getApparentPowerLimits1(),
+                actual.getApparentPowerLimits1());
+        compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits1(),
                 actual.getCurrentLimits1());
-        compareCurrentLimits(expected, actual,
+        compareLoadingLimits(expected, actual,
+                expected.getActivePowerLimits2(),
+                actual.getActivePowerLimits2());
+        compareLoadingLimits(expected, actual,
+                expected.getApparentPowerLimits2(),
+                actual.getApparentPowerLimits2());
+        compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits2(),
                 actual.getCurrentLimits2());
     }
@@ -523,19 +573,22 @@ public class Comparison {
         compare("p0", expected.getP0(), actual.getP0());
         compare("q0", expected.getQ0(), actual.getQ0());
         compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
-        compareCurrentLimits(expected, actual,
-                expected.getCurrentLimits(),
-                actual.getCurrentLimits());
-        compareCurrentLimits(expected, actual,
+        compareLoadingLimits(expected, actual,
+                expected.getActivePowerLimits(),
+                actual.getActivePowerLimits());
+        compareLoadingLimits(expected, actual,
+                expected.getApparentPowerLimits(),
+                actual.getApparentPowerLimits());
+        compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits(),
                 actual.getCurrentLimits());
     }
 
-    private void compareCurrentLimits(
+    private void compareLoadingLimits(
             Identifiable bexpected,
             Identifiable bactual,
-            CurrentLimits expected,
-            CurrentLimits actual) {
+            LoadingLimits expected,
+            LoadingLimits actual) {
         if (expected == null) {
             if (actual != null) {
                 diff.unexpected(bactual);
@@ -566,10 +619,22 @@ public class Comparison {
         compare("b", expected.getB(), actual.getB());
         compare("ratedU1", expected.getRatedU1(), actual.getRatedU1());
         compare("ratedU2", expected.getRatedU2(), actual.getRatedU2());
-        compareCurrentLimits(expected, actual,
+        compareLoadingLimits(expected, actual,
+                expected.getActivePowerLimits1(),
+                actual.getActivePowerLimits1());
+        compareLoadingLimits(expected, actual,
+                expected.getApparentPowerLimits1(),
+                actual.getApparentPowerLimits1());
+        compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits1(),
                 actual.getCurrentLimits1());
-        compareCurrentLimits(expected, actual,
+        compareLoadingLimits(expected, actual,
+                expected.getActivePowerLimits2(),
+                actual.getActivePowerLimits2());
+        compareLoadingLimits(expected, actual,
+                expected.getApparentPowerLimits2(),
+                actual.getApparentPowerLimits2());
+        compareLoadingLimits(expected, actual,
                 expected.getCurrentLimits2(),
                 actual.getCurrentLimits2());
 
@@ -627,7 +692,13 @@ public class Comparison {
         compare("b", expected.getB(), actual.getB());
 
         compare("ratedU", expected.getRatedU(), actual.getRatedU());
-        compareCurrentLimits(expectedt, actualt,
+        compareLoadingLimits(expectedt, actualt,
+                expected.getActivePowerLimits(),
+                actual.getActivePowerLimits());
+        compareLoadingLimits(expectedt, actualt,
+                expected.getApparentPowerLimits(),
+                actual.getApparentPowerLimits());
+        compareLoadingLimits(expectedt, actualt,
                 expected.getCurrentLimits(),
                 actual.getCurrentLimits());
         compareRatioTapChanger(expected.getRatioTapChanger(), actual.getRatioTapChanger());
@@ -764,8 +835,8 @@ public class Comparison {
     }
 
     private void compareTemporaryLimits(Identifiable bactual,
-                                        Collection<CurrentLimits.TemporaryLimit> expected,
-                                        Collection<CurrentLimits.TemporaryLimit> actual) {
+                                        Collection<LoadingLimits.TemporaryLimit> expected,
+                                        Collection<LoadingLimits.TemporaryLimit> actual) {
         if (expected.size() != actual.size()) {
             diff.unexpected(bactual);
             return;

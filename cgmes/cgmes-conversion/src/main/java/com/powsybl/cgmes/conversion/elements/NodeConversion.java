@@ -19,10 +19,10 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -115,39 +115,6 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
-    static class FirstTerminalTraverser implements VoltageLevel.NodeBreakerView.Traverser {
-        FirstTerminalTraverser(VoltageLevel.NodeBreakerView topology, int node) {
-            this.topology = topology;
-            this.node = node;
-        }
-
-        Terminal firstTerminal() {
-            topology.traverse(node, this);
-            return terminal;
-        }
-
-        @Override
-        public boolean traverse(int node1, Switch sw, int node2) {
-            // If the first terminal has already been found,
-            // do not continue traversal
-            if (terminal != null) {
-                return false;
-            }
-            // Proceed only to new nodes that can be reached
-            // through internal connections or closed switches
-            if (sw != null && sw.isOpen()) {
-                return false;
-            }
-            terminal = topology.getTerminal(node2);
-            // Continue traversal if no terminal at node2
-            return terminal == null;
-        }
-
-        private final VoltageLevel.NodeBreakerView topology;
-        private final int node;
-        private Terminal terminal;
-    }
-
     public void setVoltageAngleNodeBreaker() {
         if (!context.nodeBreaker()) {
             return;
@@ -172,7 +139,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // If there no Terminal at this IIDM node,
         // then find from it the first connected node with a Terminal
         Terminal t = topo.getOptionalTerminal(iidmNode)
-                .orElseGet(() -> new FirstTerminalTraverser(topo, iidmNode).firstTerminal());
+                .orElseGet(() -> Networks.getEquivalentTerminal(vl, iidmNode));
         if (t == null) {
             LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", id);
             return;
@@ -197,7 +164,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         } else if (!insideBoundary()) {
             String containerId = p.getId("ConnectivityNodeContainer");
             String cgmesId = context.cgmes().container(containerId).voltageLevel();
-            String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
+
+            String iidm = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
+            String iidmId = context.substationIdMapping().voltageLevelIidm(iidm);
             return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
         }
         return null;

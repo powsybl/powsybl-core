@@ -77,8 +77,17 @@ public class MatpowerImporter implements Importer {
         }
     }
 
-    private static boolean isTransformer(MBranch branch) {
-        return branch.getRatio() != 0;
+    private static boolean isLine(MatpowerModel model, MBranch branch) {
+        if (branch.getRatio() == 0) {
+            return true;
+        }
+        MBus from = model.getBusByNum(branch.getFrom());
+        MBus to = model.getBusByNum(branch.getTo());
+        return branch.getRatio() == 1 && from.getBaseVoltage() == to.getBaseVoltage();
+    }
+
+    private static boolean isTransformer(MatpowerModel model, MBranch branch) {
+        return !isLine(model, branch);
     }
 
     private static String getId(String prefix, int num) {
@@ -246,7 +255,7 @@ public class MatpowerImporter implements Importer {
             String connectedBus1 = isInService ? bus1Id : null;
             String connectedBus2 = isInService ? bus2Id : null;
 
-            if (isTransformer(mBranch)) {
+            if (isTransformer(model, mBranch)) {
                 TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
@@ -340,7 +349,7 @@ public class MatpowerImporter implements Importer {
                 LOGGER.debug("MATPOWER model {}", model.getCaseName());
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
-                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, MatpowerImporter::isTransformer,
+                    MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, branch -> isTransformer(model, branch),
                     busNums -> getId(VOLTAGE_LEVEL_PREFIX, busNums.iterator().next()), substationNum -> getId(SUBSTATION_PREFIX, substationNum));
 
                 boolean ignoreBaseVoltage = ConversionParameters.readBooleanParameter(FORMAT, parameters, IGNORE_BASE_VOLTAGE_PARAMETER,

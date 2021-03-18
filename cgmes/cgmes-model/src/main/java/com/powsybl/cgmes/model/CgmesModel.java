@@ -48,6 +48,8 @@ public interface CgmesModel {
 
     CgmesTerminal terminal(String terminalId);
 
+    Collection<CgmesTerminal> computedTerminals();
+
     PropertyBags numObjectsByType();
 
     PropertyBags allObjectsOfType(String type);
@@ -124,6 +126,8 @@ public interface CgmesModel {
     PropertyBags ratioTapChangerTable(String tableId);
 
     PropertyBags phaseTapChangerTable(String tableId);
+
+    PropertyBags controlAreas();
 
     PropertyBags acDcConverters();
 

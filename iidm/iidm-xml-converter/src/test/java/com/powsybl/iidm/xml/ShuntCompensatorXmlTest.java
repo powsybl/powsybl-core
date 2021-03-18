@@ -16,6 +16,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.assertEquals;
@@ -67,6 +69,21 @@ public class ShuntCompensatorXmlTest extends AbstractXmlConverterTest {
                         e.getMessage());
             }
         });
+
+        // check that it doesn't fail for versions previous to 1.2 when log error is the IIDM version incompatibility behavior
+        testForAllPreviousVersions(IidmXmlVersion.V_1_3, version -> {
+            try {
+                writeXmlTest(network, (n, p) -> write(n, p, version), getVersionedNetworkPath("nonLinearShuntRoundTripRef.xml", version));
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
+    private static void write(Network network, Path path, IidmXmlVersion version) {
+        ExportOptions options = new ExportOptions().setIidmVersionIncompatibilityBehavior(ExportOptions.IidmVersionIncompatibilityBehavior.LOG_ERROR)
+                .setVersion(version.toString("."));
+        NetworkXml.write(network, options, path);
     }
 
     @Test

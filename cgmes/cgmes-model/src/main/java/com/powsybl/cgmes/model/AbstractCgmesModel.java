@@ -24,7 +24,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractCgmesModel implements CgmesModel {
 
-    public AbstractCgmesModel() {
+    protected AbstractCgmesModel() {
         this.properties = new Properties();
     }
 
@@ -39,6 +39,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
         }
         return cachedGroupedTransformerEnds;
+    }
+
+    @Override
+    public Collection<CgmesTerminal> computedTerminals() {
+        if (cachedTerminals == null) {
+            cachedTerminals = computeTerminals();
+        }
+        return cachedTerminals.values();
     }
 
     @Override
@@ -108,13 +116,11 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     private CgmesContainer container(CgmesTerminal t, boolean nodeBreaker) {
-        if (cachedNodes == null) {
-            cachedNodes = computeNodes();
-        }
+        cacheNodes();
         String containerId = null;
         String nodeId = nodeBreaker && t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
         if (nodeId != null) {
-            PropertyBag node = cachedNodes.get(nodeId);
+            PropertyBag node = cachedNodesById.get(nodeId);
             if (node != null) {
                 containerId = node.getId("ConnectivityNodeContainer");
             } else {
@@ -161,11 +167,15 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return gends;
     }
 
-    private Map<String, PropertyBag> computeNodes() {
-        Map<String, PropertyBag> nodes = new HashMap<>();
-        connectivityNodes().forEach(cn -> nodes.put(cn.getId("ConnectivityNode"), cn));
-        topologicalNodes().forEach(tn -> nodes.put(tn.getId("TopologicalNode"), tn));
-        return nodes;
+    protected void cacheNodes() {
+        if (!cachedNodes) {
+            cachedConnectivityNodes = connectivityNodes();
+            cachedTopologicalNodes = topologicalNodes();
+            cachedNodesById = new HashMap<>();
+            cachedConnectivityNodes.forEach(cn -> cachedNodesById.put(cn.getId("ConnectivityNode"), cn));
+            cachedTopologicalNodes.forEach(tn -> cachedNodesById.put(tn.getId("TopologicalNode"), tn));
+            cachedNodes = true;
+        }
     }
 
     private Map<String, CgmesTerminal> computeTerminals() {
@@ -249,7 +259,10 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
-    private Map<String, PropertyBag> cachedNodes;
+    protected boolean cachedNodes = false;
+    protected PropertyBags cachedConnectivityNodes;
+    protected PropertyBags cachedTopologicalNodes;
+    private Map<String, PropertyBag> cachedNodesById;
     // equipmentId, sequenceNumber, terminalId
     private Map<String, String[]> powerTransformerRatioTapChanger;
     private Map<String, String[]> powerTransformerPhaseTapChanger;

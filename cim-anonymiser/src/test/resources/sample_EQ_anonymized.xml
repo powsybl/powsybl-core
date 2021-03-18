@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#">
+<cim:ACLineSegment rdf:ID="A">
+<cim:Conductor.gch>0</cim:Conductor.gch>
+<cim:Conductor.x>0.001</cim:Conductor.x>
+<cim:Conductor.bch>0</cim:Conductor.bch>
+<cim:Conductor.r>0.0008</cim:Conductor.r>
+<cim:ConductingEquipment.BaseVoltage rdf:resource="#B"></cim:ConductingEquipment.BaseVoltage>
+<cim:IdentifiedObject.name>C</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:BaseVoltage rdf:ID="B">
+<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+<cim:BaseVoltage.nominalVoltage>1</cim:BaseVoltage.nominalVoltage>
+<cim:IdentifiedObject.name>D</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+</rdf:RDF>

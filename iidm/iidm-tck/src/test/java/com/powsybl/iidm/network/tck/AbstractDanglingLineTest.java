@@ -118,9 +118,21 @@ public abstract class AbstractDanglingLineTest {
         assertEquals(q02, danglingLine.getQ0(), 0.0);
 
         danglingLine.newCurrentLimits()
-                        .setPermanentLimit(100.0)
-                    .add();
+                .setPermanentLimit(100.0)
+                .add();
         assertEquals(100.0, danglingLine.getCurrentLimits().getPermanentLimit(), 0.0);
+
+        danglingLine.newActivePowerLimits()
+                .setPermanentLimit(60.0)
+                .add();
+        assertEquals(60.0, danglingLine.getActivePowerLimits().getPermanentLimit(), 0.0);
+
+        danglingLine.newApparentPowerLimits()
+                .setPermanentLimit(132.0)
+                .add();
+        assertEquals(132.0, danglingLine.getApparentPowerLimits().getPermanentLimit(), 0.0);
+
+        assertEquals(3, danglingLine.getOperationalLimits().size());
 
         Bus bus = voltageLevel.getBusBreakerView().getBus(BUS_VL_ID);
         Bus terminal = danglingLine.getTerminal().getBusBreakerView().getBus();

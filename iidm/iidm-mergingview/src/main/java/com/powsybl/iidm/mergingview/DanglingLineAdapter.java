@@ -8,6 +8,8 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Collection;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -97,12 +99,42 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
+    public Collection<OperationalLimits> getOperationalLimits() {
+        return getDelegate().getOperationalLimits();
+    }
+
+    @Override
     public CurrentLimits getCurrentLimits() {
         return getDelegate().getCurrentLimits();
     }
 
     @Override
+    public ActivePowerLimits getActivePowerLimits() {
+        return getDelegate().getActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits() {
+        return getDelegate().getApparentPowerLimits();
+    }
+
+    @Override
     public CurrentLimitsAdder newCurrentLimits() {
         return getDelegate().newCurrentLimits();
+    }
+
+    @Override
+    public Boundary getBoundary() {
+        return getDelegate().getBoundary();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        return getDelegate().newApparentPowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        return getDelegate().newActivePowerLimits();
     }
 }

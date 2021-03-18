@@ -22,7 +22,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     public VoltageLevelConversion(PropertyBag vl, Context context) {
         super("VoltageLevel", vl, context);
         cgmesSubstationId = p.getId("Substation");
-        iidmSubstationId = context.substationIdMapping().iidm(cgmesSubstationId);
+        iidmSubstationId = context.substationIdMapping().substationIidm(cgmesSubstationId);
         substation = context.network().getSubstation(iidmSubstationId);
     }
 
@@ -34,7 +34,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     iidmSubstationId));
             return false;
         }
-        return true;
+        return !context.substationIdMapping().voltageLevelIsMapped(id);
     }
 
     @Override
@@ -51,7 +51,8 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 
-        VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmId());
+        String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(id);
+        VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
         if (voltageLevel == null) {
             VoltageLevelAdder adder = substation.newVoltageLevel()
                     .setNominalV(nominalVoltage)
@@ -62,7 +63,16 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setLowVoltageLimit(lowVoltageLimit)
                     .setHighVoltageLimit(highVoltageLimit);
             identify(adder);
-            adder.add();
+            VoltageLevel vl = adder.add();
+            addAliases(vl);
+        }
+    }
+
+    private void addAliases(VoltageLevel vl) {
+        int index = 0;
+        for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
+            index++;
+            vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
         }
     }
 

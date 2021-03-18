@@ -7,12 +7,28 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-ucte</artifactId>
-        <version>3.8.0-SNAPSHOT</version>
+        <version>4.1.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-ucte-util</artifactId>
     <name>UCTE utilities</name>
     <description>Utility classes for UCTE formatted network and files</description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.ucte.util</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
     <dependencies>
         <dependency>

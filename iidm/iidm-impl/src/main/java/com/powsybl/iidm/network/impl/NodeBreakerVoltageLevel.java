@@ -1147,7 +1147,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             busColor.put(bus.getId(), colors[i]);
         }
 
-        for (int n = 0; n < graph.getVertexCount(); n++) {
+        for (int n = 0; n < graph.getVertexCapacity(); n++) {
             if (!graph.vertexExists(n)) {
                 continue;
             }
@@ -1156,7 +1156,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             TerminalExt terminal = graph.getVertexObject(n);
             if (terminal != null) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                label += System.lineSeparator() + connectable.getType().toString() + System.lineSeparator() + connectable.getId();
+                label += System.lineSeparator() + connectable.getType().toString()
+                        + System.lineSeparator() + connectable.getId()
+                        + connectable.getOptionalName().map(name -> System.lineSeparator() + name).orElse("");
             }
             GraphVizNode gvNode = gvGraph.node(scope, n)
                     .label(label)
@@ -1176,7 +1178,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
                 if (DRAW_SWITCH_ID) {
-                    edge.label(aSwitch.getKind().toString() + System.lineSeparator() + aSwitch.getId())
+                    edge.label(aSwitch.getKind().toString()
+                            + System.lineSeparator() + aSwitch.getId()
+                            + aSwitch.getOptionalName().map(n -> System.lineSeparator() + n).orElse(""))
                             .attr(GraphVizAttribute.fontsize, "10");
                 }
                 edge.style(aSwitch.isOpen() ? "dotted" : "solid");

@@ -151,7 +151,7 @@ public class UcteImporter implements Importer {
 
             Substation substation = network.newSubstation()
                     .setId(ucteSubstation.getName())
-                    .setCountry(Country.valueOf(firstUcteNodeCode.getUcteCountryCode().name()))
+                    .setCountry(EntsoeGeographicalCode.valueOf(firstUcteNodeCode.getUcteCountryCode().name()).getCountry())
                     .add();
 
             EntsoeGeographicalCode regionalCode = getRegionalGeographicalCode(substation);
@@ -233,6 +233,9 @@ public class UcteImporter implements Importer {
             }
         }
 
+        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
@@ -241,8 +244,8 @@ public class UcteImporter implements Importer {
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
-                .setTargetP(-ucteNode.getActivePowerGeneration())
-                .setTargetQ(-ucteNode.getReactivePowerGeneration())
+                .setTargetP(generatorP)
+                .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())
                 .add();
         generator.newMinMaxReactiveLimits()
@@ -268,6 +271,7 @@ public class UcteImporter implements Importer {
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
                 .setId(ucteLine.getId().toString())
+                .setName(xnode.getGeographicalName())
                 .setBus(connected ? nodeCode.toString() : null)
                 .setConnectableBus(nodeCode.toString())
                 .setR(ucteLine.getResistance())
@@ -279,8 +283,8 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
                 .add()
                 .add();
 
@@ -340,7 +344,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z) {
-        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+        LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
@@ -547,6 +551,7 @@ public class UcteImporter implements Importer {
 
         yVoltageLevel.getBusBreakerView().newBus()
                 .setId(yNodeName)
+                .setFictitious(true)
                 .add();
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
@@ -554,20 +559,10 @@ public class UcteImporter implements Importer {
         LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
-        float p0 = 0;
-        if (isValueValid(ucteXnode.getActiveLoad())) {
-            p0 += ucteXnode.getActiveLoad();
-        }
-        if (isValueValid(ucteXnode.getActivePowerGeneration())) {
-            p0 += ucteXnode.getActivePowerGeneration();
-        }
-        float q0 = 0;
-        if (isValueValid(ucteXnode.getReactiveLoad())) {
-            q0 += ucteXnode.getReactiveLoad();
-        }
-        if (isValueValid(ucteXnode.getReactivePowerGeneration())) {
-            q0 += ucteXnode.getReactivePowerGeneration();
-        }
+        float p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
+        float q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
+        float targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
+        float targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
         // create a small impedance dangling line connected to the YNODE
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
@@ -581,9 +576,14 @@ public class UcteImporter implements Importer {
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
+                .newGeneration()
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
+                .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
+        addGeographicalNameProperty(ucteXnode, yDanglingLine);
 
         String voltageLevelId1;
         String voltageLevelId2;
@@ -893,10 +893,6 @@ public class UcteImporter implements Importer {
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
         float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
         float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
-        double xnodeP1 = dlAtSideOne.getP0();
-        double xnodeQ1 = dlAtSideOne.getQ0();
-        double xnodeP2 = dlAtSideTwo.getP0();
-        double xnodeQ2 = dlAtSideTwo.getQ0();
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
         TieLine mergeLine = network.newTieLine()
@@ -907,29 +903,27 @@ public class UcteImporter implements Importer {
                 .setVoltageLevel2(dlAtSideTwo.getTerminal().getVoltageLevel().getId())
                 .setConnectableBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
-                .line1()
+                .newHalfLine1()
                 .setId(dlAtSideOne.getId())
                 .setR(dlAtSideOne.getR())
                 .setX(dlAtSideOne.getX())
-                .setG1(dlAtSideOne.getG())
-                .setG2(0.0)
                 .setB1(dlAtSideOne.getB())
                 .setB2(0.0)
-                .setXnodeP(xnodeP1)
-                .setXnodeQ(xnodeQ1)
+                .setG1(dlAtSideOne.getG())
+                .setG2(0.0)
                 .setFictitious(dlAtSideOne.isFictitious())
-                .line2()
+                .add()
+                .newHalfLine2()
                 .setId(dlAtSideTwo.getId())
                 .setR(dlAtSideTwo.getR())
                 .setX(dlAtSideTwo.getX())
-                .setG1(0.0)
-                .setG2(dlAtSideTwo.getG())
                 .setB1(0.0)
                 .setB2(dlAtSideTwo.getB())
-                .setXnodeP(xnodeP2)
-                .setXnodeQ(xnodeQ2)
-                .setUcteXnodeCode(xnodeCode)
+                .setG1(0.0)
+                .setG2(dlAtSideTwo.getG())
                 .setFictitious(dlAtSideTwo.isFictitious())
+                .add()
+                .setUcteXnodeCode(xnodeCode)
                 .add();
 
         addElementNameProperty(mergeLine, dlAtSideOne, dlAtSideTwo);
@@ -944,8 +938,22 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp).withXnodeP1(xnodeP1).withXnodeQ1(xnodeQ1)
-                .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
+        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
+        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
+        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
+        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        mergeLine.newExtension(MergedXnodeAdder.class)
+                .withRdp(rdp).withXdp(xdp)
+                .withLine1Name(dlAtSideOne.getId())
+                .withLine1Fictitious(dlAtSideOne.isFictitious())
+                .withB1dp((float) b1dp)
+                .withG1dp((float) g1dp)
+                .withLine2Name(dlAtSideTwo.getId())
+                .withLine2Fictitious(dlAtSideTwo.isFictitious())
+                .withB2dp((float) b2dp)
+                .withG2dp((float) g2dp)
+                .withCode(xnodeCode)
+                .add();
     }
 
     @Override

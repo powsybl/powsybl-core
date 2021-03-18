@@ -142,8 +142,18 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
+    public void addAlias(String alias, boolean ensureAliasUnicity) {
+        getDelegate().addAlias(alias, ensureAliasUnicity);
+    }
+
+    @Override
     public void addAlias(String alias, String aliasType) {
         getDelegate().addAlias(alias, aliasType);
+    }
+
+    @Override
+    public void addAlias(String alias, String aliasType, boolean ensureAliasUnicity) {
+        getDelegate().addAlias(alias, aliasType, ensureAliasUnicity);
     }
 
     @Override

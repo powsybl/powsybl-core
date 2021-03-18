@@ -12,10 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.triplestore.api.PropertyBag;
-
-import java.util.function.Supplier;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -71,33 +68,19 @@ public class SwitchConversion extends AbstractConnectorConversion {
     private void convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
-        if (convertToLowImpedanceLine()) {
-            warnLowImpedanceLineCreated();
-            LineAdder adder = context.network().newLine().setR(context.config().lowImpedanceLineR())
-                    .setX(context.config().lowImpedanceLineX()).setG1(0).setB1(0).setG2(0).setB2(0);
+        Switch s;
+        if (context.nodeBreaker()) {
+            VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
-            boolean branchIsClosed = !open;
-            connect(adder, terminalConnected(1), terminalConnected(2), branchIsClosed);
-            Line line = adder.add();
-            addAliases(line);
-            convertedTerminals(line.getTerminal1(), line.getTerminal2());
+            connect(adder, open);
+            s = adder.add();
         } else {
-            Switch s;
-            if (context.nodeBreaker()) {
-                VoltageLevel.NodeBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
-                identify(adder);
-                connect(adder, open);
-                s = adder.add();
-            } else {
-                VoltageLevel.BusBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getBusBreakerView().newSwitch();
-                identify(adder);
-                connect(adder, open);
-                s = adder.add();
-            }
-            addAliases(s);
+            VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
+            identify(adder);
+            connect(adder, open);
+            s = adder.add();
         }
+        addAliases(s);
     }
 
     private SwitchKind kind() {
@@ -110,26 +93,6 @@ public class SwitchConversion extends AbstractConnectorConversion {
             return SwitchKind.LOAD_BREAK_SWITCH;
         }
         return SwitchKind.BREAKER;
-    }
-
-    private String switchVoltageLevelId() {
-        CgmesContainer container = context.cgmes().container(p.getId("EquipmentContainer"));
-        if (container == null) {
-            LOG.error("Missing equipment container for switch {} {}", id, name);
-        }
-        return container == null ? null : container.voltageLevel();
-    }
-
-    private boolean convertToLowImpedanceLine() {
-        String vl = switchVoltageLevelId();
-        return !cgmesVoltageLevelId(1).equals(vl) || !cgmesVoltageLevelId(2).equals(vl);
-    }
-
-    private void warnLowImpedanceLineCreated() {
-        Supplier<String> reason = () -> String.format(
-                "Connected to a terminal not in the same voltage level %s (side 1: %s, side 2: %s)",
-                switchVoltageLevelId(), cgmesVoltageLevelId(1), cgmesVoltageLevelId(2));
-        fixed("Low impedance line", reason);
     }
 
     private void warnDanglingLineCreated() {

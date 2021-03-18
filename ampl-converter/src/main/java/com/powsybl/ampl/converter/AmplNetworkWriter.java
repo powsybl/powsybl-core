@@ -19,10 +19,10 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ComponentConstants;
 import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Identifiable;
@@ -639,9 +639,9 @@ public class AmplNetworkWriter {
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
                         .writeCell(t1.getP())
-                        .writeCell(-tl.getHalf1().getXnodeP()) // xnode node flow side 1
+                        .writeCell(tl.getHalf1().getBoundary().getP()) // xnode node flow side 1
                         .writeCell(t1.getQ())
-                        .writeCell(-tl.getHalf1().getXnodeQ()) // xnode node flow side 1
+                        .writeCell(tl.getHalf1().getBoundary().getQ()) // xnode node flow side 1
                         .writeCell(getPermanentLimit(l.getCurrentLimits1()))
                         .writeCell(Float.NaN)
                         .writeCell(merged)
@@ -665,9 +665,9 @@ public class AmplNetworkWriter {
                         .writeCell(1f) // constant ratio
                         .writeCell(-1) // no ratio tap changer
                         .writeCell(-1) // no phase tap changer
-                        .writeCell(-tl.getHalf2().getXnodeP()) // xnode node flow side 2
+                        .writeCell(tl.getHalf2().getBoundary().getP()) // xnode node flow side 2
                         .writeCell(t2.getP())
-                        .writeCell(-tl.getHalf2().getXnodeQ()) // xnode node flow side 2
+                        .writeCell(tl.getHalf2().getBoundary().getQ()) // xnode node flow side 2
                         .writeCell(t2.getQ())
                         .writeCell(Float.NaN)
                         .writeCell(getPermanentLimit(l.getCurrentLimits2()))
@@ -1705,7 +1705,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
-        for (Branch branch : network.getBranches()) {
+        for (Branch<?> branch : network.getBranches()) {
             String branchId = branch.getId();
             if (branch.getCurrentLimits1() != null) {
                 writeTemporaryCurrentLimits(branch.getCurrentLimits1(), formatter, branchId, true, "_1_");

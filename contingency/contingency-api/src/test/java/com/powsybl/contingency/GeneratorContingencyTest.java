@@ -8,7 +8,11 @@ package com.powsybl.contingency;
 
 import com.google.common.testing.EqualsTester;
 import com.powsybl.contingency.tasks.GeneratorTripping;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
+
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -19,16 +23,32 @@ public class GeneratorContingencyTest {
 
     @Test
     public void test() {
-        GeneratorContingency contingency = new GeneratorContingency("id");
+        Contingency contingency = Contingency.generator("id");
         assertEquals("id", contingency.getId());
-        assertEquals(ContingencyElementType.GENERATOR, contingency.getType());
+        assertEquals(1, contingency.getElements().size());
+        assertEquals(ContingencyElementType.GENERATOR, contingency.getElements().get(0).getType());
 
-        assertNotNull(contingency.toTask());
-        assertTrue(contingency.toTask() instanceof GeneratorTripping);
+        GeneratorContingency genContingency = new GeneratorContingency("id");
+        assertEquals("id", genContingency.getId());
+        assertEquals(ContingencyElementType.GENERATOR, genContingency.getType());
+
+        assertNotNull(genContingency.toTask());
+        assertTrue(genContingency.toTask() instanceof GeneratorTripping);
 
         new EqualsTester()
                 .addEqualityGroup(new GeneratorContingency("g1"), new GeneratorContingency("g1"))
                 .addEqualityGroup(new GeneratorContingency("g2"), new GeneratorContingency("g2"))
                 .testEquals();
+    }
+
+    @Test
+    public void test2() {
+        Network network = EurostagTutorialExample1Factory.create();
+        ContingencyList contingencyList = ContingencyList.of(Contingency.generator("GEN"), Contingency.generator("unknown"));
+        List<Contingency> contingencies = contingencyList.getContingencies(network);
+        assertEquals(1, contingencies.size());
+
+        GeneratorContingency genCtg = (GeneratorContingency) contingencies.get(0).getElements().get(0);
+        assertEquals("GEN", genCtg.getId());
     }
 }

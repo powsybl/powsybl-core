@@ -8,7 +8,7 @@ package com.powsybl.sensitivity.mocks;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.SensitivityAnalysisParameters;
 import com.powsybl.sensitivity.SensitivityAnalysisProvider;
@@ -17,6 +17,7 @@ import com.powsybl.sensitivity.SensitivityFactorsProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -26,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, ContingenciesProvider contingenciesProvider, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
+    public CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId, SensitivityFactorsProvider factorsProvider, List<Contingency> contingencies, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
         return CompletableFuture.completedFuture(new SensitivityAnalysisResult(
             true,
             new HashMap<>(),
