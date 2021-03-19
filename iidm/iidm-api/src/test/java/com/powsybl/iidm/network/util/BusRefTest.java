@@ -32,8 +32,8 @@ public class BusRefTest {
 
         final BusRef busRef = new IdBasedBusRef("busId");
         when(network.getIdentifiable(eq("busId"))).thenReturn((Identifiable) bus);
-        //FIXME
-        // assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
+        when(bus.getId()).thenReturn("busId");
+        assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
         assertFalse(new IdBasedBusRef("another").resolve(network).isPresent());
 
         ObjectMapper objectMapper = new ObjectMapper();
