@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -65,14 +66,25 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values) {
-        report(reportKey, defaultLog, values, null);
+        report(reportKey, defaultLog, values, MarkerImpl.DEFAULT);
     }
 
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
-        values.forEach((key, value) -> defaultLog.replace("{" + key + "}", value.toString()));
-        LOGGER.info(defaultLog);
+        String logFormatted = MessageFormatter.format(defaultLog, values, ongoingTaskReport.getTaskValues());
+        getLogConsumer(marker.getLogLevel()).accept(logFormatted);
         ongoingTaskReport.addReport(new Report(reportKey, defaultLog, values, marker));
+    }
+
+    private Consumer<String> getLogConsumer(Marker.LogLevel logLevel) {
+        switch (logLevel) {
+            case TRACE: return LOGGER::trace;
+            case DEBUG: return LOGGER::debug;
+            case INFO: return LOGGER::info;
+            case WARN: return LOGGER::warn;
+            case ERROR: return LOGGER::error;
+        }
+        return s -> { };
     }
 
     @Override

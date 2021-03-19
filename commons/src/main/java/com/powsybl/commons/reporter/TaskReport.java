@@ -47,6 +47,10 @@ public class TaskReport {
         return reports.get(reportKey);
     }
 
+    public Map<String, Object> getTaskValues() {
+        return values;
+    }
+
     public Object getTaskValue(String valueKey) {
         return values.get(valueKey);
     }
