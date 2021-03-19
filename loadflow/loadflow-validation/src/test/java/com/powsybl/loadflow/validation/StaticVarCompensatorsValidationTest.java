@@ -12,18 +12,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

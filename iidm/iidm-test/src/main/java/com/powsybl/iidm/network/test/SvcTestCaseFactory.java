@@ -85,7 +85,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .add();
         network.newLine()
@@ -119,7 +119,7 @@ public final class SvcTestCaseFactory {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390)
                 .setReactivePowerSetpoint(350)
                 .add();

@@ -8,10 +8,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -31,7 +28,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
     }
 
     public static void initialize(StaticVarCompensatorAdder adder) {
-        adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+        adder.setRegulationMode(RegulationMode.OFF);
     }
 
     public void add(String iidmId, PropertyBag sm) {
@@ -94,7 +91,7 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
-        StaticVarCompensator.RegulationMode regulationMode;
+        RegulationMode regulationMode;
 
         boolean okSet = false;
         if (!control.enabled && rc.controlEnabled) {
@@ -104,16 +101,16 @@ public class RegulatingControlMappingForStaticVarCompensators {
             return false;
         }
         if (RegulatingControlMapping.isControlModeVoltage(control.mode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
+            regulationMode = RegulationMode.VOLTAGE;
             targetVoltage = control.targetValue;
             okSet = true;
         } else if (isControlModeReactivePower(control.mode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+            regulationMode = RegulationMode.REACTIVE_POWER;
             targetReactivePower = control.targetValue;
             okSet = true;
         } else {
             context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
+            regulationMode = RegulationMode.OFF;
         }
 
         svc.setVoltageSetpoint(targetVoltage);
@@ -131,17 +128,17 @@ public class RegulatingControlMappingForStaticVarCompensators {
 
         double targetVoltage = Double.NaN;
         double targetReactivePower = Double.NaN;
-        StaticVarCompensator.RegulationMode regulationMode;
+        RegulationMode regulationMode;
 
         if (RegulatingControlMapping.isControlModeVoltage(rc.defaultRegulationMode.toLowerCase())) {
-            regulationMode = onlyReactivePowerReg ? StaticVarCompensator.RegulationMode.OFF : StaticVarCompensator.RegulationMode.VOLTAGE;
+            regulationMode = onlyReactivePowerReg ? RegulationMode.OFF : RegulationMode.VOLTAGE;
             targetVoltage = rc.defaultTargetVoltage;
         } else if (isControlModeReactivePower(rc.defaultRegulationMode.toLowerCase())) {
-            regulationMode = StaticVarCompensator.RegulationMode.REACTIVE_POWER;
+            regulationMode = RegulationMode.REACTIVE_POWER;
             targetReactivePower = rc.defaultTargetReactivePower;
         } else {
             context.fixed("SVCControlMode", () -> String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", svc.getId()));
-            regulationMode = StaticVarCompensator.RegulationMode.OFF;
+            regulationMode = RegulationMode.OFF;
         }
 
         svc.setVoltageSetpoint(targetVoltage);

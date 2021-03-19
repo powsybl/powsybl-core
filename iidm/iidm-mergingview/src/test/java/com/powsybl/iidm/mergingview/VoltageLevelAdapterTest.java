@@ -157,7 +157,7 @@ public class VoltageLevelAdapterTest {
                     .setBus("busA")
                     .setBmin(0.0002)
                     .setBmax(0.0008)
-                    .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                    .setRegulationMode(RegulationMode.VOLTAGE)
                     .setRegulatingTerminal(mergingView.getLoad("LOAD").getTerminal())
                     .setVoltageSetpoint(390.0)
                     .setReactivePowerSetpoint(1.0)

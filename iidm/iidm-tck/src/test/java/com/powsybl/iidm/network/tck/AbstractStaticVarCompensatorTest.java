@@ -39,7 +39,7 @@ public abstract class AbstractStaticVarCompensatorTest {
         assertSame(svc, vl2.getStaticVarCompensators().iterator().next());
         assertEquals(0.0002, svc.getBmin(), 0.0);
         assertEquals(0.0008, svc.getBmax(), 0.0);
-        assertSame(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertSame(RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
     }
 
@@ -74,7 +74,7 @@ public abstract class AbstractStaticVarCompensatorTest {
     public void changeRegulationModeErrorTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         try {
-            svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+            svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
             fail();
         } catch (Exception ignored) {
             // ignore
@@ -85,9 +85,9 @@ public abstract class AbstractStaticVarCompensatorTest {
     public void changeRegulationModeSuccessTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         svc.setReactivePowerSetpoint(200.0);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
         assertEquals(200.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertSame(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+        assertSame(RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
     }
 
     @Test
@@ -128,11 +128,11 @@ public abstract class AbstractStaticVarCompensatorTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(1.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
         // change values in s4
         svc.setReactivePowerSetpoint(3.0);
-        svc.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER);
+        svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
         svc.setVoltageSetpoint(440.0);
 
         // remove s2
@@ -142,13 +142,13 @@ public abstract class AbstractStaticVarCompensatorTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(3.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
+        assertEquals(RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
         assertEquals(440.0, svc.getVoltageSetpoint(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(1.0, svc.getReactivePowerSetpoint(), 0.0);
-        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertEquals(RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetpoint(), 0.0);
 
         // remove working variant s4
@@ -170,7 +170,7 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(390.0)
                 .setReactivePowerSetpoint(1.0)
                 .setRegulatingTerminal(regulatingTerminal)
