@@ -162,19 +162,15 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     Generator setMinP(double minP);
 
     /**
-     * Get the voltage regulator status.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
+     * @deprecated use {@link #getRegulationMode()} instead.
      */
+    @Deprecated
     boolean isVoltageRegulatorOn();
 
     /**
-     * Set the voltage regulator status.
-     * <p>
-     * Depends on the working variant.
-     * @see VariantManager
+     * @deprecated use {@link #setRegulationMode(RegulationMode)} instead.
      */
+    @Deprecated
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
     /**
@@ -240,4 +236,24 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getRatedS();
 
     Generator setRatedS(double ratedS);
+
+    /**
+     * <p>Get the regulating mode.</p>
+     * <p>Depends on the working variant.</p>
+     * @return the regulating mode
+     */
+    default RegulationMode getRegulationMode() {
+        return isVoltageRegulatorOn() ? RegulationMode.VOLTAGE : RegulationMode.OFF;
+    }
+
+    /**
+     * <p>set the regulating mode.</p>
+     * <p>Depends on the working variant.</p>
+     * @param regulationMode the regulating mode
+     * @return this to allow method chaining
+     */
+    default Generator setRegulationMode(RegulationMode regulationMode) {
+        setVoltageRegulatorOn(regulationMode == RegulationMode.VOLTAGE);
+        return this;
+    }
 }
