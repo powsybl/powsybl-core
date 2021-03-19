@@ -20,7 +20,7 @@
 
     <artifactId>powsybl-security-analysis-default</artifactId>
     <name>Security Analysis Default Implementation</name>
-    <description>An default implementation to run security analysis</description>
+    <description>A default implementation to run security analysis</description>
 
     <build>
         <plugins>
