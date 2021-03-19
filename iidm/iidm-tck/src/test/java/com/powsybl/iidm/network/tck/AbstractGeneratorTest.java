@@ -71,8 +71,13 @@ public abstract class AbstractGeneratorTest {
 
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
+        assertFalse(generator.getRegulationMode() == RegulationMode.VOLTAGE);
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
+        assertTrue(generator.getRegulationMode() == RegulationMode.VOLTAGE);
+
+        generator.setRegulationMode(RegulationMode.OFF);
+        assertFalse(generator.getRegulationMode() == RegulationMode.VOLTAGE);
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
