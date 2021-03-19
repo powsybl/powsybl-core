@@ -213,23 +213,11 @@ public class CgmesExportContext {
         return topologicalNodeByBusViewBusMapping.get(busId);
     }
 
-    public CgmesExportContext setTopologicalNodesByBusViewBusMapping(Map<String, Set<String>> topologicalNodeByBusViewBusMapping) {
-        this.topologicalNodeByBusViewBusMapping.clear();
-        this.topologicalNodeByBusViewBusMapping.putAll(topologicalNodeByBusViewBusMapping);
-        return this;
-    }
-
     public Set<String> getUnmappedTopologicalNodes() {
         return Collections.unmodifiableSet(unmappedTopologicalNodes);
     }
 
     public void isMapped(String mappedTopologicalNode) {
         this.unmappedTopologicalNodes.remove(mappedTopologicalNode);
-    }
-
-    public CgmesExportContext setUnmappedTopologicalNodes(Set<String> unmappedTopologicalNodes) {
-        this.unmappedTopologicalNodes.clear();
-        this.unmappedTopologicalNodes.addAll(unmappedTopologicalNodes);
-        return this;
     }
 }
