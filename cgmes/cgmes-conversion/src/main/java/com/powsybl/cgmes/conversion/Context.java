@@ -49,7 +49,7 @@ public class Context {
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
         namingStrategy = new NamingStrategy.Identity();
-        boundary = new Boundary(cgmes);
+        cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
@@ -110,8 +110,8 @@ public class Context {
         return substationIdMapping;
     }
 
-    public Boundary boundary() {
-        return boundary;
+    public CgmesBoundary boundary() {
+        return cgmesBoundary;
     }
 
     public DcMapping dc() {
@@ -269,7 +269,7 @@ public class Context {
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
     private final SubstationIdMapping substationIdMapping;
-    private final Boundary boundary;
+    private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
     private final DcMapping dcMapping;
