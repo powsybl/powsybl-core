@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * There would be two types of id:
  * 1. id of equipment:
- * 2. id of bus itself:
+ * 2. id of a configured bus itself:
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class IdBasedBusRef implements BusRef {
@@ -30,15 +30,14 @@ public class IdBasedBusRef implements BusRef {
 
     @Override
     public Optional<Bus> resolve(Network network) {
-        final Bus bus = network.getBusView().getBus(id);
-        if (bus != null) {
-            return Optional.of(bus);
-        }
         final Identifiable<?> identifiable = network.getIdentifiable(id);
         if (identifiable == null) {
             return Optional.empty();
         }
-        if (identifiable instanceof Injection) {
+        if (identifiable instanceof Bus) {
+            String busId = identifiable.getId();
+            return Optional.of(network.getBusView().getBus(busId));
+        } else if (identifiable instanceof Injection) {
             final Injection injection = (Injection) identifiable;
             return Optional.of(injection.getTerminal().getBusView().getBus());
         } else {
