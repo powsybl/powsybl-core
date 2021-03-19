@@ -9,14 +9,23 @@ package com.powsybl.commons.reporter;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public interface Marker {
+public enum MarkerImpl implements Marker {
 
-    public enum LogLevel {
-        TRACE, DEBUG, INFO, WARN, ERROR
+    PERFORMANCE(LogLevel.INFO), DEFAULT(LogLevel.INFO);
+
+    private final LogLevel logLevel;
+
+    MarkerImpl(LogLevel level) {
+        this.logLevel = level;
     }
 
-    LogLevel getLogLevel();
+    @Override
+    public LogLevel getLogLevel() {
+        return logLevel;
+    }
 
-    String getName();
-
+    @Override
+    public String getName() {
+        return name();
+    }
 }
