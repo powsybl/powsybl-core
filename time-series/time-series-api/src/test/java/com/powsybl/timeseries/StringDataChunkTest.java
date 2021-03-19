@@ -166,6 +166,61 @@ public class StringDataChunkTest {
     }
 
     @Test
+    public void uncompressedMergeTest() {
+        UncompressedStringDataChunk chunk1 = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c", "d", "e"});
+        UncompressedStringDataChunk chunk2 = new UncompressedStringDataChunk(6, new String[]{"f", "g"});
+        UncompressedStringDataChunk chunk3 = new UncompressedStringDataChunk(1, new String[]{"f", "g"});
+
+        //Merge chunk1 + chunk2
+        StringDataChunk merge = chunk1.append(chunk2);
+        assertNotNull(merge);
+        assertTrue(merge instanceof UncompressedStringDataChunk);
+        assertEquals(1, merge.getOffset());
+        assertArrayEquals(new String[] {"a", "b", "c", "d", "e", "f", "g"}, ((UncompressedStringDataChunk) merge).getValues());
+
+        //Merge chunk1 + chunk3
+        try {
+            chunk1.append(chunk3);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
+    public void compressedMergeTest() {
+        CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(1, 5, new String[]{"a", "b"}, new int[]{2, 3});
+        CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(6, 5, new String[]{"c", "d"}, new int[]{2, 3});
+        CompressedStringDataChunk chunk3 = new CompressedStringDataChunk(11, 3, new String[]{"d", "e"}, new int[]{2, 1});
+
+        //Merge chunk1 + chunk2
+        StringDataChunk merge = chunk1.append(chunk2);
+        assertNotNull(merge);
+        assertTrue(merge instanceof CompressedStringDataChunk);
+        assertEquals(1, merge.getOffset());
+        assertEquals(10, merge.getLength());
+        assertArrayEquals(new String[] {"a", "b", "c", "d"}, ((CompressedStringDataChunk) merge).getStepValues());
+        assertArrayEquals(new int[] {2, 3, 2, 3}, ((CompressedStringDataChunk) merge).getStepLengths());
+
+        //Merge chunk2 + chunk3
+        merge = chunk2.append(chunk3);
+        assertNotNull(merge);
+        assertTrue(merge instanceof CompressedStringDataChunk);
+        assertEquals(6, merge.getOffset());
+        assertEquals(8, merge.getLength());
+        assertArrayEquals(new String[] {"c", "d", "e"}, ((CompressedStringDataChunk) merge).getStepValues());
+        assertArrayEquals(new int[] {2, 5, 1}, ((CompressedStringDataChunk) merge).getStepLengths());
+
+        //Merge chunk1 + chunk3
+        try {
+            chunk1.append(chunk3);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
     public void nullIssueTest() {
         String json = String.join(System.lineSeparator(),
                 "{",

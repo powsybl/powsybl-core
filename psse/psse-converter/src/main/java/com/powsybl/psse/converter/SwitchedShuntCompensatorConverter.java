@@ -23,7 +23,6 @@ import com.powsybl.iidm.network.ShuntCompensatorNonLinearModelAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseSwitchedShunt;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
@@ -79,8 +78,12 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             return;
         }
 
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
         Terminal regulatingTerminal = defineRegulatingTerminal(psseSwitchedShunt, getNetwork(), version);
+        // Discard control if the switchedShunt is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return;
+        }
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseSwitchedShunt);
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vLow = psseSwitchedShunt.getVswlo() * vnom;
         double vHigh = psseSwitchedShunt.getVswhi() * vnom;
@@ -117,8 +120,8 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            throw new PsseException("PSSE. SwitchedShunt " + defaultRegulatingBusId + "-"
-                + defineShuntId(psseSwitchedShunt, version) + ". Unexpected regulatingTerminal.");
+            String shuntId = defineShuntId(psseSwitchedShunt, version);
+            LOGGER.warn("SwitchedShunt {}. Regulating terminal is not assigned as the bus is isolated", shuntId);
         }
         return regulatingTerminal;
     }
@@ -163,9 +166,9 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
                 getShuntId(getBusId(psseSwitchedShunt.getI()), defineShuntId(psseSwitchedShunt, version)));
         }
 
+        double bAdd = 0.0;
         List<ShuntBlock> shuntBlocks = new ArrayList<>();
         if (!psseReactorBlocks.isEmpty()) {
-            double bAdd = 0.0;
             for (int i = 0; i < psseReactorBlocks.size(); i++) {
                 for (int j = 0; j < psseReactorBlocks.get(i).getN(); j++) {
                     bAdd = bAdd + psseReactorBlocks.get(i).getB();
@@ -174,10 +177,11 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             }
         }
 
-        shuntBlocks.add(new ShuntBlock(1, 1, 0.0));
+        if (psseSwitchedShunt.getAdjm() == 1) {
+            bAdd = 0.0;
+        }
 
         if (!psseCapacitorBlocks.isEmpty()) {
-            double bAdd = 0.0;
             for (int i = 0; i < psseCapacitorBlocks.size(); i++) {
                 for (int j = 0; j < psseCapacitorBlocks.get(i).getN(); j++) {
                     bAdd = bAdd + psseCapacitorBlocks.get(i).getB();
@@ -185,6 +189,11 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
                 }
             }
         }
+
+        // Add the zero block, shunt disconnected
+        shuntBlocks.add(new ShuntBlock(1, 1, 0.0));
+
+        shuntBlocks.sort(Comparator.comparing(ShuntBlock::getB));
 
         return shuntBlocks;
     }

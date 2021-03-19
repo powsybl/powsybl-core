@@ -58,6 +58,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags acDcConverters;
     private PropertyBags dcLineSegments;
     private PropertyBags dcTerminals;
+    private PropertyBags tieFlows;
     private PropertyBags numObjectsByType;
     private PropertyBags modelProfiles;
 
@@ -97,6 +98,7 @@ public final class FakeCgmesModel implements CgmesModel {
         acDcConverters = new PropertyBags();
         dcLineSegments = new PropertyBags();
         dcTerminals = new PropertyBags();
+        tieFlows = new PropertyBags();
         numObjectsByType = new PropertyBags();
         modelProfiles = new PropertyBags();
     }
@@ -242,6 +244,11 @@ public final class FakeCgmesModel implements CgmesModel {
 
     public FakeCgmesModel dcTerminals(String... ids) {
         fakeObjectsFromIdentifiers("DCTerminal", ids, dcTerminals);
+        return this;
+    }
+
+    public FakeCgmesModel tieFlows(String... ids) {
+        fakeObjectsFromIdentifiers("TieFlow", ids, tieFlows);
         return this;
     }
 
@@ -505,6 +512,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags dcTerminalsTP() {
         return dcTerminals;
+    }
+
+    @Override
+    public PropertyBags tieFlows() {
+        return tieFlows;
     }
 
     @Override

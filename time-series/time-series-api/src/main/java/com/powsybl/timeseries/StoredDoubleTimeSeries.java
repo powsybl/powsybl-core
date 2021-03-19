@@ -15,7 +15,7 @@ import java.util.function.Consumer;
  */
 public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleDataChunk, DoubleTimeSeries> implements DoubleTimeSeries {
 
-    private static final double[] NAN_ARRAY = new double[] {Double.NaN};
+    private static final double[] NAN_ARRAY = new double[]{Double.NaN};
 
     public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, DoubleDataChunk... chunks) {
         super(metadata, chunks);

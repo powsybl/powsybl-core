@@ -468,6 +468,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags tieFlows() {
+        return namedQuery("tieFlows");
+    }
+
+    @Override
     public PropertyBags topologicalIslands() {
         return namedQuery("topologicalIslands");
     }
