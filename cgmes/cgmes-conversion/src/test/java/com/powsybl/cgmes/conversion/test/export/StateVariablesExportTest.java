@@ -74,7 +74,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
         NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
         Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
-        
+
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
