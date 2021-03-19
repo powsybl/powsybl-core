@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.util.LinkData;
@@ -28,9 +27,6 @@ import static com.powsybl.cgmes.model.CgmesNamespace.*;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public final class CgmesExportUtil {
-
-    private static final String CONNECTIVITY_NODE_1 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE + "1";
-    private static final String CONNECTIVITY_NODE_2 = Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.CONNECTIVITY_NODE + "2";
 
     private CgmesExportUtil() {
     }

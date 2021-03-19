@@ -91,7 +91,6 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         // There are no "pending" TNs to be removed from unmapped
         // The check to see if this TN has also been mapped to a different bus
         // can not be the same that we apply when removing elements from "unmapped"
-        // checkAlreadyMapped(busId, topologicalNodeId);
         if (unmapped.contains(topologicalNodeId)) {
             throw new PowsyblException("Inconsistency: TN " + topologicalNodeId + " has been considered unmapped, but now a mapping to bus " + busId + " is being added");
         }

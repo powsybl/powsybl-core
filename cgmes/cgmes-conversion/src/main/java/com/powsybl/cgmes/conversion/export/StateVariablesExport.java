@@ -254,16 +254,15 @@ public final class StateVariablesExport {
             Bus bus = svInjection.getTerminal().getBusView().getBus();
             if (bus == null) {
                 LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
-                return;
             } else {
                 Set<String> topologicalNodes = context.getTopologicalNodesByBusViewBus(bus.getId());
                 if (topologicalNodes.isEmpty()) {
                     LOG.warn("Fictitious load does not have a corresponding Topological Node. No SvInjection is written");
-                    return;
+                } else {
+                    // SvInjection will be assigned to the first of the TNs mapped to the bus
+                    String topologicalNode = topologicalNodes.iterator().next();
+                    writeSvInjection(svInjection, topologicalNode, cimNamespace, writer);
                 }
-                // SvInjection will be assigned to the first of the TNs mapped to the bus
-                String topologicalNode = topologicalNodes.iterator().next();
-                writeSvInjection(svInjection, topologicalNode, cimNamespace, writer);
             }
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());

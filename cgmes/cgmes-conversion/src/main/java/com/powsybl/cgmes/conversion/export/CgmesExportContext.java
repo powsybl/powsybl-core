@@ -133,7 +133,7 @@ public class CgmesExportContext {
             unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
             // And remove from unmapped the currently mapped
             // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
-            unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(set -> set.stream()).collect(Collectors.toSet()));
+            unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
         } else {
             // If we do not have an explicit mapping
             // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
