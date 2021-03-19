@@ -66,7 +66,8 @@ public class SecurityAnalysisExecutionImplTest {
 
     @Test
     public void checkExecutionWithLogCallAndArguments() {
-        assertThrows("runWithLog", PowsyblException.class, () -> execution.executeWithLog(computationManager, input));
+        input.setWithLogs(true);
+        assertThrows("run", PowsyblException.class, () -> execution.execute(computationManager, input));
     }
 
     @AutoService(SecurityAnalysisProvider.class)
@@ -82,19 +83,6 @@ public class SecurityAnalysisExecutionImplTest {
             assertSame(SecurityAnalysisExecutionImplTest.contingencies, contingenciesProvider);
             assertTrue(interceptors.isEmpty());
             throw new PowsyblException("run");
-        }
-
-        @Override
-        public CompletableFuture<SecurityAnalysisResult> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-            assertSame(SecurityAnalysisExecutionImplTest.network, network);
-            assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
-            assertSame(SecurityAnalysisExecutionImplTest.detector, detector);
-            assertSame(SecurityAnalysisExecutionImplTest.filter, filter);
-            assertSame(SecurityAnalysisExecutionImplTest.computationManager, computationManager);
-            assertSame(SecurityAnalysisExecutionImplTest.parameters, parameters);
-            assertSame(SecurityAnalysisExecutionImplTest.contingencies, contingenciesProvider);
-            assertTrue(interceptors.isEmpty());
-            throw new PowsyblException("runWithLog");
         }
 
         @Override

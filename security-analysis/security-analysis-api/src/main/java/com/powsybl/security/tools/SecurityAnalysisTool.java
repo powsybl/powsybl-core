@@ -162,7 +162,7 @@ public class SecurityAnalysisTool implements Tool {
                 .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
 
         options.getPath(CONTINGENCIES_FILE_OPTION)
-                .map(p -> FileUtil.asByteSource(p))
+                .map(FileUtil::asByteSource)
                 .ifPresent(inputs::setContingenciesSource);
 
         options.getValues(LIMIT_TYPES_OPTION)
@@ -171,6 +171,9 @@ public class SecurityAnalysisTool implements Tool {
 
         options.getValues(WITH_EXTENSIONS_OPTION)
                 .ifPresent(inputs::addResultExtensions);
+
+        options.getValues(OUTPUT_LOG_OPTION)
+                .ifPresent(f -> inputs.setWithLogs(true));
     }
 
     private static SecurityAnalysisInputBuildStrategy configBasedInputBuildStrategy(PlatformConfig config) {
@@ -221,11 +224,12 @@ public class SecurityAnalysisTool implements Tool {
     }
 
     private static SecurityAnalysisResult runSecurityAnalysisWithLog(ComputationManager computationManager,
-                                                             SecurityAnalysisExecution execution,
-                                                             SecurityAnalysisExecutionInput input,
-                                                             Path logPath) {
+                                                                     SecurityAnalysisExecution execution,
+                                                                     SecurityAnalysisExecutionInput input,
+                                                                     Path logPath) {
         try {
-            SecurityAnalysisResult result = execution.executeWithLog(computationManager, input).join();
+
+            SecurityAnalysisResult result = execution.execute(computationManager, input).join();
             // copy log bytes to file
             result.getLogBytes()
                     .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));

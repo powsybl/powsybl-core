@@ -65,17 +65,4 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 input.getContingenciesProvider(),
                 new ArrayList<>(input.getInterceptors()));
     }
-
-    @Override
-    public CompletableFuture<SecurityAnalysisResult> executeWithLog(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
-        SecurityAnalysisInput input = buildInput(data);
-        return runner.runAsyncWithLog(input.getNetworkVariant().getNetwork(),
-                input.getNetworkVariant().getVariantId(),
-                input.getLimitViolationDetector(),
-                input.getFilter(),
-                computationManager,
-                input.getParameters(),
-                input.getContingenciesProvider(),
-                new ArrayList<>(input.getInterceptors()));
-    }
 }

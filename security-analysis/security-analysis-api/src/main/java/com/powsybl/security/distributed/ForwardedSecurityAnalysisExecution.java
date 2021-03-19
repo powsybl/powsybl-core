@@ -51,15 +51,6 @@ public class ForwardedSecurityAnalysisExecution implements SecurityAnalysisExecu
         return computationManager.execute(itoolsEnv, executionHandler);
     }
 
-    @Override
-    public CompletableFuture<SecurityAnalysisResult> executeWithLog(ComputationManager computationManager,
-                                                                           SecurityAnalysisExecutionInput data) {
-
-        ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_", config.isDebug());
-        ExecutionHandler<SecurityAnalysisResult> executionHandler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(data, forwardedTaskCount);
-        return computationManager.execute(itoolsEnv, executionHandler);
-    }
-
     private static Integer checkForwardedTaskCount(Integer count) {
         checkArgument(count == null || count > 0, "Forwarded task count must be positive.");
         return count;

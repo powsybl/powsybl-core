@@ -80,25 +80,6 @@ public final class SecurityAnalysis {
             return runAsync(network, LocalComputationManager.getDefault());
         }
 
-        public CompletableFuture<SecurityAnalysisResult> runAsyncWithLog(Network network,
-                                                                                String workingStateId,
-                                                                                LimitViolationDetector detector,
-                                                                                LimitViolationFilter filter,
-                                                                                ComputationManager computationManager,
-                                                                                SecurityAnalysisParameters parameters,
-                                                                                ContingenciesProvider contingenciesProvider,
-                                                                                List<SecurityAnalysisInterceptor> interceptors) {
-            Objects.requireNonNull(network, "Network should not be null");
-            Objects.requireNonNull(workingStateId, "WorkingVariantId should not be null");
-            Objects.requireNonNull(detector, "LimitViolation detector should not be null");
-            Objects.requireNonNull(filter, "LimitViolation filter should not be null");
-            Objects.requireNonNull(computationManager, "ComputationManager should not be null");
-            Objects.requireNonNull(contingenciesProvider, "Contingencies provider should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
-            Objects.requireNonNull(interceptors, "Interceptor list should not be null");
-            return provider.runWithLog(network, workingStateId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-        }
-
         public SecurityAnalysisResult run(Network network,
                                           String workingStateId,
                                           LimitViolationDetector detector,

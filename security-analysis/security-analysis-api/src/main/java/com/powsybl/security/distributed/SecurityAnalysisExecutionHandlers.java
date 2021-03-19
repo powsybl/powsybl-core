@@ -55,29 +55,8 @@ public final class SecurityAnalysisExecutionHandlers {
      */
     public static ExecutionHandler<SecurityAnalysisResult> forwarded(SecurityAnalysisExecutionInput input, Integer forwardedTaskCount) {
         Preconditions.checkArgument(forwardedTaskCount == null || forwardedTaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, forwardedTaskCount);
-        return new SecurityAnalysisExecutionHandler<>(SecurityAnalysisExecutionHandlers::readSingleResult,
-            (workingDir, options) -> forwardedOptions(workingDir, options, forwardedTaskCount),
-            SecurityAnalysisExecutionHandlers::generateExceptionWithLogs,
-            1,
-            input);
-    }
-
-    /**
-     * Create an {@link ExecutionHandler} which forwards the security analysis execution through a call
-     * to {@literal itools security-analysis}. It also retrieves execution logs.
-     */
-    public static ExecutionHandler<SecurityAnalysisResult> forwardedWithLogs(SecurityAnalysisExecutionInput input) {
-        return forwardedWithLogs(input, null);
-    }
-
-    /**
-     * Create an {@link ExecutionHandler} which forwards the security analysis execution through a call
-     * to {@literal itools security-analysis}, with the option {@literal --task-count}. It also retrieves execution logs.
-     */
-    public static ExecutionHandler<SecurityAnalysisResult> forwardedWithLogs(SecurityAnalysisExecutionInput input, Integer forwardedTaskCount) {
-        Preconditions.checkArgument(forwardedTaskCount == null || forwardedTaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, forwardedTaskCount);
-        return new SecurityAnalysisExecutionHandler<>(SecurityAnalysisExecutionHandlers::readSingleResultWithLogs,
-            (workingDir, options) -> forwardedWithLogsOptions(workingDir, options, forwardedTaskCount),
+        return new SecurityAnalysisExecutionHandler<>(workingDir -> readSingleResult(workingDir, input.isWithLogs()),
+            (workingDir, options) -> forwardedOptions(workingDir, options, forwardedTaskCount, input.isWithLogs()),
             SecurityAnalysisExecutionHandlers::generateExceptionWithLogs,
             1,
             input);
@@ -89,39 +68,25 @@ public final class SecurityAnalysisExecutionHandlers {
      */
     public static ExecutionHandler<SecurityAnalysisResult> distributed(SecurityAnalysisExecutionInput input, int subtaskCount) {
         Preconditions.checkArgument(subtaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, subtaskCount);
-        return new SecurityAnalysisExecutionHandler<>(workingDir -> readResults(workingDir, subtaskCount),
-            (workingDir, options) -> distributedOptions(workingDir, options, subtaskCount),
+        return new SecurityAnalysisExecutionHandler<>(workingDir -> readResults(workingDir, subtaskCount, input.isWithLogs()),
+            (workingDir, options) -> distributedOptions(workingDir, options, subtaskCount, input.isWithLogs()),
             (workingDir, cause) -> generateExceptionWithLogs(workingDir, cause, subtaskCount),
             subtaskCount,
             input);
     }
 
-    /**
-     * Create an {@link ExecutionHandler} which distributes the security analysis execution through multiple calls
-     * to {@literal itools security-analysis}, as specified in argument. It also retrieves execution logs.
-     */
-    public static ExecutionHandler<SecurityAnalysisResult> distributedWithLog(SecurityAnalysisExecutionInput input, int subtaskCount) {
-        Preconditions.checkArgument(subtaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, subtaskCount);
-        return new SecurityAnalysisExecutionHandler<>(workingDir -> readResultsWithLogs(workingDir, subtaskCount),
-            (workingDir, options) -> distributedWithLogsOptions(workingDir, options, subtaskCount),
-            (workingDir, cause) -> generateExceptionWithLogs(workingDir, cause, subtaskCount),
-            subtaskCount,
-            input);
-    }
-
-    public static SecurityAnalysisResult readSingleResult(Path workingDir) {
+    public static SecurityAnalysisResult readSingleResult(Path workingDir, boolean withLogs) {
         Path taskResultFile = workingDir.resolve(OUTPUT_FILE);
-        return SecurityAnalysisResultDeserializer.read(taskResultFile);
-    }
-
-    public static SecurityAnalysisResult readSingleResultWithLogs(Path workingDir) {
-        SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
-        List<String> collectedLogsFilename = new ArrayList<>();
-        collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
-        collectedLogsFilename.add(saCmdOutLogName());
-        collectedLogsFilename.add(saCmdErrLogName());
-        byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return re.setLogBytes(logBytes);
+        SecurityAnalysisResult re = SecurityAnalysisResultDeserializer.read(taskResultFile);
+        if (withLogs) {
+            List<String> collectedLogsFilename = new ArrayList<>();
+            collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
+            collectedLogsFilename.add(saCmdOutLogName());
+            collectedLogsFilename.add(saCmdErrLogName());
+            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            re.setLogBytes(logBytes);
+        }
+        return re;
     }
 
     private static String saCmdOutLogName() {
@@ -132,51 +97,46 @@ public final class SecurityAnalysisExecutionHandlers {
         return SA_CMD_ID + ".err";
     }
 
-    public static void forwardedOptions(Path workingDir, SecurityAnalysisCommandOptions options, Integer taskCount) {
+    public static void forwardedOptions(Path workingDir, SecurityAnalysisCommandOptions options, Integer taskCount, boolean withLogs) {
         options.outputFile(workingDir.resolve(OUTPUT_FILE), "JSON");
         if (taskCount != null) {
             options.taskCount(taskCount);
         }
+        if (withLogs) {
+            options.logFile(getLogPath(workingDir));
+        }
     }
 
-    public static void forwardedWithLogsOptions(Path workingDir, SecurityAnalysisCommandOptions options, Integer taskCount) {
-        forwardedOptions(workingDir, options, taskCount);
-        options.logFile(getLogPath(workingDir));
-    }
-
-    public static void distributedOptions(Path workingDir, SecurityAnalysisCommandOptions options, int taskCount) {
+    public static void distributedOptions(Path workingDir, SecurityAnalysisCommandOptions options, int taskCount, boolean withLogs) {
         options.id(SA_TASK_CMD_ID);
         options.outputFile(i -> getOutputPathForTask(workingDir, i), "JSON");
         options.task(i -> new Partition(i + 1, taskCount));
-    }
-
-    public static void distributedWithLogsOptions(Path workingDir, SecurityAnalysisCommandOptions options, int taskCount) {
-        distributedOptions(workingDir, options, taskCount);
-        options.logFile(i -> getLogPathForTask(workingDir, i));
+        if (withLogs) {
+            options.logFile(i -> getLogPathForTask(workingDir, i));
+        }
     }
 
     public static Path getOutputPathForTask(Path workingDir, int taskIndex) {
         return workingDir.resolve(String.format(OUTPUT_FILE_FMT, taskIndex));
     }
 
-    public static SecurityAnalysisResult readResults(Path workingDir, int subtaskCount) {
+    public static SecurityAnalysisResult readResults(Path workingDir, int subtaskCount, boolean withLogs) {
         List<SecurityAnalysisResult> results = IntStream.range(0, subtaskCount)
                 .mapToObj(taskIndex -> getOutputPathForTask(workingDir, taskIndex))
                 .map(SecurityAnalysisResultDeserializer::read)
                 .collect(Collectors.toList());
-        return SecurityAnalysisResultMerger.merge(results);
-    }
-
-    public static SecurityAnalysisResult readResultsWithLogs(Path workingDir, int subtaskCount) {
-        SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
-        List<String> collectedLogsFilename = new ArrayList<>();
-        for (int i = 0; i < subtaskCount; i++) {
-            collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
-            collectedLogsFilename.add(satOutName(i));
-            collectedLogsFilename.add(satErrName(i));
+        SecurityAnalysisResult re = SecurityAnalysisResultMerger.merge(results);
+        if (withLogs) {
+            List<String> collectedLogsFilename = new ArrayList<>();
+            for (int i = 0; i < subtaskCount; i++) {
+                collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
+                collectedLogsFilename.add(satOutName(i));
+                collectedLogsFilename.add(satErrName(i));
+            }
+            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            re.setLogBytes(logBytes);
         }
-        byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return re.setLogBytes(logBytes);
+        return re;
     }
 
     private static ComputationException generateExceptionWithLogs(Path workingDir, Exception cause, int count) {

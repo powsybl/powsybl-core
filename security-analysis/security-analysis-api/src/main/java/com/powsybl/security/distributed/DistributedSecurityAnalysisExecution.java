@@ -40,18 +40,8 @@ public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExe
     @Override
     public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager,
                                                              SecurityAnalysisExecutionInput data) {
-
         ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_task_", config.isDebug());
         ExecutionHandler<SecurityAnalysisResult> executionHandler = SecurityAnalysisExecutionHandlers.distributed(data, subtaskCount);
-        return computationManager.execute(itoolsEnv, executionHandler);
-    }
-
-    @Override
-    public CompletableFuture<SecurityAnalysisResult> executeWithLog(ComputationManager computationManager,
-                                                                           SecurityAnalysisExecutionInput data) {
-
-        ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_task_", config.isDebug());
-        ExecutionHandler<SecurityAnalysisResult> executionHandler = SecurityAnalysisExecutionHandlers.distributedWithLog(data, subtaskCount);
         return computationManager.execute(itoolsEnv, executionHandler);
     }
 

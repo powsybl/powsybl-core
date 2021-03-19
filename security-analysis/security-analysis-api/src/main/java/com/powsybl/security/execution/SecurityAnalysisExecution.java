@@ -24,8 +24,4 @@ public interface SecurityAnalysisExecution {
 
     CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager,
                                                       SecurityAnalysisExecutionInput data);
-
-    CompletableFuture<SecurityAnalysisResult> executeWithLog(ComputationManager computationManager,
-                                                             SecurityAnalysisExecutionInput data);
-
 }
