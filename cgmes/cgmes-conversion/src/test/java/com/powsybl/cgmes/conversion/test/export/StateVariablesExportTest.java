@@ -10,6 +10,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
+import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -17,6 +18,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -30,6 +32,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -58,10 +62,19 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected0 = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
+        // Check the information stored in the extension before it is serialized
+        CgmesIidmMapping iidmMapping = expected0.getExtension(CgmesIidmMapping.class);
+        if (iidmMapping != null) {
+            for (Line l : expected0.getLines()) {
+                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal1().getBusView().getBus().getId()).contains(iidmMapping.getTopologicalNode(l.getId(), 1)));
+                assertTrue(iidmMapping.getTopologicalNodes(l.getTerminal2().getBusView().getBus().getId()).contains(iidmMapping.getTopologicalNode(l.getId(), 2)));
+            }
+        }
+
         // Export to XIIDM and re-import to test serialization of CGMES-IIDM extension
         NetworkXml.write(expected0, tmpDir.resolve("temp.xiidm"));
         Network expected = NetworkXml.read(tmpDir.resolve("temp.xiidm"));
-
+        
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
