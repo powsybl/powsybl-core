@@ -8,6 +8,7 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -45,6 +46,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param contingencies list of contingencies after which sensitivity factors will be computed
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
+     * @param reporter a reporter for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
     CompletableFuture<SensitivityAnalysisResult> run(Network network,
@@ -52,5 +54,6 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                                      SensitivityFactorsProvider factorsProvider,
                                                      List<Contingency> contingencies,
                                                      SensitivityAnalysisParameters parameters,
-                                                     ComputationManager computationManager);
+                                                     ComputationManager computationManager,
+                                                     Reporter reporter);
 }

@@ -8,6 +8,7 @@ package com.powsybl.loadflow;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -32,5 +33,5 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param parameters load flow execution parameters
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters);
+    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter);
 }

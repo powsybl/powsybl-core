@@ -7,6 +7,7 @@
 package com.powsybl.loadflow;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -20,7 +21,7 @@ import java.util.concurrent.CompletableFuture;
 public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
-    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
+    public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters, Reporter reporter) {
         return CompletableFuture.completedFuture(new LoadFlowResultImpl(true, Collections.emptyMap(), ""));
     }
 
