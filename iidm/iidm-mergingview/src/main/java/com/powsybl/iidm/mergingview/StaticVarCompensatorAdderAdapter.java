@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
+import com.powsybl.iidm.network.RegulationMode;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
@@ -53,7 +54,7 @@ public class StaticVarCompensatorAdderAdapter extends AbstractInjectionAdderAdap
     }
 
     @Override
-    public StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode) {
+    public StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode) {
         getDelegate().setRegulationMode(regulationMode);
         return this;
     }

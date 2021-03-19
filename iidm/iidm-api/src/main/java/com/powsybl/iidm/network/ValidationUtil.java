@@ -282,7 +282,7 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
-    public static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
+    public static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, RegulationMode regulationMode) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "Regulation mode is invalid");
         }

@@ -224,8 +224,8 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeStaticVarCompensators(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            StaticVarCompensator.RegulationMode regulationMode = svc.getRegulationMode();
-            boolean controlEnabled = regulationMode != StaticVarCompensator.RegulationMode.OFF;
+            RegulationMode regulationMode = svc.getRegulationMode();
+            boolean controlEnabled = regulationMode != RegulationMode.OFF;
             writer.writeStartElement(cimNamespace, "StaticVarCompensator");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + svc.getId());
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
@@ -242,10 +242,10 @@ public final class SteadyStateHypothesisExport {
                 // Regulating control could be reactive power or voltage
                 double targetValue;
                 String multiplier;
-                if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE) {
+                if (regulationMode == RegulationMode.VOLTAGE) {
                     targetValue = svc.getVoltageSetpoint();
                     multiplier = "k";
-                } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+                } else if (regulationMode == RegulationMode.REACTIVE_POWER) {
                     targetValue = svc.getReactivePowerSetpoint();
                     multiplier = "M";
                 } else {

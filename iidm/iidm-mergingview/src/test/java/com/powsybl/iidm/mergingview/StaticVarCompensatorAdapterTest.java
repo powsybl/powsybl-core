@@ -7,6 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RegulationMode;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Before;
@@ -63,9 +64,9 @@ public class StaticVarCompensatorAdapterTest {
         assertTrue(svcActual.setReactivePowerSetpoint(++reactivePowerSetpoint) instanceof StaticVarCompensatorAdapter);
         assertEquals(reactivePowerSetpoint, svcActual.getReactivePowerSetpoint(), 0.0d);
 
-        StaticVarCompensator.RegulationMode regulationMode = svcExpected.getRegulationMode();
+        RegulationMode regulationMode = svcExpected.getRegulationMode();
         assertEquals(regulationMode, svcActual.getRegulationMode());
-        regulationMode = StaticVarCompensator.RegulationMode.VOLTAGE;
+        regulationMode = RegulationMode.VOLTAGE;
         assertTrue(svcActual.setRegulationMode(regulationMode) instanceof StaticVarCompensatorAdapter);
         assertEquals(regulationMode, svcActual.getRegulationMode());
 

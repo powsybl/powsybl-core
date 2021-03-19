@@ -96,12 +96,6 @@ package com.powsybl.iidm.network;
  */
 public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
 
-    enum RegulationMode {
-        VOLTAGE,
-        REACTIVE_POWER,
-        OFF
-    }
-
     /**
      * Get the minimum susceptance in S.
      * @return the minimum susceptance

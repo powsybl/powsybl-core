@@ -929,7 +929,7 @@ public final class CgmesConformity1NetworkCatalog {
                 .setConnectableBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setVoltageSetpoint(229.5)
                 .add();
 

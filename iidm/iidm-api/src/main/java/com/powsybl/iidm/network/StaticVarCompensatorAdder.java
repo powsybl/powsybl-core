@@ -39,7 +39,7 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
         return setReactivePowerSetpoint(reactivePowerSetPoint);
     }
 
-    StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
+    StaticVarCompensatorAdder setRegulationMode(RegulationMode regulationMode);
 
     default StaticVarCompensatorAdder setRegulatingTerminal(Terminal regulatingTerminal) {
         throw new UnsupportedOperationException("Not yet implemented");
