@@ -13,7 +13,7 @@ import com.powsybl.sensitivity.factors.functions.BusVoltage;
 import com.powsybl.sensitivity.factors.variables.TargetV;
 
 /**
- * Sensitivity factor for an impact of targetV on a regulating terminal on a bus voltage
+ * Sensitivity factor for an impact of a targetV increase from a regulating equipment on a bus ref
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  * @see com.powsybl.sensitivity.factors.functions.BusVoltage

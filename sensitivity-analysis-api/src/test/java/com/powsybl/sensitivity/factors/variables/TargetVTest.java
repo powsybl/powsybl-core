@@ -20,7 +20,7 @@ public class TargetVTest {
 
     private static final String VARIABLE_ID = "Variable ID";
     private static final String VARIABLE_NAME = "Variable name";
-    private static final String REGULATING_TERMINAL_ID = "Regulating terminal ID";
+    private static final String EQUIPMENT_ID = "Regulating terminal ID";
 
     @Rule
     public ExpectedException exception = ExpectedException.none();
@@ -33,19 +33,19 @@ public class TargetVTest {
 
     @Test
     public void getName() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, REGULATING_TERMINAL_ID);
+        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
         Assert.assertEquals(VARIABLE_NAME, targetV.getName());
     }
 
     @Test
     public void getId() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, REGULATING_TERMINAL_ID);
+        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
         Assert.assertEquals(VARIABLE_ID, targetV.getId());
     }
 
     @Test
     public void getLine() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, REGULATING_TERMINAL_ID);
-        assertEquals(REGULATING_TERMINAL_ID, targetV.getRegulatingTerminalId());
+        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
+        assertEquals(EQUIPMENT_ID, targetV.getEquipmentId());
     }
 }
