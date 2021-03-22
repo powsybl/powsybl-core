@@ -296,7 +296,7 @@ public class UcteReader {
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
         long elapsedTime = System.currentTimeMillis() - start;
-        reporter.report("elapsedTime", "UCTE file read in {elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
+        reporter.report("elapsedTime", "UCTE file read in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
         LOGGER.debug("UCTE file read in {} ms", elapsedTime);
         reporter.endTask();
 

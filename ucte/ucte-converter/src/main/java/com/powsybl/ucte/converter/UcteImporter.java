@@ -113,7 +113,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.report("createBus_" + ucteNodeCode, "Create bus {bus}", "bus", ucteNodeCode, MarkerImpl.TRACE);
+            reporter.report("createBus_" + ucteNodeCode, "Create bus ${bus}", "bus", ucteNodeCode, MarkerImpl.TRACE);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
@@ -144,7 +144,7 @@ public class UcteImporter implements Importer {
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
             reporter.startTask("createBusesSubstation_" + ucteSubstation.getName(),
-                "Create buses for substation {substation}", "substation", ucteSubstation.getName());
+                "Create buses for substation ${substation}", "substation", ucteSubstation.getName());
             // skip substations with only one Xnode
             UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
                     .filter(code -> code.getUcteCountryCode() != UcteCountryCode.XX)
@@ -155,7 +155,7 @@ public class UcteImporter implements Importer {
             }
 
             reporter.report("createSubstation_" + ucteSubstation.getName(),
-                "Create substation {substationName}", "substationName", ucteSubstation.getName(), MarkerImpl.TRACE);
+                "Create substation ${substationName}", "substationName", ucteSubstation.getName(), MarkerImpl.TRACE);
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
             Substation substation = network.newSubstation()
@@ -172,7 +172,7 @@ public class UcteImporter implements Importer {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
                 reporter.report("createVoltageLevel_" + ucteVoltageLevel.getName(),
-                    "Create voltage level {voltageLevelName}", "voltageLevelName", ucteVoltageLevel.getName(), MarkerImpl.TRACE);
+                    "Create voltage level ${voltageLevelName}", "voltageLevelName", ucteVoltageLevel.getName(), MarkerImpl.TRACE);
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
@@ -681,7 +681,7 @@ public class UcteImporter implements Importer {
             Substation substation = network.getSubstation(ucteSubstation.getName());
 
             reporter.report("createTransformer_" + ucteTransfo.getId(),
-                "Create transformer '{transformerId}'", "transformerId", ucteTransfo.getId());
+                "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId());
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 
             boolean connected = isConnected(ucteTransfo);
@@ -1019,7 +1019,7 @@ public class UcteImporter implements Importer {
                 stopwatch.stop();
 
                 long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                reporter.report("elapsedTime", "UCTE import done in {elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
+                reporter.report("elapsedTime", "UCTE import done in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
                 LOGGER.debug("UCTE import done in {} ms", elapsedTime);
 
                 return network;

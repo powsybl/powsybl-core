@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +69,17 @@ public class LoggerReporter implements Reporter, ReportSeeker {
     }
 
     private void printTaskReport(TaskReport taskReport, PrintWriter writer, String prefix) {
-        writer.println(prefix + "+ " + MessageFormatter.format(taskReport.getDefaultName(), taskReport.getTaskValues()));
-        taskReport.getReports().forEach(report -> writer.println(prefix + "   " + MessageFormatter.format(report.getDefaultLog(), report.getValues(), taskReport.getTaskValues())));
+        writer.println(prefix + "+ " + formatTaskReportName(taskReport.getDefaultName(), taskReport.getTaskValues()));
+        taskReport.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, taskReport.getTaskValues())));
         taskReport.getChildTaskReports().forEach(child -> printTaskReport(child, writer, prefix + "  "));
+    }
+
+    private static String formatTaskReportName(String msgPattern, Map<String, Object> taskValues) {
+        return new StringSubstitutor(taskValues).replace(msgPattern);
+    }
+
+    private static String formatReportLog(Report report, Map<String, Object> taskValues) {
+        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultLog()));
     }
 
     @Override
@@ -90,9 +99,9 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
-        String logFormatted = MessageFormatter.format(defaultLog, values, ongoingTaskReport.getTaskValues());
-        getLogConsumer(marker.getLogLevel()).accept(logFormatted);
-        ongoingTaskReport.addReport(new Report(reportKey, defaultLog, values, marker));
+        Report report = new Report(reportKey, defaultLog, values, marker);
+        ongoingTaskReport.addReport(report);
+        getLogConsumer(marker.getLogLevel()).accept(formatReportLog(report, ongoingTaskReport.getTaskValues()));
     }
 
     private Consumer<String> getLogConsumer(Marker.LogLevel logLevel) {

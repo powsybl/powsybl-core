@@ -30,20 +30,20 @@ public class ReporterNetworkListener implements NetworkListener {
 
     @Override
     public void onCreation(Identifiable identifiable) {
-        reporter.report("identifiableCreation_" + identifiable.getId(), "{class} {id} creation",
+        reporter.report("identifiableCreation_" + identifiable.getId(), "${class} ${id} creation",
             getValuesMap(identifiable), MarkerImpl.TRACE);
     }
 
     @Override
     public void onRemoval(Identifiable identifiable) {
-        reporter.report("identifiableRemoval_" + identifiable.getId(), "{class} {id} removed",
+        reporter.report("identifiableRemoval_" + identifiable.getId(), "${class} ${id} removed",
             getValuesMap(identifiable), MarkerImpl.TRACE);
     }
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
         reporter.report("identifiableUpdated_" + identifiable.getId(),
-            "{class} {id} updated: {attribute} changed from {oldValue} to {newValue}",
+            "${class} ${id} updated: ${attribute} changed from ${oldValue} to ${newValue}",
             Map.of("class", identifiable.getClass().getSimpleName(), "id", identifiable.getId(),
                 "variant", identifiable.getNetwork().getVariantManager().getWorkingVariantId(), "network", identifiable.getNetwork(),
                 "attribute", attribute, "oldValue", oldValue, "newValue", newValue),
