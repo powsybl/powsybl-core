@@ -41,7 +41,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         if (!extension.getUnmappedTopologicalNodes().isEmpty()) {
             context.getWriter().writeAttribute("unmappedTopologicalNodeIds", String.join(","));
         }
-        extension.getExtendable().getBusBreakerView().getBusStream()
+        extension.getExtendable().getBusView().getBusStream()
                 .filter(b -> extension.isMapped(b.getId()))
                 .forEach(b -> {
                     try {
