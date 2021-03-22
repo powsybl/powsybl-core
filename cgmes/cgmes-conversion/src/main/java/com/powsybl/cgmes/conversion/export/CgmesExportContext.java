@@ -52,7 +52,7 @@ public class CgmesExportContext {
         }
 
         public ModelDescription setDescription(String description) {
-            this.description = Objects.requireNonNull(description);
+            this.description = description;
             return this;
         }
 
