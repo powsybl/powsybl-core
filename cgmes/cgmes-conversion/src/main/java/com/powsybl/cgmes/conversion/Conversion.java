@@ -11,8 +11,8 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -152,6 +152,11 @@ public class Conversion {
         addCgmesSshMetadata(network);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
+            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
+            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            mappingAdder.add();
+        }
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -637,6 +642,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean createCgmesExportMapping() {
+            return createCgmesExportMapping;
+        }
+
+        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
+            this.createCgmesExportMapping = createCgmesExportMapping;
+            return this;
+        }
+
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -751,6 +765,8 @@ public class Conversion {
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
         private boolean ensureIdAliasUnicity = false;
+
+        private boolean createCgmesExportMapping = false;
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;

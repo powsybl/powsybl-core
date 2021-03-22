@@ -89,7 +89,7 @@ public final class CgmesExportUtil {
     }
 
     public static Complex complexVoltage(double r, double x, double g, double b,
-                                          double v, double angle, double p, double q) {
+                                         double v, double angle, double p, double q) {
         LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
                 new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
         Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
