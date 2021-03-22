@@ -10,7 +10,8 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="Link">
-        <xs:attribute name="busId" use="required" type="ci:nonEmptyString"/>
+        <xs:attribute name="equipmentId" use="required" type="ci:nonEmptyString"/>
+        <xs:attribute name="side" use="required" type="xs:int"/>
         <xs:attribute name="topologicalNodeIds" use="required" type="ci:nonEmptyString"/>
     </xs:complexType>
     <xs:element name="cgmesIidmMapping">

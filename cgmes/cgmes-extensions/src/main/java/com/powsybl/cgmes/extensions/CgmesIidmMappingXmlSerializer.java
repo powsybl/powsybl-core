@@ -7,15 +7,20 @@
 package com.powsybl.cgmes.extensions;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.NetworkXmlReaderContext;
+import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -32,6 +37,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public void write(CgmesIidmMapping extension, XmlWriterContext context) throws XMLStreamException {
+        NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         if (!extension.getUnmappedTopologicalNodes().isEmpty()) {
             context.getWriter().writeAttribute("unmappedTopologicalNodeIds", String.join(","));
         }
@@ -40,7 +46,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                 .forEach(b -> {
                     try {
                         context.getWriter().writeEmptyElement(getNamespaceUri(), "link");
-                        context.getWriter().writeAttribute("busId", b.getId());
+                        writeBusIdentification(b, networkContext);
                         context.getWriter().writeAttribute("topologicalNodeIds", String.join(",", extension.getTopologicalNodes(b.getId())));
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
@@ -50,6 +56,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
 
     @Override
     public CgmesIidmMapping read(Network extendable, XmlReaderContext context) throws XMLStreamException {
+        NetworkXmlReaderContext networkContext = (NetworkXmlReaderContext) context;
         CgmesIidmMappingAdder mappingAdder = extendable.newExtension(CgmesIidmMappingAdder.class);
         String unmappedTopologicalNodeIdsStr = context.getReader().getAttributeValue(null, "unmappedTopologicalNodeIds");
         if (unmappedTopologicalNodeIdsStr != null) {
@@ -60,7 +67,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
         mappingAdder.add();
         CgmesIidmMapping mapping = extendable.getExtension(CgmesIidmMapping.class);
         XmlUtil.readUntilEndElement("cgmesIidmMapping", context.getReader(), () -> {
-            String busId = context.getReader().getAttributeValue(null, "busId");
+            String busId = readBusIdentification(extendable, networkContext);
             String[] topologicalNodeIds = context.getReader().getAttributeValue(null, "topologicalNodeIds").split(",");
             for (String topologicalNodeId : topologicalNodeIds) {
                 mapping.put(busId, topologicalNodeId);
@@ -78,5 +85,46 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     @Override
     public boolean isSerializable(CgmesIidmMapping cgmesIidmMapping) {
         return !cgmesIidmMapping.isEmpty();
+    }
+
+    private static void writeBusIdentification(Bus b, NetworkXmlWriterContext context) throws XMLStreamException {
+        // BusView buses have a calculated bus identifier that should not be used as a persistent identification
+        // We write a bus reference using the equipment and side of the first connected terminal
+        Iterator<? extends Terminal> it = b.getConnectedTerminals().iterator();
+        if (!it.hasNext()) {
+            throw new PowsyblException("bus does not have connected terminals " + b.getId());
+        }
+        Terminal t = it.next();
+        context.getWriter().writeAttribute("equipmentId", context.getAnonymizer().anonymizeString(t.getConnectable().getId()));
+        context.getWriter().writeAttribute("side", Integer.toString(terminalSide(t, t.getConnectable())));
+    }
+
+    private static String readBusIdentification(Network network, NetworkXmlReaderContext context) {
+        String equipmentId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "equipmentId"));
+        int side = Integer.parseInt(context.getReader().getAttributeValue(null, "side"));
+        Identifiable i = network.getIdentifiable(equipmentId);
+        if (!(i instanceof Connectable)) {
+            throw new PowsyblException("Equipment is not connectable " + equipmentId);
+        }
+        String busId = terminalSide((Connectable) i, side).getBusView().getBus().getId();
+        return busId;
+    }
+
+    private static Terminal terminalSide(Connectable c, int side) {
+        List<? extends Terminal> l = c.getTerminals();
+        Terminal t = l.get(side - 1);
+        return t;
+    }
+
+    private static int terminalSide(Terminal t, Connectable c) {
+        if (c instanceof Injection) {
+            return 1;
+        }
+        for (int k = 0; k < c.getTerminals().size(); k++) {
+            if (t == c.getTerminals().get(k)) {
+                return k + 1;
+            }
+        }
+        throw new PowsyblException("terminal not found in connectable " + c.getId());
     }
 }
