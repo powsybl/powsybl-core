@@ -9,6 +9,7 @@ package com.powsybl.ucte.converter;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.reporter.LoggerReporter;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -17,6 +18,8 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.io.File;
 
 import static org.junit.Assert.*;
 
@@ -69,6 +72,15 @@ public class UcteImporterTest {
         ext = network.getSubstation("DEA_KA").getExtension(EntsoeArea.class);
         assertNull(ext);
 
+    }
+
+    @Test
+    public void germanTsosImportReporterTest() throws Exception {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
+
+        LoggerReporter loggerReporter = new LoggerReporter();
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
+        loggerReporter.export(new File("/tmp", "exportTest.txt")); // TODO: compare text file with reference
     }
 
     @Test

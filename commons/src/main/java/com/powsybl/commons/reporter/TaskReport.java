@@ -6,6 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.*;
 
 /**
@@ -13,12 +16,14 @@ import java.util.*;
  */
 public class TaskReport {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(TaskReport.class);
+
     private final String taskKey;
     private final String defaultName;
     private final TaskReport parentTaskReport;
-    private final List<TaskReport> childrenTaskReports = new ArrayList<>();
+    private final List<TaskReport> childTaskReports = new ArrayList<>();
     private final Map<String, Object> values;
-    private Map<String, Report> reports = new HashMap<>();
+    private Map<String, Report> reports = new LinkedHashMap<>();
 
     public TaskReport(String taskKey, String defaultName, Map<String, Object> values, TaskReport parentTaskReport) {
         this.taskKey = taskKey;
@@ -32,11 +37,14 @@ public class TaskReport {
     }
 
     public void addChildTaskReport(TaskReport childTaskReport) {
-        childrenTaskReports.add(childTaskReport);
+        childTaskReports.add(childTaskReport);
     }
 
     public void addReport(Report report) {
-        reports.put(report.getReportKey(), report);
+        Report previousValue = reports.put(report.getReportKey(), report);
+        if (previousValue != null) {
+            LOGGER.warn("Report key {} already exists in current task! replacing previous value", taskKey);
+        }
     }
 
     public Collection<Report> getReports() {
@@ -57,5 +65,13 @@ public class TaskReport {
 
     public void addTaskValue(String key, Object value) {
         values.put(key, value);
+    }
+
+    public String getDefaultName() {
+        return defaultName;
+    }
+
+    public List<TaskReport> getChildTaskReports() {
+        return childTaskReports;
     }
 }

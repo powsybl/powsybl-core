@@ -39,4 +39,8 @@ public class Report {
     public Marker getMarker() {
         return marker;
     }
+
+    public Map<String, Object> getValues() {
+        return values;
+    }
 }

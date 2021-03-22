@@ -11,7 +11,9 @@ package com.powsybl.commons.reporter;
  */
 public enum MarkerImpl implements Marker {
 
-    PERFORMANCE(LogLevel.INFO), DEFAULT(LogLevel.INFO);
+    PERFORMANCE(LogLevel.INFO),
+    DEFAULT(LogLevel.INFO),
+    TRACE(LogLevel.TRACE), DEBUG(LogLevel.DEBUG), INFO(LogLevel.INFO), WARN(LogLevel.WARN), ERROR(LogLevel.ERROR);
 
     private final LogLevel logLevel;
 

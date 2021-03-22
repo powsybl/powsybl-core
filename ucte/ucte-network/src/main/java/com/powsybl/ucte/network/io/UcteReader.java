@@ -7,6 +7,8 @@
  */
 package com.powsybl.ucte.network.io;
 
+import com.powsybl.commons.reporter.MarkerImpl;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.ucte.network.UcteAngleRegulation;
 import com.powsybl.ucte.network.UcteAngleRegulationType;
 import com.powsybl.ucte.network.UcteLine;
@@ -38,7 +40,13 @@ public class UcteReader {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteReader.class);
 
+    private final Reporter reporter;
+
     private boolean firstCommendBlockRead = false;
+
+    public UcteReader(Reporter reporter) {
+        this.reporter = reporter;
+    }
 
     private void readCommentBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
         LOGGER.trace("Reading comment block");
@@ -224,6 +232,7 @@ public class UcteReader {
 
     private void readTtBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
         LOGGER.warn("TT block not supported");
+        reporter.report("UnsupportedTTBlock", "TT block not supported");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
                 parseRecords(parser, network);
@@ -280,12 +289,21 @@ public class UcteReader {
     }
 
     public UcteNetwork read(BufferedReader reader) throws IOException {
+
+        reporter.startTask("UcteReading", "Reading UCTE network file");
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
-        LOGGER.debug("UCTE file read in {} ms", System.currentTimeMillis() - start);
-        network.fix();
+        long elapsedTime = System.currentTimeMillis() - start;
+        reporter.report("elapsedTime", "UCTE file read in {elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
+        LOGGER.debug("UCTE file read in {} ms", elapsedTime);
+        reporter.endTask();
+
+        reporter.startTask("UctePostReadingFix", "Fixing UCTE network read");
+        network.fix(reporter);
+        reporter.endTask();
+
         return network;
     }
 

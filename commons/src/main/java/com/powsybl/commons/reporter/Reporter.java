@@ -16,11 +16,15 @@ public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
 
+    void startTask(String taskKey, String defaultName, Map<String, Object> values);
+
     default void startTask(String taskKey, String defaultName) {
         startTask(taskKey, defaultName, Collections.emptyMap());
     }
 
-    void startTask(String taskKey, String defaultName, Map<String, Object> values);
+    default void startTask(String taskKey, String defaultName, String key, Object value) {
+        startTask(taskKey, defaultName, Map.of(key, value));
+    }
 
     void addTaskValue(String key, Object value);
 
@@ -30,8 +34,16 @@ public interface Reporter {
 
     void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker);
 
+    default void report(String reportKey, String defaultLog) {
+        report(reportKey, defaultLog, Collections.emptyMap());
+    }
+
     default void report(String reportKey, String defaultLog, String valueKey, Object value) {
         report(reportKey, defaultLog, Map.of(valueKey, value));
+    }
+
+    default void report(String reportKey, String defaultLog, Marker marker) {
+        report(reportKey, defaultLog, Collections.emptyMap(), marker);
     }
 
     default void report(String reportKey, String defaultLog, String valueKey, Object value, Marker marker) {

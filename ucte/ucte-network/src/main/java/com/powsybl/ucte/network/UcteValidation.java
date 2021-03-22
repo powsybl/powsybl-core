@@ -6,6 +6,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
@@ -23,7 +25,7 @@ public final class UcteValidation {
     }
 
     // Data: line characteristics
-    public static void checkValidLineCharacteristics(UcteLine line) {
+    public static void checkValidLineCharacteristics(UcteLine line, Reporter reporter) {
         String lineId = line.getId().toString();
         switch (line.getStatus()) {
             case EQUIVALENT_ELEMENT_IN_OPERATION:
@@ -56,7 +58,7 @@ public final class UcteValidation {
     }
 
     // Data: transformer characteristics
-    public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer) {
+    public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer, Reporter reporter) {
         String transformerId = ucteTransformer.getId().toString();
         if (ucteTransformer.getNominalPower() < ZERO_EPS) {
             LOGGER.error(transformerId, "Value must be positive, blank and zero is not allowed", ucteTransformer.getNominalPower() + " MW");
@@ -78,7 +80,7 @@ public final class UcteValidation {
 
     // Data: transformer regulation
     // Phase regulation
-    public static void checkPhaseRegulation(UctePhaseRegulation uctePhaseRegulation, UcteElementId transfoId) {
+    public static void checkPhaseRegulation(UctePhaseRegulation uctePhaseRegulation, UcteElementId transfoId, Reporter reporter) {
         if (uctePhaseRegulation.getDu() < ZERO_EPS || uctePhaseRegulation.getDu() > DU_LIMIT) {
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     uctePhaseRegulation.getDu() + " %");
@@ -89,7 +91,7 @@ public final class UcteValidation {
     }
 
     // Angle regulation
-    public static void checkAngleRegulation(UcteAngleRegulation ucteAngleRegulation, UcteElementId transfoId) {
+    public static void checkAngleRegulation(UcteAngleRegulation ucteAngleRegulation, UcteElementId transfoId, Reporter reporter) {
         if (ucteAngleRegulation.getDu() < ZERO_EPS || ucteAngleRegulation.getDu() > DU_LIMIT) {
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     ucteAngleRegulation.getDu() + " %");

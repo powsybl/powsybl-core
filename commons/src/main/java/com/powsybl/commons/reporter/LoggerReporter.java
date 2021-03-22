@@ -27,31 +27,50 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerReporter.class);
 
+    private static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
+
     private final Map<String, TaskReport> taskReports = new HashMap<>();
+    private final String rootTaskKey;
     private TaskReport ongoingTaskReport;
 
     public LoggerReporter() {
-        this("Root", "Root task", Collections.emptyMap());
+        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
     }
 
     public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> values) {
-        this.ongoingTaskReport = new TaskReport(rootTaskKey, rootDefaultName, values, null);
+        this.rootTaskKey = rootTaskKey;
+        this.ongoingTaskReport = createTaskReport(rootTaskKey, rootDefaultName, values, null);
+    }
+
+    private TaskReport createTaskReport(String taskKey, String defaultName, Map<String, Object> values, TaskReport parentTask) {
+        TaskReport newTaskReport = new TaskReport(taskKey, defaultName, values, parentTask);
+        TaskReport previousValue = taskReports.put(taskKey, newTaskReport);
+        if (previousValue != null) {
+            LOGGER.warn("Task key {} already exists in current task! replacing previous value", taskKey);
+        }
+        return newTaskReport;
     }
 
     @Override
     public void startTask(String taskKey, String defaultName, Map<String, Object> values) {
-        TaskReport childTaskReport = new TaskReport(taskKey, defaultName, values, ongoingTaskReport);
+        TaskReport childTaskReport = createTaskReport(taskKey, defaultName, values, ongoingTaskReport);
         ongoingTaskReport.addChildTaskReport(childTaskReport);
         ongoingTaskReport = childTaskReport;
-        taskReports.put(taskKey, ongoingTaskReport);
     }
 
-    void export(File file) {
+    public void export(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
-            writer.println();
+            TaskReport taskReport = taskReports.get(rootTaskKey);
+            printTaskReport(taskReport, writer, "");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void printTaskReport(TaskReport taskReport, PrintWriter writer, String prefix) {
+        writer.println(prefix + "+ " + MessageFormatter.format(taskReport.getDefaultName(), taskReport.getTaskValues()));
+        taskReport.getReports().forEach(report -> writer.println(prefix + "   " + MessageFormatter.format(report.getDefaultLog(), report.getValues(), taskReport.getTaskValues())));
+        taskReport.getChildTaskReports().forEach(child -> printTaskReport(child, writer, prefix + "  "));
     }
 
     @Override

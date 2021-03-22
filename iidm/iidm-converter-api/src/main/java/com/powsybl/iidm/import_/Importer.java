@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
@@ -58,11 +59,19 @@ public interface Importer {
 
 
     /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
+     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties, Reporter)} instead.
      */
     @Deprecated
     default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         return importData(dataSource, NetworkFactory.findDefault(), parameters);
+    }
+
+    /**
+     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties, Reporter)} instead.
+     */
+    @Deprecated
+    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+        return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
     }
 
     /**
@@ -71,9 +80,10 @@ public interface Importer {
      * @param dataSource data source
      * @param networkFactory network factory
      * @param parameters some properties to configure the import
+     * @param reporter the reporter used for functional logs
      * @return the model
      */
-    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

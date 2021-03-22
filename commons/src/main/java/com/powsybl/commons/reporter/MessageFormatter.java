@@ -9,6 +9,7 @@ package com.powsybl.commons.reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,9 +28,14 @@ public final class MessageFormatter {
     private MessageFormatter() {
     }
 
+    public static String format(String msgPattern, Map<String, Object> taskValues) {
+        return format(msgPattern, Collections.emptyMap(), taskValues);
+    }
+
     public static String format(String msgPattern, Map<String, Object> values, Map<String, Object> taskValues) {
         Objects.requireNonNull(msgPattern);
         Objects.requireNonNull(values);
+        Objects.requireNonNull(taskValues);
 
         StringBuilder sbuf = new StringBuilder(msgPattern.length() + 20);
 
