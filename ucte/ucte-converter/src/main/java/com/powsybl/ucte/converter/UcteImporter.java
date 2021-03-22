@@ -470,8 +470,9 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
 
+        int lowerTap = getLowTapPosition(uctePhaseRegulation, transformer);
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
-                .setLowTapPosition(-uctePhaseRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
                 .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
         if (!Float.isNaN(uctePhaseRegulation.getU())) {
@@ -481,7 +482,7 @@ public class UcteImporter implements Importer {
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }
-        for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
             rtca.beginStep()
                     .setRho(rho)
@@ -497,14 +498,14 @@ public class UcteImporter implements Importer {
     private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
 
         LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
-
+        int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
-                .setLowTapPosition(-ucteAngleRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(ucteAngleRegulation.getNp())
                 .setRegulationValue(ucteAngleRegulation.getP())
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
-        for (int i = -ucteAngleRegulation.getN(); i <= ucteAngleRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho;
             float alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
@@ -533,6 +534,30 @@ public class UcteImporter implements Importer {
                     .endStep();
         }
         ptca.add();
+    }
+
+    private static int getLowTapPosition(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, uctePhaseRegulation.getN(), uctePhaseRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, ucteAngleRegulation.getN(), ucteAngleRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(TwoWindingsTransformer transformer, int initialTapsNumber, int currentTapPosition) {
+        int floor;
+        if (initialTapsNumber >= Math.abs(currentTapPosition)) {
+            floor = -initialTapsNumber;
+        } else {
+            LOGGER.warn("Tap position for transformer '{}' is '{}', absolute value should be equal or lower than number of Taps '{}'", transformer.getId(), currentTapPosition, initialTapsNumber);
+            if (currentTapPosition < 0) {
+                floor = currentTapPosition;
+            } else {
+                floor  = -currentTapPosition;
+            }
+            LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
+        }
+        return floor;
     }
 
     private static TwoWindingsTransformer createXnodeTransfo(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, boolean connected,
