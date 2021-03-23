@@ -69,9 +69,11 @@ public final class CgmesExportUtil {
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.CREATED);
         writer.writeCharacters(ISODateTimeFormat.dateTimeNoMillis().withZoneUTC().print(DateTime.now()));
         writer.writeEndElement();
-        writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
-        writer.writeCharacters(modelDescription.getDescription());
-        writer.writeEndElement();
+        if (modelDescription.getDescription() != null) {
+            writer.writeStartElement(MD_NAMESPACE, CgmesNames.DESCRIPTION);
+            writer.writeCharacters(modelDescription.getDescription());
+            writer.writeEndElement();
+        }
         writer.writeStartElement(MD_NAMESPACE, CgmesNames.VERSION);
         writer.writeCharacters(format(modelDescription.getVersion()));
         writer.writeEndElement();
