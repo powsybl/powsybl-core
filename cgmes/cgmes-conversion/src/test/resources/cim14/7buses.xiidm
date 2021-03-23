@@ -74,7 +74,7 @@
                 <iidm:bus id="_FSSV.O11_TN" name="FSSV.O11" v="406.45001220703125" angle="0.09358499944210052"/>
                 <iidm:switch id="_FSSV.O11-FSSV.O12-A_SW" name="FSSV.O11-FSSV.O12-A" kind="BREAKER" retained="true" open="false" bus1="_FSSV.O11_TN" bus2="_FSSV.O12_TN"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_FSSV.T11_SM" name="FSSV.T11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="960.0130004882812" targetV="406.45001220703125" targetQ="2.865334987640381" bus="_FSSV.O11_TN" connectableBus="_FSSV.O11_TN" p="-960.0130004882812" q="-2.865334987640381">
+            <iidm:generator id="_FSSV.T11_SM" name="FSSV.T11" energySource="OTHER" minP="400.0" maxP="1200.0" regulationMode="VOLTAGE" targetP="960.0130004882812" targetV="406.45001220703125" targetQ="2.865334987640381" bus="_FSSV.O11_TN" connectableBus="_FSSV.O11_TN" p="-960.0130004882812" q="-2.865334987640381">
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -96,7 +96,7 @@
                 <iidm:bus id="_FVALDI11_TN" name="FVALDI11" v="406.45001220703125" angle="0.03119100071489811"/>
                 <iidm:switch id="_FVALDI11-FVALDI12-A_SW" name="FVALDI11-FVALDI12-A" kind="BREAKER" retained="true" open="false" bus1="_FVALDI11_TN" bus2="_FVALDI12_TN"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_FVALDT11_SM" name="FVALDT11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="480.0060119628906" targetV="406.45001220703125" targetQ="6.419357776641846" bus="_FVALDI11_TN" connectableBus="_FVALDI11_TN" p="-480.0060119628906" q="-6.419357776641846">
+            <iidm:generator id="_FVALDT11_SM" name="FVALDT11" energySource="OTHER" minP="400.0" maxP="1200.0" regulationMode="VOLTAGE" targetP="480.0060119628906" targetV="406.45001220703125" targetQ="6.419357776641846" bus="_FVALDI11_TN" connectableBus="_FVALDI11_TN" p="-480.0060119628906" q="-6.419357776641846">
                 <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -108,7 +108,7 @@
                 <iidm:bus id="_FVERGE11_TN" name="FVERGE11" v="406.45001220703125" angle="0.0"/>
                 <iidm:switch id="_FVERGE11-FVERGE12-A_SW" name="FVERGE11-FVERGE12-A" kind="BREAKER" retained="true" open="false" bus1="_FVERGE11_TN" bus2="_FVERGE12_TN"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_FVERGT11_SM" name="FVERGT11" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="-0.002566999988630414" targetV="406.45001220703125" targetQ="7.002781867980957" bus="_FVERGE11_TN" connectableBus="_FVERGE11_TN" p="0.002566999988630414" q="-7.002781867980957">
+            <iidm:generator id="_FVERGT11_SM" name="FVERGT11" energySource="OTHER" minP="-9999.0" maxP="9999.0" regulationMode="VOLTAGE" targetP="-0.002566999988630414" targetV="406.45001220703125" targetQ="7.002781867980957" bus="_FVERGE11_TN" connectableBus="_FVERGE11_TN" p="0.002566999988630414" q="-7.002781867980957">
                 <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

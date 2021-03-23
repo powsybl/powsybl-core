@@ -69,18 +69,12 @@ public abstract class AbstractGeneratorTest {
         assertEquals(voltageSetpoint, generator.getTargetV(), 0.0);
         assertEquals(ratedS, generator.getRatedS(), 0.0);
 
-        generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn());
-        assertNotSame(generator.getRegulationMode(), RegulationMode.VOLTAGE);
-        generator.setVoltageRegulatorOn(true);
-        assertTrue(generator.isVoltageRegulatorOn());
-        assertSame(generator.getRegulationMode(), RegulationMode.VOLTAGE);
-
         generator.setRegulationMode(RegulationMode.OFF);
-        assertNotSame(generator.getRegulationMode(), RegulationMode.VOLTAGE);
-
+        assertSame(RegulationMode.OFF, generator.getRegulationMode());
         generator.setRegulationMode(RegulationMode.VOLTAGE);
-        assertSame(generator.getRegulationMode(), RegulationMode.VOLTAGE);
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
+        generator.setRegulationMode(RegulationMode.REACTIVE_POWER);
+        assertSame(RegulationMode.REACTIVE_POWER, generator.getRegulationMode());
 
         assertEquals(12, generator.getTerminal().getNodeBreakerView().getNode());
     }
@@ -90,7 +84,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("energy source is not set");
         createGenerator(INVALID, null, 20.0, 10.0, 20.0,
-                30.0, 40.0, false, 20.0);
+                30.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     @Test
@@ -98,7 +92,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for maximum P");
         createGenerator(INVALID, EnergySource.HYDRO, Double.NaN, 10.0, 20.0,
-                30.0, 40.0, false, 20.0);
+                30.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     @Test
@@ -106,7 +100,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for minimum P");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, Double.NaN, 20.0,
-                30.0, 40.0, false, 20.0);
+                30.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     @Test
@@ -114,7 +108,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid active limits");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 21., 20.0,
-                30.0, 40.0, false, 20.0);
+                30.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     /**
@@ -126,12 +120,12 @@ public abstract class AbstractGeneratorTest {
     public void invalidPowerBounds() {
         // targetP < minP
         Generator invalidMinGenerator = createGenerator("invalid_min", EnergySource.HYDRO, 20.0, 10.0, 20.0,
-                0.0, 40.0, false, 20.0);
+                0.0, 40.0, RegulationMode.OFF, 20.0);
         invalidMinGenerator.remove();
 
         // targetP > maxP
         createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
-                30.0, 40.0, false, 20.0);
+                30.0, 40.0, RegulationMode.OFF, 20.0);
 
     }
 
@@ -140,7 +134,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 0.0,
-                15.0, 40.0, false, 20.0);
+                15.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     @Test
@@ -148,7 +142,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., -1.0,
-                15.0, 40.0, false, 20.0);
+                15.0, 40.0, RegulationMode.OFF, 20.0);
     }
 
     @Test
@@ -156,7 +150,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for active power setpoint");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
-                Double.NaN, 10.0, false, 10.0);
+                Double.NaN, 10.0, RegulationMode.OFF, 10.0);
     }
 
     @Test
@@ -164,7 +158,7 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for reactive power setpoint");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, Double.NaN, false, 10.0);
+                30.0, Double.NaN, RegulationMode.REACTIVE_POWER, 10.0);
     }
 
     @Test
@@ -172,17 +166,17 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("for voltage setpoint");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 0.0);
+                30.0, 40.0, RegulationMode.VOLTAGE, 0.0);
     }
 
     @Test
     public void duplicateEquipment() {
         createGenerator("duplicate", EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0);
+                15.0, 40.0, RegulationMode.VOLTAGE, 2.0);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("contains an object 'GeneratorImpl' with the id 'duplicate'");
         createGenerator("duplicate", EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0);
+                15.0, 40.0, RegulationMode.VOLTAGE, 2.0);
     }
 
     @Test
@@ -190,14 +184,14 @@ public abstract class AbstractGeneratorTest {
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'A'");
         createGenerator("A", EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 2.0);
+                30.0, 40.0, RegulationMode.VOLTAGE, 2.0);
     }
 
     @Test
     public void testAdder() {
         voltageLevel.newGenerator()
                 .setId(GEN_ID)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
                 .setMinP(10.0)
@@ -210,7 +204,7 @@ public abstract class AbstractGeneratorTest {
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
         assertEquals(GEN_ID, generator.getId());
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
         assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
         assertEquals(100.0, generator.getMaxP(), 0.0);
         assertEquals(10.0, generator.getMinP(), 0.0);
@@ -223,7 +217,7 @@ public abstract class AbstractGeneratorTest {
     @Test
     public void testRemove() {
         createGenerator(TO_REMOVE, EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0);
+                15.0, 40.0, RegulationMode.VOLTAGE, 2.0);
         int count = network.getGeneratorCount();
         Generator generator = network.getGenerator(TO_REMOVE);
         assertNotNull(generator);
@@ -237,19 +231,19 @@ public abstract class AbstractGeneratorTest {
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
-                15.0, 40.0, true, 2.0);
+                15.0, 40.0, RegulationMode.VOLTAGE, 2.0);
         Generator generator = network.getGenerator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
         // change values in s4
-        generator.setVoltageRegulatorOn(false);
+        generator.setRegulationMode(RegulationMode.OFF);
         generator.setTargetP(12.1);
         generator.setTargetQ(9.2);
         generator.setTargetV(9.3);
@@ -260,14 +254,14 @@ public abstract class AbstractGeneratorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.OFF, generator.getRegulationMode());
         assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
         assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
@@ -284,10 +278,10 @@ public abstract class AbstractGeneratorTest {
     }
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
-                                 double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
+                                 double activePowerSetpoint, double reactivePowerSetpoint, RegulationMode regulationMode, double voltageSetpoint) {
         return voltageLevel.newGenerator()
                 .setId(id)
-                .setVoltageRegulatorOn(regulatorOn)
+                .setRegulationMode(regulationMode)
                 .setEnergySource(source)
                 .setMaxP(maxP)
                 .setMinP(minP)

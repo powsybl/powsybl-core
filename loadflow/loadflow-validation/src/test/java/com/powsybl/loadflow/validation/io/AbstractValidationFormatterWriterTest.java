@@ -71,7 +71,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double targetQ = -3.72344;
     protected final double targetV = 380;
     protected final boolean connected = true;
-    protected final boolean voltageRegulatorOn = true;
+    protected final RegulationMode genRegulationMode = RegulationMode.VOLTAGE;
     protected final double minP = 25;
     protected final double maxP = 45;
     protected final double minQ = -10;
@@ -106,7 +106,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final String otherSvcId = "otherSvcId";
     protected final double reactivePowerSetpoint = -3.72344;
     protected final double voltageSetpoint = 380;
-    protected final RegulationMode regulationMode = RegulationMode.VOLTAGE;
+    protected final RegulationMode svcRegulationMode = RegulationMode.VOLTAGE;
     protected final double bMin = -10;
     protected final double bMax = 0;
 
@@ -246,10 +246,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, genRegulationMode, minP, maxP, minQ, maxQ, mainComponent, validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, genRegulationMode, minP, maxP, minQ, maxQ, mainComponent, validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());
@@ -364,10 +364,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter svcsWriter = getSvcsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            svcsWriter.write(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
+            svcsWriter.write(svcId1, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, svcRegulationMode, bMin, bMax, mainComponent, validated);
             svcsWriter.setValidationCompleted();
             if (compareResults) {
-                svcsWriter.write(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, regulationMode, bMin, bMax, mainComponent, validated);
+                svcsWriter.write(svcId2, p, q, v, v, nominalV, reactivePowerSetpoint, voltageSetpoint, verbose, svcRegulationMode, bMin, bMax, mainComponent, validated);
                 svcsWriter.setValidationCompleted();
             }
             assertEquals(svcsContent, writer.toString().trim());

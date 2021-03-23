@@ -19,7 +19,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="VL61" v="237.973694" angle="-9.06182098"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="100.0" targetV="225.0" targetQ="0.0" bus="VL61" connectableBus="VL61">
+            <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" regulationMode="VOLTAGE" targetP="100.0" targetV="225.0" targetQ="0.0" bus="VL61" connectableBus="VL61">
                 <iidm:regulatingTerminal id="SHUNT_VL4.31"/>
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:generator>

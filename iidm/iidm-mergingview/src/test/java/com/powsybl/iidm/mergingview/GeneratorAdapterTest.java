@@ -42,7 +42,7 @@ public class GeneratorAdapterTest {
         assertNotNull(generatorAdder);
         assertTrue(generatorAdder instanceof GeneratorAdderAdapter);
         final Generator generator = generatorAdder.setId(id)
-                                                  .setVoltageRegulatorOn(true)
+                                                  .setRegulationMode(RegulationMode.VOLTAGE)
                                                   .setName(name)
                                                   .setNode(1)
                                                   .setMaxP(maxP)
@@ -65,7 +65,7 @@ public class GeneratorAdapterTest {
         });
 
         assertEquals(id, generator.getId());
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
         assertTrue(generator.getRegulatingTerminal() instanceof TerminalAdapter);
         assertEquals(ConnectableType.GENERATOR, generator.getType());
 

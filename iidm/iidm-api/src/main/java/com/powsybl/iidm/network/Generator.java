@@ -165,13 +165,18 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
      * @deprecated use {@link #getRegulationMode()} instead.
      */
     @Deprecated
-    boolean isVoltageRegulatorOn();
+    default boolean isVoltageRegulatorOn() {
+        return getRegulationMode() == RegulationMode.VOLTAGE;
+    }
 
     /**
      * @deprecated use {@link #setRegulationMode(RegulationMode)} instead.
      */
     @Deprecated
-    Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
+    default Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        setRegulationMode(voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.OFF);
+        return this;
+    }
 
     /**
      * Get the terminal used for regulation.
@@ -247,7 +252,7 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     }
 
     /**
-     * <p>set the regulating mode.</p>
+     * <p>Set the regulating mode.</p>
      * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining

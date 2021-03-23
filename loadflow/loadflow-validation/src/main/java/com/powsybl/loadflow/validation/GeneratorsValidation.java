@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -92,7 +93,7 @@ public final class GeneratorsValidation {
         double targetP = gen.getTargetP();
         double targetQ = gen.getTargetQ();
         double targetV = gen.getTargetV();
-        boolean voltageRegulatorOn = gen.isVoltageRegulatorOn();
+        RegulationMode regulationMode = gen.getRegulationMode();
         double minP = gen.getMinP();
         double maxP = gen.getMaxP();
         double minQ = gen.getReactiveLimits().getMinQ(targetP);
@@ -102,19 +103,19 @@ public final class GeneratorsValidation {
         Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected,
+        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, regulationMode, minP, maxP, minQ, maxQ, connected,
                                mainComponent, config, generatorsWriter, guesser);
     }
 
     public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
-                                          boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
+                                          RegulationMode regulationMode, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, Writer writer) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config,
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, regulationMode, minP, maxP, minQ, maxQ, connected, mainComponent, config,
                     generatorsWriter, new BalanceTypeGuesser());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -122,7 +123,7 @@ public final class GeneratorsValidation {
     }
 
     public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
-                                          boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
+                                          RegulationMode regulationMode, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
@@ -138,11 +139,11 @@ public final class GeneratorsValidation {
             } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
                 validated = true;
             } else {
-                validated = checkGeneratorsValues(id, p, q, v, expectedP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
+                validated = checkGeneratorsValues(id, p, q, v, expectedP, targetQ, targetV, regulationMode, minQ, maxQ, config);
             }
         }
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, minP, maxP, minQ, maxQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -178,24 +179,25 @@ public final class GeneratorsValidation {
     }
 
     private static boolean checkGeneratorsValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
-                                                 boolean voltageRegulatorOn, double minQ, double maxQ, ValidationConfig config) {
+                                                 RegulationMode regulationMode, double minQ, double maxQ, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to setpoint
         if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > config.getThreshold()) {
             LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
-        // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
-        if (!voltageRegulatorOn && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
+        // if regulationMode="OFF" then reactive power should be equal to setpoint
+        if (regulationMode == RegulationMode.OFF
+            && (ValidationUtils.areNaN(config, targetQ) || Math.abs(q + targetQ) > config.getThreshold())) {
             LOGGER.warn("{} {}: {}: voltage regulator off - Q={} targetQ={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, q, targetQ);
             validated = false;
         }
-        // if voltageRegulatorOn="true" then
+        // if regulationMode="VOLTAGE" then
         // either q is equal to g.getReactiveLimits().getMinQ(p) and V is higher than g.getTargetV()
         // or q is equal to g.getReactiveLimits().getMaxQ(p) and V is lower than g.getTargetV()
         // or V at the connected bus is equal to g.getTargetV() and the reactive bounds are satisfied
         double qGen = -q;
-        if (voltageRegulatorOn
+        if (regulationMode == RegulationMode.VOLTAGE
             && (ValidationUtils.areNaN(config, minQ, maxQ, targetV)
                 || (v > targetV + config.getThreshold() && Math.abs(qGen - getMinQ(minQ, maxQ)) > config.getThreshold())
                 || (v < targetV - config.getThreshold() && Math.abs(qGen - getMaxQ(minQ, maxQ)) > config.getThreshold())

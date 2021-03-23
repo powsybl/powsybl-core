@@ -32,7 +32,20 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setMinP(double minP);
 
-    GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn);
+    /**
+     * @deprecated use {@link #setRegulationMode(RegulationMode regulationMode)} instead.
+     */
+    @Deprecated
+    default GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
+        return setRegulationMode(voltageRegulatorOn ? RegulationMode.VOLTAGE : RegulationMode.OFF);
+    }
+
+    /**
+     * Set the regulation mode, If not set RegulationMode.OFF is used.
+     */
+    default GeneratorAdder setRegulationMode(RegulationMode regulationMode) {
+        return setVoltageRegulatorOn(regulationMode == RegulationMode.VOLTAGE);
+    }
 
     /**
      * Set the regulating terminal, If not set or set to null local terminal is used.

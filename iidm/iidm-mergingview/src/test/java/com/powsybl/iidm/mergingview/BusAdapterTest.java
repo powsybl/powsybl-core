@@ -294,7 +294,7 @@ public class BusAdapterTest {
                 .setId("GEN")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setTargetV(100.0)
                 .setTargetP(50.0)
                 .setTargetQ(30.0)

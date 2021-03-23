@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG9______TN" name="NG9" v="15.0" angle="0.0"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G9_______SM" name="G9      " energySource="OTHER" minP="-20000.0" maxP="20000.0" voltageRegulatorOn="true" targetP="565.8359985351562" targetV="15.0" targetQ="13.823800086975098" bus="_NG9______TN" connectableBus="_NG9______TN" p="-565.8359985351562" q="-13.823800086975098">
+            <iidm:generator id="_G9_______SM" name="G9      " energySource="OTHER" minP="-20000.0" maxP="20000.0" regulationMode="VOLTAGE" targetP="565.8359985351562" targetV="15.0" targetQ="13.823800086975098" bus="_NG9______TN" connectableBus="_NG9______TN" p="-565.8359985351562" q="-13.823800086975098">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -34,7 +34,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG1______TN" name="NG1" v="16.025999069213867" angle="6.043698787689209"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G1_______SM" name="G1      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="600.0" targetV="16.025999069213867" targetQ="654.0869750976562" bus="_NG1______TN" connectableBus="_NG1______TN" p="-600.0" q="-654.0869750976562">
+            <iidm:generator id="_G1_______SM" name="G1      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="600.0" targetV="16.025999069213867" targetQ="654.0869750976562" bus="_NG1______TN" connectableBus="_NG1______TN" p="-600.0" q="-654.0869750976562">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -42,7 +42,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG10_____TN" name="NG10" v="15.23550033569336" angle="3.7609670162200928"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G10______SM" name="G10     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="600.0" targetV="15.23550033569336" targetQ="8.778579711914062" bus="_NG10_____TN" connectableBus="_NG10_____TN" p="-600.0" q="-8.778579711914062">
+            <iidm:generator id="_G10______SM" name="G10     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="600.0" targetV="15.23550033569336" targetQ="8.778579711914062" bus="_NG10_____TN" connectableBus="_NG10_____TN" p="-600.0" q="-8.778579711914062">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -50,7 +50,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_N4012____TN" name="N4012" v="389.052001953125" angle="-3.1062989234924316"/>
             </iidm:busBreakerTopology>
-            <iidm:shunt id="_N4012____SC" name="N4012   " sectionCount="1" voltageRegulatorOn="false" bus="_N4012____TN" connectableBus="_N4012____TN">
+            <iidm:shunt id="_N4012____SC" name="N4012   " sectionCount="1" regulationMode="OFF" bus="_N4012____TN" connectableBus="_N4012____TN">
                 <iidm:shuntLinearModel bPerSection="-6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -78,7 +78,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG5______TN" name="NG5" v="15.440999984741211" angle="-9.349656105041504"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G5_______SM" name="G5      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="200.0" targetV="15.440999984741211" targetQ="226.20899963378906" bus="_NG5______TN" connectableBus="_NG5______TN" p="-200.0" q="-226.20899963378906">
+            <iidm:generator id="_G5_______SM" name="G5      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="200.0" targetV="15.440999984741211" targetQ="226.20899963378906" bus="_NG5______TN" connectableBus="_NG5______TN" p="-200.0" q="-226.20899963378906">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -92,7 +92,7 @@
                 <iidm:bus id="_N1022____TN" name="N1022" v="110.60600280761719" angle="-17.621028900146484"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1022____EC" name="N1022   " loadType="UNDEFINED" p0="280.0" q0="95.0" bus="_N1022____TN" connectableBus="_N1022____TN" p="280.0" q="95.0"/>
-            <iidm:shunt id="_N1022____SC" name="N1022   " sectionCount="1" voltageRegulatorOn="false" bus="_N1022____TN" connectableBus="_N1022____TN">
+            <iidm:shunt id="_N1022____SC" name="N1022   " sectionCount="1" regulationMode="OFF" bus="_N1022____TN" connectableBus="_N1022____TN">
                 <iidm:shuntLinearModel bPerSection="0.002958579920232296" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -111,7 +111,7 @@
                 <iidm:bus id="_N1041____TN" name="N1041" v="110.677001953125" angle="-94.36389923095703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1041____EC" name="N1041   " loadType="UNDEFINED" p0="400.0" q0="180.0" bus="_N1041____TN" connectableBus="_N1041____TN" p="400.0" q="180.0"/>
-            <iidm:shunt id="_N1041____SC" name="N1041   " sectionCount="1" voltageRegulatorOn="false" bus="_N1041____TN" connectableBus="_N1041____TN">
+            <iidm:shunt id="_N1041____SC" name="N1041   " sectionCount="1" regulationMode="OFF" bus="_N1041____TN" connectableBus="_N1041____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -127,7 +127,7 @@
                 <iidm:bus id="_N1044____TN" name="N1044" v="112.66100311279297" angle="-80.51592254638672"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1044____EC" name="N1044   " loadType="UNDEFINED" p0="840.0" q0="300.0" bus="_N1044____TN" connectableBus="_N1044____TN" p="840.0" q="300.0"/>
-            <iidm:shunt id="_N1044____SC" name="N1044   " sectionCount="1" voltageRegulatorOn="false" bus="_N1044____TN" connectableBus="_N1044____TN">
+            <iidm:shunt id="_N1044____SC" name="N1044   " sectionCount="1" regulationMode="OFF" bus="_N1044____TN" connectableBus="_N1044____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -151,7 +151,7 @@
                 <iidm:bus id="_N1045____TN" name="N1045" v="115.51200103759766" angle="-85.65843200683594"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1045____EC" name="N1045   " loadType="UNDEFINED" p0="720.0" q0="230.0" bus="_N1045____TN" connectableBus="_N1045____TN" p="720.0" q="230.0"/>
-            <iidm:shunt id="_N1045____SC" name="N1045   " sectionCount="1" voltageRegulatorOn="false" bus="_N1045____TN" connectableBus="_N1045____TN">
+            <iidm:shunt id="_N1045____SC" name="N1045   " sectionCount="1" regulationMode="OFF" bus="_N1045____TN" connectableBus="_N1045____TN">
                 <iidm:shuntLinearModel bPerSection="0.011834300123155117" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -169,7 +169,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG12_____TN" name="NG12" v="15.694499969482422" angle="-34.04362106323242"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G12______SM" name="G12     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="310.0" targetV="15.694499969482422" targetQ="279.2359924316406" bus="_NG12_____TN" connectableBus="_NG12_____TN" p="-310.0" q="-279.2359924316406">
+            <iidm:generator id="_G12______SM" name="G12     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="310.0" targetV="15.694499969482422" targetQ="279.2359924316406" bus="_NG12_____TN" connectableBus="_NG12_____TN" p="-310.0" q="-279.2359924316406">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -206,7 +206,7 @@
                 <iidm:bus id="_N4043____TN" name="N4043" v="343.68499755859375" angle="-75.2749252319336"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4043____EC" name="N4043   " loadType="UNDEFINED" p0="900.0" q0="303.20001220703125" bus="_N4043____TN" connectableBus="_N4043____TN" p="900.0" q="303.20001220703125"/>
-            <iidm:shunt id="_N4043____SC" name="N4043   " sectionCount="1" voltageRegulatorOn="false" bus="_N4043____TN" connectableBus="_N4043____TN">
+            <iidm:shunt id="_N4043____SC" name="N4043   " sectionCount="1" regulationMode="OFF" bus="_N4043____TN" connectableBus="_N4043____TN">
                 <iidm:shuntLinearModel bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -217,7 +217,7 @@
                 <iidm:bus id="_N4046____TN" name="N4046" v="346.0889892578125" angle="-76.19192504882812"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4046____EC" name="N4046   " loadType="UNDEFINED" p0="700.0" q0="250.0" bus="_N4046____TN" connectableBus="_N4046____TN" p="700.0" q="250.0"/>
-            <iidm:shunt id="_N4046____SC" name="N4046   " sectionCount="1" voltageRegulatorOn="false" bus="_N4046____TN" connectableBus="_N4046____TN">
+            <iidm:shunt id="_N4046____SC" name="N4046   " sectionCount="1" regulationMode="OFF" bus="_N4046____TN" connectableBus="_N4046____TN">
                 <iidm:shuntLinearModel bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -235,7 +235,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG11_____TN" name="NG11" v="15.316499710083008" angle="-30.300371170043945"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G11______SM" name="G11     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="250.0" targetV="15.316499710083008" targetQ="159.67799377441406" bus="_NG11_____TN" connectableBus="_NG11_____TN" p="-250.0" q="-159.67799377441406">
+            <iidm:generator id="_G11______SM" name="G11     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="250.0" targetV="15.316499710083008" targetQ="159.67799377441406" bus="_NG11_____TN" connectableBus="_NG11_____TN" p="-250.0" q="-159.67799377441406">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -254,7 +254,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG13_____TN" name="NG13" v="15.255000114440918" angle="-62.66741180419922"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G13______SM" name="G13     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="-0.0" targetV="15.255000114440918" targetQ="249.27999877929688" bus="_NG13_____TN" connectableBus="_NG13_____TN" p="0.0" q="-249.27999877929688">
+            <iidm:generator id="_G13______SM" name="G13     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="-0.0" targetV="15.255000114440918" targetQ="249.27999877929688" bus="_NG13_____TN" connectableBus="_NG13_____TN" p="0.0" q="-249.27999877929688">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -263,7 +263,7 @@
                 <iidm:bus id="_N4041____TN" name="N4041" v="353.125" angle="-62.66741180419922"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4041____EC" name="N4041   " loadType="UNDEFINED" p0="540.0" q0="160.0" bus="_N4041____TN" connectableBus="_N4041____TN" p="540.0" q="160.0"/>
-            <iidm:shunt id="_N4041____SC" name="N4041   " sectionCount="1" voltageRegulatorOn="false" bus="_N4041____TN" connectableBus="_N4041____TN">
+            <iidm:shunt id="_N4041____SC" name="N4041   " sectionCount="1" regulationMode="OFF" bus="_N4041____TN" connectableBus="_N4041____TN">
                 <iidm:shuntLinearModel bPerSection="0.0012499999720603228" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -277,7 +277,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG14_____TN" name="NG14" v="15.680999755859375" angle="-57.85282897949219"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G14______SM" name="G14     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="630.0" targetV="15.680999755859375" targetQ="621.416015625" bus="_NG14_____TN" connectableBus="_NG14_____TN" p="-630.0" q="-621.416015625">
+            <iidm:generator id="_G14______SM" name="G14     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="630.0" targetV="15.680999755859375" targetQ="621.416015625" bus="_NG14_____TN" connectableBus="_NG14_____TN" p="-630.0" q="-621.416015625">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -297,7 +297,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG15_____TN" name="NG15" v="15.682499885559082" angle="-61.41239929199219"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G15______SM" name="G15     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="1080.0" targetV="15.682499885559082" targetQ="733.7080078125" bus="_NG15_____TN" connectableBus="_NG15_____TN" p="-1080.0" q="-733.7080078125">
+            <iidm:generator id="_G15______SM" name="G15     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="1080.0" targetV="15.682499885559082" targetQ="733.7080078125" bus="_NG15_____TN" connectableBus="_NG15_____TN" p="-1080.0" q="-733.7080078125">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -317,7 +317,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG16_____TN" name="NG16" v="15.796500205993652" angle="-77.35078430175781"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G16______SM" name="G16     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="600.0" targetV="15.796500205993652" targetQ="483.47100830078125" bus="_NG16_____TN" connectableBus="_NG16_____TN" p="-600.0" q="-483.47100830078125">
+            <iidm:generator id="_G16______SM" name="G16     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="600.0" targetV="15.796500205993652" targetQ="483.47100830078125" bus="_NG16_____TN" connectableBus="_NG16_____TN" p="-600.0" q="-483.47100830078125">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -326,7 +326,7 @@
                 <iidm:bus id="_N4051____TN" name="N4051" v="363.5039978027344" angle="-85.46057891845703"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4051____EC" name="N4051   " loadType="UNDEFINED" p0="800.0" q0="302.3999938964844" bus="_N4051____TN" connectableBus="_N4051____TN" p="800.0" q="302.3999938964844"/>
-            <iidm:shunt id="_N4051____SC" name="N4051   " sectionCount="1" voltageRegulatorOn="false" bus="_N4051____TN" connectableBus="_N4051____TN">
+            <iidm:shunt id="_N4051____SC" name="N4051   " sectionCount="1" regulationMode="OFF" bus="_N4051____TN" connectableBus="_N4051____TN">
                 <iidm:shuntLinearModel bPerSection="6.249999860301614E-4" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -340,7 +340,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG17_____TN" name="NG17" v="15.137999534606934" angle="-54.26876449584961"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G17______SM" name="G17     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="530.0" targetV="15.137999534606934" targetQ="189.6269989013672" bus="_NG17_____TN" connectableBus="_NG17_____TN" p="-530.0" q="-189.6269989013672">
+            <iidm:generator id="_G17______SM" name="G17     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="530.0" targetV="15.137999534606934" targetQ="189.6269989013672" bus="_NG17_____TN" connectableBus="_NG17_____TN" p="-530.0" q="-189.6269989013672">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -360,7 +360,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG18_____TN" name="NG18" v="15.46049976348877" angle="-49.925662994384766"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G18______SM" name="G18     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="1060.0" targetV="15.46049976348877" targetQ="443.7669982910156" bus="_NG18_____TN" connectableBus="_NG18_____TN" p="-1060.0" q="-443.7669982910156">
+            <iidm:generator id="_G18______SM" name="G18     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="1060.0" targetV="15.46049976348877" targetQ="443.7669982910156" bus="_NG18_____TN" connectableBus="_NG18_____TN" p="-1060.0" q="-443.7669982910156">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -380,7 +380,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG19_____TN" name="NG19" v="15.449999809265137" angle="3.17626690864563"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G19______SM" name="G19     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="300.0" targetV="15.449999809265137" targetQ="82.3125991821289" bus="_NG19_____TN" connectableBus="_NG19_____TN" p="-300.0" q="-82.3125991821289">
+            <iidm:generator id="_G19______SM" name="G19     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="300.0" targetV="15.449999809265137" targetQ="82.3125991821289" bus="_NG19_____TN" connectableBus="_NG19_____TN" p="-300.0" q="-82.3125991821289">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -389,7 +389,7 @@
                 <iidm:bus id="_N4071____TN" name="N4071" v="384.0769958496094" angle="-2.306674003601074"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N4071____EC" name="N4071   " loadType="UNDEFINED" p0="300.0" q0="100.0" bus="_N4071____TN" connectableBus="_N4071____TN" p="300.0" q="100.0"/>
-            <iidm:shunt id="_N4071____SC" name="N4071   " sectionCount="1" voltageRegulatorOn="false" bus="_N4071____TN" connectableBus="_N4071____TN">
+            <iidm:shunt id="_N4071____SC" name="N4071   " sectionCount="1" regulationMode="OFF" bus="_N4071____TN" connectableBus="_N4071____TN">
                 <iidm:shuntLinearModel bPerSection="-0.0024999999441206455" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -403,7 +403,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG20_____TN" name="NG20" v="15.27750015258789" angle="3.315453052520752"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G20______SM" name="G20     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="2132.5" targetV="15.27750015258789" targetQ="375.85101318359375" bus="_NG20_____TN" connectableBus="_NG20_____TN" p="-2132.5" q="-375.85101318359375">
+            <iidm:generator id="_G20______SM" name="G20     " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="2132.5" targetV="15.27750015258789" targetQ="375.85101318359375" bus="_NG20_____TN" connectableBus="_NG20_____TN" p="-2132.5" q="-375.85101318359375">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -423,7 +423,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG2______TN" name="NG2" v="15.84749984741211" angle="8.6207275390625"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G2_______SM" name="G2      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="300.0" targetV="15.84749984741211" targetQ="251.48300170898438" bus="_NG2______TN" connectableBus="_NG2______TN" p="-300.0" q="-251.48300170898438">
+            <iidm:generator id="_G2_______SM" name="G2      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="300.0" targetV="15.84749984741211" targetQ="251.48300170898438" bus="_NG2______TN" connectableBus="_NG2______TN" p="-300.0" q="-251.48300170898438">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -443,7 +443,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG3______TN" name="NG3" v="15.892499923706055" angle="13.968607902526855"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G3_______SM" name="G3      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="550.0" targetV="15.892499923706055" targetQ="227.73500061035156" bus="_NG3______TN" connectableBus="_NG3______TN" p="-550.0" q="-227.73500061035156">
+            <iidm:generator id="_G3_______SM" name="G3      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="550.0" targetV="15.892499923706055" targetQ="227.73500061035156" bus="_NG3______TN" connectableBus="_NG3______TN" p="-550.0" q="-227.73500061035156">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -462,7 +462,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG4______TN" name="NG4" v="15.508500099182129" angle="14.51465892791748"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G4_______SM" name="G4      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="400.0" targetV="15.508500099182129" targetQ="208.8249969482422" bus="_NG4______TN" connectableBus="_NG4______TN" p="-400.0" q="-208.8249969482422">
+            <iidm:generator id="_G4_______SM" name="G4      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="400.0" targetV="15.508500099182129" targetQ="208.8249969482422" bus="_NG4______TN" connectableBus="_NG4______TN" p="-400.0" q="-208.8249969482422">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -481,7 +481,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG6______TN" name="NG6" v="15.12600040435791" angle="-71.39446258544922"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G6_______SM" name="G6      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="360.0" targetV="15.12600040435791" targetQ="172.55499267578125" bus="_NG6______TN" connectableBus="_NG6______TN" p="-360.0" q="-172.55499267578125">
+            <iidm:generator id="_G6_______SM" name="G6      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="360.0" targetV="15.12600040435791" targetQ="172.55499267578125" bus="_NG6______TN" connectableBus="_NG6______TN" p="-360.0" q="-172.55499267578125">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -501,7 +501,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG7______TN" name="NG7" v="15.21150016784668" angle="-80.41766357421875"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G7_______SM" name="G7      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="180.0" targetV="15.21150016784668" targetQ="134.14300537109375" bus="_NG7______TN" connectableBus="_NG7______TN" p="-180.0" q="-134.14300537109375">
+            <iidm:generator id="_G7_______SM" name="G7      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="180.0" targetV="15.21150016784668" targetQ="134.14300537109375" bus="_NG7______TN" connectableBus="_NG7______TN" p="-180.0" q="-134.14300537109375">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -510,7 +510,7 @@
                 <iidm:bus id="_N1043____TN" name="N1043" v="113.4800033569336" angle="-89.6317367553711"/>
             </iidm:busBreakerTopology>
             <iidm:load id="_N1043____EC" name="N1043   " loadType="UNDEFINED" p0="260.0" q0="100.0" bus="_N1043____TN" connectableBus="_N1043____TN" p="260.0" q="100.0"/>
-            <iidm:shunt id="_N1043____SC" name="N1043   " sectionCount="1" voltageRegulatorOn="false" bus="_N1043____TN" connectableBus="_N1043____TN">
+            <iidm:shunt id="_N1043____SC" name="N1043   " sectionCount="1" regulationMode="OFF" bus="_N1043____TN" connectableBus="_N1043____TN">
                 <iidm:shuntLinearModel bPerSection="0.008875739760696888" gPerSection="0.0" maximumSectionCount="1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
@@ -524,7 +524,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_NG8______TN" name="NG8" v="15.746999740600586" angle="-14.407537460327148"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_G8_______SM" name="G8      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" voltageRegulatorOn="true" targetP="750.0" targetV="15.746999740600586" targetQ="322.73699951171875" bus="_NG8______TN" connectableBus="_NG8______TN" p="-750.0" q="-322.73699951171875">
+            <iidm:generator id="_G8_______SM" name="G8      " energySource="OTHER" minP="-9999.990234375" maxP="9999.990234375" regulationMode="VOLTAGE" targetP="750.0" targetV="15.746999740600586" targetQ="322.73699951171875" bus="_NG8______TN" connectableBus="_NG8______TN" p="-750.0" q="-322.73699951171875">
                 <iidm:minMaxReactiveLimits minQ="-9999.990234375" maxQ="9999.990234375"/>
             </iidm:generator>
         </iidm:voltageLevel>

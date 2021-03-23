@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 /**
  *
@@ -27,7 +24,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Boolean voltageRegulatorOn;
+    private RegulationMode regulationMode = RegulationMode.OFF;
 
     private double targetP = Double.NaN;
 
@@ -70,8 +67,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     }
 
     @Override
-    public GeneratorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        this.voltageRegulatorOn = voltageRegulatorOn;
+    public GeneratorAdder setRegulationMode(RegulationMode regulationMode) {
+        this.regulationMode = regulationMode;
         return this;
     }
 
@@ -114,14 +111,14 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
+        ValidationUtil.checkGeneratorRegulator(this, targetV, targetQ, regulationMode);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetwork().getRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
+                                    regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
                                     targetP, targetQ, targetV,
                                     ratedS);
         generator.addTerminal(terminal);

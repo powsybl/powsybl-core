@@ -135,7 +135,7 @@ public class MatpowerImporter implements Importer {
                     .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
-                    .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
+                    .setRegulationMode(mGen.getVoltageMagnitudeSetpoint() != 0 ? RegulationMode.VOLTAGE : RegulationMode.OFF)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
                     .add();

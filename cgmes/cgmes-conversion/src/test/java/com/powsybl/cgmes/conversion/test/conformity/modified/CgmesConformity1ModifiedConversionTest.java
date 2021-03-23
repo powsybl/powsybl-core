@@ -186,7 +186,7 @@ public class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), null);
 
         Generator generator1 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertFalse(generator1.isVoltageRegulatorOn());
+        assertSame(RegulationMode.OFF, generator1.getRegulationMode());
         assertTrue(Double.isNaN(generator1.getTargetV()));
         assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
@@ -214,7 +214,7 @@ public class CgmesConformity1ModifiedConversionTest {
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingRegulatingControl().dataSource(), null);
 
         Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertFalse(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.OFF, generator.getRegulationMode());
         assertTrue(Double.isNaN(generator.getTargetV()));
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
@@ -532,8 +532,8 @@ public class CgmesConformity1ModifiedConversionTest {
         // External network injections with shared control enabled
         // One external network injection has control enabled
         // The other one has it disabled
-        assertFalse(network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").isVoltageRegulatorOn());
-        assertTrue(network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").isVoltageRegulatorOn());
+        assertSame(RegulationMode.OFF, network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").getRegulationMode());
+        assertSame(RegulationMode.VOLTAGE, network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").getRegulationMode());
         assertEquals(10.0, network.getGenerator("_089c1945-4101-487f-a557-66c013b748f6").getTargetV(), 1e-10);
         // Even if the control is disabled, the target voltage must be set
         assertEquals(10.0, network.getGenerator("_3de9e1ad-4562-44df-b268-70ed0517e9e7").getTargetV(), 1e-10);

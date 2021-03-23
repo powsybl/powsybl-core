@@ -110,7 +110,7 @@ public class AmplNetworkReader {
     private Void readGenerator(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
-        boolean vregul = Boolean.parseBoolean(tokens[3]);
+        RegulationMode regulationMode = RegulationMode.valueOf(tokens[3]);
         double targetV = readDouble(tokens[4]);
         double targetP = readDouble(tokens[5]);
         double targetQ = readDouble(tokens[6]);
@@ -122,7 +122,7 @@ public class AmplNetworkReader {
             throw new AmplException("Invalid generator id '" + id + "'");
         }
 
-        g.setVoltageRegulatorOn(vregul);
+        g.setRegulationMode(regulationMode);
 
         g.setTargetP(targetP);
         g.setTargetQ(targetQ);

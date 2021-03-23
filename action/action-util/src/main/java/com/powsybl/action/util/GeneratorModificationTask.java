@@ -11,6 +11,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RegulationMode;
 
 import java.util.Objects;
 
@@ -40,8 +41,8 @@ public class GeneratorModificationTask implements ModificationTask {
             g.setMaxP(modifs.getMaxP());
         }
 
-        if (modifs.getVoltageRegulatorOn() != null) {
-            g.setVoltageRegulatorOn(modifs.getVoltageRegulatorOn());
+        if (modifs.getRegulationMode() != null) {
+            g.setRegulationMode(modifs.getRegulationMode());
         }
 
         boolean skipOtherConnectionChange = false;
@@ -90,7 +91,7 @@ public class GeneratorModificationTask implements ModificationTask {
         private Double deltaTargetP;
         private Double targetV;
         private Double targetQ;
-        private Boolean voltageRegulatorOn;
+        private RegulationMode regulationMode;
         private Boolean connected;
 
         Double getMinP() {
@@ -141,12 +142,12 @@ public class GeneratorModificationTask implements ModificationTask {
             this.targetQ = targetQ;
         }
 
-        Boolean getVoltageRegulatorOn() {
-            return voltageRegulatorOn;
+        RegulationMode getRegulationMode() {
+            return regulationMode;
         }
 
-        public void setVoltageRegulatorOn(Boolean voltageRegulatorOn) {
-            this.voltageRegulatorOn = voltageRegulatorOn;
+        public void setRegulationMode(RegulationMode regulationMode) {
+            this.regulationMode = regulationMode;
         }
 
         Boolean getConnected() {

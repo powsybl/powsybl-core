@@ -1531,7 +1531,7 @@ public class AmplNetworkWriter {
                         .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(g.getReactiveLimits().getMaxQ(0))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(g.isVoltageRegulatorOn())
+                        .writeCell(g.getRegulationMode().name())
                         .writeCell(g.getTargetV() / vb)
                         .writeCell(g.getTargetP())
                         .writeCell(g.getTargetQ())

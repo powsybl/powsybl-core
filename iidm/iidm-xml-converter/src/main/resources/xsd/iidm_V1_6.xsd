@@ -230,7 +230,7 @@
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="ratedS" use="optional" type="xs:double"/>
-                <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
+                <xs:attribute name="regulationMode" use="required" type="iidm:RegulationMode"/>
                 <xs:attribute name="targetP" use="required" type="xs:double"/>
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
@@ -341,7 +341,7 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-    <xs:simpleType name="StaticVarCompensatorRegulationMode">
+    <xs:simpleType name="RegulationMode">
         <xs:restriction base="xs:string">
             <xs:enumeration value="VOLTAGE"/>
             <xs:enumeration value="REACTIVE_POWER"/>
@@ -358,7 +358,7 @@
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
+                <xs:attribute name="regulationMode" use="required" type="iidm:RegulationMode"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -22,16 +23,6 @@ import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
 import com.powsybl.cgmes.conversion.update.IidmChangeUpdate;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
@@ -211,7 +202,7 @@ public final class ChangelogUpdateTest {
             .setEnergySource(EnergySource.NUCLEAR)
             .setMinP(200.0)
             .setMaxP(900.0)
-            .setVoltageRegulatorOn(true)
+            .setRegulationMode(RegulationMode.VOLTAGE)
             .setTargetV(24.5)
             .setTargetP(607.0)
             .setTargetQ(301.0)

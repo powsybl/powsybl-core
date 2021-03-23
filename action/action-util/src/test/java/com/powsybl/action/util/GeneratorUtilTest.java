@@ -9,6 +9,7 @@ package com.powsybl.action.util;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RegulationMode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -43,7 +44,7 @@ public class GeneratorUtilTest {
 
     @Test
     public void testConnectVoltageRegulatorOff() {
-        g2.setVoltageRegulatorOn(false);
+        g2.setRegulationMode(RegulationMode.OFF);
         GeneratorUtil.connectGenerator(g2);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(22., g2.getTargetV(), 0.01);
@@ -51,7 +52,7 @@ public class GeneratorUtilTest {
 
     @Test
     public void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
-        g2.setVoltageRegulatorOn(true);
+        g2.setRegulationMode(RegulationMode.VOLTAGE);
         GeneratorUtil.connectGenerator(g2);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(33., g2.getTargetV(), 0.01);
@@ -60,7 +61,7 @@ public class GeneratorUtilTest {
     @Test
     public void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
-        g2.setVoltageRegulatorOn(true);
+        g2.setRegulationMode(RegulationMode.VOLTAGE);
         GeneratorUtil.connectGenerator(g2);
         assertTrue(g2.getTerminal().isConnected());
         assertEquals(99., g2.getTargetV(), 0.01);

@@ -149,9 +149,9 @@ public final class NetworkChanges {
     public static void modifyGeneratorVoltageRegulation(Network network) {
         // Apply changes to first generator with voltage regulation active
         for (Generator g : network.getGenerators()) {
-            if (g.isVoltageRegulatorOn()) {
+            if (g.getRegulationMode() == RegulationMode.VOLTAGE) {
                 g.setTargetV(g.getTargetV() + 0.1);
-                g.setVoltageRegulatorOn(false);
+                g.setRegulationMode(RegulationMode.OFF);
             }
         }
     }
