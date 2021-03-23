@@ -176,7 +176,7 @@ public class SecurityAnalysisExecutionHandlersTest {
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
                 .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 3);
+        ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 3);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
@@ -206,7 +206,7 @@ public class SecurityAnalysisExecutionHandlersTest {
                 .setParameters(new SecurityAnalysisParameters())
                 .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
                 .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input);
+        ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
         SimpleCommand command = (SimpleCommand) commandExecutions.get(0).getCommand();
@@ -287,7 +287,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
+        ExecutionHandler<SecurityAnalysisResult> handler2 = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
         try {
             handler2.after(workingDir, new DefaultExecutionReport(workingDir));
             fail();
@@ -314,10 +314,9 @@ public class SecurityAnalysisExecutionHandlersTest {
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_1_result.json"))) {
             exporter.export(resultForContingency("c2"), writer);
         }
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
+        ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
 
-        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport(workingDir));
-        SecurityAnalysisResult result = resultWithLog.getResult();
+        SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport(workingDir));
 
         assertNotNull(result);
         assertTrue(result.getPreContingencyResult().isComputationOk());
@@ -326,7 +325,7 @@ public class SecurityAnalysisExecutionHandlersTest {
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
 
-        byte[] logBytes = resultWithLog.getLogBytes()
+        byte[] logBytes = result.getLogBytes()
                 .orElseThrow(AssertionError::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);
@@ -346,7 +345,7 @@ public class SecurityAnalysisExecutionHandlersTest {
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
 
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
+        ExecutionHandler<SecurityAnalysisResult> handler2 = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
 
         assertThatExceptionOfType(ComputationException.class)
                 .isThrownBy(() -> handler2.after(workingDir, new DefaultExecutionReport(workingDir)))
@@ -357,13 +356,12 @@ public class SecurityAnalysisExecutionHandlersTest {
                     assertEquals("logs", ce.getOutLogs().get("security-analysis.out"));
                 });
 
-        ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
+        ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("result.json"))) {
             exporter.export(resultForContingency("c1"), writer);
         }
-        SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport(workingDir));
-        SecurityAnalysisResult result = resultWithLog.getResult();
+        SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport(workingDir));
 
         assertNotNull(result);
         assertTrue(result.getPreContingencyResult().isComputationOk());
@@ -371,9 +369,9 @@ public class SecurityAnalysisExecutionHandlersTest {
         assertEquals(1, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
 
-        assertTrue(resultWithLog.getLogBytes().isPresent());
+        assertTrue(result.getLogBytes().isPresent());
 
-        byte[] logBytes = resultWithLog.getLogBytes()
+        byte[] logBytes = result.getLogBytes()
                 .orElseThrow(AssertionError::new);
         Set<String> foundNames = getFileNamesFromZip(logBytes);
         assertEquals(expectedLogs, foundNames);

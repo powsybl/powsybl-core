@@ -85,7 +85,7 @@ public class SecurityAnalysisExecutionImplTest {
         }
 
         @Override
-        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisResult> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
             assertSame(SecurityAnalysisExecutionImplTest.network, network);
             assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
             assertSame(SecurityAnalysisExecutionImplTest.detector, detector);

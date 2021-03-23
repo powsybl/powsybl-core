@@ -255,9 +255,10 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
         }
 
         @Override
-        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-            CompletableFuture<SecurityAnalysisResultWithLog> cfSar = mock(CompletableFuture.class);
-            SecurityAnalysisResultWithLog result = mock(SecurityAnalysisResultWithLog.class);
+        public CompletableFuture<SecurityAnalysisResult> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            CompletableFuture<SecurityAnalysisResult> cfSar = mock(CompletableFuture.class);
+            SecurityAnalysisResult result = mock(SecurityAnalysisResult.class);
+            when(result.getPreContingencyResult()).thenReturn(mock(LimitViolationsResult.class));
             when(result.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
             when(cfSar.join()).thenReturn(result);
             return cfSar;

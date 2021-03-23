@@ -225,11 +225,11 @@ public class SecurityAnalysisTool implements Tool {
                                                              SecurityAnalysisExecutionInput input,
                                                              Path logPath) {
         try {
-            SecurityAnalysisResultWithLog resultWithLog = execution.executeWithLog(computationManager, input).join();
+            SecurityAnalysisResult result = execution.executeWithLog(computationManager, input).join();
             // copy log bytes to file
-            resultWithLog.getLogBytes()
+            result.getLogBytes()
                     .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
-            return resultWithLog.getResult();
+            return result;
         } catch (CompletionException e) {
             if (e.getCause() instanceof ComputationException) {
                 ComputationException computationException = (ComputationException) e.getCause();

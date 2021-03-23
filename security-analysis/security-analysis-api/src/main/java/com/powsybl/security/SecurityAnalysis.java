@@ -80,7 +80,7 @@ public final class SecurityAnalysis {
             return runAsync(network, LocalComputationManager.getDefault());
         }
 
-        public CompletableFuture<SecurityAnalysisResultWithLog> runAsyncWithLog(Network network,
+        public CompletableFuture<SecurityAnalysisResult> runAsyncWithLog(Network network,
                                                                                 String workingStateId,
                                                                                 LimitViolationDetector detector,
                                                                                 LimitViolationFilter filter,

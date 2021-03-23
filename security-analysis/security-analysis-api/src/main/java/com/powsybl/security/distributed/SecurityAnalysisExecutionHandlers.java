@@ -14,7 +14,6 @@ import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.computation.Partition;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultMerger;
-import com.powsybl.security.SecurityAnalysisResultWithLog;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 
@@ -67,7 +66,7 @@ public final class SecurityAnalysisExecutionHandlers {
      * Create an {@link ExecutionHandler} which forwards the security analysis execution through a call
      * to {@literal itools security-analysis}. It also retrieves execution logs.
      */
-    public static ExecutionHandler<SecurityAnalysisResultWithLog> forwardedWithLogs(SecurityAnalysisExecutionInput input) {
+    public static ExecutionHandler<SecurityAnalysisResult> forwardedWithLogs(SecurityAnalysisExecutionInput input) {
         return forwardedWithLogs(input, null);
     }
 
@@ -75,7 +74,7 @@ public final class SecurityAnalysisExecutionHandlers {
      * Create an {@link ExecutionHandler} which forwards the security analysis execution through a call
      * to {@literal itools security-analysis}, with the option {@literal --task-count}. It also retrieves execution logs.
      */
-    public static ExecutionHandler<SecurityAnalysisResultWithLog> forwardedWithLogs(SecurityAnalysisExecutionInput input, Integer forwardedTaskCount) {
+    public static ExecutionHandler<SecurityAnalysisResult> forwardedWithLogs(SecurityAnalysisExecutionInput input, Integer forwardedTaskCount) {
         Preconditions.checkArgument(forwardedTaskCount == null || forwardedTaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, forwardedTaskCount);
         return new SecurityAnalysisExecutionHandler<>(SecurityAnalysisExecutionHandlers::readSingleResultWithLogs,
             (workingDir, options) -> forwardedWithLogsOptions(workingDir, options, forwardedTaskCount),
@@ -101,7 +100,7 @@ public final class SecurityAnalysisExecutionHandlers {
      * Create an {@link ExecutionHandler} which distributes the security analysis execution through multiple calls
      * to {@literal itools security-analysis}, as specified in argument. It also retrieves execution logs.
      */
-    public static ExecutionHandler<SecurityAnalysisResultWithLog> distributedWithLog(SecurityAnalysisExecutionInput input, int subtaskCount) {
+    public static ExecutionHandler<SecurityAnalysisResult> distributedWithLog(SecurityAnalysisExecutionInput input, int subtaskCount) {
         Preconditions.checkArgument(subtaskCount >= 1, TASK_COUNT_ERROR_MESSAGE, subtaskCount);
         return new SecurityAnalysisExecutionHandler<>(workingDir -> readResultsWithLogs(workingDir, subtaskCount),
             (workingDir, options) -> distributedWithLogsOptions(workingDir, options, subtaskCount),
@@ -115,14 +114,14 @@ public final class SecurityAnalysisExecutionHandlers {
         return SecurityAnalysisResultDeserializer.read(taskResultFile);
     }
 
-    public static SecurityAnalysisResultWithLog readSingleResultWithLogs(Path workingDir) {
+    public static SecurityAnalysisResult readSingleResultWithLogs(Path workingDir) {
         SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
         List<String> collectedLogsFilename = new ArrayList<>();
         collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
         collectedLogsFilename.add(saCmdOutLogName());
         collectedLogsFilename.add(saCmdErrLogName());
         byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return new SecurityAnalysisResultWithLog(re, logBytes);
+        return re.setLogBytes(logBytes);
     }
 
     private static String saCmdOutLogName() {
@@ -168,7 +167,7 @@ public final class SecurityAnalysisExecutionHandlers {
         return SecurityAnalysisResultMerger.merge(results);
     }
 
-    public static SecurityAnalysisResultWithLog readResultsWithLogs(Path workingDir, int subtaskCount) {
+    public static SecurityAnalysisResult readResultsWithLogs(Path workingDir, int subtaskCount) {
         SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
         List<String> collectedLogsFilename = new ArrayList<>();
         for (int i = 0; i < subtaskCount; i++) {
@@ -177,7 +176,7 @@ public final class SecurityAnalysisExecutionHandlers {
             collectedLogsFilename.add(satErrName(i));
         }
         byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return new SecurityAnalysisResultWithLog(re, logBytes);
+        return re.setLogBytes(logBytes);
     }
 
     private static ComputationException generateExceptionWithLogs(Path workingDir, Exception cause, int count) {

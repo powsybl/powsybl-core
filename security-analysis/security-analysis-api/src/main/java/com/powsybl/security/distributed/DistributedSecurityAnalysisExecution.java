@@ -10,7 +10,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.security.SecurityAnalysisResult;
-import com.powsybl.security.SecurityAnalysisResultWithLog;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 
@@ -48,11 +47,11 @@ public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExe
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager,
+    public CompletableFuture<SecurityAnalysisResult> executeWithLog(ComputationManager computationManager,
                                                                            SecurityAnalysisExecutionInput data) {
 
         ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_task_", config.isDebug());
-        ExecutionHandler<SecurityAnalysisResultWithLog> executionHandler = SecurityAnalysisExecutionHandlers.distributedWithLog(data, subtaskCount);
+        ExecutionHandler<SecurityAnalysisResult> executionHandler = SecurityAnalysisExecutionHandlers.distributedWithLog(data, subtaskCount);
         return computationManager.execute(itoolsEnv, executionHandler);
     }
 

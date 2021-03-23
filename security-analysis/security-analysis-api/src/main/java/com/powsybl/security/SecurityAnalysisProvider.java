@@ -93,7 +93,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @return
      */
 
-    default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network,
+    default CompletableFuture<SecurityAnalysisResult> runWithLog(Network network,
                                                                         String workingVariantId,
                                                                         LimitViolationDetector detector,
                                                                         LimitViolationFilter filter,
@@ -101,6 +101,6 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                                         SecurityAnalysisParameters parameters,
                                                                         ContingenciesProvider contingenciesProvider,
                                                                         List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, workingVariantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
+        return run(network, workingVariantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).thenApply(r -> r.setLogBytes(null));
     }
 }
