@@ -37,7 +37,9 @@ public class CgmesSshMetadataXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesSshMetadata extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("description", extension.getDescription());
+        if (extension.getDescription() != null) {
+            writer.writeAttribute("description", extension.getDescription());
+        }
         XmlUtil.writeInt("sshVersion", extension.getSshVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
         for (String dep : extension.getDependencies()) {
