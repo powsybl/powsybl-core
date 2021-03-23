@@ -43,7 +43,8 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     public void microGridBE() throws IOException, XMLStreamException {
-        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), new Properties()));
+        Properties properties = new Properties();
+        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
     @Test
@@ -62,11 +63,11 @@ public class EquipmentExportTest extends AbstractConverterTest {
             EquipmentExport.write(expected, writer, context);
         }
 
-        // Import EQ
+        // Import the exported EQ file
         Properties properties = new Properties();
         Network actual = new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), properties);
 
-        // Export original and with new EQ
+        // Export original XIIDM and with exported EQ file
         NetworkXml.writeAndValidate(expected, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
