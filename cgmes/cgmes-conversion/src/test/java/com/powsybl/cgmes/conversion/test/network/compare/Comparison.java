@@ -441,8 +441,8 @@ public class Comparison {
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
         compare("targetV", expected.getTargetV(), actual.getTargetV());
         compare("regulationMode",
-                expected.getRegulationMode().name(),
-                actual.getRegulationMode().name());
+                expected.getRegulationMode(),
+                actual.getRegulationMode());
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {

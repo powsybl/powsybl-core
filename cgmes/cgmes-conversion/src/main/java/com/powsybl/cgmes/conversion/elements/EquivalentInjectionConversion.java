@@ -54,7 +54,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     public DanglingLine convertOverDanglingLine(DanglingLineAdder adder, PowerFlow fother) {
         Regulation regulation = getRegulation();
         DanglingLine dl;
-        if (regulation.status == RegulationMode.VOLTAGE) {
+        if (regulation.status) {
             // If this equivalent injection is regulating voltage,
             // map it over the dangling line 'virtual generator'
             dl = adder
@@ -101,7 +101,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         Regulation regulation = getRegulation();
         GeneratorAdder adder = voltageLevel().newGenerator();
         setMinPMaxP(adder, minP, maxP);
-        adder.setRegulationMode(regulation.status)
+        adder.setRegulationMode(regulation.status ? RegulationMode.VOLTAGE : RegulationMode.OFF)
                 .setTargetQ(regulation.targetQ)
                 .setTargetV(regulation.targetV)
                 .setEnergySource(energySource);
@@ -114,7 +114,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     }
 
     static class Regulation {
-        private RegulationMode status;
+        private boolean status;
         private double targetV;
         private double targetP;
         private double targetQ;
@@ -122,25 +122,22 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     private Regulation getRegulation() {
         Regulation regulation = new Regulation();
-        regulation.status = RegulationMode.OFF;
+
         boolean regulationCapability = p.asBoolean("regulationCapability", false);
-        if (regulationCapability) {
-            regulation.status = RegulationMode.valueOf(p.getOrDefault("regulationStatus", "OFF"));
-        }
+        regulation.status = p.asBoolean("regulationStatus", false) && regulationCapability;
         if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
             context.missing(String.format("Missing regulationStatus or regulationTarget for EquivalentInjection %s. Voltage regulation is considered as off.", id));
         }
 
+        regulation.status = regulation.status && terminalConnected();
         regulation.targetV = Double.NaN;
-        if (regulation.status == RegulationMode.VOLTAGE && terminalConnected()) {
+        if (regulation.status) {
             regulation.targetV = p.asDouble(REGULATION_TARGET);
             if (regulation.targetV == 0) {
                 fixed(REGULATION_TARGET, "Target voltage value can not be zero", regulation.targetV,
                         voltageLevel().getNominalV());
                 regulation.targetV = voltageLevel().getNominalV();
             }
-        } else {
-            regulation.status = RegulationMode.OFF;
         }
 
         PowerFlow f = powerFlow();
