@@ -8,15 +8,10 @@ package com.powsybl.psse.converter;
 
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
@@ -41,8 +36,7 @@ public class GeneratorConverter extends AbstractConverter {
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
-                .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false);
+                .setTargetQ(psseGenerator.getQg());
 
         adder.setBus(psseGenerator.getStat() == 1 ? busId : null);
         Generator generator = adder.add();
@@ -71,21 +65,21 @@ public class GeneratorConverter extends AbstractConverter {
         if (regulatingTerminal == null) {
             return;
         }
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
+        RegulationMode psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double targetV = psseGenerator.getVs() * vnom;
-        boolean voltageRegulatorOn = false;
+        RegulationMode voltageRegulatorOn = RegulationMode.OFF;
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
             voltageRegulatorOn = psseVoltageRegulatorOn;
         }
 
         generator.setTargetV(targetV)
             .setRegulatingTerminal(regulatingTerminal)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+            .setRegulationMode(voltageRegulatorOn);
     }
 
-    private static boolean defineVoltageRegulatorOn(PsseBus psseBus) {
-        return psseBus.getIde() == 2 || psseBus.getIde() == 3;
+    private static RegulationMode defineVoltageRegulatorOn(PsseBus psseBus) {
+        return (psseBus.getIde() == 2 || psseBus.getIde() == 3) ? RegulationMode.VOLTAGE : RegulationMode.OFF;
     }
 
     // Nreg (version 35) is not yet considered

@@ -8,10 +8,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControl;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -34,7 +31,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     public static void initialize(GeneratorAdder adder) {
-        adder.setVoltageRegulatorOn(false);
+        adder.setRegulationMode(RegulationMode.OFF);
     }
 
     public void add(String generatorId, PropertyBag sm) {
@@ -102,15 +99,15 @@ public class RegulatingControlMappingForGenerators {
             targetV = control.targetValue;
         }
 
-        boolean voltageRegulatorOn = false;
+        RegulationMode regulationMode = RegulationMode.OFF;
         // Regulating control is enabled AND this equipment participates in regulating control
         if (control.enabled && eqControlEnabled) {
-            voltageRegulatorOn = true;
+            regulationMode = RegulationMode.VOLTAGE;
         }
 
         gen.setRegulatingTerminal(terminal);
         gen.setTargetV(targetV);
-        gen.setVoltageRegulatorOn(voltageRegulatorOn);
+        gen.setRegulationMode(regulationMode);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {

@@ -47,7 +47,7 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setMaxP(140)
                 .setTargetP(7.2)
                 .setTargetV(135)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .add();
 
         VoltageLevel vl2 = substation.newVoltageLevel()

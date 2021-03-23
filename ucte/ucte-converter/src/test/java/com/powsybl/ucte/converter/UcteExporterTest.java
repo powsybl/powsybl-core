@@ -179,7 +179,7 @@ public class UcteExporterTest extends AbstractConverterTest {
             bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
         }
         for (Generator gen : network.getGenerators()) {
-            if (gen.isVoltageRegulatorOn()) {
+            if (gen.getRegulationMode() == RegulationMode.VOLTAGE) {
                 gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
             }
         }

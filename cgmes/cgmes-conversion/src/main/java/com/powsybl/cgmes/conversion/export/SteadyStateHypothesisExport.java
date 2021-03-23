@@ -185,7 +185,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeSynchronousMachines(Network network, String cimNamespace, Map<String, List<RegulatingControlView>> regulatingControlViews, XMLStreamWriter writer) throws XMLStreamException {
         for (Generator g : network.getGenerators()) {
-            boolean controlEnabled = g.isVoltageRegulatorOn();
+            boolean controlEnabled = g.getRegulationMode() != RegulationMode.OFF;
             writer.writeStartElement(cimNamespace, "SynchronousMachine");
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + g.getId());
             writer.writeStartElement(cimNamespace, "RegulatingCondEq.controlEnabled");
@@ -216,8 +216,9 @@ public final class SteadyStateHypothesisExport {
             // The target value is stored in kV by PowSyBl, so unit multiplier is "k"
             String rcid = g.getProperty(REGULATING_CONTROL_PROPERTY);
             double targetDeadband = 0;
+            boolean controlEnabled = g.getRegulationMode() != RegulationMode.OFF;
             RegulatingControlView rcv = new RegulatingControlView(rcid, RegulatingControlType.REGULATING_CONTROL, false,
-                g.isVoltageRegulatorOn(), targetDeadband, g.getTargetV(), "k");
+                    controlEnabled, targetDeadband, g.getTargetV(), "k");
             regulatingControlViews.computeIfAbsent(rcid, k -> new ArrayList<>()).add(rcv);
         }
     }
@@ -489,14 +490,14 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             // regulationStatus and regulationTarget are optional,
             // but test cases contain the attributes with disabled and 0
-            boolean regulationStatus = false;
+            RegulationMode regulationStatus = RegulationMode.OFF;
             double regulationTarget = 0;
             if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
+                regulationStatus = dl.getGeneration().isVoltageRegulationOn() ? RegulationMode.VOLTAGE : RegulationMode.OFF;
                 regulationTarget = dl.getGeneration().getTargetV();
             }
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
-            writer.writeCharacters(Boolean.toString(regulationStatus));
+            writer.writeCharacters(regulationStatus.name());
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
             writer.writeCharacters(CgmesExportUtil.format(regulationTarget));

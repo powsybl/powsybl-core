@@ -309,6 +309,33 @@ public final class ValidationUtil {
 
     }
 
+    public static void checkGeneratorRegulator(Validable validable, double targetV, double targetQ, RegulationMode regulationMode) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "Regulation mode is invalid");
+        }
+        switch (regulationMode) {
+            case VOLTAGE:
+                if (Double.isNaN(targetV) || targetV <= 0) {
+                    throw createInvalidValueException(validable, targetV, "voltage setpoint");
+                }
+                break;
+
+            case REACTIVE_POWER:
+                if (Double.isNaN(targetQ)) {
+                    throw createInvalidValueException(validable, targetQ, "reactive power setpoint");
+                }
+                break;
+
+            case OFF:
+                // nothing to check
+                break;
+
+            default:
+                throw new AssertionError();
+        }
+
+    }
+
     public static void checkBmin(Validable validable, double bMin) {
         if (Double.isNaN(bMin)) {
             throw new ValidationException(validable, "bmin is invalid");

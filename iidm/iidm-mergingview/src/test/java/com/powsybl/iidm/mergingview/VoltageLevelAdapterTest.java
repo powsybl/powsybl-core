@@ -97,7 +97,8 @@ public class VoltageLevelAdapterTest {
 
         // Generator
         vlActual.newGenerator()
-                    .setId("GEN").setVoltageRegulatorOn(true)
+                    .setId("GEN")
+                    .setRegulationMode(RegulationMode.VOLTAGE)
                     .setConnectableBus("busA")
                     .setBus("busA")
                     .setMaxP(9999.99)

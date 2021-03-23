@@ -70,7 +70,7 @@ public abstract class AbstractSlackTerminalTest {
             .setMinP(0)
             .setMaxP(110)
             .setTargetV(380)
-            .setVoltageRegulatorOn(true)
+            .setRegulationMode(RegulationMode.VOLTAGE)
             .add();
 
         network.newLine()

@@ -308,7 +308,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setTargetP(-p)
                     .setTargetQ(-q)
                     .setTargetV(21.987)
-                    .setVoltageRegulatorOn(true)
+                    .setRegulationMode(RegulationMode.VOLTAGE)
                     .setRatedS(300)
                     .add();
             genBrussels21.newMinMaxReactiveLimits()
@@ -656,7 +656,7 @@ public final class CgmesConformity1NetworkCatalog {
                     .setTargetP(-p)
                     .setTargetQ(-q)
                     .setTargetV(115.5)
-                    .setVoltageRegulatorOn(true)
+                    .setRegulationMode(RegulationMode.VOLTAGE)
                     // This generator regulates one end point of a power transformer
                     // (110 kV side of BE-TR2_1)
                     .setRegulatingTerminal(txBE21.getTerminal(Branch.Side.TWO))

@@ -11,7 +11,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="_GEN_TN" name="GEN" v="10.820804595947266" angle="-7.057179927825928"/>
             </iidm:busBreakerTopology>
-            <iidm:generator id="_BE-G1_SM" name="BE-G1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="false" targetP="90.0" targetQ="-51.11600112915039" bus="_GEN_TN" connectableBus="_GEN_TN" p="-90.0" q="51.11600112915039">
+            <iidm:generator id="_BE-G1_SM" name="BE-G1" energySource="OTHER" minP="0.0" maxP="100.0" regulationMode="OFF" targetP="90.0" targetQ="-51.11600112915039" bus="_GEN_TN" connectableBus="_GEN_TN" p="-90.0" q="51.11600112915039">
                 <iidm:minMaxReactiveLimits minQ="-999.0" maxQ="999.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

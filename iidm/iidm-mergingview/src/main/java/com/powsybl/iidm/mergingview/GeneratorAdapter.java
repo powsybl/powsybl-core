@@ -89,13 +89,13 @@ public class GeneratorAdapter extends AbstractInjectionAdapter<Generator> implem
     }
 
     @Override
-    public boolean isVoltageRegulatorOn() {
-        return getDelegate().isVoltageRegulatorOn();
+    public RegulationMode getRegulationMode() {
+        return getDelegate().getRegulationMode();
     }
 
     @Override
-    public Generator setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+    public Generator setRegulationMode(RegulationMode regulationMode) {
+        getDelegate().setRegulationMode(regulationMode);
         return this;
     }
 

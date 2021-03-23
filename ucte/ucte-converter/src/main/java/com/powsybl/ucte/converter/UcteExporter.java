@@ -260,7 +260,7 @@ public class UcteExporter implements Exporter {
                 // Should we use bus.getV() instead?
                 voltageReference = (float) generator.getTargetV();
             }
-            if (generator.isVoltageRegulatorOn()) {
+            if (generator.getRegulationMode() == RegulationMode.VOLTAGE) {
                 nodeType = UcteNodeTypeCode.PU;
             }
             minP = (float) generator.getMinP();

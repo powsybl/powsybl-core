@@ -565,21 +565,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
 
     @Override
     protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
-                         boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,  boolean mainComponent,
+                         boolean connected, RegulationMode regulationMode, double minP, double maxP, double minQ, double maxQ,  boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.expectedP, generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
+                              generatorData.expectedP, generatorData.connected, generatorData.regulationMode, generatorData.minP, generatorData.maxP, generatorData.minQ,
                               generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, RegulationMode.OFF, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, regulationMode, minP, maxP, minQ, maxQ, mainComponent, validated);
     }
 
     private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
-                                 boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
+                                 RegulationMode regulationMode, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
                              .writeCell(-q)
@@ -592,7 +592,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
-                                 .writeCell(voltageRegulatorOn)
+                                 .writeCell(regulationMode.name())
                                  .writeCell(minP)
                                  .writeCell(maxP)
                                  .writeCell(minQ)

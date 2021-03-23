@@ -79,7 +79,7 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setTargetP(-0.0)
             .setTargetQ(-0.0)
             .setTargetV(21.0)
-            .setVoltageRegulatorOn(true)
+            .setRegulationMode(RegulationMode.VOLTAGE)
             .add();
         gen.newMinMaxReactiveLimits()
             .setMinQ(-999)
@@ -104,7 +104,7 @@ public final class Cim14SmallCasesNetworkCatalog {
             .setTargetP(-0.0)
             .setTargetQ(-0.0)
             .setTargetV(419.0)
-            .setVoltageRegulatorOn(true)
+            .setRegulationMode(RegulationMode.VOLTAGE)
             .add();
         genInf.newMinMaxReactiveLimits()
             .setMinQ(-999999.0)

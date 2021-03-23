@@ -7,16 +7,10 @@
 package com.powsybl.cgmes.conversion.test.network.compare;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertSame;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
-
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -41,7 +35,7 @@ public class IssuesTest {
         // NOTE:
         // Disconnecting the terminal of the generator or the regulated terminal
         // do not deactivate voltage regulation
-        assertTrue(n.getGenerator("G1").isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, n.getGenerator("G1").getRegulationMode());
         c.compare();
     }
 
@@ -76,7 +70,7 @@ public class IssuesTest {
             .setMaxP(1)
             .setTargetP(1)
             .setTargetQ(0)
-            .setVoltageRegulatorOn(true)
+            .setRegulationMode(RegulationMode.VOLTAGE)
             .setTargetV(400)
             .add();
         assertEquals(g1.getRegulatingTerminal(), g1.getTerminal());

@@ -9,6 +9,7 @@ package com.powsybl.action.dsl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RegulationMode;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.Before;
@@ -17,6 +18,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -56,7 +58,7 @@ public class GeneratorModificationActionTest {
         assertEquals(50., g.getTargetP(), 0.1);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertFalse(g.isVoltageRegulatorOn());
+        assertSame(RegulationMode.OFF, g.getRegulationMode());
     }
 
     @Test
@@ -66,7 +68,7 @@ public class GeneratorModificationActionTest {
         action.run(network, null);
         assertEquals(10, g.getTargetV(), 0.1);
         assertEquals(25., g.getTargetQ(), 0.1);
-        assertTrue(g.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, g.getRegulationMode());
     }
 
     @Test

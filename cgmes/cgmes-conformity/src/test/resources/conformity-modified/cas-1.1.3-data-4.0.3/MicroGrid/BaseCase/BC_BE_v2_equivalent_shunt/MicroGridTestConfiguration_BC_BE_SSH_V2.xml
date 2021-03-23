@@ -196,31 +196,31 @@
   <cim:EquivalentInjection rdf:about="#_f7f61a91-eca2-4492-8bd7-9ec2b28fc837">
     <cim:EquivalentInjection.p>-26.805006</cim:EquivalentInjection.p>
     <cim:EquivalentInjection.q>1.489867</cim:EquivalentInjection.q>
-    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationStatus>OFF</cim:EquivalentInjection.regulationStatus>
     <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
   </cim:EquivalentInjection>
   <cim:EquivalentInjection rdf:about="#_87ea56f3-962a-427a-85d6-13b1f9295174">
     <cim:EquivalentInjection.p>-27.365225</cim:EquivalentInjection.p>
     <cim:EquivalentInjection.q>0.425626</cim:EquivalentInjection.q>
-    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationStatus>OFF</cim:EquivalentInjection.regulationStatus>
     <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
   </cim:EquivalentInjection>
   <cim:EquivalentInjection rdf:about="#_14b352cb-5574-40c5-bf83-0ed3574554a3">
     <cim:EquivalentInjection.p>-43.687227</cim:EquivalentInjection.p>
     <cim:EquivalentInjection.q>84.876604</cim:EquivalentInjection.q>
-    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationStatus>OFF</cim:EquivalentInjection.regulationStatus>
     <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
   </cim:EquivalentInjection>
   <cim:EquivalentInjection rdf:about="#_24413233-26c3-4f7e-9f72-4461796938be">
     <cim:EquivalentInjection.p>-46.816625</cim:EquivalentInjection.p>
     <cim:EquivalentInjection.q>79.193778</cim:EquivalentInjection.q>
-    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationStatus>OFF</cim:EquivalentInjection.regulationStatus>
     <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
   </cim:EquivalentInjection>
   <cim:EquivalentInjection rdf:about="#_6f014d4c-c1b0-4eed-8d6d-bae3bc87afcf">
     <cim:EquivalentInjection.p>-90.037005</cim:EquivalentInjection.p>
     <cim:EquivalentInjection.q>148.603743</cim:EquivalentInjection.q>
-    <cim:EquivalentInjection.regulationStatus>false</cim:EquivalentInjection.regulationStatus>
+    <cim:EquivalentInjection.regulationStatus>OFF</cim:EquivalentInjection.regulationStatus>
     <cim:EquivalentInjection.regulationTarget>0.0</cim:EquivalentInjection.regulationTarget>
   </cim:EquivalentInjection>
   <cim:TapChangerControl rdf:about="#_5fc492ab-fe33-423b-84f1-a47f87552427">

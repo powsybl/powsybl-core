@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -58,8 +55,8 @@ public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<Generat
     }
 
     @Override
-    public GeneratorAdder setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        getDelegate().setVoltageRegulatorOn(voltageRegulatorOn);
+    public GeneratorAdder setRegulationMode(RegulationMode regulationMode) {
+        getDelegate().setRegulationMode(regulationMode);
         return this;
     }
 

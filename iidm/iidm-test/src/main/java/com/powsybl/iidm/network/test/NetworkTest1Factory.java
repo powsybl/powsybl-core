@@ -81,7 +81,7 @@ public final class NetworkTest1Factory {
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(200.0)
                 .setMaxP(900.0)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setTargetP(900.0)
                 .setTargetV(380.0)
                 .setNode(5)

@@ -440,9 +440,9 @@ public class Comparison {
         compare("targetP", expected.getTargetP(), actual.getTargetP());
         compare("targetQ", expected.getTargetQ(), actual.getTargetQ());
         compare("targetV", expected.getTargetV(), actual.getTargetV());
-        compare("isVoltageRegulatorOn",
-                expected.isVoltageRegulatorOn(),
-                actual.isVoltageRegulatorOn());
+        compare("regulationMode",
+                expected.getRegulationMode().name(),
+                actual.getRegulationMode().name());
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
                 || actual.getRegulatingTerminal() != null)) {

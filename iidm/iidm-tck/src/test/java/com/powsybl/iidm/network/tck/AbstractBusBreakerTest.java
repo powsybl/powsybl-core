@@ -47,7 +47,7 @@ public abstract class AbstractBusBreakerTest {
                 .setMinP(50.0)
                 .setTargetP(100.0)
                 .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .add();
         vl1.newLoad()
                 .setId("LD1")
@@ -80,7 +80,7 @@ public abstract class AbstractBusBreakerTest {
                 .setMinP(50.0)
                 .setTargetP(100.0)
                 .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .add();
 
         network.newLine()

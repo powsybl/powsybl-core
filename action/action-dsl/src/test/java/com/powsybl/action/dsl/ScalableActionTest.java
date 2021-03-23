@@ -8,6 +8,7 @@ package com.powsybl.action.dsl;
 
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RegulationMode;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
@@ -72,7 +73,7 @@ public class ScalableActionTest {
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
@@ -83,7 +84,7 @@ public class ScalableActionTest {
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
+                .setRegulationMode(RegulationMode.VOLTAGE)
                 .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)

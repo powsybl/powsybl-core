@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.commons.PowsyblException
 import com.powsybl.contingency.tasks.ModificationTask
+import com.powsybl.iidm.network.RegulationMode
 
 /**
  * @author Olivier Perrin <olivier.perrin at rte-france.com>
@@ -40,7 +41,7 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
         Double deltaTargetP
         Double targetV
         Double targetQ
-        Boolean voltageRegulatorOn
+        RegulationMode regulationMode
         Boolean connected
 
         GeneratorModificationTask.Modifs computeModifs() {
@@ -51,7 +52,7 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             modifs.setDeltaTargetP(deltaTargetP)
             modifs.setTargetV(targetV)
             modifs.setTargetQ(targetQ)
-            modifs.setVoltageRegulatorOn(voltageRegulatorOn)
+            modifs.setRegulationMode(regulationMode)
             modifs.setConnected(connected)
             return modifs
         }
@@ -98,8 +99,8 @@ class GeneratorModificationTaskExtension implements DslTaskExtension {
             this.targetQ = targetQ
         }
 
-        void voltageRegulatorOn(Boolean voltageRegulatorOn) {
-            this.voltageRegulatorOn = voltageRegulatorOn
+        void regulationMode(RegulationMode regulationMode) {
+            this.regulationMode = regulationMode
         }
 
         /**

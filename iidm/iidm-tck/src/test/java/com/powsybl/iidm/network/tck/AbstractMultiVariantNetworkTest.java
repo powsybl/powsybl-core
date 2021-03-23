@@ -35,10 +35,10 @@ public abstract class AbstractMultiVariantNetworkTest {
         manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, SECOND_VARIANT);
         manager.setWorkingVariant(SECOND_VARIANT);
         final Generator generator = network.getGenerator("GEN");
-        generator.setVoltageRegulatorOn(false);
-        assertFalse(generator.isVoltageRegulatorOn());
+        generator.setRegulationMode(RegulationMode.OFF);
+        assertSame(RegulationMode.OFF, generator.getRegulationMode());
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertTrue(generator.isVoltageRegulatorOn());
+        assertSame(RegulationMode.VOLTAGE, generator.getRegulationMode());
     }
 
     @Test
@@ -52,13 +52,13 @@ public abstract class AbstractMultiVariantNetworkTest {
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        generator.setVoltageRegulatorOn(true);
+        generator.setRegulationMode(RegulationMode.VOLTAGE);
 
         manager.setWorkingVariant(SECOND_VARIANT);
-        generator.setVoltageRegulatorOn(false);
+        generator.setRegulationMode(RegulationMode.OFF);
 
-        final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
-        final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];
+        final RegulationMode[] voltageRegulatorOnInitialVariant = new RegulationMode[1];
+        final RegulationMode[] voltageRegulatorOnSecondVariant = new RegulationMode[1];
         final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working variant
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
@@ -66,21 +66,21 @@ public abstract class AbstractMultiVariantNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.getRegulationMode();
                 return null;
             },
             () -> {
                 manager.setWorkingVariant(SECOND_VARIANT);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.getRegulationMode();
                 return null;
             })
         );
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
-        assertTrue(voltageRegulatorOnInitialVariant[0]);
-        assertFalse(voltageRegulatorOnSecondVariant[0]);
+        assertSame(RegulationMode.VOLTAGE, voltageRegulatorOnInitialVariant[0]);
+        assertSame(RegulationMode.OFF, voltageRegulatorOnSecondVariant[0]);
     }
 
     @Test
