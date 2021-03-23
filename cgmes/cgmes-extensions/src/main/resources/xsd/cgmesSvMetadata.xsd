@@ -14,7 +14,7 @@
             <xs:sequence>
                 <xs:element name="dependentOn" type="csm:nonEmptyString" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
-            <xs:attribute name="description" use="required" type="xs:string"/>
+            <xs:attribute name="description" use="optional" type="xs:string"/>
             <xs:attribute name="svVersion" use="required" type="csm:nonEmptyString"/>
             <xs:attribute name="modelingAuthoritySet" use="required" type="csm:nonEmptyString"/>
         </xs:complexType>

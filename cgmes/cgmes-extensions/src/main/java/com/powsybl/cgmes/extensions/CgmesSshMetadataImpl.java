@@ -26,7 +26,7 @@ class CgmesSshMetadataImpl extends AbstractExtension<Network> implements CgmesSs
     private final String modelingAuthoritySet;
 
     public CgmesSshMetadataImpl(String description, int sshVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this.description = Objects.requireNonNull(description);
+        this.description = description;
         this.sshVersion = sshVersion;
         this.dependencies.addAll(Objects.requireNonNull(dependencies));
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);
