@@ -1008,7 +1008,6 @@ public class UcteImporter implements Importer {
                 Network network = networkFactory.createNetwork(fileName, "UCTE");
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
-                network.addListener(new ReporterNetworkListener(reporter));
 
                 createBuses(ucteNetwork, network, reporter);
                 createLines(ucteNetwork, network, reporter);
