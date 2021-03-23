@@ -490,14 +490,14 @@ public final class SteadyStateHypothesisExport {
             writer.writeEndElement();
             // regulationStatus and regulationTarget are optional,
             // but test cases contain the attributes with disabled and 0
-            RegulationMode regulationStatus = RegulationMode.OFF;
+            boolean regulationStatus = false;
             double regulationTarget = 0;
             if (dl.getGeneration() != null) {
-                regulationStatus = dl.getGeneration().isVoltageRegulationOn() ? RegulationMode.VOLTAGE : RegulationMode.OFF;
+                regulationStatus = dl.getGeneration().isVoltageRegulationOn();
                 regulationTarget = dl.getGeneration().getTargetV();
             }
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationStatus");
-            writer.writeCharacters(regulationStatus.name());
+            writer.writeCharacters(Boolean.toString(regulationStatus));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "EquivalentInjection.regulationTarget");
             writer.writeCharacters(CgmesExportUtil.format(regulationTarget));
