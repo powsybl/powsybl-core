@@ -10,6 +10,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Test;
 
+import java.util.Collections;
+import java.util.Set;
+import java.util.stream.Stream;
+
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -32,6 +36,13 @@ public class BusRefTest {
         final BusRef busRef = new IdBasedBusRef("busId");
         when(network.getIdentifiable(eq("busId"))).thenReturn((Identifiable) bus);
         when(bus.getId()).thenReturn("busId");
+        Terminal busTerminal = mock(Terminal.class);
+        Terminal.BusView terBusView = mock(Terminal.BusView.class);
+        when(busTerminal.getBusView()).thenReturn(terBusView);
+        when(terBusView.getBus()).thenReturn(bus);
+        final Set<Terminal> singleton = Collections.singleton(busTerminal);
+        final Stream mock = singleton.stream();
+        when(bus.getConnectedTerminalStream()).thenReturn(mock);
         assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
         assertFalse(new IdBasedBusRef("another").resolve(network).isPresent());
 
@@ -74,19 +85,29 @@ public class BusRefTest {
         when(bv.getBus()).thenReturn(bus);
         final BusRef busRef = new BranchBasedBusRef("branchId", "ONE");
         assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
+        Terminal terminal2 = mock(Terminal.class);
+        Terminal.BusView bv2 = mock(Terminal.BusView.class);
+        when(branch.getTerminal2()).thenReturn(terminal2);
+        when(terminal2.getBusView()).thenReturn(bv2);
+        Bus bus2 = mock(Bus.class);
+        when(bv2.getBus()).thenReturn(bus2);
+        final BusRef busRef2 = new BranchBasedBusRef("branchId", "TWO");
+        assertEquals(bus2, busRef2.resolve(network).orElseThrow(AssertionError::new));
 
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(busRef);
         assertEquals("{\"@c\":\".BranchBasedBusRef\",\"branchId\":\"branchId\",\"side\":\"ONE\"}", json);
         final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
+
+        assertEquals(busRef, new BranchBasedBusRef("branchId", "ONE"));
     }
 
     @Test
     public void testNodeNumberBased() throws JsonProcessingException {
         Network network = mock(Network.class);
         VoltageLevel vl = mock(VoltageLevel.class);
-        when(network.getVoltageLevel("vl")).thenReturn(vl);
+        when(network.getVoltageLevel(eq("vl"))).thenReturn(vl);
         VoltageLevel.NodeBreakerView nbv = mock(VoltageLevel.NodeBreakerView.class);
         when(vl.getNodeBreakerView()).thenReturn(nbv);
         Terminal terminal = mock(Terminal.class);
@@ -103,6 +124,19 @@ public class BusRefTest {
         final String json = objectMapper.writeValueAsString(busRef);
         assertEquals("{\"@c\":\".NodeNumberBasedBusRef\",\"voltageLevelId\":\"vl\",\"node\":1}", json);
         assertEquals(busRef, objectMapper.readValue(json, NodeNumberBasedBusRef.class));
+
+        when(vl.getNodeBreakerView()).thenReturn(null);
+        try {
+            busRef.resolve(network);
+            fail();
+        } catch (Exception e) {
+            assertEquals("Underlying topology not supported.", e.getMessage());
+        }
+
+        when(network.getVoltageLevel(eq("not_existing_vl"))).thenReturn(null);
+        assertFalse(new NodeNumberBasedBusRef("not_existing_vl", 2).resolve(network).isPresent());
+
+        assertEquals(busRef, new NodeNumberBasedBusRef("vl", 1));
     }
 
 }
