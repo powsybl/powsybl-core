@@ -6,23 +6,21 @@
  */
 package com.powsybl.commons.reporter;
 
-import java.util.List;
-import java.util.stream.Stream;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public interface ReportSeeker {
 
-    List<Report> getReports();
+    String getDefaultName();
 
-    Stream<Report> getReportStream();
+    Collection<ReportSeeker> getChildReporters();
 
-    Stream<TaskReport> getTaskReportStream();
+    Collection<Report> getReports();
 
-    TaskReport getTaskReport(String taskKey);
+    Report getReport(String reportKey);
 
-    List<Report> getReport(String reportKey);
-
-    Report getReport(String taskKey, String reportKey);
+    Map<String, Object> getTaskValues();
 }

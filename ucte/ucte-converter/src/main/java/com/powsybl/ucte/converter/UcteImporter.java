@@ -17,7 +17,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.MarkerImpl;
 import com.powsybl.commons.reporter.Reporter;
-import com.powsybl.iidm.network.ReporterNetworkListener;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
@@ -140,10 +139,10 @@ public class UcteImporter implements Importer {
     }
 
     private static void createBuses(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
-        reporter.startTask("createBuses", "Create buses");
+        Reporter busesReporter = reporter.createChild("createBuses", "Create buses");
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
-            reporter.startTask("createBusesSubstation_" + ucteSubstation.getName(),
+            Reporter substationReporter = busesReporter.createChild("createBusesSubstation_" + ucteSubstation.getName(),
                 "Create buses for substation ${substation}", "substation", ucteSubstation.getName());
             // skip substations with only one Xnode
             UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
@@ -154,7 +153,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.report("createSubstation_" + ucteSubstation.getName(),
+            substationReporter.report("createSubstation_" + ucteSubstation.getName(),
                 "Create substation ${substationName}", "substationName", ucteSubstation.getName(), MarkerImpl.TRACE);
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
@@ -171,7 +170,7 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                reporter.report("createVoltageLevel_" + ucteVoltageLevel.getName(),
+                substationReporter.report("createVoltageLevel_" + ucteVoltageLevel.getName(),
                     "Create voltage level ${voltageLevelName}", "voltageLevelName", ucteVoltageLevel.getName(), MarkerImpl.TRACE);
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
@@ -181,12 +180,10 @@ public class UcteImporter implements Importer {
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
                         .add();
 
-                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel, reporter);
+                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel, substationReporter);
             }
 
-            reporter.endTask();
         }
-        reporter.endTask();
     }
 
     private static boolean isValueValid(float value) {
@@ -455,7 +452,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void createLines(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
-        reporter.startTask("createLines", "Create lines");
+        Reporter linesReporter = reporter.createChild("createLines", "Create lines");
         for (UcteLine ucteLine : ucteNetwork.getLines()) {
             UcteNodeCode nodeCode1 = ucteLine.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteLine.getId().getNodeCode2();
@@ -479,7 +476,6 @@ public class UcteImporter implements Importer {
                     throw new AssertionError("Unexpected UcteElementStatus value: " + ucteLine.getStatus());
             }
         }
-        reporter.endTask();
     }
 
     private static void createRatioTapChanger(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
@@ -671,7 +667,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName, Reporter reporter) {
-        reporter.startTask("createTransformers", "Create transformers");
+        Reporter transfoReporter = reporter.createChild("createTransformers", "Create transformers");
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteTransfo.getId().getNodeCode2();
@@ -680,7 +676,7 @@ public class UcteImporter implements Importer {
             UcteSubstation ucteSubstation = ucteVoltageLevel1.getSubstation();
             Substation substation = network.getSubstation(ucteSubstation.getName());
 
-            reporter.report("createTransformer_" + ucteTransfo.getId(),
+            transfoReporter.report("createTransformer_" + ucteTransfo.getId(),
                 "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId());
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 
@@ -731,8 +727,6 @@ public class UcteImporter implements Importer {
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
             addNominalPowerProperty(ucteTransfo, transformer);
         }
-        reporter.endTask();
-
     }
 
     private static String getBusId(Bus bus) {
@@ -997,10 +991,10 @@ public class UcteImporter implements Importer {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
-                reporter.startTask("ImportUcteData", "Import UCTE data");
+                Reporter importReporter = reporter.createChild("ImportUcteData", "Import UCTE data");
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader(reporter).read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader(importReporter).read(reader), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
@@ -1009,24 +1003,22 @@ public class UcteImporter implements Importer {
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 
-                createBuses(ucteNetwork, network, reporter);
-                createLines(ucteNetwork, network, reporter);
-                createTransformers(ucteNetwork, network, ucteFileName, reporter);
+                createBuses(ucteNetwork, network, importReporter);
+                createLines(ucteNetwork, network, importReporter);
+                createTransformers(ucteNetwork, network, ucteFileName, importReporter);
 
                 mergeXnodeDanglingLines(ucteNetwork, network);
 
                 stopwatch.stop();
 
                 long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                reporter.report("elapsedTime", "UCTE import done in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
+                importReporter.report("elapsedTime", "UCTE import done in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
                 LOGGER.debug("UCTE import done in {} ms", elapsedTime);
 
                 return network;
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        } finally {
-            reporter.endTask();
         }
     }
 

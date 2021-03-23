@@ -13,13 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -30,48 +25,43 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     private static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
 
-    private final Map<String, TaskReport> taskReports = new HashMap<>();
-    private final String rootTaskKey;
-    private TaskReport ongoingTaskReport;
+    private final String taskKey;
+    private final String defaultName;
+    private final LoggerReporter parentReporter;
+    private final List<ReportSeeker> childReporters = new ArrayList<>();
+    private final Map<String, Object> taskValues;
+    private final Map<String, Report> reports = new LinkedHashMap<>();
 
     public LoggerReporter() {
-        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
+        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap(), null);
     }
 
-    public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> values) {
-        this.rootTaskKey = rootTaskKey;
-        this.ongoingTaskReport = createTaskReport(rootTaskKey, rootDefaultName, values, null);
-    }
-
-    private TaskReport createTaskReport(String taskKey, String defaultName, Map<String, Object> values, TaskReport parentTask) {
-        TaskReport newTaskReport = new TaskReport(taskKey, defaultName, values, parentTask);
-        TaskReport previousValue = taskReports.put(taskKey, newTaskReport);
-        if (previousValue != null) {
-            LOGGER.warn("Task key {} already exists in current task! replacing previous value", taskKey);
-        }
-        return newTaskReport;
+    public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues, LoggerReporter parent) {
+        this.taskKey = rootTaskKey;
+        this.defaultName = rootDefaultName;
+        this.taskValues = taskValues;
+        this.parentReporter = parent;
     }
 
     @Override
-    public void startTask(String taskKey, String defaultName, Map<String, Object> values) {
-        TaskReport childTaskReport = createTaskReport(taskKey, defaultName, values, ongoingTaskReport);
-        ongoingTaskReport.addChildTaskReport(childTaskReport);
-        ongoingTaskReport = childTaskReport;
+    public LoggerReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
+        LoggerReporter childReporter = new LoggerReporter(taskKey, defaultName, values, this);
+        childReporters.add(childReporter);
+        return childReporter;
     }
 
     public void export(File file) {
         try (PrintWriter writer = new PrintWriter(file)) {
-            TaskReport taskReport = taskReports.get(rootTaskKey);
-            printTaskReport(taskReport, writer, "");
+            printTaskReport(this, writer, "");
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
     }
 
-    private void printTaskReport(TaskReport taskReport, PrintWriter writer, String prefix) {
-        writer.println(prefix + "+ " + formatTaskReportName(taskReport.getDefaultName(), taskReport.getTaskValues()));
-        taskReport.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, taskReport.getTaskValues())));
-        taskReport.getChildTaskReports().forEach(child -> printTaskReport(child, writer, prefix + "  "));
+    private void printTaskReport(ReportSeeker loggerReporter, PrintWriter writer, String prefix) {
+        writer.println(prefix + "+ " + formatTaskReportName(loggerReporter.getDefaultName(), loggerReporter.getTaskValues()));
+        loggerReporter.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, loggerReporter.getTaskValues())));
+        loggerReporter.getChildReporters().forEach(child -> printTaskReport(child, writer, prefix + "  "));
     }
 
     private static String formatTaskReportName(String msgPattern, Map<String, Object> taskValues) {
@@ -84,12 +74,7 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public void addTaskValue(String key, Object value) {
-        ongoingTaskReport.addTaskValue(key, value);
-    }
-
-    @Override
-    public void endTask() {
-        ongoingTaskReport = ongoingTaskReport.getParentTaskReport();
+        taskValues.put(key, value);
     }
 
     @Override
@@ -100,8 +85,11 @@ public class LoggerReporter implements Reporter, ReportSeeker {
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
         Report report = new Report(reportKey, defaultLog, values, marker);
-        ongoingTaskReport.addReport(report);
-        getLogConsumer(marker.getLogLevel()).accept(formatReportLog(report, ongoingTaskReport.getTaskValues()));
+        Report previousValue = reports.put(report.getReportKey(), report);
+        if (previousValue != null) {
+            LOGGER.warn("Report key {} already exists in current task! replacing previous value", taskKey);
+        }
+        getLogConsumer(marker.getLogLevel()).accept(formatReportLog(report, taskValues));
     }
 
     private Consumer<String> getLogConsumer(Marker.LogLevel logLevel) {
@@ -116,32 +104,28 @@ public class LoggerReporter implements Reporter, ReportSeeker {
     }
 
     @Override
-    public List<Report> getReports() {
-        return getReportStream().collect(Collectors.toList());
+    public Collection<Report> getReports() {
+        return reports.values();
     }
 
     @Override
-    public Stream<Report> getReportStream() {
-        return taskReports.values().stream().flatMap(taskReport -> taskReport.getReports().stream());
+    public Report getReport(String reportKey) {
+        return reports.get(reportKey);
     }
 
     @Override
-    public Stream<TaskReport> getTaskReportStream() {
-        return taskReports.values().stream();
+    public String getDefaultName() {
+        return defaultName;
     }
 
     @Override
-    public TaskReport getTaskReport(String taskKey) {
-        return taskReports.get(taskKey);
+    public Map<String, Object> getTaskValues() {
+        return taskValues;
     }
 
     @Override
-    public List<Report> getReport(String reportKey) {
-        return getReportStream().filter(report -> report.getReportKey().equals(reportKey)).collect(Collectors.toList());
+    public List<ReportSeeker> getChildReporters() {
+        return childReporters;
     }
 
-    @Override
-    public Report getReport(String taskKey, String reportKey) {
-        return taskReports.get(taskKey).getReport(reportKey);
-    }
 }

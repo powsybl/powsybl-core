@@ -120,29 +120,26 @@ public class UcteNetworkImpl implements UcteNetwork {
 
     @Override
     public void fix(Reporter reporter) {
-        reporter.startTask("fixUcteNodes", "Fix UCTE nodes");
+
+        Reporter nodesReporter = reporter.createChild("fixUcteNodes", "Fix UCTE nodes");
         for (UcteNode node : nodes.values()) {
-            node.fix(reporter);
+            node.fix(nodesReporter);
         }
-        reporter.endTask();
 
-        reporter.startTask("fixUcteLines", "Fix UCTE lines");
+        Reporter linesReporter = reporter.createChild("fixUcteLines", "Fix UCTE lines");
         for (UcteLine line : lines.values()) {
-            line.fix(reporter);
+            line.fix(linesReporter);
         }
-        reporter.endTask();
 
-        reporter.startTask("fixUcteTransformer", "Fix UCTE transformers");
+        Reporter transfoReporter = reporter.createChild("fixUcteTransformer", "Fix UCTE transformers");
         for (UcteTransformer transfo : transformers.values()) {
-            transfo.fix(reporter);
+            transfo.fix(transfoReporter);
         }
-        reporter.endTask();
 
-        reporter.startTask("fixUcteRegulations", "Fix UCTE regulations");
+        Reporter regulationsReporter = reporter.createChild("fixUcteRegulations", "Fix UCTE regulations");
         for (UcteRegulation regulation : regulations.values()) {
-            regulation.fix(reporter);
+            regulation.fix(regulationsReporter);
         }
-        reporter.endTask();
     }
 
 }

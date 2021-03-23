@@ -290,19 +290,17 @@ public class UcteReader {
 
     public UcteNetwork read(BufferedReader reader) throws IOException {
 
-        reporter.startTask("UcteReading", "Reading UCTE network file");
+        Reporter readReporter = reporter.createChild("UcteReading", "Reading UCTE network file");
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
         long elapsedTime = System.currentTimeMillis() - start;
-        reporter.report("elapsedTime", "UCTE file read in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
+        readReporter.report("elapsedTime", "UCTE file read in ${elapsedTime} ms", "elapsedTime", elapsedTime, MarkerImpl.PERFORMANCE);
         LOGGER.debug("UCTE file read in {} ms", elapsedTime);
-        reporter.endTask();
 
-        reporter.startTask("UctePostReadingFix", "Fixing UCTE network read");
-        network.fix(reporter);
-        reporter.endTask();
+        Reporter fixReporter = reporter.createChild("UctePostReadingFix", "Fixing UCTE network read");
+        network.fix(fixReporter);
 
         return network;
     }

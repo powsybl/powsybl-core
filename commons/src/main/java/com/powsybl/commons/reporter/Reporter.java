@@ -16,19 +16,17 @@ public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
 
-    void startTask(String taskKey, String defaultName, Map<String, Object> values);
+    Reporter createChild(String taskKey, String defaultName, Map<String, Object> values);
 
-    default void startTask(String taskKey, String defaultName) {
-        startTask(taskKey, defaultName, Collections.emptyMap());
+    default Reporter createChild(String taskKey, String defaultName) {
+        return createChild(taskKey, defaultName, Collections.emptyMap());
     }
 
-    default void startTask(String taskKey, String defaultName, String key, Object value) {
-        startTask(taskKey, defaultName, Map.of(key, value));
+    default Reporter createChild(String taskKey, String defaultName, String key, Object value) {
+        return createChild(taskKey, defaultName, Map.of(key, value));
     }
 
     void addTaskValue(String key, Object value);
-
-    void endTask();
 
     void report(String reportKey, String defaultLog, Map<String, Object> values);
 
@@ -52,23 +50,23 @@ public interface Reporter {
 
     class NoOpImpl implements Reporter {
         @Override
-        public void startTask(String taskKey, String defaultName, Map<String, Object> values) {
+        public Reporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
+            return new NoOpImpl();
         }
 
         @Override
         public void addTaskValue(String key, Object value) {
-        }
-
-        @Override
-        public void endTask() {
+            // No-op
         }
 
         @Override
         public void report(String reportKey, String defaultLog, Map<String, Object> values) {
+            // No-op
         }
 
         @Override
         public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
+            // No-op
         }
     }
 }
