@@ -35,8 +35,8 @@ public class IdBasedBusRef implements BusRef {
             return Optional.empty();
         }
         if (identifiable instanceof Bus) {
-            String busId = identifiable.getId();
-            return Optional.of(network.getBusView().getBus(busId));
+            Bus bus = (Bus) identifiable;
+            return Optional.of(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
         } else if (identifiable instanceof Injection) {
             final Injection injection = (Injection) identifiable;
             return Optional.of(injection.getTerminal().getBusView().getBus());
