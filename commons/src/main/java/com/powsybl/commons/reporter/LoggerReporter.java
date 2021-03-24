@@ -21,7 +21,7 @@ import java.util.function.Consumer;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class LoggerReporter implements Reporter, ReportSeeker {
+public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerReporter.class);
 

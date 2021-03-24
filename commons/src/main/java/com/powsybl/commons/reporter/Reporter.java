@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.reporter;
 
-import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -19,27 +18,19 @@ public interface Reporter {
 
     Reporter createChild(String taskKey, String defaultName, Map<String, Object> values);
 
-    default Reporter createChild(String taskKey, String defaultName) {
-        return createChild(taskKey, defaultName, Collections.emptyMap());
-    }
+    Reporter createChild(String taskKey, String defaultName);
 
-    default Reporter createChild(String taskKey, String defaultName, String key, Object value) {
-        return createChild(taskKey, defaultName, Map.of(key, value));
-    }
+    Reporter createChild(String taskKey, String defaultName, String key, Object value);
 
     void addTaskValue(String key, Object value);
 
     void report(String reportKey, String defaultLog, Map<String, Object> values);
 
-    default void report(String reportKey, String defaultLog) {
-        report(reportKey, defaultLog, Collections.emptyMap());
-    }
+    void report(String reportKey, String defaultLog);
 
-    default void report(String reportKey, String defaultLog, String valueKey, Object value) {
-        report(reportKey, defaultLog, Map.of(valueKey, value));
-    }
+    void report(String reportKey, String defaultLog, String valueKey, Object value);
 
-    class NoOpImpl implements Reporter {
+    class NoOpImpl extends AbstractReporter {
         @Override
         public Reporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
             return new NoOpImpl();
