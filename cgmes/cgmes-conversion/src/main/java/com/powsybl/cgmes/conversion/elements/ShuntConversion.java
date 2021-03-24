@@ -83,7 +83,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();
-        addAliases(shunt);
+        addAliasesAndProperties(shunt);
 
         // At a shunt terminal, only Q can be set
         PowerFlow f = powerFlow();

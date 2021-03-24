@@ -54,9 +54,6 @@ class CgmesSvMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSvMe
 
     @Override
     protected CgmesSvMetadata createExtension(Network extendable) {
-        if (description == null) {
-            throw new PowsyblException("cgmesSvMetadata.description is undefined");
-        }
         if (dependencies.isEmpty()) {
             throw new PowsyblException("cgmesSvMetadata.dependencies must have at least one dependency");
         }

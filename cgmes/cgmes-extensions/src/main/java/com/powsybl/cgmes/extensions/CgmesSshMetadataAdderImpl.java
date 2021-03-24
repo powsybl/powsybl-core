@@ -55,9 +55,6 @@ class CgmesSshMetadataAdderImpl extends AbstractExtensionAdder<Network, CgmesSsh
 
     @Override
     protected CgmesSshMetadata createExtension(Network extendable) {
-        if (description == null) {
-            throw new PowsyblException("cgmesSshMetadata.description is undefined");
-        }
         if (dependencies.isEmpty()) {
             throw new PowsyblException("cgmesSshMetadata.dependencies must have at least one dependency");
         }
