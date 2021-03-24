@@ -15,6 +15,7 @@ import java.util.Map;
 public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
+    String REPORT_GRAVITY = "reportGravity";
 
     Reporter createChild(String taskKey, String defaultName, Map<String, Object> values);
 
@@ -30,22 +31,12 @@ public interface Reporter {
 
     void report(String reportKey, String defaultLog, Map<String, Object> values);
 
-    void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker);
-
     default void report(String reportKey, String defaultLog) {
         report(reportKey, defaultLog, Collections.emptyMap());
     }
 
     default void report(String reportKey, String defaultLog, String valueKey, Object value) {
         report(reportKey, defaultLog, Map.of(valueKey, value));
-    }
-
-    default void report(String reportKey, String defaultLog, Marker marker) {
-        report(reportKey, defaultLog, Collections.emptyMap(), marker);
-    }
-
-    default void report(String reportKey, String defaultLog, String valueKey, Object value, Marker marker) {
-        report(reportKey, defaultLog, Map.of(valueKey, value), marker);
     }
 
     class NoOpImpl implements Reporter {
@@ -64,9 +55,5 @@ public interface Reporter {
             // No-op
         }
 
-        @Override
-        public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
-            // No-op
-        }
     }
 }

@@ -26,6 +26,14 @@ public class LoggerReporter implements Reporter, ReportSeeker {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerReporter.class);
 
     private static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
+    private static final Map<String, Consumer<String>> LOG_CONSUMER_MAP = Map.of(
+        "TRACE", LOGGER::trace,
+        "DEBUG", LOGGER::debug,
+        "INFO", LOGGER::info,
+        "WARN", LOGGER::warn,
+        "ERROR", LOGGER::error,
+        "PERFORMANCE", LOGGER::info
+    );
 
     private final String taskKey;
     private final String defaultName;
@@ -81,28 +89,21 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values) {
-        report(reportKey, defaultLog, values, MarkerImpl.DEFAULT);
-    }
-
-    @Override
-    public void report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
-        Report report = new Report(reportKey, defaultLog, values, marker);
+        Report report = new Report(reportKey, defaultLog, values);
         Report previousValue = reports.put(report.getReportKey(), report);
         if (previousValue != null) {
             LOGGER.warn("Report key {} already exists in current task! replacing previous value", taskKey);
         }
-        getLogConsumer(marker.getLogLevel()).accept(formatReportLog(report, taskValues));
+        getLogConsumer(report).accept(formatReportLog(report, taskValues));
     }
 
-    private Consumer<String> getLogConsumer(Marker.LogLevel logLevel) {
-        switch (logLevel) {
-            case TRACE: return LOGGER::trace;
-            case DEBUG: return LOGGER::debug;
-            case INFO: return LOGGER::info;
-            case WARN: return LOGGER::warn;
-            case ERROR: return LOGGER::error;
-        }
-        return s -> { };
+    protected Consumer<String> getLogConsumer(Report report) {
+        Object logLevelValue = report.getValue(REPORT_GRAVITY);
+        return logLevelValue instanceof String ? LOG_CONSUMER_MAP.get(logLevelValue) : getDefaultLogConsumer();
+    }
+
+    protected Consumer<String> getDefaultLogConsumer() {
+        return LOGGER::info;
     }
 
     @Override
