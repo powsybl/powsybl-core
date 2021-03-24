@@ -29,6 +29,8 @@ import com.powsybl.ucte.network.UcteRegulation;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +47,7 @@ public class UcteReader {
     private boolean firstCommendBlockRead = false;
 
     public UcteReader(Reporter reporter) {
-        this.reporter = reporter;
+        this.reporter = Objects.requireNonNull(reporter);
     }
 
     private void readCommentBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {

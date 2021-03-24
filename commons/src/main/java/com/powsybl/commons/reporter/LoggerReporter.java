@@ -37,9 +37,9 @@ public class LoggerReporter implements Reporter, ReportSeeker {
     }
 
     public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues, LoggerReporter parent) {
-        this.taskKey = rootTaskKey;
+        this.taskKey = Objects.requireNonNull(rootTaskKey);
         this.defaultName = rootDefaultName;
-        this.taskValues = taskValues;
+        this.taskValues = new HashMap<>(Objects.requireNonNull(taskValues));
         this.parentReporter = parent;
     }
 
@@ -105,7 +105,7 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public Collection<Report> getReports() {
-        return reports.values();
+        return Collections.unmodifiableCollection(reports.values());
     }
 
     @Override
@@ -120,12 +120,12 @@ public class LoggerReporter implements Reporter, ReportSeeker {
 
     @Override
     public Map<String, Object> getTaskValues() {
-        return taskValues;
+        return Collections.unmodifiableMap(taskValues);
     }
 
     @Override
     public List<ReportSeeker> getChildReporters() {
-        return childReporters;
+        return Collections.unmodifiableList(childReporters);
     }
 
 }

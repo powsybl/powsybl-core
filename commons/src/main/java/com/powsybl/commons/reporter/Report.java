@@ -6,7 +6,10 @@
  */
 package com.powsybl.commons.reporter;
 
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -18,10 +21,10 @@ public class Report {
     private final Marker marker;
 
     public Report(String reportKey, String defaultLog, Map<String, Object> values, Marker marker) {
-        this.reportKey = reportKey;
+        this.reportKey = Objects.requireNonNull(reportKey);
         this.defaultLog = defaultLog;
-        this.values = values;
-        this.marker = marker;
+        this.values = new HashMap<>(Objects.requireNonNull(values));
+        this.marker = Objects.requireNonNull(marker);
     }
 
     public String getDefaultLog() {
@@ -41,6 +44,6 @@ public class Report {
     }
 
     public Map<String, Object> getValues() {
-        return values;
+        return Collections.unmodifiableMap(values);
     }
 }

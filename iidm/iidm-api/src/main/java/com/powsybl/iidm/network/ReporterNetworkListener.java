@@ -10,6 +10,7 @@ import com.powsybl.commons.reporter.MarkerImpl;
 import com.powsybl.commons.reporter.Reporter;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -18,7 +19,7 @@ public class ReporterNetworkListener implements NetworkListener {
     private final Reporter reporter;
 
     public ReporterNetworkListener(Reporter reporter) {
-        this.reporter = reporter;
+        this.reporter = Objects.requireNonNull(reporter);
     }
 
     private static Map<String, Object> getValuesMap(Identifiable identifiable) {

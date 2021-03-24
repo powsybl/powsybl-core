@@ -21,7 +21,7 @@ public class UcteNetworkImplTest {
 
     @Test
     public void test() {
-        UcteNetwork network = UcteNetworkFactory.createNetwork(() -> new UcteNetworkImpl());
+        UcteNetwork network = UcteNetworkFactory.createNetwork(UcteNetworkImpl::new);
         testNetwork(network);
     }
 
