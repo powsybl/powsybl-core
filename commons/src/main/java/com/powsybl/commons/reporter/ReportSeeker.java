@@ -20,7 +20,7 @@ public interface ReportSeeker {
 
     Collection<Report> getReports();
 
-    Report getReport(String reportKey);
+    String getTaskKey();
 
     Map<String, Object> getTaskValues();
 }

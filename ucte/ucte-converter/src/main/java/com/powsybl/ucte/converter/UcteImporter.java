@@ -111,7 +111,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.report("createBus_" + ucteNodeCode, "Create bus ${bus}",
+            reporter.report("createBus", "Create bus ${bus}",
                 Map.of("bus", ucteNodeCode, Reporter.REPORT_GRAVITY,  "TRACE"));
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
@@ -142,7 +142,7 @@ public class UcteImporter implements Importer {
         Reporter busesReporter = reporter.createChild("createBuses", "Create buses");
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
-            Reporter substationReporter = busesReporter.createChild("createBusesSubstation_" + ucteSubstation.getName(),
+            Reporter substationReporter = busesReporter.createChild("createBusesSubstation",
                 "Create buses for substation ${substation}", "substation", ucteSubstation.getName());
             // skip substations with only one Xnode
             UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
@@ -153,7 +153,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            substationReporter.report("createSubstation_" + ucteSubstation.getName(), "Create substation ${substationName}",
+            substationReporter.report("createSubstation", "Create substation ${substationName}",
                 Map.of("substationName", ucteSubstation.getName(), Reporter.REPORT_GRAVITY, "TRACE"));
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
@@ -170,7 +170,7 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                substationReporter.report("createVoltageLevel_" + ucteVoltageLevel.getName(), "Create voltage level ${voltageLevelName}",
+                substationReporter.report("createVoltageLevel", "Create voltage level ${voltageLevelName}",
                     Map.of("voltageLevelName", ucteVoltageLevel.getName(), Reporter.REPORT_GRAVITY, "TRACE"));
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
@@ -676,7 +676,7 @@ public class UcteImporter implements Importer {
             UcteSubstation ucteSubstation = ucteVoltageLevel1.getSubstation();
             Substation substation = network.getSubstation(ucteSubstation.getName());
 
-            transfoReporter.report("createTransformer_" + ucteTransfo.getId(),
+            transfoReporter.report("createTransformer",
                 "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId());
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 

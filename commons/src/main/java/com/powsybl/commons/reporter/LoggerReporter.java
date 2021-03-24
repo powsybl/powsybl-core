@@ -39,7 +39,7 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     private final String defaultName;
     private final List<ReportSeeker> childReporters = new ArrayList<>();
     private final Map<String, Object> taskValues;
-    private final Map<String, Report> reports = new LinkedHashMap<>();
+    private final List<Report> reports = new ArrayList<>();
 
     public LoggerReporter() {
         this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
@@ -88,10 +88,7 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     @Override
     public void report(String reportKey, String defaultLog, Map<String, Object> values) {
         Report report = new Report(reportKey, defaultLog, values);
-        Report previousValue = reports.put(report.getReportKey(), report);
-        if (previousValue != null) {
-            LOGGER.warn("Report key {} already exists in current task! replacing previous value", taskKey);
-        }
+        reports.add(report);
         getLogConsumer(report).accept(formatReportLog(report, taskValues));
     }
 
@@ -106,17 +103,17 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     @Override
     public Collection<Report> getReports() {
-        return Collections.unmodifiableCollection(reports.values());
-    }
-
-    @Override
-    public Report getReport(String reportKey) {
-        return reports.get(reportKey);
+        return Collections.unmodifiableCollection(reports);
     }
 
     @Override
     public String getDefaultName() {
         return defaultName;
+    }
+
+    @Override
+    public String getTaskKey() {
+        return taskKey;
     }
 
     @Override
@@ -128,5 +125,4 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     public List<ReportSeeker> getChildReporters() {
         return Collections.unmodifiableList(childReporters);
     }
-
 }
