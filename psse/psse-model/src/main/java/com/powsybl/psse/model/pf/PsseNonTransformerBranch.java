@@ -10,7 +10,6 @@ import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 import java.util.Objects;
 
@@ -28,11 +27,9 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     }
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"j", "jbus"})
-    @Validate
     private int j;
 
     @Parsed(defaultNullRead = "1")
@@ -42,7 +39,6 @@ public class PsseNonTransformerBranch extends PsseVersioned {
     private double r = 0.0;
 
     @Parsed(field = {"x", "xpu"})
-    @Validate
     private double x;
 
     @Parsed(field = {"b", "bpu"})
