@@ -22,6 +22,14 @@ import java.util.concurrent.CompletableFuture;
 public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
+     * @deprecated Use {@link LoadFlowProvider#run(Network, ComputationManager, String, LoadFlowParameters, Reporter)} instead.
+     */
+    @Deprecated
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+        return run(network, computationManager, workingVariantId, parameters, Reporter.NO_OP);
+    }
+
+    /**
      * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
      * {@code computationManager} if necessary and using loadflow execution {@code parameters}. This method is expected
      * to be stateless so that it can be call simultaneously with different arguments (a different network for instance)
@@ -33,5 +41,8 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param parameters load flow execution parameters
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter);
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }

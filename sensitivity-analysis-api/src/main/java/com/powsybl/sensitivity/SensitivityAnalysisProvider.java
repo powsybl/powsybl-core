@@ -35,6 +35,19 @@ import java.util.concurrent.CompletableFuture;
 public interface SensitivityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
+     * @deprecated Use {@link SensitivityAnalysisProvider#run(Network, String, SensitivityFactorsProvider, List, SensitivityAnalysisParameters, ComputationManager, Reporter)} instead.
+     */
+    @Deprecated
+    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
+                                                     String workingStateId,
+                                                     SensitivityFactorsProvider factorsProvider,
+                                                     List<Contingency> contingencies,
+                                                     SensitivityAnalysisParameters parameters,
+                                                     ComputationManager computationManager) {
+        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, Reporter.NO_OP);
+    }
+
+    /**
      * Run an asynchronous single sensitivity analysis job.
      * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
      * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
@@ -49,11 +62,13 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param reporter a reporter for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    CompletableFuture<SensitivityAnalysisResult> run(Network network,
+    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
                                                      String workingStateId,
                                                      SensitivityFactorsProvider factorsProvider,
                                                      List<Contingency> contingencies,
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager,
-                                                     Reporter reporter);
+                                                     Reporter reporter) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

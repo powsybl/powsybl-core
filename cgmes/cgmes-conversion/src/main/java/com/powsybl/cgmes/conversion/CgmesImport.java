@@ -18,7 +18,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
@@ -101,7 +100,7 @@ public class CgmesImport implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p, Reporter reporter) {
+    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
         return new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
     }

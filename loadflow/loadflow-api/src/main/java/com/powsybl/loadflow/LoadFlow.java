@@ -48,7 +48,9 @@ public final class LoadFlow {
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return runAsync(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
+            Objects.requireNonNull(workingStateId);
+            Objects.requireNonNull(parameters);
+            return provider.run(network, computationManager, workingStateId, parameters);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -70,7 +72,9 @@ public final class LoadFlow {
         }
 
         public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
-            return run(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
+            Objects.requireNonNull(workingStateId);
+            Objects.requireNonNull(parameters);
+            return provider.run(network, computationManager, workingStateId, parameters).join();
         }
 
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
