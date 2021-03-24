@@ -37,25 +37,23 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     private final String taskKey;
     private final String defaultName;
-    private final LoggerReporter parentReporter;
     private final List<ReportSeeker> childReporters = new ArrayList<>();
     private final Map<String, Object> taskValues;
     private final Map<String, Report> reports = new LinkedHashMap<>();
 
     public LoggerReporter() {
-        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap(), null);
+        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
     }
 
-    public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues, LoggerReporter parent) {
+    public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
         this.taskKey = Objects.requireNonNull(rootTaskKey);
         this.defaultName = rootDefaultName;
         this.taskValues = new HashMap<>(Objects.requireNonNull(taskValues));
-        this.parentReporter = parent;
     }
 
     @Override
     public LoggerReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
-        LoggerReporter childReporter = new LoggerReporter(taskKey, defaultName, values, this);
+        LoggerReporter childReporter = new LoggerReporter(taskKey, defaultName, values);
         childReporters.add(childReporter);
         return childReporter;
     }
