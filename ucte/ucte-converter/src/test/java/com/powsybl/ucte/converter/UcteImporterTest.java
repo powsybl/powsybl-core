@@ -6,6 +6,8 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -19,7 +21,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.File;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
@@ -80,7 +84,10 @@ public class UcteImporterTest {
 
         LoggerReporter loggerReporter = new LoggerReporter();
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
-        loggerReporter.export(new File("/tmp", "exportTest.txt")); // TODO: compare text file with reference
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())){
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
+            loggerReporter.export(tmpDir.resolve("exportTest.txt")); // TODO: compare text file with reference
+        }
     }
 
     @Test
