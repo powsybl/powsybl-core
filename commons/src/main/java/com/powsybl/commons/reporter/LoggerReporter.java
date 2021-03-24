@@ -10,9 +10,11 @@ import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -50,11 +52,11 @@ public class LoggerReporter implements Reporter, ReportSeeker {
         return childReporter;
     }
 
-    public void export(File file) {
-        try (PrintWriter writer = new PrintWriter(file)) {
+    public void export(Path path) {
+        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8))) {
             printTaskReport(this, writer, "");
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            LOGGER.error("IO exception while exporting logs to path {}", path, e);
         }
     }
 
