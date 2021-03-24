@@ -27,8 +27,8 @@ public class TargetV extends SensitivityVariable {
      *
      * @param id unique identifier of the variable
      * @param name readable name of the variable
-     * @param equipmentId id of the network equipment (generator, static var compensator, ratio tap changer,
-     *                             shunt compensator, VSC, etc.) which targetV increase is used as sensitivity variable
+     * @param equipmentId id of the network equipment (generator, static var compensator, two windings transformer,
+     *                             three windings transformer, shunt compensator, VSC, etc.) which targetV increase is used as sensitivity variable
      * @throws NullPointerException if equipmentId is null
      */
     @JsonCreator
