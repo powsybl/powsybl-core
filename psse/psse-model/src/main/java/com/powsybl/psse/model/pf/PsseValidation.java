@@ -33,7 +33,9 @@ public class PsseValidation {
         validCase = true;
 
         validate(model, psseVersion);
-        writeWarnings();
+        if (!validCase) {
+            writeWarnings();
+        }
     }
 
     public List<String> getWarnings() {
@@ -117,13 +119,7 @@ public class PsseValidation {
             addBusesMap(busesLoads, load.getI(), load.getId());
         }
 
-        Map<String, List<String>> duplicatedBusesLoads = getDuplicates(busesLoads);
-        if (!duplicatedBusesLoads.isEmpty()) {
-            duplicatedBusesLoads.forEach(
-                (key, value) -> warnings.add(String.format("Load: Multiple loads (%d) at bus %d with the same Id %s",
-                    value.size(), Integer.valueOf(key), value.get(0))));
-            validCase = false;
-        }
+        checkDuplicates("Load", "loads", getDuplicates(busesLoads));
     }
 
     private void validateFixedShunts(List<PsseFixedShunt> fixedShunts, Map<Integer, List<Integer>> buses) {
@@ -138,13 +134,7 @@ public class PsseValidation {
             addBusesMap(busesFixedShunts, fixedShunt.getI(), fixedShunt.getId());
         }
 
-        Map<String, List<String>> duplicatedBusesFixedShunts = getDuplicates(busesFixedShunts);
-        if (!duplicatedBusesFixedShunts.isEmpty()) {
-            duplicatedBusesFixedShunts.forEach((key, value) -> warnings
-                .add(String.format("FixedShunt: Multiple fixed shunts (%d) at bus %d with the same Id %s", value.size(),
-                    Integer.valueOf(key), value.get(0))));
-            validCase = false;
-        }
+        checkDuplicates("FixedShunt", "fixed shunts", getDuplicates(busesFixedShunts));
     }
 
     private void validateGenerators(List<PsseBus> psseBuses, List<PsseGenerator> generators, Map<Integer, List<Integer>> buses) {
@@ -174,13 +164,7 @@ public class PsseValidation {
             addBusesMap(busesGenerators, generator.getI(), generator.getId());
         }
 
-        Map<String, List<String>> duplicatedBusesGenerators = getDuplicates(busesGenerators);
-        if (!duplicatedBusesGenerators.isEmpty()) {
-            duplicatedBusesGenerators.forEach((key, value) -> warnings
-                .add(String.format("Generator: Multiple generators (%d) at bus %d with the same Id %s", value.size(),
-                    Integer.valueOf(key), value.get(0))));
-            validCase = false;
-        }
+        checkDuplicates("Generator", "generators", getDuplicates(busesGenerators));
     }
 
     private void validateGeneratorRegulatingBus(List<PsseBus> psseBuses,  Map<Integer, List<Integer>> buses, PsseGenerator generator) {
@@ -213,14 +197,7 @@ public class PsseValidation {
             addBusesMap(busesNonTransformerBranches, nonTransformerBranch.getI(), nonTransformerBranch.getJ(), nonTransformerBranch.getCkt());
         }
 
-        Map<String, List<String>> duplicatedBusesNonTransformerBranches = getDuplicates(busesNonTransformerBranches);
-        if (!duplicatedBusesNonTransformerBranches.isEmpty()) {
-            duplicatedBusesNonTransformerBranches.forEach((key,
-                value) -> warnings.add(String.format(
-                    "NonTransformerBranch: Multiple branches (%d) between buses %d and %d with the same Id %s",
-                    value.size(), firstBus(key), secondBus(key), value.get(0))));
-            validCase = false;
-        }
+        checkDuplicatesLinks("NonTransformerBranch", "branches", getDuplicates(busesNonTransformerBranches));
     }
 
     private void validateTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
@@ -253,14 +230,7 @@ public class PsseValidation {
             addBusesMap(busesTransformers, transformer.getI(), transformer.getJ(), transformer.getCkt());
         }
 
-        Map<String, List<String>> duplicatedBusesTransformers = getDuplicates(busesTransformers);
-        if (!duplicatedBusesTransformers.isEmpty()) {
-            duplicatedBusesTransformers.forEach((key,
-                value) -> warnings.add(String.format(
-                    "Transformer: Multiple branches (%d) between buses %d and %d with the same Id %s",
-                    value.size(), firstBus(key), secondBus(key), value.get(0))));
-            validCase = false;
-        }
+        checkDuplicatesLinks("Transformer", "branches", getDuplicates(busesTransformers));
     }
 
     private void validateThreeWindingsTransformers(List<PsseTransformer> transformers, Map<Integer, List<Integer>> buses) {
@@ -507,7 +477,25 @@ public class PsseValidation {
         return Integer.valueOf(tokens[2]);
     }
 
-    private List<String> warnings;
+    private void checkDuplicates(String tag, String tagEquipments, Map<String, List<String>> duplicatedBusesEquipments) {
+        if (!duplicatedBusesEquipments.isEmpty()) {
+            duplicatedBusesEquipments.forEach((key, value) -> warnings
+                .add(String.format("%s: Multiple %s (%d) at bus %d with the same Id %s", tag, tagEquipments,
+                    value.size(), Integer.valueOf(key), value.get(0))));
+            validCase = false;
+        }
+    }
+
+    private void checkDuplicatesLinks(String tag, String tagLinks, Map<String, List<String>> duplicatedBusesLinks) {
+        if (!duplicatedBusesLinks.isEmpty()) {
+            duplicatedBusesLinks.forEach((key, value) -> warnings
+                .add(String.format("%s: Multiple %s (%d) between buses %d and %d with the same Id %s", tag, tagLinks,
+                    value.size(), firstBus(key), secondBus(key), value.get(0))));
+            validCase = false;
+        }
+    }
+
+    private final List<String> warnings;
     private boolean validCase;
     private static final Logger LOGGER = LoggerFactory.getLogger(PsseValidation.class);
 }
