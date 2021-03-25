@@ -6,8 +6,7 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -21,9 +20,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
@@ -84,10 +83,14 @@ public class UcteImporterTest {
 
         LoggerReporter loggerReporter = new LoggerReporter();
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())){
-            Path tmpDir = Files.createDirectory(fileSystem.getPath("/tmp"));
-            loggerReporter.export(tmpDir.resolve("exportTest.txt")); // TODO: compare text file with reference
-        }
+
+        StringWriter sw = new StringWriter();
+        loggerReporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/germanTsosUcteImportLogExport.txt");
+        String refLogExport = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
+        String logExport = sw.toString().replaceAll("in \\d* ms", "in xxx ms"); // Replacing performance strings as they vary from one run to another
+        assertEquals(refLogExport, logExport);
     }
 
     @Test

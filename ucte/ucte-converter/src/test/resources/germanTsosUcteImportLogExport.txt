@@ -1,0 +1,29 @@
++ Root task
+  + Import UCTE data
+     UCTE import done in xxx ms
+    + Reading UCTE network file
+       UCTE file read in xxx ms
+    + Fixing UCTE network read
+      + Fix UCTE nodes
+      + Fix UCTE lines
+      + Fix UCTE transformers
+      + Fix UCTE regulations
+    + Create buses
+      + Create buses for substation BAVLGM
+         Create substation BAVLGM
+         Create voltage level BAVLGM1
+         Create bus BAVLGM11
+      + Create buses for substation D4NEUR
+         Create substation D4NEUR
+         Create voltage level D4NEUR1
+         Create bus D4NEUR11
+      + Create buses for substation DJA_KA
+         Create substation DJA_KA
+         Create voltage level DJA_KA1
+         Create bus DJA_KA11
+      + Create buses for substation DEA_KA
+         Create substation DEA_KA
+         Create voltage level DEA_KA1
+         Create bus DEA_KA11
+    + Create lines
+    + Create transformers

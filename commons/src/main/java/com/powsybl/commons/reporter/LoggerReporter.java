@@ -11,7 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -59,17 +60,29 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     }
 
     public void export(Path path) {
-        try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(path, StandardCharsets.UTF_8))) {
-            printTaskReport(this, writer, "");
+        try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
+            export(writer);
         } catch (IOException e) {
-            LOGGER.error("IO exception while exporting logs to path {}", path, e);
+            throw new UncheckedIOException(e);
         }
     }
 
-    private void printTaskReport(ReportSeeker reportSeeker, PrintWriter writer, String prefix) {
-        writer.println(prefix + "+ " + formatTaskName(reportSeeker));
-        reportSeeker.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, reportSeeker.getTaskValues())));
-        reportSeeker.getChildReporters().forEach(child -> printTaskReport(child, writer, prefix + "  "));
+    public void export(Writer writer) {
+        try {
+            printTaskReport(this, writer, "");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void printTaskReport(ReportSeeker reportSeeker, Writer writer, String prefix) throws IOException {
+        writer.append(prefix).append("+ ").append(formatTaskName(reportSeeker)).append('\n');
+        for (Report report : reportSeeker.getReports()) {
+            writer.append(prefix).append("   ").append(formatReportLog(report, reportSeeker.getTaskValues())).append('\n');
+        }
+        for (ReportSeeker childReporter : reportSeeker.getChildReporters()) {
+            printTaskReport(childReporter, writer, prefix + "  ");
+        }
     }
 
     protected String formatTaskName(ReportSeeker reportSeeker) {
