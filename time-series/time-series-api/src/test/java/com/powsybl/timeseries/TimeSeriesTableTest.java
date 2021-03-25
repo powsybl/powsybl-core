@@ -7,7 +7,11 @@
 package com.powsybl.timeseries;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.timeseries.TimeSeries.TimeFormat;
+
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -27,9 +31,10 @@ import static org.junit.Assert.assertNull;
  */
 public class TimeSeriesTableTest {
 
-    @Test
-    public void test() {
-        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
+
+    private TimeSeriesTable createTimeSeriesTable(TimeSeriesIndex index) {
         TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index);
         TimeSeriesMetadata metadata3 = new TimeSeriesMetadata("ts3", TimeSeriesDataType.STRING, index);
@@ -71,6 +76,15 @@ public class TimeSeriesTableTest {
         assertEquals("ts2", corrs.get(0).getTimeSeriesName2());
         assertEquals(1, corrs.get(0).getCoefficient(), 0);
 
+        return table;
+    }
+
+    @Test
+    public void testVersionedCSV() {
+        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesTable table = createTimeSeriesTable(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
+
         // test CSV export
         assertEquals(String.join(System.lineSeparator(),
                                  "Time;Version;ts1;ts2;ts3",
@@ -78,10 +92,47 @@ public class TimeSeriesTableTest {
                                  "1970-01-01T00:00:00.001Z;1;2.0;6.0;a",
                                  "1970-01-01T00:00:00.002Z;1;3.0;7.0;b",
                                  "1970-01-01T00:00:00.003Z;1;4.0;8.0;c") + System.lineSeparator(),
-                     table.toCsvString(';', ZoneId.of("UTC")));
+                     table.toCsvString(timeSeriesCsvConfig));
 
+    }
+
+    @Test
+    public void testUnversionedCSV() {
+        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesTable table = createTimeSeriesTable(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.FRACTIONS_OF_SECOND);
+
+        // test CSV export
+        assertEquals(String.join(System.lineSeparator(),
+                                 "Time;ts1;ts2;ts3",
+                                 "0.0;1.0;5.0;",
+                                 "0.001;2.0;6.0;a",
+                                 "0.002;3.0;7.0;b",
+                                 "0.003;4.0;8.0;c") + System.lineSeparator(),
+                     table.toCsvString(timeSeriesCsvConfig));
+    }
+
+    @Test
+    public void testMillisCSV() {
+        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        TimeSeriesTable table = createTimeSeriesTable(index);
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"), ';', false, TimeFormat.MILLIS);
+
+        // test CSV export
+        assertEquals(String.join(System.lineSeparator(),
+                                 "Time;ts1;ts2;ts3",
+                                 "0;1.0;5.0;",
+                                 "1;2.0;6.0;a",
+                                 "2;3.0;7.0;b",
+                                 "3;4.0;8.0;c") + System.lineSeparator(),
+                     table.toCsvString(timeSeriesCsvConfig));
+    }
+
+    @Test
+    public void testEmptyTable() {
         // test empty table CSV export
-        String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(';', ZoneId.of("UTC"));
+        TimeSeriesCsvConfig timeSeriesCsvConfig = new TimeSeriesCsvConfig(ZoneId.of("UTC"));
+        String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(timeSeriesCsvConfig);
         assertEquals("Time;Version" + System.lineSeparator(), emptyCsv);
     }
 
@@ -138,7 +189,7 @@ public class TimeSeriesTableTest {
             }.start();
         }
         cdl.await();
-        String csvString = table.toCsvString(';', ZoneId.systemDefault());
+        String csvString = table.toCsvString();
         List<List<String>> actual = new BufferedReader(new StringReader(csvString))
             .lines()
             .skip(1) // header
@@ -165,5 +216,15 @@ public class TimeSeriesTableTest {
         for (int i = 0; i < actual.size(); i++) {
             assertEquals("Line " + i, expected.get(i), actual.get(i));
         }
+    }
+
+    @Test
+    public void testVersionError() {
+        exception.expect(TimeSeriesException.class);
+        exception.expectMessage("toVersion (0) is expected to be greater than fromVersion (1)");
+
+        TimeSeriesIndex index = new TestTimeSeriesIndex(0, 4);
+        // load time series in the table
+        new TimeSeriesTable(1, 0, index);
     }
 }

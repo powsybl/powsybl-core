@@ -965,7 +965,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             ConfiguredBus bus2 = graph.getVertexObject(v2);
             // Assign an id to the edge to allow parallel edges (multigraph)
             GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
-                    .style(sw.isOpen() ? "solid" : "dotted");
+                    .style(sw.isOpen() ? "dotted" : "solid");
             if (DRAW_SWITCH_ID) {
                 String label = sw.getKind().toString()
                     + System.lineSeparator() + sw.getId()

@@ -12,14 +12,13 @@ import java.util.*;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
-    implements ThreeWindingsTransformer {
+        implements ThreeWindingsTransformer {
 
     static class LegImpl
-        implements Validable, CurrentLimitsOwner<Void>, Leg, RatioTapChangerParent, PhaseTapChangerParent {
+            implements Validable, Leg, RatioTapChangerParent, PhaseTapChangerParent {
 
         protected ThreeWindingsTransformerImpl transformer;
 
@@ -35,7 +34,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedS;
 
-        private CurrentLimits limits;
+        private OperationalLimitsHolderImpl operationalLimitsHolder;
 
         private RatioTapChangerImpl ratioTapChanger;
 
@@ -55,6 +54,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
             this.transformer = transformer;
+            operationalLimitsHolder = new OperationalLimitsHolderImpl(transformer, "limits" + legNumber);
         }
 
         public TerminalExt getTerminal() {
@@ -137,22 +137,12 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return ratioTapChanger;
         }
 
-        @Override
-        public Optional<RatioTapChanger> getOptionalRatioTapChanger() {
-            return Optional.ofNullable(ratioTapChanger);
-        }
-
         public PhaseTapChangerAdderImpl newPhaseTapChanger() {
             return new PhaseTapChangerAdderImpl(this);
         }
 
         public PhaseTapChangerImpl getPhaseTapChanger() {
             return phaseTapChanger;
-        }
-
-        @Override
-        public Optional<PhaseTapChanger> getOptionalPhaseTapChanger() {
-            return Optional.ofNullable(phaseTapChanger);
         }
 
         @Override
@@ -165,7 +155,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             RatioTapChangerImpl oldValue = this.ratioTapChanger;
             this.ratioTapChanger = ratioTapChanger;
             transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue,
-                ratioTapChanger);
+                    ratioTapChanger);
         }
 
         @Override
@@ -173,22 +163,42 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             PhaseTapChangerImpl oldValue = this.phaseTapChanger;
             this.phaseTapChanger = phaseTapChanger;
             transformer.notifyUpdate(() -> getLegAttribute() + "." + getTapChangerAttribute(), oldValue,
-                phaseTapChanger);
+                    phaseTapChanger);
         }
 
         @Override
-        public void setCurrentLimits(Void side, CurrentLimitsImpl limits) {
-            CurrentLimits oldValue = this.limits;
-            this.limits = limits;
-            transformer.notifyUpdate(() -> getLegAttribute() + ".currentLimits", oldValue, x);
-        }
-
         public CurrentLimits getCurrentLimits() {
-            return limits;
+            return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
         }
 
+        @Override
         public CurrentLimitsAdder newCurrentLimits() {
-            return new CurrentLimitsAdderImpl<>(null, this);
+            return operationalLimitsHolder.newCurrentLimits();
+        }
+
+        @Override
+        public ApparentPowerLimits getApparentPowerLimits() {
+            return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
+        }
+
+        @Override
+        public ApparentPowerLimitsAdder newApparentPowerLimits() {
+            return operationalLimitsHolder.newApparentPowerLimits();
+        }
+
+        @Override
+        public ActivePowerLimits getActivePowerLimits() {
+            return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+        }
+
+        @Override
+        public ActivePowerLimitsAdder newActivePowerLimits() {
+            return operationalLimitsHolder.newActivePowerLimits();
+        }
+
+        @Override
+        public Collection<OperationalLimits> getOperationalLimits() {
+            return operationalLimitsHolder.getOperationalLimits();
         }
 
         protected String getTypeDescription() {

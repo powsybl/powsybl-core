@@ -7,13 +7,11 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -22,25 +20,50 @@ import com.powsybl.iidm.network.Terminal;
 public class TerminalMapping {
 
     public TerminalMapping() {
+        boundaries = new HashMap<>();
         terminals = new HashMap<>();
         terminalNumbers = new HashMap<>();
         topologicalNodesMapping = new HashMap<>();
     }
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
-        if (terminals.containsKey(cgmesTerminal)) {
+        if (terminals.containsKey(cgmesTerminal) || boundaries.containsKey(cgmesTerminal)) {
             throw new CgmesModelException("Terminal already added, CGMES id : " + cgmesTerminal);
         }
         terminals.put(cgmesTerminal, iidmTerminal);
         terminalNumbers.put(cgmesTerminal, terminalNumber);
     }
 
+    public void add(String cgmesTerminal, Boundary iidmBoundary, int terminalNumber) {
+        if (terminals.containsKey(cgmesTerminal) || boundaries.containsKey(cgmesTerminal)) {
+            throw new CgmesModelException("Terminal already added, CGMES id : " + cgmesTerminal);
+        }
+        boundaries.put(cgmesTerminal, iidmBoundary);
+        terminalNumbers.put(cgmesTerminal, terminalNumber);
+    }
+
     public Terminal find(String cgmesTerminalId) {
-        return terminals.get(cgmesTerminalId);
+        if (terminals.get(cgmesTerminalId) != null) {
+            return terminals.get(cgmesTerminalId);
+        }
+        return topologicalNodesMapping.entrySet().stream()
+                .filter(entry -> entry.getValue().contains(cgmesTerminalId))
+                .map(Map.Entry::getKey)
+                .map(this::findFromTopologicalNode)
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    public Boundary findBoundary(String cgmesTerminalId) {
+        return boundaries.get(cgmesTerminalId);
     }
 
     public int number(String cgmesTerminalId) {
-        return terminalNumbers.get(cgmesTerminalId);
+        if (terminalNumbers.get(cgmesTerminalId) != null) {
+            return terminalNumbers.get(cgmesTerminalId);
+        }
+        return -1;
     }
 
     public void buildTopologicalNodesMapping(CgmesTerminal t) {
@@ -58,7 +81,7 @@ public class TerminalMapping {
         Terminal disconnectedTerminal = null;
         if (topologicalNodesMapping.containsKey(topologicalNode)) {
             for (String cgmesTerminalId : topologicalNodesMapping.get(topologicalNode)) {
-                Terminal terminal = find(cgmesTerminalId);
+                Terminal terminal = terminals.get(cgmesTerminalId);
                 if (terminal != null) {
                     if (terminal.isConnected()) { // returns the first connected terminal associated with the given topological node
                         return terminal;
@@ -79,6 +102,7 @@ public class TerminalMapping {
     }
 
     private final Map<String, Terminal> terminals;
+    private final Map<String, Boundary> boundaries;
     // This is a somewhat dirty way of storing the side for the CGMES terminal
     // (only mapped when the terminal is connected to a branch)
     private final Map<String, Integer>  terminalNumbers;

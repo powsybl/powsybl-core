@@ -233,6 +233,9 @@ public class UcteImporter implements Importer {
             }
         }
 
+        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
                 .setEnergySource(energySource)
@@ -241,8 +244,8 @@ public class UcteImporter implements Importer {
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
                 .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
-                .setTargetP(-ucteNode.getActivePowerGeneration())
-                .setTargetQ(-ucteNode.getReactivePowerGeneration())
+                .setTargetP(generatorP)
+                .setTargetQ(generatorQ)
                 .setTargetV(ucteNode.getVoltageReference())
                 .add();
         generator.newMinMaxReactiveLimits()
@@ -280,8 +283,8 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(xnode.getCode().toString())
                 .setFictitious(isFictitious(ucteLine))
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
                 .add()
                 .add();
 
@@ -341,7 +344,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z) {
-        LOGGER.info("Create coupler '{}' from low impedance line ({})", ucteLine.getId(), z);
+        LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
             throw new UcteException("Nodes coupled with a low impedance line are expected to be in the same voltage level");
@@ -467,8 +470,9 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
 
+        int lowerTap = getLowTapPosition(uctePhaseRegulation, transformer);
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
-                .setLowTapPosition(-uctePhaseRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
                 .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
         if (!Float.isNaN(uctePhaseRegulation.getU())) {
@@ -478,7 +482,7 @@ public class UcteImporter implements Importer {
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }
-        for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
             rtca.beginStep()
                     .setRho(rho)
@@ -494,14 +498,14 @@ public class UcteImporter implements Importer {
     private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
 
         LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
-
+        int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
-                .setLowTapPosition(-ucteAngleRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(ucteAngleRegulation.getNp())
                 .setRegulationValue(ucteAngleRegulation.getP())
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
-        for (int i = -ucteAngleRegulation.getN(); i <= ucteAngleRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho;
             float alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
@@ -530,6 +534,30 @@ public class UcteImporter implements Importer {
                     .endStep();
         }
         ptca.add();
+    }
+
+    private static int getLowTapPosition(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, uctePhaseRegulation.getN(), uctePhaseRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, ucteAngleRegulation.getN(), ucteAngleRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(TwoWindingsTransformer transformer, int initialTapsNumber, int currentTapPosition) {
+        int floor;
+        if (initialTapsNumber >= Math.abs(currentTapPosition)) {
+            floor = -initialTapsNumber;
+        } else {
+            LOGGER.warn("Tap position for transformer '{}' is '{}', absolute value should be equal or lower than number of Taps '{}'", transformer.getId(), currentTapPosition, initialTapsNumber);
+            if (currentTapPosition < 0) {
+                floor = currentTapPosition;
+            } else {
+                floor  = -currentTapPosition;
+            }
+            LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
+        }
+        return floor;
     }
 
     private static TwoWindingsTransformer createXnodeTransfo(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, boolean connected,
@@ -574,9 +602,9 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .newGeneration()
-                    .setTargetP(-targetP)
-                    .setTargetQ(-targetQ)
-                    .add()
+                .setTargetP(-targetP)
+                .setTargetQ(-targetQ)
+                .add()
                 .add();
         yDanglingLine.newExtension(XnodeAdder.class).withCode(ucteXnode.getCode().toString()).add();
         addXnodeStatusProperty(ucteXnode, yDanglingLine);
@@ -901,25 +929,25 @@ public class UcteImporter implements Importer {
                 .setConnectableBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getConnectableBus()))
                 .setBus2(getBusId(dlAtSideTwo.getTerminal().getBusBreakerView().getBus()))
                 .newHalfLine1()
-                    .setId(dlAtSideOne.getId())
-                    .setR(dlAtSideOne.getR())
-                    .setX(dlAtSideOne.getX())
-                    .setG1(dlAtSideOne.getG())
-                    .setG2(0.0)
-                    .setB1(dlAtSideOne.getB())
-                    .setB2(0.0)
-                    .setFictitious(dlAtSideOne.isFictitious())
-                    .add()
+                .setId(dlAtSideOne.getId())
+                .setR(dlAtSideOne.getR())
+                .setX(dlAtSideOne.getX())
+                .setB1(dlAtSideOne.getB())
+                .setB2(0.0)
+                .setG1(dlAtSideOne.getG())
+                .setG2(0.0)
+                .setFictitious(dlAtSideOne.isFictitious())
+                .add()
                 .newHalfLine2()
-                    .setId(dlAtSideTwo.getId())
-                    .setR(dlAtSideTwo.getR())
-                    .setX(dlAtSideTwo.getX())
-                    .setG1(0.0)
-                    .setG2(dlAtSideTwo.getG())
-                    .setB1(0.0)
-                    .setB2(dlAtSideTwo.getB())
-                    .setFictitious(dlAtSideTwo.isFictitious())
-                    .add()
+                .setId(dlAtSideTwo.getId())
+                .setR(dlAtSideTwo.getR())
+                .setX(dlAtSideTwo.getX())
+                .setB1(0.0)
+                .setB2(dlAtSideTwo.getB())
+                .setG1(0.0)
+                .setG2(dlAtSideTwo.getG())
+                .setFictitious(dlAtSideTwo.isFictitious())
+                .add()
                 .setUcteXnodeCode(xnodeCode)
                 .add();
 
@@ -935,8 +963,22 @@ public class UcteImporter implements Importer {
             mergeLine.newCurrentLimits2()
                     .setPermanentLimit(dlAtSideTwo.getCurrentLimits().getPermanentLimit()).add();
         }
-        mergeLine.newExtension(MergedXnodeAdder.class).withRdp(rdp).withXdp(xdp)
-                .withLine1Name(dlAtSideOne.getId()).withLine2Name(dlAtSideTwo.getId()).withCode(xnodeCode).add();
+        double b1dp = dlAtSideOne.getB() == 0 ? 0.5 : 1;
+        double g1dp = dlAtSideOne.getG() == 0 ? 0.5 : 1;
+        double b2dp = dlAtSideTwo.getB() == 0 ? 0.5 : 0;
+        double g2dp = dlAtSideTwo.getG() == 0 ? 0.5 : 0;
+        mergeLine.newExtension(MergedXnodeAdder.class)
+                .withRdp(rdp).withXdp(xdp)
+                .withLine1Name(dlAtSideOne.getId())
+                .withLine1Fictitious(dlAtSideOne.isFictitious())
+                .withB1dp((float) b1dp)
+                .withG1dp((float) g1dp)
+                .withLine2Name(dlAtSideTwo.getId())
+                .withLine2Fictitious(dlAtSideTwo.isFictitious())
+                .withB2dp((float) b2dp)
+                .withG2dp((float) g2dp)
+                .withCode(xnodeCode)
+                .add();
     }
 
     @Override

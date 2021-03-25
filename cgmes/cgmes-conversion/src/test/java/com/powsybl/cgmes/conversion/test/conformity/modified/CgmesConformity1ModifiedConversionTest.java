@@ -12,6 +12,8 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -254,6 +256,19 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBETieFlow() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlow().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea("_BECONTROLAREA");
+        assertEquals("BE", cgmesControlArea.getName());
+        assertEquals("10BE------1", cgmesControlArea.getEnergyIdentificationCodeEIC());
+        assertEquals(-205.90011555672567, cgmesControlArea.getNetInterchange(), 0.0);
+        assertEquals(5, cgmesControlArea.getTerminals().size());
+    }
+
+    @Test
     public void microBEInvalidSvInjection() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEInvalidSvInjection().dataSource(),
@@ -342,6 +357,24 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(0.0, dl.getX(), 0.0);
         assertEquals(0.0, dl.getG(), 0.0);
         assertEquals(0.0, dl.getB(), 0.0);
+    }
+
+    @Test
+    public void microBELimits() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
+                NetworkFactory.findDefault(), null);
+        VoltageLevel vl = network.getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe");
+        assertEquals(401.2, vl.getHighVoltageLimit(), 0.0);
+        assertEquals(350.7, vl.getLowVoltageLimit(), 0.0);
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_84ed55f4-61f5-4d9d-8755-bba7b877a246");
+        assertNull(twt3.getLeg1().getApparentPowerLimits());
+        assertNull(twt3.getLeg2().getApparentPowerLimits());
+        assertNull(twt3.getLeg3().getApparentPowerLimits());
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
+        ApparentPowerLimits apparentPowerLimits = twt2.getApparentPowerLimits1();
+        assertNotNull(apparentPowerLimits);
+        assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
+        assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
     }
 
     @Test

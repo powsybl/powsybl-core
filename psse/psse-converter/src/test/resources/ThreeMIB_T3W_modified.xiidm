@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0" id="ThreeMIB_T3W_modified" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2" id="ThreeMIB_T3W_modified" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1" nominalV="18.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -34,6 +34,8 @@
             <iidm:currentLimits2 permanentLimit="11708.663459165611"/>
         </iidm:twoWindingsTransformer>
         <iidm:threeWindingsTransformer id="T-4-2-7-1 " r1="-7.799051701646568E-7" x1="1.1395911508266792E-4" g1="0.144572" b1="-0.1079031826036656" ratedU1="500.0" r2="2.506552897437384E-6" x2="1.913087291200171E-4" g2="0.0" b2="0.0" ratedU2="18.0" r3="8.39084857664657E-7" x3="5.51790882287039E-4" g3="0.0" b3="0.0" ratedU3="16.0" ratedU0="1.0" bus1="B4" connectableBus1="B4" voltageLevelId1="VL4" bus2="B2" connectableBus2="B2" voltageLevelId2="VL2" bus3="B7" connectableBus3="B7" voltageLevelId3="VL7">
+            <iidm:property name="v" value="0.98627"/>
+            <iidm:property name="angle" value="-10.1187"/>
             <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="0" loadTapChangingCapabilities="false">
                 <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.987004441519987"/>
             </iidm:ratioTapChanger2>
@@ -62,6 +64,32 @@
             <iidm:load id="B5-L2 " loadType="UNDEFINED" p0="0.0" q0="50.0" connectableBus="B5"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-3-5-1 " r="0.0" x="28.0" g="0.0" b="0.0" ratedU1="18.0" ratedU2="500.0" bus1="B3" connectableBus1="B3" voltageLevelId1="VL3" bus2="B5" connectableBus2="B5" voltageLevelId2="VL5">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="11" targetDeadband="2.700000000000003" loadTapChangingCapabilities="false" regulating="true" targetV="18.45">
+                <iidm:terminalRef id="B3-G1 "/>
+                <iidm:step r="0.0" x="0.0" g="10.803324099723" b="10.803324099723" rho="1.0526315789473684"/>
+                <iidm:step r="0.0" x="0.0" g="9.7008103183438" b="9.7008103183438" rho="1.0473815461346634"/>
+                <iidm:step r="0.0" x="0.0" g="8.614670369252941" b="8.614670369252941" rho="1.0421836228287842"/>
+                <iidm:step r="0.0" x="0.0" g="7.544581618655677" b="7.544581618655677" rho="1.037037037037037"/>
+                <iidm:step r="0.0" x="0.0" g="6.490229340352194" b="6.490229340352194" rho="1.031941031941032"/>
+                <iidm:step r="0.0" x="0.0" g="5.451306484298879" b="5.451306484298879" rho="1.0268948655256724"/>
+                <iidm:step r="0.0" x="0.0" g="4.427513453034271" b="4.427513453034271" rho="1.0218978102189782"/>
+                <iidm:step r="0.0" x="0.0" g="3.4185578856650523" b="3.4185578856650523" rho="1.0169491525423728"/>
+                <iidm:step r="0.0" x="0.0" g="2.424154449121785" b="2.424154449121785" rho="1.0120481927710843"/>
+                <iidm:step r="0.0" x="0.0" g="1.4440246364059828" b="1.4440246364059828" rho="1.0071942446043165"/>
+                <iidm:step r="0.0" x="0.0" g="0.4778965715620087" b="0.4778965715620087" rho="1.0023866348448687"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0"/>
+                <iidm:step r="0.0" x="0.0" g="-0.47449517888071835" b="-0.47449517888071835" rho="0.997624703087886"/>
+                <iidm:step r="0.0" x="0.0" g="-1.4134097882400165" b="-1.4134097882400165" rho="0.9929078014184397"/>
+                <iidm:step r="0.0" x="0.0" g="-2.3391003460207505" b="-2.3391003460207505" rho="0.9882352941176471"/>
+                <iidm:step r="0.0" x="0.0" g="-3.2518140284869546" b="-3.2518140284869546" rho="0.9836065573770493"/>
+                <iidm:step r="0.0" x="0.0" g="-4.151792263680354" b="-4.151792263680354" rho="0.9790209790209791"/>
+                <iidm:step r="0.0" x="0.0" g="-5.039270891091229" b="-5.039270891091229" rho="0.9744779582366591"/>
+                <iidm:step r="0.0" x="0.0" g="-5.914480316178572" b="-5.914480316178572" rho="0.9699769053117782"/>
+                <iidm:step r="0.0" x="0.0" g="-6.777645659928666" b="-6.777645659928666" rho="0.9655172413793103"/>
+                <iidm:step r="0.0" x="0.0" g="-7.628986903633583" b="-7.628986903633583" rho="0.9610983981693363"/>
+                <iidm:step r="0.0" x="0.0" g="-8.468719029062743" b="-8.468719029062743" rho="0.9567198177676537"/>
+                <iidm:step r="0.0" x="0.0" g="-9.297052154195018" b="-9.297052154195018" rho="0.9523809523809523"/>
+            </iidm:ratioTapChanger>
             <iidm:currentLimits1 permanentLimit="320750.1495497921"/>
             <iidm:currentLimits2 permanentLimit="11547.005383792517"/>
         </iidm:twoWindingsTransformer>

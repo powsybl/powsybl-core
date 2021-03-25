@@ -22,9 +22,8 @@ public enum PowerFlowRecordGroup implements RecordGroupIdentification {
     NON_TRANSFORMER_BRANCH("acline", "BRANCH"),
     SYSTEM_SWITCHING_DEVICE("sysswd", "SYSTEM SWITCHING DEVICE"),
     TRANSFORMER("transformer"),
-    // Transformer record group includes two and three winding transformers
-    TRANSFORMER_2("transformer2"),
-    TRANSFORMER_3("transformer3"),
+    INTERNAL_TRANSFORMER_IMPEDANCES("transformerImpedances"),
+    INTERNAL_TRANSFORMER_WINDING("transformerWinding"),
     AREA_INTERCHANGE("area", "AREA"),
     TWO_TERMINAL_DC_TRANSMISSION_LINE("twotermdc", "TWO-TERMINAL DC"),
     INTERNAL_TWO_TERMINAL_DC_TRANSMISSION_LINE_CONVERTER("twotermdc", "TWO-TERMINAL DC"),

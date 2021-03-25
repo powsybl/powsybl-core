@@ -135,6 +135,11 @@ public class PsseImporter implements Importer {
             PssePowerFlowModel pssePowerFlowModel = PowerFlowDataFactory.create(ext, version).read(dataSource, ext, context);
             pssePowerFlowModel.getCaseIdentification().validate();
 
+            PsseValidation psseValidation = new PsseValidation(pssePowerFlowModel, context.getVersion());
+            if (!psseValidation.isValidCase()) {
+                throw new PsseException("The PSS/E file is not a valid case");
+            }
+
             Network network = networkFactory.createNetwork(dataSource.getBaseName(), FORMAT);
             // TODO store the PsseContext with the Network to be able to export back using its information
             convert(pssePowerFlowModel, network, parameters, version);
@@ -219,11 +224,9 @@ public class PsseImporter implements Importer {
         ToDoubleFunction<Object> branchToReactance = branch -> branch instanceof PsseNonTransformerBranch ? ((PsseNonTransformerBranch) branch).getX() : ((PsseTransformer) branch).getX12();
         Predicate<Object> branchToIsTransformer = branch -> branch instanceof PsseTransformer;
 
-        ContainersMapping containersMapping = ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
+        return ContainersMapping.create(psseModel.getBuses(), branches, PsseBus::getI, branchToNum1,
             branchToNum2, branchToNum3, branchToResistance, branchToReactance, branchToIsTransformer,
             busNums -> "VL" + busNums.iterator().next(), substationNum -> "S" + substationNum++);
-
-        return containersMapping;
     }
 
     private static void createBuses(PssePowerFlowModel psseModel, ContainersMapping containersMapping,

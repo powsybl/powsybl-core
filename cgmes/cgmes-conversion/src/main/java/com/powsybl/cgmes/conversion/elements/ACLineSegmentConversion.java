@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
@@ -77,6 +78,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 VoltageLevel.NodeBreakerView.SwitchAdder adder;
                 adder = voltageLevel().getNodeBreakerView().newSwitch()
                         .setKind(SwitchKind.BREAKER)
+                        .setRetained(true)
                         .setFictitious(true);
                 identify(adder);
                 connect(adder, open);
@@ -89,7 +91,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                 connect(adder, open);
                 sw = adder.add();
             }
-            addAliases(sw);
+            addAliasesAndProperties(sw);
         } else {
             final LineAdder adder = context.network().newLine()
                     .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
@@ -102,7 +104,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             identify(adder);
             connect(adder);
             final Line l = adder.add();
-            addAliases(l);
+            addAliasesAndProperties(l);
             convertedTerminals(l.getTerminal1(), l.getTerminal2());
         }
     }
@@ -116,7 +118,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         String otherName = other.getId("name");
         ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);
 
-        // Boundary node is common to both lines,
+        // CgmesBoundary node is common to both lines,
         // identify the end that will be preserved for this line and the other line
         int thisEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
@@ -136,9 +138,19 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         } else {
             mline = createQuadripole(boundaryLine1, boundaryLine2);
         }
-        addAliases(mline);
+        mline.addAlias(terminalId(thisEnd), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
+        mline.addAlias(terminalId(thisEnd == 1 ? 2 : 1),
+                Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY");
+        mline.addAlias(otherc.terminalId(otherEnd), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
+        mline.addAlias(otherc.terminalId(otherEnd == 1 ? 2 : 1),
+                Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY");
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
+        if (mline instanceof TieLine) {
+            TieLine tl = (TieLine) mline;
+            context.terminalMapping().add(terminalId(thisEnd == 1 ? 2 : 1), tl.getHalf1().getBoundary(), 2);
+            context.terminalMapping().add(otherc.terminalId(otherEnd == 1 ? 2 : 1), tl.getHalf2().getBoundary(), 1);
+        }
     }
 
     public void convertLineAndSwitchAtNode(PropertyBag other, String boundaryNode) {
@@ -146,7 +158,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         String otherName = other.getId("name");
         ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);
 
-        // Boundary node is common to both equipment,
+        // CgmesBoundary node is common to both equipment,
         // identify the end that will be preserved for this line and the other equipment
         int thisEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
@@ -166,7 +178,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         } else {
             mline = createQuadripole(boundaryLine1, boundaryLine2);
         }
-        addAliases(mline);
+        addAliasesAndProperties(mline);
         context.convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
         context.convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }

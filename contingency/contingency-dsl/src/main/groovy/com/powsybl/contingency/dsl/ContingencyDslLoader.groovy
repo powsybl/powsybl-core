@@ -13,6 +13,7 @@ import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ExtendableDslExtension
 import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
+import org.codehaus.groovy.control.customizers.ImportCustomizer
 import org.slf4j.LoggerFactory
 
 import java.util.function.Consumer
@@ -107,12 +108,19 @@ class ContingencyDslLoader extends DslLoader {
         }
     }
 
-
     List<Contingency> load(Network network) {
-        load(network, null)
+        load(network, null, new ImportCustomizer())
+    }
+
+    List<Contingency> load(Network network, ImportCustomizer imports) {
+        load(network, null, imports)
     }
 
     List<Contingency> load(Network network, ContingencyDslObserver observer) {
+        load(network, observer, new ImportCustomizer())
+    }
+
+    List<Contingency> load(Network network, ContingencyDslObserver observer, ImportCustomizer imports) {
 
         List<Contingency> contingencies = new ArrayList<>()
 
@@ -127,7 +135,7 @@ class ContingencyDslLoader extends DslLoader {
             // set base network
             binding.setVariable("network", network)
 
-            def shell = createShell(binding)
+            def shell = createShell(binding, imports)
 
             shell.evaluate(dslSrc)
 

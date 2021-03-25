@@ -33,24 +33,27 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();
-
             PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
-            // TODO Complete discarded record groups
+
             skip(SYSTEM_WIDE, reader);
             model.addBuses(new BusData().read(reader, context));
             model.addLoads(new LoadData().read(reader, context));
             model.addFixedShunts(new FixedBusShuntData().read(reader, context));
             model.addGenerators(new GeneratorData().read(reader, context));
             model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
+
             skip(SYSTEM_SWITCHING_DEVICE, reader);
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
+
             model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
             model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
             model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(reader, context));
+
             model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
             model.addZones(new ZoneData().read(reader, context));
             model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
@@ -79,6 +82,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
     }
 
     private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
+
         new CaseIdentificationData().writeHead(model.getCaseIdentification(), context, outputStream);
 
         // Record group comments:
@@ -95,6 +99,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
         new GeneratorData().write(model.getGenerators(), context, outputStream);
         new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
+
         writeEmpty(SYSTEM_SWITCHING_DEVICE, outputStream);
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
