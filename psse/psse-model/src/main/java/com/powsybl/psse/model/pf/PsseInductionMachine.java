@@ -16,6 +16,8 @@ import com.univocity.parsers.annotations.Parsed;
  */
 public class PsseInductionMachine {
 
+    // This dataBlock is valid since version 33
+
     @Parsed(field = {"i", "ibus"})
     private int i;
 

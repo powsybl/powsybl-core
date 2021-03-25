@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.model.pf.io;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE;
@@ -31,6 +32,8 @@ import com.powsybl.psse.model.pf.PsseVoltageSourceConverterDcTransmissionLine;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<PsseVoltageSourceConverterDcTransmissionLine> {
+
+    private static final String[] FIELD_NAMES_CONVERTER_32_33 = {"ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "remot", "rmpct"};
 
     VoltageSourceConverterDcTransmissionLineData() {
         super(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, "name", "mdc", "rdc", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4");
@@ -79,9 +82,9 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
         public void write(List<PsseVoltageSourceConverterDcTransmissionLine> voltageSourceConverterDcList, Context context, OutputStream outputStream) {
 
             PsseVoltageSourceConverterRecordData converterRecordData = new PsseVoltageSourceConverterRecordData();
-            String[] mainHeaders = super.recordGroup.fieldNames(context.getVersion());
+            String[] mainHeaders = context.getFieldNames(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE);
             String[] quotedFields = super.recordGroup.quotedFields();
-            String[] converterHeaders = converterRecordData.fieldNames(context.getVersion());
+            String[] converterHeaders = context.getFieldNames(INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER);
 
             List<PsseVoltageSourceConverterDcTransmissionLine> mainList = new ArrayList<>();
             List<PsseVoltageSourceConverter> converterList = new ArrayList<>();
@@ -110,7 +113,8 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
         private static class PsseVoltageSourceConverterRecordData extends AbstractRecordGroup<PsseVoltageSourceConverter> {
             PsseVoltageSourceConverterRecordData() {
                 super(INTERNAL_VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE_CONVERTER);
-                withFieldNames(V33, "ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "remot", "rmpct");
+                withFieldNames(V32, FIELD_NAMES_CONVERTER_32_33);
+                withFieldNames(V33, FIELD_NAMES_CONVERTER_32_33);
                 withFieldNames(V35, "ibus", "type", "mode", "dcset", "acset", "aloss", "bloss", "minloss", "smax", "imax", "pwf", "maxq", "minq", "vsreg", "nreg", "rmpct");
                 withQuotedFields();
             }

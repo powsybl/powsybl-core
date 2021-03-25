@@ -6,8 +6,6 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_CONVERTER;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_BUS;
@@ -133,16 +131,16 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
             });
 
             MultiTerminalDcMainData mainData = new MultiTerminalDcMainData();
-            List<String> mainStrings = mainData.buildRecords(mainList, mainData.fieldNames(context.getVersion()), mainData.quotedFields(), context);
+            List<String> mainStrings = mainData.buildRecords(mainList, context.getFieldNames(MULTI_TERMINAL_DC_TRANSMISSION_LINE), mainData.quotedFields(), context);
 
             MultiTerminalDcConverterData converterData = new MultiTerminalDcConverterData();
-            List<String> converterStrings = converterData.buildRecords(converterList, converterData.fieldNames(context.getVersion()), converterData.quotedFields(), context);
+            List<String> converterStrings = converterData.buildRecords(converterList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_CONVERTER), converterData.quotedFields(), context);
 
             MultiTerminalDcBusData busData = new MultiTerminalDcBusData();
-            List<String> busStrings = busData.buildRecords(busList, busData.fieldNames(context.getVersion()), busData.quotedFields(), context);
+            List<String> busStrings = busData.buildRecords(busList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_BUS), busData.quotedFields(), context);
 
             MultiTerminalDcLinkData linkData = new MultiTerminalDcLinkData();
-            List<String> linkStrings = linkData.buildRecords(linkList, linkData.fieldNames(context.getVersion()), linkData.quotedFields(), context);
+            List<String> linkStrings = linkData.buildRecords(linkList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_LINK), linkData.quotedFields(), context);
 
             int indexMain = 0;
             int indexConverter = 0;
@@ -177,9 +175,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcConverterData extends AbstractRecordGroup<PsseMultiTerminalDcConverter> {
             MultiTerminalDcConverterData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER);
-                withFieldNames(V33, FIELD_NAMES_CONVERTER);
-                withFieldNames(V35, FIELD_NAMES_CONVERTER);
+                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER, "ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -191,9 +187,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcBusData extends AbstractRecordGroup<PsseMultiTerminalDcBus> {
             MultiTerminalDcBusData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_BUS);
-                withFieldNames(V33, FIELD_NAMES_BUS);
-                withFieldNames(V35, FIELD_NAMES_BUS);
+                super(INTERNAL_MULTI_TERMINAL_DC_BUS, "idc", "ib", "area", "zone", "dcname", "idc2", "rgrnd", "owner");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -205,9 +199,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcLinkData extends AbstractRecordGroup<PsseMultiTerminalDcLink> {
             MultiTerminalDcLinkData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_LINK);
-                withFieldNames(V33, FIELD_NAMES_LINK);
-                withFieldNames(V35, FIELD_NAMES_LINK);
+                super(INTERNAL_MULTI_TERMINAL_DC_LINK, "idc", "jdc", "dcckt", "met", "rdc", "ldc");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -316,9 +308,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
     private static class MultiTerminalDcMainData extends AbstractRecordGroup<PsseMultiTerminalDcMain> {
         MultiTerminalDcMainData() {
-            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE);
-            withFieldNames(V33, FIELD_NAMES_MAIN);
-            withFieldNames(V35, FIELD_NAMES_MAIN);
+            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE, "name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn");
             withQuotedFields(QUOTED_FIELDS);
         }
 
@@ -328,10 +318,6 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
     }
 
-    private static final String[] FIELD_NAMES_MAIN = {"name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn"};
-    private static final String[] FIELD_NAMES_CONVERTER = {"ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod"};
-    private static final String[] FIELD_NAMES_BUS = {"idc", "ib", "area", "zone", "dcname", "idc2", "rgrnd", "owner"};
-    private static final String[] FIELD_NAMES_LINK = {"idc", "jdc", "dcckt", "met", "rdc", "ldc"};
     private static final String[] QUOTED_FIELDS = {"name", "dcname", "dcckt"};
 
 }
