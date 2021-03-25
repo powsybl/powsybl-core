@@ -10,19 +10,16 @@ import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class LoggerReporter extends AbstractReporter implements ReportSeeker {
+public class LoggerReporter extends AbstractReporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggerReporter.class);
 
@@ -35,11 +32,9 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
         Report.SEVERITY_ERROR, LOGGER::error
     );
 
-    private final String taskKey;
-    private final String defaultName;
-    private final List<ReportSeeker> childReporters = new ArrayList<>();
-    private final Map<String, Object> taskValues;
-    private final List<Report> reports = new ArrayList<>();
+    protected final String taskKey;
+    protected final String defaultName;
+    protected final Map<String, Object> taskValues;
 
     public LoggerReporter() {
         this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
@@ -53,43 +48,8 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     @Override
     public LoggerReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
-        LoggerReporter childReporter = new LoggerReporter(taskKey, defaultName, values);
-        childReporters.add(childReporter);
-        return childReporter;
-    }
-
-    public void export(Path path) {
-        try (Writer writer = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
-            export(writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void export(Writer writer) {
-        try {
-            printTaskReport(this, writer, "");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    private void printTaskReport(ReportSeeker reportSeeker, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(formatTaskName(reportSeeker)).append('\n');
-        for (Report report : reportSeeker.getReports()) {
-            writer.append(prefix).append("   ").append(formatReportLog(report, reportSeeker.getTaskValues())).append('\n');
-        }
-        for (ReportSeeker childReporter : reportSeeker.getChildReporters()) {
-            printTaskReport(childReporter, writer, prefix + "  ");
-        }
-    }
-
-    protected String formatTaskName(ReportSeeker reportSeeker) {
-        return new StringSubstitutor(reportSeeker.getTaskValues()).replace(reportSeeker.getDefaultName());
-    }
-
-    protected String formatReportLog(Report report, Map<String, Object> taskValues) {
-        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultLog()));
+        getDefaultLogConsumer().accept(toString());
+        return new LoggerReporter(taskKey, defaultName, values);
     }
 
     @Override
@@ -99,8 +59,15 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     @Override
     public void report(Report report) {
-        reports.add(report);
         getLogConsumer(report).accept(formatReportLog(report, taskValues));
+    }
+
+    public String toString() {
+        return new StringSubstitutor(taskValues).replace(defaultName);
+    }
+
+    protected String formatReportLog(Report report, Map<String, Object> taskValues) {
+        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultLog()));
     }
 
     protected Consumer<String> getLogConsumer(Report report) {
@@ -112,28 +79,4 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
         return LOGGER::info;
     }
 
-    @Override
-    public Collection<Report> getReports() {
-        return Collections.unmodifiableCollection(reports);
-    }
-
-    @Override
-    public String getDefaultName() {
-        return defaultName;
-    }
-
-    @Override
-    public String getTaskKey() {
-        return taskKey;
-    }
-
-    @Override
-    public Map<String, Object> getTaskValues() {
-        return Collections.unmodifiableMap(taskValues);
-    }
-
-    @Override
-    public List<ReportSeeker> getChildReporters() {
-        return Collections.unmodifiableList(childReporters);
-    }
 }

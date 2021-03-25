@@ -10,7 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.reporter.LoggerReporter;
+import com.powsybl.commons.reporter.LoggerTreeReporter;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -188,11 +188,11 @@ public class UcteImporterTest {
     public void testReportVoltageRegulatingXnode() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        LoggerReporter loggerReporter = new LoggerReporter();
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
+        LoggerTreeReporter reporter = new LoggerTreeReporter();
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
-        loggerReporter.export(sw);
+        reporter.export(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.txt");
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
