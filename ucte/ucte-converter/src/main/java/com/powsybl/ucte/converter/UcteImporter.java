@@ -111,8 +111,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.report("createBus", "Create bus ${bus}",
-                Map.of("bus", ucteNodeCode, Reporter.REPORT_GRAVITY,  "TRACE"));
+            reporter.newReportAdder()
+                .setKey("createBus")
+                .setDefaultLog("Create bus ${bus}")
+                .addValue("bus", ucteNodeCode)
+                .setGravity("TRACE")
+                .add();
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
@@ -153,8 +157,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            substationReporter.report("createSubstation", "Create substation ${substationName}",
-                Map.of("substationName", ucteSubstation.getName(), Reporter.REPORT_GRAVITY, "TRACE"));
+            substationReporter.newReportAdder()
+                .setKey("createSubstation")
+                .setDefaultLog("Create substation ${substationName}")
+                .addValue("substationName", ucteSubstation.getName())
+                .setGravity("TRACE")
+                .add();
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
             Substation substation = network.newSubstation()
@@ -170,8 +178,12 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                substationReporter.report("createVoltageLevel", "Create voltage level ${voltageLevelName}",
-                    Map.of("voltageLevelName", ucteVoltageLevel.getName(), Reporter.REPORT_GRAVITY, "TRACE"));
+                substationReporter.newReportAdder()
+                    .setKey("createVoltageLevel")
+                    .setDefaultLog("Create voltage level ${voltageLevelName}")
+                    .addValue("voltageLevelName", ucteVoltageLevel.getName())
+                    .setGravity("TRACE")
+                    .add();
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
@@ -1012,8 +1024,12 @@ public class UcteImporter implements Importer {
                 stopwatch.stop();
 
                 long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                importReporter.report("elapsedTime", "UCTE import done in ${elapsedTime} ms",
-                    Map.of("elapsedTime", elapsedTime, Reporter.REPORT_GRAVITY, "PERFORMANCE"));
+                importReporter.newReportAdder()
+                    .setKey("elapsedTime")
+                    .setDefaultLog("UCTE import done in ${elapsedTime} ms")
+                    .addValue("elapsedTime", elapsedTime)
+                    .setGravity("PERFORMANCE")
+                    .add();
                 LOGGER.debug("UCTE import done in {} ms", elapsedTime);
 
                 return network;

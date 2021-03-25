@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -281,8 +280,12 @@ public class UcteReader {
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
         long elapsedTime = System.currentTimeMillis() - start;
-        readReporter.report("elapsedTime", "UCTE file read in ${elapsedTime} ms",
-            Map.of("elapsedTime", elapsedTime, Reporter.REPORT_GRAVITY, "PERFORMANCE"));
+        readReporter.newReportAdder()
+            .setKey("elapsedTime")
+            .setDefaultLog("UCTE file read in ${elapsedTime} ms")
+            .addValue("elapsedTime", elapsedTime)
+            .setGravity("PERFORMANCE")
+            .add();
         LOGGER.debug("UCTE file read in {} ms", elapsedTime);
 
         Reporter fixReporter = reporter.createChild("UctePostReadingFix", "Fixing UCTE network read");

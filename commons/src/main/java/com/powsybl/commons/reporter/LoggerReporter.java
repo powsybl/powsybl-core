@@ -92,6 +92,11 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
         getLogConsumer(report).accept(formatReportLog(report, taskValues));
     }
 
+    @Override
+    public ReportAdder newReportAdder() {
+        return new ReportAdderImpl(this);
+    }
+
     protected Consumer<String> getLogConsumer(Report report) {
         Object logLevelValue = report.getValue(REPORT_GRAVITY);
         return logLevelValue instanceof String ? LOG_CONSUMER_MAP.get(logLevelValue) : getDefaultLogConsumer();
