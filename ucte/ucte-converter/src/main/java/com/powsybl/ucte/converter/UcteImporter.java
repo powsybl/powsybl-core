@@ -115,7 +115,7 @@ public class UcteImporter implements Importer {
                 .setKey("createBus")
                 .setDefaultLog("Create bus ${bus}")
                 .addValue("bus", ucteNodeCode)
-                .setGravity("TRACE")
+                .setSeverity("TRACE")
                 .add();
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
@@ -161,7 +161,7 @@ public class UcteImporter implements Importer {
                 .setKey("createSubstation")
                 .setDefaultLog("Create substation ${substationName}")
                 .addValue("substationName", ucteSubstation.getName())
-                .setGravity("TRACE")
+                .setSeverity("TRACE")
                 .add();
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
@@ -182,7 +182,7 @@ public class UcteImporter implements Importer {
                     .setKey("createVoltageLevel")
                     .setDefaultLog("Create voltage level ${voltageLevelName}")
                     .addValue("voltageLevelName", ucteVoltageLevel.getName())
-                    .setGravity("TRACE")
+                    .setSeverity("TRACE")
                     .add();
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
@@ -1028,7 +1028,7 @@ public class UcteImporter implements Importer {
                     .setKey("elapsedTime")
                     .setDefaultLog("UCTE import done in ${elapsedTime} ms")
                     .addValue("elapsedTime", elapsedTime)
-                    .setGravity("PERFORMANCE")
+                    .setSeverity("PERFORMANCE")
                     .add();
                 LOGGER.debug("UCTE import done in {} ms", elapsedTime);
 

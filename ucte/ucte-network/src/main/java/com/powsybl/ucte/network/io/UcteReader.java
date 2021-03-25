@@ -284,7 +284,7 @@ public class UcteReader {
             .setKey("elapsedTime")
             .setDefaultLog("UCTE file read in ${elapsedTime} ms")
             .addValue("elapsedTime", elapsedTime)
-            .setGravity("PERFORMANCE")
+            .setSeverity("PERFORMANCE")
             .add();
         LOGGER.debug("UCTE file read in {} ms", elapsedTime);
 

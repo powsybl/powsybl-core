@@ -18,7 +18,7 @@ public interface ReportAdder {
 
     ReportAdder addValue(String key, Object value);
 
-    ReportAdder setGravity(String gravity);
+    ReportAdder setSeverity(String severity);
 
     void add();
 
@@ -39,7 +39,7 @@ public interface ReportAdder {
         }
 
         @Override
-        public ReportAdder setGravity(String gravity) {
+        public ReportAdder setSeverity(String severity) {
             return this;
         }
 

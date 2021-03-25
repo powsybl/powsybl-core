@@ -42,8 +42,8 @@ public class ReportAdderImpl implements ReportAdder {
     }
 
     @Override
-    public ReportAdder setGravity(String gravity) {
-        values.put(Reporter.REPORT_GRAVITY, gravity);
+    public ReportAdder setSeverity(String severity) {
+        values.put(Reporter.REPORT_SEVERITY, severity);
         return this;
     }
 

@@ -14,7 +14,7 @@ import java.util.Map;
 public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
-    String REPORT_GRAVITY = "reportGravity";
+    String REPORT_SEVERITY = "reportSeverity";
 
     Reporter createChild(String taskKey, String defaultName, Map<String, Object> values);
 

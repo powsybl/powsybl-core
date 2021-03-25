@@ -425,7 +425,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .setKey("activePowerUndefined")
                 .setDefaultLog("Node ${node}: active power is undefined, set value to 0")
                 .addValue("node", code)
-                .setGravity("WARN")
+                .setSeverity("WARN")
                 .add();
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
             activePowerGeneration = 0;
@@ -481,7 +481,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .setDefaultLog("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .addValue("node", code)
                 .addValue("voltageReference", voltageReference)
-                .setGravity("WARN")
+                .setSeverity("WARN")
                 .add();
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
@@ -508,7 +508,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
                 .setKey("PqUndefinedReactivePower")
                 .setDefaultLog("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .addValue("node", code)
-                .setGravity("WARN")
+                .setSeverity("WARN")
                 .add();
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
             reactivePowerGeneration = 0;
