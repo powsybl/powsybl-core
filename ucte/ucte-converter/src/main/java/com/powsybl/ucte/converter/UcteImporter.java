@@ -1024,14 +1024,7 @@ public class UcteImporter implements Importer {
 
                 stopwatch.stop();
 
-                long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
-                importReporter.newReportAdder()
-                    .withKey("elapsedTime")
-                    .withDefaultLog("UCTE import done in ${elapsedTime} ms")
-                    .withValue("elapsedTime", elapsedTime)
-                    .withSeverity("PERFORMANCE")
-                    .add();
-                LOGGER.debug("UCTE import done in {} ms", elapsedTime);
+                LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
                 return network;
             }

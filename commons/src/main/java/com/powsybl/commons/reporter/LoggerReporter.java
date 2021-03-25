@@ -32,8 +32,7 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
         "DEBUG", LOGGER::debug,
         "INFO", LOGGER::info,
         "WARN", LOGGER::warn,
-        "ERROR", LOGGER::error,
-        "PERFORMANCE", LOGGER::info
+        "ERROR", LOGGER::error
     );
 
     private final String taskKey;

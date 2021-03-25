@@ -279,17 +279,9 @@ public class UcteReader {
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
         parseRecords(parser, network);
-        long elapsedTime = System.currentTimeMillis() - start;
-        readReporter.newReportAdder()
-            .withKey("elapsedTime")
-            .withDefaultLog("UCTE file read in ${elapsedTime} ms")
-            .withValue("elapsedTime", elapsedTime)
-            .withSeverity("PERFORMANCE")
-            .add();
-        LOGGER.debug("UCTE file read in {} ms", elapsedTime);
+        LOGGER.debug("UCTE file read in {} ms", System.currentTimeMillis() - start);
 
-        Reporter fixReporter = reporter.createChild("UctePostReadingFix", "Fixing UCTE network read");
-        network.fix(fixReporter);
+        network.fix(readReporter);
 
         return network;
     }
