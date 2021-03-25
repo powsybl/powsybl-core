@@ -281,10 +281,10 @@ public class UcteReader {
         parseRecords(parser, network);
         long elapsedTime = System.currentTimeMillis() - start;
         readReporter.newReportAdder()
-            .setKey("elapsedTime")
-            .setDefaultLog("UCTE file read in ${elapsedTime} ms")
-            .addValue("elapsedTime", elapsedTime)
-            .setSeverity("PERFORMANCE")
+            .withKey("elapsedTime")
+            .withDefaultLog("UCTE file read in ${elapsedTime} ms")
+            .withValue("elapsedTime", elapsedTime)
+            .withSeverity("PERFORMANCE")
             .add();
         LOGGER.debug("UCTE file read in {} ms", elapsedTime);
 

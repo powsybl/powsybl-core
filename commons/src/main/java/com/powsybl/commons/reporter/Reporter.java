@@ -30,7 +30,7 @@ public interface Reporter {
 
     void report(String reportKey, String defaultLog, String valueKey, Object value);
 
-    ReportAdder newReportAdder();
+    void report(Report report);
 
     class NoOpImpl extends AbstractReporter {
         @Override
@@ -44,13 +44,8 @@ public interface Reporter {
         }
 
         @Override
-        public void report(String reportKey, String defaultLog, Map<String, Object> values) {
+        public void report(Report report) {
             // No-op
-        }
-
-        @Override
-        public ReportAdder newReportAdder() {
-            return ReportAdder.NO_OP;
         }
 
     }

@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.ReportBuilder;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
@@ -111,12 +112,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.newReportAdder()
-                .setKey("createBus")
-                .setDefaultLog("Create bus ${bus}")
-                .addValue("bus", ucteNodeCode)
-                .setSeverity("TRACE")
-                .add();
+            ReportBuilder reportBuilder = new ReportBuilder()
+                .withKey("createBus")
+                .withDefaultMessage("Create bus ${bus}")
+                .withValue("bus", ucteNodeCode)
+                .withSeverity("TRACE");
+            reporter.report(reportBuilder.build());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
@@ -157,12 +158,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            substationReporter.newReportAdder()
-                .setKey("createSubstation")
-                .setDefaultLog("Create substation ${substationName}")
-                .addValue("substationName", ucteSubstation.getName())
-                .setSeverity("TRACE")
-                .add();
+            ReportBuilder substationReport = new ReportBuilder()
+                .withKey("createSubstation")
+                .withDefaultMessage("Create substation ${substationName}")
+                .withValue("substationName", ucteSubstation.getName())
+                .withSeverity("TRACE");
+            substationReporter.report(substationReport.build());
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
             Substation substation = network.newSubstation()
@@ -178,12 +179,12 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                substationReporter.newReportAdder()
-                    .setKey("createVoltageLevel")
-                    .setDefaultLog("Create voltage level ${voltageLevelName}")
-                    .addValue("voltageLevelName", ucteVoltageLevel.getName())
-                    .setSeverity("TRACE")
-                    .add();
+                ReportBuilder vlReport = new ReportBuilder()
+                    .withKey("createVoltageLevel")
+                    .withDefaultMessage("Create voltage level ${voltageLevelName}")
+                    .withValue("voltageLevelName", ucteVoltageLevel.getName())
+                    .withSeverity("TRACE");
+                substationReporter.report(vlReport.build());
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
@@ -1025,10 +1026,10 @@ public class UcteImporter implements Importer {
 
                 long elapsedTime = stopwatch.elapsed(TimeUnit.MILLISECONDS);
                 importReporter.newReportAdder()
-                    .setKey("elapsedTime")
-                    .setDefaultLog("UCTE import done in ${elapsedTime} ms")
-                    .addValue("elapsedTime", elapsedTime)
-                    .setSeverity("PERFORMANCE")
+                    .withKey("elapsedTime")
+                    .withDefaultLog("UCTE import done in ${elapsedTime} ms")
+                    .withValue("elapsedTime", elapsedTime)
+                    .withSeverity("PERFORMANCE")
                     .add();
                 LOGGER.debug("UCTE import done in {} ms", elapsedTime);
 

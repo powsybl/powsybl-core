@@ -99,15 +99,9 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     }
 
     @Override
-    public void report(String reportKey, String defaultLog, Map<String, Object> values) {
-        Report report = new Report(reportKey, defaultLog, values);
+    public void report(Report report) {
         reports.add(report);
         getLogConsumer(report).accept(formatReportLog(report, taskValues));
-    }
-
-    @Override
-    public ReportAdder newReportAdder() {
-        return new ReportAdderImpl(this);
     }
 
     protected Consumer<String> getLogConsumer(Report report) {

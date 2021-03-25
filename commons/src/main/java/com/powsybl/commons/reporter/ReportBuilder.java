@@ -12,43 +12,34 @@ import java.util.Map;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class ReportAdderImpl implements ReportAdder {
+public class ReportBuilder {
 
-    private final Reporter reporter;
     private final Map<String, Object> values = new HashMap<>();
     private String reportKey;
     private String defaultLog;
 
-    protected ReportAdderImpl(Reporter reporter) {
-        this.reporter = reporter;
+    public Report build() {
+        return new Report(reportKey, defaultLog, values);
     }
 
-    @Override
-    public ReportAdder setKey(String reportKey) {
+    public ReportBuilder withKey(String reportKey) {
         this.reportKey = reportKey;
         return this;
     }
 
-    @Override
-    public ReportAdder setDefaultLog(String defaultLog) {
+    public ReportBuilder withDefaultMessage(String defaultLog) {
         this.defaultLog = defaultLog;
         return this;
     }
 
-    @Override
-    public ReportAdder addValue(String key, Object value) {
+    public ReportBuilder withValue(String key, Object value) {
         values.put(key, value);
         return this;
     }
 
-    @Override
-    public ReportAdder setSeverity(String severity) {
+    public ReportBuilder withSeverity(String severity) {
         values.put(Reporter.REPORT_SEVERITY, severity);
         return this;
     }
 
-    @Override
-    public void add() {
-        this.reporter.report(reportKey, defaultLog, values);
-    }
 }
