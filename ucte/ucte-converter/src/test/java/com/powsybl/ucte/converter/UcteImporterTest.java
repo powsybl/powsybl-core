@@ -88,9 +88,13 @@ public class UcteImporterTest {
         loggerReporter.export(sw);
 
         InputStream refStream = getClass().getResourceAsStream("/germanTsosUcteImportLogExport.txt");
-        String refLogExport = new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8);
-        String logExport = sw.toString().replaceAll("in \\d* ms", "in xxx ms"); // Replacing performance strings as they vary from one run to another
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString().replaceAll("in \\d* ms", "in xxx ms")); // Replacing performance strings as they vary from one run to another
         assertEquals(refLogExport, logExport);
+    }
+
+    protected static String normalizeLineSeparator(String str) {
+        return str.replace("\r\n", "\n").replace("\r", "\n");
     }
 
     @Test
