@@ -283,8 +283,15 @@ public class UcteImporter implements Importer {
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
-                                           Network network) {
+                                           Network network, Reporter reporter) {
 
+        ReportBuilder reportBuilder = new ReportBuilder()
+            .withKey("danglingLineCreation")
+            .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
+            .withValue("ucteLine", ucteLine)
+            .withValue("xnodeCode", xnode.getCode())
+            .withSeverity("TRACE");
+        reporter.report(reportBuilder.build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
         float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
@@ -341,7 +348,13 @@ public class UcteImporter implements Importer {
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
                                       UcteLine ucteLine,
                                       UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
-                                      UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+                                      UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
+        ReportBuilder reportBuilder = new ReportBuilder()
+            .withKey("couplerCreation")
+            .withDefaultMessage("Create coupler '${ucteLine}'")
+            .withValue("ucteLine", ucteLine)
+            .withSeverity("TRACE");
+        reporter.report(reportBuilder.build());
         LOGGER.trace("Create coupler '{}'", ucteLine.getId());
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -353,21 +366,27 @@ public class UcteImporter implements Importer {
         if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
             // coupler connected to a XNODE (side 1)
-            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode1), nodeCode2, ucteVoltageLevel2, network);
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode1), nodeCode2, ucteVoltageLevel2, network, reporter);
         } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
             // coupler connected to a XNODE (side 2)
-            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode2), nodeCode1, ucteVoltageLevel1, network);
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode2), nodeCode1, ucteVoltageLevel1, network, reporter);
         } else {
             double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
-            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z, reporter);
         }
     }
 
     private static void createCouplerFromLowImpedanceLine(Network network, UcteLine ucteLine,
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
-                                                          boolean connected, double z) {
+                                                          boolean connected, double z, Reporter reporter) {
+        ReportBuilder reportBuilder = new ReportBuilder()
+            .withKey("couplerLowImpedanceCreation")
+            .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
+            .withValue("ucteLine", ucteLine)
+            .withValue("impedance", z);
+        reporter.report(reportBuilder.build());
         LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -390,7 +409,13 @@ public class UcteImporter implements Importer {
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                            UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
-                                           boolean connected) {
+                                           boolean connected, Reporter reporter) {
+        ReportBuilder reportBuilder = new ReportBuilder()
+            .withKey("standardLineCreation")
+            .withDefaultMessage("Create line '${ucteLine}'")
+            .withValue("ucteLine", ucteLine)
+            .withSeverity("TRACE");
+        reporter.report(reportBuilder.build());
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 
         Line l = network.newLine()
@@ -427,7 +452,7 @@ public class UcteImporter implements Importer {
     private static void createLine(UcteNetworkExt ucteNetwork, Network network,
                                    UcteLine ucteLine,
                                    UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
-                                   UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+                                   UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
         boolean connected = isConnected(ucteLine);
 
         double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
@@ -436,27 +461,27 @@ public class UcteImporter implements Importer {
                 && nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                 && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z, reporter);
         } else {
 
             if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected);
+                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, reporter);
 
             } else if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode1);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
+                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network, reporter);
 
             } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode2);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
+                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network, reporter);
 
             } else {
                 throw new UcteException("Line between 2 Xnodes");
@@ -475,14 +500,14 @@ public class UcteImporter implements Importer {
             switch (ucteLine.getStatus()) {
                 case BUSBAR_COUPLER_IN_OPERATION:
                 case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                    createCoupler(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
+                    createCoupler(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, linesReporter);
                     break;
 
                 case REAL_ELEMENT_IN_OPERATION:
                 case REAL_ELEMENT_OUT_OF_OPERATION:
                 case EQUIVALENT_ELEMENT_IN_OPERATION:
                 case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                    createLine(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
+                    createLine(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, linesReporter);
                     break;
 
                 default:
