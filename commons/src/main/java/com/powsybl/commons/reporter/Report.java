@@ -15,6 +15,14 @@ import java.util.Objects;
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class Report {
+
+    public static final String REPORT_SEVERITY_KEY = "reportSeverity";
+    public static final String SEVERITY_TRACE = "TRACE";
+    public static final String SEVERITY_DEBUG = "DEBUG";
+    public static final String SEVERITY_INFO = "INFO";
+    public static final String SEVERITY_WARN = "WARN";
+    public static final String SEVERITY_ERROR = "ERROR";
+
     private final String reportKey;
     private final String defaultLog;
     private final Map<String, Object> values;

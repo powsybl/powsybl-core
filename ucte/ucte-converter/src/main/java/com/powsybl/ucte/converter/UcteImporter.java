@@ -15,6 +15,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReportBuilder;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.entsoe.util.*;
@@ -116,7 +117,7 @@ public class UcteImporter implements Importer {
                 .withKey("createBus")
                 .withDefaultMessage("Create bus ${bus}")
                 .withValue("bus", ucteNodeCode)
-                .withSeverity("TRACE");
+                .withSeverity(Report.SEVERITY_TRACE);
             reporter.report(reportBuilder.build());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
@@ -162,7 +163,7 @@ public class UcteImporter implements Importer {
                 .withKey("createSubstation")
                 .withDefaultMessage("Create substation ${substationName}")
                 .withValue("substationName", ucteSubstation.getName())
-                .withSeverity("TRACE");
+                .withSeverity(Report.SEVERITY_TRACE);
             substationReporter.report(substationReport.build());
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
@@ -183,7 +184,7 @@ public class UcteImporter implements Importer {
                     .withKey("createVoltageLevel")
                     .withDefaultMessage("Create voltage level ${voltageLevelName}")
                     .withValue("voltageLevelName", ucteVoltageLevel.getName())
-                    .withSeverity("TRACE");
+                    .withSeverity(Report.SEVERITY_TRACE);
                 substationReporter.report(vlReport.build());
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
@@ -290,7 +291,7 @@ public class UcteImporter implements Importer {
             .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
             .withValue("ucteLine", ucteLine)
             .withValue("xnodeCode", xnode.getCode())
-            .withSeverity("TRACE");
+            .withSeverity(Report.SEVERITY_TRACE);
         reporter.report(reportBuilder.build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
@@ -353,7 +354,7 @@ public class UcteImporter implements Importer {
             .withKey("couplerCreation")
             .withDefaultMessage("Create coupler '${ucteLine}'")
             .withValue("ucteLine", ucteLine)
-            .withSeverity("TRACE");
+            .withSeverity(Report.SEVERITY_TRACE);
         reporter.report(reportBuilder.build());
         LOGGER.trace("Create coupler '{}'", ucteLine.getId());
 
@@ -414,7 +415,7 @@ public class UcteImporter implements Importer {
             .withKey("standardLineCreation")
             .withDefaultMessage("Create line '${ucteLine}'")
             .withValue("ucteLine", ucteLine)
-            .withSeverity("TRACE");
+            .withSeverity(Report.SEVERITY_TRACE);
         reporter.report(reportBuilder.build());
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 

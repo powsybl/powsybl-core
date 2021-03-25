@@ -38,7 +38,7 @@ public class ReportBuilder {
     }
 
     public ReportBuilder withSeverity(String severity) {
-        values.put(Reporter.REPORT_SEVERITY, severity);
+        values.put(Report.REPORT_SEVERITY_KEY, severity);
         return this;
     }
 

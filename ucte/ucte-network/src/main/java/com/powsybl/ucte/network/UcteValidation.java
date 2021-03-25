@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReportBuilder;
 import com.powsybl.commons.reporter.Reporter;
 
@@ -39,7 +40,7 @@ public final class UcteValidation {
                         .withDefaultMessage("${lineId} - Real line resistance cannot be negative (${resistance} ohm)")
                         .withValue("lineId", lineId)
                         .withValue("resistance", line.getResistance())
-                        .withSeverity("ERROR");
+                        .withSeverity(Report.SEVERITY_ERROR);
                     reporter.report(reportBuilder.build());
                     LOGGER.error(lineId, "Real line resistance cannot be negative", line.getResistance() + " ohm");
                 }
@@ -49,7 +50,7 @@ public final class UcteValidation {
                         .withDefaultMessage("${lineId} - Real line reactance must be larger than 0.05 ohm (${reactance} ohm)")
                         .withValue("lineId", lineId)
                         .withValue("reactance", line.getReactance())
-                        .withSeverity("WARN");
+                        .withSeverity(Report.SEVERITY_WARN);
                     reporter.report(reportBuilder.build());
                     LOGGER.warn(lineId, "Real line reactance must be larger than 0.05 ohm",
                             line.getReactance() + " ohm");
@@ -63,7 +64,7 @@ public final class UcteValidation {
                         .withDefaultMessage("${lineId} - Busbar coupler resistance must be zero (${resistance} ohm)")
                         .withValue("lineId", lineId)
                         .withValue("resistance", line.getResistance())
-                        .withSeverity("WARN");
+                        .withSeverity(Report.SEVERITY_WARN);
                     reporter.report(reportBuilder.build());
                     LOGGER.warn(lineId, "Busbar coupler resistance must be zero", line.getResistance() + " ohm");
                 }
@@ -73,7 +74,7 @@ public final class UcteValidation {
                         .withDefaultMessage("${lineId} - Busbar coupler reactance must be zero (${reactance} ohm)")
                         .withValue("lineId", lineId)
                         .withValue("reactance", line.getReactance())
-                        .withSeverity("WARN");
+                        .withSeverity(Report.SEVERITY_WARN);
                     reporter.report(reportBuilder.build());
                     LOGGER.warn(lineId, "Busbar coupler reactance must be zero", line.getReactance() + " ohm");
                 }
@@ -83,7 +84,7 @@ public final class UcteValidation {
                         .withDefaultMessage("${lineId} - Busbar coupler susceptance must be zero (${susceptance} ohm)")
                         .withValue("lineId", lineId)
                         .withValue("susceptance", line.getSusceptance())
-                        .withSeverity("WARN");
+                        .withSeverity(Report.SEVERITY_WARN);
                     reporter.report(reportBuilder.build());
                     LOGGER.warn(lineId, "Busbar coupler susceptance must be zero", line.getSusceptance() + " S");
                 }
@@ -102,7 +103,7 @@ public final class UcteValidation {
                 .withDefaultMessage("${transformerId} - Value must be positive, blank and zero is not allowed (${nominalPower} ohm)")
                 .withValue("transformerId", transformerId)
                 .withValue("nominalPower", ucteTransformer.getNominalPower())
-                .withSeverity("ERROR");
+                .withSeverity(Report.SEVERITY_ERROR);
             reporter.report(reportBuilder.build());
             LOGGER.error(transformerId, "Value must be positive, blank and zero is not allowed", ucteTransformer.getNominalPower() + " MW");
         }
@@ -130,7 +131,7 @@ public final class UcteValidation {
                 .withDefaultMessage("${transfoId} - For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
                 .withValue("transfoId", transfoId)
                 .withValue("du", uctePhaseRegulation.getDu())
-                .withSeverity("WARN");
+                .withSeverity(Report.SEVERITY_WARN);
             reporter.report(reportBuilder.build());
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     uctePhaseRegulation.getDu() + " %");
@@ -148,7 +149,7 @@ public final class UcteValidation {
                 .withDefaultMessage("${transfoId} - For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
                 .withValue("transfoId", transfoId)
                 .withValue("du", ucteAngleRegulation.getDu())
-                .withSeverity("WARN");
+                .withSeverity(Report.SEVERITY_WARN);
             reporter.report(reportBuilder.build());
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     ucteAngleRegulation.getDu() + " %");

@@ -28,11 +28,11 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
 
     private static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
     private static final Map<String, Consumer<String>> LOG_CONSUMER_MAP = Map.of(
-        "TRACE", LOGGER::trace,
-        "DEBUG", LOGGER::debug,
-        "INFO", LOGGER::info,
-        "WARN", LOGGER::warn,
-        "ERROR", LOGGER::error
+        Report.SEVERITY_TRACE, LOGGER::trace,
+        Report.SEVERITY_DEBUG, LOGGER::debug,
+        Report.SEVERITY_INFO, LOGGER::info,
+        Report.SEVERITY_WARN, LOGGER::warn,
+        Report.SEVERITY_ERROR, LOGGER::error
     );
 
     private final String taskKey;
@@ -104,7 +104,7 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
     }
 
     protected Consumer<String> getLogConsumer(Report report) {
-        Object logLevelValue = report.getValue(REPORT_SEVERITY);
+        Object logLevelValue = report.getValue(Report.REPORT_SEVERITY_KEY);
         return logLevelValue instanceof String ? LOG_CONSUMER_MAP.get(logLevelValue) : getDefaultLogConsumer();
     }
 
