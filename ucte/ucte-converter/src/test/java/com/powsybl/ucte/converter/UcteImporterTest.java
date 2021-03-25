@@ -78,26 +78,6 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void germanTsosImportReporterTest() throws Exception {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
-
-        LoggerReporter loggerReporter = new LoggerReporter();
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
-
-        StringWriter sw = new StringWriter();
-        loggerReporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/germanTsosUcteImportLogExport.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    protected static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n").replace("\r", "\n");
-    }
-
-    @Test
     public void elementNameTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
@@ -202,6 +182,26 @@ public class UcteImporterTest {
         assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
+    }
+
+    @Test
+    public void testReportVoltageRegulatingXnode() throws Exception {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
+
+        LoggerReporter loggerReporter = new LoggerReporter();
+        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, loggerReporter);
+
+        StringWriter sw = new StringWriter();
+        loggerReporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.txt");
+        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
+    }
+
+    protected static String normalizeLineSeparator(String str) {
+        return str.replace("\r\n", "\n").replace("\r", "\n");
     }
 
     @Test

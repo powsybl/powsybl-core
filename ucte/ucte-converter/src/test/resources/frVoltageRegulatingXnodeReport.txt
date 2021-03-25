@@ -1,0 +1,24 @@
++ Root task
+  + Import UCTE data
+    + Reading UCTE network file
+      + Fix UCTE nodes
+      + Fix UCTE lines
+         FFFFFF11 XXXXXX11 1 - Real line resistance cannot be negative (0.0 ohm)
+         FFFFFF11 XXXXXX12 1 - Real line resistance cannot be negative (0.0 ohm)
+         FFFFFF13 XXXXXX13 1 - Real line resistance cannot be negative (0.0 ohm)
+         FFFFFF13 XXXXXX14 1 - Real line resistance cannot be negative (0.0 ohm)
+      + Fix UCTE transformers
+      + Fix UCTE regulations
+    + Create buses
+      + Create buses for substation FFFFFF
+         Create substation FFFFFF
+         Create voltage level FFFFFF1
+         Create bus FFFFFF13
+         Create bus FFFFFF11
+      + Create buses for substation XXXXXX
+    + Create lines
+       Create dangling line 'FFFFFF11 XXXXXX11 1' (Xnode='XXXXXX11')
+       Create dangling line 'FFFFFF11 XXXXXX12 1' (Xnode='XXXXXX12')
+       Create dangling line 'FFFFFF13 XXXXXX13 1' (Xnode='XXXXXX13')
+       Create dangling line 'FFFFFF13 XXXXXX14 1' (Xnode='XXXXXX14')
+    + Create transformers
