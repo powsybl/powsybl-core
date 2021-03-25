@@ -101,11 +101,11 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
             writeBegin(outputStream);
             int index = 0;
             for (String main : mainStringList) {
-                String rectifier = converterStringList.get(index);
+                String converter1 = converterStringList.get(index);
                 index = index + 1;
-                String inverter = converterStringList.get(index);
+                String converter2 = converterStringList.get(index);
                 index = index + 1;
-                write(Arrays.asList(main, rectifier, inverter), outputStream);
+                write(Arrays.asList(main, converter1, converter2), outputStream);
             }
             writeEnd(outputStream);
         }
