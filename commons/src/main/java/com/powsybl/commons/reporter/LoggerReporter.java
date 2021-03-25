@@ -66,17 +66,17 @@ public class LoggerReporter extends AbstractReporter implements ReportSeeker {
         }
     }
 
-    private void printTaskReport(ReportSeeker loggerReporter, PrintWriter writer, String prefix) {
-        writer.println(prefix + "+ " + formatTaskReportName(loggerReporter.getDefaultName(), loggerReporter.getTaskValues()));
-        loggerReporter.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, loggerReporter.getTaskValues())));
-        loggerReporter.getChildReporters().forEach(child -> printTaskReport(child, writer, prefix + "  "));
+    private void printTaskReport(ReportSeeker reportSeeker, PrintWriter writer, String prefix) {
+        writer.println(prefix + "+ " + formatTaskName(reportSeeker));
+        reportSeeker.getReports().forEach(report -> writer.println(prefix + "   " + formatReportLog(report, reportSeeker.getTaskValues())));
+        reportSeeker.getChildReporters().forEach(child -> printTaskReport(child, writer, prefix + "  "));
     }
 
-    private static String formatTaskReportName(String msgPattern, Map<String, Object> taskValues) {
-        return new StringSubstitutor(taskValues).replace(msgPattern);
+    protected String formatTaskName(ReportSeeker reportSeeker) {
+        return new StringSubstitutor(reportSeeker.getTaskValues()).replace(reportSeeker.getDefaultName());
     }
 
-    private static String formatReportLog(Report report, Map<String, Object> taskValues) {
+    protected String formatReportLog(Report report, Map<String, Object> taskValues) {
         return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultLog()));
     }
 
