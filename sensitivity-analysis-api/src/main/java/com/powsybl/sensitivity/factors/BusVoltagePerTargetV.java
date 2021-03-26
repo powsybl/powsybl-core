@@ -10,16 +10,16 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.factors.functions.BusVoltage;
-import com.powsybl.sensitivity.factors.variables.TargetV;
+import com.powsybl.sensitivity.factors.variables.TargetVoltage;
 
 /**
  * Sensitivity factor for an impact of a targetV increase from a regulating equipment on a bus ref
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  * @see com.powsybl.sensitivity.factors.functions.BusVoltage
- * @see com.powsybl.sensitivity.factors.variables.TargetV
+ * @see com.powsybl.sensitivity.factors.variables.TargetVoltage
  */
-public class BusVoltagePerTargetV extends SensitivityFactor<BusVoltage, TargetV> {
+public class BusVoltagePerTargetV extends SensitivityFactor<BusVoltage, TargetVoltage> {
 
     /**
      * Sensitivity factor standard implementation constructor.
@@ -29,7 +29,7 @@ public class BusVoltagePerTargetV extends SensitivityFactor<BusVoltage, TargetV>
      */
     @JsonCreator
     public BusVoltagePerTargetV(@JsonProperty("function") BusVoltage sensitivityFunction,
-                                @JsonProperty("variable") TargetV sensitivityVariable) {
+                                @JsonProperty("variable") TargetVoltage sensitivityVariable) {
         super(sensitivityFunction, sensitivityVariable);
     }
 }

@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.factors;
 
 import com.powsybl.sensitivity.factors.functions.BusVoltage;
-import com.powsybl.sensitivity.factors.variables.TargetV;
+import com.powsybl.sensitivity.factors.variables.TargetVoltage;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -24,7 +24,7 @@ public class BusVoltagePerTargetVTest {
 
     @Test
     public void checkFailsWhenNullFunction() {
-        TargetV targetV = Mockito.mock(TargetV.class);
+        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
         exception.expect(NullPointerException.class);
         new BusVoltagePerTargetV(null, targetV);
     }
@@ -39,7 +39,7 @@ public class BusVoltagePerTargetVTest {
     @Test
     public void testGetFunction() {
         BusVoltage busVoltage = Mockito.mock(BusVoltage.class);
-        TargetV targetV = Mockito.mock(TargetV.class);
+        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
         BusVoltagePerTargetV factor = new BusVoltagePerTargetV(busVoltage, targetV);
         Assert.assertEquals(busVoltage, factor.getFunction());
     }
@@ -47,7 +47,7 @@ public class BusVoltagePerTargetVTest {
     @Test
     public void testGetVariable() {
         BusVoltage busVoltage = Mockito.mock(BusVoltage.class);
-        TargetV targetV = Mockito.mock(TargetV.class);
+        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
         BusVoltagePerTargetV factor = new BusVoltagePerTargetV(busVoltage, targetV);
         Assert.assertEquals(targetV, factor.getVariable());
     }

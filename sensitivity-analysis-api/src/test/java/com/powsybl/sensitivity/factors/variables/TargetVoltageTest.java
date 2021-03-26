@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
-public class TargetVTest {
+public class TargetVoltageTest {
 
     private static final String VARIABLE_ID = "Variable ID";
     private static final String VARIABLE_NAME = "Variable name";
@@ -28,24 +28,24 @@ public class TargetVTest {
     @Test
     public void checkFailsWhenNullInjection() {
         exception.expect(NullPointerException.class);
-        new TargetV(VARIABLE_ID, VARIABLE_NAME, null);
+        new TargetVoltage(VARIABLE_ID, VARIABLE_NAME, null);
     }
 
     @Test
     public void getName() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
+        TargetVoltage targetV = new TargetVoltage(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
         Assert.assertEquals(VARIABLE_NAME, targetV.getName());
     }
 
     @Test
     public void getId() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
+        TargetVoltage targetV = new TargetVoltage(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
         Assert.assertEquals(VARIABLE_ID, targetV.getId());
     }
 
     @Test
     public void getLine() {
-        TargetV targetV = new TargetV(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
+        TargetVoltage targetV = new TargetVoltage(VARIABLE_ID, VARIABLE_NAME, EQUIPMENT_ID);
         assertEquals(EQUIPMENT_ID, targetV.getEquipmentId());
     }
 }

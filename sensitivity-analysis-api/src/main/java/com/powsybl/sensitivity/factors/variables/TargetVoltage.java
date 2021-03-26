@@ -17,7 +17,7 @@ import java.util.Objects;
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
-public class TargetV extends SensitivityVariable {
+public class TargetVoltage extends SensitivityVariable {
 
     @JsonProperty("equipmentId")
     private final String equipmentId;
@@ -32,7 +32,7 @@ public class TargetV extends SensitivityVariable {
      * @throws NullPointerException if equipmentId is null
      */
     @JsonCreator
-    public TargetV(@JsonProperty("id") String id,
+    public TargetVoltage(@JsonProperty("id") String id,
                    @JsonProperty("name") String name,
                    @JsonProperty("equipmentId") String equipmentId) {
         super(id, name);
