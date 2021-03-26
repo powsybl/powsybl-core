@@ -6,15 +6,9 @@
  */
 package com.powsybl.commons.config;
 
-import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -146,7 +140,22 @@ public interface PlatformConfigNamedProvider {
                 String moduleName, List<String> propertyNames, Class<T> clazz,
                 PlatformConfig platformConfig) {
             List<T> providers = alwaysSameComputeIfAbsent(PROVIDERS, clazz,
-                k -> Lists.newArrayList(ServiceLoader.load(clazz)));
+                k -> {
+                    List<T> list = new ArrayList();
+                    final ServiceLoader<T> load = ServiceLoader.load(clazz);
+                    final Iterator<T> iterator = load.iterator();
+                    while (iterator.hasNext()) {
+                        try {
+                            final T next = iterator.next();
+                            list.add(next);
+                        } catch (Error e) {
+                            // can not initialise a provider if no itools config.yml provided
+                            // but we should still continue as some other provider does not need config.yml
+                            // ignored
+                        }
+                    }
+                    return list;
+                });
             return find(name, moduleName, propertyNames, providers, platformConfig, clazz);
         }
 
