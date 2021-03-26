@@ -424,12 +424,12 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // active power is undefined
         if (Float.isNaN(activePowerGeneration)) {
 
-            ReportBuilder reportBuilder = new ReportBuilder()
+            reporter.report(new ReportBuilder()
                 .withKey("activePowerUndefined")
                 .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
                 .withValue("node", code)
-                .withSeverity(Report.SEVERITY_WARN);
-            reporter.report(reportBuilder.build());
+                .withSeverity(Report.SEVERITY_WARN)
+                .build());
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
             activePowerGeneration = 0;
         }
@@ -479,13 +479,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Float.isNaN(voltageReference) || voltageReference < 0.0001)) {
-            ReportBuilder reportBuilder = new ReportBuilder()
+            reporter.report(new ReportBuilder()
                 .withKey("PvUndefinedVoltage")
                 .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .withValue("node", code)
                 .withValue("voltageReference", voltageReference)
-                .withSeverity(Report.SEVERITY_WARN);
-            reporter.report(reportBuilder.build());
+                .withSeverity(Report.SEVERITY_WARN)
+                .build());
             LOGGER.warn("Node {}: voltage is regulated, but voltage setpoint is null ({}), switch type code to {}",
                     code, voltageReference, UcteNodeTypeCode.PQ);
             typeCode = UcteNodeTypeCode.PQ;
@@ -507,12 +507,12 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PQ and undefined reactive power
         if (!isRegulatingVoltage() && Float.isNaN(reactivePowerGeneration)) {
-            ReportBuilder reportBuilder = new ReportBuilder()
+            reporter.report(new ReportBuilder()
                 .withKey("PqUndefinedReactivePower")
                 .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .withValue("node", code)
-                .withSeverity(Report.SEVERITY_WARN);
-            reporter.report(reportBuilder.build());
+                .withSeverity(Report.SEVERITY_WARN)
+                .build());
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
             reactivePowerGeneration = 0;
         }

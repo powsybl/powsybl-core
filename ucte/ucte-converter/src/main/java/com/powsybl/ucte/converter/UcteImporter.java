@@ -113,12 +113,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            ReportBuilder reportBuilder = new ReportBuilder()
+            reporter.report(new ReportBuilder()
                 .withKey("createBus")
                 .withDefaultMessage("Create bus ${bus}")
                 .withValue("bus", ucteNodeCode)
-                .withSeverity(Report.SEVERITY_TRACE);
-            reporter.report(reportBuilder.build());
+                .withSeverity(Report.SEVERITY_TRACE)
+                .build());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
@@ -159,12 +159,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            ReportBuilder substationReport = new ReportBuilder()
+            substationReporter.report(new ReportBuilder()
                 .withKey("createSubstation")
                 .withDefaultMessage("Create substation ${substationName}")
                 .withValue("substationName", ucteSubstation.getName())
-                .withSeverity(Report.SEVERITY_TRACE);
-            substationReporter.report(substationReport.build());
+                .withSeverity(Report.SEVERITY_TRACE)
+                .build());
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
             Substation substation = network.newSubstation()
@@ -180,12 +180,12 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                ReportBuilder vlReport = new ReportBuilder()
+                substationReporter.report(new ReportBuilder()
                     .withKey("createVoltageLevel")
                     .withDefaultMessage("Create voltage level ${voltageLevelName}")
                     .withValue("voltageLevelName", ucteVoltageLevel.getName())
-                    .withSeverity(Report.SEVERITY_TRACE);
-                substationReporter.report(vlReport.build());
+                    .withSeverity(Report.SEVERITY_TRACE)
+                    .build());
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
@@ -286,13 +286,13 @@ public class UcteImporter implements Importer {
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network, Reporter reporter) {
 
-        ReportBuilder reportBuilder = new ReportBuilder()
+        reporter.report(new ReportBuilder()
             .withKey("danglingLineCreation")
             .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
             .withValue("ucteLine", ucteLine)
             .withValue("xnodeCode", xnode.getCode())
-            .withSeverity(Report.SEVERITY_TRACE);
-        reporter.report(reportBuilder.build());
+            .withSeverity(Report.SEVERITY_TRACE)
+            .build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
         float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
@@ -350,12 +350,12 @@ public class UcteImporter implements Importer {
                                       UcteLine ucteLine,
                                       UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                       UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
-        ReportBuilder reportBuilder = new ReportBuilder()
+        reporter.report(new ReportBuilder()
             .withKey("couplerCreation")
             .withDefaultMessage("Create coupler '${ucteLine}'")
             .withValue("ucteLine", ucteLine)
-            .withSeverity(Report.SEVERITY_TRACE);
-        reporter.report(reportBuilder.build());
+            .withSeverity(Report.SEVERITY_TRACE)
+            .build());
         LOGGER.trace("Create coupler '{}'", ucteLine.getId());
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -382,12 +382,12 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z, Reporter reporter) {
-        ReportBuilder reportBuilder = new ReportBuilder()
+        reporter.report(new ReportBuilder()
             .withKey("couplerLowImpedanceCreation")
             .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
             .withValue("ucteLine", ucteLine)
-            .withValue("impedance", z);
-        reporter.report(reportBuilder.build());
+            .withValue("impedance", z)
+            .build());
         LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -411,12 +411,12 @@ public class UcteImporter implements Importer {
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                            UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                            boolean connected, Reporter reporter) {
-        ReportBuilder reportBuilder = new ReportBuilder()
+        reporter.report(new ReportBuilder()
             .withKey("standardLineCreation")
             .withDefaultMessage("Create line '${ucteLine}'")
             .withValue("ucteLine", ucteLine)
-            .withSeverity(Report.SEVERITY_TRACE);
-        reporter.report(reportBuilder.build());
+            .withSeverity(Report.SEVERITY_TRACE)
+            .build());
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 
         Line l = network.newLine()
