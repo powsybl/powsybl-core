@@ -7,7 +7,6 @@
 package com.powsybl.ucte.network;
 
 import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReportBuilder;
 import com.powsybl.commons.reporter.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -424,7 +423,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // active power is undefined
         if (Float.isNaN(activePowerGeneration)) {
 
-            reporter.report(new ReportBuilder()
+            reporter.report(Report.builder()
                 .withKey("activePowerUndefined")
                 .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
                 .withValue("node", code)
@@ -479,7 +478,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PV and undefined voltage, switch to PQ
         if (isRegulatingVoltage() && (Float.isNaN(voltageReference) || voltageReference < 0.0001)) {
-            reporter.report(new ReportBuilder()
+            reporter.report(Report.builder()
                 .withKey("PvUndefinedVoltage")
                 .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
                 .withValue("node", code)
@@ -507,7 +506,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
         // PQ and undefined reactive power
         if (!isRegulatingVoltage() && Float.isNaN(reactivePowerGeneration)) {
-            reporter.report(new ReportBuilder()
+            reporter.report(Report.builder()
                 .withKey("PqUndefinedReactivePower")
                 .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
                 .withValue("node", code)

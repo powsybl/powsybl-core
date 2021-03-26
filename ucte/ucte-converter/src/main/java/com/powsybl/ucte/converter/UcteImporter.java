@@ -16,7 +16,6 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.reporter.Report;
-import com.powsybl.commons.reporter.ReportBuilder;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
@@ -113,7 +112,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            reporter.report(new ReportBuilder()
+            reporter.report(Report.builder()
                 .withKey("createBus")
                 .withDefaultMessage("Create bus ${bus}")
                 .withValue("bus", ucteNodeCode)
@@ -159,7 +158,7 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
-            substationReporter.report(new ReportBuilder()
+            substationReporter.report(Report.builder()
                 .withKey("createSubstation")
                 .withDefaultMessage("Create substation ${substationName}")
                 .withValue("substationName", ucteSubstation.getName())
@@ -180,7 +179,7 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
-                substationReporter.report(new ReportBuilder()
+                substationReporter.report(Report.builder()
                     .withKey("createVoltageLevel")
                     .withDefaultMessage("Create voltage level ${voltageLevelName}")
                     .withValue("voltageLevelName", ucteVoltageLevel.getName())
@@ -286,7 +285,7 @@ public class UcteImporter implements Importer {
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network, Reporter reporter) {
 
-        reporter.report(new ReportBuilder()
+        reporter.report(Report.builder()
             .withKey("danglingLineCreation")
             .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
             .withValue("ucteLine", ucteLine)
@@ -350,7 +349,7 @@ public class UcteImporter implements Importer {
                                       UcteLine ucteLine,
                                       UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                       UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
-        reporter.report(new ReportBuilder()
+        reporter.report(Report.builder()
             .withKey("couplerCreation")
             .withDefaultMessage("Create coupler '${ucteLine}'")
             .withValue("ucteLine", ucteLine)
@@ -382,7 +381,7 @@ public class UcteImporter implements Importer {
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                                           boolean connected, double z, Reporter reporter) {
-        reporter.report(new ReportBuilder()
+        reporter.report(Report.builder()
             .withKey("couplerLowImpedanceCreation")
             .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
             .withValue("ucteLine", ucteLine)
@@ -411,7 +410,7 @@ public class UcteImporter implements Importer {
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                            UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
                                            boolean connected, Reporter reporter) {
-        reporter.report(new ReportBuilder()
+        reporter.report(Report.builder()
             .withKey("standardLineCreation")
             .withDefaultMessage("Create line '${ucteLine}'")
             .withValue("ucteLine", ucteLine)

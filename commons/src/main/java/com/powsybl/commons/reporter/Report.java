@@ -33,6 +33,10 @@ public class Report {
         this.values = new HashMap<>(Objects.requireNonNull(values));
     }
 
+    public static ReportBuilder builder() {
+        return new ReportBuilder();
+    }
+
     public String getDefaultMessage() {
         return defaultMessage;
     }
