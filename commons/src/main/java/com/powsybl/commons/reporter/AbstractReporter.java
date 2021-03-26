@@ -25,18 +25,18 @@ public abstract class AbstractReporter implements Reporter {
     }
 
     @Override
-    public void report(String reportKey, String defaultLog, Map<String, Object> values) {
-        report(new Report(reportKey, defaultLog, values));
+    public void report(String reportKey, String defaultMessage, Map<String, Object> values) {
+        report(new Report(reportKey, defaultMessage, values));
     }
 
     @Override
-    public void report(String reportKey, String defaultLog) {
-        report(reportKey, defaultLog, Collections.emptyMap());
+    public void report(String reportKey, String defaultMessage) {
+        report(reportKey, defaultMessage, Collections.emptyMap());
     }
 
     @Override
-    public void report(String reportKey, String defaultLog, String valueKey, Object value) {
-        report(reportKey, defaultLog, Map.of(valueKey, value));
+    public void report(String reportKey, String defaultMessage, String valueKey, Object value) {
+        report(reportKey, defaultMessage, Map.of(valueKey, value));
     }
 
 }

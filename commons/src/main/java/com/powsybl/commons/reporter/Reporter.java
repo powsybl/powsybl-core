@@ -23,11 +23,11 @@ public interface Reporter {
 
     void addTaskValue(String key, Object value);
 
-    void report(String reportKey, String defaultLog, Map<String, Object> values);
+    void report(String reportKey, String defaultMessage, Map<String, Object> values);
 
-    void report(String reportKey, String defaultLog);
+    void report(String reportKey, String defaultMessage);
 
-    void report(String reportKey, String defaultLog, String valueKey, Object value);
+    void report(String reportKey, String defaultMessage, String valueKey, Object value);
 
     void report(Report report);
 

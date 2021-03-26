@@ -24,17 +24,17 @@ public class Report {
     public static final String SEVERITY_ERROR = "ERROR";
 
     private final String reportKey;
-    private final String defaultLog;
+    private final String defaultMessage;
     private final Map<String, Object> values;
 
-    public Report(String reportKey, String defaultLog, Map<String, Object> values) {
+    public Report(String reportKey, String defautlMessage, Map<String, Object> values) {
         this.reportKey = Objects.requireNonNull(reportKey);
-        this.defaultLog = defaultLog;
+        this.defaultMessage = defautlMessage;
         this.values = new HashMap<>(Objects.requireNonNull(values));
     }
 
-    public String getDefaultLog() {
-        return defaultLog;
+    public String getDefaultMessage() {
+        return defaultMessage;
     }
 
     public String getReportKey() {

@@ -59,15 +59,15 @@ public class LoggerReporter extends AbstractReporter {
 
     @Override
     public void report(Report report) {
-        getLogConsumer(report).accept(formatReportLog(report, taskValues));
+        getLogConsumer(report).accept(formatReportMessage(report, taskValues));
     }
 
     public String toString() {
         return new StringSubstitutor(taskValues).replace(defaultName);
     }
 
-    protected String formatReportLog(Report report, Map<String, Object> taskValues) {
-        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultLog()));
+    protected String formatReportMessage(Report report, Map<String, Object> taskValues) {
+        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultMessage()));
     }
 
     protected Consumer<String> getLogConsumer(Report report) {

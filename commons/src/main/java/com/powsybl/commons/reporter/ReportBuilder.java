@@ -16,10 +16,10 @@ public class ReportBuilder {
 
     private final Map<String, Object> values = new HashMap<>();
     private String reportKey;
-    private String defaultLog;
+    private String defaultMessage;
 
     public Report build() {
-        return new Report(reportKey, defaultLog, values);
+        return new Report(reportKey, defaultMessage, values);
     }
 
     public ReportBuilder withKey(String reportKey) {
@@ -27,8 +27,8 @@ public class ReportBuilder {
         return this;
     }
 
-    public ReportBuilder withDefaultMessage(String defaultLog) {
-        this.defaultLog = defaultLog;
+    public ReportBuilder withDefaultMessage(String defaultMessage) {
+        this.defaultMessage = defaultMessage;
         return this;
     }
 

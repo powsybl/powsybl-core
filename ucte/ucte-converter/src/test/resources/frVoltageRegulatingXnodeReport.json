@@ -30,7 +30,7 @@
         "taskValues" : { },
         "reports" : [ {
           "reportKey" : "negativeLineResistance",
-          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
           "values" : {
             "lineId" : "FFFFFF11 XXXXXX11 1",
             "reportSeverity" : "ERROR",
@@ -38,7 +38,7 @@
           }
         }, {
           "reportKey" : "negativeLineResistance",
-          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
           "values" : {
             "lineId" : "FFFFFF11 XXXXXX12 1",
             "reportSeverity" : "ERROR",
@@ -46,7 +46,7 @@
           }
         }, {
           "reportKey" : "negativeLineResistance",
-          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
           "values" : {
             "lineId" : "FFFFFF13 XXXXXX13 1",
             "reportSeverity" : "ERROR",
@@ -54,7 +54,7 @@
           }
         }, {
           "reportKey" : "negativeLineResistance",
-          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
           "values" : {
             "lineId" : "FFFFFF13 XXXXXX14 1",
             "reportSeverity" : "ERROR",
@@ -92,21 +92,21 @@
         },
         "reports" : [ {
           "reportKey" : "createSubstation",
-          "defaultLog" : "Create substation ${substationName}",
+          "defaultMessage" : "Create substation ${substationName}",
           "values" : {
             "reportSeverity" : "TRACE",
             "substationName" : "FFFFFF"
           }
         }, {
           "reportKey" : "createVoltageLevel",
-          "defaultLog" : "Create voltage level ${voltageLevelName}",
+          "defaultMessage" : "Create voltage level ${voltageLevelName}",
           "values" : {
             "reportSeverity" : "TRACE",
             "voltageLevelName" : "FFFFFF1"
           }
         }, {
           "reportKey" : "createBus",
-          "defaultLog" : "Create bus ${bus}",
+          "defaultMessage" : "Create bus ${bus}",
           "values" : {
             "reportSeverity" : "TRACE",
             "bus" : {
@@ -118,7 +118,7 @@
           }
         }, {
           "reportKey" : "createBus",
-          "defaultLog" : "Create bus ${bus}",
+          "defaultMessage" : "Create bus ${bus}",
           "values" : {
             "reportSeverity" : "TRACE",
             "bus" : {
@@ -147,7 +147,7 @@
       "taskValues" : { },
       "reports" : [ {
         "reportKey" : "danglingLineCreation",
-        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
         "values" : {
           "xnodeCode" : {
             "ucteCountryCode" : "XX",
@@ -182,7 +182,7 @@
         }
       }, {
         "reportKey" : "danglingLineCreation",
-        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
         "values" : {
           "xnodeCode" : {
             "ucteCountryCode" : "XX",
@@ -217,7 +217,7 @@
         }
       }, {
         "reportKey" : "danglingLineCreation",
-        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
         "values" : {
           "xnodeCode" : {
             "ucteCountryCode" : "XX",
@@ -252,7 +252,7 @@
         }
       }, {
         "reportKey" : "danglingLineCreation",
-        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
         "values" : {
           "xnodeCode" : {
             "ucteCountryCode" : "XX",

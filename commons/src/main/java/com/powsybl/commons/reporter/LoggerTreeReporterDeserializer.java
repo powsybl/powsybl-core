@@ -118,7 +118,7 @@ public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeRe
         @Override
         public Report deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String reportKey = null;
-            String defaultLog = "";
+            String defaultMessage = "";
             Map<String, Object> values = new HashMap<>();
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
@@ -127,8 +127,8 @@ public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeRe
                         reportKey = p.nextTextValue();
                         break;
 
-                    case "defaultLog":
-                        defaultLog = p.nextTextValue();
+                    case "defaultMessage":
+                        defaultMessage = p.nextTextValue();
                         break;
 
                     case "values":
@@ -142,7 +142,7 @@ public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeRe
                 }
             }
 
-            return new Report(reportKey, defaultLog, values);
+            return new Report(reportKey, defaultMessage, values);
         }
     }
 }
