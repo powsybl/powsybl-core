@@ -6,11 +6,9 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.reporter.LoggerTreeReporter;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -19,10 +17,6 @@ import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import java.io.InputStream;
-import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
@@ -182,26 +176,6 @@ public class UcteImporterTest {
         assertEquals(-2.0, dl.getGeneration().getMinP(), 0.01);
         assertEquals(1.0, dl.getGeneration().getReactiveLimits().getMaxQ(dl.getGeneration().getTargetP()), 0.01);
         assertEquals(-1.0, dl.getGeneration().getReactiveLimits().getMinQ(dl.getGeneration().getTargetP()), 0.01);
-    }
-
-    @Test
-    public void testReportVoltageRegulatingXnode() throws Exception {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
-
-        LoggerTreeReporter reporter = new LoggerTreeReporter();
-        new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
-
-        StringWriter sw = new StringWriter();
-        reporter.export(sw);
-
-        InputStream refStream = getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.txt");
-        String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
-        String logExport = normalizeLineSeparator(sw.toString());
-        assertEquals(refLogExport, logExport);
-    }
-
-    protected static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n").replace("\r", "\n");
     }
 
     @Test

@@ -1,0 +1,299 @@
+{
+  "version" : "1.0",
+  "taskKey" : "rootTaskKey",
+  "defaultName" : "Root task",
+  "taskValues" : { },
+  "reports" : [ ],
+  "childReporters" : [ {
+    "version" : "1.0",
+    "taskKey" : "ImportUcteData",
+    "defaultName" : "Import UCTE data",
+    "taskValues" : { },
+    "reports" : [ ],
+    "childReporters" : [ {
+      "version" : "1.0",
+      "taskKey" : "UcteReading",
+      "defaultName" : "Reading UCTE network file",
+      "taskValues" : { },
+      "reports" : [ ],
+      "childReporters" : [ {
+        "version" : "1.0",
+        "taskKey" : "fixUcteNodes",
+        "defaultName" : "Fix UCTE nodes",
+        "taskValues" : { },
+        "reports" : [ ],
+        "childReporters" : [ ]
+      }, {
+        "version" : "1.0",
+        "taskKey" : "fixUcteLines",
+        "defaultName" : "Fix UCTE lines",
+        "taskValues" : { },
+        "reports" : [ {
+          "reportKey" : "negativeLineResistance",
+          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "values" : {
+            "lineId" : "FFFFFF11 XXXXXX11 1",
+            "reportSeverity" : "ERROR",
+            "resistance" : 0.0
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "values" : {
+            "lineId" : "FFFFFF11 XXXXXX12 1",
+            "reportSeverity" : "ERROR",
+            "resistance" : 0.0
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "values" : {
+            "lineId" : "FFFFFF13 XXXXXX13 1",
+            "reportSeverity" : "ERROR",
+            "resistance" : 0.0
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "defaultLog" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "values" : {
+            "lineId" : "FFFFFF13 XXXXXX14 1",
+            "reportSeverity" : "ERROR",
+            "resistance" : 0.0
+          }
+        } ],
+        "childReporters" : [ ]
+      }, {
+        "version" : "1.0",
+        "taskKey" : "fixUcteTransformer",
+        "defaultName" : "Fix UCTE transformers",
+        "taskValues" : { },
+        "reports" : [ ],
+        "childReporters" : [ ]
+      }, {
+        "version" : "1.0",
+        "taskKey" : "fixUcteRegulations",
+        "defaultName" : "Fix UCTE regulations",
+        "taskValues" : { },
+        "reports" : [ ],
+        "childReporters" : [ ]
+      } ]
+    }, {
+      "version" : "1.0",
+      "taskKey" : "createBuses",
+      "defaultName" : "Create buses",
+      "taskValues" : { },
+      "reports" : [ ],
+      "childReporters" : [ {
+        "version" : "1.0",
+        "taskKey" : "createBusesSubstation",
+        "defaultName" : "Create buses for substation ${substation}",
+        "taskValues" : {
+          "substation" : "FFFFFF"
+        },
+        "reports" : [ {
+          "reportKey" : "createSubstation",
+          "defaultLog" : "Create substation ${substationName}",
+          "values" : {
+            "reportSeverity" : "TRACE",
+            "substationName" : "FFFFFF"
+          }
+        }, {
+          "reportKey" : "createVoltageLevel",
+          "defaultLog" : "Create voltage level ${voltageLevelName}",
+          "values" : {
+            "reportSeverity" : "TRACE",
+            "voltageLevelName" : "FFFFFF1"
+          }
+        }, {
+          "reportKey" : "createBus",
+          "defaultLog" : "Create bus ${bus}",
+          "values" : {
+            "reportSeverity" : "TRACE",
+            "bus" : {
+              "ucteCountryCode" : "FR",
+              "geographicalSpot" : "FFFFF",
+              "voltageLevelCode" : "VL_380",
+              "busbar" : "1"
+            }
+          }
+        }, {
+          "reportKey" : "createBus",
+          "defaultLog" : "Create bus ${bus}",
+          "values" : {
+            "reportSeverity" : "TRACE",
+            "bus" : {
+              "ucteCountryCode" : "FR",
+              "geographicalSpot" : "FFFFF",
+              "voltageLevelCode" : "VL_380",
+              "busbar" : "3"
+            }
+          }
+        } ],
+        "childReporters" : [ ]
+      }, {
+        "version" : "1.0",
+        "taskKey" : "createBusesSubstation",
+        "defaultName" : "Create buses for substation ${substation}",
+        "taskValues" : {
+          "substation" : "XXXXXX"
+        },
+        "reports" : [ ],
+        "childReporters" : [ ]
+      } ]
+    }, {
+      "version" : "1.0",
+      "taskKey" : "createLines",
+      "defaultName" : "Create lines",
+      "taskValues" : { },
+      "reports" : [ {
+        "reportKey" : "danglingLineCreation",
+        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "values" : {
+          "xnodeCode" : {
+            "ucteCountryCode" : "XX",
+            "geographicalSpot" : "XXXXX",
+            "voltageLevelCode" : "VL_380",
+            "busbar" : "1"
+          },
+          "ucteLine" : {
+            "id" : {
+              "nodeCode1" : {
+                "ucteCountryCode" : "FR",
+                "geographicalSpot" : "FFFFF",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "1"
+              },
+              "nodeCode2" : {
+                "ucteCountryCode" : "XX",
+                "geographicalSpot" : "XXXXX",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "1"
+              },
+              "orderCode" : "1"
+            },
+            "status" : "EQUIVALENT_ELEMENT_IN_OPERATION",
+            "resistance" : 0.0,
+            "reactance" : 0.2,
+            "susceptance" : 0.0,
+            "currentLimit" : 5051,
+            "elementName" : "ABCDE"
+          },
+          "reportSeverity" : "TRACE"
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "values" : {
+          "xnodeCode" : {
+            "ucteCountryCode" : "XX",
+            "geographicalSpot" : "XXXXX",
+            "voltageLevelCode" : "VL_380",
+            "busbar" : "2"
+          },
+          "ucteLine" : {
+            "id" : {
+              "nodeCode1" : {
+                "ucteCountryCode" : "FR",
+                "geographicalSpot" : "FFFFF",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "1"
+              },
+              "nodeCode2" : {
+                "ucteCountryCode" : "XX",
+                "geographicalSpot" : "XXXXX",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "2"
+              },
+              "orderCode" : "1"
+            },
+            "status" : "EQUIVALENT_ELEMENT_IN_OPERATION",
+            "resistance" : 0.0,
+            "reactance" : 0.2,
+            "susceptance" : 0.0,
+            "currentLimit" : 5051,
+            "elementName" : null
+          },
+          "reportSeverity" : "TRACE"
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "values" : {
+          "xnodeCode" : {
+            "ucteCountryCode" : "XX",
+            "geographicalSpot" : "XXXXX",
+            "voltageLevelCode" : "VL_380",
+            "busbar" : "3"
+          },
+          "ucteLine" : {
+            "id" : {
+              "nodeCode1" : {
+                "ucteCountryCode" : "FR",
+                "geographicalSpot" : "FFFFF",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "3"
+              },
+              "nodeCode2" : {
+                "ucteCountryCode" : "XX",
+                "geographicalSpot" : "XXXXX",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "3"
+              },
+              "orderCode" : "1"
+            },
+            "status" : "EQUIVALENT_ELEMENT_OUT_OF_OPERATION",
+            "resistance" : 0.0,
+            "reactance" : 0.2,
+            "susceptance" : 0.0,
+            "currentLimit" : 5051,
+            "elementName" : null
+          },
+          "reportSeverity" : "TRACE"
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "defaultLog" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+        "values" : {
+          "xnodeCode" : {
+            "ucteCountryCode" : "XX",
+            "geographicalSpot" : "XXXXX",
+            "voltageLevelCode" : "VL_380",
+            "busbar" : "4"
+          },
+          "ucteLine" : {
+            "id" : {
+              "nodeCode1" : {
+                "ucteCountryCode" : "FR",
+                "geographicalSpot" : "FFFFF",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "3"
+              },
+              "nodeCode2" : {
+                "ucteCountryCode" : "XX",
+                "geographicalSpot" : "XXXXX",
+                "voltageLevelCode" : "VL_380",
+                "busbar" : "4"
+              },
+              "orderCode" : "1"
+            },
+            "status" : "EQUIVALENT_ELEMENT_OUT_OF_OPERATION",
+            "resistance" : 0.0,
+            "reactance" : 0.2,
+            "susceptance" : 0.0,
+            "currentLimit" : 5051,
+            "elementName" : "PQRST"
+          },
+          "reportSeverity" : "TRACE"
+        }
+      } ],
+      "childReporters" : [ ]
+    }, {
+      "version" : "1.0",
+      "taskKey" : "createTransformers",
+      "defaultName" : "Create transformers",
+      "taskValues" : { },
+      "reports" : [ ],
+      "childReporters" : [ ]
+    } ]
+  } ]
+}
