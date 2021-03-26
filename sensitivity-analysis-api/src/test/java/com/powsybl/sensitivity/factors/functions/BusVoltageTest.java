@@ -8,8 +8,9 @@ package com.powsybl.sensitivity.factors.functions;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.iidm.network.BranchBasedBusRef;
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.BusRef;
+import com.powsybl.iidm.network.IdBasedBusRef;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,12 +51,12 @@ public class BusVoltageTest {
 
     @Test
     public void getBranchId() throws JsonProcessingException {
-        BranchBasedBusRef busRef = new BranchBasedBusRef("branchId", "ONE");
+        IdBasedBusRef busRef = new IdBasedBusRef("branchId", Branch.Side.ONE);
         BusVoltage busVoltage = new BusVoltage(FUNCTION_ID, FUNCTION_NAME, busRef);
         assertEquals(busRef, busVoltage.getBusRef());
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(busVoltage);
-        String expectedJson = "{\"@c\":\".BusVoltage\",\"id\":\"Function ID\",\"name\":\"Function name\",\"busRef\":{\"@c\":\".BranchBasedBusRef\",\"branchId\":\"branchId\",\"side\":\"ONE\"}}";
+        String expectedJson = "{\"@c\":\".BusVoltage\",\"id\":\"Function ID\",\"name\":\"Function name\",\"busRef\":{\"@c\":\".IdBasedBusRef\",\"id\":\"branchId\",\"side\":\"ONE\"}}";
         assertEquals(expectedJson, json);
         final BusVoltage deserialized = objectMapper.readValue(expectedJson, BusVoltage.class);
         assertEquals(busVoltage, deserialized);

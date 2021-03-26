@@ -33,7 +33,7 @@ public class NodeNumberBasedBusRef implements BusRef {
         if (voltageLevel == null) {
             return Optional.empty();
         }
-        if (voltageLevel.getNodeBreakerView() != null) {
+        if (Objects.equals(TopologyKind.NODE_BREAKER, voltageLevel.getTopologyKind())) {
             final Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
             if (terminal == null) {
                 return Optional.empty();
@@ -71,9 +71,7 @@ public class NodeNumberBasedBusRef implements BusRef {
 
     @Override
     public int hashCode() {
-        int result = getVoltageLevelId().hashCode();
-        result = 31 * result + getNode();
-        return result;
+        return Objects.hash(voltageLevelId, node);
     }
 
 }

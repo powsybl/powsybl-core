@@ -12,7 +12,6 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.util.Optional;
 
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = BranchBasedBusRef.class),
         @JsonSubTypes.Type(value = IdBasedBusRef.class),
         @JsonSubTypes.Type(value = NodeNumberBasedBusRef.class)
 })

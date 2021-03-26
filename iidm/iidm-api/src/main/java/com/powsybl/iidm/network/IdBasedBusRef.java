@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.commons.PowsyblException;
 
@@ -14,39 +15,68 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * There would be two types of id:
+ * There would be three types of id:
  * 1. id of equipment:
  * 2. id of a configured bus itself:
+ * 3. id of branch, in this case, side is required
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class IdBasedBusRef implements BusRef {
 
     private final String id;
+    private final Branch.Side side;
+
+    public IdBasedBusRef(String id) {
+        this.id = Objects.requireNonNull(id);
+        this.side = null;
+    }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public IdBasedBusRef(@JsonProperty("id") String id) {
+    public IdBasedBusRef(@JsonProperty("id") String id, @JsonProperty("side") Branch.Side side) {
         this.id = Objects.requireNonNull(id);
+        this.side = side;
     }
 
     @Override
     public Optional<Bus> resolve(Network network) {
-        final Identifiable<?> identifiable = network.getIdentifiable(id);
-        if (identifiable == null) {
-            return Optional.empty();
-        }
-        if (identifiable instanceof Bus) {
-            Bus bus = (Bus) identifiable;
-            return Optional.of(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
-        } else if (identifiable instanceof Injection) {
-            final Injection injection = (Injection) identifiable;
-            return Optional.of(injection.getTerminal().getBusView().getBus());
+        if (side == null) {
+            final Identifiable<?> identifiable = network.getIdentifiable(id);
+            if (identifiable == null) {
+                return Optional.empty();
+            }
+            if (identifiable instanceof Bus) {
+                Bus bus = (Bus) identifiable;
+                return Optional.of(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+            } else if (identifiable instanceof Injection) {
+                final Injection injection = (Injection) identifiable;
+                return Optional.of(injection.getTerminal().getBusView().getBus());
+            } else {
+                throw new PowsyblException(id + " is not a bus or injection.");
+            }
         } else {
-            throw new PowsyblException(id + " is not a bus or injection.");
+            Branch branch = network.getBranch(id);
+            Terminal terminal;
+            switch (side) {
+                case ONE:
+                    terminal = branch.getTerminal1();
+                    break;
+                case TWO:
+                    terminal = branch.getTerminal2();
+                    break;
+                default:
+                    throw new AssertionError("Unexpected side: " + side);
+            }
+            return Optional.ofNullable(terminal.getBusView().getBus());
         }
     }
 
     public String getId() {
         return id;
+    }
+
+    public Branch.Side getSide() {
+        return side;
     }
 
     @Override
@@ -60,11 +90,14 @@ public class IdBasedBusRef implements BusRef {
 
         IdBasedBusRef that = (IdBasedBusRef) o;
 
-        return getId().equals(that.getId());
+        if (getId() != null ? !getId().equals(that.getId()) : that.getId() != null) {
+            return false;
+        }
+        return getSide() != null ? getSide().equals(that.getSide()) : that.getSide() == null;
     }
 
     @Override
     public int hashCode() {
-        return getId().hashCode();
+        return Objects.hash(id, side);
     }
 }

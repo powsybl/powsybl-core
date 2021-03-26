@@ -74,7 +74,7 @@ public class BusRefTest {
     }
 
     @Test
-    public void testBranchBased() throws JsonProcessingException {
+    public void testBranch() throws JsonProcessingException {
         Network network = mock(Network.class);
         Branch branch = mock(Branch.class);
         when(network.getBranch(eq("branchId"))).thenReturn(branch);
@@ -83,7 +83,7 @@ public class BusRefTest {
         when(branch.getTerminal1()).thenReturn(terminal);
         when(terminal.getBusView()).thenReturn(bv);
         when(bv.getBus()).thenReturn(bus);
-        final BusRef busRef = new BranchBasedBusRef("branchId", "ONE");
+        final BusRef busRef = new IdBasedBusRef("branchId", Branch.Side.ONE);
         assertEquals(bus, busRef.resolve(network).orElseThrow(AssertionError::new));
         Terminal terminal2 = mock(Terminal.class);
         Terminal.BusView bv2 = mock(Terminal.BusView.class);
@@ -91,16 +91,16 @@ public class BusRefTest {
         when(terminal2.getBusView()).thenReturn(bv2);
         Bus bus2 = mock(Bus.class);
         when(bv2.getBus()).thenReturn(bus2);
-        final BusRef busRef2 = new BranchBasedBusRef("branchId", "TWO");
+        final BusRef busRef2 = new IdBasedBusRef("branchId", Branch.Side.TWO);
         assertEquals(bus2, busRef2.resolve(network).orElseThrow(AssertionError::new));
 
         ObjectMapper objectMapper = new ObjectMapper();
         final String json = objectMapper.writeValueAsString(busRef);
-        assertEquals("{\"@c\":\".BranchBasedBusRef\",\"branchId\":\"branchId\",\"side\":\"ONE\"}", json);
+        assertEquals("{\"@c\":\".IdBasedBusRef\",\"id\":\"branchId\",\"side\":\"ONE\"}", json);
         final BusRef deserialized = objectMapper.readValue(json, BusRef.class);
         assertEquals(busRef, deserialized);
 
-        assertEquals(busRef, new BranchBasedBusRef("branchId", "ONE"));
+        assertEquals(busRef, new IdBasedBusRef("branchId", Branch.Side.ONE));
     }
 
     @Test
@@ -109,6 +109,7 @@ public class BusRefTest {
         VoltageLevel vl = mock(VoltageLevel.class);
         when(network.getVoltageLevel(eq("vl"))).thenReturn(vl);
         VoltageLevel.NodeBreakerView nbv = mock(VoltageLevel.NodeBreakerView.class);
+        when(vl.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
         when(vl.getNodeBreakerView()).thenReturn(nbv);
         Terminal terminal = mock(Terminal.class);
         Terminal.BusView bv = mock(Terminal.BusView.class);
@@ -125,7 +126,7 @@ public class BusRefTest {
         assertEquals("{\"@c\":\".NodeNumberBasedBusRef\",\"voltageLevelId\":\"vl\",\"node\":1}", json);
         assertEquals(busRef, objectMapper.readValue(json, NodeNumberBasedBusRef.class));
 
-        when(vl.getNodeBreakerView()).thenReturn(null);
+        when(vl.getTopologyKind()).thenReturn(TopologyKind.BUS_BREAKER);
         try {
             busRef.resolve(network);
             fail();

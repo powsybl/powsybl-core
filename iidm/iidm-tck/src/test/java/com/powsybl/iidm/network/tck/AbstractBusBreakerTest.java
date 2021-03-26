@@ -177,6 +177,8 @@ public abstract class AbstractBusBreakerTest {
     public void testConnectedTerminals() {
         Network network = createTestNetwork();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        System.out.println(vl1.getTopologyKind());
+        System.out.println("vl1" + vl1.getNodeBreakerView());
 
         Terminal gt = network.getGenerator("G").getTerminal();
         Terminal ld1t = network.getLoad("LD1").getTerminal();
