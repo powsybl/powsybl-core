@@ -33,62 +33,7 @@ public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeRe
 
     @Override
     public LoggerTreeReporter deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        String taskKey = null;
-        String defaultName = "";
-        Map<String, Object> taskValues = new HashMap<>();
-        List<Report> reports = new ArrayList<>();
-        List<LoggerTreeReporter> childReporters = new ArrayList<>();
-
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); // skip
-                    break;
-
-                case "taskKey":
-                    taskKey = parser.nextTextValue();
-                    break;
-
-                case "defaultName":
-                    defaultName = parser.nextTextValue();
-                    break;
-
-                case "taskValues":
-                    parser.nextToken();
-                    taskValues = parser.readValueAs(new TypeReference<HashMap<String, Object>>() {
-                    });
-                    break;
-
-                case "reports":
-                    parser.nextToken();
-                    reports = parser.readValueAs(new TypeReference<ArrayList<Report>>() {
-                    });
-                    break;
-
-                case "childReporters":
-                    parser.nextToken();
-                    childReporters = parser.readValueAs(new TypeReference<ArrayList<LoggerTreeReporter>>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
-            }
-        }
-
-        LoggerTreeReporter rootReporter = new LoggerTreeReporter(taskKey, defaultName, taskValues);
-        reports.forEach(rootReporter::report);
-        childReporters.forEach(childReporter -> attachChildToParent(rootReporter, childReporter));
-
-        return rootReporter;
-    }
-
-    private static void attachChildToParent(LoggerTreeReporter parent, LoggerTreeReporter childDetached) {
-        LoggerTreeReporter childAttached = parent.createChild(childDetached.getTaskKey(), childDetached.getDefaultName(), childDetached.getTaskValues());
-        childDetached.getReports().forEach(childAttached::report);
-        for (ReportSeeker grandChildReporter : childDetached.getChildReporters()) {
-            attachChildToParent(childAttached, (LoggerTreeReporter) grandChildReporter);
-        }
+        return LoggerTreeReporter.parseJson(parser);
     }
 
     public static LoggerTreeReporter read(Path jsonFile) {
