@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -215,12 +216,11 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                UcteNodeCode mainNode = substationNodes.stream()
-                        .min(UcteNetworkExt::compareUcteNodeCode)
-                        .orElseThrow(AssertionError::new);
+                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
+                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(AssertionError::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
-                        = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);
+                        = Multimaps.index(sortedNodes, UcteNodeCode::getVoltageLevelCode);
 
                 String substationName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot();
                 List<UcteVoltageLevel> voltageLevels = new ArrayList<>();
