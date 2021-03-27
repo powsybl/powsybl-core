@@ -25,15 +25,20 @@ import java.util.Objects;
 public class LoggerTreeReporterSerializer extends StdSerializer<LoggerTreeReporter> {
 
     private static final String VERSION = "1.0";
+    private boolean rootReporter;
 
-    LoggerTreeReporterSerializer() {
+    LoggerTreeReporterSerializer(boolean rootReporter) {
         super(LoggerTreeReporter.class);
+        this.rootReporter = rootReporter;
     }
 
     @Override
     public void serialize(LoggerTreeReporter reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
-        generator.writeStringField("version", VERSION);
+        if (rootReporter) {
+            rootReporter = false;
+            generator.writeStringField("version", VERSION);
+        }
         generator.writeStringField("taskKey", reporter.getTaskKey());
         generator.writeStringField("defaultName", reporter.getDefaultName());
         generator.writeObjectField("taskValues", reporter.getTaskValues());
@@ -55,7 +60,7 @@ public class LoggerTreeReporterSerializer extends StdSerializer<LoggerTreeReport
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(LoggerTreeReporter.class, new LoggerTreeReporterSerializer());
+        module.addSerializer(LoggerTreeReporter.class, new LoggerTreeReporterSerializer(true));
         objectMapper.registerModule(module);
         return objectMapper;
     }

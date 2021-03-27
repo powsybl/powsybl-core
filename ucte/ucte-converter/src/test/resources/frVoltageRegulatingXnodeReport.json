@@ -5,26 +5,22 @@
   "taskValues" : { },
   "reports" : [ ],
   "childReporters" : [ {
-    "version" : "1.0",
     "taskKey" : "ImportUcteData",
     "defaultName" : "Import UCTE data",
     "taskValues" : { },
     "reports" : [ ],
     "childReporters" : [ {
-      "version" : "1.0",
       "taskKey" : "UcteReading",
       "defaultName" : "Reading UCTE network file",
       "taskValues" : { },
       "reports" : [ ],
       "childReporters" : [ {
-        "version" : "1.0",
         "taskKey" : "fixUcteNodes",
         "defaultName" : "Fix UCTE nodes",
         "taskValues" : { },
         "reports" : [ ],
         "childReporters" : [ ]
       }, {
-        "version" : "1.0",
         "taskKey" : "fixUcteLines",
         "defaultName" : "Fix UCTE lines",
         "taskValues" : { },
@@ -63,14 +59,12 @@
         } ],
         "childReporters" : [ ]
       }, {
-        "version" : "1.0",
         "taskKey" : "fixUcteTransformer",
         "defaultName" : "Fix UCTE transformers",
         "taskValues" : { },
         "reports" : [ ],
         "childReporters" : [ ]
       }, {
-        "version" : "1.0",
         "taskKey" : "fixUcteRegulations",
         "defaultName" : "Fix UCTE regulations",
         "taskValues" : { },
@@ -78,13 +72,11 @@
         "childReporters" : [ ]
       } ]
     }, {
-      "version" : "1.0",
       "taskKey" : "createBuses",
       "defaultName" : "Create buses",
       "taskValues" : { },
       "reports" : [ ],
       "childReporters" : [ {
-        "version" : "1.0",
         "taskKey" : "createBusesSubstation",
         "defaultName" : "Create buses for substation ${substation}",
         "taskValues" : {
@@ -131,7 +123,6 @@
         } ],
         "childReporters" : [ ]
       }, {
-        "version" : "1.0",
         "taskKey" : "createBusesSubstation",
         "defaultName" : "Create buses for substation ${substation}",
         "taskValues" : {
@@ -141,7 +132,6 @@
         "childReporters" : [ ]
       } ]
     }, {
-      "version" : "1.0",
       "taskKey" : "createLines",
       "defaultName" : "Create lines",
       "taskValues" : { },
@@ -288,7 +278,6 @@
       } ],
       "childReporters" : [ ]
     }, {
-      "version" : "1.0",
       "taskKey" : "createTransformers",
       "defaultName" : "Create transformers",
       "taskValues" : { },
