@@ -13,8 +13,8 @@
       + Create buses for substation FFFFFF
          Create substation FFFFFF
          Create voltage level FFFFFF1
-         Create bus FFFFFF13
          Create bus FFFFFF11
+         Create bus FFFFFF13
       + Create buses for substation XXXXXX
     + Create lines
        Create dangling line 'FFFFFF11 XXXXXX11 1' (Xnode='XXXXXX11')
