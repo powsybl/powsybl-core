@@ -165,14 +165,9 @@ public class GeneratorScalableTest {
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
         g5.reset(network);
+        //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        try {
-            g5.scale(network, 50);
-            fail("My method didn't throw when I expected it to");
-        } catch (PowsyblException e) {
-            assertEquals("Error scaling GeneratorScalable g2 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
-        }
-
+        assertEquals(0, g5.scale(network, 50), 1e-3);
     }
 
     @Test
@@ -224,14 +219,9 @@ public class GeneratorScalableTest {
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
         g5.reset(network);
+        //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        try {
-            g5.scale(network, 50, convention);
-            fail("My method didn't throw when I expected it to");
-        } catch (PowsyblException e) {
-            assertEquals("Error scaling GeneratorScalable g2 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
-        }
-
+        assertEquals(0, g5.scale(network, 50, convention), 1e-3);
     }
 
     @Test
@@ -283,14 +273,9 @@ public class GeneratorScalableTest {
         assertEquals(20, generator2.getTargetP(), 1e-3);
 
         g5.reset(network);
+        //Case 4 : generator.getTargetP() not in interval, skipped
         assertEquals(0, generator2.getTargetP(), 1e-3);
-        try {
-            g5.scale(network, -50, convention);
-            fail("My method didn't throw when I expected it to");
-        } catch (PowsyblException e) {
-            assertEquals("Error scaling GeneratorScalable g2 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
-        }
-
+        assertEquals(0, g5.scale(network, 50, convention), 1e-3);
     }
 
 }
