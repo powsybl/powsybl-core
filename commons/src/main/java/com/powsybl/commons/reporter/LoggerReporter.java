@@ -56,8 +56,8 @@ public class LoggerReporter extends AbstractReporter {
     @Override
     public void addTaskValue(String key, Object value) {
         Objects.requireNonNull(value);
-        if (!value.getClass().isPrimitive()) {
-            throw new PowsyblException("Logger reporter expects only primitive values (value is an instance of " + value.getClass() + ")");
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
+            throw new PowsyblException("Logger reporter expects only primitive or String values (value is an instance of " + value.getClass() + ")");
         }
         taskValues.put(key, value);
     }

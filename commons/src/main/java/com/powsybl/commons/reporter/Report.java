@@ -38,8 +38,8 @@ public class Report {
 
     private void addValue(String key, Object value) {
         Objects.requireNonNull(value);
-        if (!value.getClass().isPrimitive()) {
-            throw new PowsyblException("Report expects only primitive values (value is an instance of " + value.getClass() + ")");
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
+            throw new PowsyblException("Report expects only primitive or String values (value is an instance of " + value.getClass() + ")");
         }
         values.put(key, value);
     }
