@@ -56,8 +56,6 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         LoggerTreeReporter reporter = new LoggerTreeReporter();
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
-        LoggerTreeReporterSerializer.write(reporter, Path.of("/tmp/test.json"));
-
         roundTripTest(reporter, LoggerTreeReporterSerializer::write, LoggerTreeReporterDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
     }
 
