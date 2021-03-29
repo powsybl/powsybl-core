@@ -89,9 +89,9 @@ public class LoggerTreeReporter extends LoggerReporter implements ReportSeeker {
     }
 
     private void printTaskReport(ReportSeeker reportSeeker, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(reportSeeker.toString()).append('\n');
+        writer.append(prefix).append("+ ").append(reportSeeker.toString()).append(System.lineSeparator());
         for (Report report : reportSeeker.getReports()) {
-            writer.append(prefix).append("   ").append(formatReportMessage(report, reportSeeker.getTaskValues())).append('\n');
+            writer.append(prefix).append("   ").append(formatReportMessage(report, reportSeeker.getTaskValues())).append(System.lineSeparator());
         }
         for (ReportSeeker childReporter : reportSeeker.getChildReporters()) {
             printTaskReport(childReporter, writer, prefix + "  ");
