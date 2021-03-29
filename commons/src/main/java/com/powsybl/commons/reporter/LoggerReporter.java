@@ -48,7 +48,6 @@ public class LoggerReporter extends AbstractReporter {
 
     @Override
     public LoggerReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
-        getDefaultLogConsumer().accept(toString());
         return new LoggerReporter(taskKey, defaultName, values);
     }
 
