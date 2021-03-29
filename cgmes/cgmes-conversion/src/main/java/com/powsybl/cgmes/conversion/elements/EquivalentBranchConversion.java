@@ -53,7 +53,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         identify(adder);
         connect(adder);
         Line l = adder.add();
-        addAliases(l);
+        addAliasesAndProperties(l);
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 }

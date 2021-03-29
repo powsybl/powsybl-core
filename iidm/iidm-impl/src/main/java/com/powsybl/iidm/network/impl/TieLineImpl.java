@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
@@ -161,13 +162,13 @@ class TieLineImpl extends LineImpl implements TieLine {
     TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
         super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = attach(half1, this::getTerminal1);
-        this.half2 = attach(half2, this::getTerminal2);
+        this.half1 = attach(half1, Side.ONE, this::getTerminal1);
+        this.half2 = attach(half2, Side.TWO, this::getTerminal2);
     }
 
-    private HalfLineImpl attach(HalfLineImpl half, Supplier<Terminal> terminalSupplier) {
+    private HalfLineImpl attach(HalfLineImpl half, Branch.Side side, Supplier<Terminal> terminalSupplier) {
         half.setParent(this);
-        half.boundary = new HalfLineBoundaryImpl(half, terminalSupplier);
+        half.boundary = new HalfLineBoundaryImpl(this, side, terminalSupplier);
         return half;
     }
 

@@ -102,7 +102,8 @@
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.7</groovy.version>
         <guava.version>29.0-jre</guava.version>
-        <jackson.version>2.10.1</jackson.version>
+        <jackson.version>2.10.5</jackson.version>
+        <jackson-databind.version>2.10.5.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
         <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
         <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
@@ -625,7 +626,7 @@
             <dependency>
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-databind</artifactId>
-                <version>${jackson.version}</version>
+                <version>${jackson-databind.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.auto.service</groupId>

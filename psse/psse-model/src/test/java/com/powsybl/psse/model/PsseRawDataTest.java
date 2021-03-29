@@ -31,11 +31,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -87,8 +89,16 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.rawx"));
     }
 
+    private ReadOnlyDataSource ieee14InvalidRaw() {
+        return new ResourceDataSource("IEEE_14_bus_invalid", new ResourceSet("/", "IEEE_14_bus_invalid.raw"));
+    }
+
     private ReadOnlyDataSource exampleVersion32() {
         return new ResourceDataSource("ExampleVersion32", new ResourceSet("/", "ExampleVersion32.raw"));
+    }
+
+    private ReadOnlyDataSource ieee14IsolatedBusesRaw() {
+        return new ResourceDataSource("IEEE_14_isolated_buses", new ResourceSet("/", "IEEE_14_isolated_buses.raw"));
     }
 
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
@@ -258,6 +268,14 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusWhitespaceAsDelimiterTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14IsolatedBusesTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_isolated_buses.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14IsolatedBusesRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }
@@ -520,6 +538,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
+    public void ieee14IsolatedBusesWriteTest() throws IOException {
+        Context context = new Context();
+
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14IsolatedBusesRaw(), "raw", context);
+        assertNotNull(rawData);
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_isolated_buses_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_isolated_buses_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_isolated_buses_exported.raw"), is);
+        }
+    }
+
+    @Test
     public void ieee24BusTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_24_bus.json")), StandardCharsets.UTF_8);
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee24Raw(), "raw", new Context());
@@ -679,13 +710,31 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
+    public void invalidIeee14BusTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14InvalidRaw(), "raw", context);
+        assertNotNull(rawData);
+
+        PsseValidation psseValidation = new PsseValidation(rawData, context.getVersion());
+        List<String> warnings = psseValidation.getWarnings();
+        StringBuilder sb = new StringBuilder();
+        warnings.forEach(warning -> {
+            String s = String.format("%s%n", warning);
+            sb.append(s);
+        });
+        String warningsRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_invalid.txt")), StandardCharsets.UTF_8);
+        assertEquals(warningsRef, sb.toString());
+        assertFalse(psseValidation.isValidCase());
+    }
+
     public void exampleVersion32WriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
         PssePowerFlowModel rawData = rawData32.read(exampleVersion32(), "raw", context);
         assertNotNull(rawData);
 
-        rawData32.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "ExampleVersion32_exported"));
+        rawData32.write(rawData, context,
+            new FileDataSource(fileSystem.getPath("/work/"), "ExampleVersion32_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "ExampleVersion32_exported.raw"))) {
             compareTxt(getClass().getResourceAsStream("/" + "ExampleVersion32_exported.raw"), is);
         }
