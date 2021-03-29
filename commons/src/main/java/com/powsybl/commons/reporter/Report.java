@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -27,10 +29,19 @@ public class Report {
     private final String defaultMessage;
     private final Map<String, Object> values;
 
-    public Report(String reportKey, String defautlMessage, Map<String, Object> values) {
+    public Report(String reportKey, String defaultMessage, Map<String, Object> values) {
         this.reportKey = Objects.requireNonNull(reportKey);
-        this.defaultMessage = defautlMessage;
-        this.values = new HashMap<>(Objects.requireNonNull(values));
+        this.defaultMessage = defaultMessage;
+        this.values = new HashMap<>();
+        Objects.requireNonNull(values).forEach(this::addValue);
+    }
+
+    private void addValue(String key, Object value) {
+        Objects.requireNonNull(value);
+        if (!value.getClass().isPrimitive()) {
+            throw new PowsyblException("Report expects only primitive values (value is an instance of " + value.getClass() + ")");
+        }
+        values.put(key, value);
     }
 
     public static ReportBuilder builder() {

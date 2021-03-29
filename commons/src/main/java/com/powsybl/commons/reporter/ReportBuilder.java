@@ -32,7 +32,27 @@ public class ReportBuilder {
         return this;
     }
 
-    public ReportBuilder withValue(String key, Object value) {
+    public ReportBuilder withValue(String key, String value) {
+        values.put(key, value);
+        return this;
+    }
+
+    public ReportBuilder withValue(String key, double value) {
+        values.put(key, value);
+        return this;
+    }
+
+    public ReportBuilder withValue(String key, float value) {
+        values.put(key, value);
+        return this;
+    }
+
+    public ReportBuilder withValue(String key, int value) {
+        values.put(key, value);
+        return this;
+    }
+
+    public ReportBuilder withValue(String key, long value) {
         values.put(key, value);
         return this;
     }

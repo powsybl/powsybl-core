@@ -115,7 +115,7 @@ public class UcteImporter implements Importer {
             reporter.report(Report.builder()
                 .withKey("createBus")
                 .withDefaultMessage("Create bus ${bus}")
-                .withValue("bus", ucteNodeCode)
+                .withValue("bus", ucteNodeCode.toString())
                 .withSeverity(Report.SEVERITY_TRACE)
                 .build());
             if (LOGGER.isTraceEnabled()) {
@@ -288,8 +288,8 @@ public class UcteImporter implements Importer {
         reporter.report(Report.builder()
             .withKey("danglingLineCreation")
             .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
-            .withValue("ucteLine", ucteLine)
-            .withValue("xnodeCode", xnode.getCode())
+            .withValue("ucteLine", ucteLine.getId().toString())
+            .withValue("xnodeCode", xnode.getCode().toString())
             .withSeverity(Report.SEVERITY_TRACE)
             .build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
@@ -352,7 +352,7 @@ public class UcteImporter implements Importer {
         reporter.report(Report.builder()
             .withKey("couplerCreation")
             .withDefaultMessage("Create coupler '${ucteLine}'")
-            .withValue("ucteLine", ucteLine)
+            .withValue("ucteLine", ucteLine.getId().toString())
             .withSeverity(Report.SEVERITY_TRACE)
             .build());
         LOGGER.trace("Create coupler '{}'", ucteLine.getId());
@@ -384,7 +384,7 @@ public class UcteImporter implements Importer {
         reporter.report(Report.builder()
             .withKey("couplerLowImpedanceCreation")
             .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
-            .withValue("ucteLine", ucteLine)
+            .withValue("ucteLine", ucteLine.getId().toString())
             .withValue("impedance", z)
             .build());
         LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
@@ -413,7 +413,7 @@ public class UcteImporter implements Importer {
         reporter.report(Report.builder()
             .withKey("standardLineCreation")
             .withDefaultMessage("Create line '${ucteLine}'")
-            .withValue("ucteLine", ucteLine)
+            .withValue("ucteLine", ucteLine.getId().toString())
             .withSeverity(Report.SEVERITY_TRACE)
             .build());
         LOGGER.trace("Create line '{}'", ucteLine.getId());

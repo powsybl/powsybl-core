@@ -128,7 +128,7 @@ public final class UcteValidation {
             reporter.report(Report.builder()
                 .withKey("wrongPhaseRegulationDu")
                 .withDefaultMessage("${transfoId} - For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
-                .withValue("transfoId", transfoId)
+                .withValue("transfoId", transfoId.toString())
                 .withValue("du", uctePhaseRegulation.getDu())
                 .withSeverity(Report.SEVERITY_WARN)
                 .build());
@@ -146,7 +146,7 @@ public final class UcteValidation {
             reporter.report(Report.builder()
                 .withKey("wrongAngleRegulationDu")
                 .withDefaultMessage("${transfoId} - For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
-                .withValue("transfoId", transfoId)
+                .withValue("transfoId", transfoId.toString())
                 .withValue("du", ucteAngleRegulation.getDu())
                 .withSeverity(Report.SEVERITY_WARN)
                 .build());

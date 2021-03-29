@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.powsybl.commons.PowsyblException;
 import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,8 @@ public class LoggerReporter extends AbstractReporter {
     public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
         this.taskKey = Objects.requireNonNull(rootTaskKey);
         this.defaultName = rootDefaultName;
-        this.taskValues = new HashMap<>(Objects.requireNonNull(taskValues));
+        this.taskValues = new HashMap<>();
+        Objects.requireNonNull(taskValues).forEach(this::addTaskValue);
     }
 
     @Override
@@ -53,6 +55,10 @@ public class LoggerReporter extends AbstractReporter {
 
     @Override
     public void addTaskValue(String key, Object value) {
+        Objects.requireNonNull(value);
+        if (!value.getClass().isPrimitive()) {
+            throw new PowsyblException("Logger reporter expects only primitive values (value is an instance of " + value.getClass() + ")");
+        }
         taskValues.put(key, value);
     }
 

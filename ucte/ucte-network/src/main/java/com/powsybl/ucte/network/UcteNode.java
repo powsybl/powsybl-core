@@ -426,7 +426,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             reporter.report(Report.builder()
                 .withKey("activePowerUndefined")
                 .withDefaultMessage("Node ${node}: active power is undefined, set value to 0")
-                .withValue("node", code)
+                .withValue("node", code.toString())
                 .withSeverity(Report.SEVERITY_WARN)
                 .build());
             LOGGER.warn("Node {}: active power is undefined, set value to 0", code);
@@ -481,7 +481,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             reporter.report(Report.builder()
                 .withKey("PvUndefinedVoltage")
                 .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
-                .withValue("node", code)
+                .withValue("node", code.toString())
                 .withValue("voltageReference", voltageReference)
                 .withSeverity(Report.SEVERITY_WARN)
                 .build());
@@ -509,7 +509,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             reporter.report(Report.builder()
                 .withKey("PqUndefinedReactivePower")
                 .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
-                .withValue("node", code)
+                .withValue("node", code.toString())
                 .withSeverity(Report.SEVERITY_WARN)
                 .build());
             LOGGER.warn("Node {}: voltage is not regulated but reactive power is undefined, set value to 0", code);
