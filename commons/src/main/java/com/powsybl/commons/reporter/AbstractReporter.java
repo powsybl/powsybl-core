@@ -37,8 +37,7 @@ public abstract class AbstractReporter implements Reporter {
         this(DEFAULT_ROOT_TASK_KEY, DEFAULT_ROOT_NAME, Collections.emptyMap());
     }
 
-    @Override
-    public void addTaskValue(String key, Object value) {
+    private void addTaskValue(String key, Object value) {
         Objects.requireNonNull(value);
         if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
             throw new PowsyblException("Logger reporter expects only primitive or String values (value is an instance of " + value.getClass() + ")");

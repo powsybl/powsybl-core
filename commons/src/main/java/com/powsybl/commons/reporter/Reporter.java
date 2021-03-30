@@ -21,8 +21,6 @@ public interface Reporter {
 
     Reporter createChild(String taskKey, String defaultName, String key, Object value);
 
-    void addTaskValue(String key, Object value);
-
     void report(String reportKey, String defaultMessage, Map<String, Object> values);
 
     void report(String reportKey, String defaultMessage);
@@ -35,11 +33,6 @@ public interface Reporter {
         @Override
         public Reporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
             return new NoOpImpl();
-        }
-
-        @Override
-        public void addTaskValue(String key, Object value) {
-            // No-op
         }
 
         @Override
