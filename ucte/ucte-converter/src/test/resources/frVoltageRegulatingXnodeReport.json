@@ -1,170 +1,141 @@
 {
   "version" : "1.0",
-  "taskKey" : "rootTaskKey",
-  "defaultName" : "Root task",
-  "taskValues" : { },
-  "reports" : [ ],
-  "childReporters" : [ {
-    "taskKey" : "ImportUcteData",
-    "defaultName" : "Import UCTE data",
-    "taskValues" : { },
-    "reports" : [ ],
+  "reportTree" : {
+    "taskKey" : "rootTaskKey",
     "childReporters" : [ {
-      "taskKey" : "UcteReading",
-      "defaultName" : "Reading UCTE network file",
-      "taskValues" : { },
-      "reports" : [ ],
+      "taskKey" : "ImportUcteData",
       "childReporters" : [ {
-        "taskKey" : "fixUcteNodes",
-        "defaultName" : "Fix UCTE nodes",
-        "taskValues" : { },
-        "reports" : [ ],
-        "childReporters" : [ ]
+        "taskKey" : "UcteReading",
+        "childReporters" : [ {
+          "taskKey" : "fixUcteNodes"
+        }, {
+          "taskKey" : "fixUcteLines",
+          "reports" : [ {
+            "reportKey" : "negativeLineResistance",
+            "values" : {
+              "reportSeverity" : "ERROR",
+              "lineId" : "FFFFFF11 XXXXXX11 1",
+              "resistance" : 0.0
+            }
+          }, {
+            "reportKey" : "negativeLineResistance",
+            "values" : {
+              "reportSeverity" : "ERROR",
+              "lineId" : "FFFFFF11 XXXXXX12 1",
+              "resistance" : 0.0
+            }
+          }, {
+            "reportKey" : "negativeLineResistance",
+            "values" : {
+              "reportSeverity" : "ERROR",
+              "lineId" : "FFFFFF13 XXXXXX13 1",
+              "resistance" : 0.0
+            }
+          }, {
+            "reportKey" : "negativeLineResistance",
+            "values" : {
+              "reportSeverity" : "ERROR",
+              "lineId" : "FFFFFF13 XXXXXX14 1",
+              "resistance" : 0.0
+            }
+          } ]
+        }, {
+          "taskKey" : "fixUcteTransformer"
+        }, {
+          "taskKey" : "fixUcteRegulations"
+        } ]
       }, {
-        "taskKey" : "fixUcteLines",
-        "defaultName" : "Fix UCTE lines",
-        "taskValues" : { },
+        "taskKey" : "createBuses",
+        "childReporters" : [ {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : "FFFFFF"
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : "TRACE",
+              "substationName" : "FFFFFF"
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : "FFFFFF1",
+              "reportSeverity" : "TRACE"
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : "FFFFFF11",
+              "reportSeverity" : "TRACE"
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : "FFFFFF13",
+              "reportSeverity" : "TRACE"
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : "XXXXXX"
+          }
+        } ]
+      }, {
+        "taskKey" : "createLines",
         "reports" : [ {
-          "reportKey" : "negativeLineResistance",
-          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
+          "reportKey" : "danglingLineCreation",
           "values" : {
-            "reportSeverity" : "ERROR",
-            "lineId" : "FFFFFF11 XXXXXX11 1",
-            "resistance" : 0.0
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
-          "values" : {
-            "reportSeverity" : "ERROR",
-            "lineId" : "FFFFFF11 XXXXXX12 1",
-            "resistance" : 0.0
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
-          "values" : {
-            "reportSeverity" : "ERROR",
-            "lineId" : "FFFFFF13 XXXXXX13 1",
-            "resistance" : 0.0
-          }
-        }, {
-          "reportKey" : "negativeLineResistance",
-          "defaultMessage" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)",
-          "values" : {
-            "reportSeverity" : "ERROR",
-            "lineId" : "FFFFFF13 XXXXXX14 1",
-            "resistance" : 0.0
-          }
-        } ],
-        "childReporters" : [ ]
-      }, {
-        "taskKey" : "fixUcteTransformer",
-        "defaultName" : "Fix UCTE transformers",
-        "taskValues" : { },
-        "reports" : [ ],
-        "childReporters" : [ ]
-      }, {
-        "taskKey" : "fixUcteRegulations",
-        "defaultName" : "Fix UCTE regulations",
-        "taskValues" : { },
-        "reports" : [ ],
-        "childReporters" : [ ]
-      } ]
-    }, {
-      "taskKey" : "createBuses",
-      "defaultName" : "Create buses",
-      "taskValues" : { },
-      "reports" : [ ],
-      "childReporters" : [ {
-        "taskKey" : "createBusesSubstation",
-        "defaultName" : "Create buses for substation ${substation}",
-        "taskValues" : {
-          "substation" : "FFFFFF"
-        },
-        "reports" : [ {
-          "reportKey" : "createSubstation",
-          "defaultMessage" : "Create substation ${substationName}",
-          "values" : {
+            "ucteLine" : "FFFFFF11 XXXXXX11 1",
             "reportSeverity" : "TRACE",
-            "substationName" : "FFFFFF"
+            "xnodeCode" : "XXXXXX11"
           }
         }, {
-          "reportKey" : "createVoltageLevel",
-          "defaultMessage" : "Create voltage level ${voltageLevelName}",
+          "reportKey" : "danglingLineCreation",
           "values" : {
-            "voltageLevelName" : "FFFFFF1",
-            "reportSeverity" : "TRACE"
+            "ucteLine" : "FFFFFF11 XXXXXX12 1",
+            "reportSeverity" : "TRACE",
+            "xnodeCode" : "XXXXXX12"
           }
         }, {
-          "reportKey" : "createBus",
-          "defaultMessage" : "Create bus ${bus}",
+          "reportKey" : "danglingLineCreation",
           "values" : {
-            "bus" : "FFFFFF11",
-            "reportSeverity" : "TRACE"
+            "ucteLine" : "FFFFFF13 XXXXXX13 1",
+            "reportSeverity" : "TRACE",
+            "xnodeCode" : "XXXXXX13"
           }
         }, {
-          "reportKey" : "createBus",
-          "defaultMessage" : "Create bus ${bus}",
+          "reportKey" : "danglingLineCreation",
           "values" : {
-            "bus" : "FFFFFF13",
-            "reportSeverity" : "TRACE"
+            "ucteLine" : "FFFFFF13 XXXXXX14 1",
+            "reportSeverity" : "TRACE",
+            "xnodeCode" : "XXXXXX14"
           }
-        } ],
-        "childReporters" : [ ]
+        } ]
       }, {
-        "taskKey" : "createBusesSubstation",
-        "defaultName" : "Create buses for substation ${substation}",
-        "taskValues" : {
-          "substation" : "XXXXXX"
-        },
-        "reports" : [ ],
-        "childReporters" : [ ]
+        "taskKey" : "createTransformers"
       } ]
-    }, {
-      "taskKey" : "createLines",
-      "defaultName" : "Create lines",
-      "taskValues" : { },
-      "reports" : [ {
-        "reportKey" : "danglingLineCreation",
-        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
-        "values" : {
-          "ucteLine" : "FFFFFF11 XXXXXX11 1",
-          "reportSeverity" : "TRACE",
-          "xnodeCode" : "XXXXXX11"
-        }
-      }, {
-        "reportKey" : "danglingLineCreation",
-        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
-        "values" : {
-          "ucteLine" : "FFFFFF11 XXXXXX12 1",
-          "reportSeverity" : "TRACE",
-          "xnodeCode" : "XXXXXX12"
-        }
-      }, {
-        "reportKey" : "danglingLineCreation",
-        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
-        "values" : {
-          "ucteLine" : "FFFFFF13 XXXXXX13 1",
-          "reportSeverity" : "TRACE",
-          "xnodeCode" : "XXXXXX13"
-        }
-      }, {
-        "reportKey" : "danglingLineCreation",
-        "defaultMessage" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
-        "values" : {
-          "ucteLine" : "FFFFFF13 XXXXXX14 1",
-          "reportSeverity" : "TRACE",
-          "xnodeCode" : "XXXXXX14"
-        }
-      } ],
-      "childReporters" : [ ]
-    }, {
-      "taskKey" : "createTransformers",
-      "defaultName" : "Create transformers",
-      "taskValues" : { },
-      "reports" : [ ],
-      "childReporters" : [ ]
     } ]
-  } ]
+  },
+  "dics" : {
+    "default" : {
+      "UcteReading" : "Reading UCTE network file",
+      "createLines" : "Create lines",
+      "ImportUcteData" : "Import UCTE data",
+      "createSubstation" : "Create substation ${substationName}",
+      "rootTaskKey" : "Root task",
+      "createTransformers" : "Create transformers",
+      "fixUcteNodes" : "Fix UCTE nodes",
+      "createBusesSubstation" : "Create buses for substation ${substation}",
+      "createBus" : "Create bus ${bus}",
+      "createBuses" : "Create buses",
+      "danglingLineCreation" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+      "createVoltageLevel" : "Create voltage level ${voltageLevelName}",
+      "fixUcteLines" : "Fix UCTE lines",
+      "fixUcteRegulations" : "Fix UCTE regulations",
+      "fixUcteTransformer" : "Fix UCTE transformers",
+      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+    }
+  }
 }

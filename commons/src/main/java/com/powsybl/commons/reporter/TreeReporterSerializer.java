@@ -7,6 +7,7 @@
 package com.powsybl.commons.reporter;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -17,6 +18,8 @@ import java.io.OutputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -25,25 +28,53 @@ import java.util.Objects;
 public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
 
     private static final String VERSION = "1.0";
+    private final Map<String, String> dictionary;
     private boolean rootReporter;
 
-    TreeReporterSerializer(boolean rootReporter) {
+    TreeReporterSerializer(boolean rootReporter, Map<String, String> dictionary) {
         super(TreeReporter.class);
         this.rootReporter = rootReporter;
+        this.dictionary = dictionary;
     }
 
     @Override
     public void serialize(TreeReporter reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
-        generator.writeStartObject();
         if (rootReporter) {
             rootReporter = false;
-            generator.writeStringField("version", VERSION);
+            writeRootEntry(reporter, generator);
+        } else {
+            writeTreeReporter(reporter, generator);
+            dictionary.put(reporter.getTaskKey(), reporter.getDefaultName());
         }
+    }
+
+    private void writeRootEntry(TreeReporter reporter, JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
+        generator.writeStringField("version", VERSION);
+        generator.writeObjectField("reportTree", reporter);
+        writeDictionaryEntries(generator);
+        generator.writeEndObject();
+    }
+
+    private void writeDictionaryEntries(JsonGenerator generator) throws IOException {
+        generator.writeFieldName("dics");
+        generator.writeStartObject();
+        generator.writeObjectField("default", dictionary);
+        generator.writeEndObject();
+    }
+
+    private void writeTreeReporter(TreeReporter reporter, JsonGenerator generator) throws IOException {
+        generator.writeStartObject();
         generator.writeStringField("taskKey", reporter.getTaskKey());
-        generator.writeStringField("defaultName", reporter.getDefaultName());
-        generator.writeObjectField("taskValues", reporter.getTaskValues());
-        generator.writeObjectField("reports", reporter.getReports());
-        generator.writeObjectField("childReporters", reporter.getChildReporters());
+        if (!reporter.getTaskValues().isEmpty()) {
+            generator.writeObjectField("taskValues", reporter.getTaskValues());
+        }
+        if (!reporter.getReports().isEmpty()) {
+            generator.writeObjectField("reports", reporter.getReports());
+        }
+        if (!reporter.getChildReporters().isEmpty()) {
+            generator.writeObjectField("childReporters", reporter.getChildReporters());
+        }
         generator.writeEndObject();
     }
 
@@ -60,8 +91,27 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(TreeReporter.class, new TreeReporterSerializer(true));
+        Map<String, String> dictionary = new HashMap<>();
+        module.addSerializer(TreeReporter.class, new TreeReporterSerializer(true, dictionary));
+        module.addSerializer(Report.class, new ReportSerializer(dictionary));
         objectMapper.registerModule(module);
         return objectMapper;
+    }
+
+    private static class ReportSerializer extends JsonSerializer<Report> {
+        private final Map<String, String> dictionary;
+
+        public ReportSerializer(Map<String, String> dictionary) {
+            this.dictionary = dictionary;
+        }
+
+        @Override
+        public void serialize(Report report, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+            generator.writeStartObject();
+            generator.writeStringField("reportKey", report.getReportKey());
+            generator.writeObjectField("values", report.getValues());
+            generator.writeEndObject();
+            dictionary.put(report.getReportKey(), report.getDefaultMessage());
+        }
     }
 }

@@ -92,9 +92,8 @@ public class TreeReporter extends AbstractReporter {
         }
     }
 
-    protected static TreeReporter parseJson(JsonParser parser) throws IOException {
+    protected static TreeReporter parseJson(JsonParser parser, Map<String, String> dictionary) throws IOException {
         String taskKey = null;
-        String defaultName = "";
         Map<String, Object> taskValues = new HashMap<>();
         List<Report> reports = new ArrayList<>();
         List<TreeReporter> childReporters = new ArrayList<>();
@@ -107,10 +106,6 @@ public class TreeReporter extends AbstractReporter {
 
                 case "taskKey":
                     taskKey = parser.nextTextValue();
-                    break;
-
-                case "defaultName":
-                    defaultName = parser.nextTextValue();
                     break;
 
                 case "taskValues":
@@ -136,6 +131,7 @@ public class TreeReporter extends AbstractReporter {
             }
         }
 
+        String defaultName = dictionary.getOrDefault(taskKey, "(missing task key in dictionary)");
         TreeReporter rootReporter = new TreeReporter(taskKey, defaultName, taskValues);
         rootReporter.reports.addAll(reports);
         rootReporter.childReporters.addAll(childReporters);
