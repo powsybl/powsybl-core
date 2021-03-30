@@ -26,7 +26,7 @@ public class UcteFileReadWriteTest extends AbstractConverterTest {
 
     private static UcteNetwork create() {
         try (BufferedReader br = new BufferedReader(new InputStreamReader(UcteFileReadWriteTest.class.getResourceAsStream(REFERENCE)))) {
-            return new UcteReader(Reporter.NO_OP).read(br);
+            return new UcteReader().read(br, Reporter.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -42,7 +42,7 @@ public class UcteFileReadWriteTest extends AbstractConverterTest {
 
     private static UcteNetwork read(Path file) {
         try (BufferedReader br = Files.newBufferedReader(file)) {
-            return new UcteReader(Reporter.NO_OP).read(br);
+            return new UcteReader().read(br, Reporter.NO_OP);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

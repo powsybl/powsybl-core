@@ -896,7 +896,7 @@ public class UcteImporter implements Importer {
             String ext = findExtension(dataSource, false);
             if (ext != null) {
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new UcteReader(Reporter.NO_OP).checkHeader(reader);
+                    return new UcteReader().checkHeader(reader);
                 }
             }
             return false;
@@ -1032,7 +1032,7 @@ public class UcteImporter implements Importer {
                 Reporter importReporter = reporter.createChild("ImportUcteData", "Import UCTE data");
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader(importReporter).read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, importReporter), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
