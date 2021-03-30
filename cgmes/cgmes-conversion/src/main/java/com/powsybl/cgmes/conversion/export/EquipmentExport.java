@@ -64,14 +64,20 @@ public final class EquipmentExport {
     private static final String EQ_EQUIVALENTBRANCH_R = "EquivalentBranch.r";
     private static final String EQ_EQUIVALENTBRANCH_X = "EquivalentBranch.x";
 
-    private static final String EQ_TRANSFORMEREND_NAME = "TransformerEnd.endNumber";
+    private static final String EQ_TRANSFORMEREND_ENDNUMBER = "TransformerEnd.endNumber";
+    private static final String EQ_TRANSFORMEREND_TERMINAL = "TransformerEnd.Terminal";
+
+    private static final String EQ_POWERTRANSFORMEREND_POWERTRANSFORMER = "PowerTransformerEnd.PowerTransformer";
     private static final String EQ_POWERTRANSFORMEREND_R = "PowerTransformerEnd.r";
     private static final String EQ_POWERTRANSFORMEREND_X = "PowerTransformerEnd.x";
     private static final String EQ_POWERTRANSFORMEREND_B = "PowerTransformerEnd.b";
+    private static final String EQ_POWERTRANSFORMEREND_RATEDU = "PowerTransformerEnd.ratedU";
 
     private static final String EQ_PHASETAPCHANGER_TRANSFORMEREND = "PhaseTapChanger.TransformerEnd";
+    private static final String EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE = "PhaseTapChangerTabular.PhaseTapChangerTable";
 
     private static final String EQ_RATIOTAPCHANGER_TRANSFORMEREND = "RatioTapChanger.TransformerEnd";
+    private static final String EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE = "RatioTapChanger.RatioTapChangerTable";
     private static final String EQ_RATIOTAPCHANGER_SVI = "RatioTapChanger.stepVoltageIncrement";
 
     private static final String EQ_TAPCHANGER_LOWSTEP = "TapChanger.lowStep";
@@ -80,6 +86,18 @@ public final class EquipmentExport {
     private static final String EQ_TAPCHANGER_NEUTRALSTEP = "TapChanger.neutralStep";
     private static final String EQ_TAPCHANGER_NEUTRALU = "TapChanger.neutralU";
     private static final String EQ_TAPCHANGER_LTCFLAG = "TapChanger.ltcFlag";
+
+    private static final String EQ_TAPCHANGERTABLEPOINT_STEP = "TapChangerTablePoint.step";
+    private static final String EQ_TAPCHANGERTABLEPOINT_R = "TapChangerTablePoint.r";
+    private static final String EQ_TAPCHANGERTABLEPOINT_X = "TapChangerTablePoint.x";
+    private static final String EQ_TAPCHANGERTABLEPOINT_G = "TapChangerTablePoint.g";
+    private static final String EQ_TAPCHANGERTABLEPOINT_B = "TapChangerTablePoint.b";
+    private static final String EQ_TAPCHANGERTABLEPOINT_RATIO = "TapChangerTablePoint.ratio";
+
+    private static final String EQ_PHASETAPCHANGERTABLEPOINT_ANGLE = "PhaseTapChangerTablePoint.angle";
+    private static final String EQ_PHASETAPCHANGERTABLEPOINT_PHASETAPCHANGERTABLE = "PhaseTapChangerTablePoint.PhaseTapChangerTable";
+
+    private static final String EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE = "RatioTapChangerTablePoint.RatioTapChangerTable";
 
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
@@ -199,7 +217,7 @@ public final class EquipmentExport {
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + conductingEquipmentId);
         writer.writeEmptyElement(cimNamespace, "Terminal.ConnectivityNode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + connectivityNodeId);
-        writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumbe");
+        writer.writeStartElement(cimNamespace, "ACDCTerminal.sequenceNumber");
         writer.writeCharacters(CgmesExportUtil.format(sequenceNumber));
         writer.writeEndElement();
         writer.writeEndElement();
@@ -547,76 +565,60 @@ public final class EquipmentExport {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             writeEqPowerTransformer(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
             String end1Id = CgmesExportUtil.getUniqueId();
-            writeEqPowerTransformerEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), twt.getR(), twt.getX(), twt.getB(), cimNamespace, writer);
-            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 0.0, 0.0, 0.0, cimNamespace, writer);
-            writeEqTerminal(CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal1()), 1, cimNamespace, writer);
-            writeEqTerminal(CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal2()), 2, cimNamespace, writer);
-            PhaseTapChanger ptc = twt.getPhaseTapChanger();
-            if (ptc != null) {
-                int neutralStep = ptc.getTapPosition();
-                while(ptc.getStep(neutralStep).getAlpha() != 0.0) {
-                    if (ptc.getStep(neutralStep).getAlpha() > 0.0) {
-                        neutralStep ++;
-                    } else {
-                        neutralStep --;
-                    }
-                }
-                writeEqPhaseTapChanger(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_PTC", end1Id, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), twt.getTerminal1().getVoltageLevel().getNominalV(), false, cimNamespace, writer);
-            }
-            RatioTapChanger rtc = twt.getRatioTapChanger();
-            if (rtc != null) {
-                int neutralStep = rtc.getTapPosition();
-                while(rtc.getStep(neutralStep).getRho() != 1.0) {
-                    if (rtc.getStep(neutralStep).getRho() > 1.0) {
-                        neutralStep --;
-                    } else {
-                        neutralStep ++;
-                    }
-                }
-                double stepVoltageIncrement = 100.0 * (rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
-                writeEqRatioTapChanger(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_RTC", end1Id, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement, cimNamespace, writer);
-            }
+            String terminalId1 = CgmesExportUtil.getUniqueId();
+            writeEqPowerTransformerEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), 1, twt.getR(), twt.getX(), twt.getB(), twt.getRatedU1(), terminalId1, cimNamespace, writer);
+            String terminalId2 = CgmesExportUtil.getUniqueId();
+            writeEqPowerTransformerEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0, twt.getRatedU2(), terminalId2, cimNamespace, writer);
+            writeEqTerminal(terminalId1, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal1()), 1, cimNamespace, writer);
+            writeEqTerminal(terminalId2, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal2()), 2, cimNamespace, writer);
+            writePhaseTapChanger(twt.getPhaseTapChanger(), twt.getNameOrId(), end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
+            writeRatioTapChanger(twt.getRatioTapChanger(), twt.getNameOrId(), end1Id, cimNamespace, writer);
         }
     }
 
     private static void writeThreeWindingsTransformer(Network network, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             writeEqPowerTransformer(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_1", CgmesExportUtil.getUniqueId(), twt.getLeg1(), cimNamespace, writer);
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_2", CgmesExportUtil.getUniqueId(), twt.getLeg2(), cimNamespace, writer);
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_3", CgmesExportUtil.getUniqueId(), twt.getLeg3(), cimNamespace, writer);
-            writeEqTerminal(CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg1().getTerminal()), 1, cimNamespace, writer);
-            writeEqTerminal(CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg2().getTerminal()), 2, cimNamespace, writer);
-            writeEqTerminal(CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg3().getTerminal()), 3, cimNamespace, writer);
+            String terminalId1 = CgmesExportUtil.getUniqueId();
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_1", CgmesExportUtil.getUniqueId(), 1, twt.getLeg1(), terminalId1, cimNamespace, writer);
+            String terminalId2 = CgmesExportUtil.getUniqueId();
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_2", CgmesExportUtil.getUniqueId(), 2, twt.getLeg2(), terminalId2, cimNamespace, writer);
+            String terminalId3 = CgmesExportUtil.getUniqueId();
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_3", CgmesExportUtil.getUniqueId(), 3, twt.getLeg3(), terminalId3, cimNamespace, writer);
+            writeEqTerminal(terminalId1, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg1().getTerminal()), 1, cimNamespace, writer);
+            writeEqTerminal(terminalId2, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg2().getTerminal()), 2, cimNamespace, writer);
+            writeEqTerminal(terminalId3, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg3().getTerminal()), 3, cimNamespace, writer);
         }
     }
 
-    private static void writeThreeWindingsTransformerEnd(String twtId, String twtName, String endId, ThreeWindingsTransformer.Leg leg, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeEqPowerTransformerEnd(endId, twtName, twtId, leg.getR(), leg.getX(), leg.getB(), cimNamespace, writer);
-        PhaseTapChanger ptc = leg.getPhaseTapChanger();
+    private static void writeThreeWindingsTransformerEnd(String twtId, String twtName, String endId, int endNumber, ThreeWindingsTransformer.Leg leg, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writeEqPowerTransformerEnd(endId, twtName, twtId, endNumber, leg.getR(), leg.getX(), leg.getB(), leg.getRatedU(), terminalId, cimNamespace, writer);
+        writePhaseTapChanger(leg.getPhaseTapChanger(), twtName, endId, leg.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
+        writeRatioTapChanger(leg.getRatioTapChanger(), twtName, endId, cimNamespace, writer);
+    }
+
+    private static void writePhaseTapChanger(PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (ptc != null) {
-            int neutralStep = ptc.getTapPosition();
-            while(ptc.getStep(neutralStep).getAlpha() != 0.0) {
-                if (ptc.getStep(neutralStep).getAlpha() > 0.0) {
-                    neutralStep ++;
-                } else {
-                    neutralStep --;
-                }
+            int neutralStep = getPhaseTapChangerNeutralStep(ptc);
+            String phaseTapChangerTableId = CgmesExportUtil.getUniqueId();
+            writeEqPhaseTapChanger(CgmesExportUtil.getUniqueId(), twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, cimNamespace, writer);
+            writeEqPhaseTapChangerTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
+            for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
+                writeEqPhaseTapChangerTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), - step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);
             }
-            writeEqPhaseTapChanger(CgmesExportUtil.getUniqueId(), twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), leg.getTerminal().getVoltageLevel().getNominalV(), false, cimNamespace, writer);
         }
-        RatioTapChanger rtc = leg.getRatioTapChanger();
+    }
+
+    private static void writeRatioTapChanger(RatioTapChanger rtc, String twtName, String endId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (rtc != null) {
-            int neutralStep = rtc.getTapPosition();
-            while(rtc.getStep(neutralStep).getRho() != 1.0) {
-                if (rtc.getStep(neutralStep).getRho() > 1.0) {
-                    neutralStep --;
-                } else {
-                    neutralStep ++;
-                }
-            }
+            int neutralStep = getRatioTapChangerNeutralStep(rtc);
             double stepVoltageIncrement = 100.0 * (1.0 / rtc.getStep(rtc.getLowTapPosition()).getRho() - 1.0) / (rtc.getLowTapPosition() - neutralStep);
-            writeEqRatioTapChanger(CgmesExportUtil.getUniqueId(), twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement, cimNamespace, writer);
+            String ratioTapChangerTableId = CgmesExportUtil.getUniqueId();
+            writeEqRatioTapChanger(CgmesExportUtil.getUniqueId(), twtName + "_RTC", endId, rtc.getLowTapPosition(), rtc.getHighTapPosition(), neutralStep, rtc.getTapPosition(), rtc.getTargetV(), rtc.hasLoadTapChangingCapabilities(), stepVoltageIncrement, ratioTapChangerTableId, cimNamespace, writer);
+            writeEqRatioTapChangerTable(ratioTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
+            for (Map.Entry<Integer, RatioTapChangerStep> step : rtc.getAllSteps().entrySet()) {
+                writeEqRatioTapChangerTablePoint(CgmesExportUtil.getUniqueId(), ratioTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), step.getKey(), cimNamespace, writer);
+            }
         }
     }
 
@@ -629,14 +631,14 @@ public final class EquipmentExport {
         writer.writeEndElement();
     }
 
-    private static void writeEqPowerTransformerEnd(String id, String transformerEndName, String transformerId, double b, double r, double x, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEqPowerTransformerEnd(String id, String transformerEndName, String transformerId, int endNumber, double b, double r, double x, double ratedU, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "PowerTransformerEnd");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(transformerEndName);
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_NAME);
-        writer.writeCharacters(transformerEndName);
+        writer.writeStartElement(cimNamespace, EQ_TRANSFORMEREND_ENDNUMBER);
+        writer.writeCharacters(CgmesExportUtil.format(endNumber));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_R);
         writer.writeCharacters(CgmesExportUtil.format(r));
@@ -647,18 +649,24 @@ public final class EquipmentExport {
         writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_B);
         writer.writeCharacters(CgmesExportUtil.format(b));
         writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_POWERTRANSFORMEREND_RATEDU);
+        writer.writeCharacters(CgmesExportUtil.format(ratedU));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_POWERTRANSFORMEREND_POWERTRANSFORMER);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerId);
+        writer.writeEmptyElement(cimNamespace, EQ_TRANSFORMEREND_TERMINAL);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + terminalId);
         writer.writeEndElement();
     }
 
-    private static void writeEqPhaseTapChanger(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "PhaseTapChanger");
+    private static void writeEqPhaseTapChanger(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, String phaseTapChangerTableId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "PhaseTapChangerTabular");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(tapChangerName);
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_PHASETAPCHANGER_TRANSFORMEREND);
-        writer.writeCharacters(transformerEndId);
-        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGER_TRANSFORMEREND);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerEndId);
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LOWSTEP);
         writer.writeCharacters(CgmesExportUtil.format(lowStep));
         writer.writeEndElement();
@@ -677,18 +685,69 @@ public final class EquipmentExport {
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LTCFLAG);
         writer.writeCharacters(CgmesExportUtil.format(ltcFlag));
         writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGERTABULAR_PHASETAPCHANGERTABLE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + phaseTapChangerTableId);
         writer.writeEndElement();
     }
 
-    private static void writeEqRatioTapChanger(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, double stepVoltageIncrement, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeEqPhaseTapChangerTable(String id, String phaseTapChangerTableName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "PhaseTapChangerTable");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(phaseTapChangerTableName);
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeEqPhaseTapChangerTablePoint(String id, String phaseTapChangerTableId, double r, double x, double g, double b, double ratio, double angle, Integer step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "PhaseTapChangerTablePoint");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_R);
+        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_X);
+        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_G);
+        writer.writeCharacters(CgmesExportUtil.format(g));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_B);
+        writer.writeCharacters(CgmesExportUtil.format(b));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_STEP);
+        writer.writeCharacters(CgmesExportUtil.format(step));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_RATIO);
+        writer.writeCharacters(CgmesExportUtil.format(ratio));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_PHASETAPCHANGERTABLEPOINT_ANGLE);
+        writer.writeCharacters(CgmesExportUtil.format(angle));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_PHASETAPCHANGERTABLEPOINT_PHASETAPCHANGERTABLE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + phaseTapChangerTableId);
+        writer.writeEndElement();
+    }
+
+    private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
+        int neutralStep = ptc.getTapPosition();
+        while(ptc.getStep(neutralStep).getAlpha() != 0.0) {
+            if (ptc.getStep(neutralStep).getAlpha() > 0.0) {
+                neutralStep ++;
+            } else {
+                neutralStep --;
+            }
+        }
+        return neutralStep;
+    }
+
+    private static void writeEqRatioTapChanger(String id, String tapChangerName, String transformerEndId, double lowStep, double highStep, double neutralStep, double normalStep, double neutralU, boolean ltcFlag, double stepVoltageIncrement, String ratioTapChangerTableId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "RatioTapChanger");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(tapChangerName);
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_TRANSFORMEREND);
-        writer.writeCharacters(transformerEndId);
-        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGER_TRANSFORMEREND);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + transformerEndId);
         writer.writeStartElement(cimNamespace, EQ_RATIOTAPCHANGER_SVI);
         writer.writeCharacters(CgmesExportUtil.format(stepVoltageIncrement));
         writer.writeEndElement();
@@ -710,7 +769,56 @@ public final class EquipmentExport {
         writer.writeStartElement(cimNamespace, EQ_TAPCHANGER_LTCFLAG);
         writer.writeCharacters(CgmesExportUtil.format(ltcFlag));
         writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGER_RATIOTAPCHANGERTABLE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + ratioTapChangerTableId);
         writer.writeEndElement();
+    }
+
+    private static void writeEqRatioTapChangerTable(String id, String ratioTapChangerTableName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "RatioTapChangerTable");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(ratioTapChangerTableName);
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static void writeEqRatioTapChangerTablePoint(String id, String ratioTapChangerTableId, double r, double x, double g, double b, double ratio, Integer step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "RatioTapChangerTablePoint");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_R);
+        writer.writeCharacters(CgmesExportUtil.format(r));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_X);
+        writer.writeCharacters(CgmesExportUtil.format(x));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_G);
+        writer.writeCharacters(CgmesExportUtil.format(g));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_B);
+        writer.writeCharacters(CgmesExportUtil.format(b));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_STEP);
+        writer.writeCharacters(CgmesExportUtil.format(step));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_TAPCHANGERTABLEPOINT_RATIO);
+        writer.writeCharacters(CgmesExportUtil.format(ratio));
+        writer.writeEndElement();
+        writer.writeEmptyElement(cimNamespace, EQ_RATIOTAPCHANGERTABLEPOINT_RATIOTAPCHANGERTABLE);
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + ratioTapChangerTableId);
+        writer.writeEndElement();
+    }
+
+    private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
+        int neutralStep = rtc.getTapPosition();
+        while(rtc.getStep(neutralStep).getRho() != 1.0) {
+            if (rtc.getStep(neutralStep).getRho() > 1.0) {
+                neutralStep --;
+            } else {
+                neutralStep ++;
+            }
+        }
+        return neutralStep;
     }
 
     private static void writeDanglingLines(Network network, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
