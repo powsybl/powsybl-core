@@ -25,18 +25,18 @@ import java.util.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeReporter> {
+public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
 
-    LoggerTreeReporterDeserializer() {
-        super(LoggerTreeReporter.class);
+    TreeReporterDeserializer() {
+        super(TreeReporter.class);
     }
 
     @Override
-    public LoggerTreeReporter deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
-        return LoggerTreeReporter.parseJson(parser);
+    public TreeReporter deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        return TreeReporter.parseJson(parser);
     }
 
-    public static LoggerTreeReporter read(Path jsonFile) {
+    public static TreeReporter read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
         try (InputStream is = Files.newInputStream(jsonFile)) {
             return read(is);
@@ -45,15 +45,15 @@ public class LoggerTreeReporterDeserializer extends StdDeserializer<LoggerTreeRe
         }
     }
 
-    public static LoggerTreeReporter read(InputStream is) throws IOException {
+    public static TreeReporter read(InputStream is) throws IOException {
         Objects.requireNonNull(is);
-        return getObjectMapper().readValue(is, LoggerTreeReporter.class);
+        return getObjectMapper().readValue(is, TreeReporter.class);
     }
 
     private static ObjectMapper getObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(LoggerTreeReporter.class, new LoggerTreeReporterDeserializer());
+        module.addDeserializer(TreeReporter.class, new TreeReporterDeserializer());
         module.addDeserializer(Report.class, new ReportDeserializer());
         objectMapper.registerModule(module);
         return objectMapper;

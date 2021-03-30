@@ -11,16 +11,15 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.reporter.LoggerTreeReporter;
-import com.powsybl.commons.reporter.LoggerTreeReporterDeserializer;
-import com.powsybl.commons.reporter.LoggerTreeReporterSerializer;
+import com.powsybl.commons.reporter.TreeReporter;
+import com.powsybl.commons.reporter.TreeReporterDeserializer;
+import com.powsybl.commons.reporter.TreeReporterSerializer;
 import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;
 
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
 
@@ -37,7 +36,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void testReportVoltageRegulatingXnode() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        LoggerTreeReporter reporter = new LoggerTreeReporter();
+        TreeReporter reporter = new TreeReporter();
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
@@ -53,10 +52,10 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void roundTripReporterJsonTest() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        LoggerTreeReporter reporter = new LoggerTreeReporter();
+        TreeReporter reporter = new TreeReporter();
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
-        roundTripTest(reporter, LoggerTreeReporterSerializer::write, LoggerTreeReporterDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+        roundTripTest(reporter, TreeReporterSerializer::write, TreeReporterDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
     }
 
 }

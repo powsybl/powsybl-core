@@ -6,15 +6,11 @@
  */
 package com.powsybl.commons.reporter;
 
-import com.powsybl.commons.PowsyblException;
-import org.apache.commons.text.StringSubstitutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
@@ -22,44 +18,30 @@ import java.util.function.Consumer;
  */
 public class LoggerReporter extends AbstractReporter {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoggerReporter.class);
-
-    private static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
-    private static final Map<String, Consumer<String>> LOG_CONSUMER_MAP = Map.of(
-        Report.SEVERITY_TRACE, LOGGER::trace,
-        Report.SEVERITY_DEBUG, LOGGER::debug,
-        Report.SEVERITY_INFO, LOGGER::info,
-        Report.SEVERITY_WARN, LOGGER::warn,
-        Report.SEVERITY_ERROR, LOGGER::error
-    );
-
-    protected final String taskKey;
-    protected final String defaultName;
-    protected final Map<String, Object> taskValues;
+    private final Logger logger;
+    private final Map<String, Consumer<String>> slf4jLoggerMap;
+    private final String taskKeysStack;
 
     public LoggerReporter() {
-        this(DEFAULT_ROOT_TASK_KEY, "Root task", Collections.emptyMap());
+        this(DEFAULT_ROOT_TASK_KEY, DEFAULT_ROOT_NAME, Collections.emptyMap(), "");
     }
 
-    public LoggerReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
-        this.taskKey = Objects.requireNonNull(rootTaskKey);
-        this.defaultName = rootDefaultName;
-        this.taskValues = new HashMap<>();
-        Objects.requireNonNull(taskValues).forEach(this::addTaskValue);
+    public LoggerReporter(String taskKey, String defaultName, Map<String, Object> taskValues, String parentKeys) {
+        super(taskKey, defaultName, taskValues);
+        this.taskKeysStack = parentKeys + "." + taskKey;
+        this.logger = LoggerFactory.getLogger(LoggerReporter.class.getName() + this.taskKeysStack);
+        this.slf4jLoggerMap = Map.of(
+            Report.SEVERITY_TRACE, logger::trace,
+            Report.SEVERITY_DEBUG, logger::debug,
+            Report.SEVERITY_INFO, logger::info,
+            Report.SEVERITY_WARN, logger::warn,
+            Report.SEVERITY_ERROR, logger::error
+        );
     }
 
     @Override
     public LoggerReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
-        return new LoggerReporter(taskKey, defaultName, values);
-    }
-
-    @Override
-    public void addTaskValue(String key, Object value) {
-        Objects.requireNonNull(value);
-        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
-            throw new PowsyblException("Logger reporter expects only primitive or String values (value is an instance of " + value.getClass() + ")");
-        }
-        taskValues.put(key, value);
+        return new LoggerReporter(taskKey, defaultName, values, taskKeysStack);
     }
 
     @Override
@@ -67,21 +49,18 @@ public class LoggerReporter extends AbstractReporter {
         getLogConsumer(report).accept(formatReportMessage(report, taskValues));
     }
 
+    @Override
     public String toString() {
-        return new StringSubstitutor(taskValues).replace(defaultName);
-    }
-
-    protected String formatReportMessage(Report report, Map<String, Object> taskValues) {
-        return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultMessage()));
+        return formatMessage(defaultName, taskValues);
     }
 
     protected Consumer<String> getLogConsumer(Report report) {
         Object logLevelValue = report.getValue(Report.REPORT_SEVERITY_KEY);
-        return logLevelValue instanceof String ? LOG_CONSUMER_MAP.get(logLevelValue) : getDefaultLogConsumer();
+        return logLevelValue instanceof String ? slf4jLoggerMap.getOrDefault(logLevelValue, getDefaultLogConsumer()) : getDefaultLogConsumer();
     }
 
     protected Consumer<String> getDefaultLogConsumer() {
-        return LOGGER::info;
+        return logger::info;
     }
 
 }

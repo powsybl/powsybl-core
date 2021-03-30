@@ -22,18 +22,18 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class LoggerTreeReporterSerializer extends StdSerializer<LoggerTreeReporter> {
+public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
 
     private static final String VERSION = "1.0";
     private boolean rootReporter;
 
-    LoggerTreeReporterSerializer(boolean rootReporter) {
-        super(LoggerTreeReporter.class);
+    TreeReporterSerializer(boolean rootReporter) {
+        super(TreeReporter.class);
         this.rootReporter = rootReporter;
     }
 
     @Override
-    public void serialize(LoggerTreeReporter reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(TreeReporter reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         generator.writeStartObject();
         if (rootReporter) {
             rootReporter = false;
@@ -47,7 +47,7 @@ public class LoggerTreeReporterSerializer extends StdSerializer<LoggerTreeReport
         generator.writeEndObject();
     }
 
-    public static void write(LoggerTreeReporter reporter, Path jsonFile) {
+    public static void write(TreeReporter reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
@@ -60,7 +60,7 @@ public class LoggerTreeReporterSerializer extends StdSerializer<LoggerTreeReport
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(LoggerTreeReporter.class, new LoggerTreeReporterSerializer(true));
+        module.addSerializer(TreeReporter.class, new TreeReporterSerializer(true));
         objectMapper.registerModule(module);
         return objectMapper;
     }

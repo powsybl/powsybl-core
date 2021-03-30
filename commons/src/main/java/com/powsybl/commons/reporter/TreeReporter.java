@@ -21,54 +21,48 @@ import java.util.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class LoggerTreeReporter extends LoggerReporter implements ReportSeeker {
+public class TreeReporter extends AbstractReporter {
 
-    private final List<ReportSeeker> childReporters = new ArrayList<>();
+    private final List<TreeReporter> childReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
-    public LoggerTreeReporter() {
+    public TreeReporter() {
         super();
     }
 
-    public LoggerTreeReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
+    public TreeReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
         super(rootTaskKey, rootDefaultName, taskValues);
     }
 
     @Override
-    public LoggerTreeReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
-        LoggerTreeReporter childReporter = new LoggerTreeReporter(taskKey, defaultName, values);
+    public TreeReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
+        TreeReporter childReporter = new TreeReporter(taskKey, defaultName, values);
         childReporters.add(childReporter);
         return childReporter;
     }
 
     @Override
     public void report(Report report) {
-        super.report(report);
         reports.add(report);
     }
 
-    @Override
     public Collection<Report> getReports() {
         return Collections.unmodifiableCollection(reports);
     }
 
-    @Override
     public String getDefaultName() {
         return defaultName;
     }
 
-    @Override
     public String getTaskKey() {
         return taskKey;
     }
 
-    @Override
     public Map<String, Object> getTaskValues() {
         return Collections.unmodifiableMap(taskValues);
     }
 
-    @Override
-    public List<ReportSeeker> getChildReporters() {
+    public List<TreeReporter> getChildReporters() {
         return Collections.unmodifiableList(childReporters);
     }
 
@@ -88,22 +82,22 @@ public class LoggerTreeReporter extends LoggerReporter implements ReportSeeker {
         }
     }
 
-    private void printTaskReport(ReportSeeker reportSeeker, Writer writer, String prefix) throws IOException {
-        writer.append(prefix).append("+ ").append(reportSeeker.toString()).append(System.lineSeparator());
-        for (Report report : reportSeeker.getReports()) {
-            writer.append(prefix).append("   ").append(formatReportMessage(report, reportSeeker.getTaskValues())).append(System.lineSeparator());
+    private void printTaskReport(TreeReporter reportTree, Writer writer, String prefix) throws IOException {
+        writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getTaskValues())).append(System.lineSeparator());
+        for (Report report : reportTree.getReports()) {
+            writer.append(prefix).append("   ").append(formatReportMessage(report, reportTree.getTaskValues())).append(System.lineSeparator());
         }
-        for (ReportSeeker childReporter : reportSeeker.getChildReporters()) {
+        for (TreeReporter childReporter : reportTree.getChildReporters()) {
             printTaskReport(childReporter, writer, prefix + "  ");
         }
     }
 
-    protected static LoggerTreeReporter parseJson(JsonParser parser) throws IOException {
+    protected static TreeReporter parseJson(JsonParser parser) throws IOException {
         String taskKey = null;
         String defaultName = "";
         Map<String, Object> taskValues = new HashMap<>();
         List<Report> reports = new ArrayList<>();
-        List<LoggerTreeReporter> childReporters = new ArrayList<>();
+        List<TreeReporter> childReporters = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
@@ -133,7 +127,7 @@ public class LoggerTreeReporter extends LoggerReporter implements ReportSeeker {
 
                 case "childReporters":
                     parser.nextToken();
-                    childReporters = parser.readValueAs(new TypeReference<ArrayList<LoggerTreeReporter>>() {
+                    childReporters = parser.readValueAs(new TypeReference<ArrayList<TreeReporter>>() {
                     });
                     break;
 
@@ -142,7 +136,7 @@ public class LoggerTreeReporter extends LoggerReporter implements ReportSeeker {
             }
         }
 
-        LoggerTreeReporter rootReporter = new LoggerTreeReporter(taskKey, defaultName, taskValues);
+        TreeReporter rootReporter = new TreeReporter(taskKey, defaultName, taskValues);
         rootReporter.reports.addAll(reports);
         rootReporter.childReporters.addAll(childReporters);
 
