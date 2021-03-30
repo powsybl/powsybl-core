@@ -67,9 +67,13 @@ public interface Importer {
     }
 
     /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties, Reporter)} instead.
+     * Create a model.
+     *
+     * @param dataSource data source
+     * @param networkFactory network factory
+     * @param parameters some properties to configure the import
+     * @return the model
      */
-    @Deprecated
     default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         return importData(dataSource, networkFactory, parameters, Reporter.NO_OP);
     }
