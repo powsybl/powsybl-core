@@ -54,9 +54,6 @@ class CgmesControlAreaAdderImpl implements CgmesControlAreaAdder {
         if (id == null) {
             throw new PowsyblException("Undefined ID for CGMES control area");
         }
-        if (Double.isNaN(netInterchange)) {
-            throw new PowsyblException("Undefined net interchange for CGMES control area");
-        }
         return new CgmesControlAreaImpl(id, name, energyIdentificationCodeEic, netInterchange, mapping);
     }
 }
