@@ -98,10 +98,11 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         return objectMapper;
     }
 
-    private static class ReportSerializer extends JsonSerializer<Report> {
+    private static class ReportSerializer extends StdSerializer<Report> {
         private final Map<String, String> dictionary;
 
         public ReportSerializer(Map<String, String> dictionary) {
+            super(Report.class);
             this.dictionary = dictionary;
         }
 

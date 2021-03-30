@@ -13,30 +13,66 @@
           "reports" : [ {
             "reportKey" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : "ERROR",
-              "lineId" : "FFFFFF11 XXXXXX11 1",
-              "resistance" : 0.0
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX11 1",
+                "type" : "UNTYPED"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              }
             }
           }, {
             "reportKey" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : "ERROR",
-              "lineId" : "FFFFFF11 XXXXXX12 1",
-              "resistance" : 0.0
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
+                "value" : "FFFFFF11 XXXXXX12 1",
+                "type" : "UNTYPED"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              }
             }
           }, {
             "reportKey" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : "ERROR",
-              "lineId" : "FFFFFF13 XXXXXX13 1",
-              "resistance" : 0.0
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX13 1",
+                "type" : "UNTYPED"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              }
             }
           }, {
             "reportKey" : "negativeLineResistance",
             "values" : {
-              "reportSeverity" : "ERROR",
-              "lineId" : "FFFFFF13 XXXXXX14 1",
-              "resistance" : 0.0
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
+                "value" : "FFFFFF13 XXXXXX14 1",
+                "type" : "UNTYPED"
+              },
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
+              }
             }
           } ]
         }, {
@@ -49,37 +85,67 @@
         "childReporters" : [ {
           "taskKey" : "createBusesSubstation",
           "taskValues" : {
-            "substation" : "FFFFFF"
+            "substation" : {
+              "value" : "FFFFFF",
+              "type" : "UNTYPED"
+            }
           },
           "reports" : [ {
             "reportKey" : "createSubstation",
             "values" : {
-              "reportSeverity" : "TRACE",
-              "substationName" : "FFFFFF"
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "FFFFFF",
+                "type" : "SUBSTATION"
+              }
             }
           }, {
             "reportKey" : "createVoltageLevel",
             "values" : {
-              "voltageLevelName" : "FFFFFF1",
-              "reportSeverity" : "TRACE"
+              "voltageLevelName" : {
+                "value" : "FFFFFF1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
             }
           }, {
             "reportKey" : "createBus",
             "values" : {
-              "bus" : "FFFFFF11",
-              "reportSeverity" : "TRACE"
+              "bus" : {
+                "value" : "FFFFFF11",
+                "type" : "UNTYPED"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
             }
           }, {
             "reportKey" : "createBus",
             "values" : {
-              "bus" : "FFFFFF13",
-              "reportSeverity" : "TRACE"
+              "bus" : {
+                "value" : "FFFFFF13",
+                "type" : "UNTYPED"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
             }
           } ]
         }, {
           "taskKey" : "createBusesSubstation",
           "taskValues" : {
-            "substation" : "XXXXXX"
+            "substation" : {
+              "value" : "XXXXXX",
+              "type" : "UNTYPED"
+            }
           }
         } ]
       }, {
@@ -87,30 +153,66 @@
         "reports" : [ {
           "reportKey" : "danglingLineCreation",
           "values" : {
-            "ucteLine" : "FFFFFF11 XXXXXX11 1",
-            "reportSeverity" : "TRACE",
-            "xnodeCode" : "XXXXXX11"
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX11 1",
+              "type" : "UNTYPED"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX11",
+              "type" : "UNTYPED"
+            }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
-            "ucteLine" : "FFFFFF11 XXXXXX12 1",
-            "reportSeverity" : "TRACE",
-            "xnodeCode" : "XXXXXX12"
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX12 1",
+              "type" : "UNTYPED"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX12",
+              "type" : "UNTYPED"
+            }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
-            "ucteLine" : "FFFFFF13 XXXXXX13 1",
-            "reportSeverity" : "TRACE",
-            "xnodeCode" : "XXXXXX13"
+            "ucteLine" : {
+              "value" : "FFFFFF13 XXXXXX13 1",
+              "type" : "UNTYPED"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX13",
+              "type" : "UNTYPED"
+            }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
-            "ucteLine" : "FFFFFF13 XXXXXX14 1",
-            "reportSeverity" : "TRACE",
-            "xnodeCode" : "XXXXXX14"
+            "ucteLine" : {
+              "value" : "FFFFFF13 XXXXXX14 1",
+              "type" : "UNTYPED"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX14",
+              "type" : "UNTYPED"
+            }
           }
         } ]
       }, {

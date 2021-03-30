@@ -128,7 +128,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         @Override
         public Report deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String reportKey = null;
-             Map<String, Object> values = new HashMap<>();
+             Map<String, TypedValue> values = new HashMap<>();
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
                 switch (p.getCurrentName()) {
@@ -138,7 +138,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
 
                     case "values":
                         p.nextToken();
-                        values = p.readValueAs(new TypeReference<HashMap<String, Object>>() {
+                        values = p.readValueAs(new TypeReference<HashMap<String, TypedValue>>() {
                         });
                         break;
 

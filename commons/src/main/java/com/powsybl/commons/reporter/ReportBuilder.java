@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class ReportBuilder {
 
-    private final Map<String, Object> values = new HashMap<>();
+    private final Map<String, TypedValue> values = new HashMap<>();
     private String reportKey;
     private String defaultMessage;
 
@@ -32,32 +32,61 @@ public class ReportBuilder {
         return this;
     }
 
+    public ReportBuilder withTypedValue(String key, String value, String type) {
+        values.put(key, new TypedValue(value, type));
+        return this;
+    }
+
     public ReportBuilder withValue(String key, String value) {
-        values.put(key, value);
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withTypedValue(String key, double value, String type) {
+        values.put(key, new TypedValue(value, type));
         return this;
     }
 
     public ReportBuilder withValue(String key, double value) {
-        values.put(key, value);
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withTypedValue(String key, float value, String type) {
+        values.put(key, new TypedValue(value, type));
         return this;
     }
 
     public ReportBuilder withValue(String key, float value) {
-        values.put(key, value);
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withTypedValue(String key, int value, String type) {
+        values.put(key, new TypedValue(value, type));
         return this;
     }
 
     public ReportBuilder withValue(String key, int value) {
-        values.put(key, value);
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withTypedValue(String key, long value, String type) {
+        values.put(key, new TypedValue(value, type));
         return this;
     }
 
     public ReportBuilder withValue(String key, long value) {
-        values.put(key, value);
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withTypedValue(String key, boolean value, String type) {
+        values.put(key, new TypedValue(value, type));
         return this;
     }
 
-    public ReportBuilder withSeverity(String severity) {
+    public ReportBuilder withValue(String key, boolean value) {
+        return withTypedValue(key, value, TypedValue.UNTYPED);
+    }
+
+    public ReportBuilder withSeverity(TypedValue severity) {
         values.put(Report.REPORT_SEVERITY_KEY, severity);
         return this;
     }

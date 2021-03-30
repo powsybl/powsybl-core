@@ -24,9 +24,9 @@ public abstract class AbstractReporter implements Reporter {
 
     protected final String taskKey;
     protected final String defaultName;
-    protected final Map<String, Object> taskValues;
+    protected final Map<String, TypedValue> taskValues;
 
-    public AbstractReporter(String taskKey, String defaultName, Map<String, Object> taskValues) {
+    public AbstractReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
         this.taskKey = Objects.requireNonNull(taskKey);
         this.defaultName = defaultName;
         this.taskValues = new HashMap<>();
@@ -37,12 +37,13 @@ public abstract class AbstractReporter implements Reporter {
         this(DEFAULT_ROOT_TASK_KEY, DEFAULT_ROOT_NAME, Collections.emptyMap());
     }
 
-    private void addTaskValue(String key, Object value) {
-        Objects.requireNonNull(value);
-        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
-            throw new PowsyblException("Logger reporter expects only primitive or String values (value is an instance of " + value.getClass() + ")");
+    private void addTaskValue(String key, TypedValue typedValue) {
+        Objects.requireNonNull(typedValue);
+        Object value = typedValue.getValue();
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
+            throw new PowsyblException("Report expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
         }
-        taskValues.put(key, value);
+        taskValues.put(key, typedValue);
     }
 
     @Override
@@ -52,11 +53,16 @@ public abstract class AbstractReporter implements Reporter {
 
     @Override
     public Reporter createChild(String taskKey, String defaultName, String key, Object value) {
-        return createChild(taskKey, defaultName, Map.of(key, value));
+        return createChild(taskKey, defaultName, key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public void report(String reportKey, String defaultMessage, Map<String, Object> values) {
+    public Reporter createChild(String taskKey, String defaultName, String key, Object value, String type) {
+        return createChild(taskKey, defaultName, Map.of(key, new TypedValue(value, type)));
+    }
+
+    @Override
+    public void report(String reportKey, String defaultMessage, Map<String, TypedValue> values) {
         report(new Report(reportKey, defaultMessage, values));
     }
 
@@ -67,14 +73,19 @@ public abstract class AbstractReporter implements Reporter {
 
     @Override
     public void report(String reportKey, String defaultMessage, String valueKey, Object value) {
-        report(reportKey, defaultMessage, Map.of(valueKey, value));
+        report(reportKey, defaultMessage, valueKey, value, TypedValue.UNTYPED);
     }
 
-    protected static String formatReportMessage(Report report, Map<String, Object> taskValues) {
+    @Override
+    public void report(String reportKey, String defaultMessage, String valueKey, Object value, String type) {
+        report(reportKey, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
+    }
+
+    protected static String formatReportMessage(Report report, Map<String, TypedValue> taskValues) {
         return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultMessage()));
     }
 
-    protected static String formatMessage(String message, Map<String, Object> values) {
+    protected static String formatMessage(String message, Map<String, TypedValue> values) {
         return new StringSubstitutor(values).replace(message);
     }
 

@@ -19,29 +19,25 @@ import java.util.Objects;
 public class Report {
 
     public static final String REPORT_SEVERITY_KEY = "reportSeverity";
-    public static final String SEVERITY_TRACE = "TRACE";
-    public static final String SEVERITY_DEBUG = "DEBUG";
-    public static final String SEVERITY_INFO = "INFO";
-    public static final String SEVERITY_WARN = "WARN";
-    public static final String SEVERITY_ERROR = "ERROR";
 
     private final String reportKey;
     private final String defaultMessage;
-    private final Map<String, Object> values;
+    private final Map<String, TypedValue> values;
 
-    public Report(String reportKey, String defaultMessage, Map<String, Object> values) {
+    public Report(String reportKey, String defaultMessage, Map<String, TypedValue> values) {
         this.reportKey = Objects.requireNonNull(reportKey);
         this.defaultMessage = defaultMessage;
         this.values = new HashMap<>();
-        Objects.requireNonNull(values).forEach(this::addValue);
+        Objects.requireNonNull(values).forEach(this::addTypedValue);
     }
 
-    private void addValue(String key, Object value) {
-        Objects.requireNonNull(value);
-        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof String)) {
-            throw new PowsyblException("Report expects only primitive or String values (value is an instance of " + value.getClass() + ")");
+    private void addTypedValue(String key, TypedValue typedValue) {
+        Objects.requireNonNull(typedValue);
+        Object value = typedValue.getValue();
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
+            throw new PowsyblException("Report expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
         }
-        values.put(key, value);
+        values.put(key, typedValue);
     }
 
     public static ReportBuilder builder() {
@@ -56,11 +52,11 @@ public class Report {
         return reportKey;
     }
 
-    public Object getValue(String valueKey) {
+    public TypedValue getValue(String valueKey) {
         return values.get(valueKey);
     }
 
-    public Map<String, Object> getValues() {
+    public Map<String, TypedValue> getValues() {
         return Collections.unmodifiableMap(values);
     }
 

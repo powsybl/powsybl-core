@@ -15,23 +15,27 @@ public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
 
-    Reporter createChild(String taskKey, String defaultName, Map<String, Object> values);
+    Reporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values);
 
     Reporter createChild(String taskKey, String defaultName);
 
     Reporter createChild(String taskKey, String defaultName, String key, Object value);
 
-    void report(String reportKey, String defaultMessage, Map<String, Object> values);
+    Reporter createChild(String taskKey, String defaultName, String key, Object value, String type);
+
+    void report(String reportKey, String defaultMessage, Map<String, TypedValue> values);
 
     void report(String reportKey, String defaultMessage);
 
     void report(String reportKey, String defaultMessage, String valueKey, Object value);
 
+    void report(String reportKey, String defaultMessage, String valueKey, Object value, String type);
+
     void report(Report report);
 
     class NoOpImpl extends AbstractReporter {
         @Override
-        public Reporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
+        public Reporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
             return new NoOpImpl();
         }
 

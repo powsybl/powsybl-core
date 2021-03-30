@@ -30,12 +30,12 @@ public class TreeReporter extends AbstractReporter {
         super();
     }
 
-    public TreeReporter(String rootTaskKey, String rootDefaultName, Map<String, Object> taskValues) {
+    public TreeReporter(String rootTaskKey, String rootDefaultName, Map<String, TypedValue> taskValues) {
         super(rootTaskKey, rootDefaultName, taskValues);
     }
 
     @Override
-    public TreeReporter createChild(String taskKey, String defaultName, Map<String, Object> values) {
+    public TreeReporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
         TreeReporter childReporter = new TreeReporter(taskKey, defaultName, values);
         childReporters.add(childReporter);
         return childReporter;
@@ -58,7 +58,7 @@ public class TreeReporter extends AbstractReporter {
         return taskKey;
     }
 
-    public Map<String, Object> getTaskValues() {
+    public Map<String, TypedValue> getTaskValues() {
         return Collections.unmodifiableMap(taskValues);
     }
 
@@ -94,7 +94,7 @@ public class TreeReporter extends AbstractReporter {
 
     protected static TreeReporter parseJson(JsonParser parser, Map<String, String> dictionary) throws IOException {
         String taskKey = null;
-        Map<String, Object> taskValues = new HashMap<>();
+        Map<String, TypedValue> taskValues = new HashMap<>();
         List<Report> reports = new ArrayList<>();
         List<TreeReporter> childReporters = new ArrayList<>();
 
@@ -110,7 +110,7 @@ public class TreeReporter extends AbstractReporter {
 
                 case "taskValues":
                     parser.nextToken();
-                    taskValues = parser.readValueAs(new TypeReference<HashMap<String, Object>>() {
+                    taskValues = parser.readValueAs(new TypeReference<HashMap<String, TypedValue>>() {
                     });
                     break;
 
