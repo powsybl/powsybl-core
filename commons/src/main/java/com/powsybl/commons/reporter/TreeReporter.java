@@ -6,9 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -96,50 +96,26 @@ public class TreeReporter extends AbstractReporter {
         }
     }
 
-    protected static TreeReporter parseJson(JsonParser parser, Map<String, String> dictionary) throws IOException {
-        String taskKey = null;
-        Map<String, TypedValue> taskValues = new HashMap<>();
-        List<Report> reports = new ArrayList<>();
-        List<TreeReporter> childReporters = new ArrayList<>();
+    public static TreeReporter parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectMapper mapper) {
+        String taskKey = mapper.convertValue(reportTree.get("taskKey"), String.class);
 
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
-            switch (parser.getCurrentName()) {
-                case "version":
-                    parser.nextToken(); // skip
-                    break;
-
-                case "taskKey":
-                    taskKey = parser.nextTextValue();
-                    break;
-
-                case "taskValues":
-                    parser.nextToken();
-                    taskValues = parser.readValueAs(new TypeReference<HashMap<String, TypedValue>>() {
-                    });
-                    break;
-
-                case "reports":
-                    parser.nextToken();
-                    reports = parser.readValueAs(new TypeReference<ArrayList<Report>>() {
-                    });
-                    break;
-
-                case "childReporters":
-                    parser.nextToken();
-                    childReporters = parser.readValueAs(new TypeReference<ArrayList<TreeReporter>>() {
-                    });
-                    break;
-
-                default:
-                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
-            }
-        }
+        JsonNode taskValuesNode = reportTree.get("taskValues");
+        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : mapper.convertValue(taskValuesNode, new TypeReference<HashMap<String, TypedValue>>() {
+        });
 
         String defaultName = dictionary.getOrDefault(taskKey, "(missing task key in dictionary)");
-        TreeReporter rootReporter = new TreeReporter(taskKey, defaultName, taskValues);
-        rootReporter.reports.addAll(reports);
-        rootReporter.childReporters.addAll(childReporters);
+        TreeReporter reporter = new TreeReporter(taskKey, defaultName, taskValues);
 
-        return rootReporter;
+        JsonNode reportsNode = reportTree.get("reports");
+        if (reportsNode != null) {
+            reportsNode.forEach(jsonNode -> reporter.reports.add(Report.parseJsonNode(jsonNode, dictionary, mapper)));
+        }
+
+        JsonNode childReportersNode = reportTree.get("childReporters");
+        if (childReportersNode != null) {
+            childReportersNode.forEach(jsonNode -> reporter.childReporters.add(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
+        }
+
+        return reporter;
     }
 }

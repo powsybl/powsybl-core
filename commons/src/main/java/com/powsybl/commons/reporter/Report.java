@@ -6,6 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.PowsyblException;
 
 import java.util.Collections;
@@ -58,6 +61,18 @@ public class Report {
 
     public Map<String, TypedValue> getValues() {
         return Collections.unmodifiableMap(values);
+    }
+
+    public static Report parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectMapper mapper) {
+        String reportKey = mapper.convertValue(jsonNode.get("reportKey"), String.class);
+
+        JsonNode taskValuesNode = jsonNode.get("values");
+        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : mapper.convertValue(taskValuesNode, new TypeReference<HashMap<String, TypedValue>>() {
+        });
+
+        String defaultMessage = dictionary.getOrDefault(reportKey, "(missing report key in dictionary)");
+
+        return new Report(reportKey, defaultMessage, taskValues);
     }
 
 }
