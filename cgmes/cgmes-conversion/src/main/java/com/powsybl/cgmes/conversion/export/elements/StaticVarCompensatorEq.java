@@ -1,0 +1,64 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.cgmes.conversion.export.elements;
+
+import com.powsybl.cgmes.conversion.export.CgmesExportUtil;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
+
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+
+import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+
+/**
+ * @author Marcos de Miguel <demiguelm at aia.es>
+ */
+public final class StaticVarCompensatorEq {
+
+    private static final String EQ_STATICVARCOMPENSATOR_INDUCTIVERATING = "StaticVarCompensator.inductiveRating";
+    private static final String EQ_STATICVARCOMPENSATOR_CAPACITIVERATING = "StaticVarCompensator.capacitiveRating";
+    private static final String EQ_STATICVARCOMPENSATOR_SLOPE = "StaticVarCompensator.slope";
+    private static final String EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE = "StaticVarCompensator.sVCControlMode";
+    private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
+
+    public static void write(String id, String svcName, double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl, StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "StaticVarCompensator");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(svcName);
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_INDUCTIVERATING);
+        writer.writeCharacters(CgmesExportUtil.format(inductiveRating));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_CAPACITIVERATING);
+        writer.writeCharacters(CgmesExportUtil.format(capacitiveRating));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
+        writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
+        writer.writeCharacters(regulationMode(svcControlMode));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT);
+        writer.writeCharacters(CgmesExportUtil.format(voltageSetPoint));
+        writer.writeEndElement();
+        writer.writeEndElement();
+    }
+
+    private static String regulationMode(StaticVarCompensator.RegulationMode svcControlMode) {
+        if (StaticVarCompensator.RegulationMode.VOLTAGE.equals(svcControlMode)) {
+            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.voltage";
+        } else if (StaticVarCompensator.RegulationMode.REACTIVE_POWER.equals(svcControlMode)) {
+            return "http://iec.ch/TC57/2013/CIM-schema-cim16#SVCControlMode.reactivePower";
+        }
+        return "";
+    }
+
+    private StaticVarCompensatorEq() {}
+}
