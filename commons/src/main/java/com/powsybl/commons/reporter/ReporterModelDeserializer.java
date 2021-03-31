@@ -26,16 +26,16 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
+public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
 
     public static final String DICTIONARY_VALUE_ID = "dictionary";
 
-    TreeReporterDeserializer() {
-        super(TreeReporter.class);
+    ReporterModelDeserializer() {
+        super(ReporterModel.class);
     }
 
     @Override
-    public TreeReporter deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+    public ReporterModel deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
         JsonNode root = p.getCodec().readTree(p);
         ObjectMapper mapper = new ObjectMapper();
         Map<String, String> dictionary = Collections.emptyMap();
@@ -50,7 +50,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
         mapper.registerModule(module);
-        return TreeReporter.parseJsonNode(root.get("reportTree"), dictionary, mapper);
+        return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, mapper);
     }
 
     private String getDicName(DeserializationContext ctx) throws JsonMappingException {
@@ -58,27 +58,27 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         return dicNameInjected instanceof String ? (String) dicNameInjected : "default";
     }
 
-    public static TreeReporter read(Path jsonFile) {
+    public static ReporterModel read(Path jsonFile) {
         return read(jsonFile, "default");
     }
 
-    public static TreeReporter read(Path jsonFile, String dictionary) {
+    public static ReporterModel read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return getTreeReporterObjectMapper(dictionary).readValue(is);
+            return getReporterModelObjectReader(dictionary).readValue(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static ObjectReader getTreeReporterObjectMapper(String dictionary) {
+    private static ObjectReader getReporterModelObjectReader(String dictionary) {
         ObjectMapper mapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addDeserializer(TreeReporter.class, new TreeReporterDeserializer());
+        module.addDeserializer(ReporterModel.class, new ReporterModelDeserializer());
         mapper.registerModule(module);
         mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));
-        return mapper.readerFor(TreeReporter.class).withAttribute(DICTIONARY_VALUE_ID, dictionary);
+        return mapper.readerFor(ReporterModel.class).withAttribute(DICTIONARY_VALUE_ID, dictionary);
     }
 
     private static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {

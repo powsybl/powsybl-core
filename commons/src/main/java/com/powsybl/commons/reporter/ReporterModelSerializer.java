@@ -24,21 +24,21 @@ import java.util.Objects;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
+public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
 
     private static final String VERSION = "1.0";
 
-    TreeReporterSerializer() {
-        super(TreeReporter.class);
+    ReporterModelSerializer() {
+        super(ReporterModel.class);
     }
 
     @Override
-    public void serialize(TreeReporter reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+    public void serialize(ReporterModel reporter, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
         Map<String, String> dictionary = new HashMap<>();
         generator.writeStartObject();
         generator.writeStringField("version", VERSION);
         generator.writeFieldName("reportTree");
-        writeTreeReporter(reporter, generator, dictionary);
+        writeReporterModel(reporter, generator, dictionary);
         writeDictionaryEntries(generator, dictionary);
         generator.writeEndObject();
     }
@@ -50,7 +50,7 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         generator.writeEndObject();
     }
 
-    private void writeTreeReporter(TreeReporter reporter, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
+    private void writeReporterModel(ReporterModel reporter, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("taskKey", reporter.getTaskKey());
         if (!reporter.getTaskValues().isEmpty()) {
@@ -67,8 +67,8 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         if (!reporter.getSubReporters().isEmpty()) {
             generator.writeFieldName("subReporters");
             generator.writeStartArray();
-            for (TreeReporter subReporter : reporter.getSubReporters()) {
-                writeTreeReporter(subReporter, generator, dictionary);
+            for (ReporterModel subReporter : reporter.getSubReporters()) {
+                writeReporterModel(subReporter, generator, dictionary);
             }
             generator.writeEndArray();
         }
@@ -85,7 +85,7 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         dictionary.put(report.getReportKey(), report.getDefaultMessage());
     }
 
-    public static void write(TreeReporter reporter, Path jsonFile) {
+    public static void write(ReporterModel reporter, Path jsonFile) {
         Objects.requireNonNull(reporter);
         Objects.requireNonNull(jsonFile);
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
@@ -98,7 +98,7 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
     private static ObjectMapper createObjectMapper() {
         ObjectMapper objectMapper = new ObjectMapper();
         SimpleModule module = new SimpleModule();
-        module.addSerializer(TreeReporter.class, new TreeReporterSerializer())
+        module.addSerializer(ReporterModel.class, new ReporterModelSerializer())
             .addSerializer(TypedValue.class, new TypedValueSerializer());
         objectMapper.registerModule(module);
         return objectMapper;

@@ -11,9 +11,9 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.reporter.TreeReporter;
-import com.powsybl.commons.reporter.TreeReporterDeserializer;
-import com.powsybl.commons.reporter.TreeReporterSerializer;
+import com.powsybl.commons.reporter.ReporterModel;
+import com.powsybl.commons.reporter.ReporterModelDeserializer;
+import com.powsybl.commons.reporter.ReporterModelSerializer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -47,7 +47,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void testReportVoltageRegulatingXnode() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        TreeReporter reporter = new TreeReporter("testReportVoltageRegulatingXnode", "Test");
+        ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test");
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
@@ -62,9 +62,9 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     @Test
     public void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        TreeReporter reporter = new TreeReporter("roundTripReporterJsonTest", "Test");
+        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test");
         Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
-        roundTripTest(reporter, TreeReporterSerializer::write, TreeReporterDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+        roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
     }
 
     @Test
@@ -75,12 +75,12 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
-        TreeReporter reporter = new TreeReporter("importAllParallel", "Test");
+        ReporterModel reporter = new ReporterModel("importAllParallel", "Test");
         Importers.importAll(workDir, new UcteImporter(), true, null, networkList::add, null, reporter);
         assertEquals(3, networkList.size());
         assertEquals(3, reporter.getSubReporters().size());
 
-        roundTripTest(reporter, TreeReporterSerializer::write, TreeReporterDeserializer::read, "/parallelUcteImportReport.json");
+        roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/parallelUcteImportReport.json");
     }
 
 }

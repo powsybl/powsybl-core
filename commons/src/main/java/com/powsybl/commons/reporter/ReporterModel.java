@@ -21,28 +21,28 @@ import java.util.*;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class TreeReporter extends AbstractReporter {
+public class ReporterModel extends AbstractReporter {
 
-    private final List<TreeReporter> subReporters = new ArrayList<>();
+    private final List<ReporterModel> subReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
-    public TreeReporter(String taskKey, String defaultName) {
+    public ReporterModel(String taskKey, String defaultName) {
         this(taskKey, defaultName, Collections.emptyMap());
     }
 
-    public TreeReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
+    public ReporterModel(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
         super(taskKey, defaultName, taskValues);
     }
 
     @Override
-    public TreeReporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
-        TreeReporter subReporter = new TreeReporter(taskKey, defaultName, values);
+    public ReporterModel createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
+        ReporterModel subReporter = new ReporterModel(taskKey, defaultName, values);
         addSubReporter(subReporter);
         return subReporter;
     }
 
-    public void addSubReporter(TreeReporter treeReporter) {
-        subReporters.add(treeReporter);
+    public void addSubReporter(ReporterModel reporterModel) {
+        subReporters.add(reporterModel);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class TreeReporter extends AbstractReporter {
         return Collections.unmodifiableMap(taskValues);
     }
 
-    public List<TreeReporter> getSubReporters() {
+    public List<ReporterModel> getSubReporters() {
         return Collections.unmodifiableList(subReporters);
     }
 
@@ -86,17 +86,17 @@ public class TreeReporter extends AbstractReporter {
         }
     }
 
-    private void printTaskReport(TreeReporter reportTree, Writer writer, String prefix) throws IOException {
+    private void printTaskReport(ReporterModel reportTree, Writer writer, String prefix) throws IOException {
         writer.append(prefix).append("+ ").append(formatMessage(reportTree.getDefaultName(), reportTree.getTaskValues())).append(System.lineSeparator());
         for (Report report : reportTree.getReports()) {
             writer.append(prefix).append("   ").append(formatReportMessage(report, reportTree.getTaskValues())).append(System.lineSeparator());
         }
-        for (TreeReporter subReporter : reportTree.getSubReporters()) {
+        for (ReporterModel subReporter : reportTree.getSubReporters()) {
             printTaskReport(subReporter, writer, prefix + "  ");
         }
     }
 
-    public static TreeReporter parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectMapper mapper) {
+    public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectMapper mapper) {
         String taskKey = mapper.convertValue(reportTree.get("taskKey"), String.class);
 
         JsonNode taskValuesNode = reportTree.get("taskValues");
@@ -104,7 +104,7 @@ public class TreeReporter extends AbstractReporter {
         });
 
         String defaultName = dictionary.getOrDefault(taskKey, "(missing task key in dictionary)");
-        TreeReporter reporter = new TreeReporter(taskKey, defaultName, taskValues);
+        ReporterModel reporter = new ReporterModel(taskKey, defaultName, taskValues);
 
         JsonNode reportsNode = reportTree.get("reports");
         if (reportsNode != null) {
@@ -113,7 +113,7 @@ public class TreeReporter extends AbstractReporter {
 
         JsonNode subReportersNode = reportTree.get("subReporters");
         if (subReportersNode != null) {
-            subReportersNode.forEach(jsonNode -> reporter.addSubReporter(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
+            subReportersNode.forEach(jsonNode -> reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, mapper)));
         }
 
         return reporter;
