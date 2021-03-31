@@ -37,7 +37,7 @@ public class TreeReporter extends AbstractReporter {
     @Override
     public TreeReporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
         TreeReporter childReporter = new TreeReporter(taskKey, defaultName, values);
-        childReporters.add(childReporter);
+        addChild(childReporter);
         return childReporter;
     }
 
@@ -113,7 +113,7 @@ public class TreeReporter extends AbstractReporter {
 
         JsonNode childReportersNode = reportTree.get("childReporters");
         if (childReportersNode != null) {
-            childReportersNode.forEach(jsonNode -> reporter.childReporters.add(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
+            childReportersNode.forEach(jsonNode -> reporter.addChild(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
         }
 
         return reporter;
