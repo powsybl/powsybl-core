@@ -11,7 +11,11 @@ import com.powsybl.commons.reporter.TypedValue;
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
-public class UcteReportConstants {
+public final class UcteReportConstants {
+
+    private UcteReportConstants() {
+    }
+
     public static final TypedValue TRACE_SEVERITY = new TypedValue("UCTE_TRACE", TypedValue.TRACE_LOGLEVEL);
     public static final TypedValue DEBUG_SEVERITY = new TypedValue("UCTE_DEBUG", TypedValue.DEBUG_LOGLEVEL);
     public static final TypedValue INFO_SEVERITY = new TypedValue("UCTE_INFO", TypedValue.INFO_LOGLEVEL);

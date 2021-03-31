@@ -89,6 +89,4 @@ public abstract class AbstractReporter implements Reporter {
         return new StringSubstitutor(values).replace(message);
     }
 
-
-
 }

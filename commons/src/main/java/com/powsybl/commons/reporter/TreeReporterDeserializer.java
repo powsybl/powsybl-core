@@ -10,7 +10,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
@@ -20,7 +19,10 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -117,7 +119,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         return objectMapper;
     }
 
-    private static class ReportDeserializer extends StdDeserializer<Report> {
+    private static final class ReportDeserializer extends StdDeserializer<Report> {
         private final Map<String, String> dictionary;
 
         public ReportDeserializer(Map<String, String> dictionary) {
@@ -128,7 +130,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         @Override
         public Report deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
             String reportKey = null;
-             Map<String, TypedValue> values = new HashMap<>();
+            Map<String, TypedValue> values = new HashMap<>();
 
             while (p.nextToken() != JsonToken.END_OBJECT) {
                 switch (p.getCurrentName()) {
@@ -152,7 +154,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         }
     }
 
-    private static class TreeReporterHeader {
+    private static final class TreeReporterHeader {
         private final String version;
         private final Map<String, String> dictionary;
 
@@ -162,7 +164,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         }
     }
 
-    private static class TreeReporterHeaderDeserializer extends StdDeserializer<TreeReporterHeader> {
+    private static final class TreeReporterHeaderDeserializer extends StdDeserializer<TreeReporterHeader> {
         private final String dictionaryName;
 
         private TreeReporterHeaderDeserializer(String dictionaryName) {
