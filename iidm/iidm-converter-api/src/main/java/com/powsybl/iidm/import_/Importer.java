@@ -57,9 +57,8 @@ public interface Importer {
      */
     boolean exists(ReadOnlyDataSource dataSource);
 
-
     /**
-     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties, Reporter)} instead.
+     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
      */
     @Deprecated
     default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {

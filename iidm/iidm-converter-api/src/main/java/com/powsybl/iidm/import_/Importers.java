@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.ConversionParameters;
@@ -318,6 +319,19 @@ public final class Importers {
         }
     }
 
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) {
+        Objects.requireNonNull(consumer);
+        try {
+            if (listener != null) {
+                listener.accept(dataSource);
+            }
+            Network network = importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+            consumer.accept(network);
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
+    }
+
     private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
         Objects.requireNonNull(importer);
         String caseBaseName = DataSourceUtil.getBaseName(file);
@@ -369,6 +383,35 @@ public final class Importers {
                 doImport(dataSource, importer, parameters, consumer, listener);
             }
         }
+    }
+
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+        List<ReadOnlyDataSource> dataSources = new ArrayList<>();
+        importAll(dir, importer, dataSources);
+        if (parallel) {
+            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            try {
+                List<Future<?>> futures = dataSources.stream()
+                    .map(ds -> {
+                        Reporter child = createChildReporter(reporter, ds);
+                        return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, child));
+                    })
+                    .collect(Collectors.toList());
+                for (Future<?> future : futures) {
+                    future.get();
+                }
+            } finally {
+                executor.shutdownNow();
+            }
+        } else {
+            for (ReadOnlyDataSource dataSource : dataSources) {
+                doImport(dataSource, importer, parameters, consumer, listener, createChildReporter(reporter, dataSource));
+            }
+        }
+    }
+
+    private static Reporter createChildReporter(Reporter reporter, ReadOnlyDataSource ds) {
+        return reporter.createChild("importDataSource", "Import data source ${dataSource}", "dataSource", ds.getBaseName());
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
@@ -441,6 +484,26 @@ public final class Importers {
     }
 
     /**
+     * Loads a network from the specified file, trying to guess its format.
+     *
+     * @param file               The file to be loaded.
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
+        ReadOnlyDataSource dataSource = createDataSource(file);
+        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+        }
+        throw new PowsyblException("Unsupported file format or invalid file.");
+    }
+
+    /**
      * Loads a network from the specified file, trying to guess its format,
      * and using importers and post processors defined as services.
      *
@@ -501,6 +564,28 @@ public final class Importers {
     }
 
     /**
+     * Loads a network from a raw input stream, trying to guess the format from the specified filename.
+     *
+     * @param filename           The name of the file to be imported.
+     * @param data               The raw data from which the network should be loaded
+     * @param computationManager A computation manager which may be used by import post-processors
+     * @param config             The import config, in particular definition of post processors
+     * @param parameters         Import-specific parameters
+     * @param loader             Provides the list of available importers and post-processors
+     * @param reporter           The reporter used for functional logs
+     * @return                   The loaded network
+     */
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader, Reporter reporter) {
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
+        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, NetworkFactory.findDefault(), parameters, reporter);
+        }
+        throw new PowsyblException("Unsupported file format or invalid file.");
+    }
+
+    /**
      * Loads a network from a raw input stream, trying to guess the format from the specified filename,
      * and using importers and post processors defined as services.
      *
@@ -544,6 +629,15 @@ public final class Importers {
      */
     public static Network loadNetwork(String filename, InputStream data) {
         return loadNetwork(filename, data, LocalComputationManager.getDefault());
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener, Reporter reporter) throws IOException, InterruptedException, ExecutionException {
+        if (!Files.isDirectory(dir)) {
+            throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
+        }
+        for (Importer importer : Importers.list(loader, computationManager, config)) {
+            Importers.importAll(dir, importer, parallel, parameters, consumer, listener, reporter);
+        }
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
