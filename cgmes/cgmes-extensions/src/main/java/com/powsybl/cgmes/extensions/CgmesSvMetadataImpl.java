@@ -25,7 +25,7 @@ class CgmesSvMetadataImpl extends AbstractExtension<Network> implements CgmesSvM
     private final String modelingAuthoritySet;
 
     public CgmesSvMetadataImpl(String description, int svVersion, List<String> dependencies, String modelingAuthoritySet) {
-        this.description = Objects.requireNonNull(description);
+        this.description = description;
         this.svVersion = svVersion;
         this.dependencies.addAll(Objects.requireNonNull(dependencies));
         this.modelingAuthoritySet = Objects.requireNonNull(modelingAuthoritySet);

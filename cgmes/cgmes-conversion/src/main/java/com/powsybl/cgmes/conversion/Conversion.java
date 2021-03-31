@@ -11,8 +11,8 @@ import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
+import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -152,6 +152,11 @@ public class Conversion {
         addCgmesSshMetadata(network);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
+            CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
+            cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            mappingAdder.add();
+        }
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
@@ -206,7 +211,8 @@ public class Conversion {
 
         network.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreas, tf));
+        cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
+        cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
         cgmesControlAreas.cleanIfEmpty();
 
         if (config.convertSvInjections()) {
@@ -243,20 +249,19 @@ public class Conversion {
         return network;
     }
 
-    private void addControlArea(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
-        String controlAreaId = tf.getId("ControlArea");
-        CgmesControlArea cgmesControlArea;
-        if (cgmesControlAreas.containsCgmesControlAreaId(controlAreaId)) {
-            cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
-        } else {
-            cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
-                    .setId(controlAreaId)
-                    .setName(tf.getLocal("controlAreaName"))
-                    .setEnergyIdentificationCodeEic(tf.getLocal("energyIdentCodeEic"))
-                    .setNetInterchange(tf.asDouble("netInterchange"))
-                    .add();
-        }
+    private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
+        String controlAreaId = ca.getId("ControlArea");
+        cgmesControlAreas.newCgmesControlArea()
+                .setId(controlAreaId)
+                .setName(ca.getLocal("name"))
+                .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
+                .setNetInterchange(ca.asDouble("netInterchange"))
+                .add();
+    }
 
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
+        String controlAreaId = tf.getId("ControlArea");
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         String terminalId = tf.getId("terminal");
         if (context.terminalMapping().find(terminalId) != null) {
             cgmesControlArea.add(context.terminalMapping().find(terminalId));
@@ -637,6 +642,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean createCgmesExportMapping() {
+            return createCgmesExportMapping;
+        }
+
+        public Config setCreateCgmesExportMapping(boolean createCgmesExportMapping) {
+            this.createCgmesExportMapping = createCgmesExportMapping;
+            return this;
+        }
+
         public boolean convertSvInjections() {
             return convertSvInjections;
         }
@@ -751,6 +765,8 @@ public class Conversion {
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
         private boolean ensureIdAliasUnicity = false;
+
+        private boolean createCgmesExportMapping = false;
 
         // Default interpretation.
         private Xfmr2RatioPhaseInterpretationAlternative xfmr2RatioPhase = Xfmr2RatioPhaseInterpretationAlternative.END1_END2;

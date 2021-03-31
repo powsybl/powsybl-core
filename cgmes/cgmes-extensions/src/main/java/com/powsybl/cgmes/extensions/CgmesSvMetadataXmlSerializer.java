@@ -36,7 +36,9 @@ public class CgmesSvMetadataXmlSerializer extends AbstractExtensionXmlSerializer
     public void write(CgmesSvMetadata extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         XMLStreamWriter writer = networkContext.getWriter();
-        writer.writeAttribute("description", extension.getDescription());
+        if (extension.getDescription() != null) {
+            writer.writeAttribute("description", extension.getDescription());
+        }
         XmlUtil.writeInt("svVersion", extension.getSvVersion(), writer);
         writer.writeAttribute("modelingAuthoritySet", extension.getModelingAuthoritySet());
         for (String dep : extension.getDependencies()) {

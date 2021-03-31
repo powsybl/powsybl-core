@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -157,6 +158,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return context.nodeBreaker()
             ? terminals[n - 1].t.connectivityNode()
             : terminals[n - 1].t.topologicalNode();
+    }
+
+    protected String topologicalNodeId(int n) {
+        return terminals[n - 1].t.topologicalNode();
     }
 
     boolean isBoundary(int n) {
@@ -441,15 +446,29 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    protected void addAliases(Identifiable<?> identifiable) {
+    protected void addAliasesAndProperties(Identifiable<?> identifiable) {
         int i = 1;
         for (TerminalData td : terminals) {
             if (td == null) {
                 return;
             }
             identifiable.addAlias(td.t.id(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + i, context.config().isEnsureIdAliasUnicity());
+            addMappingForTopologicalNode(identifiable, i);
             i++;
         }
+    }
+
+    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int cgmesTerminalNumber, int iidmTerminalNumber) {
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+            mapping.put(identifiable.getId(), iidmTerminalNumber, terminals[cgmesTerminalNumber - 1].t.topologicalNode());
+        }
+    }
+
+    protected void addMappingForTopologicalNode(Identifiable<?> identifiable, int terminalNumber) {
+        int cgmesTerminalNumber = terminalNumber;
+        int iidmTerminalNumber = cgmesTerminalNumber;
+        addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
     }
 
     private final TerminalData[] terminals;

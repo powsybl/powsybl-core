@@ -47,7 +47,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         identify(adder);
         connect(adder);
         Generator g = adder.add();
-        addAliases(g);
+        addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
 
