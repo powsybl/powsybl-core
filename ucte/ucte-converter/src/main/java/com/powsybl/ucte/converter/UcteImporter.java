@@ -742,7 +742,7 @@ public class UcteImporter implements Importer {
             Substation substation = network.getSubstation(ucteSubstation.getName());
 
             transfoReporter.report("createTransformer",
-                "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId());
+                "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId().toString());
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 
             boolean connected = isConnected(ucteTransfo);
