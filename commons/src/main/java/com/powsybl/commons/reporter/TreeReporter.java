@@ -26,12 +26,12 @@ public class TreeReporter extends AbstractReporter {
     private final List<TreeReporter> childReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
-    public TreeReporter() {
-        super();
+    public TreeReporter(String taskKey, String defaultName) {
+        this(taskKey, defaultName, Collections.emptyMap());
     }
 
-    public TreeReporter(String rootTaskKey, String rootDefaultName, Map<String, TypedValue> taskValues) {
-        super(rootTaskKey, rootDefaultName, taskValues);
+    public TreeReporter(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
+        super(taskKey, defaultName, taskValues);
     }
 
     @Override

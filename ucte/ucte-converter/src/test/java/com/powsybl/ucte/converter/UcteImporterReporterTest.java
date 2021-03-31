@@ -36,7 +36,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void testReportVoltageRegulatingXnode() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        TreeReporter reporter = new TreeReporter();
+        TreeReporter reporter = new TreeReporter("testReportVoltageRegulatingXnode", "Test");
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
@@ -52,7 +52,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void roundTripReporterJsonTest() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        TreeReporter reporter = new TreeReporter();
+        TreeReporter reporter = new TreeReporter("roundTripReporterJsonTest", "Test");
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         roundTripTest(reporter, TreeReporterSerializer::write, TreeReporterDeserializer::read, "/frVoltageRegulatingXnodeReport.json");

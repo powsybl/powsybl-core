@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.reporter;
 
+import java.util.Collections;
 import java.util.Map;
 
 /**
@@ -34,6 +35,10 @@ public interface Reporter {
     void report(Report report);
 
     class NoOpImpl extends AbstractReporter {
+        public NoOpImpl() {
+            super("noOp", "NoOp", Collections.emptyMap());
+        }
+
         @Override
         public Reporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
             return new NoOpImpl();

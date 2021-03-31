@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "reportTree" : {
-    "taskKey" : "rootTaskKey",
+    "taskKey" : "roundTripReporterJsonTest",
     "childReporters" : [ {
       "taskKey" : "ImportUcteData",
       "childReporters" : [ {
@@ -226,9 +226,9 @@
       "createLines" : "Create lines",
       "ImportUcteData" : "Import UCTE data",
       "createSubstation" : "Create substation ${substationName}",
-      "rootTaskKey" : "Root task",
       "createTransformers" : "Create transformers",
       "fixUcteNodes" : "Fix UCTE nodes",
+      "roundTripReporterJsonTest" : "Test",
       "createBusesSubstation" : "Create buses for substation ${substation}",
       "createBus" : "Create bus ${bus}",
       "createBuses" : "Create buses",

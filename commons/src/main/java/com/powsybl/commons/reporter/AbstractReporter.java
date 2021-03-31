@@ -33,10 +33,6 @@ public abstract class AbstractReporter implements Reporter {
         Objects.requireNonNull(taskValues).forEach(this::addTaskValue);
     }
 
-    public AbstractReporter() {
-        this(DEFAULT_ROOT_TASK_KEY, DEFAULT_ROOT_NAME, Collections.emptyMap());
-    }
-
     private void addTaskValue(String key, TypedValue typedValue) {
         Objects.requireNonNull(typedValue);
         Object value = typedValue.getValue();
