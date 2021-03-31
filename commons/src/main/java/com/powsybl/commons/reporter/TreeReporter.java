@@ -41,6 +41,10 @@ public class TreeReporter extends AbstractReporter {
         return childReporter;
     }
 
+    public void addChild(TreeReporter treeReporter) {
+        childReporters.add(treeReporter);
+    }
+
     @Override
     public void report(Report report) {
         reports.add(report);
