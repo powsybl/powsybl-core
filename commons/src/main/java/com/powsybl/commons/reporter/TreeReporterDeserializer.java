@@ -115,6 +115,7 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
         SimpleModule module = new SimpleModule();
         module.addDeserializer(TreeReporter.class, new TreeReporterDeserializer(true, dictionary));
         module.addDeserializer(Report.class, new ReportDeserializer(dictionary));
+        module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
         objectMapper.registerModule(module);
         return objectMapper;
     }
@@ -204,5 +205,36 @@ public class TreeReporterDeserializer extends StdDeserializer<TreeReporter> {
             return new TreeReporterHeader(version, dictionary);
         }
 
+    }
+
+    private static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
+
+        private TypedValueDeserializer() {
+            super(TypedValue.class);
+        }
+
+        @Override
+        public TypedValue deserialize(JsonParser p, DeserializationContext deserializationContext) throws IOException {
+            Object value = null;
+            String type = TypedValue.UNTYPED;
+
+            while (p.nextToken() != JsonToken.END_OBJECT) {
+                switch (p.getCurrentName()) {
+                    case "value":
+                        p.nextToken();
+                        value = p.readValueAs(Object.class);
+                        break;
+
+                    case "type":
+                        type = p.nextTextValue();
+                        break;
+
+                    default:
+                        throw new AssertionError("Unexpected field: " + p.getCurrentName());
+                }
+            }
+
+            return new TypedValue(value, type);
+        }
     }
 }

@@ -93,6 +93,7 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         Map<String, String> dictionary = new HashMap<>();
         module.addSerializer(TreeReporter.class, new TreeReporterSerializer(true, dictionary));
         module.addSerializer(Report.class, new ReportSerializer(dictionary));
+        module.addSerializer(TypedValue.class, new TypedValueSerializer());
         objectMapper.registerModule(module);
         return objectMapper;
     }
@@ -112,6 +113,22 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
             generator.writeObjectField("values", report.getValues());
             generator.writeEndObject();
             dictionary.put(report.getReportKey(), report.getDefaultMessage());
+        }
+    }
+
+    private static final class TypedValueSerializer extends StdSerializer<TypedValue> {
+        protected TypedValueSerializer() {
+            super(TypedValue.class);
+        }
+
+        @Override
+        public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
+            generator.writeStartObject();
+            generator.writeObjectField("value", typedValue.getValue());
+            if (!TypedValue.UNTYPED.equals(typedValue.getValue())) {
+                generator.writeStringField("type", typedValue.getType());
+            }
+            generator.writeEndObject();
         }
     }
 }
