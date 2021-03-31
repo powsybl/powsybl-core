@@ -2,11 +2,11 @@
   "version" : "1.0",
   "reportTree" : {
     "taskKey" : "roundTripReporterJsonTest",
-    "childReporters" : [ {
+    "subReporters" : [ {
       "taskKey" : "ImportUcteData",
-      "childReporters" : [ {
+      "subReporters" : [ {
         "taskKey" : "UcteReading",
-        "childReporters" : [ {
+        "subReporters" : [ {
           "taskKey" : "fixUcteNodes"
         }, {
           "taskKey" : "fixUcteLines",
@@ -78,7 +78,7 @@
         } ]
       }, {
         "taskKey" : "createBuses",
-        "childReporters" : [ {
+        "subReporters" : [ {
           "taskKey" : "createBusesSubstation",
           "taskValues" : {
             "substation" : {

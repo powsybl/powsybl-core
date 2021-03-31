@@ -393,7 +393,7 @@ public final class Importers {
             try {
                 List<Future<?>> futures = dataSources.stream()
                     .map(ds -> {
-                        Reporter child = createChildReporter(reporter, ds);
+                        Reporter child = createSubReporter(reporter, ds);
                         return executor.submit(() -> doImport(ds, importer, parameters, consumer, listener, child));
                     })
                     .collect(Collectors.toList());
@@ -405,13 +405,13 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener, createChildReporter(reporter, dataSource));
+                doImport(dataSource, importer, parameters, consumer, listener, createSubReporter(reporter, dataSource));
             }
         }
     }
 
-    private static Reporter createChildReporter(Reporter reporter, ReadOnlyDataSource ds) {
-        return reporter.createChild("importDataSource", "Import data source ${dataSource}", "dataSource", ds.getBaseName());
+    private static Reporter createSubReporter(Reporter reporter, ReadOnlyDataSource ds) {
+        return reporter.createSubReporter("importDataSource", "Import data source ${dataSource}", "dataSource", ds.getBaseName());
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {

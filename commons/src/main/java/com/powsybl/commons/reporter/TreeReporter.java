@@ -23,7 +23,7 @@ import java.util.*;
  */
 public class TreeReporter extends AbstractReporter {
 
-    private final List<TreeReporter> childReporters = new ArrayList<>();
+    private final List<TreeReporter> subReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
     public TreeReporter(String taskKey, String defaultName) {
@@ -35,14 +35,14 @@ public class TreeReporter extends AbstractReporter {
     }
 
     @Override
-    public TreeReporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
-        TreeReporter childReporter = new TreeReporter(taskKey, defaultName, values);
-        addChild(childReporter);
-        return childReporter;
+    public TreeReporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
+        TreeReporter subReporter = new TreeReporter(taskKey, defaultName, values);
+        addSubReporter(subReporter);
+        return subReporter;
     }
 
-    public void addChild(TreeReporter treeReporter) {
-        childReporters.add(treeReporter);
+    public void addSubReporter(TreeReporter treeReporter) {
+        subReporters.add(treeReporter);
     }
 
     @Override
@@ -66,8 +66,8 @@ public class TreeReporter extends AbstractReporter {
         return Collections.unmodifiableMap(taskValues);
     }
 
-    public List<TreeReporter> getChildReporters() {
-        return Collections.unmodifiableList(childReporters);
+    public List<TreeReporter> getSubReporters() {
+        return Collections.unmodifiableList(subReporters);
     }
 
     public void export(Path path) {
@@ -91,8 +91,8 @@ public class TreeReporter extends AbstractReporter {
         for (Report report : reportTree.getReports()) {
             writer.append(prefix).append("   ").append(formatReportMessage(report, reportTree.getTaskValues())).append(System.lineSeparator());
         }
-        for (TreeReporter childReporter : reportTree.getChildReporters()) {
-            printTaskReport(childReporter, writer, prefix + "  ");
+        for (TreeReporter subReporter : reportTree.getSubReporters()) {
+            printTaskReport(subReporter, writer, prefix + "  ");
         }
     }
 
@@ -111,9 +111,9 @@ public class TreeReporter extends AbstractReporter {
             reportsNode.forEach(jsonNode -> reporter.reports.add(Report.parseJsonNode(jsonNode, dictionary, mapper)));
         }
 
-        JsonNode childReportersNode = reportTree.get("childReporters");
-        if (childReportersNode != null) {
-            childReportersNode.forEach(jsonNode -> reporter.addChild(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
+        JsonNode subReportersNode = reportTree.get("subReporters");
+        if (subReportersNode != null) {
+            subReportersNode.forEach(jsonNode -> reporter.addSubReporter(TreeReporter.parseJsonNode(jsonNode, dictionary, mapper)));
         }
 
         return reporter;

@@ -43,18 +43,18 @@ public abstract class AbstractReporter implements Reporter {
     }
 
     @Override
-    public Reporter createChild(String taskKey, String defaultName) {
-        return createChild(taskKey, defaultName, Collections.emptyMap());
+    public Reporter createSubReporter(String taskKey, String defaultName) {
+        return createSubReporter(taskKey, defaultName, Collections.emptyMap());
     }
 
     @Override
-    public Reporter createChild(String taskKey, String defaultName, String key, Object value) {
-        return createChild(taskKey, defaultName, key, value, TypedValue.UNTYPED);
+    public Reporter createSubReporter(String taskKey, String defaultName, String key, Object value) {
+        return createSubReporter(taskKey, defaultName, key, value, TypedValue.UNTYPED);
     }
 
     @Override
-    public Reporter createChild(String taskKey, String defaultName, String key, Object value, String type) {
-        return createChild(taskKey, defaultName, Map.of(key, new TypedValue(value, type)));
+    public Reporter createSubReporter(String taskKey, String defaultName, String key, Object value, String type) {
+        return createSubReporter(taskKey, defaultName, Map.of(key, new TypedValue(value, type)));
     }
 
     @Override

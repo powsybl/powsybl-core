@@ -64,11 +64,11 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
             }
             generator.writeEndArray();
         }
-        if (!reporter.getChildReporters().isEmpty()) {
-            generator.writeFieldName("childReporters");
+        if (!reporter.getSubReporters().isEmpty()) {
+            generator.writeFieldName("subReporters");
             generator.writeStartArray();
-            for (TreeReporter childReporter : reporter.getChildReporters()) {
-                writeTreeReporter(childReporter, generator, dictionary);
+            for (TreeReporter subReporter : reporter.getSubReporters()) {
+                writeTreeReporter(subReporter, generator, dictionary);
             }
             generator.writeEndArray();
         }

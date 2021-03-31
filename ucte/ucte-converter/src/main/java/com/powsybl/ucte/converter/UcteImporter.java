@@ -146,10 +146,10 @@ public class UcteImporter implements Importer {
     }
 
     private static void createBuses(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
-        Reporter busesReporter = reporter.createChild("createBuses", "Create buses");
+        Reporter busesReporter = reporter.createSubReporter("createBuses", "Create buses");
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
-            Reporter substationReporter = busesReporter.createChild("createBusesSubstation",
+            Reporter substationReporter = busesReporter.createSubReporter("createBusesSubstation",
                 "Create buses for substation ${substation}", "substation", ucteSubstation.getName());
             // skip substations with only one Xnode
             UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
@@ -492,7 +492,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void createLines(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
-        Reporter linesReporter = reporter.createChild("createLines", "Create lines");
+        Reporter linesReporter = reporter.createSubReporter("createLines", "Create lines");
         for (UcteLine ucteLine : ucteNetwork.getLines()) {
             UcteNodeCode nodeCode1 = ucteLine.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteLine.getId().getNodeCode2();
@@ -732,7 +732,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName, Reporter reporter) {
-        Reporter transfoReporter = reporter.createChild("createTransformers", "Create transformers");
+        Reporter transfoReporter = reporter.createSubReporter("createTransformers", "Create transformers");
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteTransfo.getId().getNodeCode2();
@@ -1056,7 +1056,7 @@ public class UcteImporter implements Importer {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
-                Reporter importReporter = reporter.createChild("ImportUcteData", "Import UCTE data");
+                Reporter importReporter = reporter.createSubReporter("ImportUcteData", "Import UCTE data");
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, importReporter), LINE_MIN_Z);

@@ -2,18 +2,18 @@
   "version" : "1.0",
   "reportTree" : {
     "taskKey" : "importAllParallel",
-    "childReporters" : [ {
+    "subReporters" : [ {
       "taskKey" : "importDataSource",
       "taskValues" : {
         "dataSource" : {
           "value" : "frTestGridForMerging"
         }
       },
-      "childReporters" : [ {
+      "subReporters" : [ {
         "taskKey" : "ImportUcteData",
-        "childReporters" : [ {
+        "subReporters" : [ {
           "taskKey" : "UcteReading",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "fixUcteNodes"
           }, {
             "taskKey" : "fixUcteLines",
@@ -55,7 +55,7 @@
           } ]
         }, {
           "taskKey" : "createBuses",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "createBusesSubstation",
             "taskValues" : {
               "substation" : {
@@ -148,11 +148,11 @@
           "value" : "frVoltageRegulatingXnode"
         }
       },
-      "childReporters" : [ {
+      "subReporters" : [ {
         "taskKey" : "ImportUcteData",
-        "childReporters" : [ {
+        "subReporters" : [ {
           "taskKey" : "UcteReading",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "fixUcteNodes"
           }, {
             "taskKey" : "fixUcteLines",
@@ -224,7 +224,7 @@
           } ]
         }, {
           "taskKey" : "createBuses",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "createBusesSubstation",
             "taskValues" : {
               "substation" : {
@@ -356,11 +356,11 @@
           "value" : "germanTsos"
         }
       },
-      "childReporters" : [ {
+      "subReporters" : [ {
         "taskKey" : "ImportUcteData",
-        "childReporters" : [ {
+        "subReporters" : [ {
           "taskKey" : "UcteReading",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "fixUcteNodes"
           }, {
             "taskKey" : "fixUcteLines"
@@ -371,7 +371,7 @@
           } ]
         }, {
           "taskKey" : "createBuses",
-          "childReporters" : [ {
+          "subReporters" : [ {
             "taskKey" : "createBusesSubstation",
             "taskValues" : {
               "substation" : {

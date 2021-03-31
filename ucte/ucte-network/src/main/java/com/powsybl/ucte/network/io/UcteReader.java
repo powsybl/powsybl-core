@@ -267,7 +267,7 @@ public class UcteReader {
 
     public UcteNetwork read(BufferedReader reader, Reporter reporter) throws IOException {
 
-        Reporter readReporter = reporter.createChild("UcteReading", "Reading UCTE network file");
+        Reporter readReporter = reporter.createSubReporter("UcteReading", "Reading UCTE network file");
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);

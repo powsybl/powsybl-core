@@ -16,13 +16,13 @@ public interface Reporter {
 
     Reporter NO_OP = new NoOpImpl();
 
-    Reporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values);
+    Reporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values);
 
-    Reporter createChild(String taskKey, String defaultName);
+    Reporter createSubReporter(String taskKey, String defaultName);
 
-    Reporter createChild(String taskKey, String defaultName, String key, Object value);
+    Reporter createSubReporter(String taskKey, String defaultName, String key, Object value);
 
-    Reporter createChild(String taskKey, String defaultName, String key, Object value, String type);
+    Reporter createSubReporter(String taskKey, String defaultName, String key, Object value, String type);
 
     void report(String reportKey, String defaultMessage, Map<String, TypedValue> values);
 
@@ -40,7 +40,7 @@ public interface Reporter {
         }
 
         @Override
-        public Reporter createChild(String taskKey, String defaultName, Map<String, TypedValue> values) {
+        public Reporter createSubReporter(String taskKey, String defaultName, Map<String, TypedValue> values) {
             return new NoOpImpl();
         }
 

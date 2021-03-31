@@ -78,7 +78,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         TreeReporter reporter = new TreeReporter("importAllParallel", "Test");
         Importers.importAll(workDir, new UcteImporter(), true, null, networkList::add, null, reporter);
         assertEquals(3, networkList.size());
-        assertEquals(3, reporter.getChildReporters().size());
+        assertEquals(3, reporter.getSubReporters().size());
 
         roundTripTest(reporter, TreeReporterSerializer::write, TreeReporterDeserializer::read, "/parallelUcteImportReport.json");
     }
