@@ -18,8 +18,7 @@
                 "type" : "ERROR_LOGLEVEL"
               },
               "lineId" : {
-                "value" : "FFFFFF11 XXXXXX11 1",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF11 XXXXXX11 1"
               },
               "resistance" : {
                 "value" : 0.0,
@@ -34,8 +33,7 @@
                 "type" : "ERROR_LOGLEVEL"
               },
               "lineId" : {
-                "value" : "FFFFFF11 XXXXXX12 1",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF11 XXXXXX12 1"
               },
               "resistance" : {
                 "value" : 0.0,
@@ -50,8 +48,7 @@
                 "type" : "ERROR_LOGLEVEL"
               },
               "lineId" : {
-                "value" : "FFFFFF13 XXXXXX13 1",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF13 XXXXXX13 1"
               },
               "resistance" : {
                 "value" : 0.0,
@@ -66,8 +63,7 @@
                 "type" : "ERROR_LOGLEVEL"
               },
               "lineId" : {
-                "value" : "FFFFFF13 XXXXXX14 1",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF13 XXXXXX14 1"
               },
               "resistance" : {
                 "value" : 0.0,
@@ -86,8 +82,7 @@
           "taskKey" : "createBusesSubstation",
           "taskValues" : {
             "substation" : {
-              "value" : "FFFFFF",
-              "type" : "UNTYPED"
+              "value" : "FFFFFF"
             }
           },
           "reports" : [ {
@@ -118,8 +113,7 @@
             "reportKey" : "createBus",
             "values" : {
               "bus" : {
-                "value" : "FFFFFF11",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF11"
               },
               "reportSeverity" : {
                 "value" : "UCTE_TRACE",
@@ -130,8 +124,7 @@
             "reportKey" : "createBus",
             "values" : {
               "bus" : {
-                "value" : "FFFFFF13",
-                "type" : "UNTYPED"
+                "value" : "FFFFFF13"
               },
               "reportSeverity" : {
                 "value" : "UCTE_TRACE",
@@ -143,8 +136,7 @@
           "taskKey" : "createBusesSubstation",
           "taskValues" : {
             "substation" : {
-              "value" : "XXXXXX",
-              "type" : "UNTYPED"
+              "value" : "XXXXXX"
             }
           }
         } ]
@@ -154,64 +146,56 @@
           "reportKey" : "danglingLineCreation",
           "values" : {
             "ucteLine" : {
-              "value" : "FFFFFF11 XXXXXX11 1",
-              "type" : "UNTYPED"
+              "value" : "FFFFFF11 XXXXXX11 1"
             },
             "reportSeverity" : {
               "value" : "UCTE_TRACE",
               "type" : "TRACE_LOGLEVEL"
             },
             "xnodeCode" : {
-              "value" : "XXXXXX11",
-              "type" : "UNTYPED"
+              "value" : "XXXXXX11"
             }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
             "ucteLine" : {
-              "value" : "FFFFFF11 XXXXXX12 1",
-              "type" : "UNTYPED"
+              "value" : "FFFFFF11 XXXXXX12 1"
             },
             "reportSeverity" : {
               "value" : "UCTE_TRACE",
               "type" : "TRACE_LOGLEVEL"
             },
             "xnodeCode" : {
-              "value" : "XXXXXX12",
-              "type" : "UNTYPED"
+              "value" : "XXXXXX12"
             }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
             "ucteLine" : {
-              "value" : "FFFFFF13 XXXXXX13 1",
-              "type" : "UNTYPED"
+              "value" : "FFFFFF13 XXXXXX13 1"
             },
             "reportSeverity" : {
               "value" : "UCTE_TRACE",
               "type" : "TRACE_LOGLEVEL"
             },
             "xnodeCode" : {
-              "value" : "XXXXXX13",
-              "type" : "UNTYPED"
+              "value" : "XXXXXX13"
             }
           }
         }, {
           "reportKey" : "danglingLineCreation",
           "values" : {
             "ucteLine" : {
-              "value" : "FFFFFF13 XXXXXX14 1",
-              "type" : "UNTYPED"
+              "value" : "FFFFFF13 XXXXXX14 1"
             },
             "reportSeverity" : {
               "value" : "UCTE_TRACE",
               "type" : "TRACE_LOGLEVEL"
             },
             "xnodeCode" : {
-              "value" : "XXXXXX14",
-              "type" : "UNTYPED"
+              "value" : "XXXXXX14"
             }
           }
         } ]

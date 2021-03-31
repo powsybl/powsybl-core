@@ -125,7 +125,7 @@ public class TreeReporterSerializer extends StdSerializer<TreeReporter> {
         public void serialize(TypedValue typedValue, JsonGenerator generator, SerializerProvider serializerProvider) throws IOException {
             generator.writeStartObject();
             generator.writeObjectField("value", typedValue.getValue());
-            if (!TypedValue.UNTYPED.equals(typedValue.getValue())) {
+            if (!TypedValue.UNTYPED.equals(typedValue.getType())) {
                 generator.writeStringField("type", typedValue.getType());
             }
             generator.writeEndObject();
