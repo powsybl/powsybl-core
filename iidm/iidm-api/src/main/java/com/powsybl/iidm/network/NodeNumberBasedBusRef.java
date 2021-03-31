@@ -16,7 +16,7 @@ import java.util.Optional;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class NodeNumberBasedBusRef implements BusRef {
+public class NodeNumberBasedBusRef extends AbstractBusRef {
 
     private final String voltageLevelId;
     private final int node;
@@ -28,7 +28,7 @@ public class NodeNumberBasedBusRef implements BusRef {
     }
 
     @Override
-    public Optional<Bus> resolve(Network network) {
+    Optional<Bus> resolveByLevel(Network network, TopologyLevel level) {
         final VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             return Optional.empty();
@@ -38,7 +38,7 @@ public class NodeNumberBasedBusRef implements BusRef {
             if (terminal == null) {
                 return Optional.empty();
             }
-            return Optional.of(terminal.getBusView().getBus());
+            return chooseBusByLevel(terminal, level);
         } else {
             throw new PowsyblException("Underlying topology not supported.");
         }

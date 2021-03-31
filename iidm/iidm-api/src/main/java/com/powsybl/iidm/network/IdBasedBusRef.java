@@ -22,7 +22,7 @@ import java.util.Optional;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class IdBasedBusRef implements BusRef {
+public class IdBasedBusRef extends AbstractBusRef {
 
     private final String id;
     private final Branch.Side side;
@@ -39,7 +39,7 @@ public class IdBasedBusRef implements BusRef {
     }
 
     @Override
-    public Optional<Bus> resolve(Network network) {
+    Optional<Bus> resolveByLevel(Network network, TopologyLevel level) {
         if (side == null) {
             final Identifiable<?> identifiable = network.getIdentifiable(id);
             if (identifiable == null) {
@@ -47,10 +47,14 @@ public class IdBasedBusRef implements BusRef {
             }
             if (identifiable instanceof Bus) {
                 Bus bus = (Bus) identifiable;
-                return Optional.of(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+                if (Objects.equals(TopologyLevel.BUS_BRANCH, level)) {
+                    return Optional.ofNullable(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+                } else {
+                    return Optional.ofNullable(bus.getConnectedTerminalStream().map(t -> t.getBusBreakerView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+                }
             } else if (identifiable instanceof Injection) {
                 final Injection injection = (Injection) identifiable;
-                return Optional.of(injection.getTerminal().getBusView().getBus());
+                return chooseBusByLevel(injection.getTerminal(), level);
             } else {
                 throw new PowsyblException(id + " is not a bus or injection.");
             }
@@ -67,7 +71,7 @@ public class IdBasedBusRef implements BusRef {
                 default:
                     throw new AssertionError("Unexpected side: " + side);
             }
-            return Optional.ofNullable(terminal.getBusView().getBus());
+            return chooseBusByLevel(terminal, level);
         }
     }
 

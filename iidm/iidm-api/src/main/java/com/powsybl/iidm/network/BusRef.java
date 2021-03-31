@@ -21,6 +21,7 @@ public interface BusRef {
     /**
      * @return an empty if not found
      * @throws com.powsybl.commons.PowsyblException if underlying implementation not supported
+     * @throws IllegalArgumentException if try to resolve by {@link com.powsybl.iidm.network.TopologyLevel#NODE_BREAKER}
      */
-    Optional<Bus> resolve(Network network);
+    Optional<Bus> resolve(Network network, TopologyLevel level);
 }
