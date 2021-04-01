@@ -1,0 +1,68 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.action.util;
+
+import com.powsybl.action.util.Scalable.ScalingConvention;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Network;
+import org.junit.Before;
+import org.junit.Test;
+
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
+import static com.powsybl.action.util.ScalableTestNetwork.createNetworkWithDanglingLine;
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Anne Tilloy <anne.tilloy at rte-france.com>
+ */
+public class DanglingLineScalableTest {
+
+    private Network network;
+    private Scalable dl2;
+    private ScalingConvention convention;
+
+    @Before
+    public void setUp() {
+        network = createNetworkWithDanglingLine();
+        dl2 = Scalable.onDanglingLine("dl2");
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void testConstructorThrowWhenIdIsNull() {
+        new DanglingLineScalable(null);
+    }
+
+    @Test
+    public void testInitialValue() {
+        assertEquals(0, dl2.initialValue(network), 1e-3);
+    }
+
+    @Test
+    public void testMaximumlValue() {
+        assertEquals(Double.MAX_VALUE, dl2.maximumValue(network, LOAD), 0.);
+    }
+
+    @Test
+    public void testMinimumlValue() {
+        assertEquals(Double.MIN_VALUE, dl2.minimumValue(network, LOAD), 0.);
+    }
+
+    @Test
+    public void testLoadScaleLoadConvention() {
+
+        //test with ScalingConvention.LOAD
+        convention = LOAD;
+
+        //test with default maxValue = Double.MAX_VALUE and minValue = Double.MIN_VALUE
+        DanglingLine danglingLine = network.getDanglingLine("dl2");
+        assertEquals(50, danglingLine.getP0(), 1e-3);
+        assertEquals(20, dl2.scale(network, 20, convention), 1e-3);
+        assertEquals(70, danglingLine.getP0(), 1e-3);
+        assertEquals(-40, dl2.scale(network, -40, convention), 1e-3);
+        assertEquals(30, danglingLine.getP0(), 1e-3);
+    }
+}
