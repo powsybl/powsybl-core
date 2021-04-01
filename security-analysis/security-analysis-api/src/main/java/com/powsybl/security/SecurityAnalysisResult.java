@@ -11,7 +11,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,8 +22,6 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final LimitViolationsResult preContingencyResult;
 
     private final List<PostContingencyResult> postContingencyResults;
-
-    private byte[] logBytes;
 
     public static SecurityAnalysisResult empty() {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), Collections.emptyList());
@@ -51,18 +48,5 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
 
     public List<PostContingencyResult> getPostContingencyResults() {
         return postContingencyResults;
-    }
-
-    /**
-     * Gets log file in bytes.
-     * @return an Optional describing the zip bytes
-     */
-    public Optional<byte[]> getLogBytes() {
-        return Optional.ofNullable(logBytes);
-    }
-
-    public SecurityAnalysisResult setLogBytes(byte[] logBytes) {
-        this.logBytes = logBytes;
-        return this;
     }
 }

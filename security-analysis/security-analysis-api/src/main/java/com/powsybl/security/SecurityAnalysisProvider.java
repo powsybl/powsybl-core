@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -70,7 +70,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param interceptors
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
-    CompletableFuture<SecurityAnalysisResult> run(Network network,
+    CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                   String workingVariantId,
                                                   LimitViolationDetector detector,
                                                   LimitViolationFilter filter,

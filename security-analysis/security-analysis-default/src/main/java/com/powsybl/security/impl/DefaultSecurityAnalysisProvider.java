@@ -26,7 +26,7 @@ public class DefaultSecurityAnalysisProvider implements SecurityAnalysisProvider
     private static final String PROVIDER_VERSION = "1.0";
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> run(Network network,
+    public CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                          String workingVariantId,
                                                          LimitViolationDetector detector,
                                                          LimitViolationFilter filter,

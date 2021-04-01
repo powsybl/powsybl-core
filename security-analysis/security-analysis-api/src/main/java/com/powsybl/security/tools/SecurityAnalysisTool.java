@@ -223,17 +223,17 @@ public class SecurityAnalysisTool implements Tool {
         return builder.build();
     }
 
-    private static SecurityAnalysisResult runSecurityAnalysisWithLog(ComputationManager computationManager,
+    private static SecurityAnalysisReport runSecurityAnalysisWithLog(ComputationManager computationManager,
                                                                      SecurityAnalysisExecution execution,
                                                                      SecurityAnalysisExecutionInput input,
                                                                      Path logPath) {
         try {
 
-            SecurityAnalysisResult result = execution.execute(computationManager, input).join();
+            SecurityAnalysisReport report = execution.execute(computationManager, input).join();
             // copy log bytes to file
-            result.getLogBytes()
+            report.getLogBytes()
                     .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
-            return result;
+            return report;
         } catch (CompletionException e) {
             if (e.getCause() instanceof ComputationException) {
                 ComputationException computationException = (ComputationException) e.getCause();
@@ -303,9 +303,11 @@ public class SecurityAnalysisTool implements Tool {
         ComputationManager computationManager = options.hasOption(TASK) ? context.getShortTimeExecutionComputationManager() :
                 context.getLongTimeExecutionComputationManager();
 
-        SecurityAnalysisResult result = options.getPath(OUTPUT_LOG_OPTION)
+        SecurityAnalysisReport report = options.getPath(OUTPUT_LOG_OPTION)
                 .map(logPath -> runSecurityAnalysisWithLog(computationManager, execution, executionInput, logPath))
                 .orElseGet(() -> execution.execute(computationManager, executionInput).join());
+
+        SecurityAnalysisResult result = report.getResult();
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

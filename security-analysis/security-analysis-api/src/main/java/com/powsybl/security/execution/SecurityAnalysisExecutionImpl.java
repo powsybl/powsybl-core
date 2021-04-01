@@ -54,7 +54,7 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
+    public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager, SecurityAnalysisExecutionInput data) {
         SecurityAnalysisInput input = buildInput(data);
         return runner.runAsync(input.getNetworkVariant().getNetwork(),
                 input.getNetworkVariant().getVariantId(),

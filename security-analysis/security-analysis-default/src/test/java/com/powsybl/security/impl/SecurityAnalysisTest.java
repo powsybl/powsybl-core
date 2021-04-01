@@ -98,7 +98,7 @@ public class SecurityAnalysisTest {
         List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
         interceptors.add(interceptorMock);
 
-        SecurityAnalysisResult result = SecurityAnalysis.run(network,
+        SecurityAnalysisReport report = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 detector,
                 filter,
@@ -106,6 +106,8 @@ public class SecurityAnalysisTest {
                 SecurityAnalysisParameters.load(platformConfig),
                 contingenciesProvider,
                 interceptors);
+
+        SecurityAnalysisResult result = report.getResult();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());
@@ -142,7 +144,7 @@ public class SecurityAnalysisTest {
         SecurityAnalysisInterceptorMock interceptorMock = new SecurityAnalysisInterceptorMock();
         interceptors.add(interceptorMock);
 
-        SecurityAnalysisResult result = SecurityAnalysis.run(network,
+        SecurityAnalysisReport report = SecurityAnalysis.run(network,
                 VariantManagerConstants.INITIAL_VARIANT_ID,
                 new DefaultLimitViolationDetector(),
                 new LimitViolationFilter(),
@@ -150,6 +152,7 @@ public class SecurityAnalysisTest {
                 SecurityAnalysisParameters.load(platformConfig),
                 contingenciesProvider,
                 interceptors);
+        SecurityAnalysisResult result = report.getResult();
 
         assertTrue(result.getPreContingencyResult().isComputationOk());
         assertEquals(0, result.getPreContingencyResult().getLimitViolations().size());

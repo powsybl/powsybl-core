@@ -73,7 +73,7 @@ public class SecurityAnalysisExecutionImplTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
             assertSame(SecurityAnalysisExecutionImplTest.network, network);
             assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
             assertSame(SecurityAnalysisExecutionImplTest.detector, detector);
