@@ -31,33 +31,27 @@ public class BusRefTest {
     public void testIdBasedBusRef() throws JsonProcessingException {
         Network network = mock(Network.class);
         Network.BusView bv = mock(Network.BusView.class);
-        Network.BusBreakerView bbv = mock(Network.BusBreakerView.class);
+
         VoltageLevel vl = mock(VoltageLevel.class);
         when(bbvBus.getVoltageLevel()).thenReturn(vl);
         when(network.getBusView()).thenReturn(bv);
-        when(network.getBusBreakerView()).thenReturn(bbv);
         when(bv.getBus(eq("busId"))).thenReturn(bvBus);
-        when(bbv.getBus(eq("busId"))).thenReturn(bbvBus);
 
         final BusRef busRef = new IdBasedBusRef("busId");
         when(network.getIdentifiable(eq("busId"))).thenReturn((Identifiable) bvBus);
         when(bvBus.getId()).thenReturn("busId");
-        when(bbvBus.getId()).thenReturn("busId");
         Terminal busTerminal = mock(Terminal.class);
         Terminal.BusView terBusView = mock(Terminal.BusView.class);
-        Terminal.BusBreakerView terBusBreakView = mock(Terminal.BusBreakerView.class);
         when(busTerminal.getBusView()).thenReturn(terBusView);
-        when(busTerminal.getBusBreakerView()).thenReturn(terBusBreakView);
         when(terBusView.getBus()).thenReturn(bvBus);
-        when(terBusBreakView.getBus()).thenReturn(bbvBus);
         final Set<Terminal> singleton = Collections.singleton(busTerminal);
         final Stream mock = singleton.stream();
-        final Stream mock2 = singleton.stream();
         when(bvBus.getConnectedTerminalStream()).thenReturn(mock);
         assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
+
         when(network.getIdentifiable(eq("busId"))).thenReturn((Identifiable) bbvBus);
-        when(bbvBus.getConnectedTerminalStream()).thenReturn(mock2);
         assertEquals(bbvBus, busRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(AssertionError::new));
+
         assertFalse(new IdBasedBusRef("another").resolve(network, TopologyLevel.BUS_BRANCH).isPresent());
 
         ObjectMapper objectMapper = new ObjectMapper();
@@ -77,6 +71,11 @@ public class BusRefTest {
         final IdBasedBusRef busbarRef = new IdBasedBusRef("busbarId");
         assertEquals(bvBus, busbarRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
 
+        Terminal.BusBreakerView bbv = mock(Terminal.BusBreakerView.class);
+        when(terminal.getBusBreakerView()).thenReturn(bbv);
+        when(bbv.getBus()).thenReturn(bbvBus);
+        assertEquals(bbvBus, busbarRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(AssertionError::new));
+
         Identifiable branch = mock(Branch.class);
         when(network.getIdentifiable(eq("branchId"))).thenReturn(branch);
         try {
@@ -84,6 +83,13 @@ public class BusRefTest {
             fail();
         } catch (Exception e) {
             assertEquals("branchId is not a bus or injection.", e.getMessage());
+        }
+
+        try {
+            new IdBasedBusRef("branchId").resolve(network, TopologyLevel.NODE_BREAKER);
+            fail();
+        } catch (Exception e) {
+            assertEquals("NODE_BREAKER is not supported in resolve a BusRef.", e.getMessage());
         }
     }
 
@@ -116,47 +122,4 @@ public class BusRefTest {
 
         assertEquals(busRef, new IdBasedBusRef("branchId", Branch.Side.ONE));
     }
-
-    @Test
-    public void testNodeNumberBased() throws JsonProcessingException {
-        Network network = mock(Network.class);
-        VoltageLevel vl = mock(VoltageLevel.class);
-        when(network.getVoltageLevel(eq("vl"))).thenReturn(vl);
-        VoltageLevel.NodeBreakerView nbv = mock(VoltageLevel.NodeBreakerView.class);
-        when(vl.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
-        when(vl.getNodeBreakerView()).thenReturn(nbv);
-        Terminal terminal = mock(Terminal.class);
-        Terminal.BusView bv = mock(Terminal.BusView.class);
-        when(terminal.getBusView()).thenReturn(bv);
-        when(bv.getBus()).thenReturn(bvBus);
-        when(nbv.getTerminal(eq(1))).thenReturn(terminal);
-
-        BusRef busRef = new NodeNumberBasedBusRef("vl", 1);
-        assertEquals(bvBus, busRef.resolve(network, TopologyLevel.BUS_BRANCH).orElseThrow(AssertionError::new));
-        assertFalse(new NodeNumberBasedBusRef("vl", 2).resolve(network, TopologyLevel.BUS_BRANCH).isPresent());
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        final String json = objectMapper.writeValueAsString(busRef);
-        assertEquals("{\"@c\":\".NodeNumberBasedBusRef\",\"voltageLevelId\":\"vl\",\"node\":1}", json);
-        assertEquals(busRef, objectMapper.readValue(json, NodeNumberBasedBusRef.class));
-
-        final Terminal.BusBreakerView bbv = mock(Terminal.BusBreakerView.class);
-        when(terminal.getBusBreakerView()).thenReturn(bbv);
-        when(bbv.getBus()).thenReturn(bbvBus);
-        assertEquals(bbvBus, busRef.resolve(network, TopologyLevel.BUS_BREAKER).orElseThrow(AssertionError::new));
-
-        when(vl.getTopologyKind()).thenReturn(TopologyKind.BUS_BREAKER);
-        try {
-            busRef.resolve(network, TopologyLevel.BUS_BRANCH);
-            fail();
-        } catch (Exception e) {
-            assertEquals("Underlying topology not supported.", e.getMessage());
-        }
-
-        when(network.getVoltageLevel(eq("not_existing_vl"))).thenReturn(null);
-        assertFalse(new NodeNumberBasedBusRef("not_existing_vl", 2).resolve(network, TopologyLevel.BUS_BRANCH).isPresent());
-
-        assertEquals(busRef, new NodeNumberBasedBusRef("vl", 1));
-    }
-
 }

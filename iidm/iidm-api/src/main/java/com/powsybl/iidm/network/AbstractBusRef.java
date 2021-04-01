@@ -18,19 +18,19 @@ public abstract class AbstractBusRef implements BusRef {
     public Optional<Bus> resolve(Network network, TopologyLevel level) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(level);
-        if (Objects.equals(TopologyLevel.NODE_BREAKER, level)) {
+        if (TopologyLevel.NODE_BREAKER == level) {
             throw new IllegalArgumentException(level + " is not supported in resolve a BusRef.");
         }
         return resolveByLevel(network, level);
     }
 
     static Optional<Bus> chooseBusByLevel(Terminal t, TopologyLevel level) {
-        if (Objects.equals(level, TopologyLevel.BUS_BRANCH)) {
+        if (level == TopologyLevel.BUS_BRANCH) {
             return Optional.ofNullable(t.getBusView().getBus());
         } else {
             return Optional.ofNullable(t.getBusBreakerView().getBus());
         }
     }
 
-    abstract Optional<Bus> resolveByLevel(Network network, TopologyLevel level);
+    protected abstract Optional<Bus> resolveByLevel(Network network, TopologyLevel level);
 }

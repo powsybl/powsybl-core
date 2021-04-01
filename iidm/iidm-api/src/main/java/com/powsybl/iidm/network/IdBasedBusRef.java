@@ -39,7 +39,7 @@ public class IdBasedBusRef extends AbstractBusRef {
     }
 
     @Override
-    Optional<Bus> resolveByLevel(Network network, TopologyLevel level) {
+    protected Optional<Bus> resolveByLevel(Network network, TopologyLevel level) {
         if (side == null) {
             final Identifiable<?> identifiable = network.getIdentifiable(id);
             if (identifiable == null) {
@@ -48,9 +48,9 @@ public class IdBasedBusRef extends AbstractBusRef {
             if (identifiable instanceof Bus) {
                 Bus bus = (Bus) identifiable;
                 if (Objects.equals(TopologyLevel.BUS_BRANCH, level)) {
-                    return Optional.ofNullable(bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+                    return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
                 } else {
-                    return Optional.ofNullable(bus.getConnectedTerminalStream().map(t -> t.getBusBreakerView().getBus()).filter(Objects::nonNull).findFirst().orElse(null));
+                    return Optional.of(bus);
                 }
             } else if (identifiable instanceof Injection) {
                 final Injection injection = (Injection) identifiable;
