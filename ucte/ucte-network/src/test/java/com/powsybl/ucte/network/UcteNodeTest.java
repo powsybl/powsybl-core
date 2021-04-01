@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -191,7 +192,7 @@ public class UcteNodeTest {
         node.setMaximumPermissibleActivePowerGeneration(1000.0f);
         node.setMinimumPermissibleReactivePowerGeneration(-2000.0f);
         node.setMaximumPermissibleReactivePowerGeneration(2000.0f);
-        node.fix();
+        node.fix(Reporter.NO_OP);
         assertEquals(1000.0f, node.getMinimumPermissibleActivePowerGeneration(), 0.0f);
         assertEquals(-1000.0f, node.getMaximumPermissibleActivePowerGeneration(), 0.0f);
         assertEquals(2000.0f, node.getMinimumPermissibleReactivePowerGeneration(), 0.0f);
@@ -203,7 +204,7 @@ public class UcteNodeTest {
         node.setReactivePowerGeneration(10.0f);
         node.setMinimumPermissibleActivePowerGeneration(0.0f);
         node.setMinimumPermissibleReactivePowerGeneration(0.0f);
-        node.fix();
+        node.fix(Reporter.NO_OP);
         assertEquals(node.getActivePowerGeneration(), node.getMinimumPermissibleActivePowerGeneration(), 0.0f);
         assertEquals(node.getReactivePowerGeneration(), node.getMinimumPermissibleReactivePowerGeneration(), 0.0f);
 
@@ -213,7 +214,7 @@ public class UcteNodeTest {
         node.setReactivePowerGeneration(0.0f);
         node.setMaximumPermissibleActivePowerGeneration(10.0f);
         node.setMaximumPermissibleReactivePowerGeneration(10.0f);
-        node.fix();
+        node.fix(Reporter.NO_OP);
         assertEquals(node.getActivePowerGeneration(), node.getMaximumPermissibleActivePowerGeneration(), 0.0f);
         assertEquals(node.getReactivePowerGeneration(), node.getMaximumPermissibleReactivePowerGeneration(), 0.0f);
 
@@ -222,7 +223,7 @@ public class UcteNodeTest {
         node.setReactivePowerGeneration(0.0f);
         node.setMinimumPermissibleReactivePowerGeneration(0.0f);
         node.setMaximumPermissibleReactivePowerGeneration(0.0f);
-        node.fix();
+        node.fix(Reporter.NO_OP);
         assertEquals(9999.0f, node.getMinimumPermissibleReactivePowerGeneration(), 0.0f);
         assertEquals(-9999.0f, node.getMaximumPermissibleReactivePowerGeneration(), 0.0f);
 
@@ -230,6 +231,6 @@ public class UcteNodeTest {
         node.setReactivePowerGeneration(0.0f);
         node.setMinimumPermissibleReactivePowerGeneration(10000.0f);
         node.setMaximumPermissibleReactivePowerGeneration(-10000.0f);
-        node.fix();
+        node.fix(Reporter.NO_OP);
     }
 }

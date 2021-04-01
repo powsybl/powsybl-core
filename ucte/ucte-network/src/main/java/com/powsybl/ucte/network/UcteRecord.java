@@ -6,12 +6,14 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface UcteRecord {
 
-    void fix();
+    void fix(Reporter reporter);
 
 }
