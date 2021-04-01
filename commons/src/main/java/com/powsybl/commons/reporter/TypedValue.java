@@ -6,6 +6,10 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.powsybl.commons.PowsyblException;
+
+import java.util.Objects;
+
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
@@ -28,8 +32,11 @@ public class TypedValue {
     private final String type;
 
     public TypedValue(Object value, String type) {
-        this.value = value;
-        this.type = type;
+        this.value = Objects.requireNonNull(value);
+        this.type = Objects.requireNonNull(type);
+        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
+            throw new PowsyblException("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
+        }
     }
 
     public Object getValue() {

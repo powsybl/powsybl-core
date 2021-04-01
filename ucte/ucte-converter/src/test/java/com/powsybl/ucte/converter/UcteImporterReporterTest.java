@@ -8,13 +8,11 @@ package com.powsybl.ucte.converter;
 
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.commons.reporter.ReporterModel;
-import com.powsybl.commons.reporter.ReporterModelDeserializer;
-import com.powsybl.commons.reporter.ReporterModelSerializer;
-import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.commons.reporter.*;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -26,13 +24,10 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
@@ -46,17 +41,27 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testReportVoltageRegulatingXnode() throws Exception {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
+    public void testReportElementName() throws Exception {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
 
         ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
-            Map.of("file", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME)));
+            Map.of("file", new TypedValue("elementName.uct", TypedValue.FILENAME)));
+
+        PowsyblException e = assertThrows(PowsyblException.class, () -> reporter.report("ObjectReport", "Object ${object} report", "object", dataSource));
+        assertEquals("TypedValue expects only Float, Double, Integer, Long and String values (value is an instance of class com.powsybl.commons.datasource.ResourceDataSource)", e.getMessage());
+
+        reporter.report("reportTest", "Report test ${unknownKey}", "nonPrintedString", "Non printed String");
+        Optional<Report> report = reporter.getReports().stream().findFirst();
+        assertTrue(report.isPresent());
+        assertEquals("Report test ${unknownKey}", report.get().getDefaultMessage());
+        assertEquals("Non printed String", report.get().getValue("nonPrintedString").getValue());
+
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
         reporter.export(sw);
 
-        InputStream refStream = getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.txt");
+        InputStream refStream = getClass().getResourceAsStream("/elementNameImportReport.txt");
         String refLogExport = normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
         String logExport = normalizeLineSeparator(sw.toString());
         assertEquals(refLogExport, logExport);
@@ -65,8 +70,8 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     @Test
     public void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file ${file}",
-            Map.of("file", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME)));
+        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file frVoltageRegulatingXnode.uct");
+        reporter.report("novalueReport", "No value report");
         Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
     }

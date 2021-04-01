@@ -9,7 +9,6 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.powsybl.commons.PowsyblException;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -36,10 +35,6 @@ public class Report {
 
     private void addTypedValue(String key, TypedValue typedValue) {
         Objects.requireNonNull(typedValue);
-        Object value = typedValue.getValue();
-        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
-            throw new PowsyblException("Report expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
-        }
         values.put(key, typedValue);
     }
 

@@ -2,12 +2,9 @@
   "version" : "1.0",
   "reportTree" : {
     "taskKey" : "roundTripReporterJsonTest",
-    "taskValues" : {
-      "file" : {
-        "value" : "frVoltageRegulatingXnode.uct",
-        "type" : "FILENAME"
-      }
-    },
+    "reports" : [ {
+      "reportKey" : "novalueReport"
+    } ],
     "subReporters" : [ {
       "taskKey" : "UcteReading",
       "subReporters" : [ {
@@ -212,9 +209,10 @@
       "UcteReading" : "Reading UCTE network file",
       "createLines" : "Create lines",
       "createSubstation" : "Create substation ${substationName}",
+      "novalueReport" : "No value report",
       "createTransformers" : "Create transformers",
       "fixUcteNodes" : "Fix UCTE nodes",
-      "roundTripReporterJsonTest" : "Test importing UCTE file ${file}",
+      "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
       "createBusesSubstation" : "Create buses for substation ${substation}",
       "createBus" : "Create bus ${bus}",
       "createBuses" : "Create buses",
