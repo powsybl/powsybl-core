@@ -7,7 +7,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -16,7 +15,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseZone {
 
     @Parsed(field = {"i", "izone"})
-    @Validate
     private int i;
 
     @Parsed(defaultNullRead = "            ")

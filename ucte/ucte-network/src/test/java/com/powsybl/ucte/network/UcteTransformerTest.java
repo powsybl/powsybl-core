@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -54,11 +55,11 @@ public class UcteTransformerTest extends AbstractUcteElementTest {
     public void testFix() {
         UcteElementId id = createElementId();
         UcteTransformer invalidTransformer1 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0f, 0.0f, 0.0f, -1, null, 0.0f, 0.0f, 0.0f, 0.0f);
-        invalidTransformer1.fix();
+        invalidTransformer1.fix(Reporter.NO_OP);
         Assert.assertEquals(0.05f, invalidTransformer1.getReactance(), 0.0f);
 
         UcteTransformer invalidTransformer2 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0f, -0.01f, 0.0f, null, null, 0.0f, 0.0f, 0.0f, 0.0f);
-        invalidTransformer2.fix();
+        invalidTransformer2.fix(Reporter.NO_OP);
         Assert.assertEquals(-0.05f, invalidTransformer2.getReactance(), 0.0f);
     }
 }

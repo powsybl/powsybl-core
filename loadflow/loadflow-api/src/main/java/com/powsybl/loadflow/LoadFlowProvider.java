@@ -8,6 +8,7 @@ package com.powsybl.loadflow;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -32,5 +33,25 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @param parameters load flow execution parameters
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters);
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters) {
+        return run(network, computationManager, workingVariantId, parameters, Reporter.NO_OP);
+    }
+
+    /**
+     * Run a loadflow on variant {@code workingVariantId} of {@code network} delegating external program execution to
+     * {@code computationManager} if necessary and using loadflow execution {@code parameters}. This method is expected
+     * to be stateless so that it can be call simultaneously with different arguments (a different network for instance)
+     * without any concurrency issue.
+     *
+     * @param network the network
+     * @param computationManager a computation manager to external program execution
+     * @param workingVariantId variant id of the network
+     * @param parameters load flow execution parameters
+     * @param reporter the reporter used for functional logs
+     * @return a {@link CompletableFuture} on {@link LoadFlowResult]
+     */
+    default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
 }
