@@ -22,6 +22,7 @@ public class TypedValue {
     public static final String SUSCEPTANCE = "SUSCEPTANCE";
     public static final String SUBSTATION = "SUBSTATION";
     public static final String VOLTAGE_LEVEL = "VOLTAGE_LEVEL";
+    public static final String FILENAME = "FILENAME";
 
     private final Object value;
     private final String type;

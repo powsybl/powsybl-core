@@ -1056,10 +1056,9 @@ public class UcteImporter implements Importer {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
-                Reporter importReporter = reporter.createSubReporter("ImportUcteData", "Import UCTE data");
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, importReporter), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, reporter), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
@@ -1068,9 +1067,9 @@ public class UcteImporter implements Importer {
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 
-                createBuses(ucteNetwork, network, importReporter);
-                createLines(ucteNetwork, network, importReporter);
-                createTransformers(ucteNetwork, network, ucteFileName, importReporter);
+                createBuses(ucteNetwork, network, reporter);
+                createLines(ucteNetwork, network, reporter);
+                createTransformers(ucteNetwork, network, ucteFileName, reporter);
 
                 mergeXnodeDanglingLines(ucteNetwork, network);
 

@@ -14,6 +14,7 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.commons.reporter.ReporterModelDeserializer;
 import com.powsybl.commons.reporter.ReporterModelSerializer;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -28,6 +29,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.assertEquals;
@@ -47,7 +49,8 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     public void testReportVoltageRegulatingXnode() throws Exception {
         ReadOnlyDataSource dataSource = new ResourceDataSource("frVoltageRegulatingXnode", new ResourceSet("/", "frVoltageRegulatingXnode.uct"));
 
-        ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test");
+        ReporterModel reporter = new ReporterModel("testReportVoltageRegulatingXnode", "Test importing UCTE file ${file}",
+            Map.of("file", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME)));
         new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null, reporter);
 
         StringWriter sw = new StringWriter();
@@ -62,7 +65,8 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
     @Test
     public void roundTripReporterJsonTest() throws Exception {
         String filename = "frVoltageRegulatingXnode.uct";
-        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test");
+        ReporterModel reporter = new ReporterModel("roundTripReporterJsonTest", "Test importing UCTE file ${file}",
+            Map.of("file", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME)));
         Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
     }
@@ -75,7 +79,10 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         Files.copy(getClass().getResourceAsStream("/germanTsos.uct"), fileSystem.getPath(WORK_DIR, "germanTsos.uct"));
 
         List<Network> networkList = Collections.synchronizedList(new ArrayList<>());
-        ReporterModel reporter = new ReporterModel("importAllParallel", "Test");
+        ReporterModel reporter = new ReporterModel("importAllParallel", "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
+            Map.of("file1", new TypedValue("frVoltageRegulatingXnode.uct", TypedValue.FILENAME),
+                "file2", new TypedValue("frTestGridForMerging.uct", TypedValue.FILENAME),
+                "file3", new TypedValue("germanTsos.uct", TypedValue.FILENAME)));
         Importers.importAll(workDir, new UcteImporter(), true, null, networkList::add, null, reporter);
         assertEquals(3, networkList.size());
         assertEquals(3, reporter.getSubReporters().size());

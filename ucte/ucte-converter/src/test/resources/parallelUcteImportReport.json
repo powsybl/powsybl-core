@@ -2,6 +2,20 @@
   "version" : "1.0",
   "reportTree" : {
     "taskKey" : "importAllParallel",
+    "taskValues" : {
+      "file2" : {
+        "value" : "frTestGridForMerging.uct",
+        "type" : "FILENAME"
+      },
+      "file3" : {
+        "value" : "germanTsos.uct",
+        "type" : "FILENAME"
+      },
+      "file1" : {
+        "value" : "frVoltageRegulatingXnode.uct",
+        "type" : "FILENAME"
+      }
+    },
     "subReporters" : [ {
       "taskKey" : "importDataSource",
       "taskValues" : {
@@ -10,136 +24,133 @@
         }
       },
       "subReporters" : [ {
-        "taskKey" : "ImportUcteData",
+        "taskKey" : "UcteReading",
         "subReporters" : [ {
-          "taskKey" : "UcteReading",
-          "subReporters" : [ {
-            "taskKey" : "fixUcteNodes"
-          }, {
-            "taskKey" : "fixUcteLines",
-            "reports" : [ {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX11 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            }, {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX12 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "fixUcteTransformer"
-          }, {
-            "taskKey" : "fixUcteRegulations"
-          } ]
+          "taskKey" : "fixUcteNodes"
         }, {
-          "taskKey" : "createBuses",
-          "subReporters" : [ {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "FFFFFF"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "FFFFFF",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "FFFFFF1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "FFFFFF11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "XXXXXX"
-              }
-            }
-          } ]
-        }, {
-          "taskKey" : "createLines",
+          "taskKey" : "fixUcteLines",
           "reports" : [ {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX11"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           }, {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX12"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           } ]
         }, {
-          "taskKey" : "createTransformers"
+          "taskKey" : "fixUcteTransformer"
+        }, {
+          "taskKey" : "fixUcteRegulations"
         } ]
+      }, {
+        "taskKey" : "createBuses",
+        "subReporters" : [ {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "FFFFFF"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "FFFFFF",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "FFFFFF1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "FFFFFF11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "XXXXXX"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "createLines",
+        "reports" : [ {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX11 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX11"
+            }
+          }
+        }, {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX12 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX12"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "createTransformers"
       } ]
     }, {
       "taskKey" : "importDataSource",
@@ -149,205 +160,202 @@
         }
       },
       "subReporters" : [ {
-        "taskKey" : "ImportUcteData",
+        "taskKey" : "UcteReading",
         "subReporters" : [ {
-          "taskKey" : "UcteReading",
-          "subReporters" : [ {
-            "taskKey" : "fixUcteNodes"
-          }, {
-            "taskKey" : "fixUcteLines",
-            "reports" : [ {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX11 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            }, {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF11 XXXXXX12 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            }, {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF13 XXXXXX13 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            }, {
-              "reportKey" : "negativeLineResistance",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_ERROR",
-                  "type" : "ERROR_LOGLEVEL"
-                },
-                "lineId" : {
-                  "value" : "FFFFFF13 XXXXXX14 1"
-                },
-                "resistance" : {
-                  "value" : 0.0,
-                  "type" : "RESISTANCE"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "fixUcteTransformer"
-          }, {
-            "taskKey" : "fixUcteRegulations"
-          } ]
+          "taskKey" : "fixUcteNodes"
         }, {
-          "taskKey" : "createBuses",
-          "subReporters" : [ {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "FFFFFF"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "FFFFFF",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "FFFFFF1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "FFFFFF11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "FFFFFF13"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "XXXXXX"
-              }
-            }
-          } ]
-        }, {
-          "taskKey" : "createLines",
+          "taskKey" : "fixUcteLines",
           "reports" : [ {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF11 XXXXXX11 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX11"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           }, {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF11 XXXXXX12 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX12"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           }, {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF13 XXXXXX13 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX13"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           }, {
-            "reportKey" : "danglingLineCreation",
+            "reportKey" : "negativeLineResistance",
             "values" : {
-              "ucteLine" : {
+              "reportSeverity" : {
+                "value" : "UCTE_ERROR",
+                "type" : "ERROR_LOGLEVEL"
+              },
+              "lineId" : {
                 "value" : "FFFFFF13 XXXXXX14 1"
               },
-              "reportSeverity" : {
-                "value" : "UCTE_TRACE",
-                "type" : "TRACE_LOGLEVEL"
-              },
-              "xnodeCode" : {
-                "value" : "XXXXXX14"
+              "resistance" : {
+                "value" : 0.0,
+                "type" : "RESISTANCE"
               }
             }
           } ]
         }, {
-          "taskKey" : "createTransformers"
+          "taskKey" : "fixUcteTransformer"
+        }, {
+          "taskKey" : "fixUcteRegulations"
         } ]
+      }, {
+        "taskKey" : "createBuses",
+        "subReporters" : [ {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "FFFFFF"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "FFFFFF",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "FFFFFF1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "FFFFFF11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "FFFFFF13"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "XXXXXX"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "createLines",
+        "reports" : [ {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX11 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX11"
+            }
+          }
+        }, {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF11 XXXXXX12 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX12"
+            }
+          }
+        }, {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF13 XXXXXX13 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX13"
+            }
+          }
+        }, {
+          "reportKey" : "danglingLineCreation",
+          "values" : {
+            "ucteLine" : {
+              "value" : "FFFFFF13 XXXXXX14 1"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "xnodeCode" : {
+              "value" : "XXXXXX14"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "createTransformers"
       } ]
     }, {
       "taskKey" : "importDataSource",
@@ -357,198 +365,195 @@
         }
       },
       "subReporters" : [ {
-        "taskKey" : "ImportUcteData",
+        "taskKey" : "UcteReading",
         "subReporters" : [ {
-          "taskKey" : "UcteReading",
-          "subReporters" : [ {
-            "taskKey" : "fixUcteNodes"
-          }, {
-            "taskKey" : "fixUcteLines"
-          }, {
-            "taskKey" : "fixUcteTransformer"
-          }, {
-            "taskKey" : "fixUcteRegulations"
-          } ]
+          "taskKey" : "fixUcteNodes"
         }, {
-          "taskKey" : "createBuses",
-          "subReporters" : [ {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "BAVLGM"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "BAVLGM",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "BAVLGM1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "BAVLGM11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "D4NEUR"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "D4NEUR",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "D4NEUR1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "D4NEUR11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "DJA_KA"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "DJA_KA",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "DJA_KA1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "DJA_KA11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          }, {
-            "taskKey" : "createBusesSubstation",
-            "taskValues" : {
-              "substation" : {
-                "value" : "DEA_KA"
-              }
-            },
-            "reports" : [ {
-              "reportKey" : "createSubstation",
-              "values" : {
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                },
-                "substationName" : {
-                  "value" : "DEA_KA",
-                  "type" : "SUBSTATION"
-                }
-              }
-            }, {
-              "reportKey" : "createVoltageLevel",
-              "values" : {
-                "voltageLevelName" : {
-                  "value" : "DEA_KA1",
-                  "type" : "VOLTAGE_LEVEL"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            }, {
-              "reportKey" : "createBus",
-              "values" : {
-                "bus" : {
-                  "value" : "DEA_KA11"
-                },
-                "reportSeverity" : {
-                  "value" : "UCTE_TRACE",
-                  "type" : "TRACE_LOGLEVEL"
-                }
-              }
-            } ]
-          } ]
+          "taskKey" : "fixUcteLines"
         }, {
-          "taskKey" : "createLines"
+          "taskKey" : "fixUcteTransformer"
         }, {
-          "taskKey" : "createTransformers"
+          "taskKey" : "fixUcteRegulations"
         } ]
+      }, {
+        "taskKey" : "createBuses",
+        "subReporters" : [ {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "BAVLGM"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "BAVLGM",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "BAVLGM1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "BAVLGM11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "D4NEUR"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "D4NEUR",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "D4NEUR1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "D4NEUR11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "DJA_KA"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "DJA_KA",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "DJA_KA1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "DJA_KA11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        }, {
+          "taskKey" : "createBusesSubstation",
+          "taskValues" : {
+            "substation" : {
+              "value" : "DEA_KA"
+            }
+          },
+          "reports" : [ {
+            "reportKey" : "createSubstation",
+            "values" : {
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              },
+              "substationName" : {
+                "value" : "DEA_KA",
+                "type" : "SUBSTATION"
+              }
+            }
+          }, {
+            "reportKey" : "createVoltageLevel",
+            "values" : {
+              "voltageLevelName" : {
+                "value" : "DEA_KA1",
+                "type" : "VOLTAGE_LEVEL"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          }, {
+            "reportKey" : "createBus",
+            "values" : {
+              "bus" : {
+                "value" : "DEA_KA11"
+              },
+              "reportSeverity" : {
+                "value" : "UCTE_TRACE",
+                "type" : "TRACE_LOGLEVEL"
+              }
+            }
+          } ]
+        } ]
+      }, {
+        "taskKey" : "createLines"
+      }, {
+        "taskKey" : "createTransformers"
       } ]
     } ]
   },
@@ -556,9 +561,8 @@
     "default" : {
       "UcteReading" : "Reading UCTE network file",
       "createLines" : "Create lines",
-      "ImportUcteData" : "Import UCTE data",
       "createSubstation" : "Create substation ${substationName}",
-      "importAllParallel" : "Test",
+      "importAllParallel" : "Test importing UCTE files in parallel: ${file1}, ${file2}, ${file3}",
       "createTransformers" : "Create transformers",
       "fixUcteNodes" : "Fix UCTE nodes",
       "createBusesSubstation" : "Create buses for substation ${substation}",
