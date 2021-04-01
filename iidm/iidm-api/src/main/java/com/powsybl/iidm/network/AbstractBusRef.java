@@ -24,7 +24,7 @@ public abstract class AbstractBusRef implements BusRef {
         return resolveByLevel(network, level);
     }
 
-    static Optional<Bus> chooseBusByLevel(Terminal t, TopologyLevel level) {
+    protected static Optional<Bus> chooseBusByLevel(Terminal t, TopologyLevel level) {
         if (level == TopologyLevel.BUS_BRANCH) {
             return Optional.ofNullable(t.getBusView().getBus());
         } else {

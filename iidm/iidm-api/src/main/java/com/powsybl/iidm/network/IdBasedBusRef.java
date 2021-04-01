@@ -47,7 +47,7 @@ public class IdBasedBusRef extends AbstractBusRef {
             }
             if (identifiable instanceof Bus) {
                 Bus bus = (Bus) identifiable;
-                if (Objects.equals(TopologyLevel.BUS_BRANCH, level)) {
+                if (level == TopologyLevel.BUS_BRANCH) {
                     return bus.getConnectedTerminalStream().map(t -> t.getBusView().getBus()).filter(Objects::nonNull).findFirst();
                 } else {
                     return Optional.of(bus);
