@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.action.util;
 
 import com.powsybl.iidm.network.*;
@@ -9,8 +15,15 @@ import java.util.Objects;
 
 import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 
-public class DanglingLineScalable extends AbstractInjectionScalable{
+/**
+ * @author Coline Piloquet <coline.piloquet at rte-france.com>
+ */
+public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
+
+    DanglingLineScalable(String id) {
+        super(id, Double.MIN_VALUE, Double.MAX_VALUE);
+    }
 
     DanglingLineScalable(String id, double minValue, double maxValue) {
         super(id, minValue, maxValue);
@@ -22,14 +35,14 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
 
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
-            dl.setP0(0); //is it legit?
+            dl.setP0(0);
         }
     }
 
     /**
      * {@inheritDoc}
      *
-     * Default value is Double.MAX_VALUE for LoadScalable, what is default value for DanglingLine?
+     * There is no default value for the maximum value.
      */
     @Override
     public double maximumValue(Network n, Scalable.ScalingConvention scalingConvention) {
@@ -38,7 +51,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
 
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
-            return scalingConvention == LOAD ? maxValue : -minValue; //Quid? Is it legit to consider the same convention for a dangling line and a load?
+            return scalingConvention == LOAD ? maxValue : -minValue;
         } else {
             return 0;
         }
@@ -47,7 +60,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
     /**
      * {@inheritDoc}
      *
-     * Default value is 0 for LoadScalable, what is default value for Dangling Line?
+     * There is no default value for the minimum value.
      */
     @Override
     public double minimumValue(Network n, Scalable.ScalingConvention scalingConvention) {
@@ -56,14 +69,13 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
 
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
-            return scalingConvention == LOAD ? minValue : -maxValue; //I really don't understand this line of code
+            return scalingConvention == LOAD ? minValue : -maxValue;
         } else {
             return 0;
         }
-
     }
 
-    @Override //Physical explanation? What are we filtering here? (I know injections, but what does it mean?)
+    @Override
     public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
@@ -71,7 +83,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
         DanglingLine dl = n.getDanglingLine(id);
         if (dl != null) {
             injections.add(dl);
-        } else if (notFoundInjections != null) { //Why is the id added if notFoundInjections is not null?
+        } else if (notFoundInjections != null) {
             notFoundInjections.add(id);
         }
     }
@@ -95,7 +107,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
             return done;
         }
 
-        Terminal t = dl.getTerminal(); //what exactly is a terminal?
+        Terminal t = dl.getTerminal();
         if (!t.isConnected()) {
             t.connect();
             LOGGER.info("Connecting {}", dl.getId());
@@ -112,7 +124,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
         double availableDown = oldP0 - minValue;
         double availableUp = maxValue - oldP0;
 
-        if (scalingConvention == LOAD) { //LOAD or something else?
+        if (scalingConvention == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             dl.setP0(oldP0 + done);
         } else {
@@ -125,5 +137,4 @@ public class DanglingLineScalable extends AbstractInjectionScalable{
 
         return done;
     }
-
 }
