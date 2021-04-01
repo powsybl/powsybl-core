@@ -59,7 +59,9 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
             Objects.requireNonNull(reporter, "Reporter should not be null");
-            return provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, reporter);
+            return reporter == Reporter.NO_OP
+                ? provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager)
+                : provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, reporter);
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
@@ -68,13 +70,7 @@ public final class SensitivityAnalysis {
                                                                      List<Contingency> contingencies,
                                                                      SensitivityAnalysisParameters parameters,
                                                                      ComputationManager computationManager) {
-            Objects.requireNonNull(network, "Network should not be null");
-            Objects.requireNonNull(workingStateId, "Parameters should not be null");
-            Objects.requireNonNull(factorsProvider, "Sensitivity factors provider should not be null");
-            Objects.requireNonNull(contingencies, "Contingency list should not be null");
-            Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
-            Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            return provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager);
+            return runAsync(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, Reporter.NO_OP);
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
