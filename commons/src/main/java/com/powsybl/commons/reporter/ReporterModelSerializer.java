@@ -80,7 +80,9 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
     private void writeReport(Report report, JsonGenerator generator, Map<String, String> dictionary) throws IOException {
         generator.writeStartObject();
         generator.writeStringField("reportKey", report.getReportKey());
-        generator.writeObjectField("values", report.getValues());
+        if (!report.getValues().isEmpty()) {
+            generator.writeObjectField("values", report.getValues());
+        }
         generator.writeEndObject();
         dictionary.put(report.getReportKey(), report.getDefaultMessage());
     }
