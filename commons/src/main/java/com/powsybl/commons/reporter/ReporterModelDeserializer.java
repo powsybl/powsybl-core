@@ -63,17 +63,17 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return getReporterModelObjectReader(dictionary).readValue(is);
+            return getReporterModelObjectMapper(dictionary).readValue(is, ReporterModel.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static ObjectReader getReporterModelObjectReader(String dictionary) {
+    private static ObjectMapper getReporterModelObjectMapper(String dictionary) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
         mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));
-        return mapper.readerFor(ReporterModel.class).withAttribute(DICTIONARY_VALUE_ID, dictionary);
+        return mapper;
     }
 
     protected static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
