@@ -9,7 +9,6 @@ package com.powsybl.commons.reporter;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.io.IOException;
@@ -98,15 +97,10 @@ public class ReporterModelSerializer extends StdSerializer<ReporterModel> {
     }
 
     private static ObjectMapper createObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addSerializer(ReporterModel.class, new ReporterModelSerializer())
-            .addSerializer(TypedValue.class, new TypedValueSerializer());
-        objectMapper.registerModule(module);
-        return objectMapper;
+        return new ObjectMapper().registerModule(new ReporterModelJsonModule());
     }
 
-    private static final class TypedValueSerializer extends StdSerializer<TypedValue> {
+    protected static final class TypedValueSerializer extends StdSerializer<TypedValue> {
         protected TypedValueSerializer() {
             super(TypedValue.class);
         }

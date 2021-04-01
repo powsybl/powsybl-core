@@ -6,9 +6,9 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -96,11 +96,12 @@ public class ReporterModel extends AbstractReporter {
         }
     }
 
-    public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectMapper mapper) {
-        String taskKey = mapper.convertValue(reportTree.get("taskKey"), String.class);
+    public static ReporterModel parseJsonNode(JsonNode reportTree, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+        JsonNode taskKeyNode = reportTree.get("taskKey");
+        String taskKey = codec.readValue(taskKeyNode.traverse(), String.class);
 
         JsonNode taskValuesNode = reportTree.get("taskValues");
-        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : mapper.convertValue(taskValuesNode, new TypeReference<HashMap<String, TypedValue>>() {
+        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : codec.readValue(taskValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
         String defaultName = dictionary.getOrDefault(taskKey, "(missing task key in dictionary)");
@@ -108,12 +109,16 @@ public class ReporterModel extends AbstractReporter {
 
         JsonNode reportsNode = reportTree.get("reports");
         if (reportsNode != null) {
-            reportsNode.forEach(jsonNode -> reporter.reports.add(Report.parseJsonNode(jsonNode, dictionary, mapper)));
+            for (JsonNode jsonNode : reportsNode) {
+                reporter.reports.add(Report.parseJsonNode(jsonNode, dictionary, codec));
+            }
         }
 
         JsonNode subReportersNode = reportTree.get("subReporters");
         if (subReportersNode != null) {
-            subReportersNode.forEach(jsonNode -> reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, mapper)));
+            for (JsonNode jsonNode : subReportersNode) {
+                reporter.addSubReporter(ReporterModel.parseJsonNode(jsonNode, dictionary, codec));
+            }
         }
 
         return reporter;

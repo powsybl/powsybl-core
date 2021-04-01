@@ -8,10 +8,10 @@ package com.powsybl.commons.reporter;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,21 +36,18 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
 
     @Override
     public ReporterModel deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
-        JsonNode root = p.getCodec().readTree(p);
-        ObjectMapper mapper = new ObjectMapper();
+        ObjectCodec codec = p.getCodec();
+        JsonNode root = codec.readTree(p);
         Map<String, String> dictionary = Collections.emptyMap();
         JsonNode dicsNode = root.get("dics");
         if (dicsNode != null) {
             JsonNode dicNode = dicsNode.get(getDicName(ctx));
             if (dicNode != null) {
-                dictionary = mapper.convertValue(dicNode, new TypeReference<HashMap<String, String>>() {
+                dictionary = codec.readValue(dicNode.traverse(), new TypeReference<HashMap<String, String>>() {
                 });
             }
         }
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(TypedValue.class, new TypedValueDeserializer());
-        mapper.registerModule(module);
-        return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, mapper);
+        return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
     }
 
     private String getDicName(DeserializationContext ctx) throws JsonMappingException {
@@ -74,16 +71,14 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
 
     private static ObjectReader getReporterModelObjectReader(String dictionary) {
         ObjectMapper mapper = new ObjectMapper();
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(ReporterModel.class, new ReporterModelDeserializer());
-        mapper.registerModule(module);
+        mapper.registerModule(new ReporterModelJsonModule());
         mapper.setInjectableValues(new InjectableValues.Std().addValue(DICTIONARY_VALUE_ID, dictionary));
         return mapper.readerFor(ReporterModel.class).withAttribute(DICTIONARY_VALUE_ID, dictionary);
     }
 
-    private static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
+    protected static final class TypedValueDeserializer extends StdDeserializer<TypedValue> {
 
-        private TypedValueDeserializer() {
+        protected TypedValueDeserializer() {
             super(TypedValue.class);
         }
 

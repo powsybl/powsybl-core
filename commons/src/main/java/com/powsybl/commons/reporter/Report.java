@@ -6,10 +6,11 @@
  */
 package com.powsybl.commons.reporter;
 
+import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,11 +59,12 @@ public class Report {
         return Collections.unmodifiableMap(values);
     }
 
-    public static Report parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectMapper mapper) {
-        String reportKey = mapper.convertValue(jsonNode.get("reportKey"), String.class);
+    public static Report parseJsonNode(JsonNode jsonNode, Map<String, String> dictionary, ObjectCodec codec) throws IOException {
+        JsonNode reportKeyNode = jsonNode.get("reportKey");
+        String reportKey = codec.readValue(reportKeyNode.traverse(), String.class);
 
         JsonNode taskValuesNode = jsonNode.get("values");
-        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : mapper.convertValue(taskValuesNode, new TypeReference<HashMap<String, TypedValue>>() {
+        Map<String, TypedValue> taskValues = taskValuesNode == null ? Collections.emptyMap() : codec.readValue(taskValuesNode.traverse(codec), new TypeReference<HashMap<String, TypedValue>>() {
         });
 
         String defaultMessage = dictionary.getOrDefault(reportKey, "(missing report key in dictionary)");
