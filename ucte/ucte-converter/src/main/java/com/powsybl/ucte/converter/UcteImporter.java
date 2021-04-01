@@ -387,7 +387,7 @@ public class UcteImporter implements Importer {
             .withKey("couplerLowImpedanceCreation")
             .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
             .withValue("ucteLine", ucteLine.getId().toString())
-            .withValue("impedance", z)
+            .withTypedValue("impedance", z, TypedValue.IMPEDANCE)
             .build());
         LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 

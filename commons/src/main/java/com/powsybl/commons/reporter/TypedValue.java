@@ -23,6 +23,7 @@ public class TypedValue {
     public static final String ERROR_LOGLEVEL = "ERROR_LOGLEVEL";
     public static final String RESISTANCE = "RESISTANCE";
     public static final String REACTANCE = "REACTANCE";
+    public static final String IMPEDANCE = "IMPEDANCE";
     public static final String SUSCEPTANCE = "SUSCEPTANCE";
     public static final String SUBSTATION = "SUBSTATION";
     public static final String VOLTAGE_LEVEL = "VOLTAGE_LEVEL";
