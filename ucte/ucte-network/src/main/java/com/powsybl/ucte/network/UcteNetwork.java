@@ -6,6 +6,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 import java.util.Collection;
 import java.util.List;
 
@@ -45,6 +47,6 @@ public interface UcteNetwork {
 
     UcteRegulation getRegulation(UcteElementId transfoId);
 
-    void fix();
+    void fix(Reporter reporter);
 
 }
