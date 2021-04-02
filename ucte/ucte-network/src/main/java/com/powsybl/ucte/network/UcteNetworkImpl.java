@@ -7,6 +7,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 import java.util.*;
 
 /**
@@ -117,18 +119,26 @@ public class UcteNetworkImpl implements UcteNetwork {
     }
 
     @Override
-    public void fix() {
+    public void fix(Reporter reporter) {
+
+        Reporter nodesReporter = reporter.createSubReporter("fixUcteNodes", "Fix UCTE nodes");
         for (UcteNode node : nodes.values()) {
-            node.fix();
+            node.fix(nodesReporter);
         }
+
+        Reporter linesReporter = reporter.createSubReporter("fixUcteLines", "Fix UCTE lines");
         for (UcteLine line : lines.values()) {
-            line.fix();
+            line.fix(linesReporter);
         }
+
+        Reporter transfoReporter = reporter.createSubReporter("fixUcteTransformer", "Fix UCTE transformers");
         for (UcteTransformer transfo : transformers.values()) {
-            transfo.fix();
+            transfo.fix(transfoReporter);
         }
+
+        Reporter regulationsReporter = reporter.createSubReporter("fixUcteRegulations", "Fix UCTE regulations");
         for (UcteRegulation regulation : regulations.values()) {
-            regulation.fix();
+            regulation.fix(regulationsReporter);
         }
     }
 
