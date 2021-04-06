@@ -103,6 +103,7 @@ SELECT *
         cim:IdentifiedObject.name ?Name
 }}
 UNION
+{
 { GRAPH ?graphBDEQ {
     ?FullModel md:Model.profile ?modelProfile .
     FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
@@ -113,7 +114,10 @@ UNION
     OPTIONAL { ?Node entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEic }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEicContainer }
 }}
-}
+{ GRAPH ?grapBDTP2 {
+    ?Node cim:ConnectivityNode.TopologicalNode ?TopologicalNode
+}}
+}}
 
 # query: baseVoltages
 SELECT *
