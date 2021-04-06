@@ -47,6 +47,9 @@ public class CgmesBoundary {
                 if (node.containsKey("dcLineEnergyIdentCodeEic")) {
                     dcLineAtNodes.put(id, node.getId("dcLineEnergyIdentCodeEic"));
                 }
+                if (node.containsKey("dcLineEnergyIdentCodeEicContainer")) {
+                    dcLineAtNodes.put(id, node.getId("dcLineEnergyIdentCodeEicContainer")); // we suppose only dcLineEnergyIdentCodeEic OR dcLineEnergyIdentCodeEicContainer is filled, never both
+                }
             });
         } else {
             nodes = Collections.emptySet();
