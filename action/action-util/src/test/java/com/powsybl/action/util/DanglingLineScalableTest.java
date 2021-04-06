@@ -56,16 +56,23 @@ public class DanglingLineScalableTest {
     @Test
     public void testMaximumlValue() {
         assertEquals(Double.MAX_VALUE, dl2.maximumValue(network, LOAD), 0.);
+        assertEquals(-20, dl3.maximumValue(network), 0.);
         assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
         assertEquals(100, dl3.maximumValue(network, LOAD), 0.);
+
+        dl4 = null;
+        assertEquals(0, dl4.maximumValue(network), 0);
     }
 
     @Test
     public void testMinimumlValue() {
         assertEquals(-Double.MAX_VALUE, dl2.minimumValue(network, LOAD), 0.);
+        assertEquals(-100, dl3.minimumValue(network), 0.);
         assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
         assertEquals(20, dl3.minimumValue(network, LOAD), 0.);
 
+        dl4 = null;
+        assertEquals(0, dl4.minimumValue(network), 0);
     }
 
     @Test
