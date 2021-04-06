@@ -8,15 +8,17 @@ package com.powsybl.action.util;
 
 import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.List;
 
 import static com.powsybl.action.util.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetworkWithDanglingLine;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Anne Tilloy <anne.tilloy at rte-france.com>
@@ -28,6 +30,7 @@ public class DanglingLineScalableTest {
     private Scalable dl3;
     private Scalable dl4;
     private ScalingConvention convention;
+    private Scalable g1;
 
     @Before
     public void setUp() {
@@ -36,6 +39,8 @@ public class DanglingLineScalableTest {
 
         dl3 = new DanglingLineScalable("dl2", 20, 100);
         dl4 = new DanglingLineScalable("dl2", -10, 100);
+
+        g1 = Scalable.onGenerator("g1");
     }
 
     @Test(expected = NullPointerException.class)
@@ -59,9 +64,6 @@ public class DanglingLineScalableTest {
         assertEquals(-20, dl3.maximumValue(network), 0.);
         assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
         assertEquals(100, dl3.maximumValue(network, LOAD), 0.);
-
-        dl4 = null;
-        assertEquals(0, dl4.maximumValue(network), 0);
     }
 
     @Test
@@ -70,9 +72,6 @@ public class DanglingLineScalableTest {
         assertEquals(-100, dl3.minimumValue(network), 0.);
         assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
         assertEquals(20, dl3.minimumValue(network, LOAD), 0.);
-
-        dl4 = null;
-        assertEquals(0, dl4.minimumValue(network), 0);
     }
 
     @Test
@@ -128,7 +127,14 @@ public class DanglingLineScalableTest {
         assertEquals(40, danglingLine.getP0(), 1e-3);
         assertEquals(-60, dl4.scale(network, -80, convention), 1e-3);
         assertEquals(100, danglingLine.getP0(), 1e-3);
+    }
 
+    @Test
+    public void testFilterInjections() {
+        DanglingLine danglingLine = network.getDanglingLine("dl2");
+        List<Injection> injections = dl2.filterInjections(network);
+        assertEquals(1, injections.size());
+        assertSame(danglingLine, injections.get(0));
     }
 
 }
