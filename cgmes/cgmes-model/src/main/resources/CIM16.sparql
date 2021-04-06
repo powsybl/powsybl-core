@@ -100,7 +100,8 @@ SELECT *
     FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
     ?Node
         a cim:TopologicalNode ;
-        cim:IdentifiedObject.name ?Name
+        cim:IdentifiedObject.name ?Name .
+     OPTIONAL { ?Node cim:IdentifiedObject.description ?description }
 }}
 UNION
 {

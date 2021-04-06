@@ -32,6 +32,7 @@ public class CgmesBoundary {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
         dcLineAtNodes = new HashMap<>();
+        hvdcNodes = new HashSet<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
@@ -44,6 +45,9 @@ public class CgmesBoundary {
                 String id = node.getId("Node");
                 nodes.add(id);
                 nodesName.put(id, node.get("Name"));
+                if (node.containsKey("description") && node.getId("description").equals("HVDC")) {
+                    hvdcNodes.add(id);
+                }
                 if (node.containsKey("dcLineEnergyIdentCodeEic")) {
                     dcLineAtNodes.put(id, node.getId("dcLineEnergyIdentCodeEic"));
                     if (node.containsKey("TopologicalNode")) {
@@ -127,6 +131,10 @@ public class CgmesBoundary {
         return dcLineAtNodes.get(node);
     }
 
+    public boolean isHvdc(String node) {
+        return hvdcNodes.contains(node);
+    }
+
     private static class Voltage {
         double v;
         double angle;
@@ -139,6 +147,7 @@ public class CgmesBoundary {
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
     private final Map<String, String> dcLineAtNodes;
+    private final Set<String> hvdcNodes;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
 }
