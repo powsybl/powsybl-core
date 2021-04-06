@@ -56,7 +56,7 @@ public class ScalableTest {
         l3 = Scalable.onLoad("l1", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
         unknownDanglingLine = Scalable.onDanglingLine("unknown");
-        dl1 = Scalable.onDanglingLine("dl1",20,80);
+        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
 
         reset();
     }
