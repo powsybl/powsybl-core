@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -52,7 +53,7 @@ public class UcteRegulationTest {
         UctePhaseRegulation invalidPhaseRegulation5 = new UctePhaseRegulation(Float.NaN, 1, 0, Float.NaN);
 
         regulation.setPhaseRegulation(invalidPhaseRegulation1);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNotNull(regulation.getPhaseRegulation());
         assertTrue(Float.isNaN(invalidPhaseRegulation1.getU()));
 
@@ -70,7 +71,7 @@ public class UcteRegulationTest {
         UcteAngleRegulation invalidAngleRegulation7 = new UcteAngleRegulation(0.0f, Float.NaN, 1, 0, Float.NaN, null);
 
         regulation.setAngleRegulation(invalidAngleRegulation1);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNotNull(regulation.getAngleRegulation());
         assertEquals(UcteAngleRegulationType.ASYM, invalidAngleRegulation1.getType());
 
@@ -84,13 +85,13 @@ public class UcteRegulationTest {
 
     private void testFix(UcteRegulation regulation, UctePhaseRegulation phaseRegulation) {
         regulation.setPhaseRegulation(phaseRegulation);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNull(regulation.getPhaseRegulation());
     }
 
     private void testFix(UcteRegulation regulation, UcteAngleRegulation angleRegulation) {
         regulation.setAngleRegulation(angleRegulation);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNull(regulation.getAngleRegulation());
     }
 }

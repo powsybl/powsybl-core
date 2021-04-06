@@ -6,6 +6,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 import java.util.function.Supplier;
 
 /**
@@ -50,7 +52,7 @@ public final class UcteNetworkFactory {
         UcteRegulation regulation = new UcteRegulation(transformerId, null, null);
         network.addRegulation(regulation);
 
-        network.fix();
+        network.fix(Reporter.NO_OP);
 
         return network;
     }

@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,9 +79,9 @@ public class UcteRegulation implements UcteRecord {
     }
 
     @Override
-    public void fix() {
+    public void fix(Reporter reporter) {
         if (phaseRegulation != null) {
-            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId);
+            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reporter);
             if (phaseRegulation.getU() <= 0) {
                 LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
                         transfoId, phaseRegulation.getU());
@@ -100,7 +101,7 @@ public class UcteRegulation implements UcteRecord {
             }
         }
         if (angleRegulation != null) {
-            UcteValidation.checkAngleRegulation(angleRegulation, transfoId);
+            UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reporter);
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (angleRegulation.getN() == null || angleRegulation.getN() == 0
                     || angleRegulation.getNp() == null || Float.isNaN(angleRegulation.getDu())

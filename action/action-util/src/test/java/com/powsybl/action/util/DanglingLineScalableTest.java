@@ -7,11 +7,13 @@
 package com.powsybl.action.util;
 
 import com.powsybl.action.util.Scalable.ScalingConvention;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.powsybl.action.util.Scalable.ScalingConvention.GENERATOR;
 import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetworkWithDanglingLine;
 import static org.junit.Assert.assertEquals;
@@ -23,17 +25,27 @@ public class DanglingLineScalableTest {
 
     private Network network;
     private Scalable dl2;
+    private Scalable dl3;
+    private Scalable dl4;
     private ScalingConvention convention;
 
     @Before
     public void setUp() {
         network = createNetworkWithDanglingLine();
         dl2 = Scalable.onDanglingLine("dl2");
+
+        dl3 = new DanglingLineScalable("dl2", 20, 100);
+        dl4 = new DanglingLineScalable("dl2", -10, 100);
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructorThrowWhenIdIsNull() {
         new DanglingLineScalable(null);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testConstructorInvalidP() {
+        new LoadScalable("dl2", 10, 0);
     }
 
     @Test
@@ -44,16 +56,20 @@ public class DanglingLineScalableTest {
     @Test
     public void testMaximumlValue() {
         assertEquals(Double.MAX_VALUE, dl2.maximumValue(network, LOAD), 0.);
+        assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
+        assertEquals(100, dl3.maximumValue(network, LOAD), 0.);
     }
 
     @Test
     public void testMinimumlValue() {
         assertEquals(-Double.MAX_VALUE, dl2.minimumValue(network, LOAD), 0.);
+        assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
+        assertEquals(20, dl3.minimumValue(network, LOAD), 0.);
+
     }
 
     @Test
     public void testLoadScaleLoadConvention() {
-
         //test with ScalingConvention.LOAD
         convention = LOAD;
 
