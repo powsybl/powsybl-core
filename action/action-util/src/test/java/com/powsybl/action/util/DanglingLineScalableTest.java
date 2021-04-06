@@ -123,7 +123,6 @@ public class DanglingLineScalableTest {
         assertEquals(-50, dl3.scale(network, -80, convention), 1e-3);
         assertEquals(100, danglingLine.getP0(), 1e-3);
 
-
     }
 
 }
