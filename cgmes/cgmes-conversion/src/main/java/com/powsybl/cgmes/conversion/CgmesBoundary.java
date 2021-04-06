@@ -31,6 +31,7 @@ public class CgmesBoundary {
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
+        dcLineAtNodes = new HashMap<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
@@ -43,6 +44,9 @@ public class CgmesBoundary {
                 String id = node.getId("Node");
                 nodes.add(id);
                 nodesName.put(id, node.get("Name"));
+                if (node.containsKey("dcLineEnergyIdentCodeEic")) {
+                    dcLineAtNodes.put(id, node.getId("dcLineEnergyIdentCodeEic"));
+                }
             });
         } else {
             nodes = Collections.emptySet();
@@ -107,7 +111,11 @@ public class CgmesBoundary {
     }
 
     public String nameAtBoundary(String node) {
-        return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
+        return nodesName.getOrDefault(node, "XnodeCode-unknown");
+    }
+
+    public String dcLineAtBoundary(String node) {
+        return dcLineAtNodes.get(node);
     }
 
     private static class Voltage {
@@ -121,6 +129,7 @@ public class CgmesBoundary {
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
+    private final Map<String, String> dcLineAtNodes;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
 }

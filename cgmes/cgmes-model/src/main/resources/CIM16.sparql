@@ -108,7 +108,8 @@ UNION
     FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
     ?Node
         a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?Name
+        cim:IdentifiedObject.name ?Name .
+    OPTIONAL { ?Node entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEic }
 }}
 }
 
