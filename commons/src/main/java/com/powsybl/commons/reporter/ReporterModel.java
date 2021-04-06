@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
+ * An in-memory implementation of {@link Reporter}.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class ReporterModel extends AbstractReporter {
@@ -26,10 +27,23 @@ public class ReporterModel extends AbstractReporter {
     private final List<ReporterModel> subReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
+    /**
+     * ReporterModel constructor, with no associated values.
+     * @param taskKey the key identifying the corresponding task
+     * @param defaultName the name or message describing the corresponding task
+     */
     public ReporterModel(String taskKey, String defaultName) {
         this(taskKey, defaultName, Collections.emptyMap());
     }
 
+    /**
+     * ReporterModel constructor, with no associated values.
+     * @param taskKey the key identifying the corresponding task
+     * @param defaultName the name or message describing the corresponding task, which may contain references to the
+     *                    provided values
+     * @param taskValues a map of {@link TypedValue} indexed by their key, which may be referred to within the
+     *                   defaultName or within the reports message of created ReporterModel
+     */
     public ReporterModel(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
         super(taskKey, defaultName, taskValues);
     }
@@ -41,6 +55,10 @@ public class ReporterModel extends AbstractReporter {
         return subReporter;
     }
 
+    /**
+     * Add a reporterModel to the sub-reporters of current reporterModel.
+     * @param reporterModel the reporterModel to add
+     */
     public void addSubReporter(ReporterModel reporterModel) {
         subReporters.add(reporterModel);
     }
