@@ -22,7 +22,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
 
     DanglingLineScalable(String id) {
-        super(id, Double.MIN_VALUE, Double.MAX_VALUE);
+        super(id, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
     DanglingLineScalable(String id, double minValue, double maxValue) {
