@@ -37,6 +37,7 @@ public class ScalableTest {
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
     private Scalable unknownDanglingLine;
+    private Scalable dl1;
 
     private ScalingConvention convention;
 
@@ -55,6 +56,7 @@ public class ScalableTest {
         l3 = Scalable.onLoad("l1", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
         unknownDanglingLine = Scalable.onDanglingLine("unknown");
+        dl1 = Scalable.onDanglingLine("dl1",20,80);
 
         reset();
     }
@@ -62,7 +64,7 @@ public class ScalableTest {
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
-        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine).reset(network);
+        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine, dl1).reset(network);
         l3.reset(network);
     }
 
