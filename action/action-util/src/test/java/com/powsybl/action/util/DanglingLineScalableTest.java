@@ -115,7 +115,7 @@ public class DanglingLineScalableTest {
         assertEquals(-10, danglingLine.getP0(), 1e-3);
 
         //test with a maximum value
-        dl3.reset(network);
+        dl4.reset(network);
         assertEquals(0, danglingLine.getP0(), 1e-3);
         assertEquals(-40, dl3.scale(network, -40, convention), 1e-3);
         assertEquals(40, danglingLine.getP0(), 1e-3);
