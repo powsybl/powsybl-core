@@ -20,6 +20,14 @@ import java.util.*;
 
 /**
  * An in-memory implementation of {@link Reporter}.
+ *
+ * <p>Being an implementation of {@link Reporter}, instances of <code>ReporterModel</code> are not thread-safe.
+ * A reporterModel is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
+ * be passed on in methods through their arguments. Respecting this ensures that
+ * <ol>
+ *   <li>sub-reporters always are in the same order</li>
+ *   <li>reports always are in the same order</li>
+ * </ol>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class ReporterModel extends AbstractReporter {

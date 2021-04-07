@@ -22,7 +22,8 @@ import java.util.Map;
  *
  * <p>Instances of <code>Reporter</code> are not thread-safe.
  * When a new thread is created, a new Reporter should be provided to the process in that thread.
- * A reporter is not meant to be shared with other threads.
+ * A reporter is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
+ * be passed on in methods through their arguments.
  *
  * <p>The <code>Reporter</code> can be used for multilingual support. Indeed, each <code>Reporter</code> name and
  * {@link Report} message can be translated based on their key and using the value keys in the desired order.
