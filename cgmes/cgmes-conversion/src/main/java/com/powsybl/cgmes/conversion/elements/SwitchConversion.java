@@ -58,14 +58,14 @@ public class SwitchConversion extends AbstractConnectorConversion {
 
     private void convertSwitchAtBoundary(int boundarySide) {
         if (context.config().convertBoundary()) {
-            convertToSwitch();
+            convertToSwitch().setRetained(true);
         } else {
             warnDanglingLineCreated();
             convertToDanglingLine(boundarySide);
         }
     }
 
-    private void convertToSwitch() {
+    private Switch convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
         Switch s;
@@ -80,7 +80,8 @@ public class SwitchConversion extends AbstractConnectorConversion {
             connect(adder, open);
             s = adder.add();
         }
-        addAliases(s);
+        addAliasesAndProperties(s);
+        return s;
     }
 
     private SwitchKind kind() {

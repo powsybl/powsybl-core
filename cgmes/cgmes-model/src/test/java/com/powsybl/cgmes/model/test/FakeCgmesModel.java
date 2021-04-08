@@ -58,6 +58,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags acDcConverters;
     private PropertyBags dcLineSegments;
     private PropertyBags dcTerminals;
+    private PropertyBags controlAreas;
     private PropertyBags tieFlows;
     private PropertyBags numObjectsByType;
     private PropertyBags modelProfiles;
@@ -98,6 +99,7 @@ public final class FakeCgmesModel implements CgmesModel {
         acDcConverters = new PropertyBags();
         dcLineSegments = new PropertyBags();
         dcTerminals = new PropertyBags();
+        controlAreas = new PropertyBags();
         tieFlows = new PropertyBags();
         numObjectsByType = new PropertyBags();
         modelProfiles = new PropertyBags();
@@ -277,7 +279,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags controlAreas() {
-        return null;
+        return controlAreas;
     }
 
     @Override

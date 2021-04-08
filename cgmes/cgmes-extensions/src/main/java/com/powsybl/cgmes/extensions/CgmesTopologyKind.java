@@ -11,5 +11,6 @@ package com.powsybl.cgmes.extensions;
  */
 public enum CgmesTopologyKind {
     BUS_BRANCH,
-    NODE_BREAKER
+    NODE_BREAKER,
+    MIXED_TOPOLOGY
 }

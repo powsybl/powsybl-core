@@ -6,14 +6,10 @@
  */
 package com.powsybl.cgmes.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -22,15 +18,15 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     private final String id;
     private final String name;
     private final String energyIdentificationCodeEic;
-    private final Set<Terminal> terminals = new HashSet<>();
-    private final Set<Boundary> boundaries = new HashSet<>();
+    private final Set<Terminal> terminals = new LinkedHashSet<>();
+    private final Set<Boundary> boundaries = new LinkedHashSet<>();
     private final double netInterchange;
 
     CgmesControlAreaImpl(String id, String name, String energyIdentificationCodeEic, double netInterchange, CgmesControlAreasImpl mapping) {
         this.id = Objects.requireNonNull(id);
         this.name = name;
         this.energyIdentificationCodeEic = energyIdentificationCodeEic;
-        this.netInterchange = checkNetInterchange(netInterchange);
+        this.netInterchange = netInterchange;
         attach(mapping);
     }
 
@@ -76,12 +72,5 @@ class CgmesControlAreaImpl implements CgmesControlArea {
     @Override
     public void add(Boundary boundary) {
         boundaries.add(boundary);
-    }
-
-    private static double checkNetInterchange(double netInterchange) {
-        if (Double.isNaN(netInterchange)) {
-            throw new PowsyblException("Undefined net interchange");
-        }
-        return netInterchange;
     }
 }
