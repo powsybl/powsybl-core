@@ -60,5 +60,6 @@ public final class StaticVarCompensatorEq {
         return "";
     }
 
-    private StaticVarCompensatorEq() {}
+    private StaticVarCompensatorEq() {
+    }
 }

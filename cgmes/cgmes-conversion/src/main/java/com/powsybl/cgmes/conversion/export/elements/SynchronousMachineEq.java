@@ -29,5 +29,6 @@ public final class SynchronousMachineEq {
         writer.writeEndElement();
     }
 
-    private SynchronousMachineEq() {}
+    private SynchronousMachineEq() {
+    }
 }

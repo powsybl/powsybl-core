@@ -27,5 +27,6 @@ public final class GeographicalRegionEq {
         writer.writeEndElement();
     }
 
-    private GeographicalRegionEq() {}
+    private GeographicalRegionEq() {
+    }
 }

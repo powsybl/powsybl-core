@@ -183,5 +183,6 @@ public final class TapChangerEq {
         writer.writeEndElement();
     }
 
-    private TapChangerEq() {}
+    private TapChangerEq() {
+    }
 }

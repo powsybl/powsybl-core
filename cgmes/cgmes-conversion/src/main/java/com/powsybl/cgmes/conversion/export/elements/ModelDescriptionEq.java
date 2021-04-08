@@ -55,6 +55,6 @@ public final class ModelDescriptionEq {
         writer.writeEndElement();
     }
 
-    private ModelDescriptionEq () {
+    private ModelDescriptionEq() {
     }
 }

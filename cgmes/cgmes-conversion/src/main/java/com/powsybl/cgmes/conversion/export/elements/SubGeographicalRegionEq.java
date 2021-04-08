@@ -29,5 +29,6 @@ public final class SubGeographicalRegionEq {
         writer.writeEndElement();
     }
 
-    private SubGeographicalRegionEq() {}
+    private SubGeographicalRegionEq() {
+    }
 }

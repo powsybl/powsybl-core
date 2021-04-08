@@ -31,5 +31,6 @@ public final class VoltageLevelEq {
         writer.writeEndElement();
     }
 
-    private VoltageLevelEq() {}
+    private VoltageLevelEq() {
+    }
 }

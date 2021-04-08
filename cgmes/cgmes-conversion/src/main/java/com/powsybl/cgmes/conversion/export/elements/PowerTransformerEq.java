@@ -69,6 +69,6 @@ public final class PowerTransformerEq {
         writer.writeEndElement();
     }
 
-
-    private PowerTransformerEq() {}
+    private PowerTransformerEq() {
+    }
 }

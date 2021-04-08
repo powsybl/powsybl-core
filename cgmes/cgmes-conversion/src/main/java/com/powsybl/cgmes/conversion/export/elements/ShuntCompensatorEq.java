@@ -79,5 +79,6 @@ public final class ShuntCompensatorEq {
         return "LinearShuntCompensator";
     }
 
-    private ShuntCompensatorEq() {}
+    private ShuntCompensatorEq() {
+    }
 }

@@ -42,5 +42,6 @@ public final class SwitchEq {
         return "Switch";
     }
 
-    private SwitchEq() {}
+    private SwitchEq() {
+    }
 }

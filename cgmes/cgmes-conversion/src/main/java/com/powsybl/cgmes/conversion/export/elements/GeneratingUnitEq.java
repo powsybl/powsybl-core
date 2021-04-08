@@ -59,5 +59,6 @@ public final class GeneratingUnitEq {
         return "GeneratingUnit";
     }
 
-    private GeneratingUnitEq() {}
+    private GeneratingUnitEq() {
+    }
 }

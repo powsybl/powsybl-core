@@ -33,5 +33,6 @@ public final class BaseVoltageEq {
         writer.writeEndElement();
     }
 
-    private BaseVoltageEq() {}
+    private BaseVoltageEq() {
+    }
 }

@@ -44,7 +44,9 @@ public final class CgmesExportUtil {
         return String.valueOf(value);
     }
 
-    public static String format(boolean value) { return String.valueOf(value); }
+    public static String format(boolean value) {
+        return String.valueOf(value);
+    }
 
     public static String getUniqueId() {
         return UUID.randomUUID().toString();

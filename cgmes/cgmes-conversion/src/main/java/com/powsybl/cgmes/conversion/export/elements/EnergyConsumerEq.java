@@ -46,5 +46,6 @@ public final class EnergyConsumerEq {
         return "EnergyConsumer";
     }
 
-    private EnergyConsumerEq() {}
+    private EnergyConsumerEq() {
+    }
 }

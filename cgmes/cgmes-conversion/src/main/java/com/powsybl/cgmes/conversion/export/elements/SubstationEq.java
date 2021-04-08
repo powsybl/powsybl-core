@@ -29,5 +29,6 @@ public final class SubstationEq {
         writer.writeEndElement();
     }
 
-    private SubstationEq() {}
+    private SubstationEq() {
+    }
 }

@@ -224,18 +224,18 @@ public final class EquipmentExport {
             TapChangerEq.writePhase(CgmesExportUtil.getUniqueId(), twtName + "_PTC", endId, ptc.getLowTapPosition(), ptc.getHighTapPosition(), neutralStep, ptc.getTapPosition(), neutralU, false, phaseTapChangerTableId, cimNamespace, writer);
             TapChangerEq.writePhaseTable(phaseTapChangerTableId, twtName + "_TABLE", cimNamespace, writer);
             for (Map.Entry<Integer, PhaseTapChangerStep> step : ptc.getAllSteps().entrySet()) {
-                TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), - step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);
+                TapChangerEq.writePhaseTablePoint(CgmesExportUtil.getUniqueId(), phaseTapChangerTableId, step.getValue().getR(), step.getValue().getX(), step.getValue().getG(), step.getValue().getB(), 1 / step.getValue().getRho(), -step.getValue().getAlpha(), step.getKey(), cimNamespace, writer);
             }
         }
     }
 
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
         int neutralStep = ptc.getTapPosition();
-        while(ptc.getStep(neutralStep).getAlpha() != 0.0) {
+        while (ptc.getStep(neutralStep).getAlpha() != 0.0) {
             if (ptc.getStep(neutralStep).getAlpha() > 0.0) {
-                neutralStep ++;
+                neutralStep++;
             } else {
-                neutralStep --;
+                neutralStep--;
             }
         }
         return neutralStep;
@@ -256,11 +256,11 @@ public final class EquipmentExport {
 
     private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
         int neutralStep = rtc.getTapPosition();
-        while(rtc.getStep(neutralStep).getRho() != 1.0) {
+        while (rtc.getStep(neutralStep).getRho() != 1.0) {
             if (rtc.getStep(neutralStep).getRho() > 1.0) {
-                neutralStep --;
+                neutralStep--;
             } else {
-                neutralStep ++;
+                neutralStep++;
             }
         }
         return neutralStep;

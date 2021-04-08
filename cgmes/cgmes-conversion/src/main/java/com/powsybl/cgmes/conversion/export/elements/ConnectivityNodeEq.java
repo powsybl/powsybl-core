@@ -29,5 +29,6 @@ public final class ConnectivityNodeEq {
         writer.writeEndElement();
     }
 
-    private ConnectivityNodeEq() {}
+    private ConnectivityNodeEq() {
+    }
 }

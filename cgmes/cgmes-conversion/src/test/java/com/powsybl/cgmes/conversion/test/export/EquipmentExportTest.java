@@ -10,18 +10,11 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.cgmes.model.test.TestGridModelResources;
-import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.computation.DefaultComputationManagerConfig;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -54,7 +47,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     private void test(Network expected) throws IOException, XMLStreamException {
 
-        // Export EQ
+        // Export CGMES EQ file
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
         try (OutputStream os = Files.newOutputStream(exportedEq)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

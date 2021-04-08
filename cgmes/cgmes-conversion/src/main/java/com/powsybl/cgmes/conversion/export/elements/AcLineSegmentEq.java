@@ -41,5 +41,6 @@ public final class AcLineSegmentEq {
         writer.writeEndElement();
     }
 
-    private AcLineSegmentEq() {}
+    private AcLineSegmentEq() {
+    }
 }
