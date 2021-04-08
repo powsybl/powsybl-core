@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
