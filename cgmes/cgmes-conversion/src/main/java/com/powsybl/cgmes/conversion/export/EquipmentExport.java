@@ -188,7 +188,7 @@ public final class EquipmentExport {
             String terminalId1 = CgmesExportUtil.getUniqueId();
             PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), 1, twt.getR(), twt.getX(), twt.getG(), twt.getB(), twt.getRatedU1(), terminalId1, cimNamespace, writer);
             String terminalId2 = CgmesExportUtil.getUniqueId();
-            PowerTransformerEq.writeEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0,0.0, twt.getRatedU2(), terminalId2, cimNamespace, writer);
+            PowerTransformerEq.writeEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0, 0.0, twt.getRatedU2(), terminalId2, cimNamespace, writer);
             TerminalEq.write(terminalId1, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal1()), 1, cimNamespace, writer);
             TerminalEq.write(terminalId2, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal2()), 2, cimNamespace, writer);
             writePhaseTapChanger(twt.getPhaseTapChanger(), twt.getNameOrId(), end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
