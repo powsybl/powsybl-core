@@ -642,7 +642,7 @@ WHERE {
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergyConsumer
         cim:EnergyConsumer.p ?p ;
         cim:EnergyConsumer.q ?q
@@ -839,7 +839,7 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-{ GRAPH ?graphSSH  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?StaticVarCompensator
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled

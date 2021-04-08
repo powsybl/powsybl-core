@@ -40,11 +40,11 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", Double.NaN);
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
     }
 
     private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", Double.NaN);
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
     }
 
     private static void setLoadDetail(String type, Load load) {
