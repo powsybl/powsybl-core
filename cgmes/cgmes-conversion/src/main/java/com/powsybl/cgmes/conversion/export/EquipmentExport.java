@@ -296,6 +296,11 @@ public final class EquipmentExport {
                 SynchronousMachineEq.write(generatorId, line.getNameOrId() + "_GEN", generatingUnit, cimNamespace, writer);
                 TerminalEq.write(CgmesExportUtil.getUniqueId(), generatorId, connectivityNodeId, 1, cimNamespace, writer);
             }
+            // New Equivalent with P0 & Q0
+            String equivalentInjectionId = CgmesExportUtil.getUniqueId();
+            EquivalentInjectionEq.write(equivalentInjectionId, line.getNameOrId() + "_EI", line.getGeneration() != null, line.getGeneration() != null, baseVoltageId, cimNamespace, writer);
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
+            // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB(), cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal()), 1, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId, 2, cimNamespace, writer);
