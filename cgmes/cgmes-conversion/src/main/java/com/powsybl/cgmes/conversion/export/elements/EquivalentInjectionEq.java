@@ -21,8 +21,12 @@ public final class EquivalentInjectionEq {
 
     private static final String EQ_EQUIVALENTINJECTION_REGULATIONCAPABILITY = "EquivalentInjection.regulationCapability";
     private static final String EQ_EQUIVALENTINJECTION_REGULATIONSTATUS = "EquivalentInjection.regulationStatus";
+    private static final String EQ_EQUIVALENTINJECTION_MINP = "EquivalentInjection.minP";
+    private static final String EQ_EQUIVALENTINJECTION_MAXP = "EquivalentInjection.maxP";
+    private static final String EQ_EQUIVALENTINJECTION_MINQ = "EquivalentInjection.minQ";
+    private static final String EQ_EQUIVALENTINJECTION_MAXQ = "EquivalentInjection.maxQ";
 
-    public static void write(String id, String name, boolean regulationCapability, boolean regulationStatus, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String name, boolean regulationCapability, boolean regulationStatus, double minP, double maxP, double minQ, double maxQ, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "EquivalentInjection");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -33,6 +37,18 @@ public final class EquivalentInjectionEq {
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_REGULATIONSTATUS);
         writer.writeCharacters(CgmesExportUtil.format(regulationStatus));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINP);
+        writer.writeCharacters(CgmesExportUtil.format(minP));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXP);
+        writer.writeCharacters(CgmesExportUtil.format(maxP));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MINQ);
+        writer.writeCharacters(CgmesExportUtil.format(minQ));
+        writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_EQUIVALENTINJECTION_MAXQ);
+        writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
         writer.writeEmptyElement(cimNamespace, "ConductingEquipment.BaseVoltage");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + baseVoltageId);

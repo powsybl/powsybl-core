@@ -287,18 +287,22 @@ public final class EquipmentExport {
             String loadId = CgmesExportUtil.getUniqueId();
             EnergyConsumerEq.write(loadId, line.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, writer);
-            // New Generator if necessary
+            // New Equivalent Injection
+            double minP = 0.0;
+            double maxP = 0.0;
+            double minQ = 0.0;
+            double maxQ = 0.0;
             if (line.getGeneration() != null) {
-                String generatingUnit = CgmesExportUtil.getUniqueId();
-                String generatingUnitName = "GEN_" + line.getNameOrId();
-                GeneratingUnitEq.write(generatingUnit, generatingUnitName, EnergySource.OTHER, line.getGeneration().getMinP(), line.getGeneration().getMaxP(), line.getGeneration().getTargetP(), cimNamespace, writer);
-                String generatorId = CgmesExportUtil.getUniqueId();
-                SynchronousMachineEq.write(generatorId, line.getNameOrId() + "_GEN", generatingUnit, cimNamespace, writer);
-                TerminalEq.write(CgmesExportUtil.getUniqueId(), generatorId, connectivityNodeId, 1, cimNamespace, writer);
+                minP = line.getGeneration().getMinP();
+                maxP = line.getGeneration().getMaxP();
+                ReactiveLimits reactiveLimits = line.getGeneration().getReactiveLimits();
+                if (reactiveLimits instanceof MinMaxReactiveLimits) {
+                    minQ = ((MinMaxReactiveLimits) reactiveLimits).getMinQ();
+                    maxQ = ((MinMaxReactiveLimits) reactiveLimits).getMaxQ();
+                }
             }
-            // New Equivalent with P0 & Q0
             String equivalentInjectionId = CgmesExportUtil.getUniqueId();
-            EquivalentInjectionEq.write(equivalentInjectionId, line.getNameOrId() + "_EI", line.getGeneration() != null, line.getGeneration() != null, baseVoltageId, cimNamespace, writer);
+            EquivalentInjectionEq.write(equivalentInjectionId, line.getNameOrId() + "_EI", line.getGeneration() != null, line.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
             // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB(), cimNamespace, writer);
