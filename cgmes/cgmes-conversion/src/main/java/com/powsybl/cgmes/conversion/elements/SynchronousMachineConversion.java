@@ -30,6 +30,13 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
+        if (minP > maxP) {
+            double oldMinP = minP;
+            double oldMaxP = maxP;
+            minP = oldMaxP;
+            maxP = oldMinP;
+            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", oldMinP, oldMaxP));
+        }
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
         String generatingUnitType = p.getLocal("generatingUnitType");

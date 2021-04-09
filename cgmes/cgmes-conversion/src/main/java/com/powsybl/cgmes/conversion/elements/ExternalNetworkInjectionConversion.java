@@ -28,7 +28,13 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-
+        if (minP > maxP) {
+            double oldMinP = minP;
+            double oldMaxP = maxP;
+            minP = oldMaxP;
+            maxP = oldMinP;
+            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", oldMinP, oldMaxP));
+        }
         double targetP = 0;
         double targetQ = 0;
         PowerFlow f = powerFlow();

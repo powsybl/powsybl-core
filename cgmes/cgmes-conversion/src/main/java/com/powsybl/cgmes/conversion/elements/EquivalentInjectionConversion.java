@@ -96,6 +96,13 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
     private void convertToGenerator() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
+        if (minP > maxP) {
+            double oldMinP = minP;
+            double oldMaxP = maxP;
+            minP = oldMaxP;
+            maxP = oldMinP;
+            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", oldMinP, oldMaxP));
+        }
         EnergySource energySource = EnergySource.OTHER;
 
         Regulation regulation = getRegulation();
