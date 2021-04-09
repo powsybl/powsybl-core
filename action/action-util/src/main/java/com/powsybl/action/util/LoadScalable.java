@@ -6,7 +6,6 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,8 +123,8 @@ class LoadScalable extends AbstractInjectionScalable {
 
         double oldP0 = l.getP0();
         if (oldP0 < minValue || oldP0 > maxValue) {
-            throw new PowsyblException("Error scaling LoadScalable " + id +
-                    " : Initial P is not in the range [Pmin, Pmax]");
+            LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
+            return 0.;
         }
 
         // We use natural load convention to compute the limits.

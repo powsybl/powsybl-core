@@ -61,18 +61,5 @@ public class CgmesControlAreaTest {
         } catch (PowsyblException e) {
             assertEquals("Undefined ID for CGMES control area", e.getMessage());
         }
-
-        try {
-            network.getExtension(CgmesControlAreas.class)
-                    .newCgmesControlArea()
-                    .setId("cgmesControlAreaId")
-                    .setName("cgmesControlAreaName")
-                    .setEnergyIdentificationCodeEic("energyIdentCodeEic")
-                    .add()
-                    .add(network.getLine("NHV1_NHV2_1").getTerminal1());
-            fail();
-        } catch (PowsyblException e) {
-            assertEquals("Undefined net interchange for CGMES control area", e.getMessage());
-        }
     }
 }

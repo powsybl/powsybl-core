@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -219,12 +220,12 @@ class BusAdapter extends AbstractIdentifiableAdapter<Bus> implements Bus {
 
     @Override
     public Iterable<Terminal> getConnectedTerminals() {
-        throw MergingView.createNotImplementedException();
+        return getConnectedTerminalStream().collect(Collectors.toList());
     }
 
     @Override
     public Stream<Terminal> getConnectedTerminalStream() {
-        throw MergingView.createNotImplementedException();
+        return getDelegate().getConnectedTerminalStream().map(t -> getIndex().getTerminal(t));
     }
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
