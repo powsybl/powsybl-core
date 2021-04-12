@@ -378,6 +378,15 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEFixedMinPMaxP() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseBEFixedMinPMaxP().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertEquals(50.0, generator.getMinP(), 0.0);
+        assertEquals(200.0, generator.getMaxP(), 0.0);
+    }
+
+    @Test
     public void microAssembledSwitchAtBoundary() {
         final double tolerance = 1e-10;
 
