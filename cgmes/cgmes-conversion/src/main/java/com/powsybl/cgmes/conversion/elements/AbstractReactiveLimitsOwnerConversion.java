@@ -130,11 +130,9 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
 
     protected void setMinPMaxP(GeneratorAdder adder, double minP, double maxP) {
         if (minP > maxP) {
-            double oldMinP = minP;
-            double oldMaxP = maxP;
-            minP = oldMaxP;
-            maxP = oldMinP;
-            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", oldMinP, oldMaxP));
+            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", minP, maxP));
+            adder.setMinP(maxP).setMaxP(minP);
+            return;
         }
         adder.setMinP(minP).setMaxP(maxP);
     }
