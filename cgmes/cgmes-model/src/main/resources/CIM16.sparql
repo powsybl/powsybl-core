@@ -114,6 +114,7 @@ UNION
         cim:ConnectivityNode.ConnectivityNodeContainer ?container .
     OPTIONAL { ?Node entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEic }
     OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEicContainer }
+    OPTIONAL { ?Node cim:IdentifiedObject.description ?description }
 }}
 { GRAPH ?grapBDTP2 {
     ?Node cim:ConnectivityNode.TopologicalNode ?TopologicalNode
