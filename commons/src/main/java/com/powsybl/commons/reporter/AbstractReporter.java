@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.reporter;
 
-import com.powsybl.commons.PowsyblException;
 import org.apache.commons.text.StringSubstitutor;
 
 import java.util.Collections;
@@ -15,12 +14,10 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
+ * An abstract class providing some default method implementations for {@link Reporter} implementations.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public abstract class AbstractReporter implements Reporter {
-
-    protected static final String DEFAULT_ROOT_TASK_KEY = "rootTaskKey";
-    protected static final String DEFAULT_ROOT_NAME = "Root task";
 
     protected final String taskKey;
     protected final String defaultName;
@@ -35,10 +32,6 @@ public abstract class AbstractReporter implements Reporter {
 
     private void addTaskValue(String key, TypedValue typedValue) {
         Objects.requireNonNull(typedValue);
-        Object value = typedValue.getValue();
-        if (!(value instanceof Float || value instanceof Double || value instanceof Integer || value instanceof Long || value instanceof Boolean || value instanceof String)) {
-            throw new PowsyblException("Report expects only Float, Double, Integer, Long and String values (value is an instance of " + value.getClass() + ")");
-        }
         taskValues.put(key, typedValue);
     }
 
@@ -77,10 +70,27 @@ public abstract class AbstractReporter implements Reporter {
         report(reportKey, defaultMessage, Map.of(valueKey, new TypedValue(value, type)));
     }
 
+    /**
+     * Format default message of given report by replacing value references by the corresponding values.
+     * The values in the report default message have to be referred to with their corresponding key, using the <code>${key}</code> syntax.
+     * The values are first searched in the report key-value map, then in or the given key-value map.
+     * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
+     * @param report the report whose default message needs to be formatted
+     * @param taskValues the key-value map used if any value reference is not found among the report values
+     * @return the resulting formatted string
+     */
     protected static String formatReportMessage(Report report, Map<String, TypedValue> taskValues) {
         return new StringSubstitutor(taskValues).replace(new StringSubstitutor(report.getValues()).replace(report.getDefaultMessage()));
     }
 
+    /**
+     * Format given message by replacing value references by the corresponding values.
+     * The values in the given message have to be referred to with their corresponding key, using the <code>${key}</code> syntax.
+     * {@link org.apache.commons.text.StringSubstitutor} is used for the string replacements.
+     * @param message the message to be formatted
+     * @param values the key-value map used to look for the values
+     * @return the resulting formatted string
+     */
     protected static String formatMessage(String message, Map<String, TypedValue> values) {
         return new StringSubstitutor(values).replace(message);
     }
