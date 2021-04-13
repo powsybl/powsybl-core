@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.google.common.collect.Range;
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -125,5 +126,14 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
             return Range.closed(maxQ, minQ);
         }
         return Range.closed(minQ, maxQ);
+    }
+
+    protected void setMinPMaxP(GeneratorAdder adder, double minP, double maxP) {
+        if (minP > maxP) {
+            context.fixed("Active power limits", String.format("minP (%f) > maxP (%f)", minP, maxP));
+            adder.setMinP(maxP).setMaxP(minP);
+            return;
+        }
+        adder.setMinP(minP).setMaxP(maxP);
     }
 }

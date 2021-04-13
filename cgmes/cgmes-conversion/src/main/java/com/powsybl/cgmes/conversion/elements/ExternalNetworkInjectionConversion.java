@@ -28,7 +28,6 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
     public void convert() {
         double minP = p.asDouble("minP", -Double.MAX_VALUE);
         double maxP = p.asDouble("maxP", Double.MAX_VALUE);
-
         double targetP = 0;
         double targetQ = 0;
         PowerFlow f = powerFlow();
@@ -39,9 +38,8 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
-        adder.setMinP(minP)
-                .setMaxP(maxP)
-                .setTargetP(targetP)
+        setMinPMaxP(adder, minP, maxP);
+        adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setEnergySource(EnergySource.OTHER);
         identify(adder);
