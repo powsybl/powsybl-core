@@ -425,7 +425,7 @@ public class Conversion {
 
     private static void convertTwoWindingsTransformers(Context context, PropertyBags ends, Set<String> delayedBoundaryNodes) {
         AbstractConductingEquipmentConversion c = new TwoWindingsTransformerConversion(ends, context);
-        if (c != null && c.valid()) {
+        if (c.valid()) {
             String node = c.boundaryNode();
             if (node != null) {
                 context.boundary().addTransformerAtNode(ends, node);
@@ -438,7 +438,7 @@ public class Conversion {
 
     private static void convertThreeWindingsTransformers(Context context, PropertyBags ends) {
         AbstractConductingEquipmentConversion c = new ThreeWindingsTransformerConversion(ends, context);
-        if (c != null && c.valid()) {
+        if (c.valid()) {
             c.convert();
         }
     }
