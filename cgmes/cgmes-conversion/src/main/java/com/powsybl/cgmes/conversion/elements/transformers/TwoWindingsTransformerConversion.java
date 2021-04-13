@@ -110,7 +110,6 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         double bch = convertedT2xModel.end1.b;
 
         convertToDanglingLine(boundarySide, r, x, gch, bch);
-        System.err.printf("JAM Converter TwoWindingsTransformer at boundary %d %n", boundarySide);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
