@@ -26,7 +26,14 @@ import com.powsybl.triplestore.api.PropertyBags;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+
 public class CgmesBoundary {
+
+    private static final String UNEXPECTED_BOUNDARY_EQUIPMENT = "Unexpected boundary equipment %s. Must be %s";
+
+    public enum BoundaryEquipmentType {
+        AC_LINE_SEGMENT, SWITCH, TRANSFORMER
+    }
 
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
@@ -65,10 +72,22 @@ public class CgmesBoundary {
         return nodesPowerFlow.get(node);
     }
 
-    public void addEquipmentAtNode(PropertyBag line, String node) {
-        List<PropertyBag> equipment;
+    public void addAcLineSegmentAtNode(PropertyBag line, String node) {
+        List<BoundaryEquipment> equipment;
         equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
-        equipment.add(line);
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.AC_LINE_SEGMENT, line));
+    }
+
+    public void addSwitchAtNode(PropertyBag sw, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.SWITCH, sw));
+    }
+
+    public void addTransformerAtNode(PropertyBags transformerEnds, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.TRANSFORMER, transformerEnds));
     }
 
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
@@ -98,8 +117,32 @@ public class CgmesBoundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    public List<PropertyBag> equipmentAtNode(String node) {
+    public List<BoundaryEquipment> equipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
+    }
+
+    public static PropertyBag getPropertyBagOfAcLineSegmentAtBoundary(BoundaryEquipment eq) {
+        if (eq.type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
+            return eq.propertyBag;
+        } else {
+            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.AC_LINE_SEGMENT));
+        }
+    }
+
+    public static PropertyBag getPropertyBagOfSwitchAtBoundary(BoundaryEquipment eq) {
+        if (eq.type == BoundaryEquipmentType.SWITCH) {
+            return eq.propertyBag;
+        } else {
+            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.SWITCH));
+        }
+    }
+
+    public static PropertyBags getPropertyBagsOfTransformerAtBoundary(BoundaryEquipment eq) {
+        if (eq.type == BoundaryEquipmentType.TRANSFORMER) {
+            return eq.propertyBags;
+        } else {
+            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.TRANSFORMER));
+        }
     }
 
     public List<PropertyBag> equivalentInjectionsAtNode(String node) {
@@ -110,13 +153,35 @@ public class CgmesBoundary {
         return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
     }
 
+    public static final class BoundaryEquipment {
+        private BoundaryEquipment(BoundaryEquipmentType type, PropertyBag propertyBag) {
+            this.type = type;
+            this.propertyBag = propertyBag;
+            propertyBags = null;
+        }
+
+        private BoundaryEquipment(BoundaryEquipmentType type, PropertyBags propertyBags) {
+            this.type = type;
+            this.propertyBag = null;
+            this.propertyBags = propertyBags;
+        }
+
+        public BoundaryEquipmentType getBoundaryEquipmentType() {
+            return type;
+        }
+
+        private final BoundaryEquipmentType type;
+        private final PropertyBag propertyBag;
+        private final PropertyBags propertyBags;
+    }
+
     private static class Voltage {
         double v;
         double angle;
     }
 
     private final Set<String> nodes;
-    private final Map<String, List<PropertyBag>> nodesEquipment;
+    private final Map<String, List<BoundaryEquipment>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;

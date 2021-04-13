@@ -61,13 +61,15 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public boolean valid() {
-        if (!super.valid()) {
-            return false;
-        }
-        if (context.boundary().containsNode(nodeId(1))
-            || context.boundary().containsNode(nodeId(2))) {
-            invalid("2 windings transformer end point at boundary is not supported");
-            return false;
+        // An transformer end voltage level may be null
+        // (when it is in the boundary and the boundary nodes are not converted)
+        // So we do not use the generic validity check for conducting equipment
+        // or branch. We only ensure we have nodes at both ends
+        for (int k = 1; k <= 2; k++) {
+            if (nodeId(k) == null) {
+                missing(nodeIdPropertyName() + k);
+                return false;
+            }
         }
         return true;
     }
@@ -79,6 +81,36 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
         setToIidm(convertedT2xModel);
+    }
+
+    public void convertTwoWindingsTransformerAtBoundary() {
+        // If we have created buses and substations for boundary nodes,
+        // convert as a regular line
+        if (context.config().convertBoundary()) {
+            convert();
+            return;
+        }
+
+        if (isBoundary(1)) {
+            convertTwoWindingsTransformerAtBoundary(1);
+        } else if (isBoundary(2)) {
+            convertTwoWindingsTransformerAtBoundary(2);
+        }
+    }
+
+    private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
+
+        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
+        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
+        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
+
+        double r = convertedT2xModel.r;
+        double x = convertedT2xModel.x;
+        double gch = convertedT2xModel.end1.g;
+        double bch = convertedT2xModel.end1.b;
+
+        convertToDanglingLine(boundarySide, r, x, gch, bch);
+        System.err.printf("JAM Converter TwoWindingsTransformer at boundary %d %n", boundarySide);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {

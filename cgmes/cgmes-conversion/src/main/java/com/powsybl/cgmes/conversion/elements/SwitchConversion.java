@@ -17,10 +17,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConnectorConversion {
+public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context);
+        super("Switch", sw, context, 2);
     }
 
     @Override
