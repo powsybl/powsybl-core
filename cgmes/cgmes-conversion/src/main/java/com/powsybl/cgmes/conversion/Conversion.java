@@ -412,27 +412,35 @@ public class Conversion {
                 ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
             }
             if (ends.size() == 2) {
-                AbstractConductingEquipmentConversion c = new TwoWindingsTransformerConversion(ends, context);
-                if (c != null && c.valid()) {
-                    String node = c.boundaryNode();
-                    if (node != null) {
-                        context.boundary().addTransformerAtNode(ends, node);
-                        delayedBoundaryNodes.add(node);
-                    } else {
-                        c.convert();
-                    }
-                }
+                convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
             } else if (ends.size() == 3) {
-                AbstractConductingEquipmentConversion c = new ThreeWindingsTransformerConversion(ends, context);
-                if (c != null && c.valid()) {
-                    c.convert();
-                }
+                convertThreeWindingsTransformers(context, ends);
             } else {
                 String what = "PowerTransformer " + t;
                 Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
                 context.invalid(what, reason);
             }
         });
+    }
+
+    private static void convertTwoWindingsTransformers(Context context, PropertyBags ends, Set<String> delayedBoundaryNodes) {
+        AbstractConductingEquipmentConversion c = new TwoWindingsTransformerConversion(ends, context);
+        if (c != null && c.valid()) {
+            String node = c.boundaryNode();
+            if (node != null) {
+                context.boundary().addTransformerAtNode(ends, node);
+                delayedBoundaryNodes.add(node);
+            } else {
+                c.convert();
+            }
+        }
+    }
+
+    private static void convertThreeWindingsTransformers(Context context, PropertyBags ends) {
+        AbstractConductingEquipmentConversion c = new ThreeWindingsTransformerConversion(ends, context);
+        if (c != null && c.valid()) {
+            c.convert();
+        }
     }
 
     // Supported conversions:
@@ -471,9 +479,7 @@ public class Conversion {
                     LOG.debug(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq).tabulateLocals("EquipmentAtBoundary"));
                     break;
                 case TRANSFORMER:
-                    CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq).forEach(pb -> {
-                        LOG.debug(pb.tabulateLocals("TransformerEndAtBoundary"));
-                    });
+                    CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq).forEach(pb -> LOG.debug(pb.tabulateLocals("TransformerEndAtBoundary")));
                     break;
             }
         });
