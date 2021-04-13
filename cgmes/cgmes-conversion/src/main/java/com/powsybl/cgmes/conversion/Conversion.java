@@ -457,7 +457,6 @@ public class Conversion {
         if (LOG.isDebugEnabled()) {
             equipmentAtBoundaryNodeLog(node, beqs);
         }
-        equipmentAtBoundaryNodeLog(node, beqs);
         int numEquipmentsAtNode = beqs.size();
         if (numEquipmentsAtNode == 1) {
             convertOneEquipmentAtBoundaryNode(context, beqs.get(0));
