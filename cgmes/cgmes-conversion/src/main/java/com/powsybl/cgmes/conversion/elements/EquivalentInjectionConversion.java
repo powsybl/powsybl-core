@@ -99,10 +99,9 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         EnergySource energySource = EnergySource.OTHER;
 
         Regulation regulation = getRegulation();
-        GeneratorAdder adder = voltageLevel().newGenerator()
-                .setMinP(minP)
-                .setMaxP(maxP)
-                .setVoltageRegulatorOn(regulation.status)
+        GeneratorAdder adder = voltageLevel().newGenerator();
+        setMinPMaxP(adder, minP, maxP);
+        adder.setVoltageRegulatorOn(regulation.status)
                 .setTargetP(regulation.targetP)
                 .setTargetQ(regulation.targetQ)
                 .setTargetV(regulation.targetV)
