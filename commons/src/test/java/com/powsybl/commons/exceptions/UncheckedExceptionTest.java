@@ -9,7 +9,6 @@ package com.powsybl.commons.exceptions;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
@@ -58,12 +57,6 @@ public class UncheckedExceptionTest {
     public void interruptedTest() {
         InterruptedException e = new InterruptedException();
         assertSame(e, new UncheckedInterruptedException(e).getCause());
-    }
-
-    @Test
-    public void jaxbTest() {
-        JAXBException e = new JAXBException("");
-        assertSame(e, new UncheckedJaxbException(e).getCause());
     }
 
     @Test
