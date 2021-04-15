@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion.BoundaryLine;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -61,31 +59,6 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
         } else {
             throw new ConversionException("Boundary must be at one end of the switch");
         }
-    }
-
-    public BoundaryLine fillBoundaryLine(String boundaryNode) {
-
-        int modelEnd = 1;
-        if (nodeId(1).equals(boundaryNode)) {
-            modelEnd = 2;
-        }
-
-        String id = iidmId();
-        String name = iidmName();
-        String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
-        boolean modelTconnected = terminalConnected(modelEnd);
-        String modelBus = busId(modelEnd);
-        String modelTerminalId = terminalId(modelEnd);
-        String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
-        int modelNode = -1;
-        if (context.nodeBreaker()) {
-            modelNode = iidmNode(modelEnd);
-        }
-
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
-
-        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, 0.0, 0.0, 0.0, 0.0, modelPowerFlow);
     }
 
     private Switch convertToSwitch() {

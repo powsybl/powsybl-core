@@ -12,9 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion.BoundaryLine;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -105,36 +103,19 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     public BoundaryLine fillBoundaryLine(String boundaryNode) {
 
+        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
+
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
-
-        int modelEnd = 1;
-        if (nodeId(1).equals(boundaryNode)) {
-            modelEnd = 2;
-        }
-
-        String id = iidmId();
-        String name = iidmName();
-        String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
-        boolean modelTconnected = terminalConnected(modelEnd);
-        String modelBus = busId(modelEnd);
-        String modelTerminalId = terminalId(modelEnd);
-        String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
-        int modelNode = -1;
-        if (context.nodeBreaker()) {
-            modelNode = iidmNode(modelEnd);
-        }
 
         double r = convertedT2xModel.r;
         double x = convertedT2xModel.x;
         double g = convertedT2xModel.end1.g;
         double b = convertedT2xModel.end1.b;
+        boundaryLine.setParameters(r, x, g, b);
 
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
-
-        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, r, x, g, b, modelPowerFlow);
+        return boundaryLine;
     }
 
     private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {

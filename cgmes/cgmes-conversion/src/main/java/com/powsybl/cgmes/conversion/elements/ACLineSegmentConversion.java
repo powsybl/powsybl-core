@@ -15,7 +15,6 @@ import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -57,34 +56,18 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         }
     }
 
+    @Override
     public BoundaryLine fillBoundaryLine(String boundaryNode) {
 
-        int modelEnd = 1;
-        if (nodeId(1).equals(boundaryNode)) {
-            modelEnd = 2;
-        }
-
-        String id = iidmId();
-        String name = iidmName();
-        String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
-        boolean modelTconnected = terminalConnected(modelEnd);
-        String modelBus = busId(modelEnd);
-        String modelTerminalId = terminalId(modelEnd);
-        String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
-        int modelNode = -1;
-        if (context.nodeBreaker()) {
-            modelNode = iidmNode(modelEnd);
-        }
+        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
 
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
+        boundaryLine.setParameters(r, x, g, b);
 
-        PowerFlow modelPowerFlow = powerFlow(modelEnd);
-
-        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
-            modelTerminalId, boundaryTerminalId, r, x, g, b, modelPowerFlow);
+        return boundaryLine;
     }
 
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
@@ -95,18 +78,18 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             mline = createQuadripole(context, boundaryLine1, boundaryLine2);
         }
 
-        mline.addAlias(boundaryLine1.modelTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-        mline.addAlias(boundaryLine1.boundaryTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY");
-        mline.addAlias(boundaryLine2.modelTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-        mline.addAlias(boundaryLine2.boundaryTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY");
+        mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
+        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY");
+        mline.addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
+        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY");
 
-        context.convertedTerminal(boundaryLine1.modelTerminalId, mline.getTerminal1(), 1, boundaryLine1.modelPowerFlow);
-        context.convertedTerminal(boundaryLine2.modelTerminalId, mline.getTerminal2(), 2, boundaryLine2.modelPowerFlow);
+        context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getTerminal1(), 1, boundaryLine1.getModelPowerFlow());
+        context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getTerminal2(), 2, boundaryLine2.getModelPowerFlow());
 
         if (mline instanceof TieLine) {
             TieLine tl = (TieLine) mline;
-            context.terminalMapping().add(boundaryLine1.boundaryTerminalId, tl.getHalf1().getBoundary(), 2);
-            context.terminalMapping().add(boundaryLine2.boundaryTerminalId, tl.getHalf2().getBoundary(), 1);
+            context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
+            context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
         }
     }
 
@@ -175,49 +158,49 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
 
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         TieLineAdder adder = context.network().newTieLine()
-            .setId(boundaryLine1.id + " + " + boundaryLine2.id)
-            .setName(boundaryLine1.name + " + " + boundaryLine2.name)
+            .setId(boundaryLine1.getId() + " + " + boundaryLine2.getId())
+            .setName(boundaryLine1.getName() + " + " + boundaryLine2.getName())
             .newHalfLine1()
-                .setId(boundaryLine1.id)
-                .setName(boundaryLine1.name)
-                .setR(boundaryLine1.r)
-                .setX(boundaryLine1.x)
-                .setG1(boundaryLine1.g / 2)
-                .setG2(boundaryLine1.g / 2)
-                .setB1(boundaryLine1.b / 2)
-                .setB2(boundaryLine1.b / 2)
+                .setId(boundaryLine1.getId())
+                .setName(boundaryLine1.getName())
+                .setR(boundaryLine1.getR())
+                .setX(boundaryLine1.getX())
+                .setG1(boundaryLine1.getG() / 2)
+                .setG2(boundaryLine1.getG() / 2)
+                .setB1(boundaryLine1.getB() / 2)
+                .setB2(boundaryLine1.getB() / 2)
                 .add()
             .newHalfLine2()
-                .setId(boundaryLine2.id)
-                .setName(boundaryLine2.name)
-                .setR(boundaryLine2.r)
-                .setX(boundaryLine2.x)
-                .setG1(boundaryLine2.g / 2)
-                .setG2(boundaryLine2.g / 2)
-                .setB1(boundaryLine2.b / 2)
-                .setB2(boundaryLine2.b / 2)
+                .setId(boundaryLine2.getId())
+                .setName(boundaryLine2.getName())
+                .setR(boundaryLine2.getR())
+                .setX(boundaryLine2.getX())
+                .setG1(boundaryLine2.getG() / 2)
+                .setG2(boundaryLine2.getG() / 2)
+                .setB1(boundaryLine2.getB() / 2)
+                .setB2(boundaryLine2.getB() / 2)
                 .add()
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
-        identify(context, adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
-        connect(context, adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,
-            boundaryLine1.modelNode, boundaryLine2.modelIidmVoltageLevelId, boundaryLine2.modelBus,
-            boundaryLine2.modelTconnected, boundaryLine2.modelNode);
+        identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
+        connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
+            boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
+            boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
         return adder.add();
     }
 
     private static Line createQuadripole(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         PiModel pi1 = new PiModel();
-        pi1.r = boundaryLine1.r;
-        pi1.x = boundaryLine1.x;
-        pi1.g1 = boundaryLine1.g / 2.0;
-        pi1.b1 = boundaryLine1.b / 2.0;
+        pi1.r = boundaryLine1.getR();
+        pi1.x = boundaryLine1.getX();
+        pi1.g1 = boundaryLine1.getG() / 2.0;
+        pi1.b1 = boundaryLine1.getB() / 2.0;
         pi1.g2 = pi1.g1;
         pi1.b2 = pi1.b1;
         PiModel pi2 = new PiModel();
-        pi2.r = boundaryLine2.r;
-        pi2.x = boundaryLine2.x;
-        pi2.g1 = boundaryLine2.g / 2.0;
-        pi2.b1 = boundaryLine2.b / 2.0;
+        pi2.r = boundaryLine2.getR();
+        pi2.x = boundaryLine2.getX();
+        pi2.g1 = boundaryLine2.getG() / 2.0;
+        pi2.b1 = boundaryLine2.getB() / 2.0;
         pi2.g2 = pi2.g1;
         pi2.b2 = pi2.b1;
         PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
@@ -228,46 +211,11 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             .setG2(pim.g2)
             .setB1(pim.b1)
             .setB2(pim.b2);
-        identify(context, adder, boundaryLine1.id + " + " + boundaryLine2.id, boundaryLine1.name + " + " + boundaryLine2.name);
-        connect(context, adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,
-            boundaryLine1.modelNode, boundaryLine2.modelIidmVoltageLevelId, boundaryLine2.modelBus,
-            boundaryLine2.modelTconnected, boundaryLine2.modelNode);
+        identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
+        connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
+            boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
+            boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
         return adder.add();
-    }
-
-    public static class BoundaryLine {
-
-        public BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
-            boolean modelTconnected, int modelNode, String modelTerminalId, String boundaryTerminalId,
-            double r, double x, double g, double b, PowerFlow modelPowerFlow) {
-            this.id = id;
-            this.name = name;
-            this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
-            this.modelBus = modelBus;
-            this.modelTconnected = modelTconnected;
-            this.modelNode = modelNode;
-            this.modelTerminalId = modelTerminalId;
-            this.boundaryTerminalId = boundaryTerminalId;
-            this.modelPowerFlow = modelPowerFlow;
-            this.r = r;
-            this.x = x;
-            this.g = g;
-            this.b = b;
-        }
-
-        private final String id;
-        private final String name;
-        private final String modelIidmVoltageLevelId;
-        private final String modelBus;
-        private final boolean modelTconnected;
-        private final int modelNode;
-        private final String modelTerminalId;
-        private final String boundaryTerminalId;
-        private final double r;
-        private final double x;
-        private final double g;
-        private final double b;
-        private final PowerFlow modelPowerFlow;
     }
 
     static class PiModel {
