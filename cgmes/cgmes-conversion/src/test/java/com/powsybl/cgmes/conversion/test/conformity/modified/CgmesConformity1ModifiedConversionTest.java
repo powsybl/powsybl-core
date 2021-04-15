@@ -371,6 +371,19 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEEquivalentBranchAt() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranch().dataSource(),
+            NetworkFactory.findDefault(), null);
+        Line l = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        assertEquals(1.935000, l.getR(), 0.0);
+        assertEquals(34.200000, l.getX(), 0.0);
+        assertEquals(0.0, l.getG1(), 0.0);
+        assertEquals(0.0, l.getB1(), 0.0);
+        assertEquals(0.0, l.getG2(), 0.0);
+        assertEquals(0.0, l.getB2(), 0.0);
+    }
+
+    @Test
     public void microBELimits() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
                 NetworkFactory.findDefault(), null);
