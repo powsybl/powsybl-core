@@ -101,6 +101,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         }
     }
 
+    @Override
     public BoundaryLine fillBoundaryLine(String boundaryNode) {
 
         BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
