@@ -408,13 +408,14 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        Line m = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
+
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
-        assertEquals(0.00003, m.getG1(), tolerance);
-        assertEquals(0.0, m.getG2(), tolerance);
-        assertEquals(0.0001413717, m.getB1(), tolerance);
-        assertEquals(0.0, m.getB2(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.00003, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.0001413717, m.getB2(), tolerance);
 
         InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
@@ -422,13 +423,46 @@ public class CgmesConformity1ModifiedConversionTest {
 
         network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledSwitchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        m = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
         assertEquals(1.02, m.getR(), tolerance);
         assertEquals(12.0, m.getX(), tolerance);
         assertEquals(0.00003 / 2, m.getG1(), tolerance);
         assertEquals(0.00003 / 2, m.getG2(), tolerance);
         assertEquals(0.0001413717 / 2, m.getB1(), tolerance);
         assertEquals(0.0001413717 / 2, m.getB2(), tolerance);
+    }
+
+    @Test
+    public void microAssembledTransformerAtBoundary() {
+        final double tolerance = 1e-10;
+
+        InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigTieLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "true");
+
+        Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(2.070000, m.getR(), tolerance);
+        assertEquals(24.000000, m.getX(), tolerance);
+        assertEquals(0.000030, m.getG1(), tolerance);
+        assertEquals(0.000060, m.getG2(), tolerance);
+        assertEquals(0.0001413717, m.getB1(), tolerance);
+        assertEquals(0.000149854, m.getB2(), tolerance);
+
+        InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "false");
+
+        network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(2.0599511718060004, m.getR(), tolerance);
+        assertEquals(23.980305500962352, m.getX(), tolerance);
+        assertEquals(0.000037637150114635104, m.getG1(), tolerance);
+        assertEquals(0.00005245151842033553, m.getG2(), tolerance);
+        assertEquals(0.00014352627414867316, m.getB1(), tolerance);
+        assertEquals(0.00014780777425070602, m.getB2(), tolerance);
     }
 
     @Test

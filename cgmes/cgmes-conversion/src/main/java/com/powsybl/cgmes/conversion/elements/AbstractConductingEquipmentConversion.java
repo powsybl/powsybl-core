@@ -81,6 +81,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public String findUcteXnodeCode(String boundaryNode) {
+        return findUcteXnodeCode(context, boundaryNode);
+    }
+
+    public static String findUcteXnodeCode(Context context, String boundaryNode) {
         return context.boundary().nameAtBoundary(boundaryNode);
     }
 
@@ -159,7 +163,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[0].t.id();
     }
 
-    String terminalId(int n) {
+    protected String terminalId(int n) {
         return terminals[n - 1].t.id();
     }
 
@@ -309,7 +313,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return iidmNode(1, true);
     }
 
-    int iidmNode(int n) {
+    protected int iidmNode(int n) {
         return iidmNode(n, true);
     }
 
@@ -326,7 +330,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[0].busId;
     }
 
-    String busId(int n) {
+    protected String busId(int n) {
         return terminals[n - 1].busId;
     }
 
@@ -334,7 +338,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[0].t.connected();
     }
 
-    boolean terminalConnected(int n) {
+    protected boolean terminalConnected(int n) {
         return terminals[n - 1].t.connected();
     }
 
@@ -350,7 +354,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[0].iidmVoltageLevelId;
     }
 
-    String iidmVoltageLevelId(int n) {
+    protected String iidmVoltageLevelId(int n) {
         return terminals[n - 1].iidmVoltageLevelId;
     }
 
@@ -409,7 +413,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    PowerFlow powerFlow(int n) {
+    protected PowerFlow powerFlow(int n) {
         switch (context.config().getProfileUsedForInitialStateValues()) {
             case SSH:
                 if (steadyStateHypothesisPowerFlow().defined()) {
@@ -513,6 +517,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public void connect(BranchAdder<?> adder,
+        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
+        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
+        connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
+    }
+
+    public static void connect(Context context, BranchAdder<?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
