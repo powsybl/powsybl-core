@@ -23,7 +23,11 @@ public class OptionTypeMapperTest {
         mapper.addOptionNameMapping(".*file", OptionType.FILE);
         mapper.addOptionNameMapping("file.*", OptionType.FILE);
 
-        BashOption fileOption = new BashOption("case-file");
+        BashOption noArgOption = new BashOption("case-file");
+        mapper.map(noArgOption);
+        assertNull(noArgOption.getType());
+
+        BashOption fileOption = new BashOption("case-file", "ARG");
         mapper.map(fileOption);
         assertSame(OptionType.FILE, fileOption.getType());
 
@@ -31,7 +35,7 @@ public class OptionTypeMapperTest {
         mapper.map(argFileOption);
         assertSame(OptionType.FILE, argFileOption.getType());
 
-        BashOption nonFileOption = new BashOption("case");
+        BashOption nonFileOption = new BashOption("case", "ARG");
         mapper.map(fileOption);
         assertNull(nonFileOption.getType());
     }

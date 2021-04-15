@@ -62,7 +62,7 @@ public class BashCompletionGeneratorTest {
         BashOption host = new BashOption("host", "HOST", OptionType.HOSTNAME);
         BashOption enumOption = new BashOption("type", "TYPE", OptionType.enumeration(TypeOption.class));
         BashCommand command = new BashCommand("cmd", file, dir, host, enumOption);
-        checkGeneratedScript("1-command-untyped-options.sh", command);
+        checkGeneratedScript("1-command-multiple-options.sh", command);
     }
 
 }
