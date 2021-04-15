@@ -127,6 +127,8 @@
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
         <xmlunit.version>2.3.0</xmlunit.version>
+        <velocity.version>1.7</velocity.version>
+        <velocitytools.version>2.0</velocitytools.version>
 
         <powsyblmathnative.version>1.0.3</powsyblmathnative.version>
     </properties>
@@ -830,6 +832,16 @@
                 <groupId>us.hebi.matlab.mat</groupId>
                 <artifactId>mfl-core</artifactId>
                 <version>${mfl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>${velocity.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity-tools</artifactId>
+                <version>${velocitytools.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->

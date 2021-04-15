@@ -1,0 +1,25 @@
+#parse("/com/powsybl/tools/autocompletion/options.sh.vm")
+#foreach($c in $commands)
+#completionFunction($c.getName() $c.getOptions())
+
+#end
+_$toolName() {
+    compopt -o filenames
+
+    if [[ "${#COMP_WORDS[@]}" == 2 ]]; then
+        local cur=${esc.d}{COMP_WORDS[COMP_CWORD]}
+        COMPREPLY=($(compgen -W "#foreach($c in $commands)$c.getName() #end" -- $cur))
+    else
+        local cmd=${esc.d}{COMP_WORDS[1]}
+        case "$cmd" in
+#foreach($c in $commands)
+            $c.getName())
+                _$c.getName()
+                return 0
+                ;;
+#end
+        esac
+    fi
+}
+
+complete -F _$toolName $toolName
