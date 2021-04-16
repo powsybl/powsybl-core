@@ -9,7 +9,7 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
-    <xs:element name="cgmesDanglingLineBoundaryNode">
+    <xs:element name="cgmesLineBoundaryNode">
         <xs:complexType>
             <xs:attribute name="isHvdc" use="required" type="xs:boolean"/>
             <xs:attribute name="lineEnergyIdentificationCodeEic" use="optional" type="clbn:nonEmptyString"/>

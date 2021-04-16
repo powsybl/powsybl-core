@@ -22,6 +22,6 @@ public interface CgmesLineBoundaryNode extends Extension<Line> {
 
     @Override
     default String getName() {
-        return "cgmesTieLineBoundaryNode";
+        return "cgmesLineBoundaryNode";
     }
 }
