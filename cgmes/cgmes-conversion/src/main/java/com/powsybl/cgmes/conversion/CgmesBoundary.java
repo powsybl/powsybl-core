@@ -45,7 +45,7 @@ public class CgmesBoundary {
                 String id = node.getId("Node");
                 nodes.add(id);
                 nodesName.put(id, node.get("Name"));
-                if (node.containsKey("description") && node.getId("description").contains("HVDC")) {
+                if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
                     hvdcNodes.add(id);
                     if (node.containsKey("dcLineEnergyIdentCodeEic")) {
                         dcLineAtNodes.put(id, node.getId("dcLineEnergyIdentCodeEic"));
