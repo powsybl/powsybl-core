@@ -25,7 +25,7 @@ class CgmesDanglingLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<Dang
 
     @Override
     protected CgmesDanglingLineBoundaryNode createExtension(DanglingLine extendable) {
-        return new CgmesDanglingLineBoundaryNodeImpl(isHvdc, Objects.requireNonNull(lineEnergyIdentificationCodeEic));
+        return new CgmesDanglingLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
     }
 
     @Override

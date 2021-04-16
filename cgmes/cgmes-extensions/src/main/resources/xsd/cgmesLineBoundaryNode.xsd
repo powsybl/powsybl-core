@@ -12,7 +12,7 @@
     <xs:element name="cgmesDanglingLineBoundaryNode">
         <xs:complexType>
             <xs:attribute name="isHvdc" use="required" type="xs:boolean"/>
-            <xs:attribute name="lineEnergyIdentificationCodeEic" use="required" type="clbn:nonEmptyString"/>
+            <xs:attribute name="lineEnergyIdentificationCodeEic" use="optional" type="clbn:nonEmptyString"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

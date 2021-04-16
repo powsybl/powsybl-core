@@ -10,6 +10,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.DanglingLine;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -21,7 +22,7 @@ class CgmesDanglingLineBoundaryNodeImpl extends AbstractExtension<DanglingLine> 
 
     CgmesDanglingLineBoundaryNodeImpl(boolean isHvdc, String lineEnergyIdentificationCodeEic) {
         this.isHvdc = isHvdc;
-        this.lineEnergyIdentificationCodeEic = Objects.requireNonNull(lineEnergyIdentificationCodeEic);
+        this.lineEnergyIdentificationCodeEic = lineEnergyIdentificationCodeEic;
     }
 
     @Override
@@ -30,7 +31,7 @@ class CgmesDanglingLineBoundaryNodeImpl extends AbstractExtension<DanglingLine> 
     }
 
     @Override
-    public String getLineEnergyIdentificationCodeEic() {
-        return lineEnergyIdentificationCodeEic;
+    public Optional<String> getLineEnergyIdentificationCodeEic() {
+        return Optional.ofNullable(lineEnergyIdentificationCodeEic);
     }
 }

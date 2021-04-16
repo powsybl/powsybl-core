@@ -29,7 +29,7 @@ class CgmesLineBoundaryNodeAdderImpl extends AbstractExtensionAdder<Line, CgmesL
         if (!extendable.isTieLine()) {
             throw new PowsyblException(String.format("Unexpected extendable: line %s is not a tie line", extendable.getId()));
         }
-        return new CgmesLineBoundaryNodeImpl(isHvdc, Objects.requireNonNull(lineEnergyIdentificationCodeEic));
+        return new CgmesLineBoundaryNodeImpl(isHvdc, lineEnergyIdentificationCodeEic);
     }
 
     @Override

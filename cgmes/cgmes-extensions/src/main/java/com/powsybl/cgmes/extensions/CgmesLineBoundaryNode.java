@@ -9,6 +9,8 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.Line;
 
+import java.util.Optional;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -16,7 +18,7 @@ public interface CgmesLineBoundaryNode extends Extension<Line> {
 
     boolean isHvdc();
 
-    String getLineEnergyIdentificationCodeEic();
+    Optional<String> getLineEnergyIdentificationCodeEic();
 
     @Override
     default String getName() {
