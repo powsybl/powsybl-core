@@ -9,6 +9,7 @@ package com.powsybl.security.converter;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.Writer;
+import java.util.Properties;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -37,4 +38,13 @@ public interface SecurityAnalysisResultExporter {
      */
     void export(SecurityAnalysisResult result, Writer writer);
 
+    /**
+     * Export a result of a security analysis
+     *
+     * @param result The result of the security analysis
+     * @param writer The writer used for the export
+     */
+    default void export(SecurityAnalysisResult result, Properties parameters, Writer writer) {
+        export(result, writer);
+    }
 }
