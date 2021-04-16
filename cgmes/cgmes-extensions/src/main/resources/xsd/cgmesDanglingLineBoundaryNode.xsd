@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:cdlbn="http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_dangling_line_boundary_node/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="cgmesDanglingLineBoundaryNode">
+        <xs:complexType>
+            <xs:attribute name="isHvdc" use="required" type="xs:boolean"/>
+            <xs:attribute name="lineEnergyIdentificationCodeEic" use="required" type="cdlbn:nonEmptyString"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
