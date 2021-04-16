@@ -9,8 +9,6 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.DanglingLine;
 
-import java.util.Objects;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */

@@ -10,8 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Line;
 
-import java.util.Objects;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */

@@ -9,7 +9,6 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.DanglingLine;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
