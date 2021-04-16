@@ -94,15 +94,22 @@ SELECT *
 # Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
-{
+{{
 { GRAPH ?graphBDTP {
     ?FullModel md:Model.profile ?modelProfile .
     FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
     ?Node
         a cim:TopologicalNode ;
         cim:IdentifiedObject.name ?Name .
-     OPTIONAL { ?Node cim:IdentifiedObject.description ?description }
+    OPTIONAL { ?Node cim:IdentifiedObject.description ?description }
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?Node     
 }}
+{ GRAPH ?graphBDEQ2 {
+    ?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?container .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?lineEnergyIdentCodeEic }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?lineEnergyIdentCodeEicContainer }   
+}}
+}
 UNION
 {
 { GRAPH ?graphBDEQ {
