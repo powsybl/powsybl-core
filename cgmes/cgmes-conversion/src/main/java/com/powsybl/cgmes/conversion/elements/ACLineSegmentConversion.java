@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 
@@ -212,7 +213,14 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         connect(adder, boundaryLine1.modelIidmVoltageLevelId, boundaryLine1.modelBus, boundaryLine1.modelTconnected,
             boundaryLine1.modelNode, boundaryLine2.modelIidmVoltageLevelId, boundaryLine2.modelBus,
             boundaryLine2.modelTconnected, boundaryLine2.modelNode);
-        return adder.add();
+        TieLine tieLine = adder.add();
+        if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
+            tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)
+                    .setHvdc(context.boundary().isHvdc(boundaryNode))
+                    .setLineEnergyIdentificationCodeEic(context.boundary().lineAtBoundary(boundaryNode))
+                    .add();
+        }
+        return tieLine;
     }
 
     private Line createQuadripole(BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {

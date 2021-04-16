@@ -112,8 +112,8 @@ UNION
         a cim:ConnectivityNode ;
         cim:IdentifiedObject.name ?Name ;
         cim:ConnectivityNode.ConnectivityNodeContainer ?container .
-    OPTIONAL { ?Node entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEic }
-    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?dcLineEnergyIdentCodeEicContainer }
+    OPTIONAL { ?Node entsoe:IdentifiedObject.energyIdentCodeEic ?lineEnergyIdentCodeEic }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?lineEnergyIdentCodeEicContainer }
     OPTIONAL { ?Node cim:IdentifiedObject.description ?description }
 }}
 { GRAPH ?grapBDTP2 {
