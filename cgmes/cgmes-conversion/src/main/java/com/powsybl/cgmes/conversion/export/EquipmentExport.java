@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
@@ -299,6 +300,8 @@ public final class EquipmentExport {
                 if (reactiveLimits instanceof MinMaxReactiveLimits) {
                     minQ = ((MinMaxReactiveLimits) reactiveLimits).getMinQ();
                     maxQ = ((MinMaxReactiveLimits) reactiveLimits).getMaxQ();
+                } else {
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + line.getNameOrId());
                 }
             }
             String equivalentInjectionId = CgmesExportUtil.getUniqueId();
