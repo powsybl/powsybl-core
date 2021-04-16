@@ -196,9 +196,9 @@ public class Conversion {
         Set<String> delayedBoundaryNodes = new HashSet<>();
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes);
+        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
 
-        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context);
