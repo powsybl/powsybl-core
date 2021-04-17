@@ -1,10 +1,10 @@
 module com.powsybl.commons {
-    requires auto.service; // No Automatic-Module-Name
     requires com.fasterxml.jackson.databind; // Real module
     requires com.google.common;
-    requires java.xml.bind; // Real module
+    requires java.xml; // Real module
     requires org.apache.commons.compress;
     requires org.apache.commons.lang3;
+    requires org.apache.commons.text;
     requires org.joda.time;
     requires org.slf4j;
     requires org.yaml.snakeyaml;
