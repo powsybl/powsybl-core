@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -40,10 +41,17 @@ public final class LoadFlow {
             this.provider = Objects.requireNonNull(provider);
         }
 
-        public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+        public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            return provider.run(network, computationManager, workingStateId, parameters);
+            Objects.requireNonNull(reporter);
+            return reporter == Reporter.NO_OP
+                ? provider.run(network, computationManager, workingStateId, parameters)
+                : provider.run(network, computationManager, workingStateId, parameters, reporter);
+        }
+
+        public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+            return runAsync(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
         }
 
         public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -58,10 +66,17 @@ public final class LoadFlow {
             return runAsync(network, LoadFlowParameters.load());
         }
 
-        public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+        public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters, Reporter reporter) {
             Objects.requireNonNull(workingStateId);
             Objects.requireNonNull(parameters);
-            return provider.run(network, computationManager, workingStateId, parameters).join();
+            Objects.requireNonNull(reporter);
+            return reporter == Reporter.NO_OP
+                ? provider.run(network, computationManager, workingStateId, parameters).join()
+                : provider.run(network, computationManager, workingStateId, parameters, reporter).join();
+        }
+
+        public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+            return run(network, workingStateId, computationManager, parameters, Reporter.NO_OP);
         }
 
         public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {

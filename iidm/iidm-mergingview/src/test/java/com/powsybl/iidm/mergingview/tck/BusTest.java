@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.mergingview.tck;
 
-import com.powsybl.iidm.network.tck.AbstractBusTest;
+import com.powsybl.iidm.network.tck.AbstractBusBreakerTest;
 
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public class BusTest extends AbstractBusTest { }
+public class BusTest extends AbstractBusBreakerTest { }

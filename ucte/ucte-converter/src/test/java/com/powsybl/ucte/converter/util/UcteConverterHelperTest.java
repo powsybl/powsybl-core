@@ -6,8 +6,6 @@
  */
 package com.powsybl.ucte.converter.util;
 
-import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
-
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -17,6 +15,7 @@ import com.powsybl.ucte.converter.UcteImporter;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 

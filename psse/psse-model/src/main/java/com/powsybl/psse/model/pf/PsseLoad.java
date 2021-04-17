@@ -9,7 +9,6 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -18,7 +17,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseLoad extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"id", "loadid"}, defaultNullRead = "1")
@@ -58,6 +56,7 @@ public class PsseLoad extends PsseVersioned {
     private int scale = 1;
 
     @Parsed
+    @Revision(since = 33)
     private int intrpt = 0;
 
     @Parsed
@@ -181,10 +180,12 @@ public class PsseLoad extends PsseVersioned {
     }
 
     public int getIntrpt() {
+        checkVersion("intrpt");
         return intrpt;
     }
 
     public void setIntrpt(int intrpt) {
+        checkVersion("intrpt");
         this.intrpt = intrpt;
     }
 

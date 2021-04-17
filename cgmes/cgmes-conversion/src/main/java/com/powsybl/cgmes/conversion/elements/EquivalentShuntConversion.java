@@ -29,6 +29,6 @@ public class EquivalentShuntConversion extends AbstractConductingEquipmentConver
                     .add();
         identify(adder);
         connect(adder);
-        addAliases(adder.add());
+        addAliasesAndProperties(adder.add());
     }
 }

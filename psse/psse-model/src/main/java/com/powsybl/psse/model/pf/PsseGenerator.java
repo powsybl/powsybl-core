@@ -10,7 +10,6 @@ import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Nested;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -19,7 +18,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseGenerator extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"id", "machid"}, defaultNullRead = "1")

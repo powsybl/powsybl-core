@@ -78,7 +78,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
                     .setQ0(fother.q() + f.q())
                     .add();
         }
-        // We do not call addAliases(dl) !
+        // We do not call addAliasesAndProperties(dl) !
         // Because we do not want to add this equivalent injection
         // terminal id as a generic "Terminal" alias of the dangling line,
         // Terminal1 and Terminal2 aliases should be used for
@@ -99,10 +99,9 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         EnergySource energySource = EnergySource.OTHER;
 
         Regulation regulation = getRegulation();
-        GeneratorAdder adder = voltageLevel().newGenerator()
-                .setMinP(minP)
-                .setMaxP(maxP)
-                .setVoltageRegulatorOn(regulation.status)
+        GeneratorAdder adder = voltageLevel().newGenerator();
+        setMinPMaxP(adder, minP, maxP);
+        adder.setVoltageRegulatorOn(regulation.status)
                 .setTargetP(regulation.targetP)
                 .setTargetQ(regulation.targetQ)
                 .setTargetV(regulation.targetV)
@@ -110,7 +109,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         identify(adder);
         connect(adder);
         Generator g = adder.add();
-        addAliases(g);
+        addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
     }

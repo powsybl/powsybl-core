@@ -7,9 +7,9 @@
 
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import com.powsybl.cgmes.conversion.extensions.CgmesSshMetadata;
-import com.powsybl.cgmes.conversion.extensions.CgmesSvMetadata;
-import com.powsybl.cgmes.conversion.extensions.CimCharacteristics;
+import com.powsybl.cgmes.extensions.CgmesSshMetadata;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
+import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;

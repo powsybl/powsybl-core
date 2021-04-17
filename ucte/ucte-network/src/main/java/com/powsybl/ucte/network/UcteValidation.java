@@ -6,6 +6,11 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
+import com.powsybl.ucte.network.ext.UcteReportConstants;
+
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
  */
@@ -23,7 +28,7 @@ public final class UcteValidation {
     }
 
     // Data: line characteristics
-    public static void checkValidLineCharacteristics(UcteLine line) {
+    public static void checkValidLineCharacteristics(UcteLine line, Reporter reporter) {
         String lineId = line.getId().toString();
         switch (line.getStatus()) {
             case EQUIVALENT_ELEMENT_IN_OPERATION:
@@ -31,22 +36,57 @@ public final class UcteValidation {
             case REAL_ELEMENT_IN_OPERATION:
             case REAL_ELEMENT_OUT_OF_OPERATION:
                 if (line.getResistance() < ZERO_EPS) {
+                    reporter.report(Report.builder()
+                        .withKey("negativeLineResistance")
+                        .withDefaultMessage("${lineId} - Real line resistance cannot be negative (${resistance} ohm)")
+                        .withValue("lineId", lineId)
+                        .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
+                        .withSeverity(UcteReportConstants.ERROR_SEVERITY)
+                        .build());
                     LOGGER.error(lineId, "Real line resistance cannot be negative", line.getResistance() + " ohm");
                 }
-                if (Math.abs(line.getReactance()) > ZERO_EPS) {
-                    LOGGER.warn(lineId, "Busbar coupler reactance must be zero. For lines this value must be larger than 0.05 ohm",
+                if (Math.abs(line.getReactance()) < REACTANCE_EPS) {
+                    reporter.report(Report.builder()
+                        .withKey("epsilonLineReactance")
+                        .withDefaultMessage("${lineId} - Real line reactance must be larger than 0.05 ohm (${reactance} ohm)")
+                        .withValue("lineId", lineId)
+                        .withTypedValue("reactance", line.getReactance(), TypedValue.REACTANCE)
+                        .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                        .build());
+                    LOGGER.warn(lineId, "Real line reactance must be larger than 0.05 ohm",
                             line.getReactance() + " ohm");
                 }
                 break;
             case BUSBAR_COUPLER_IN_OPERATION:
             case BUSBAR_COUPLER_OUT_OF_OPERATION:
                 if (Math.abs(line.getResistance()) > ZERO_EPS) {
+                    reporter.report(Report.builder()
+                        .withKey("nonZeroBusbarCouplerResistance")
+                        .withDefaultMessage("${lineId} - Busbar coupler resistance must be zero (${resistance} ohm)")
+                        .withValue("lineId", lineId)
+                        .withTypedValue("resistance", line.getResistance(), TypedValue.RESISTANCE)
+                        .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                        .build());
                     LOGGER.warn(lineId, "Busbar coupler resistance must be zero", line.getResistance() + " ohm");
                 }
                 if (Math.abs(line.getReactance()) > ZERO_EPS) {
+                    reporter.report(Report.builder()
+                        .withKey("nonZeroBusbarCouplerReactance")
+                        .withDefaultMessage("${lineId} - Busbar coupler reactance must be zero (${reactance} ohm)")
+                        .withValue("lineId", lineId)
+                        .withTypedValue("reactance", line.getReactance(), TypedValue.REACTANCE)
+                        .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                        .build());
                     LOGGER.warn(lineId, "Busbar coupler reactance must be zero", line.getReactance() + " ohm");
                 }
                 if (Math.abs(line.getSusceptance()) > ZERO_EPS) {
+                    reporter.report(Report.builder()
+                        .withKey("nonZeroBusbarCouplerSusceptance")
+                        .withDefaultMessage("${lineId} - Busbar coupler susceptance must be zero (${susceptance} ohm)")
+                        .withValue("lineId", lineId)
+                        .withTypedValue("susceptance", line.getSusceptance(), TypedValue.SUSCEPTANCE)
+                        .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                        .build());
                     LOGGER.warn(lineId, "Busbar coupler susceptance must be zero", line.getSusceptance() + " S");
                 }
                 break;
@@ -56,30 +96,44 @@ public final class UcteValidation {
     }
 
     // Data: transformer characteristics
-    public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer) {
+    public static void checkValidTransformerCharacteristics(UcteTransformer ucteTransformer, Reporter reporter) {
         String transformerId = ucteTransformer.getId().toString();
-        if (ucteTransformer.getNominalPower() > ZERO_EPS) {
+        if (ucteTransformer.getNominalPower() < ZERO_EPS) {
+            reporter.report(Report.builder()
+                .withKey("epsilonTransformerNominalPower")
+                .withDefaultMessage("${transformerId} - Value must be positive, blank and zero is not allowed (${nominalPower} ohm)")
+                .withValue("transformerId", transformerId)
+                .withValue("nominalPower", ucteTransformer.getNominalPower())
+                .withSeverity(UcteReportConstants.ERROR_SEVERITY)
+                .build());
             LOGGER.error(transformerId, "Value must be positive, blank and zero is not allowed", ucteTransformer.getNominalPower() + " MW");
         }
-        if (ucteTransformer.getResistance() > ZERO_EPS) {
+        if (ucteTransformer.getResistance() < ZERO_EPS) {
             LOGGER.error(transformerId, "Blank is not allowed, real transformer resistance must be greater than or equal to zero",
                     ucteTransformer.getResistance() + " ohm");
         }
-        if (ucteTransformer.getReactance() > REACTANCE_EPS) {
+        if (ucteTransformer.getReactance() < REACTANCE_EPS) {
             LOGGER.error(transformerId, "Blank is not allowed, absolute value of reactance must be greater than 0.05 ohm", ucteTransformer.getReactance() + " ohm");
         }
-        if (ucteTransformer.getSusceptance() > ZERO_EPS) {
+        if (ucteTransformer.getSusceptance() < ZERO_EPS) {
             LOGGER.warn(transformerId, "Blank is not allowed", ucteTransformer.getSusceptance() + " S");
         }
-        if (ucteTransformer.getConductance() > ZERO_EPS) {
+        if (ucteTransformer.getConductance() < ZERO_EPS) {
             LOGGER.warn(transformerId, "Transformer shunt conductance must be greater than or equal to zero", ucteTransformer.getConductance() + " S");
         }
     }
 
     // Data: transformer regulation
     // Phase regulation
-    public static void checkPhaseRegulation(UctePhaseRegulation uctePhaseRegulation, UcteElementId transfoId) {
+    public static void checkPhaseRegulation(UctePhaseRegulation uctePhaseRegulation, UcteElementId transfoId, Reporter reporter) {
         if (uctePhaseRegulation.getDu() < ZERO_EPS || uctePhaseRegulation.getDu() > DU_LIMIT) {
+            reporter.report(Report.builder()
+                .withKey("wrongPhaseRegulationDu")
+                .withDefaultMessage("${transfoId} - For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
+                .withValue("transfoId", transfoId.toString())
+                .withValue("du", uctePhaseRegulation.getDu())
+                .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                .build());
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer phase regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     uctePhaseRegulation.getDu() + " %");
         }
@@ -89,8 +143,15 @@ public final class UcteValidation {
     }
 
     // Angle regulation
-    public static void checkAngleRegulation(UcteAngleRegulation ucteAngleRegulation, UcteElementId transfoId) {
+    public static void checkAngleRegulation(UcteAngleRegulation ucteAngleRegulation, UcteElementId transfoId, Reporter reporter) {
         if (ucteAngleRegulation.getDu() < ZERO_EPS || ucteAngleRegulation.getDu() > DU_LIMIT) {
+            reporter.report(Report.builder()
+                .withKey("wrongAngleRegulationDu")
+                .withDefaultMessage("${transfoId} - For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 % (${du} %)")
+                .withValue("transfoId", transfoId.toString())
+                .withValue("du", ucteAngleRegulation.getDu())
+                .withSeverity(UcteReportConstants.WARN_SEVERITY)
+                .build());
             LOGGER.warn(transfoId.toString(), "For LTCs, transformer angle regulation voltage per tap should not be zero. Its absolute value should not be above 6 %",
                     ucteAngleRegulation.getDu() + " %");
         }

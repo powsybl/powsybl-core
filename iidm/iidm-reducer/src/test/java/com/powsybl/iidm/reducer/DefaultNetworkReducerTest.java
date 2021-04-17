@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -170,16 +169,25 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
-    public void testFailure() {
-        thrown.expect(PowsyblException.class);
-        thrown.expectMessage("The active power of 'NHV1_NHV2_1' (VLHV1) is not set. Do you forget to compute the flows?");
-
+    public void testWithNoLoadflowResults() {
         Network network = EurostagTutorialExample1Factory.create();
 
         NetworkReducer reducer = NetworkReducer.builder()
                 .withNetworkPredicate(IdentifierNetworkPredicate.of("P1"))
                 .build();
         reducer.reduce(network);
+
+        Load load1 = network.getLoad(NHV1_NHV2_1);
+        assertEquals(0.0, load1.getP0(), 0.0);
+        assertEquals(0.0, load1.getQ0(), 0.0);
+        assertTrue(Double.isNaN(load1.getTerminal().getP()));
+        assertTrue(Double.isNaN(load1.getTerminal().getQ()));
+
+        Load load2 = network.getLoad(NHV1_NHV2_2);
+        assertEquals(0.0, load2.getP0(), 0.0);
+        assertEquals(0.0, load2.getQ0(), 0.0);
+        assertTrue(Double.isNaN(load2.getTerminal().getP()));
+        assertTrue(Double.isNaN(load2.getTerminal().getQ()));
     }
 
     @Test

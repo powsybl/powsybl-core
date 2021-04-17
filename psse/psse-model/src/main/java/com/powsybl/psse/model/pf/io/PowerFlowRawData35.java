@@ -33,20 +33,22 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
     @Override
     public PssePowerFlowModel read(ReadOnlyDataSource dataSource, String ext, Context context) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+
             PsseCaseIdentification caseIdentification = new CaseIdentificationData().readHead(reader, context);
             caseIdentification.validate();
-
             PssePowerFlowModel model = new PssePowerFlowModel(caseIdentification);
-            // TODO Complete discarded record groups
+
             skip(SYSTEM_WIDE, reader);
             model.addBuses(new BusData().read(reader, context));
             model.addLoads(new LoadData().read(reader, context));
             model.addFixedShunts(new FixedBusShuntData().read(reader, context));
             model.addGenerators(new GeneratorData().read(reader, context));
             model.addNonTransformerBranches(new NonTransformerBranchData().read(reader, context));
+
             skip(SYSTEM_SWITCHING_DEVICE, reader);
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
+            // Complete discarded record groups
             skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
             skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
@@ -79,6 +81,7 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
     }
 
     private void write(PssePowerFlowModel model, Context context, BufferedOutputStream outputStream) {
+
         new CaseIdentificationData().writeHead(model.getCaseIdentification(), context, outputStream);
 
         // Record group comments:
@@ -95,26 +98,22 @@ public class PowerFlowRawData35 extends PowerFlowRawDataAllVersions {
         new FixedBusShuntData().write(model.getFixedShunts(), context, outputStream);
         new GeneratorData().write(model.getGenerators(), context, outputStream);
         new NonTransformerBranchData().write(model.getNonTransformerBranches(), context, outputStream);
+
         writeEmpty(SYSTEM_SWITCHING_DEVICE, outputStream);
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
-
         writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
         writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
         new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
         writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
-
         new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
-
         new ZoneData().write(model.getZones(), context, outputStream);
         new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
-
         new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
         writeEmpty(GNE_DEVICE, outputStream);
         writeEmpty(INDUCTION_MACHINE, outputStream);
-
         writeEmpty(SUBSTATION, outputStream);
 
         writeQ(outputStream);
