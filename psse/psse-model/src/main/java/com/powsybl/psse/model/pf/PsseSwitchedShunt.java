@@ -9,7 +9,6 @@ package com.powsybl.psse.model.pf;
 import com.powsybl.psse.model.PsseVersioned;
 import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -18,7 +17,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseSwitchedShunt extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed

@@ -15,12 +15,16 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.commons.reporter.TypedValue;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
+import com.powsybl.ucte.network.ext.UcteReportConstants;
 import com.powsybl.ucte.network.ext.UcteSubstation;
 import com.powsybl.ucte.network.ext.UcteVoltageLevel;
 import com.powsybl.ucte.network.io.UcteReader;
@@ -101,7 +105,7 @@ public class UcteImporter implements Importer {
         return res == EntsoeGeographicalCode.DE ? null : res;
     }
 
-    private static void createBuses(UcteNetworkExt ucteNetwork, UcteVoltageLevel ucteVoltageLevel, VoltageLevel voltageLevel) {
+    private static void createBuses(UcteNetworkExt ucteNetwork, UcteVoltageLevel ucteVoltageLevel, VoltageLevel voltageLevel, Reporter reporter) {
         for (UcteNodeCode ucteNodeCode : ucteVoltageLevel.getNodes()) {
             UcteNode ucteNode = ucteNetwork.getNode(ucteNodeCode);
 
@@ -110,6 +114,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
+            reporter.report(Report.builder()
+                .withKey("createBus")
+                .withDefaultMessage("Create bus ${bus}")
+                .withValue("bus", ucteNodeCode.toString())
+                .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+                .build());
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Create bus '{}'", ucteNodeCode);
             }
@@ -135,9 +145,12 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void createBuses(UcteNetworkExt ucteNetwork, Network network) {
+    private static void createBuses(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
+        Reporter busesReporter = reporter.createSubReporter("createBuses", "Create buses");
         for (UcteSubstation ucteSubstation : ucteNetwork.getSubstations()) {
 
+            Reporter substationReporter = busesReporter.createSubReporter("createBusesSubstation",
+                "Create buses for substation ${substation}", "substation", ucteSubstation.getName());
             // skip substations with only one Xnode
             UcteNodeCode firstUcteNodeCode = ucteSubstation.getNodes().stream()
                     .filter(code -> code.getUcteCountryCode() != UcteCountryCode.XX)
@@ -147,6 +160,12 @@ public class UcteImporter implements Importer {
                 continue;
             }
 
+            substationReporter.report(Report.builder()
+                .withKey("createSubstation")
+                .withDefaultMessage("Create substation ${substationName}")
+                .withTypedValue("substationName", ucteSubstation.getName(), TypedValue.SUBSTATION)
+                .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+                .build());
             LOGGER.trace("Create substation '{}'", ucteSubstation.getName());
 
             Substation substation = network.newSubstation()
@@ -162,6 +181,12 @@ public class UcteImporter implements Importer {
             for (UcteVoltageLevel ucteVoltageLevel : ucteSubstation.getVoltageLevels()) {
                 UcteVoltageLevelCode ucteVoltageLevelCode = ucteVoltageLevel.getNodes().iterator().next().getVoltageLevelCode();
 
+                substationReporter.report(Report.builder()
+                    .withKey("createVoltageLevel")
+                    .withDefaultMessage("Create voltage level ${voltageLevelName}")
+                    .withTypedValue("voltageLevelName", ucteVoltageLevel.getName(), TypedValue.VOLTAGE_LEVEL)
+                    .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+                    .build());
                 LOGGER.trace("Create voltage level '{}'", ucteVoltageLevel.getName());
 
                 VoltageLevel voltageLevel = substation.newVoltageLevel()
@@ -170,8 +195,9 @@ public class UcteImporter implements Importer {
                         .setTopologyKind(TopologyKind.BUS_BREAKER)
                         .add();
 
-                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel);
+                createBuses(ucteNetwork, ucteVoltageLevel, voltageLevel, substationReporter);
             }
+
         }
     }
 
@@ -259,8 +285,15 @@ public class UcteImporter implements Importer {
 
     private static void createDanglingLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
-                                           Network network) {
+                                           Network network, Reporter reporter) {
 
+        reporter.report(Report.builder()
+            .withKey("danglingLineCreation")
+            .withDefaultMessage("Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')")
+            .withValue("ucteLine", ucteLine.getId().toString())
+            .withValue("xnodeCode", xnode.getCode().toString())
+            .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+            .build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
         float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
@@ -317,7 +350,13 @@ public class UcteImporter implements Importer {
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
                                       UcteLine ucteLine,
                                       UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
-                                      UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+                                      UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
+        reporter.report(Report.builder()
+            .withKey("couplerCreation")
+            .withDefaultMessage("Create coupler '${ucteLine}'")
+            .withValue("ucteLine", ucteLine.getId().toString())
+            .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+            .build());
         LOGGER.trace("Create coupler '{}'", ucteLine.getId());
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -329,21 +368,27 @@ public class UcteImporter implements Importer {
         if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
             // coupler connected to a XNODE (side 1)
-            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode1), nodeCode2, ucteVoltageLevel2, network);
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode1), nodeCode2, ucteVoltageLevel2, network, reporter);
         } else if (nodeCode2.getUcteCountryCode() == UcteCountryCode.XX &&
                 nodeCode1.getUcteCountryCode() != UcteCountryCode.XX) {
             // coupler connected to a XNODE (side 2)
-            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode2), nodeCode1, ucteVoltageLevel1, network);
+            createDanglingLine(ucteLine, connected, ucteNetwork.getNode(nodeCode2), nodeCode1, ucteVoltageLevel1, network, reporter);
         } else {
             double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
-            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z, reporter);
         }
     }
 
     private static void createCouplerFromLowImpedanceLine(Network network, UcteLine ucteLine,
                                                           UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                                           UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
-                                                          boolean connected, double z) {
+                                                          boolean connected, double z, Reporter reporter) {
+        reporter.report(Report.builder()
+            .withKey("couplerLowImpedanceCreation")
+            .withDefaultMessage("Create coupler '${ucteLine}' from low impedance line (${impedance} ohm)")
+            .withValue("ucteLine", ucteLine.getId().toString())
+            .withTypedValue("impedance", z, TypedValue.IMPEDANCE)
+            .build());
         LOGGER.info("Create coupler '{}' from low impedance line ({} ohm)", ucteLine.getId(), z);
 
         if (ucteVoltageLevel1 != ucteVoltageLevel2) {
@@ -366,7 +411,13 @@ public class UcteImporter implements Importer {
 
     private static void createStandardLine(Network network, UcteLine ucteLine, UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
                                            UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2,
-                                           boolean connected) {
+                                           boolean connected, Reporter reporter) {
+        reporter.report(Report.builder()
+            .withKey("standardLineCreation")
+            .withDefaultMessage("Create line '${ucteLine}'")
+            .withValue("ucteLine", ucteLine.getId().toString())
+            .withSeverity(UcteReportConstants.TRACE_SEVERITY)
+            .build());
         LOGGER.trace("Create line '{}'", ucteLine.getId());
 
         Line l = network.newLine()
@@ -403,7 +454,7 @@ public class UcteImporter implements Importer {
     private static void createLine(UcteNetworkExt ucteNetwork, Network network,
                                    UcteLine ucteLine,
                                    UcteNodeCode nodeCode1, UcteNodeCode nodeCode2,
-                                   UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2) {
+                                   UcteVoltageLevel ucteVoltageLevel1, UcteVoltageLevel ucteVoltageLevel2, Reporter reporter) {
         boolean connected = isConnected(ucteLine);
 
         double z = Math.hypot(ucteLine.getResistance(), ucteLine.getReactance());
@@ -412,27 +463,27 @@ public class UcteImporter implements Importer {
                 && nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                 && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z);
+            createCouplerFromLowImpedanceLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, z, reporter);
         } else {
 
             if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
-                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected);
+                createStandardLine(network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, connected, reporter);
 
             } else if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode1);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
+                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network, reporter);
 
             } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode2);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
+                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network, reporter);
 
             } else {
                 throw new UcteException("Line between 2 Xnodes");
@@ -440,7 +491,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void createLines(UcteNetworkExt ucteNetwork, Network network) {
+    private static void createLines(UcteNetworkExt ucteNetwork, Network network, Reporter reporter) {
+        Reporter linesReporter = reporter.createSubReporter("createLines", "Create lines");
         for (UcteLine ucteLine : ucteNetwork.getLines()) {
             UcteNodeCode nodeCode1 = ucteLine.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteLine.getId().getNodeCode2();
@@ -450,14 +502,14 @@ public class UcteImporter implements Importer {
             switch (ucteLine.getStatus()) {
                 case BUSBAR_COUPLER_IN_OPERATION:
                 case BUSBAR_COUPLER_OUT_OF_OPERATION:
-                    createCoupler(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
+                    createCoupler(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, linesReporter);
                     break;
 
                 case REAL_ELEMENT_IN_OPERATION:
                 case REAL_ELEMENT_OUT_OF_OPERATION:
                 case EQUIVALENT_ELEMENT_IN_OPERATION:
                 case EQUIVALENT_ELEMENT_OUT_OF_OPERATION:
-                    createLine(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2);
+                    createLine(ucteNetwork, network, ucteLine, nodeCode1, nodeCode2, ucteVoltageLevel1, ucteVoltageLevel2, linesReporter);
                     break;
 
                 default:
@@ -470,8 +522,9 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create ratio tap changer '{}'", transformer.getId());
 
+        int lowerTap = getLowTapPosition(uctePhaseRegulation, transformer);
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
-                .setLowTapPosition(-uctePhaseRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
                 .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
         if (!Float.isNaN(uctePhaseRegulation.getU())) {
@@ -481,7 +534,7 @@ public class UcteImporter implements Importer {
                     .setTargetDeadband(0.0)
                     .setRegulationTerminal(transformer.getTerminal1());
         }
-        for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
             rtca.beginStep()
                     .setRho(rho)
@@ -497,14 +550,14 @@ public class UcteImporter implements Importer {
     private static void createPhaseTapChanger(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
 
         LOGGER.trace("Create phase tap changer '{}'", transformer.getId());
-
+        int lowerTap = getLowTapPosition(ucteAngleRegulation, transformer);
         PhaseTapChangerAdder ptca = transformer.newPhaseTapChanger()
-                .setLowTapPosition(-ucteAngleRegulation.getN())
+                .setLowTapPosition(lowerTap)
                 .setTapPosition(ucteAngleRegulation.getNp())
                 .setRegulationValue(ucteAngleRegulation.getP())
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
-        for (int i = -ucteAngleRegulation.getN(); i <= ucteAngleRegulation.getN(); i++) {
+        for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             float rho;
             float alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
@@ -533,6 +586,30 @@ public class UcteImporter implements Importer {
                     .endStep();
         }
         ptca.add();
+    }
+
+    private static int getLowTapPosition(UctePhaseRegulation uctePhaseRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, uctePhaseRegulation.getN(), uctePhaseRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(UcteAngleRegulation ucteAngleRegulation, TwoWindingsTransformer transformer) {
+        return getLowTapPosition(transformer, ucteAngleRegulation.getN(), ucteAngleRegulation.getNp());
+    }
+
+    private static int getLowTapPosition(TwoWindingsTransformer transformer, int initialTapsNumber, int currentTapPosition) {
+        int floor;
+        if (initialTapsNumber >= Math.abs(currentTapPosition)) {
+            floor = -initialTapsNumber;
+        } else {
+            LOGGER.warn("Tap position for transformer '{}' is '{}', absolute value should be equal or lower than number of Taps '{}'", transformer.getId(), currentTapPosition, initialTapsNumber);
+            if (currentTapPosition < 0) {
+                floor = currentTapPosition;
+            } else {
+                floor  = -currentTapPosition;
+            }
+            LOGGER.info("Number of Taps for transformer '{}' is extended from '{}', to '{}'", transformer.getId(), initialTapsNumber, Math.abs(floor));
+        }
+        return floor;
     }
 
     private static TwoWindingsTransformer createXnodeTransfo(UcteNetworkExt ucteNetwork, UcteTransformer ucteTransfo, boolean connected,
@@ -654,7 +731,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName) {
+    private static void createTransformers(UcteNetworkExt ucteNetwork, Network network, EntsoeFileName ucteFileName, Reporter reporter) {
+        Reporter transfoReporter = reporter.createSubReporter("createTransformers", "Create transformers");
         for (UcteTransformer ucteTransfo : ucteNetwork.getTransformers()) {
             UcteNodeCode nodeCode1 = ucteTransfo.getId().getNodeCode1();
             UcteNodeCode nodeCode2 = ucteTransfo.getId().getNodeCode2();
@@ -663,6 +741,8 @@ public class UcteImporter implements Importer {
             UcteSubstation ucteSubstation = ucteVoltageLevel1.getSubstation();
             Substation substation = network.getSubstation(ucteSubstation.getName());
 
+            transfoReporter.report("createTransformer",
+                "Create transformer '${transformerId}'", "transformerId", ucteTransfo.getId().toString());
             LOGGER.trace("Create transformer '{}'", ucteTransfo.getId());
 
             boolean connected = isConnected(ucteTransfo);
@@ -712,7 +792,6 @@ public class UcteImporter implements Importer {
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
             addNominalPowerProperty(ucteTransfo, transformer);
         }
-
     }
 
     private static String getBusId(Bus bus) {
@@ -972,14 +1051,14 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
         try {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
-                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
+                UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader, reporter), LINE_MIN_Z);
                 String fileName = dataSource.getBaseName();
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
@@ -988,13 +1067,14 @@ public class UcteImporter implements Importer {
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 
-                createBuses(ucteNetwork, network);
-                createLines(ucteNetwork, network);
-                createTransformers(ucteNetwork, network, ucteFileName);
+                createBuses(ucteNetwork, network, reporter);
+                createLines(ucteNetwork, network, reporter);
+                createTransformers(ucteNetwork, network, ucteFileName, reporter);
 
                 mergeXnodeDanglingLines(ucteNetwork, network);
 
                 stopwatch.stop();
+
                 LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
                 return network;

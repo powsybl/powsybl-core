@@ -7,28 +7,13 @@
  */
 package com.powsybl.ucte.network.io;
 
-import com.powsybl.ucte.network.UcteAngleRegulation;
-import com.powsybl.ucte.network.UcteAngleRegulationType;
-import com.powsybl.ucte.network.UcteLine;
-import com.powsybl.ucte.network.UcteNodeCode;
-import com.powsybl.ucte.network.UcteTransformer;
-import com.powsybl.ucte.network.UcteNodeStatus;
-import com.powsybl.ucte.network.UcteNodeTypeCode;
-import com.powsybl.ucte.network.UcteCountryCode;
-import com.powsybl.ucte.network.UcteNode;
-import com.powsybl.ucte.network.UctePowerPlantType;
-import com.powsybl.ucte.network.UcteFormatVersion;
-import com.powsybl.ucte.network.UcteElementId;
-import com.powsybl.ucte.network.UcteElementStatus;
-import com.powsybl.ucte.network.UcteNetwork;
-import com.powsybl.ucte.network.UcteNetworkImpl;
-import com.powsybl.ucte.network.UctePhaseRegulation;
-import com.powsybl.ucte.network.UcteRegulation;
-import com.powsybl.ucte.network.UcteVoltageLevelCode;
-import java.io.BufferedReader;
-import java.io.IOException;
+import com.powsybl.commons.reporter.Reporter;
+import com.powsybl.ucte.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  *
@@ -40,7 +25,7 @@ public class UcteReader {
 
     private boolean firstCommendBlockRead = false;
 
-    private void readCommentBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readCommentBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.trace("Reading comment block");
         if (!firstCommendBlockRead && parser.getParsedRecordTypes().size() > 1) {
             throw new UcteIoException("First block must be a comment block");
@@ -55,7 +40,7 @@ public class UcteReader {
         firstCommendBlockRead = true;
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 if (!skipComments) {
                     network.getComments().add(parser.getLine());
@@ -101,7 +86,7 @@ public class UcteReader {
         network.addNode(node);
     }
 
-    private void readNodeBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readNodeBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.trace("Reading node block");
         String countryIsoCode = null;
         while (parser.nextLine()) {
@@ -110,7 +95,7 @@ public class UcteReader {
                 if (recordType == UcteRecordType.Z) {
                     countryIsoCode = parser.parseString(3, 5);
                 } else {
-                    parseRecords(parser, network);
+                    parseRecords(parser, network, reporter);
                 }
             } else {
                 if (countryIsoCode == null) {
@@ -139,11 +124,11 @@ public class UcteReader {
         network.addLine(l);
     }
 
-    private void readLineBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readLineBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.trace("Reading line block");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 parseLine(parser, network);
             }
@@ -168,11 +153,11 @@ public class UcteReader {
         network.addTransformer(transfo);
     }
 
-    private void readTransformerBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readTransformerBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.trace("Reading transformer block");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 parseTransformer(parser, network);
             }
@@ -211,64 +196,65 @@ public class UcteReader {
         network.addRegulation(regulation);
     }
 
-    private void readRegulationBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readRegulationBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.trace("Reading regulation block");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 parseRegulation(parser, network);
             }
         }
     }
 
-    private void readTtBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readTtBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.warn("TT block not supported");
+        reporter.report("UnsupportedTTBlock", "TT block not supported");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 // TODO
             }
         }
     }
 
-    private void readExchangeBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void readExchangeBlock(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         LOGGER.warn("E block not supported");
         while (parser.nextLine()) {
             if (parser.scanRecordType() != null) {
-                parseRecords(parser, network);
+                parseRecords(parser, network, reporter);
             } else {
                 // TODO
             }
         }
     }
 
-    private void parseRecords(UcteRecordParser parser, UcteNetwork network) throws IOException {
+    private void parseRecords(UcteRecordParser parser, UcteNetwork network, Reporter reporter) throws IOException {
         do {
             UcteRecordType recordType = parser.scanRecordType();
             if (recordType != null) {
                 switch (recordType) {
                     case C:
-                        readCommentBlock(parser, network);
+                        readCommentBlock(parser, network, reporter);
                         break;
                     case N:
-                        readNodeBlock(parser, network);
+                        readNodeBlock(parser, network, reporter);
                         break;
                     case L:
-                        readLineBlock(parser, network);
+                        readLineBlock(parser, network, reporter);
                         break;
                     case T:
-                        readTransformerBlock(parser, network);
+                        readTransformerBlock(parser, network, reporter);
                         break;
                     case R:
-                        readRegulationBlock(parser, network);
+                        readRegulationBlock(parser, network, reporter);
                         break;
                     case TT:
-                        readTtBlock(parser, network);
+                        readTtBlock(parser, network, reporter);
                         break;
                     case E:
-                        readExchangeBlock(parser, network);
+                        readExchangeBlock(parser, network, reporter);
                         break;
                     default:
                         throw new UcteIoException("Unknown record type " + recordType);
@@ -279,13 +265,17 @@ public class UcteReader {
         } while (parser.nextLine());
     }
 
-    public UcteNetwork read(BufferedReader reader) throws IOException {
+    public UcteNetwork read(BufferedReader reader, Reporter reporter) throws IOException {
+
+        Reporter readReporter = reporter.createSubReporter("UcteReading", "Reading UCTE network file");
         long start = System.currentTimeMillis();
         UcteNetwork network = new UcteNetworkImpl();
         UcteRecordParser parser = new UcteRecordParser(reader);
-        parseRecords(parser, network);
+        parseRecords(parser, network, readReporter);
         LOGGER.debug("UCTE file read in {} ms", System.currentTimeMillis() - start);
-        network.fix();
+
+        network.fix(readReporter);
+
         return network;
     }
 

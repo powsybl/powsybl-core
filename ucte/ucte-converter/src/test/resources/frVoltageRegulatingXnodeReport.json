@@ -1,0 +1,227 @@
+{
+  "version" : "1.0",
+  "reportTree" : {
+    "taskKey" : "roundTripReporterJsonTest",
+    "reports" : [ {
+      "reportKey" : "novalueReport"
+    } ],
+    "subReporters" : [ {
+      "taskKey" : "UcteReading",
+      "subReporters" : [ {
+        "taskKey" : "fixUcteNodes"
+      }, {
+        "taskKey" : "fixUcteLines",
+        "reports" : [ {
+          "reportKey" : "negativeLineResistance",
+          "values" : {
+            "reportSeverity" : {
+              "value" : "UCTE_ERROR",
+              "type" : "ERROR_LOGLEVEL"
+            },
+            "lineId" : {
+              "value" : "FFFFFF11 XXXXXX11 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            }
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "values" : {
+            "reportSeverity" : {
+              "value" : "UCTE_ERROR",
+              "type" : "ERROR_LOGLEVEL"
+            },
+            "lineId" : {
+              "value" : "FFFFFF11 XXXXXX12 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            }
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "values" : {
+            "reportSeverity" : {
+              "value" : "UCTE_ERROR",
+              "type" : "ERROR_LOGLEVEL"
+            },
+            "lineId" : {
+              "value" : "FFFFFF13 XXXXXX13 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            }
+          }
+        }, {
+          "reportKey" : "negativeLineResistance",
+          "values" : {
+            "reportSeverity" : {
+              "value" : "UCTE_ERROR",
+              "type" : "ERROR_LOGLEVEL"
+            },
+            "lineId" : {
+              "value" : "FFFFFF13 XXXXXX14 1"
+            },
+            "resistance" : {
+              "value" : 0.0,
+              "type" : "RESISTANCE"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "fixUcteTransformer"
+      }, {
+        "taskKey" : "fixUcteRegulations"
+      } ]
+    }, {
+      "taskKey" : "createBuses",
+      "subReporters" : [ {
+        "taskKey" : "createBusesSubstation",
+        "taskValues" : {
+          "substation" : {
+            "value" : "FFFFFF"
+          }
+        },
+        "reports" : [ {
+          "reportKey" : "createSubstation",
+          "values" : {
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            },
+            "substationName" : {
+              "value" : "FFFFFF",
+              "type" : "SUBSTATION"
+            }
+          }
+        }, {
+          "reportKey" : "createVoltageLevel",
+          "values" : {
+            "voltageLevelName" : {
+              "value" : "FFFFFF1",
+              "type" : "VOLTAGE_LEVEL"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            }
+          }
+        }, {
+          "reportKey" : "createBus",
+          "values" : {
+            "bus" : {
+              "value" : "FFFFFF11"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            }
+          }
+        }, {
+          "reportKey" : "createBus",
+          "values" : {
+            "bus" : {
+              "value" : "FFFFFF13"
+            },
+            "reportSeverity" : {
+              "value" : "UCTE_TRACE",
+              "type" : "TRACE_LOGLEVEL"
+            }
+          }
+        } ]
+      }, {
+        "taskKey" : "createBusesSubstation",
+        "taskValues" : {
+          "substation" : {
+            "value" : "XXXXXX"
+          }
+        }
+      } ]
+    }, {
+      "taskKey" : "createLines",
+      "reports" : [ {
+        "reportKey" : "danglingLineCreation",
+        "values" : {
+          "ucteLine" : {
+            "value" : "FFFFFF11 XXXXXX11 1"
+          },
+          "reportSeverity" : {
+            "value" : "UCTE_TRACE",
+            "type" : "TRACE_LOGLEVEL"
+          },
+          "xnodeCode" : {
+            "value" : "XXXXXX11"
+          }
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "values" : {
+          "ucteLine" : {
+            "value" : "FFFFFF11 XXXXXX12 1"
+          },
+          "reportSeverity" : {
+            "value" : "UCTE_TRACE",
+            "type" : "TRACE_LOGLEVEL"
+          },
+          "xnodeCode" : {
+            "value" : "XXXXXX12"
+          }
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "values" : {
+          "ucteLine" : {
+            "value" : "FFFFFF13 XXXXXX13 1"
+          },
+          "reportSeverity" : {
+            "value" : "UCTE_TRACE",
+            "type" : "TRACE_LOGLEVEL"
+          },
+          "xnodeCode" : {
+            "value" : "XXXXXX13"
+          }
+        }
+      }, {
+        "reportKey" : "danglingLineCreation",
+        "values" : {
+          "ucteLine" : {
+            "value" : "FFFFFF13 XXXXXX14 1"
+          },
+          "reportSeverity" : {
+            "value" : "UCTE_TRACE",
+            "type" : "TRACE_LOGLEVEL"
+          },
+          "xnodeCode" : {
+            "value" : "XXXXXX14"
+          }
+        }
+      } ]
+    }, {
+      "taskKey" : "createTransformers"
+    } ]
+  },
+  "dics" : {
+    "default" : {
+      "UcteReading" : "Reading UCTE network file",
+      "createLines" : "Create lines",
+      "createSubstation" : "Create substation ${substationName}",
+      "novalueReport" : "No value report",
+      "createTransformers" : "Create transformers",
+      "fixUcteNodes" : "Fix UCTE nodes",
+      "roundTripReporterJsonTest" : "Test importing UCTE file frVoltageRegulatingXnode.uct",
+      "createBusesSubstation" : "Create buses for substation ${substation}",
+      "createBus" : "Create bus ${bus}",
+      "createBuses" : "Create buses",
+      "danglingLineCreation" : "Create dangling line '${ucteLine}' (Xnode='${xnodeCode}')",
+      "createVoltageLevel" : "Create voltage level ${voltageLevelName}",
+      "fixUcteLines" : "Fix UCTE lines",
+      "fixUcteRegulations" : "Fix UCTE regulations",
+      "fixUcteTransformer" : "Fix UCTE transformers",
+      "negativeLineResistance" : "${lineId} - Real line resistance cannot be negative (${resistance} ohm)"
+    }
+  }
+}

@@ -22,6 +22,12 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
     }
 
     @Override
+    public boolean valid() {
+        // We check only that we have valid nodes because we can find equivalent branches with one end at boundary
+        return validNodes();
+    }
+
+    @Override
     public void convert() {
         double r = p.asDouble("r");
         double x = p.asDouble("x");
@@ -40,9 +46,20 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
             // EquivalentBranch is a result of network reduction prior to the data exchange.
             invalid("Impedance 21 different of impedance 12 not supported");
         }
+        if (isBoundary(1)) {
+            convertLineAtBoundary(1);
+        } else if (isBoundary(2)) {
+            convertLineAtBoundary(2);
+        } else {
+            convertLine();
+        }
+    }
+
+    private void convertLine() {
+        double r = p.asDouble("r");
+        double x = p.asDouble("x");
         double bch = 0;
         double gch = 0;
-
         final LineAdder adder = context.network().newLine()
                 .setR(r)
                 .setX(x)
@@ -55,5 +72,19 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         Line l = adder.add();
         addAliasesAndProperties(l);
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
+    }
+
+    private void convertLineAtBoundary(int boundarySide) {
+        // If we have created buses and substations for boundary nodes,
+        // convert as a regular line
+        if (context.config().convertBoundary()) {
+            convertLine();
+        } else {
+            double r = p.asDouble("r");
+            double x = p.asDouble("x");
+            double bch = 0;
+            double gch = 0;
+            convertToDanglingLine(boundarySide, r, x, gch, bch);
+        }
     }
 }
