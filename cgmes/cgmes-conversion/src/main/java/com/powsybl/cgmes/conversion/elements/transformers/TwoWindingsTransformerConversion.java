@@ -12,6 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
@@ -54,7 +55,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TwoWindingsTransformerConversion extends AbstractTransformerConversion {
+public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
@@ -84,6 +85,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         setToIidm(convertedT2xModel);
     }
 
+    @Override
     public void convertAtBoundary() {
         // If we have created buses and substations for boundary nodes,
         // convert as a regular line
@@ -102,9 +104,8 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     @Override
-    public BoundaryLine fillBoundaryLine(String boundaryNode) {
-
-        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
+    public BoundaryLine asBoundaryLine(String boundaryNode) {
+        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
 
         CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);

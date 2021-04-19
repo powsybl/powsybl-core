@@ -474,11 +474,12 @@ public class Conversion {
         // Currently supported equipment at boundary are lines and switches
         List<BoundaryEquipment> beqs = context.boundary().equipmentAtNode(node);
         if (LOG.isDebugEnabled()) {
-            equipmentAtBoundaryNodeLog(node, beqs);
+            LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
+            beqs.forEach(BoundaryEquipment::log);
         }
         int numEquipmentsAtNode = beqs.size();
         if (numEquipmentsAtNode == 1) {
-            convertOneEquipmentAtBoundaryNode(context, beqs.get(0));
+            beqs.get(0).createConversion(context).convertAtBoundary();
         } else if (numEquipmentsAtNode == 2) {
             convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
         } else if (numEquipmentsAtNode > 2) {
@@ -486,72 +487,14 @@ public class Conversion {
         }
     }
 
-    private static void equipmentAtBoundaryNodeLog(String node, List<BoundaryEquipment> beqs) {
-        LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
-        beqs.forEach(beq -> {
-            switch (beq.getBoundaryEquipmentType()) {
-                case AC_LINE_SEGMENT:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfAcLineSegmentAtBoundary(beq).tabulateLocals("AcLineSegmentAtBoundary"));
-                    break;
-                case SWITCH:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq).tabulateLocals("SwitchAtBoundary"));
-                    break;
-                case TRANSFORMER:
-                    CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq).forEach(pb -> LOG.debug(pb.tabulateLocals("TransformerEndAtBoundary")));
-                    break;
-                case EQUIVALENT_BRANCH:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq).tabulateLocals("EquivalentBranchAtBoundary"));
-                    break;
-            }
-        });
-    }
-
-    private static void convertOneEquipmentAtBoundaryNode(Context context, BoundaryEquipment beq) {
-        switch (beq.getBoundaryEquipmentType()) {
-            case AC_LINE_SEGMENT:
-                new ACLineSegmentConversion(CgmesBoundary.getPropertyBagOfAcLineSegmentAtBoundary(beq), context).convertAtBoundary();
-                break;
-            case SWITCH:
-                new SwitchConversion(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq), context).convertAtBoundary();
-                break;
-            case TRANSFORMER:
-                new TwoWindingsTransformerConversion(CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq), context).convertAtBoundary();
-                break;
-            case EQUIVALENT_BRANCH:
-                new EquivalentBranchConversion(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq), context).convertAtBoundary();
-                break;
-        }
-    }
-
     private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
-
-        BoundaryLine boundaryLine1 = fillBoundaryLine(context, node, beq1);
-        BoundaryLine boundaryLine2 = fillBoundaryLine(context, node, beq2);
-
+        BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
+        BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
             ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
         } else {
             context.invalid(node, "Unexpected boundaryLine");
         }
-    }
-
-    private static BoundaryLine fillBoundaryLine(Context context, String node, BoundaryEquipment beq) {
-        BoundaryLine boundaryLine = null;
-        switch (beq.getBoundaryEquipmentType()) {
-            case AC_LINE_SEGMENT:
-                boundaryLine = new ACLineSegmentConversion(CgmesBoundary.getPropertyBagOfAcLineSegmentAtBoundary(beq), context).fillBoundaryLine(node);
-                break;
-            case SWITCH:
-                boundaryLine = new SwitchConversion(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq), context).fillBoundaryLine(node);
-                break;
-            case TRANSFORMER:
-                boundaryLine = new TwoWindingsTransformerConversion(CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq), context).fillBoundaryLine(node);
-                break;
-            case EQUIVALENT_BRANCH:
-                boundaryLine = new EquivalentBranchConversion(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq), context).fillBoundaryLine(node);
-                break;
-        }
-        return boundaryLine;
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {

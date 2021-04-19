@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class EquivalentBranchConversion extends AbstractBranchConversion {
+public class EquivalentBranchConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
     public EquivalentBranchConversion(PropertyBag b, Context context) {
         super("EquivalentBranch", b, context);
@@ -50,6 +50,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         convertEquivalentBranch();
     }
 
+    @Override
     public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertEquivalentBranchAtBoundary(1);
@@ -61,14 +62,11 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
     }
 
     @Override
-    public BoundaryLine fillBoundaryLine(String boundaryNode) {
-
-        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
-
+    public BoundaryLine asBoundaryLine(String boundaryNode) {
+        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         boundaryLine.setParameters(r, x, 0.0, 0.0);
-
         return boundaryLine;
     }
 

@@ -18,7 +18,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConductingEquipmentConversion {
+public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
@@ -51,6 +51,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
         convertToSwitch();
     }
 
+    @Override
     public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertSwitchAtBoundary(1);
@@ -59,6 +60,11 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
         } else {
             throw new ConversionException("Boundary must be at one end of the switch");
         }
+    }
+
+    @Override
+    public BoundaryLine asBoundaryLine(String node) {
+        return super.createBoundaryLine(node);
     }
 
     private Switch convertToSwitch() {

@@ -20,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ACLineSegmentConversion extends AbstractBranchConversion {
+public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
     public ACLineSegmentConversion(PropertyBag line, Context context) {
         super(CgmesNames.AC_LINE_SEGMENT, line, context);
@@ -46,6 +46,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         convertLine();
     }
 
+    @Override
     public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertLineAtBoundary(1);
@@ -57,16 +58,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
     }
 
     @Override
-    public BoundaryLine fillBoundaryLine(String boundaryNode) {
-
-        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
-
+    public BoundaryLine asBoundaryLine(String boundaryNode) {
+        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
         boundaryLine.setParameters(r, x, g, b);
-
         return boundaryLine;
     }
 
@@ -75,7 +73,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         if (context.config().mergeBoundariesUsingTieLines()) {
             mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
         } else {
-            mline = createQuadripole(context, boundaryLine1, boundaryLine2);
+            mline = createLine(context, boundaryLine1, boundaryLine2);
         }
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
@@ -188,7 +186,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         return adder.add();
     }
 
-    private static Line createQuadripole(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+    private static Line createLine(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         PiModel pi1 = new PiModel();
         pi1.r = boundaryLine1.getR();
         pi1.x = boundaryLine1.getX();

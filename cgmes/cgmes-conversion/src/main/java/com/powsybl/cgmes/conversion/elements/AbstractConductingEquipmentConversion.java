@@ -7,9 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import java.util.List;
-import java.util.Optional;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -23,6 +20,9 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -618,13 +618,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
     }
 
-    public BoundaryLine fillBoundaryLine(String boundaryNode) {
-
+    public BoundaryLine createBoundaryLine(String boundaryNode) {
         int modelEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
             modelEnd = 2;
         }
-
         String id = iidmId();
         String name = iidmName();
         String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
@@ -636,9 +634,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (context.nodeBreaker()) {
             modelNode = iidmNode(modelEnd);
         }
-
         PowerFlow modelPowerFlow = powerFlow(modelEnd);
-
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, boundaryTerminalId, modelPowerFlow);
     }

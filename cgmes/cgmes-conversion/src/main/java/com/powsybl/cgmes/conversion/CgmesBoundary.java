@@ -7,29 +7,25 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
+import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
+import com.powsybl.cgmes.conversion.elements.EquivalentBranchConversion;
+import com.powsybl.cgmes.conversion.elements.SwitchConversion;
+import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 
 public class CgmesBoundary {
-
-    private static final String UNEXPECTED_BOUNDARY_EQUIPMENT = "Unexpected boundary equipment %s. Must be %s";
 
     public enum BoundaryEquipmentType {
         AC_LINE_SEGMENT, SWITCH, TRANSFORMER, EQUIVALENT_BRANCH
@@ -127,38 +123,6 @@ public class CgmesBoundary {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
-    public static PropertyBag getPropertyBagOfAcLineSegmentAtBoundary(BoundaryEquipment eq) {
-        if (eq.type == BoundaryEquipmentType.AC_LINE_SEGMENT) {
-            return eq.propertyBag;
-        } else {
-            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.AC_LINE_SEGMENT));
-        }
-    }
-
-    public static PropertyBag getPropertyBagOfSwitchAtBoundary(BoundaryEquipment eq) {
-        if (eq.type == BoundaryEquipmentType.SWITCH) {
-            return eq.propertyBag;
-        } else {
-            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.SWITCH));
-        }
-    }
-
-    public static PropertyBags getPropertyBagsOfTransformerAtBoundary(BoundaryEquipment eq) {
-        if (eq.type == BoundaryEquipmentType.TRANSFORMER) {
-            return eq.propertyBags;
-        } else {
-            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.TRANSFORMER));
-        }
-    }
-
-    public static PropertyBag getPropertyBagOfEquivalentBranchAtBoundary(BoundaryEquipment eq) {
-        if (eq.type == BoundaryEquipmentType.EQUIVALENT_BRANCH) {
-            return eq.propertyBag;
-        } else {
-            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.EQUIVALENT_BRANCH));
-        }
-    }
-
     public List<PropertyBag> equivalentInjectionsAtNode(String node) {
         return nodesEquivalentInjections.getOrDefault(node, Collections.emptyList());
     }
@@ -182,6 +146,36 @@ public class CgmesBoundary {
 
         public BoundaryEquipmentType getBoundaryEquipmentType() {
             return type;
+        }
+
+        public EquipmentAtBoundaryConversion createConversion(Context context) {
+            EquipmentAtBoundaryConversion c = null;
+            switch (type) {
+                case AC_LINE_SEGMENT:
+                    c = new ACLineSegmentConversion(propertyBag, context);
+                    break;
+                case SWITCH:
+                    c = new SwitchConversion(propertyBag, context);
+                    break;
+                case TRANSFORMER:
+                    c = new TwoWindingsTransformerConversion(propertyBags, context);
+                    break;
+                case EQUIVALENT_BRANCH:
+                    c = new EquivalentBranchConversion(propertyBag, context);
+                    break;
+            }
+            return c;
+        }
+
+        public void log() {
+            if (LOG.isDebugEnabled()) {
+                if (propertyBag != null) {
+                    LOG.debug(propertyBag.tabulateLocals(type.toString()));
+                }
+                if (propertyBags != null) {
+                    propertyBags.forEach(p -> LOG.debug(p.tabulateLocals(type.toString())));
+                }
+            }
         }
 
         private final BoundaryEquipmentType type;
