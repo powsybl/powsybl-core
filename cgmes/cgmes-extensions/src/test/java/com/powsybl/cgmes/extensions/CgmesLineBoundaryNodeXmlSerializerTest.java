@@ -18,7 +18,7 @@ import java.io.IOException;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesLineBoundaryNodeXmlSerializerTest extends AbstractConverterTest {
-    
+
     @Test
     public void test() throws IOException {
         Network network = EurostagTutorialExample1Factory.createWithTieLine();
