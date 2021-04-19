@@ -1,4 +1,0 @@
-#parse("/com/powsybl/tools/autocompletion/options.sh.vm")
-#completionFunction($toolName $options)
-
-complete -F _$toolName $toolName

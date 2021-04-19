@@ -17,6 +17,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -91,6 +94,9 @@ public class BashCompletionTool implements Tool {
                 .addArgNameMapping("HOST", OptionType.HOSTNAME)
                 .map(commands);
 
-        new VelocityBashCompletionGenerator().generateCommands("itools", commands, outputPath);
+        BashCompletionGenerator generator = new StringTemplateBashCompletionGenerator();
+        try (Writer writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {
+            generator.generateCommands("itools", commands, writer);
+        }
     }
 }

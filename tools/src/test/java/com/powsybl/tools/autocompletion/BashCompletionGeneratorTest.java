@@ -35,8 +35,7 @@ public class BashCompletionGeneratorTest {
 
     @Parameterized.Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList(new VelocityBashCompletionGenerator(),
-                new FreemarkerBashCompletionGenerator(),
+        return Arrays.asList(new FreemarkerBashCompletionGenerator(),
                 new StringTemplateBashCompletionGenerator());
     }
 
