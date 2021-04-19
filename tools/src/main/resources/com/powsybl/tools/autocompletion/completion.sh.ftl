@@ -8,7 +8,7 @@
 [#elseif option.type.kind == "HOSTNAME"]
     -A hostname[#t]
 [#elseif option.type.kind == "ENUMERATION"]
-    -W "[#list util.getEnumOptionTypeValues(option) as e][=e] [/#list]"[#t]
+    -W "[#list option.possibleValues as e][=e] [/#list]"[#t]
 [/#if]
 [/#macro]
 

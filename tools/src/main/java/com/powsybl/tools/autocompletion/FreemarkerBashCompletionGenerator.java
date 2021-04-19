@@ -6,19 +6,14 @@
  */
 package com.powsybl.tools.autocompletion;
 
-import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.PowsyblException;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,24 +35,13 @@ public class FreemarkerBashCompletionGenerator implements BashCompletionGenerato
         config.setInterpolationSyntax(Configuration.SQUARE_BRACKET_INTERPOLATION_SYNTAX);
     }
 
-    public void test(Writer writer) throws IOException, TemplateException {
-        BashOption option = new BashOption("opt", "ARG", OptionType.FILE);
-        Template template = config.getTemplate("options.sh.ftl");
-        Map<String, Object> context =  new HashMap<>();
-        BashCommand command = new BashCommand("cmd", option, option);
-        context.put("commands", ImmutableList.of(command, command));
-        context.put("toolName", "itools");
-        template.process(context, writer);
-    }
-
     @Override
     public void generateCommands(String toolName, List<BashCommand> commands, Writer writer) {
         try {
-            Template template = config.getTemplate("options.sh.ftl");
+            Template template = config.getTemplate("completion.sh.ftl");
             Map<String, Object> context =  new HashMap<>();
             context.put("commands", commands);
             context.put("toolName", "itools");
-            context.put("util", new TemplateUtil());
             template.process(context, writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

@@ -26,7 +26,7 @@ public class StringTemplateBashCompletionGenerator implements BashCompletionGene
     }
 
     private STGroup createTemplate() throws IOException {
-        try (InputStream is = getClass().getResourceAsStream("options.sh.st")) {
+        try (InputStream is = getClass().getResourceAsStream("completion.sh.st")) {
             return new STGroupString(IOUtils.toString(is, StandardCharsets.UTF_8));
         }
     }
