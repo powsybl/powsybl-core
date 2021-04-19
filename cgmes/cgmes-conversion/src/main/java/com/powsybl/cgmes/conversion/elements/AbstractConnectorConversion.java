@@ -106,6 +106,15 @@ public abstract class AbstractConnectorConversion extends AbstractConductingEqui
                     .setHvdc(context.boundary().isHvdc(boundaryNode))
                     .setLineEnergyIdentificationCodeEic(context.boundary().lineAtBoundary(boundaryNode))
                     .add();
+
+            // TODO: when merged extensions will be handled, this code can be deleted
+            if (context.boundary().isHvdc(boundaryNode)) {
+                dl.setProperty("isHvdc", "true");
+            }
+            if (context.boundary().lineAtBoundary(boundaryNode) != null) {
+                dl.setProperty("lineEnergyIdentificationCodeEIC", context.boundary().lineAtBoundary(boundaryNode));
+            }
+
         }
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
