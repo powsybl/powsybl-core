@@ -8,6 +8,8 @@ package com.powsybl.tools.autocompletion;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,11 +22,22 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
+@RunWith(Parameterized.class)
 public class BashCompletionGeneratorTest {
 
     enum TypeOption {
         TYPE1,
         TYPE2
+    }
+
+    @Parameterized.Parameter
+    public BashCompletionGenerator generator;
+
+    @Parameterized.Parameters
+    public static Iterable<? extends Object> data() {
+        return Arrays.asList(new VelocityBashCompletionGenerator(),
+                new FreemarkerBashCompletionGenerator(),
+                new StringTemplateBashCompletionGenerator());
     }
 
     private static String readResource(String path) throws IOException {
@@ -33,9 +46,9 @@ public class BashCompletionGeneratorTest {
         }
     }
 
-    private static void checkGeneratedScript(String referencePath, BashCommand... commands) throws IOException {
+    private void checkGeneratedScript(String referencePath, BashCommand... commands) throws IOException {
         try (StringWriter sw = new StringWriter()) {
-            new BashCompletionGenerator().generateCommands("itools", Arrays.asList(commands), sw);
+            generator.generateCommands("itools", Arrays.asList(commands), sw);
             String script = sw.toString();
             assertEquals(readResource(referencePath), script);
         }

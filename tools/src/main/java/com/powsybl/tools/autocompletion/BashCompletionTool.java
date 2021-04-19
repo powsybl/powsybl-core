@@ -91,6 +91,6 @@ public class BashCompletionTool implements Tool {
                 .addArgNameMapping("HOST", OptionType.HOSTNAME)
                 .map(commands);
 
-        new BashCompletionGenerator().generateCommands("itools", commands, outputPath);
+        new VelocityBashCompletionGenerator().generateCommands("itools", commands, outputPath);
     }
 }

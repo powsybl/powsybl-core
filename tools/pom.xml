@@ -68,6 +68,10 @@
             <artifactId>commons-cli</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+        </dependency>
+        <dependency>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
         </dependency>
@@ -75,6 +79,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>stringtemplate</artifactId>
+            <version>4.0.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.velocity</groupId>

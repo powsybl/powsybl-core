@@ -55,4 +55,27 @@ public class BashOption {
     public void setType(OptionType type) {
         this.type = type;
     }
+
+    public boolean isFile() {
+        return type != null && type.getKind() == OptionType.Kind.FILE;
+    }
+
+    public boolean isDir() {
+        return type != null && type.getKind() == OptionType.Kind.DIRECTORY;
+    }
+
+    public boolean isHostname() {
+        return type != null && type.getKind() == OptionType.Kind.HOSTNAME;
+    }
+
+    public boolean isEnum() {
+        return type != null && type.getKind() == OptionType.Kind.ENUMERATION;
+    }
+
+    public Object[] getPossibleValues() {
+        if (type instanceof OptionType.Enumeration) {
+            return ((OptionType.Enumeration) type).getClazz().getEnumConstants();
+        }
+        return null;
+    }
 }
