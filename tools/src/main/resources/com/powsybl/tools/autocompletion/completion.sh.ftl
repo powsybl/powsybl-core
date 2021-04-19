@@ -19,14 +19,14 @@ _[=functionName]() {
     case "$prev" in
 [#list options as option]
     [#if option.hasArg()]
-        --[=option.name])
+        [=option.name])
             COMPREPLY=($(compgen [@compgenopt option=option/] -- $cur))
             return 0
             ;;
     [/#if]
 [/#list]
         *)
-            COMPREPLY=($(compgen -W "[#list options as option]--[=option.name] [/#list]" -- $cur))
+            COMPREPLY=($(compgen -W "[#list options as option][=option.name] [/#list]" -- $cur))
             return 0
             ;;
     esac

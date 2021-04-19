@@ -13,6 +13,7 @@ import org.apache.commons.cli.Options;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Adapter for apache commons CLI options
@@ -27,10 +28,9 @@ public final class CommonsCliAdapter {
     public static List<BashOption> adaptOptions(Options commonsCliOptions) {
         List<BashOption> options = new ArrayList<>();
         for (org.apache.commons.cli.Option commonsCliOption : commonsCliOptions.getOptions()) {
-            String optionName = commonsCliOption.getLongOpt();
-            if (optionName == null) {
-                optionName = commonsCliOption.getOpt();
-            }
+            String optionName = Optional.ofNullable(commonsCliOption.getLongOpt())
+                    .map(longOpt -> "--" + longOpt)
+                    .orElse("-" + commonsCliOption.getOpt());
             String argName = commonsCliOption.getArgName();
             BashOption option = new BashOption(optionName, argName, null);
             options.add(option);

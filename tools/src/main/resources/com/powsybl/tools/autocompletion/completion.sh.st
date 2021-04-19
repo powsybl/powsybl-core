@@ -8,7 +8,7 @@ compgenopt(option) ::= <<
 
 caseOption(option) ::= <<
 <if(option.arg)>
-        --<option.name>)
+        <option.name>)
             COMPREPLY=($(compgen <compgenopt(option)> -- $cur))
             return 0
             ;;
@@ -22,7 +22,7 @@ _<command.name>() {
     case "$prev" in
 <command.options:caseOption()><\\>
         *)
-            COMPREPLY=($(compgen -W "<command.options:{ option | --<option.name> }>" -- $cur))
+            COMPREPLY=($(compgen -W "<command.options:{ option | <option.name> }>" -- $cur))
             return 0
             ;;
     esac

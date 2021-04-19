@@ -25,7 +25,7 @@ public class StringTemplateBashCompletionGenerator implements BashCompletionGene
     public StringTemplateBashCompletionGenerator() {
     }
 
-    private STGroup createTemplate() throws IOException {
+    private STGroup createTemplateGroup() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("completion.sh.st")) {
             return new STGroupString(IOUtils.toString(is, StandardCharsets.UTF_8));
         }
@@ -34,7 +34,7 @@ public class StringTemplateBashCompletionGenerator implements BashCompletionGene
     @Override
     public void generateCommands(String toolName, List<BashCommand> commands, Writer writer) {
         try {
-            STGroup group = createTemplate();
+            STGroup group = createTemplateGroup();
             ST template = group.getInstanceOf("completionScript");
             template.add("toolName", toolName);
             template.add("commands", commands);

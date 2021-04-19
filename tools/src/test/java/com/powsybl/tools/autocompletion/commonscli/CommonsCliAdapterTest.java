@@ -24,7 +24,7 @@ public class CommonsCliAdapterTest {
                 .hasArg()
                 .argName("FILE")
                 .build());
-        inputOptions.addOption(Option.builder().longOpt("enable").build());
+        inputOptions.addOption(Option.builder("E").build());
         Map<String, Options> inputCommands = ImmutableMap.of("cmd", inputOptions);
         List<BashCommand> commands = CommonsCliAdapter.adaptCommands(inputCommands);
 
@@ -35,14 +35,14 @@ public class CommonsCliAdapterTest {
         assertEquals(2, options.size());
 
         BashOption option1 = options.get(0);
-        assertEquals("file", option1.getName());
+        assertEquals("--file", option1.getName());
         assertEquals("FILE", option1.getArgName().orElseThrow(AssertionError::new));
         assertTrue(option1.hasArg());
         assertNull(option1.getType());
         assertNull(option1.getPossibleValues());
 
         BashOption option2 = options.get(1);
-        assertEquals("enable", option2.getName());
+        assertEquals("-E", option2.getName());
         assertTrue(option2.getArgName().isEmpty());
         assertFalse(option2.hasArg());
         assertNull(option2.getType());

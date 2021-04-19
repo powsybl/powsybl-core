@@ -55,24 +55,24 @@ public class BashCompletionGeneratorTest {
 
     @Test
     public void oneCommandOneNoArgOption() throws IOException {
-        BashOption option = new BashOption("type");
+        BashOption option = new BashOption("--type");
         BashCommand command = new BashCommand("cmd", option);
         checkGeneratedScript("1-command-1-no-arg-option.sh", command);
     }
 
     @Test
     public void oneCommandOneFile() throws IOException {
-        BashOption option = new BashOption("case-file", "FILE", OptionType.FILE);
+        BashOption option = new BashOption("--case-file", "FILE", OptionType.FILE);
         BashCommand command = new BashCommand("cmd", option);
         checkGeneratedScript("1-command-1-file.sh", command);
     }
 
     @Test
     public void oneCommandMultipleOptions() throws IOException {
-        BashOption file = new BashOption("case-file", "FILE", OptionType.FILE);
-        BashOption dir = new BashOption("output-dir", "DIR", OptionType.DIRECTORY);
-        BashOption host = new BashOption("host", "HOST", OptionType.HOSTNAME);
-        BashOption enumOption = new BashOption("type", "TYPE", OptionType.enumeration(TypeOption.class));
+        BashOption file = new BashOption("--case-file", "FILE", OptionType.FILE);
+        BashOption dir = new BashOption("--output-dir", "DIR", OptionType.DIRECTORY);
+        BashOption host = new BashOption("--host", "HOST", OptionType.HOSTNAME);
+        BashOption enumOption = new BashOption("--type", "TYPE", OptionType.enumeration(TypeOption.class));
         BashCommand command = new BashCommand("cmd", file, dir, host, enumOption);
         checkGeneratedScript("1-command-multiple-options.sh", command);
     }

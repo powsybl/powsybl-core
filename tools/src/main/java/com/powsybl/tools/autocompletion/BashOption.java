@@ -36,6 +36,9 @@ public class BashOption {
         this.type = type;
     }
 
+    /**
+     * Full option name, including the "-" or "--" prefix
+     */
     public String getName() {
         return name;
     }
