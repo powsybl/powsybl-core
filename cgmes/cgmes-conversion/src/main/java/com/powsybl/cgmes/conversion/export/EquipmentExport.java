@@ -159,8 +159,12 @@ public final class EquipmentExport {
             }
             ShuntCompensatorEq.write(s.getId(), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, cimNamespace, writer);
             if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
+                double b = 0.0;
+                double g = 0.0;
                 for (int section = 1; section <= s.getMaximumSectionCount(); section++) {
-                    ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(), s.getId(), section, s.getB(section), s.getG(section), cimNamespace, writer);
+                    ShuntCompensatorEq.writePoint(CgmesExportUtil.getUniqueId(), s.getId(), section, s.getB(section) - b, s.getG(section) - g, cimNamespace, writer);
+                    b = s.getB(section);
+                    g = s.getG(section);
                 }
             }
             TerminalEq.write(CgmesExportUtil.getUniqueId(), s.getId(), connectivityNodeId(exportedNodes, s.getTerminal()), 1, cimNamespace, writer);
