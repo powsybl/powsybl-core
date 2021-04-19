@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.Network;
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class CgmesControlAreaAdderImplProvider implements ExtensionAdderProvider<Network, CgmesControlAreas, CgmesControlAreasAdderImpl> {
+public class CgmesControlAreasAdderImplProvider implements ExtensionAdderProvider<Network, CgmesControlAreas, CgmesControlAreasAdderImpl> {
 
     @Override
     public String getImplementationName() {
