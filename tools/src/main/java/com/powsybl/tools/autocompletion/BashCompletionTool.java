@@ -17,6 +17,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -73,11 +74,14 @@ public class BashCompletionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-
         ToolOptions options = new ToolOptions(line, context);
         Path outputPath = options.getPath(OUTPUT_FILE).orElseThrow(AssertionError::new);
 
         List<Tool> tools = new ServiceLoaderCache<>(Tool.class).getServices();
+        generateCompletionScript(tools, outputPath);
+    }
+
+    public void generateCompletionScript(List<Tool> tools, Path outputPath) throws IOException {
         Map<String, Options> itoolsCommands = tools.stream()
                 .map(Tool::getCommand)
                 .filter(Objects::nonNull)
@@ -93,10 +97,10 @@ public class BashCompletionTool implements Tool {
                 .addArgNameMapping("DIR", OptionType.DIRECTORY)
                 .addArgNameMapping("HOST", OptionType.HOSTNAME)
                 .map(commands);
-
         BashCompletionGenerator generator = new StringTemplateBashCompletionGenerator();
         try (Writer writer = Files.newBufferedWriter(outputPath, StandardCharsets.UTF_8)) {
             generator.generateCommands("itools", commands, writer);
         }
     }
+
 }
