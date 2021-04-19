@@ -360,6 +360,30 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEEquivalentBranchAtBoundary() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranchAtBoundary().dataSource(),
+            NetworkFactory.findDefault(), null);
+        DanglingLine dl = network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(1.0, dl.getR(), 0.0);
+        assertEquals(10.0, dl.getX(), 0.0);
+        assertEquals(0.0, dl.getG(), 0.0);
+        assertEquals(0.0, dl.getB(), 0.0);
+    }
+
+    @Test
+    public void microBEEquivalentBranchAt() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranch().dataSource(),
+            NetworkFactory.findDefault(), null);
+        Line l = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        assertEquals(1.935000, l.getR(), 0.0);
+        assertEquals(34.200000, l.getX(), 0.0);
+        assertEquals(0.0, l.getG1(), 0.0);
+        assertEquals(0.0, l.getB1(), 0.0);
+        assertEquals(0.0, l.getG2(), 0.0);
+        assertEquals(0.0, l.getB2(), 0.0);
+    }
+
+    @Test
     public void microBELimits() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBELimits().dataSource(),
                 NetworkFactory.findDefault(), null);
@@ -375,6 +399,15 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNotNull(apparentPowerLimits);
         assertEquals(22863.1, apparentPowerLimits.getPermanentLimit(), 0.0);
         assertTrue(apparentPowerLimits.getTemporaryLimits().isEmpty());
+    }
+
+    @Test
+    public void microBEFixedMinPMaxP() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseBEFixedMinPMaxP().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertEquals(50.0, generator.getMinP(), 0.0);
+        assertEquals(200.0, generator.getMaxP(), 0.0);
     }
 
     @Test
