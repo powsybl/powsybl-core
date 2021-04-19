@@ -6,6 +6,7 @@
  */
 package com.powsybl.tools.autocompletion;
 
+import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNull;
@@ -18,10 +19,10 @@ public class OptionTypeMapperTest {
 
     @Test
     public void test() {
-        OptionTypeMapper mapper = new OptionTypeMapper();
-        mapper.addArgNameMapping("FILE", OptionType.FILE);
-        mapper.addOptionNameMapping(".*file", OptionType.FILE);
-        mapper.addOptionNameMapping("file.*", OptionType.FILE);
+        OptionTypeMapper mapper = new OptionTypeMapper()
+            .addArgNameMapping("FILE", OptionType.FILE)
+            .addOptionNameMapping(".*file", OptionType.FILE)
+            .addOptionNameMapping("file.*", OptionType.FILE);
 
         BashOption noArgOption = new BashOption("case-file");
         mapper.map(noArgOption);
@@ -36,8 +37,25 @@ public class OptionTypeMapperTest {
         assertSame(OptionType.FILE, argFileOption.getType());
 
         BashOption nonFileOption = new BashOption("case", "ARG");
-        mapper.map(fileOption);
+        mapper.map(nonFileOption);
         assertNull(nonFileOption.getType());
+    }
+
+    @Test
+    public void defaultType() {
+        OptionTypeMapper mapper = new OptionTypeMapper()
+                .setDefaultType(OptionType.DIRECTORY)
+                .addArgNameMapping("FILE", OptionType.FILE);
+
+        BashOption argFileOption = new BashOption("case", "FILE");
+        BashOption nonFileOption = new BashOption("case", "ARG");
+
+        BashCommand cmd1 = new BashCommand("cmd1", argFileOption);
+        BashCommand cmd2 = new BashCommand("cmd2", nonFileOption);
+        mapper.map(ImmutableList.of(cmd1, cmd2));
+
+        assertSame(OptionType.FILE, argFileOption.getType());
+        assertSame(OptionType.DIRECTORY, nonFileOption.getType());
     }
 
 }
