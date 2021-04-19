@@ -36,6 +36,16 @@ public interface Matrix {
         return m;
     }
 
+    static Matrix createFromRow(double[] c, MatrixFactory matrixFactory) {
+        Objects.requireNonNull(c);
+        Objects.requireNonNull(matrixFactory);
+        Matrix m = matrixFactory.create(1, c.length, c.length);
+        for (int j = 0; j < c.length; j++) {
+            m.set(0, j, c[j]);
+        }
+        return m;
+    }
+
     /**
      * An element of the matrix.
      * Used to later update a value.
