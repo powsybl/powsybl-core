@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -46,13 +48,29 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
             // EquivalentBranch is a result of network reduction prior to the data exchange.
             invalid("Impedance 21 different of impedance 12 not supported");
         }
+        convertLine();
+    }
+
+    public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertLineAtBoundary(1);
         } else if (isBoundary(2)) {
             convertLineAtBoundary(2);
         } else {
-            convertLine();
+            throw new ConversionException("Boundary must be at one end of the equivalent branch");
         }
+    }
+
+    @Override
+    public BoundaryLine fillBoundaryLine(String boundaryNode) {
+
+        BoundaryLine boundaryLine = super.fillBoundaryLine(boundaryNode);
+
+        double r = p.asDouble("r");
+        double x = p.asDouble("x");
+        boundaryLine.setParameters(r, x, 0.0, 0.0);
+
+        return boundaryLine;
     }
 
     private void convertLine() {

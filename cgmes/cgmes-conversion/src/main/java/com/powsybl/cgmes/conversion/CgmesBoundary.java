@@ -32,7 +32,7 @@ public class CgmesBoundary {
     private static final String UNEXPECTED_BOUNDARY_EQUIPMENT = "Unexpected boundary equipment %s. Must be %s";
 
     public enum BoundaryEquipmentType {
-        AC_LINE_SEGMENT, SWITCH, TRANSFORMER
+        AC_LINE_SEGMENT, SWITCH, TRANSFORMER, EQUIVALENT_BRANCH
     }
 
     public CgmesBoundary(CgmesModel cgmes) {
@@ -90,6 +90,12 @@ public class CgmesBoundary {
         equipment.add(new BoundaryEquipment(BoundaryEquipmentType.TRANSFORMER, transformerEnds));
     }
 
+    public void addEquivalentBranchAtNode(PropertyBag equivalentBranch, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.EQUIVALENT_BRANCH, equivalentBranch));
+    }
+
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
         nodesEquivalentInjections.computeIfAbsent(node, ls -> new ArrayList<>(2)).add(equivalentInjection);
     }
@@ -142,6 +148,14 @@ public class CgmesBoundary {
             return eq.propertyBags;
         } else {
             throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.TRANSFORMER));
+        }
+    }
+
+    public static PropertyBag getPropertyBagOfEquivalentBranchAtBoundary(BoundaryEquipment eq) {
+        if (eq.type == BoundaryEquipmentType.EQUIVALENT_BRANCH) {
+            return eq.propertyBag;
+        } else {
+            throw new ConversionException(String.format(UNEXPECTED_BOUNDARY_EQUIPMENT, eq.type, BoundaryEquipmentType.EQUIVALENT_BRANCH));
         }
     }
 

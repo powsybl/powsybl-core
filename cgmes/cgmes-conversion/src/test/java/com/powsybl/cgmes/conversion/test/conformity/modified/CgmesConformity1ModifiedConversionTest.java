@@ -381,7 +381,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEEquivalentBranchAt() {
+    public void microBEEquivalentBranch() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEEquivalentBranch().dataSource(),
             NetworkFactory.findDefault(), null);
         Line l = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
@@ -485,6 +485,39 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(0.00005245151842033553, m.getG2(), tolerance);
         assertEquals(0.00014352627414867316, m.getB1(), tolerance);
         assertEquals(0.00014780777425070602, m.getB2(), tolerance);
+    }
+
+    @Test
+    public void microAssembledEquivalentBranchAtBoundary() {
+        final double tolerance = 1e-10;
+
+        InMemoryPlatformConfig platformConfigTieLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigTieLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "true");
+
+        Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(2.020000, m.getR(), tolerance);
+        assertEquals(22.000000, m.getX(), tolerance);
+        assertEquals(0.000030, m.getG1(), tolerance);
+        assertEquals(0.0, m.getG2(), tolerance);
+        assertEquals(0.0001413717, m.getB1(), tolerance);
+        assertEquals(0.0, m.getB2(), tolerance);
+
+        InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
+        platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty(CgmesImport.MERGE_BOUNDARIES_USING_TIE_LINES, "false");
+
+        network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
+                NetworkFactory.findDefault(), null);
+        m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        assertEquals(2.01664607413, m.getR(), tolerance);
+        assertEquals(21.991922797567, m.getX(), tolerance);
+        assertEquals(0.000022090405366887755, m.getG1(), tolerance);
+        assertEquals(0.000007923595325107443, m.getG2(), tolerance);
+        assertEquals(0.00010279569981382285, m.getB1(), tolerance);
+        assertEquals(0.00003860095796167761, m.getB2(), tolerance);
     }
 
     @Test

@@ -194,7 +194,7 @@ public class Conversion {
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes);
 
-        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
+        convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context, delayedBoundaryNodes);
@@ -405,6 +405,26 @@ public class Conversion {
         }
     }
 
+    private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
+        Iterator<PropertyBag> k = cgmes.equivalentBranches().iterator();
+        while (k.hasNext()) {
+            PropertyBag equivalentBranch = k.next();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(equivalentBranch.tabulateLocals("EquivalentBranch"));
+            }
+            EquivalentBranchConversion c = new EquivalentBranchConversion(equivalentBranch, context);
+            if (c.valid()) {
+                String node = c.boundaryNode();
+                if (node != null) {
+                    context.boundary().addEquivalentBranchAtNode(equivalentBranch, node);
+                    delayedBoundaryNodes.add(node);
+                } else {
+                    c.convert();
+                }
+            }
+        }
+    }
+
     private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
             if (LOG.isDebugEnabled()) {
@@ -479,6 +499,9 @@ public class Conversion {
                 case TRANSFORMER:
                     CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq).forEach(pb -> LOG.debug(pb.tabulateLocals("TransformerEndAtBoundary")));
                     break;
+                case EQUIVALENT_BRANCH:
+                    LOG.debug(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq).tabulateLocals("EquipmentAtBoundary"));
+                    break;
             }
         });
     }
@@ -493,6 +516,9 @@ public class Conversion {
                 break;
             case TRANSFORMER:
                 new TwoWindingsTransformerConversion(CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq), context).convertAtBoundary();
+                break;
+            case EQUIVALENT_BRANCH:
+                new EquivalentBranchConversion(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq), context).convertAtBoundary();
                 break;
         }
     }
@@ -520,6 +546,9 @@ public class Conversion {
                 break;
             case TRANSFORMER:
                 boundaryLine = new TwoWindingsTransformerConversion(CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq), context).fillBoundaryLine(node);
+                break;
+            case EQUIVALENT_BRANCH:
+                boundaryLine = new EquivalentBranchConversion(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq), context).fillBoundaryLine(node);
                 break;
         }
         return boundaryLine;
