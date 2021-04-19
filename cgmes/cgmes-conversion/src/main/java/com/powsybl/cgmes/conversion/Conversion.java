@@ -491,16 +491,16 @@ public class Conversion {
         beqs.forEach(beq -> {
             switch (beq.getBoundaryEquipmentType()) {
                 case AC_LINE_SEGMENT:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfAcLineSegmentAtBoundary(beq).tabulateLocals("EquipmentAtBoundary"));
+                    LOG.debug(CgmesBoundary.getPropertyBagOfAcLineSegmentAtBoundary(beq).tabulateLocals("AcLineSegmentAtBoundary"));
                     break;
                 case SWITCH:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq).tabulateLocals("EquipmentAtBoundary"));
+                    LOG.debug(CgmesBoundary.getPropertyBagOfSwitchAtBoundary(beq).tabulateLocals("SwitchAtBoundary"));
                     break;
                 case TRANSFORMER:
                     CgmesBoundary.getPropertyBagsOfTransformerAtBoundary(beq).forEach(pb -> LOG.debug(pb.tabulateLocals("TransformerEndAtBoundary")));
                     break;
                 case EQUIVALENT_BRANCH:
-                    LOG.debug(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq).tabulateLocals("EquipmentAtBoundary"));
+                    LOG.debug(CgmesBoundary.getPropertyBagOfEquivalentBranchAtBoundary(beq).tabulateLocals("EquivalentBranchAtBoundary"));
                     break;
             }
         });

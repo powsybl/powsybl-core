@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -48,14 +47,14 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
             // EquivalentBranch is a result of network reduction prior to the data exchange.
             invalid("Impedance 21 different of impedance 12 not supported");
         }
-        convertLine();
+        convertEquivalentBranch();
     }
 
     public void convertAtBoundary() {
         if (isBoundary(1)) {
-            convertLineAtBoundary(1);
+            convertEquivalentBranchAtBoundary(1);
         } else if (isBoundary(2)) {
-            convertLineAtBoundary(2);
+            convertEquivalentBranchAtBoundary(2);
         } else {
             throw new ConversionException("Boundary must be at one end of the equivalent branch");
         }
@@ -73,7 +72,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         return boundaryLine;
     }
 
-    private void convertLine() {
+    private void convertEquivalentBranch() {
         double r = p.asDouble("r");
         double x = p.asDouble("x");
         double bch = 0;
@@ -92,11 +91,11 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 
-    private void convertLineAtBoundary(int boundarySide) {
+    private void convertEquivalentBranchAtBoundary(int boundarySide) {
         // If we have created buses and substations for boundary nodes,
         // convert as a regular line
         if (context.config().convertBoundary()) {
-            convertLine();
+            convertEquivalentBranch();
         } else {
             double r = p.asDouble("r");
             double x = p.asDouble("x");
