@@ -1,18 +1,17 @@
-compgenopt(option) ::= <<
-<if(option.file)>-f<\\>
-<elseif(option.dir)>-d<\\>
-<elseif(option.hostname)>-A hostname<\\>
-<else>-W "<option.possibleValues; separator=" "> "<\\>
+compgenopt(option) ::= <%
+<if(option.file)>-f
+<elseif(option.dir)>-d
+<elseif(option.hostname)>-A hostname
+<else>-W "<option.possibleValues; separator=" "> "
 <endif>
->>
+%>
 
-caseOption(option) ::= <<
+optionCase(option) ::= <<
 <if(option.arg)>
         <option.name>)
             COMPREPLY=($(compgen <compgenopt(option)> -- $cur))
             return 0
-            ;;
-<endif>
+            ;;<endif>
 >>
 
 subcommandFunction(command) ::= <<
@@ -20,13 +19,21 @@ _<command.name>() {
     local cur=${COMP_WORDS[COMP_CWORD]}
     local prev=${COMP_WORDS[COMP_CWORD-1]}
     case "$prev" in
-<command.options:caseOption()><\\>
+<command.options:optionCase()>
         *)
             COMPREPLY=($(compgen -W "<command.options:{ option | <option.name> }>" -- $cur))
             return 0
             ;;
     esac
 }
+
+>>
+
+commandCase(command) ::= <<
+            <command.name>)
+                _<command.name>
+                return 0
+                ;;
 >>
 
 commandFunction(toolName, commands) ::= <<
@@ -39,20 +46,14 @@ _<toolName>() {
     else
         local cmd=${COMP_WORDS[1]}
         case "$cmd" in
-<commands:{ c |
-            <c.name>)
-                _<c.name>
-                return 0
-                ;;
-}><\\>
+<commands:commandCase(); separator="\n">
         esac
     fi
 }
 >>
 
 completionScript(toolName, commands) ::= <<
-<commands:{c | <subcommandFunction(c)>}>
-
+<commands:subcommandFunction(); separator="\n">
 <commandFunction(toolName, commands)>
 
 complete -F _<toolName> <toolName>

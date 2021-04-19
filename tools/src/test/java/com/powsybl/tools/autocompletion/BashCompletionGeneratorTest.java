@@ -35,8 +35,10 @@ public class BashCompletionGeneratorTest {
 
     @Parameterized.Parameters
     public static Iterable<? extends Object> data() {
-        return Arrays.asList(new FreemarkerBashCompletionGenerator(),
-                new StringTemplateBashCompletionGenerator());
+        return Arrays.asList(
+                //new FreemarkerBashCompletionGenerator(),
+                new StringTemplateBashCompletionGenerator()
+        );
     }
 
     private static String readResource(String path) throws IOException {
@@ -75,6 +77,11 @@ public class BashCompletionGeneratorTest {
         BashOption enumOption = new BashOption("--type", "TYPE", OptionType.enumeration(TypeOption.class));
         BashCommand command = new BashCommand("cmd", file, dir, host, enumOption);
         checkGeneratedScript("1-command-multiple-options.sh", command);
+    }
+
+    @Test
+    public void twoCommands() throws IOException {
+        checkGeneratedScript("2-commands.sh", new BashCommand("cmd1"), new BashCommand("cmd2"));
     }
 
 }
