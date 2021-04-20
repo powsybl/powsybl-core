@@ -191,7 +191,15 @@ public final class EquipmentExport {
             PowerTransformerEq.write(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
             String end1Id = CgmesExportUtil.getUniqueId();
             String terminalId1 = CgmesExportUtil.getUniqueId();
-            PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), 1, twt.getR(), twt.getX(), twt.getG(), twt.getB(), twt.getRatedU1(), terminalId1, cimNamespace, writer);
+            // structural ratio at end1
+            double a0 = twt.getRatedU1() / twt.getRatedU2();
+            // move structural ratio from end1 to end2
+            double a02 = a0*a0;
+            double r = twt.getR() * a02;
+            double x = twt.getX() * a02;
+            double g = twt.getG() / a02;
+            double b = twt.getB() / a02;
+            PowerTransformerEq.writeEnd(end1Id, twt.getNameOrId() + "_1", twt.getId(), 1, r, x, g, b, twt.getRatedU1(), terminalId1, cimNamespace, writer);
             String terminalId2 = CgmesExportUtil.getUniqueId();
             PowerTransformerEq.writeEnd(CgmesExportUtil.getUniqueId(), twt.getNameOrId() + "_2", twt.getId(), 2, 0.0, 0.0, 0.0, 0.0, twt.getRatedU2(), terminalId2, cimNamespace, writer);
             TerminalEq.write(terminalId1, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal1()), 1, cimNamespace, writer);
@@ -205,19 +213,28 @@ public final class EquipmentExport {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             PowerTransformerEq.write(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
             String terminalId1 = CgmesExportUtil.getUniqueId();
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_1", CgmesExportUtil.getUniqueId(), 1, twt.getLeg1(), terminalId1, cimNamespace, writer);
+            double ratedU0 = twt.getLeg1().getRatedU();
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_1", CgmesExportUtil.getUniqueId(), 1, twt.getLeg1(), ratedU0, terminalId1, cimNamespace, writer);
             String terminalId2 = CgmesExportUtil.getUniqueId();
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_2", CgmesExportUtil.getUniqueId(), 2, twt.getLeg2(), terminalId2, cimNamespace, writer);
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_2", CgmesExportUtil.getUniqueId(), 2, twt.getLeg2(), ratedU0, terminalId2, cimNamespace, writer);
             String terminalId3 = CgmesExportUtil.getUniqueId();
-            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_3", CgmesExportUtil.getUniqueId(), 3, twt.getLeg3(), terminalId3, cimNamespace, writer);
+            writeThreeWindingsTransformerEnd(twt.getId(), twt.getNameOrId() + "_3", CgmesExportUtil.getUniqueId(), 3, twt.getLeg3(), ratedU0, terminalId3, cimNamespace, writer);
             TerminalEq.write(terminalId1, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg1().getTerminal()), 1, cimNamespace, writer);
             TerminalEq.write(terminalId2, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg2().getTerminal()), 2, cimNamespace, writer);
             TerminalEq.write(terminalId3, twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg3().getTerminal()), 3, cimNamespace, writer);
         }
     }
 
-    private static void writeThreeWindingsTransformerEnd(String twtId, String twtName, String endId, int endNumber, ThreeWindingsTransformer.Leg leg, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, leg.getR(), leg.getX(), leg.getG(), leg.getB(), leg.getRatedU(), terminalId, cimNamespace, writer);
+    private static void writeThreeWindingsTransformerEnd(String twtId, String twtName, String endId, int endNumber, ThreeWindingsTransformer.Leg leg, double ratedU0, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // structural ratio at end1
+        double a0 = leg.getRatedU() / ratedU0;
+        // move structural ratio from end1 to end2
+        double a02 = a0*a0;
+        double r = leg.getR() * a02;
+        double x = leg.getX() * a02;
+        double g = leg.getG() / a02;
+        double b = leg.getB() / a02;
+        PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedU(), terminalId, cimNamespace, writer);
         writePhaseTapChanger(leg.getPhaseTapChanger(), twtName, endId, leg.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
         writeRatioTapChanger(leg.getRatioTapChanger(), twtName, endId, cimNamespace, writer);
     }
