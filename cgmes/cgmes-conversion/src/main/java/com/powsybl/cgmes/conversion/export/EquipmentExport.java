@@ -312,7 +312,7 @@ public final class EquipmentExport {
             EquivalentInjectionEq.write(equivalentInjectionId, line.getNameOrId() + "_EI", line.getGeneration() != null, line.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
             // Cast the danglingLine to an AcLineSegment
-            AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB(), cimNamespace, writer);
+            AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB(), line.getR(), cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal()), 1, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId, 2, cimNamespace, writer);
         }
