@@ -7,6 +7,7 @@
 package com.powsybl.tools.autocompletion;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -22,10 +23,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -85,7 +86,8 @@ public class BashCompletionTool implements Tool {
         Map<String, Options> itoolsCommands = tools.stream()
                 .map(Tool::getCommand)
                 .filter(Objects::nonNull)
-                .collect(Collectors.toMap(Command::getName, Command::getOptions));
+                .sorted(Comparator.comparing(Command::getName))
+                .collect(ImmutableMap.toImmutableMap(Command::getName, Command::getOptions));
         List<BashCommand> commands = CommonsCliAdapter.adaptCommands(itoolsCommands);
 
         //Try to identify file, dir, and host options, and defaults to files

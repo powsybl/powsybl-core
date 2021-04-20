@@ -1,3 +1,18 @@
+_tool1() {
+    local cur=${COMP_WORDS[COMP_CWORD]}
+    local prev=${COMP_WORDS[COMP_CWORD-1]}
+    case "$prev" in
+        --case-file)
+            COMPREPLY=($(compgen -f -- $cur))
+            return 0
+            ;;
+        *)
+            COMPREPLY=($(compgen -W "-I --case-file " -- $cur))
+            return 0
+            ;;
+    esac
+}
+
 _tool2() {
     local cur=${COMP_WORDS[COMP_CWORD]}
     local prev=${COMP_WORDS[COMP_CWORD-1]}
@@ -17,36 +32,21 @@ _tool2() {
     esac
 }
 
-_tool1() {
-    local cur=${COMP_WORDS[COMP_CWORD]}
-    local prev=${COMP_WORDS[COMP_CWORD-1]}
-    case "$prev" in
-        --case-file)
-            COMPREPLY=($(compgen -f -- $cur))
-            return 0
-            ;;
-        *)
-            COMPREPLY=($(compgen -W "-I --case-file " -- $cur))
-            return 0
-            ;;
-    esac
-}
-
 _itools() {
     compopt -o filenames
 
     if [[ "${#COMP_WORDS[@]}" == 2 ]]; then
         local cur=${COMP_WORDS[COMP_CWORD]}
-        COMPREPLY=($(compgen -W "tool2 tool1 " -- $cur))
+        COMPREPLY=($(compgen -W "tool1 tool2 " -- $cur))
     else
         local cmd=${COMP_WORDS[1]}
         case "$cmd" in
-            tool2)
-                _tool2
-                return 0
-                ;;
             tool1)
                 _tool1
+                return 0
+                ;;
+            tool2)
+                _tool2
                 return 0
                 ;;
         esac

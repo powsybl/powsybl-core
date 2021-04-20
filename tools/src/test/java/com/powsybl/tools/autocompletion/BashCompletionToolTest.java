@@ -74,7 +74,7 @@ public class BashCompletionToolTest extends AbstractToolTest {
         options2.addOption(Option.builder().longOpt("dir").hasArg().argName("DIR").build());
         Tool tool2 = createTool("tool2", options2);
 
-        tool.generateCompletionScript(ImmutableList.of(tool1, tool2), fileSystem.getPath("/output.sh"));
+        tool.generateCompletionScript(ImmutableList.of(tool2, tool1), fileSystem.getPath("/output.sh"));
 
         String outputScript = Files.readString(fileSystem.getPath("/output.sh"), StandardCharsets.UTF_8);
         assertEquals(expectedScript(), outputScript);
