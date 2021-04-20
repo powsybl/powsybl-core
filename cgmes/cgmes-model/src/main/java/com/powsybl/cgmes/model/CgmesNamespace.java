@@ -29,6 +29,10 @@ public final class CgmesNamespace {
     public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 
+    public static final String ABSOLUTEVALUE_LIMITDIRECTION = "http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue";
+    public static final String PATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl";
+    public static final String TATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl";
+
     public static String getCimNamespace(int cimVersion) {
         if (cimVersion == 14) {
             return CIM_14_NAMESPACE;

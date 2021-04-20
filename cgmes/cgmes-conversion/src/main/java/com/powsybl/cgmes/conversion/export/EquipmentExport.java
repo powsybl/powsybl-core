@@ -17,10 +17,7 @@ import com.powsybl.iidm.network.extensions.VoltagePerReactivePowerControl;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -181,8 +178,11 @@ public final class EquipmentExport {
     private static void writeLines(Network network, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Line line : network.getLines()) {
             AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getG1() + line.getG2(), line.getB1() + line.getB2(), cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal1()), 1, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal2()), 2, cimNamespace, writer);
+            String terminalId1 = CgmesExportUtil.getUniqueId();
+            TerminalEq.write(terminalId1, line.getId(), connectivityNodeId(exportedNodes, line.getTerminal1()), 1, cimNamespace, writer);
+            String terminalId2 = CgmesExportUtil.getUniqueId();
+            TerminalEq.write(terminalId2, line.getId(), connectivityNodeId(exportedNodes, line.getTerminal2()), 2, cimNamespace, writer);
+            writeBranchLimits(line, terminalId1, terminalId2, cimNamespace, writer);
         }
     }
 
@@ -206,6 +206,7 @@ public final class EquipmentExport {
             TerminalEq.write(terminalId2, twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal2()), 2, cimNamespace, writer);
             writePhaseTapChanger(twt.getPhaseTapChanger(), twt.getNameOrId(), end1Id, twt.getTerminal1().getVoltageLevel().getNominalV(), cimNamespace, writer);
             writeRatioTapChanger(twt.getRatioTapChanger(), twt.getNameOrId(), end1Id, cimNamespace, writer);
+            writeBranchLimits(twt, terminalId1, terminalId2, cimNamespace, writer);
         }
     }
 
@@ -237,6 +238,7 @@ public final class EquipmentExport {
         PowerTransformerEq.writeEnd(endId, twtName, twtId, endNumber, r, x, g, b, leg.getRatedU(), terminalId, cimNamespace, writer);
         writePhaseTapChanger(leg.getPhaseTapChanger(), twtName, endId, leg.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
         writeRatioTapChanger(leg.getRatioTapChanger(), twtName, endId, cimNamespace, writer);
+        writeFlowsLimits(leg, terminalId, cimNamespace, writer);
     }
 
     private static void writePhaseTapChanger(PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -289,49 +291,105 @@ public final class EquipmentExport {
     }
 
     private static void writeDanglingLines(Network network, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        for (DanglingLine line : network.getDanglingLines()) {
+        for (DanglingLine danglingLine : network.getDanglingLines()) {
             // New Substation
             String geographicalRegionId = CgmesExportUtil.getUniqueId();
-            GeographicalRegionEq.write(geographicalRegionId, line.getNameOrId() + "_GR", cimNamespace, writer);
+            GeographicalRegionEq.write(geographicalRegionId, danglingLine.getNameOrId() + "_GR", cimNamespace, writer);
             String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-            SubGeographicalRegionEq.write(subGeographicalRegionId, line.getNameOrId() + "_SGR", geographicalRegionId, cimNamespace, writer);
+            SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getNameOrId() + "_SGR", geographicalRegionId, cimNamespace, writer);
             String substationId = CgmesExportUtil.getUniqueId();
-            SubstationEq.write(substationId, line.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
+            SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
             // New VoltageLevel
             String baseVoltageId = CgmesExportUtil.getUniqueId();
-            BaseVoltageEq.write(baseVoltageId, line.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
+            BaseVoltageEq.write(baseVoltageId, danglingLine.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
             String voltageLevelId = CgmesExportUtil.getUniqueId();
-            VoltageLevelEq.write(voltageLevelId, line.getNameOrId() + "_VL", substationId, baseVoltageId, cimNamespace, writer);
+            VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", substationId, baseVoltageId, cimNamespace, writer);
             // New ConnectivityNode
             String connectivityNodeId = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(connectivityNodeId, line.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+            ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
             // New Load
             String loadId = CgmesExportUtil.getUniqueId();
-            EnergyConsumerEq.write(loadId, line.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
+            EnergyConsumerEq.write(loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, writer);
             // New Equivalent Injection
             double minP = 0.0;
             double maxP = 0.0;
             double minQ = 0.0;
             double maxQ = 0.0;
-            if (line.getGeneration() != null) {
-                minP = line.getGeneration().getMinP();
-                maxP = line.getGeneration().getMaxP();
-                ReactiveLimits reactiveLimits = line.getGeneration().getReactiveLimits();
+            if (danglingLine.getGeneration() != null) {
+                minP = danglingLine.getGeneration().getMinP();
+                maxP = danglingLine.getGeneration().getMaxP();
+                ReactiveLimits reactiveLimits = danglingLine.getGeneration().getReactiveLimits();
                 if (reactiveLimits instanceof MinMaxReactiveLimits) {
                     minQ = ((MinMaxReactiveLimits) reactiveLimits).getMinQ();
                     maxQ = ((MinMaxReactiveLimits) reactiveLimits).getMaxQ();
                 } else {
-                    throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + line.getNameOrId());
+                    throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + danglingLine.getNameOrId());
                 }
             }
             String equivalentInjectionId = CgmesExportUtil.getUniqueId();
-            EquivalentInjectionEq.write(equivalentInjectionId, line.getNameOrId() + "_EI", line.getGeneration() != null, line.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
+            EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
             // Cast the danglingLine to an AcLineSegment
-            AcLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), line.getX(), line.getB(), line.getR(), cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal()), 1, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId, 2, cimNamespace, writer);
+            AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId(), danglingLine.getR(), danglingLine.getX(), danglingLine.getB(), danglingLine.getR(), cimNamespace, writer);
+            String terminalId = CgmesExportUtil.getUniqueId();
+            TerminalEq.write(terminalId, danglingLine.getId(), connectivityNodeId(exportedNodes, danglingLine.getTerminal()), 1, cimNamespace, writer);
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), danglingLine.getId(), connectivityNodeId, 2, cimNamespace, writer);
+            writeFlowsLimits(danglingLine, terminalId, cimNamespace, writer);
+        }
+    }
+
+    private static void writeBranchLimits(Branch branch, String terminalId1, String terminalId2, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        if (branch.getActivePowerLimits1() != null) {
+            writeLoadingLimits(branch.getActivePowerLimits1(), terminalId1, cimNamespace, writer);
+        }
+        if (branch.getActivePowerLimits2() != null) {
+            writeLoadingLimits(branch.getActivePowerLimits2(), terminalId2, cimNamespace, writer);
+        }
+        if (branch.getApparentPowerLimits1() != null) {
+            writeLoadingLimits(branch.getApparentPowerLimits1(), terminalId1, cimNamespace, writer);
+        }
+        if (branch.getApparentPowerLimits2() != null) {
+            writeLoadingLimits(branch.getApparentPowerLimits2(), terminalId2, cimNamespace, writer);
+        }
+        if (branch.getCurrentLimits1() != null) {
+            writeLoadingLimits(branch.getCurrentLimits1(), terminalId1, cimNamespace, writer);
+        }
+        if (branch.getCurrentLimits2() != null) {
+            writeLoadingLimits(branch.getCurrentLimits2(), terminalId2, cimNamespace, writer);
+        }
+    }
+
+    private static void writeFlowsLimits(FlowsLimitsHolder holder, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        if (holder.getActivePowerLimits() != null) {
+            writeLoadingLimits(holder.getActivePowerLimits(), terminalId, cimNamespace, writer);
+        }
+        if (holder.getApparentPowerLimits() != null) {
+            writeLoadingLimits(holder.getApparentPowerLimits(), terminalId, cimNamespace, writer);
+        }
+        if (holder.getCurrentLimits() != null) {
+            writeLoadingLimits(holder.getCurrentLimits(), terminalId, cimNamespace, writer);
+        }
+    }
+
+    private static void writeLoadingLimits(LoadingLimits limits, String terminalId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        if (!Double.isNaN(limits.getPermanentLimit())) {
+            String operationalLimitTypeId = CgmesExportUtil.getUniqueId();
+            OperationalLimitTypeEq.writePatl(operationalLimitTypeId, cimNamespace, writer);
+            String operationalLimitSetId = CgmesExportUtil.getUniqueId();
+            OperationalLimitSetEq.write(operationalLimitSetId, "operational limit patl", terminalId, cimNamespace, writer);
+            LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", limits.getPermanentLimit(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
+        }
+        if (!limits.getTemporaryLimits().isEmpty()) {
+            Iterator<LoadingLimits.TemporaryLimit> iterator = limits.getTemporaryLimits().iterator();
+            while (iterator.hasNext()) {
+                LoadingLimits.TemporaryLimit temporaryLimit = iterator.next();
+                String operationalLimitTypeId = CgmesExportUtil.getUniqueId();
+                OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, writer);
+                String operationalLimitSetId = CgmesExportUtil.getUniqueId();
+                OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer);
+                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(),"CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
+            }
         }
     }
 
