@@ -7,6 +7,9 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -111,11 +114,9 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        double r = convertedT2xModel.r;
-        double x = convertedT2xModel.x;
-        double g = convertedT2xModel.end1.g;
-        double b = convertedT2xModel.end1.b;
-        boundaryLine.setParameters(r, x, g, b);
+        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
+            getB(convertedT2xModel), getRatio(convertedT2xModel), getAngle(convertedT2xModel));
+        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
 
         return boundaryLine;
     }
@@ -126,12 +127,11 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        double r = convertedT2xModel.r;
-        double x = convertedT2xModel.x;
-        double gch = convertedT2xModel.end1.g;
-        double bch = convertedT2xModel.end1.b;
+        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
+            getB(convertedT2xModel), getRatio(convertedT2xModel), getAngle(convertedT2xModel));
 
-        convertToDanglingLine(boundarySide, r, x, gch, bch);
+        // TODO extend the danglingLine to support twoWindingsTransformer
+        convertToDanglingLine(boundarySide, pm.r1, pm.x1, pm.g1, pm.b1);
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -189,5 +189,112 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
+    }
+
+    private static double getRatio(ConvertedT2xModel convertedT2xModel) {
+        double a = convertedT2xModel.end1.ratedU / convertedT2xModel.end2.ratedU;
+        if (convertedT2xModel.end1.ratioTapChanger != null) {
+            a *= convertedT2xModel.end1.ratioTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.ratioTapChanger)).getRatio();
+        }
+        if (convertedT2xModel.end1.phaseTapChanger != null) {
+            a *= convertedT2xModel.end1.phaseTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getRatio();
+        }
+        return a;
+    }
+
+    private static double getAngle(ConvertedT2xModel convertedT2xModel) {
+        double angle = 0.0;
+        if (convertedT2xModel.end1.phaseTapChanger != null) {
+            angle = Math.toRadians(convertedT2xModel.end1.phaseTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getAngle());
+        }
+        return angle;
+    }
+
+    private static int getStepIndex(TapChanger tapChanger) {
+        return tapChanger.getTapPosition();
+    }
+
+    private static double getStepR(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getR();
+        }
+        return 0.0;
+    }
+
+    private static double getStepX(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getX();
+        }
+        return 0.0;
+    }
+
+    private static double getStepG1(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getG1();
+        }
+        return 0.0;
+    }
+
+    private static double getStepB1(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getB1();
+        }
+        return 0.0;
+    }
+
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
+    }
+
+    private static double getR(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.r, getStepR(convertedT2xModel.end1.ratioTapChanger), getStepR(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getX(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.x, getStepX(convertedT2xModel.end1.ratioTapChanger), getStepX(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getG(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.end1.g, getStepG1(convertedT2xModel.end1.ratioTapChanger), getStepG1(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getB(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private PiModel piModel(double r, double x, double g, double b, double a, double angle) {
+        PiModel piModel = new PiModel();
+
+        Complex ratio = ComplexUtils.polar2Complex(a, angle);
+        Complex ytr = new Complex(r, x).reciprocal();
+        Complex ytr1 = ytr.multiply(ratio.conjugate());
+        Complex ytr2 = ytr.multiply(ratio);
+        Complex ysh1 = new Complex(g, b).multiply(ratio.multiply(ratio.conjugate()))
+            .add(ytr.multiply(ratio.reciprocal()).add(new Complex(-1.0, 0.0)).divide(ratio.conjugate()));
+        Complex ysh2 = ytr.multiply(ratio.reciprocal().add(new Complex(-1.0, 0.0)));
+
+        piModel.r1 = ytr1.reciprocal().getReal();
+        piModel.x1 = ytr1.reciprocal().getImaginary();
+        piModel.g1 = ysh1.getReal();
+        piModel.b1 = ysh1.getImaginary();
+        piModel.r2 = ytr2.reciprocal().getReal();
+        piModel.x2 = ytr2.reciprocal().getImaginary();
+        piModel.g2 = ysh2.getReal();
+        piModel.b2 = ysh2.getImaginary();
+        return piModel;
+    }
+
+    private static class PiModel {
+        double r1;
+        double x1;
+        double g1;
+        double b1;
+        double r2;
+        double x2;
+        double g2;
+        double b2;
     }
 }

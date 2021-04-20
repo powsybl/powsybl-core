@@ -64,7 +64,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         double x = p.asDouble("x");
         double g = p.asDouble("gch", 0);
         double b = p.asDouble("bch", 0);
-        boundaryLine.setParameters(r, x, g, b);
+        boundaryLine.setParameters(r, x, g / 2, b / 2, g / 2, b / 2);
         return boundaryLine;
     }
 
@@ -154,6 +154,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
+    // TODO support transformer + Line
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         TieLineAdder adder = context.network().newTieLine()
             .setId(boundaryLine1.getId() + " + " + boundaryLine2.getId())
@@ -163,20 +164,20 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .setName(boundaryLine1.getName())
                 .setR(boundaryLine1.getR())
                 .setX(boundaryLine1.getX())
-                .setG1(boundaryLine1.getG() / 2)
-                .setG2(boundaryLine1.getG() / 2)
-                .setB1(boundaryLine1.getB() / 2)
-                .setB2(boundaryLine1.getB() / 2)
+                .setG1(boundaryLine1.getG1())
+                .setG2(boundaryLine1.getG2())
+                .setB1(boundaryLine1.getB1())
+                .setB2(boundaryLine1.getB2())
                 .add()
             .newHalfLine2()
                 .setId(boundaryLine2.getId())
                 .setName(boundaryLine2.getName())
                 .setR(boundaryLine2.getR())
                 .setX(boundaryLine2.getX())
-                .setG1(boundaryLine2.getG() / 2)
-                .setG2(boundaryLine2.getG() / 2)
-                .setB1(boundaryLine2.getB() / 2)
-                .setB2(boundaryLine2.getB() / 2)
+                .setG1(boundaryLine2.getG1())
+                .setG2(boundaryLine2.getG2())
+                .setB1(boundaryLine2.getB1())
+                .setB2(boundaryLine2.getB2())
                 .add()
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
@@ -186,21 +187,22 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         return adder.add();
     }
 
+    // TODO support transformer + Line
     private static Line createLine(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
         PiModel pi1 = new PiModel();
         pi1.r = boundaryLine1.getR();
         pi1.x = boundaryLine1.getX();
-        pi1.g1 = boundaryLine1.getG() / 2.0;
-        pi1.b1 = boundaryLine1.getB() / 2.0;
-        pi1.g2 = pi1.g1;
-        pi1.b2 = pi1.b1;
+        pi1.g1 = boundaryLine1.getG1();
+        pi1.b1 = boundaryLine1.getB1();
+        pi1.g2 = boundaryLine1.getG2();
+        pi1.b2 = boundaryLine1.getB2();
         PiModel pi2 = new PiModel();
         pi2.r = boundaryLine2.getR();
         pi2.x = boundaryLine2.getX();
-        pi2.g1 = boundaryLine2.getG() / 2.0;
-        pi2.b1 = boundaryLine2.getB() / 2.0;
-        pi2.g2 = pi2.g1;
-        pi2.b2 = pi2.b1;
+        pi2.g1 = boundaryLine2.getG1();
+        pi2.b1 = boundaryLine2.getB1();
+        pi2.g2 = boundaryLine2.getG2();
+        pi2.b2 = boundaryLine2.getB2();
         PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
         LineAdder adder = context.network().newLine()
             .setR(pim.r)

@@ -655,15 +655,19 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             this.modelPowerFlow = modelPowerFlow;
             r = 0.0;
             x = 0.0;
-            g = 0.0;
-            b = 0.0;
+            g1 = 0.0;
+            b1 = 0.0;
+            g2 = 0.0;
+            b2 = 0.0;
         }
 
-        public void setParameters(double r, double x, double g, double b) {
+        public void setParameters(double r, double x, double g1, double b1, double g2, double b2) {
             this.r = r;
             this.x = x;
-            this.g = g;
-            this.b = b;
+            this.g1 = g1;
+            this.b1 = b1;
+            this.g2 = g2;
+            this.b2 = b2;
         }
 
         public String getId() {
@@ -706,12 +710,20 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             return x;
         }
 
-        public double getG() {
-            return g;
+        public double getG1() {
+            return g1;
         }
 
-        public double getB() {
-            return b;
+        public double getB1() {
+            return b1;
+        }
+
+        public double getG2() {
+            return g2;
+        }
+
+        public double getB2() {
+            return b2;
         }
 
         public PowerFlow getModelPowerFlow() {
@@ -728,8 +740,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         private final String boundaryTerminalId;
         private double r;
         private double x;
-        private double g;
-        private double b;
+        private double g1;
+        private double b1;
+        private double g2;
+        private double b2;
         private final PowerFlow modelPowerFlow;
     }
 

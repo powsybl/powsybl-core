@@ -66,7 +66,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion impleme
         BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
         double r = p.asDouble("r");
         double x = p.asDouble("x");
-        boundaryLine.setParameters(r, x, 0.0, 0.0);
+        boundaryLine.setParameters(r, x, 0.0, 0.0, 0.0, 0.0);
         return boundaryLine;
     }
 
