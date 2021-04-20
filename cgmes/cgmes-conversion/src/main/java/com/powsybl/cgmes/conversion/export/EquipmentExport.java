@@ -194,7 +194,7 @@ public final class EquipmentExport {
             // structural ratio at end1
             double a0 = twt.getRatedU1() / twt.getRatedU2();
             // move structural ratio from end1 to end2
-            double a02 = a0*a0;
+            double a02 = a0 * a0;
             double r = twt.getR() * a02;
             double x = twt.getX() * a02;
             double g = twt.getG() / a02;
@@ -229,7 +229,7 @@ public final class EquipmentExport {
         // structural ratio at end1
         double a0 = leg.getRatedU() / ratedU0;
         // move structural ratio from end1 to end2
-        double a02 = a0*a0;
+        double a02 = a0 * a0;
         double r = leg.getR() * a02;
         double x = leg.getX() * a02;
         double g = leg.getG() / a02;
