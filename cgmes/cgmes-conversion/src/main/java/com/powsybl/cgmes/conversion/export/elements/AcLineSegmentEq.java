@@ -21,9 +21,10 @@ public final class AcLineSegmentEq {
 
     private static final String EQ_ACLINESEGMENT_R = "ACLineSegment.r";
     private static final String EQ_ACLINESEGMENT_X = "ACLineSegment.x";
+    private static final String EQ_ACLINESEGMENT_GCH = "ACLineSegment.gch";
     private static final String EQ_ACLINESEGMENT_BCH = "ACLineSegment.bch";
 
-    public static void write(String id, String lineSegmentName, double r, double x, double bch, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String lineSegmentName, double r, double x, double gch, double bch, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "ACLineSegment");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -35,6 +36,11 @@ public final class AcLineSegmentEq {
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_X);
         writer.writeCharacters(CgmesExportUtil.format(x));
         writer.writeEndElement();
+        if (gch != 0.0) {
+            writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_GCH);
+            writer.writeCharacters(CgmesExportUtil.format(gch));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, EQ_ACLINESEGMENT_BCH);
         writer.writeCharacters(CgmesExportUtil.format(bch));
         writer.writeEndElement();
