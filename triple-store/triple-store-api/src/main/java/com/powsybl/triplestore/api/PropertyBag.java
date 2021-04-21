@@ -207,6 +207,20 @@ public class PropertyBag extends HashMap<String, String> {
         return multiValuedPropertyNames.contains(name);
     }
 
+    public PropertyBag copy() {
+        List<String> propertyNamesCopy = new ArrayList<>(propertyNames.size());
+        propertyNamesCopy.addAll(propertyNames);
+        PropertyBag propertyBagCopy = new PropertyBag(propertyNamesCopy, removeInitialUnderscoreForIdentifiers);
+
+        propertyBagCopy.setResourceNames(resourceNames);
+        propertyBagCopy.setClassPropertyNames(classPropertyNames);
+        propertyBagCopy.setMultivaluedProperty(multiValuedPropertyNames);
+
+        this.entrySet().stream().forEach(c -> propertyBagCopy.put(c.getKey(), c.getValue()));
+
+        return propertyBagCopy;
+    }
+
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
     private final List<String> resourceNames = new ArrayList<>();

@@ -85,8 +85,8 @@ public class CgmesDcConversion {
         if (converterNum == 1 && dcLineSegmentNum == 1) {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
         } else if (converterNum == 2 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0));
+            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
+            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
         } else if (converterNum == 1 && dcLineSegmentNum == 2) {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
         } else {
@@ -96,14 +96,36 @@ public class CgmesDcConversion {
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
+        convert(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId, false);
+    }
+
+    private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId, boolean isDuplicated) {
         if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
         this.r = computeR(this.dcLineSegment);
 
+        // After collecting all commomData the id can be modified to guarantee uniqueness
+        if (isDuplicated) {
+            defineACopyOfThePropertyBagWithUniqueId(dcLineSegment, dcLineSegmentId);
+        }
+
         if (createHvdc()) {
             setCommonDataUsed();
         }
+    }
+
+    private void defineACopyOfThePropertyBagWithUniqueId(PropertyBag dcLineSegment, String dcLineSegmentId) {
+
+        // Create a copy of the property bag and change the id to guarantee uniqueness
+        PropertyBag dcLineSegmentCopy = dcLineSegment.copy();
+
+        String completeId = dcLineSegmentCopy.get("DCLineSegment");
+        String uniqueId = dcLineSegmentId + "-1";
+        dcLineSegmentCopy.put("DCLineSegment", completeId.replace(dcLineSegmentId, uniqueId));
+
+        this.dcLineSegmentId = uniqueId;
+        this.dcLineSegment = dcLineSegmentCopy;
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
