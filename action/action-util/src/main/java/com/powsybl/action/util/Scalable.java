@@ -185,6 +185,20 @@ public interface Scalable {
         return new LoadScalable(id, minValue, maxValue);
     }
 
+    /**
+     * create DanglingLineScalable with id
+     */
+    static DanglingLineScalable onDanglingLine(String id) {
+        return new DanglingLineScalable(id);
+    }
+
+    /**
+     * create DanglingLineScalable with id, min and max power values for scaling
+     */
+    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
+        return new DanglingLineScalable(id, minValue, maxValue);
+    }
+
     static Scalable scalable(String id) {
         return new ScalableAdapter(id);
     }
