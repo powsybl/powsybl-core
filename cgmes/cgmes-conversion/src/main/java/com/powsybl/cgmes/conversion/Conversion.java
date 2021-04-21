@@ -466,8 +466,9 @@ public class Conversion {
     // Supported conversions:
     // Only one Line (--> create dangling line)
     // Only one Switch (--> create dangling line with z0)
-    // Only one Transformer (--> create dangling line. The ratio of the transformer is forced to (1.0, 0.0))
-    // Any combination of Line, Switch and Transformer
+    // Only one Transformer (--> create dangling line)
+    // Only one EquivalentBranch (--> create dangling line)
+    // Any combination of Line, Switch, Transformer and EquivalentBranch
 
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
         // At least each delayed boundary node should have one equipment attached to it
