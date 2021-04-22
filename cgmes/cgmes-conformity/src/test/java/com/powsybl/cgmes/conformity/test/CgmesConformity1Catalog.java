@@ -132,6 +132,18 @@ public final class CgmesConformity1Catalog {
                         "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources miniNodeBreakerOnlyEQ() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-Only-EQ",
+                expectedMiniNodeBreaker(),
+                new ResourceSet(base, "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources miniNodeBreaker() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";

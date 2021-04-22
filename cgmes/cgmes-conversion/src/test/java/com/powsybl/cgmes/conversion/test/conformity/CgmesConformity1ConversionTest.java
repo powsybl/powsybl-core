@@ -267,6 +267,11 @@ public class CgmesConformity1ConversionTest {
         assertEquals(initialBusIds, afterLoadFlowBusIds);
     }
 
+    @Test
+    public void miniNodeBreakerOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), null));
+    }
+
     private static class TxData {
         TxData(int numEnds, int rtc1, int ptc1, int rtc2, int ptc2) {
             this.numEnds = numEnds;
