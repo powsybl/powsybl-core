@@ -28,15 +28,22 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         // Will convert it to a Load (a fixed injection)
         // We make no difference based on the type (motor/generator)
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
-        PowerFlow f = powerFlow();
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(f.p())
-                .setQ0(f.q())
+                .setP0(p0())
+                .setQ0(q0())
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
         Load load = adder.add();
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
+    }
+
+    private double p0() {
+        return powerFlow().defined() ? powerFlow().p() : 0.0;
+    }
+
+    private double q0() {
+        return powerFlow().defined() ? powerFlow().q() : 0.0;
     }
 }

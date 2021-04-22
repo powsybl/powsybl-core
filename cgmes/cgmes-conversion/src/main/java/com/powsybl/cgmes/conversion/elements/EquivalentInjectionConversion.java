@@ -74,8 +74,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             // of the dangling line
             PowerFlow f = powerFlow();
             dl = adder
-                    .setP0(fother.p() + f.p())
-                    .setQ0(fother.q() + f.q())
+                    .setP0(fother.p() + p0())
+                    .setQ0(fother.q() + q0())
                     .add();
         }
         // We do not call addAliasesAndProperties(dl) !
@@ -113,6 +113,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
+    }
+
+    private double p0() {
+        return powerFlow().defined() ? powerFlow().p() : 0.0;
+    }
+
+    private double q0() {
+        return powerFlow().defined() ? powerFlow().q() : 0.0;
     }
 
     static class Regulation {
