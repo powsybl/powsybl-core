@@ -43,8 +43,8 @@ public class DanglingLineScalableTest {
         dl3 = new DanglingLineScalable("dl2", 20, 100);
         dl4 = new DanglingLineScalable("dl2", -10, 100);
 
-        dl5 = new DanglingLineScalable("dl2", ScalingConvention.LOAD);
-        dl6 = new DanglingLineScalable("dl2", 20, 100, ScalingConvention.LOAD);
+        dl5 = Scalable.onDanglingLine("dl2", ScalingConvention.LOAD);
+        dl6 = Scalable.onDanglingLine("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
     @Test(expected = NullPointerException.class)
