@@ -8,7 +8,9 @@ package com.powsybl.action.util;
 
 import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,8 +31,9 @@ public class DanglingLineScalableTest {
     private Scalable dl2;
     private Scalable dl3;
     private Scalable dl4;
+    private Scalable dl5;
+    private Scalable dl6;
     private ScalingConvention convention;
-    private Scalable g1;
 
     @Before
     public void setUp() {
@@ -40,7 +43,8 @@ public class DanglingLineScalableTest {
         dl3 = new DanglingLineScalable("dl2", 20, 100);
         dl4 = new DanglingLineScalable("dl2", -10, 100);
 
-        g1 = Scalable.onGenerator("g1");
+        dl5 = new DanglingLineScalable("dl2", ScalingConvention.LOAD);
+        dl6 = new DanglingLineScalable("dl2", 20, 100, ScalingConvention.LOAD);
     }
 
     @Test(expected = NullPointerException.class)
@@ -64,6 +68,8 @@ public class DanglingLineScalableTest {
         assertEquals(-20, dl3.maximumValue(network), 0.);
         assertEquals(-20, dl3.maximumValue(network, GENERATOR), 0.);
         assertEquals(100, dl3.maximumValue(network, LOAD), 0.);
+        assertEquals(Double.MAX_VALUE, dl5.maximumValue(network));
+        assertEquals(100, dl6.maximumValue(network));
     }
 
     @Test
@@ -72,6 +78,8 @@ public class DanglingLineScalableTest {
         assertEquals(-100, dl3.minimumValue(network), 0.);
         assertEquals(-100, dl3.minimumValue(network, GENERATOR), 0.);
         assertEquals(20, dl3.minimumValue(network, LOAD), 0.);
+        assertEquals(-Double.MAX_VALUE, dl5.minimumValue(network));
+        assertEquals(-20, dl6.minimumValue(network));
     }
 
     @Test
