@@ -6,14 +6,17 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Injection;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Objects;
 
-import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+import static com.powsybl.action.util.Scalable.ScalingConvention.LOAD;
 
 /**
  * @author Coline Piloquet <coline.piloquet at rte-france.com>
@@ -21,12 +24,23 @@ import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 public class DanglingLineScalable extends AbstractInjectionScalable {
     private static final Logger LOGGER = LoggerFactory.getLogger(DanglingLineScalable.class);
 
+    private final ScalingConvention scalingConvention;
+
     DanglingLineScalable(String id) {
-        super(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+    }
+
+    DanglingLineScalable(String id, ScalingConvention scalingConvention) {
+        this(id, -Double.MAX_VALUE, Double.MAX_VALUE, scalingConvention);
     }
 
     DanglingLineScalable(String id, double minValue, double maxValue) {
+        this(id, minValue, maxValue, ScalingConvention.GENERATOR);
+    }
+
+    DanglingLineScalable(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
         super(id, minValue, maxValue);
+        this.scalingConvention = Objects.requireNonNull(scalingConvention);
     }
 
     @Override
@@ -41,7 +55,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * There is no default value for the maximum value.
      */
     @Override
@@ -59,7 +73,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * There is no default value for the minimum value.
      */
     @Override
@@ -90,7 +104,7 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
      * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
      */
@@ -136,5 +150,20 @@ public class DanglingLineScalable extends AbstractInjectionScalable {
                 dl.getId(), oldP0, dl.getP0());
 
         return done;
+    }
+
+    @Override
+    public double maximumValue(Network n) {
+        return maximumValue(n, scalingConvention);
+    }
+
+    @Override
+    public double minimumValue(Network n) {
+        return minimumValue(n, scalingConvention);
+    }
+
+    @Override
+    public double scale(Network n, double asked) {
+        return scale(n, asked, scalingConvention);
     }
 }
