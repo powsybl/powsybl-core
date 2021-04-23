@@ -8,9 +8,15 @@ package com.powsybl.dynamicsimulation.json;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.dynamicsimulation.DynamicSimulationResult;
+import com.powsybl.timeseries.RegularTimeSeriesIndex;
+import com.powsybl.timeseries.StringTimeSeries;
+import com.powsybl.timeseries.TimeSeries;
+
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Map;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -27,6 +33,21 @@ public class DynamicSimulationResultJsonTest extends AbstractConverterTest {
             @Override
             public String getLogs() {
                 return "";
+            }
+
+            @Override
+            public Map<String, TimeSeries> getCurves() {
+                return Collections.singletonMap("curve1", TimeSeries.createDouble("curve1", new RegularTimeSeriesIndex(0, 5, 1), 0.0, 0.1, 0.1, 0.2, 0.1, 0.0));
+            }
+
+            @Override
+            public TimeSeries getCurve(String curve) {
+                return null;
+            }
+
+            @Override
+            public StringTimeSeries getTimeLine() {
+                return DynamicSimulationResult.emptyTimeLine();
             }
         };
     }

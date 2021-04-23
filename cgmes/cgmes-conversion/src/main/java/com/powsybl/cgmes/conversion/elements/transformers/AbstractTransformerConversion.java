@@ -103,8 +103,8 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
     }
 
     @Override
-    protected void addAliases(Identifiable<?> identifiable) {
-        super.addAliases(identifiable);
+    protected void addAliasesAndProperties(Identifiable<?> identifiable) {
+        super.addAliasesAndProperties(identifiable);
         List<String> ptcs = context.cgmes().phaseTapChangerListForPowerTransformer(identifiable.getId());
         if (ptcs != null) {
             for (int  i = 0; i < ptcs.size(); i++) {

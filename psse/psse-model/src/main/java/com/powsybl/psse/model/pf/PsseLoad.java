@@ -56,6 +56,7 @@ public class PsseLoad extends PsseVersioned {
     private int scale = 1;
 
     @Parsed
+    @Revision(since = 33)
     private int intrpt = 0;
 
     @Parsed
@@ -179,10 +180,12 @@ public class PsseLoad extends PsseVersioned {
     }
 
     public int getIntrpt() {
+        checkVersion("intrpt");
         return intrpt;
     }
 
     public void setIntrpt(int intrpt) {
+        checkVersion("intrpt");
         this.intrpt = intrpt;
     }
 

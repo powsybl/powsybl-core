@@ -60,6 +60,7 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
         model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(null, context));
         model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(null, context));
         model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(null, context));
+
         model.addLineGrouping(new MultiSectionLineGroupingData().read(null, context));
         model.addZones(new ZoneData().read(null, context));
         model.addInterareaTransfer(new InterareaTransferData().read(null, context));
@@ -106,12 +107,14 @@ public class PowerFlowRawxData35 extends PowerFlowRawxDataAllVersions {
             new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, null);
             new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, null);
             new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, null);
+
             new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, null);
             new ZoneData().write(model.getZones(), context, null);
             new InterareaTransferData().write(model.getInterareaTransfer(), context, null);
             new OwnerData().write(model.getOwners(), context, null);
             new FactsDeviceData().write(model.getFacts(), context, null);
             new SwitchedShuntData().write(model.getSwitchedShunts(), context, null);
+
             new GneDeviceData().write(model.getGneDevice(), context, null);
             new InductionMachineData().write(model.getInductionMachines(), context, null);
 

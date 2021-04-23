@@ -6,6 +6,8 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,4 +22,9 @@ public class UcteLine extends UcteElement {
         }
     }
 
+    @Override
+    public void fix(Reporter reporter) {
+        UcteValidation.checkValidLineCharacteristics(this, reporter);
+        super.fix(reporter);
+    }
 }

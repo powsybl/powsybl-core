@@ -18,4 +18,16 @@ public interface Boundary {
     double getP();
 
     double getQ();
+
+    default Branch.Side getSide() {
+        return null;
+    }
+
+    default Connectable getConnectable() {
+        return null;
+    }
+
+    default VoltageLevel getVoltageLevel() {
+        return null;
+    }
 }

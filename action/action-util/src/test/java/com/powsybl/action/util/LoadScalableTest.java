@@ -110,13 +110,9 @@ public class LoadScalableTest {
         assertEquals(20, load.getP0(), 1e-3);
 
         l3.reset(network);
+        //test with p0 outside interval
         assertEquals(0, load.getP0(), 1e-3);
-        try {
-            l3.scale(network, -40, convention);
-            fail("My method didn't throw when I expected it to");
-        } catch (PowsyblException e) {
-            assertEquals("Error scaling LoadScalable l1 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
-        }
+        assertEquals(0, l3.scale(network, -40, convention), 1e-3);
 
         //test LoadScalable with negative minValue
         l4.reset(network);
@@ -159,13 +155,9 @@ public class LoadScalableTest {
         assertEquals(20, load.getP0(), 1e-3);
 
         l3.reset(network);
+        //test with p0 outside interval
         assertEquals(0, load.getP0(), 1e-3);
-        try {
-            l3.scale(network, -40, convention);
-            fail("My method didn't throw when I expected it to");
-        } catch (PowsyblException e) {
-            assertEquals("Error scaling LoadScalable l1 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
-        }
+        assertEquals(0, l3.scale(network, -40, convention), 1e-3);
 
         //test LoadScalable with negative minValue
         l4.reset(network);

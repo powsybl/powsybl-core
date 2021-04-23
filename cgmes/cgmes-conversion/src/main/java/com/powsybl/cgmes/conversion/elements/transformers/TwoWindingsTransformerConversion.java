@@ -92,7 +92,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
-        addAliases(tx);
+        addAliasesAndProperties(tx);
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
         setToIidmRatioTapChanger(convertedT2xModel, tx);

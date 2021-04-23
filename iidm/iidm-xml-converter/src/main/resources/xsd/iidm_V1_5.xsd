@@ -300,7 +300,7 @@
         <xs:attribute name="b" use="required" type="xs:double"/>
         <xs:attribute name="g" use="optional" type="xs:double"/>
     </xs:complexType>
-    <xs:complexType name="CurrentLimit">
+    <xs:complexType name="LoadingLimit">
         <xs:sequence>
             <xs:element name="temporaryLimit" minOccurs="0" maxOccurs="unbounded">
                 <xs:complexType>
@@ -321,7 +321,9 @@
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
-                    <xs:element name="currentLimits" type="iidm:CurrentLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="p0" use="required" type="xs:double"/>
                 <xs:attribute name="q0" use="required" type="xs:double"/>
@@ -384,8 +386,12 @@
                 <xs:sequence>
                     <xs:element name="ratioTapChanger" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
@@ -407,9 +413,15 @@
                     <xs:element name="phaseTapChanger2" type="iidm:PhaseTapChanger" minOccurs="0"/>
                     <xs:element name="ratioTapChanger3" type="iidm:RatioTapChanger" minOccurs="0"/>
                     <xs:element name="phaseTapChanger3" type="iidm:PhaseTapChanger" minOccurs="0"/>
-                    <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits3" type="iidm:CurrentLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits3" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="ratedU0" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
@@ -512,8 +524,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Branch">
                 <xs:sequence>
-                    <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
@@ -528,8 +544,12 @@
         <xs:complexContent>
             <xs:extension base="iidm:Branch">
                 <xs:sequence>
-                    <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits1" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="activePowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="apparentPowerLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
+                    <xs:element name="currentLimits2" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
                 <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="id_1" use="required" type="iidm:nonEmptyString"/>

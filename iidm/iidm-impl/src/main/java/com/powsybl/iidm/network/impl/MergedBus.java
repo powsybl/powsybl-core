@@ -11,12 +11,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
@@ -58,21 +58,13 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     @Override
     public int getConnectedTerminalCount() {
         checkValidity();
-        int count = 0;
-        for (ConfiguredBus bus : buses) {
-            count += bus.getTerminalCount();
-        }
-        return count;
+        return buses.stream().mapToInt(ConfiguredBus::getConnectedTerminalCount).sum();
     }
 
     @Override
     public Iterable<TerminalExt> getConnectedTerminals() {
         checkValidity();
-        List<Iterable<TerminalExt>> iterables = new ArrayList<>(buses.size());
-        for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getConnectedTerminals());
-        }
-        return Iterables.concat(iterables);
+        return buses.stream().map(ConfiguredBus::getConnectedTerminals).reduce(Iterables::concat).orElse(Collections.emptyList());
     }
 
     @Override

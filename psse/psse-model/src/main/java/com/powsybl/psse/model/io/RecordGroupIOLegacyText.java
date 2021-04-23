@@ -137,11 +137,15 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     protected static List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
         String line = readRecordLine(reader);
-        while (!line.trim().equals("0")) {
+        while (!endOfBlock(line)) {
             records.add(line);
             line = readRecordLine(reader);
         }
         return records;
+    }
+
+    protected static boolean endOfBlock(String line) {
+        return line.trim().equals("0");
     }
 
     // Read a line that contains a record
@@ -167,10 +171,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     private static String removeComment(String line) {
-        int slashIndex = line.indexOf('/');
-        if (slashIndex == -1) {
-            return line;
-        }
-        return line.substring(0, slashIndex);
+        // Only outside quotes
+        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
     }
 }

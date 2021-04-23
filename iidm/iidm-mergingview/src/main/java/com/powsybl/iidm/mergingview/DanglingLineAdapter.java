@@ -8,6 +8,8 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Collection;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -15,6 +17,20 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
 
     DanglingLineAdapter(final DanglingLine delegate, final MergingViewIndex index) {
         super(delegate, index);
+    }
+
+    @Override
+    public Boundary getBoundary() {
+        if (getIndex().isMerged(this)) {
+            MergedLine line = getIndex().getMergedLineByCode(getUcteXnodeCode());
+            if (getDelegate() == line.getDanglingLine1()) {
+                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.ONE);
+            }
+            if (getDelegate() == line.getDanglingLine2()) {
+                return getIndex().getBoundary(getDelegate().getBoundary(), Branch.Side.TWO);
+            }
+        }
+        return getIndex().getBoundary(getDelegate().getBoundary());
     }
 
     // -------------------------------
@@ -97,8 +113,23 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
+    public Collection<OperationalLimits> getOperationalLimits() {
+        return getDelegate().getOperationalLimits();
+    }
+
+    @Override
     public CurrentLimits getCurrentLimits() {
         return getDelegate().getCurrentLimits();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits() {
+        return getDelegate().getActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits() {
+        return getDelegate().getApparentPowerLimits();
     }
 
     @Override
@@ -107,7 +138,12 @@ public class DanglingLineAdapter extends AbstractInjectionAdapter<DanglingLine> 
     }
 
     @Override
-    public Boundary getBoundary() {
-        return getDelegate().getBoundary();
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        return getDelegate().newApparentPowerLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        return getDelegate().newActivePowerLimits();
     }
 }

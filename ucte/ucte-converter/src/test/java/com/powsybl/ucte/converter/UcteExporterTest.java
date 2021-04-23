@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -171,6 +170,26 @@ public class UcteExporterTest extends AbstractConverterTest {
     public void testXnodeTransformer() throws IOException {
         Network network = loadNetworkFromResourceFile("/xNodeTransformer.uct");
         testExporter(network, "/xNodeTransformer.uct");
+    }
+
+    @Test
+    public void testValidationUtil() throws IOException {
+        Network network = loadNetworkFromResourceFile("/expectedExport.uct");
+        for (Bus bus : network.getBusView().getBuses()) {
+            bus.setV(bus.getVoltageLevel().getNominalV() * 1.4);
+        }
+        for (Generator gen : network.getGenerators()) {
+            if (gen.isVoltageRegulatorOn()) {
+                gen.setTargetV(gen.getRegulatingTerminal().getVoltageLevel().getNominalV() * 1.4);
+            }
+        }
+        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
+            RatioTapChanger rtc = twt.getRatioTapChanger();
+            if (rtc != null && rtc.isRegulating()) {
+                rtc.setTargetV(rtc.getRegulationTerminal().getVoltageLevel().getNominalV() * 1.4);
+            }
+        }
+        testExporter(network, "/invalidVoltageReference.uct");
     }
 
 }

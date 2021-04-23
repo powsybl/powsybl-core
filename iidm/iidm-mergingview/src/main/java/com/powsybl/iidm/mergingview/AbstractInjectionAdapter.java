@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>

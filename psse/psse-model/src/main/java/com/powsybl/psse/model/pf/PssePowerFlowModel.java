@@ -68,7 +68,7 @@ public class PssePowerFlowModel {
     }
 
     public void addBuses(List<PsseBus> buses) {
-        this.buses.addAll(buses);
+        this.buses.addAll(modelled(buses));
     }
 
     public List<PsseBus> getBuses() {
@@ -144,7 +144,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseTransformerImpedanceCorrection> getTransformerImpedanceCorrections() {
-        return transformerImpedanceCorrections;
+        return Collections.unmodifiableList(transformerImpedanceCorrections);
     }
 
     public void addMultiTerminalDcTransmissionLines(List<PsseMultiTerminalDcTransmissionLine> multiTerminalDcTransmissionLines) {
@@ -160,7 +160,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseLineGrouping> getLineGrouping() {
-        return lineGrouping;
+        return Collections.unmodifiableList(lineGrouping);
     }
 
     public void addZones(List<PsseZone> zones) {
@@ -176,7 +176,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseInterareaTransfer> getInterareaTransfer() {
-        return interareaTransfer;
+        return Collections.unmodifiableList(interareaTransfer);
     }
 
     public void addOwners(List<PsseOwner> owners) {
@@ -192,7 +192,7 @@ public class PssePowerFlowModel {
     }
 
     public List<PsseFacts> getFacts() {
-        return facts;
+        return Collections.unmodifiableList(facts);
     }
 
     public void addSwitchedShunts(List<PsseSwitchedShunt> switchedShunts) {

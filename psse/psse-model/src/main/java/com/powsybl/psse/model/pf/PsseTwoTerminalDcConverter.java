@@ -57,7 +57,7 @@ public class PsseTwoTerminalDcConverter extends PsseVersioned {
     private int ic = 0;
 
     // Originally the field name is "if" that is not allowed
-    @Parsed
+    @Parsed(field = {"if"})
     private int ifx = 0;
 
     @Parsed
