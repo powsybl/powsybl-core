@@ -6,10 +6,9 @@
  */
 package com.powsybl.tools.autocompletion;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import org.apache.commons.cli.Options;
+
+import java.util.*;
 
 /**
  * Simplified command model for completion script generation.
@@ -29,6 +28,17 @@ public class BashCommand {
     public BashCommand(String name, List<BashOption> options) {
         this.name = Objects.requireNonNull(name);
         this.options = Objects.requireNonNull(options);
+    }
+
+    public static List<BashCommand> convert(Map<String, Options> commonsCliCommands) {
+        List<BashCommand> commands = new ArrayList<>();
+        for (Map.Entry<String, Options> entry : commonsCliCommands.entrySet()) {
+            String commandName = entry.getKey();
+            org.apache.commons.cli.Options commonsCliOptions = entry.getValue();
+            List<BashOption> options = BashOption.convert(commonsCliOptions);
+            commands.add(new BashCommand(commandName, options));
+        }
+        return commands;
     }
 
     public BashCommand(String name) {

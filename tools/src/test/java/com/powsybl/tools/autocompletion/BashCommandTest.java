@@ -4,11 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.tools.autocompletion.commonscli;
+package com.powsybl.tools.autocompletion;
 
 import com.google.common.collect.ImmutableMap;
-import com.powsybl.tools.autocompletion.BashCommand;
-import com.powsybl.tools.autocompletion.BashOption;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.junit.Test;
@@ -21,10 +19,10 @@ import static org.junit.Assert.*;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class CommonsCliAdapterTest {
+public class BashCommandTest {
 
     @Test
-    public void adapt() {
+    public void testConversion() {
         Options inputOptions = new Options();
         inputOptions.addOption(Option.builder().longOpt("file")
                 .hasArg()
@@ -32,7 +30,7 @@ public class CommonsCliAdapterTest {
                 .build());
         inputOptions.addOption(Option.builder("E").build());
         Map<String, Options> inputCommands = ImmutableMap.of("cmd", inputOptions);
-        List<BashCommand> commands = CommonsCliAdapter.adaptCommands(inputCommands);
+        List<BashCommand> commands = BashCommand.convert(inputCommands);
 
         assertEquals(1, commands.size());
         BashCommand command = commands.get(0);

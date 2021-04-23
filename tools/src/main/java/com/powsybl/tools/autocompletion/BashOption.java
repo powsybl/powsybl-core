@@ -6,6 +6,10 @@
  */
 package com.powsybl.tools.autocompletion;
 
+import org.apache.commons.cli.Options;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -34,6 +38,19 @@ public class BashOption {
         this.name = Objects.requireNonNull(name);
         this.argName = argName;
         this.type = type;
+    }
+
+    public static List<BashOption> convert(Options commonsCliOptions) {
+        List<BashOption> options = new ArrayList<>();
+        for (org.apache.commons.cli.Option commonsCliOption : commonsCliOptions.getOptions()) {
+            String optionName = Optional.ofNullable(commonsCliOption.getLongOpt())
+                .map(longOpt -> "--" + longOpt)
+                .orElse("-" + commonsCliOption.getOpt());
+            String argName = commonsCliOption.getArgName();
+            BashOption option = new BashOption(optionName, argName, null);
+            options.add(option);
+        }
+        return options;
     }
 
     /**

@@ -13,7 +13,6 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolOptions;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.tools.autocompletion.commonscli.CommonsCliAdapter;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -88,7 +87,7 @@ public class BashCompletionTool implements Tool {
                 .filter(Objects::nonNull)
                 .sorted(Comparator.comparing(Command::getName))
                 .collect(ImmutableMap.toImmutableMap(Command::getName, Command::getOptions));
-        List<BashCommand> commands = CommonsCliAdapter.adaptCommands(itoolsCommands);
+        List<BashCommand> commands = BashCommand.convert(itoolsCommands);
 
         //Try to identify file, dir, and host options, and defaults to files
         new OptionTypeMapper()
