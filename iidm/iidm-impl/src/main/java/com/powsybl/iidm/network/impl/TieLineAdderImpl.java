@@ -124,7 +124,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return TieLineAdderImpl.this;
         }
 
-        public TieLineImpl.HalfLineImpl build() {
+        private TieLineImpl.HalfLineImpl build() {
             Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
             return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side);
         }
