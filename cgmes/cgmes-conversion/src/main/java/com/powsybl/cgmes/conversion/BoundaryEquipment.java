@@ -78,5 +78,5 @@ public class BoundaryEquipment {
     private final PropertyBag propertyBag;
     private final PropertyBags propertyBags;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BoundaryEquipment.class);
 }
