@@ -727,6 +727,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         assertFalse(psseValidation.isValidCase());
     }
 
+    @Test
     public void exampleVersion32WriteTest() throws IOException {
         Context context = new Context();
         PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
