@@ -123,6 +123,7 @@
         <slf4j.version>1.7.22</slf4j.version>
         <snakeyaml.version>1.26</snakeyaml.version>
         <staxutils.version>20070216</staxutils.version>
+        <stringtemplate.version>4.0.2</stringtemplate.version>
         <threeten.version>1.0</threeten.version>
         <trove4j.version>3.0.3</trove4j.version>
         <univocity-parsers.version>2.8.3</univocity-parsers.version>
@@ -830,6 +831,11 @@
                 <groupId>us.hebi.matlab.mat</groupId>
                 <artifactId>mfl-core</artifactId>
                 <version>${mfl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.antlr</groupId>
+                <artifactId>stringtemplate</artifactId>
+                <version>${stringtemplate.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->
