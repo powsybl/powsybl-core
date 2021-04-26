@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
-import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
-import com.powsybl.cgmes.conversion.elements.EquivalentBranchConversion;
-import com.powsybl.cgmes.conversion.elements.SwitchConversion;
-import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
+import com.powsybl.cgmes.conversion.BoundaryEquipment.BoundaryEquipmentType;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -26,10 +22,6 @@ import java.util.*;
  */
 
 public class CgmesBoundary {
-
-    public enum BoundaryEquipmentType {
-        AC_LINE_SEGMENT, SWITCH, TRANSFORMER, EQUIVALENT_BRANCH
-    }
 
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
@@ -66,6 +58,18 @@ public class CgmesBoundary {
 
     public PowerFlow powerFlowAtNode(String node) {
         return nodesPowerFlow.get(node);
+    }
+
+    /**
+     * @deprecated Not used anymore. To set an equipment at boundary node, use
+     * {@link CgmesBoundary#addAcLineSegmentAtNode(PropertyBag, String)} or
+     * {@link CgmesBoundary#addSwitchAtNode(PropertyBag, String)} or
+     * {@link CgmesBoundary#addTransformerAtNode(PropertyBags, String)} or
+     * {@link CgmesBoundary#addEquivalentBranchAtNode(PropertyBag, String)}  instead.
+     */
+    @Deprecated
+    public void addEquipmentAtNode(PropertyBag line, String node) {
+        throw new ConversionException("Deprecated. Not used anymore");
     }
 
     public void addAcLineSegmentAtNode(PropertyBag line, String node) {
@@ -119,7 +123,16 @@ public class CgmesBoundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
-    public List<BoundaryEquipment> equipmentAtNode(String node) {
+    /**
+     * @deprecated Not used anymore. To get the equipment at boundary node, use
+     * {@link CgmesBoundary#boundaryEquipmentAtNode(String)} instead.
+     */
+    @Deprecated
+    public List<PropertyBag> equipmentAtNode(String node) {
+        throw new ConversionException("Deprecated. Not used anymore");
+    }
+
+    public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
@@ -129,58 +142,6 @@ public class CgmesBoundary {
 
     public String nameAtBoundary(String node) {
         return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
-    }
-
-    public static final class BoundaryEquipment {
-        private BoundaryEquipment(BoundaryEquipmentType type, PropertyBag propertyBag) {
-            this.type = type;
-            this.propertyBag = propertyBag;
-            propertyBags = null;
-        }
-
-        private BoundaryEquipment(BoundaryEquipmentType type, PropertyBags propertyBags) {
-            this.type = type;
-            this.propertyBag = null;
-            this.propertyBags = propertyBags;
-        }
-
-        public BoundaryEquipmentType getBoundaryEquipmentType() {
-            return type;
-        }
-
-        public EquipmentAtBoundaryConversion createConversion(Context context) {
-            EquipmentAtBoundaryConversion c = null;
-            switch (type) {
-                case AC_LINE_SEGMENT:
-                    c = new ACLineSegmentConversion(propertyBag, context);
-                    break;
-                case SWITCH:
-                    c = new SwitchConversion(propertyBag, context);
-                    break;
-                case TRANSFORMER:
-                    c = new TwoWindingsTransformerConversion(propertyBags, context);
-                    break;
-                case EQUIVALENT_BRANCH:
-                    c = new EquivalentBranchConversion(propertyBag, context);
-                    break;
-            }
-            return c;
-        }
-
-        public void log() {
-            if (LOG.isDebugEnabled()) {
-                if (propertyBag != null) {
-                    LOG.debug(propertyBag.tabulateLocals(type.toString()));
-                }
-                if (propertyBags != null) {
-                    propertyBags.forEach(p -> LOG.debug(p.tabulateLocals(type.toString())));
-                }
-            }
-        }
-
-        private final BoundaryEquipmentType type;
-        private final PropertyBag propertyBag;
-        private final PropertyBags propertyBags;
     }
 
     private static class Voltage {

@@ -618,7 +618,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
     }
 
-    public BoundaryLine createBoundaryLine(String boundaryNode) {
+    protected BoundaryLine createBoundaryLine(String boundaryNode) {
         int modelEnd = 1;
         if (nodeId(1).equals(boundaryNode)) {
             modelEnd = 2;
@@ -637,114 +637,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         PowerFlow modelPowerFlow = powerFlow(modelEnd);
         return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
             modelTerminalId, boundaryTerminalId, modelPowerFlow);
-    }
-
-    public static class BoundaryLine {
-
-        public BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
-            boolean modelTconnected, int modelNode, String modelTerminalId, String boundaryTerminalId,
-            PowerFlow modelPowerFlow) {
-            this.id = id;
-            this.name = name;
-            this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
-            this.modelBus = modelBus;
-            this.modelTconnected = modelTconnected;
-            this.modelNode = modelNode;
-            this.modelTerminalId = modelTerminalId;
-            this.boundaryTerminalId = boundaryTerminalId;
-            this.modelPowerFlow = modelPowerFlow;
-            r = 0.0;
-            x = 0.0;
-            g1 = 0.0;
-            b1 = 0.0;
-            g2 = 0.0;
-            b2 = 0.0;
-        }
-
-        public void setParameters(double r, double x, double g1, double b1, double g2, double b2) {
-            this.r = r;
-            this.x = x;
-            this.g1 = g1;
-            this.b1 = b1;
-            this.g2 = g2;
-            this.b2 = b2;
-        }
-
-        public String getId() {
-            return id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getModelIidmVoltageLevelId() {
-            return modelIidmVoltageLevelId;
-        }
-
-        public String getModelBus() {
-            return modelBus;
-        }
-
-        public boolean isModelTconnected() {
-            return modelTconnected;
-        }
-
-        public int getModelNode() {
-            return modelNode;
-        }
-
-        public String getModelTerminalId() {
-            return modelTerminalId;
-        }
-
-        public String getBoundaryTerminalId() {
-            return boundaryTerminalId;
-        }
-
-        public double getR() {
-            return r;
-        }
-
-        public double getX() {
-            return x;
-        }
-
-        public double getG1() {
-            return g1;
-        }
-
-        public double getB1() {
-            return b1;
-        }
-
-        public double getG2() {
-            return g2;
-        }
-
-        public double getB2() {
-            return b2;
-        }
-
-        public PowerFlow getModelPowerFlow() {
-            return modelPowerFlow;
-        }
-
-        private final String id;
-        private final String name;
-        private final String modelIidmVoltageLevelId;
-        private final String modelBus;
-        private final boolean modelTconnected;
-        private final int modelNode;
-        private final String modelTerminalId;
-        private final String boundaryTerminalId;
-        private double r;
-        private double x;
-        private double g1;
-        private double b1;
-        private double g2;
-        private double b2;
-        private final PowerFlow modelPowerFlow;
     }
 
     private final TerminalData[] terminals;

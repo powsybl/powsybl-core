@@ -15,6 +15,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;

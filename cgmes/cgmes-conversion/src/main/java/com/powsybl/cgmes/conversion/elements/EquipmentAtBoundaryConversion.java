@@ -13,5 +13,5 @@ package com.powsybl.cgmes.conversion.elements;
 public interface EquipmentAtBoundaryConversion {
     void convertAtBoundary();
 
-    AbstractConductingEquipmentConversion.BoundaryLine asBoundaryLine(String node);
+    BoundaryLine asBoundaryLine(String node);
 }

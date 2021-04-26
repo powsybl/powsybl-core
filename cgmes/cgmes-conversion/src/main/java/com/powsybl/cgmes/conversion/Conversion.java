@@ -7,9 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.CgmesBoundary.BoundaryEquipment;
 import com.powsybl.cgmes.conversion.elements.*;
-import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.hvdc.CgmesDcConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.transformers.TwoWindingsTransformerConversion;
@@ -473,7 +471,7 @@ public class Conversion {
     private void convertEquipmentAtBoundaryNode(Context context, String node) {
         // At least each delayed boundary node should have one equipment attached to it
         // Currently supported equipment at boundary are lines and switches
-        List<BoundaryEquipment> beqs = context.boundary().equipmentAtNode(node);
+        List<BoundaryEquipment> beqs = context.boundary().boundaryEquipmentAtNode(node);
         if (LOG.isDebugEnabled()) {
             LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
             beqs.forEach(BoundaryEquipment::log);
