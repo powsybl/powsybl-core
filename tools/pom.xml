@@ -76,6 +76,10 @@
             <artifactId>powsybl-computation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>stringtemplate</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
