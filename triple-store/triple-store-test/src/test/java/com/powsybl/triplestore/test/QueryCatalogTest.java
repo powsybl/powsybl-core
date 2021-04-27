@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.triplestore.test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -6,6 +12,9 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class QueryCatalogTest {
 
     @Test
