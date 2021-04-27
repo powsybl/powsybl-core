@@ -21,10 +21,6 @@ import java.util.Objects;
 
 import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.io.RecordGroupIOLegacyText.*;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.GNE_DEVICE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TWO_TERMINAL_DC_TRANSMISSION_LINE;
-import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -48,18 +44,19 @@ public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 
             model.addTransformers(new TransformerData().read(reader, context));
             model.addAreas(new AreaInterchangeData().read(reader, context));
-            // Complete discarded record groups
-            skip(TWO_TERMINAL_DC_TRANSMISSION_LINE, reader);
-            skip(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, reader);
+
+            model.addTwoTerminalDcTransmissionLines(new TwoTerminalDcTransmissionLineData().read(reader, context));
+            model.addVoltageSourceConverterDcTransmissionLines(new VoltageSourceConverterDcTransmissionLineData().read(reader, context));
             model.addTransformerImpedanceCorrections(new TransformerImpedanceCorrectionTablesData().read(reader, context));
-            skip(MULTI_TERMINAL_DC_TRANSMISSION_LINE, reader);
+            model.addMultiTerminalDcTransmissionLines(new MultiTerminalDcTransmissionLineData().read(reader, context));
+
             model.addLineGrouping(new MultiSectionLineGroupingData().read(reader, context));
             model.addZones(new ZoneData().read(reader, context));
             model.addInterareaTransfer(new InterareaTransferData().read(reader, context));
             model.addOwners(new OwnerData().read(reader, context));
             model.addFacts(new FactsDeviceData().read(reader, context));
             model.addSwitchedShunts(new SwitchedShuntData().read(reader, context));
-            skip(GNE_DEVICE, reader);
+            model.addGneDevice(new GneDeviceData().read(reader, context));
 
             return model;
         }
@@ -90,17 +87,19 @@ public class PowerFlowRawData32 extends PowerFlowRawDataAllVersions {
 
         new TransformerData().write(model.getTransformers(), context, outputStream);
         new AreaInterchangeData().write(model.getAreas(), context, outputStream);
-        writeEmpty(TWO_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
-        writeEmpty(VOLTAGE_SOURCE_CONVERTER_DC_TRANSMISSION_LINE, outputStream);
+
+        new TwoTerminalDcTransmissionLineData().write(model.getTwoTerminalDcTransmissionLines(), context, outputStream);
+        new VoltageSourceConverterDcTransmissionLineData().write(model.getVoltageSourceConverterDcTransmissionLines(), context, outputStream);
         new TransformerImpedanceCorrectionTablesData().write(model.getTransformerImpedanceCorrections(), context, outputStream);
-        writeEmpty(MULTI_TERMINAL_DC_TRANSMISSION_LINE, outputStream);
+        new MultiTerminalDcTransmissionLineData().write(model.getMultiTerminalDcTransmissionLines(), context, outputStream);
+
         new MultiSectionLineGroupingData().write(model.getLineGrouping(), context, outputStream);
         new ZoneData().write(model.getZones(), context, outputStream);
         new InterareaTransferData().write(model.getInterareaTransfer(), context, outputStream);
         new OwnerData().write(model.getOwners(), context, outputStream);
         new FactsDeviceData().write(model.getFacts(), context, outputStream);
         new SwitchedShuntData().write(model.getSwitchedShunts(), context, outputStream);
-        writeEmpty(GNE_DEVICE, outputStream);
+        new GneDeviceData().write(model.getGneDevice(), context, outputStream);
 
         writeQ(outputStream);
     }

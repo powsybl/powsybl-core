@@ -62,6 +62,7 @@ public final class CgmesNames {
 
     public static final String TERMINAL1 = "Terminal1";
     public static final String TERMINAL2 = "Terminal2";
+    public static final String TERMINAL3 = "Terminal3";
 
     public static final String TOPOLOGICAL_ISLAND = "TopologicalIsland";
     public static final String ANGLEREF_TOPOLOGICALNODE = "AngleRefTopologicalNode";
