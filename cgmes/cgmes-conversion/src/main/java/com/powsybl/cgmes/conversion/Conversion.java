@@ -258,7 +258,7 @@ public class Conversion {
                     .setId(controlAreaId)
                     .setName(tf.getLocal("controlAreaName"))
                     .setEnergyIdentificationCodeEic(tf.getLocal("energyIdentCodeEic"))
-                    .setNetInterchange(tf.asDouble("netInterchange"))
+                    .setNetInterchange(tf.asDouble("netInterchange", 0.0))
                     .add();
         }
 
