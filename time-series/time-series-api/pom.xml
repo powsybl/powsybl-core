@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-time-series</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>4.1.1</version>
+        <version>4.1.2</version>
     </parent>
 
     <artifactId>powsybl-time-series-api</artifactId>
