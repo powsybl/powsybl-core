@@ -272,6 +272,16 @@ public class CgmesConformity1ConversionTest {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), null));
     }
 
+    @Test
+    public void smallNodeBreakerOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), null));
+    }
+
     private static class TxData {
         TxData(int numEnds, int rtc1, int ptc1, int rtc2, int ptc2) {
             this.numEnds = numEnds;
