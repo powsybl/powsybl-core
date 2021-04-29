@@ -13,12 +13,15 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
-import static com.powsybl.cgmes.model.CgmesNamespace.TATL_LIMITTYPE;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
  */
 public final class OperationalLimitTypeEq {
+
+    public static final String ABSOLUTEVALUE_LIMITDIRECTION = "http://iec.ch/TC57/2013/CIM-schema-cim16#OperationalLimitDirectionKind.absoluteValue";
+    public static final String PATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.patl";
+    public static final String TATL_LIMITTYPE = "http://entsoe.eu/CIM/SchemaExtension/3/1#LimitTypeKind.tatl";
 
     public static void writePatl(String id, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "OperationalLimitType");
