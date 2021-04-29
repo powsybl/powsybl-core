@@ -6,7 +6,6 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -127,8 +126,8 @@ class GeneratorScalable extends AbstractInjectionScalable {
         double minimumTargetP = minimumTargetP(g);
         double maximumTargetP = maximumTargetP(g);
         if (oldTargetP < minimumTargetP || oldTargetP > maximumTargetP) {
-            throw new PowsyblException("Error scaling GeneratorScalable " + id +
-                    " : Initial P is not in the range [Pmin, Pmax]");
+            LOGGER.error("Error scaling GeneratorScalable {}: Initial P is not in the range [Pmin, Pmax], skipped", id);
+            return 0.;
         }
 
         // We use natural generator convention to compute the limits.
