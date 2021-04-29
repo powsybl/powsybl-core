@@ -14,6 +14,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
+import com.powsybl.iidm.network.test.Ieee14NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
@@ -83,13 +84,37 @@ public class PsseImporterTest extends AbstractConverterTest {
         Assert.assertFalse(importer.exists(dsCaseInvalidx));
     }
 
-    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+    public Network getNetwork(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
         Properties properties = new Properties();
         properties.put("psse.import.ignore-base-voltage", ignoreBaseVoltage);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource(basename, new ResourceSet("/", filename));
         Network network = new PsseImporter().importData(dataSource, new NetworkFactoryImpl(), properties);
+
+        return network;
+    }
+
+    public void importTest(String basename, String filename, boolean ignoreBaseVoltage) throws IOException {
+        Network network = getNetwork(basename, filename, ignoreBaseVoltage);
         testNetwork(network);
+    }
+
+    @Test
+    public void compareImportBuilder14() throws IOException {
+        Network networkImport = getNetwork("IEEE_14_bus", "IEEE_14_bus.raw", false);
+        Network networkBuild = Ieee14NetworkFactory.create();
+        assertEquals(networkBuild.getBranchCount(), networkImport.getBranchCount(), 0);
+        assertEquals(networkBuild.getGeneratorCount(), networkImport.getGeneratorCount(), 0);
+        assertEquals(networkBuild.getShuntCompensatorCount(), networkImport.getShuntCompensatorCount(), 0);
+        assertEquals(networkBuild.getVoltageLevelCount(), networkImport.getVoltageLevelCount(), 0);
+        assertEquals(networkBuild.getSubstationCount(), networkImport.getSubstationCount(), 0);
+        assertEquals(networkBuild.getLine("L-1-2-1 ").getR(), networkImport.getLine("L-1-2-1 ").getR(), 0.0001);
+        assertEquals(networkBuild.getLine("L-6-11-1 ").getX(), networkImport.getLine("L-6-11-1 ").getX(), 0.0001);
+        assertEquals(networkBuild.getTwoWindingsTransformer("T-4-7-1 ").getX(), networkImport.getTwoWindingsTransformer("T-4-7-1 ").getX(), 0.0001);
+        assertEquals(networkBuild.getTwoWindingsTransformer("T-4-9-1 ").getRatioTapChanger().getStep(0).getRho(), networkImport.getTwoWindingsTransformer("T-4-9-1 ").getRatioTapChanger().getStep(0).getRho(), 0.0001);
+        assertEquals(networkBuild.getLoad("B2-L1 ").getQ0(), networkImport.getLoad("B2-L1 ").getQ0(), 0.0001);
+        assertEquals(networkBuild.getGenerator("B6-G1 ").getTargetV(), networkImport.getGenerator("B6-G1 ").getTargetV(), 0.0001);
+        assertEquals(networkBuild.getGenerator("B8-G1 ").getReactiveLimits().getMaxQ(0), networkImport.getGenerator("B8-G1 ").getReactiveLimits().getMaxQ(0), 0.0001);
     }
 
     @Test
