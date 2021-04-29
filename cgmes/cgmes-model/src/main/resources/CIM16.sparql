@@ -620,7 +620,7 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?RegulatingControl
         cim:RegulatingControl.enabled ?enabled ;
         cim:RegulatingControl.targetValue ?targetValue ;
@@ -658,7 +658,7 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergySource
         cim:EnergySource.activePower ?p ;
         cim:EnergySource.reactivePower ?q
@@ -872,7 +872,7 @@ WHERE {
         a cim:ControlArea ;
         cim:IdentifiedObject.name ?name
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
 }}
@@ -890,13 +890,13 @@ WHERE {
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
 }}
-{ GRAPH ?graphSV {
+OPTIONAL { GRAPH ?graphSV {
     ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
 }}
 # For Current Source Converter
