@@ -68,4 +68,12 @@ public interface BusbarSection extends Injection<BusbarSection> {
     double getV();
 
     double getAngle();
+
+    double getFictitiousP();
+
+    double getFictitiousQ();
+
+    BusbarSection setFictitiousP(double p);
+
+    BusbarSection setFictitiousQ(double q);
 }

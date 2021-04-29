@@ -29,4 +29,26 @@ public class BusbarSectionAdapter extends AbstractInjectionAdapter<BusbarSection
     public double getAngle() {
         return getDelegate().getAngle();
     }
+
+    @Override
+    public double getFictitiousP() {
+        return getDelegate().getFictitiousP();
+    }
+
+    @Override
+    public double getFictitiousQ() {
+        return getDelegate().getFictitiousQ();
+    }
+
+    @Override
+    public BusbarSection setFictitiousP(double p) {
+        this.getDelegate().setFictitiousP(p);
+        return this;
+    }
+
+    @Override
+    public BusbarSection setFictitiousQ(double q) {
+        this.getDelegate().setFictitiousQ(q);
+        return this;
+    }
 }

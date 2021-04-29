@@ -49,6 +49,15 @@ public class BusbarSectionAdapterTest {
         assertEquals(expectedSJB.getV(), actualSJB.getV(), 0.0d);
         assertEquals(expectedSJB.getAngle(), actualSJB.getAngle(), 0.0d);
 
+        assertEquals(expectedSJB.getFictitiousP(), actualSJB.getFictitiousP(), 0.0d);
+        assertEquals(expectedSJB.getFictitiousQ(), actualSJB.getFictitiousQ(), 0.0d);
+
+        actualSJB.setFictitiousP(0);
+        actualSJB.setFictitiousQ(0);
+
+        assertEquals(0.0d, actualSJB.getFictitiousP(), 0.0d);
+        assertEquals(0.0d, actualSJB.getFictitiousQ(), 0.0d);
+
         // Topology
         TopologyVisitor visitor = mock(TopologyVisitor.class);
         mergingView.getVoltageLevel("voltageLevel1").visitEquipments(visitor);

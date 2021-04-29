@@ -14,8 +14,16 @@ import com.powsybl.iidm.network.*;
  */
 class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements BusbarSection {
 
+    // After a state estimation calculation,
+    // fictitious injections may be attributed to the busbar sections
+    // in node/breaker topology.
+    double fictitiousP;
+    double fictitiousQ;
+
     BusbarSectionImpl(String id, String name, boolean fictitious) {
         super(id, name, fictitious);
+        this.fictitiousP = Double.NaN;
+        this.fictitiousQ = Double.NaN;
     }
 
     @Override
@@ -41,5 +49,27 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
     @Override
     public double getAngle() {
         return ((NodeTerminal) getTerminal()).getAngle();
+    }
+
+    @Override
+    public double getFictitiousP() {
+        return fictitiousP;
+    }
+
+    @Override
+    public double getFictitiousQ() {
+        return fictitiousQ;
+    }
+
+    @Override
+    public BusbarSection setFictitiousP(double p) {
+        fictitiousP = p;
+        return this;
+    }
+
+    @Override
+    public BusbarSection setFictitiousQ(double q) {
+        fictitiousQ = q;
+        return this;
     }
 }
