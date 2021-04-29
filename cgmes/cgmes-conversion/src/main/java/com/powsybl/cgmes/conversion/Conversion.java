@@ -196,9 +196,9 @@ public class Conversion {
         Set<String> delayedBoundaryNodes = new HashSet<>();
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes);
+        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
 
-        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context);
@@ -211,7 +211,8 @@ public class Conversion {
 
         network.newExtension(CgmesControlAreasAdder.class).add();
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        cgmes.tieFlows().forEach(tf -> addControlArea(context, cgmesControlAreas, tf));
+        cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
+        cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
         cgmesControlAreas.cleanIfEmpty();
 
         if (config.convertSvInjections()) {
@@ -248,20 +249,19 @@ public class Conversion {
         return network;
     }
 
-    private void addControlArea(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
-        String controlAreaId = tf.getId("ControlArea");
-        CgmesControlArea cgmesControlArea;
-        if (cgmesControlAreas.containsCgmesControlAreaId(controlAreaId)) {
-            cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
-        } else {
-            cgmesControlArea = cgmesControlAreas.newCgmesControlArea()
-                    .setId(controlAreaId)
-                    .setName(tf.getLocal("controlAreaName"))
-                    .setEnergyIdentificationCodeEic(tf.getLocal("energyIdentCodeEic"))
-                    .setNetInterchange(tf.asDouble("netInterchange"))
-                    .add();
-        }
+    private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
+        String controlAreaId = ca.getId("ControlArea");
+        cgmesControlAreas.newCgmesControlArea()
+                .setId(controlAreaId)
+                .setName(ca.getLocal("name"))
+                .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
+                .setNetInterchange(ca.asDouble("netInterchange"))
+                .add();
+    }
 
+    private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
+        String controlAreaId = tf.getId("ControlArea");
+        CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         String terminalId = tf.getId("terminal");
         if (context.terminalMapping().find(terminalId) != null) {
             cgmesControlArea.add(context.terminalMapping().find(terminalId));

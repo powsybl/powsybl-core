@@ -46,9 +46,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
         GeneratorAdder adder = voltageLevel().newGenerator();
         RegulatingControlMappingForGenerators.initialize(adder);
-        adder.setMinP(minP)
-                .setMaxP(maxP)
-                .setTargetP(targetP)
+        setMinPMaxP(adder, minP, maxP);
+        adder.setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
                 .setRatedS(ratedS);

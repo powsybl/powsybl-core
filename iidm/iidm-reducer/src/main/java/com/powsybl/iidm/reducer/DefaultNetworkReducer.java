@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -15,6 +16,8 @@ import java.util.*;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class DefaultNetworkReducer extends AbstractNetworkReducer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultNetworkReducer.class);
 
     private final ReductionOptions options;
 
@@ -171,7 +174,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         return load;
     }
 
-    private static void fillNodeOrBus(InjectionAdder adder, Terminal terminal) {
+    private static void fillNodeOrBus(InjectionAdder<?> adder, Terminal terminal) {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {
@@ -189,7 +192,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (Double.isNaN(terminal.getP())) {
             String connectableId = terminal.getConnectable().getId();
             String voltageLevelId = terminal.getVoltageLevel().getId();
-            throw new PowsyblException("The active power of '" + connectableId + "' (" + voltageLevelId + ") is not set. Do you forget to compute the flows?");
+            LOGGER.warn("The active power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
+            return 0.0;
         }
         return terminal.getP();
     }
@@ -201,7 +205,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (Double.isNaN(terminal.getQ())) {
             String connectableId = terminal.getConnectable().getId();
             String voltageLevelId = terminal.getVoltageLevel().getId();
-            throw new PowsyblException("The reactive power of '" + connectableId + "' (" + voltageLevelId + ") is not set. Do you forget to compute the flows?");
+            LOGGER.warn("The reactive power of '{}' ({}) is undefined -> set to 0.0", connectableId, voltageLevelId);
+            return 0.0;
         }
         return terminal.getQ();
     }

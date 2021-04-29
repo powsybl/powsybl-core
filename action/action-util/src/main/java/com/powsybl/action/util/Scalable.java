@@ -185,6 +185,36 @@ public interface Scalable {
         return new LoadScalable(id, minValue, maxValue);
     }
 
+    /**
+     * create DanglingLineScalable with id.
+     * The generator scaling convention is used by default.
+     */
+    static DanglingLineScalable onDanglingLine(String id) {
+        return new DanglingLineScalable(id);
+    }
+
+    /**
+     * create DanglingLineScalable with id and the scaling convention that will be used.
+     */
+    static DanglingLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
+        return new DanglingLineScalable(id, scalingConvention);
+    }
+
+    /**
+     * create DanglingLineScalable with id, min and max power values for scaling.
+     * The generator scaling convention is used by default.
+     */
+    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
+        return new DanglingLineScalable(id, minValue, maxValue);
+    }
+
+    /**
+     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
+     */
+    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+        return new DanglingLineScalable(id, minValue, maxValue, scalingConvention);
+    }
+
     static Scalable scalable(String id) {
         return new ScalableAdapter(id);
     }
