@@ -398,7 +398,7 @@ public final class EquipmentExport {
                 OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, writer);
                 String operationalLimitSetId = CgmesExportUtil.getUniqueId();
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer);
-                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(),"CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
+                LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
             }
         }
     }
@@ -435,7 +435,7 @@ public final class EquipmentExport {
     }
 
     private static void writeTerminal(Terminal terminal, Map<Terminal, String> exportedTerminals, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        if (! exportedTerminals.containsKey(terminal)) {
+        if (!exportedTerminals.containsKey(terminal)) {
             TerminalEq.write(id, conductingEquipmentId, connectivityNodeId, sequenceNumber, cimNamespace, writer);
             exportedTerminals.put(terminal, id);
         }
