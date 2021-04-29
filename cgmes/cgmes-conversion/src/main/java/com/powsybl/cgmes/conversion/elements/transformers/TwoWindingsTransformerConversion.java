@@ -271,11 +271,11 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
         Complex ratio = ComplexUtils.polar2Complex(a, angle);
         Complex ytr = new Complex(r, x).reciprocal();
-        Complex ytr1 = ytr.multiply(ratio.conjugate());
-        Complex ytr2 = ytr.multiply(ratio);
-        Complex ysh1 = new Complex(g, b).multiply(ratio.multiply(ratio.conjugate()))
-            .add(ytr.multiply(ratio.reciprocal()).add(new Complex(-1.0, 0.0)).divide(ratio.conjugate()));
-        Complex ysh2 = ytr.multiply(ratio.reciprocal().add(new Complex(-1.0, 0.0)));
+        Complex ytr1 = ytr.divide(ratio.conjugate());
+        Complex ytr2 = ytr.divide(ratio);
+        Complex ysh1 = new Complex(g, b).divide(ratio.multiply(ratio.conjugate()))
+            .add(ytr.multiply(ratio.reciprocal().subtract(1.0)).divide(ratio.conjugate()));
+        Complex ysh2 = ytr.multiply(ratio.reciprocal().negate().add(1.0));
 
         piModel.r1 = ytr1.reciprocal().getReal();
         piModel.x1 = ytr1.reciprocal().getImaginary();
