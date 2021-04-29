@@ -77,6 +77,16 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
+    public void testCreateFromRow() {
+        DenseMatrix a = Matrix.createFromRow(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
+        assertEquals(1, a.getRowCount());
+        assertEquals(3, a.getColumnCount());
+        assertEquals(1d, a.get(0, 0), 0d);
+        assertEquals(2d, a.get(0, 1), 0d);
+        assertEquals(3d, a.get(0, 2), 0d);
+    }
+
+    @Test
     public void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
