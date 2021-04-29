@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 
-public class BoundaryEquipment {
+class BoundaryEquipment {
 
     enum BoundaryEquipmentType {
         AC_LINE_SEGMENT, SWITCH, TRANSFORMER, EQUIVALENT_BRANCH
@@ -30,34 +30,28 @@ public class BoundaryEquipment {
 
     BoundaryEquipment(BoundaryEquipmentType type, PropertyBag propertyBag) {
         this.type = type;
-        this.propertyBag = propertyBag;
-        propertyBags = null;
+        propertyBags.add(propertyBag);
     }
 
     BoundaryEquipment(BoundaryEquipmentType type, PropertyBags propertyBags) {
         this.type = type;
-        this.propertyBag = null;
-        this.propertyBags = propertyBags;
-    }
-
-    BoundaryEquipmentType getBoundaryEquipmentType() {
-        return type;
+        this.propertyBags.addAll(propertyBags);
     }
 
     EquipmentAtBoundaryConversion createConversion(Context context) {
         EquipmentAtBoundaryConversion c = null;
         switch (type) {
             case AC_LINE_SEGMENT:
-                c = new ACLineSegmentConversion(propertyBag, context);
+                c = new ACLineSegmentConversion(propertyBags.get(0), context);
                 break;
             case SWITCH:
-                c = new SwitchConversion(propertyBag, context);
+                c = new SwitchConversion(propertyBags.get(0), context);
                 break;
             case TRANSFORMER:
                 c = new TwoWindingsTransformerConversion(propertyBags, context);
                 break;
             case EQUIVALENT_BRANCH:
-                c = new EquivalentBranchConversion(propertyBag, context);
+                c = new EquivalentBranchConversion(propertyBags.get(0), context);
                 break;
         }
         return c;
@@ -65,18 +59,16 @@ public class BoundaryEquipment {
 
     void log() {
         if (LOG.isDebugEnabled()) {
-            if (propertyBag != null) {
-                LOG.debug(propertyBag.tabulateLocals(type.toString()));
-            }
-            if (propertyBags != null) {
+            if (propertyBags.size() == 1) {
+                LOG.debug(propertyBags.get(0).tabulateLocals(type.toString()));
+            } else {
                 propertyBags.forEach(p -> LOG.debug(p.tabulateLocals(type.toString())));
             }
         }
     }
 
     private final BoundaryEquipmentType type;
-    private final PropertyBag propertyBag;
-    private final PropertyBags propertyBags;
+    private final PropertyBags propertyBags = new PropertyBags();
 
     private static final Logger LOG = LoggerFactory.getLogger(BoundaryEquipment.class);
 }
