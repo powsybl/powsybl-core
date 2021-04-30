@@ -375,8 +375,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected Substation substation() {
-        String sid = context.cgmes().substation(terminals[0].t, context.nodeBreaker());
-        return context.network().getSubstation(context.substationIdMapping().substationIidm(sid));
+        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : null;
     }
 
     private PowerFlow stateVariablesPowerFlow() {

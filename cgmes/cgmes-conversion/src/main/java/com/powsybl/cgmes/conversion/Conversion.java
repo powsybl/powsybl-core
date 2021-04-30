@@ -373,7 +373,7 @@ public class Conversion {
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
-                if (node != null) {
+                if (node != null && !context.config().convertBoundary()) {
                     context.boundary().addAcLineSegmentAtNode(line, node);
                     delayedBoundaryNodes.add(node);
                 } else {
@@ -393,7 +393,7 @@ public class Conversion {
             SwitchConversion c = new SwitchConversion(sw, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
-                if (node != null) {
+                if (node != null && !context.config().convertBoundary()) {
                     context.boundary().addSwitchAtNode(sw, node);
                     delayedBoundaryNodes.add(node);
                 } else {
@@ -413,7 +413,7 @@ public class Conversion {
             EquivalentBranchConversion c = new EquivalentBranchConversion(equivalentBranch, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
-                if (node != null) {
+                if (node != null && !context.config().convertBoundary()) {
                     context.boundary().addEquivalentBranchAtNode(equivalentBranch, node);
                     delayedBoundaryNodes.add(node);
                 } else {
@@ -445,7 +445,7 @@ public class Conversion {
         AbstractConductingEquipmentConversion c = new TwoWindingsTransformerConversion(ends, context);
         if (c.valid()) {
             String node = c.boundaryNode();
-            if (node != null) {
+            if (node != null && !context.config().convertBoundary()) {
                 context.boundary().addTransformerAtNode(ends, node);
                 delayedBoundaryNodes.add(node);
             } else {
