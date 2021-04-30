@@ -78,6 +78,8 @@ public class RegulatingControlMappingForGenerators {
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, rc.controlEnabled, gen);
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+            okSet = setRegulatingControlReactivePower(controlId, control, rc.qPercent, rc.controlEnabled, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
@@ -105,9 +107,46 @@ public class RegulatingControlMappingForGenerators {
             regulationMode = RegulationMode.VOLTAGE;
         }
 
-        gen.setRegulatingTerminal(terminal);
-        gen.setTargetV(targetV);
-        gen.setRegulationMode(regulationMode);
+        gen.setRegulatingTerminal(terminal)
+                .setTargetV(targetV)
+                .setRegulationMode(regulationMode);
+
+        // add qPercent as an extension
+        if (!Double.isNaN(qPercent)) {
+            gen.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
+        }
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+
+        return true;
+    }
+
+    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
+        // Take default terminal if it has not been defined in CGMES file. If it null, ignore
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
+        if (terminal == null) {
+            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
+            return false;
+        }
+
+        double targetQ;
+        if (Double.isNaN(control.targetValue)) {
+            targetQ = terminal.getQ();
+            context.fixed(controlId, "Invalid value for regulating target value. Real flows are considered targets.");
+        } else {
+            targetQ = control.targetValue;
+        }
+
+        RegulationMode regulationMode = RegulationMode.OFF;
+        // Regulating control is enabled AND this equipment participates in regulating control
+        if (control.enabled && eqControlEnabled) {
+            regulationMode = RegulationMode.VOLTAGE;
+        }
+
+        gen.setRegulatingTerminal(terminal)
+                .setTargetQ(targetQ)
+                .setRegulationMode(regulationMode);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
