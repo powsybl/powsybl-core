@@ -19,6 +19,15 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
+ * An in-memory implementation of {@link Reporter}.
+ *
+ * <p>Being an implementation of {@link Reporter}, instances of <code>ReporterModel</code> are not thread-safe.
+ * A reporterModel is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
+ * be passed on in methods through their arguments. Respecting this ensures that
+ * <ol>
+ *   <li>sub-reporters always are in the same order</li>
+ *   <li>reports always are in the same order</li>
+ * </ol>
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class ReporterModel extends AbstractReporter {
@@ -26,10 +35,23 @@ public class ReporterModel extends AbstractReporter {
     private final List<ReporterModel> subReporters = new ArrayList<>();
     private final List<Report> reports = new ArrayList<>();
 
+    /**
+     * ReporterModel constructor, with no associated values.
+     * @param taskKey the key identifying the corresponding task
+     * @param defaultName the name or message describing the corresponding task
+     */
     public ReporterModel(String taskKey, String defaultName) {
         this(taskKey, defaultName, Collections.emptyMap());
     }
 
+    /**
+     * ReporterModel constructor, with no associated values.
+     * @param taskKey the key identifying the corresponding task
+     * @param defaultName the name or message describing the corresponding task, which may contain references to the
+     *                    provided values
+     * @param taskValues a map of {@link TypedValue} indexed by their key, which may be referred to within the
+     *                   defaultName or within the reports message of created ReporterModel
+     */
     public ReporterModel(String taskKey, String defaultName, Map<String, TypedValue> taskValues) {
         super(taskKey, defaultName, taskValues);
     }
@@ -41,6 +63,10 @@ public class ReporterModel extends AbstractReporter {
         return subReporter;
     }
 
+    /**
+     * Add a reporterModel to the sub-reporters of current reporterModel.
+     * @param reporterModel the reporterModel to add
+     */
     public void addSubReporter(ReporterModel reporterModel) {
         subReporters.add(reporterModel);
     }

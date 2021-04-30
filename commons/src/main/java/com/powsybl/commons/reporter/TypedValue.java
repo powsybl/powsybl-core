@@ -11,6 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 
 /**
+ * A class associating a value with a type.
+ * The value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String.
+ * The type is given by a string. Some generic types are provided by public constants of current class.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class TypedValue {
@@ -32,6 +35,11 @@ public class TypedValue {
     private final Object value;
     private final String type;
 
+    /**
+     * Constructor
+     * @param value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String
+     * @param type a string representing the value type (see the public constants for some generic types)
+     */
     public TypedValue(Object value, String type) {
         this.value = Objects.requireNonNull(value);
         this.type = Objects.requireNonNull(type);
