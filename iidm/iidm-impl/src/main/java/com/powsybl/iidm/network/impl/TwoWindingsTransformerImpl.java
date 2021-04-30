@@ -215,11 +215,6 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public NetworkImpl getNetwork() {
-        return substation.getNetwork();
-    }
-
-    @Override
     public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
         RatioTapChangerImpl oldValue = this.ratioTapChanger;
         this.ratioTapChanger = ratioTapChanger;
