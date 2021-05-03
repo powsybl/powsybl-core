@@ -77,10 +77,10 @@ public class ExporterTest extends AbstractConverterTest {
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        // Check invalid cases
+        // Check invalid path
         assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get("/SecurityAnalysisResult.xxx"), "XXX"));
-
+        // Check invalid format
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, tmpDir.resolve("data"), "XXX"));
     }
 
     @Test
@@ -94,9 +94,10 @@ public class ExporterTest extends AbstractConverterTest {
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
-        // Check invalid cases
+        // Check invalid path
         assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
-        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get("/SecurityAnalysisResult.xxx"), "XXX"));
+        // Check invalid format
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, tmpDir.resolve("data"), "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {
