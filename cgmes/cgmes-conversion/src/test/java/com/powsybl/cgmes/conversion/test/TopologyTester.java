@@ -7,17 +7,16 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.*;
-import java.util.stream.Collectors;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -50,12 +49,13 @@ public class TopologyTester {
         LOG.info("testTopology (strict : {})", strict);
         LOG.info("    preparing mapping between CGMES connectivityNodes and topologicalNodes ...");
         PropertyBags cgmescn = cgmes.connectivityNodes();
-        Set<String> boundary = new HashSet<>();
-        cgmes.boundaryNodes().forEach(bnp -> boundary.add(bnp.getId("Node")));
+        Set<String> boundarycn = cgmes.boundaryNodes().stream()
+            .map(bnp -> bnp.getId("ConnectivityNode"))
+            .collect(Collectors.toSet());
         cgmescn.forEach(cnp -> {
             String cn = cnp.getId("ConnectivityNode");
             // Ignore connectivity nodes belonging to boundaries
-            if (!boundary.contains(cn)) {
+            if (!boundarycn.contains(cn)) {
                 String tp = cnp.getId("TopologicalNode");
                 tpcns.computeIfAbsent(tp, x -> new HashSet<>()).add(cn);
                 cn2tp.put(cn, tp);

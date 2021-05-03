@@ -7,15 +7,14 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.*;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -36,16 +35,23 @@ public class CgmesBoundary {
             }
             nodes = new HashSet<>(bns.size());
             bns.forEach(node -> {
-                String id = node.getId("Node");
-                nodes.add(id);
-                nodesName.put(id, node.get("Name"));
+                String cn = node.getId("ConnectivityNode");
+                String tn = node.getId("TopologicalNode");
+
+                nodes.add(cn);
+                nodes.add(tn);
+                nodesName.put(cn, node.get("name"));
+                nodesName.put(tn, node.get("topologicalNodeName"));
                 if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
-                    hvdcNodes.add(id);
+                    hvdcNodes.add(cn);
+                    hvdcNodes.add(tn);
                 }
-                if (node.containsKey("lineEnergyIdentCodeEic")) {
-                    addLineAtNode(id, node.getId("lineEnergyIdentCodeEic"), node);
-                } else if (node.containsKey("lineEnergyIdentCodeEicContainer")) { // EIC code on node has priority but if absent, EIC code on Line is used
-                    addLineAtNode(id, node.getId("lineEnergyIdentCodeEicContainer"), node);
+                if (node.containsKey("energyIdentCodeEicFromNode")) {
+                    lineAtNodes.put(cn, node.getId("energyIdentCodeEicFromNode"));
+                    lineAtNodes.put(tn, node.getId("energyIdentCodeEicFromNode"));
+                } else if (node.containsKey("energyIdentCodeEicFromNodeContainer")) { // EIC code on node has priority but if absent, EIC code on Line is used
+                    lineAtNodes.put(cn, node.getId("energyIdentCodeEicFromNodeContainer"));
+                    lineAtNodes.put(tn, node.getId("energyIdentCodeEicFromNodeContainer"));
                 }
             });
         } else {
@@ -55,13 +61,6 @@ public class CgmesBoundary {
         nodesEquivalentInjections = new HashMap<>();
         nodesPowerFlow = new HashMap<>();
         nodesVoltage = new HashMap<>();
-    }
-
-    private void addLineAtNode(String id, String lineEnergyIdentCodeEic, PropertyBag node) {
-        lineAtNodes.put(id, lineEnergyIdentCodeEic);
-        if (node.containsKey("TopologicalNode")) {
-            lineAtNodes.put(node.getId("TopologicalNode"), lineEnergyIdentCodeEic);
-        }
     }
 
     public boolean containsNode(String id) {
