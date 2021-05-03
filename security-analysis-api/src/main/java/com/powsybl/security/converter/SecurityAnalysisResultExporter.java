@@ -36,7 +36,9 @@ public interface SecurityAnalysisResultExporter {
      * @param result The result of the security analysis
      * @param writer The writer used for the export
      */
-    void export(SecurityAnalysisResult result, Writer writer);
+    default void export(SecurityAnalysisResult result, Writer writer) {
+        export(result, null, writer);
+    }
 
     /**
      * Export a result of a security analysis

@@ -7,6 +7,7 @@
 package com.powsybl.security.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -21,13 +22,13 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -75,6 +76,11 @@ public class ExporterTest extends AbstractConverterTest {
             SecurityAnalysisResultExporters.export(res, path, "JSON");
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        // Check invalid cases
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get("/SecurityAnalysisResult.xxx"), "XXX"));
+
     }
 
     @Test
@@ -84,9 +90,13 @@ public class ExporterTest extends AbstractConverterTest {
         roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
 
         BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
-            SecurityAnalysisResultExporters.export(res, new Properties(), path, "JSON");
+            SecurityAnalysisResultExporters.export(res, null, path, "JSON");
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        // Check invalid cases
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get("/SecurityAnalysisResult.xxx"), "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {
