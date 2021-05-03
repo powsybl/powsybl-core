@@ -42,6 +42,7 @@ class Hvdc {
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
             case HVDC_T0_C1_LS1:
+            case HVDC_T0_C1_LS2:
             case HVDC_T1_C1_LS1:
             case HVDC_T1_C1_LS2:
                 addC1LSn(hvdc1, hvdc2);
@@ -96,11 +97,11 @@ class Hvdc {
 
     private static HvdcConverter computeConverter(TPnodeEquipments tpNodeEquipments, String dcLineSegment, HvdcEnd hvdc1,
         HvdcEnd hvdc2) {
-        String acDcConverter1 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.topologicalNodesEnd);
+        String acDcConverter1 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.nodesEnd);
         if (acDcConverter1 == null) {
             return null;
         }
-        String acDcConverter2 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.topologicalNodesEnd);
+        String acDcConverter2 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.nodesEnd);
         if (acDcConverter2 == null) {
             return null;
         }
@@ -120,9 +121,9 @@ class Hvdc {
     }
 
     private static String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,
-        Set<String> connectedEquipments, List<String> topologicalNodes) {
+        Set<String> connectedEquipments, List<String> nodes) {
         return connectedEquipments.stream()
-            .filter(eq -> tpNodeEquipments.connectedEquipments(equipment, eq, topologicalNodes))
+            .filter(eq -> tpNodeEquipments.connectedEquipments(equipment, eq, nodes))
             .findFirst()
             .orElse(null);
     }

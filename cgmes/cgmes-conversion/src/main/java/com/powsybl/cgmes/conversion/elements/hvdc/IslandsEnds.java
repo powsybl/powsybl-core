@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 class IslandsEnds {
     private final List<IslandEnd> islandsEndsNodes;
 
-    // The island includes dcTopologicalNodes and first acTopologicalNode
+    // The island includes dcNodes and first acNode
     IslandsEnds() {
         islandsEndsNodes = new ArrayList<>();
     }
@@ -32,56 +32,56 @@ class IslandsEnds {
         if (islandNodes.isEmpty()) {
             return;
         }
-        Set<String> visitedTopologicalNodes = new HashSet<>();
+        Set<String> visitedNodes = new HashSet<>();
 
-        String topologicalNodeEnd1 = islandNodes.get(0);
-        List<String> adjacentTopologicalNodeEnd1 = computeAdjacentTopologicalNodes(topologicalNodeEnd1,
-            adjacency, visitedTopologicalNodes);
+        String nodeEnd1 = islandNodes.get(0);
+        List<String> adjacentNodeEnd1 = computeAdjacentNodes(nodeEnd1,
+            adjacency, visitedNodes);
 
-        String topologicalNodeEnd2 = getTopologicalNodeOtherEnd(islandNodes, visitedTopologicalNodes);
-        if (topologicalNodeEnd2 == null) {
+        String nodeEnd2 = getNodeOtherEnd(islandNodes, visitedNodes);
+        if (nodeEnd2 == null) {
             return;
         }
-        List<String> adjacentTopologicalNodeEnd2 = computeAdjacentTopologicalNodes(topologicalNodeEnd2,
-            adjacency, visitedTopologicalNodes);
+        List<String> adjacentNodeEnd2 = computeAdjacentNodes(nodeEnd2,
+            adjacency, visitedNodes);
 
-        IslandEnd islandEnd = new IslandEnd(adjacentTopologicalNodeEnd1, adjacentTopologicalNodeEnd2);
+        IslandEnd islandEnd = new IslandEnd(adjacentNodeEnd1, adjacentNodeEnd2);
 
         islandsEndsNodes.add(islandEnd);
     }
 
-    private static String getTopologicalNodeOtherEnd(List<String> islandNodes, Set<String> visitedTopologicalNodes) {
+    private static String getNodeOtherEnd(List<String> islandNodes, Set<String> visitedNodes) {
         return islandNodes.stream()
-            .filter(n -> !visitedTopologicalNodes.contains(n))
+            .filter(n -> !visitedNodes.contains(n))
             .findFirst()
             .orElse(null);
     }
 
-    private static List<String> computeAdjacentTopologicalNodes(String topologicalNodeId,
-        Adjacency adjacency, Set<String> visitedTopologicalNodes) {
+    private static List<String> computeAdjacentNodes(String nodeId,
+        Adjacency adjacency, Set<String> visitedNodes) {
 
-        List<String> adjacentTopologicalNodes = new ArrayList<>();
-        adjacentTopologicalNodes.add(topologicalNodeId);
-        visitedTopologicalNodes.add(topologicalNodeId);
+        List<String> adjacentNodes = new ArrayList<>();
+        adjacentNodes.add(nodeId);
+        visitedNodes.add(nodeId);
 
         int k = 0;
-        while (k < adjacentTopologicalNodes.size()) {
-            String topologicalNode = adjacentTopologicalNodes.get(k);
-            if (adjacency.get().containsKey(topologicalNode)) {
-                adjacency.get().get(topologicalNode).forEach(adjacent -> {
+        while (k < adjacentNodes.size()) {
+            String node = adjacentNodes.get(k);
+            if (adjacency.get().containsKey(node)) {
+                adjacency.get().get(node).forEach(adjacent -> {
                     if (Adjacency.isDcLineSegment(adjacent.type)) {
                         return;
                     }
-                    if (visitedTopologicalNodes.contains(adjacent.topologicalNode)) {
+                    if (visitedNodes.contains(adjacent.node)) {
                         return;
                     }
-                    adjacentTopologicalNodes.add(adjacent.topologicalNode);
-                    visitedTopologicalNodes.add(adjacent.topologicalNode);
+                    adjacentNodes.add(adjacent.node);
+                    visitedNodes.add(adjacent.node);
                 });
             }
             k++;
         }
-        return adjacentTopologicalNodes;
+        return adjacentNodes;
     }
 
     List<IslandEnd> getIslandsEndsNodes() {
@@ -94,25 +94,25 @@ class IslandsEnds {
     }
 
     static class IslandEnd {
-        private final List<String> topologicalNodes1;
-        private final List<String> topologicalNodes2;
+        private final List<String> nodes1;
+        private final List<String> nodes2;
 
-        IslandEnd(List<String> topologicalNodes1, List<String> topologicalNodes2) {
-            this.topologicalNodes1 = topologicalNodes1;
-            this.topologicalNodes2 = topologicalNodes2;
+        IslandEnd(List<String> nodes1, List<String> nodes2) {
+            this.nodes1 = nodes1;
+            this.nodes2 = nodes2;
         }
 
-        List<String> getTopologicalNodes1() {
-            return topologicalNodes1;
+        List<String> getNodes1() {
+            return nodes1;
         }
 
-        List<String> getTopologicalNodes2() {
-            return topologicalNodes2;
+        List<String> getNodes2() {
+            return nodes2;
         }
 
         void debug() {
-            LOG.debug("    topologicalNodes1: {}", this.topologicalNodes1);
-            LOG.debug("    topologicalNodes2: {}", this.topologicalNodes2);
+            LOG.debug("    Nodes1: {}", this.nodes1);
+            LOG.debug("    Nodes2: {}", this.nodes2);
             LOG.debug("---");
         }
     }

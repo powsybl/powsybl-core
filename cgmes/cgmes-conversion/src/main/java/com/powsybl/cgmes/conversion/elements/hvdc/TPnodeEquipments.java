@@ -43,8 +43,8 @@ class TPnodeEquipments {
         AcDcConverterNodes acDcConverterNodes = new AcDcConverterNodes(cgmesModel);
 
         acDcConverterNodes.getConverterNodes().values()
-            .forEach(value -> addEquipment(adjacency, value.id, value.acTopologicalNode,
-                value.dcTopologicalNode, EquipmentType.AC_DC_CONVERTER));
+            .forEach(value -> addEquipment(adjacency, value.id, value.acNode,
+                value.dcNode, EquipmentType.AC_DC_CONVERTER));
 
         cgmesModel.groupedTransformerEnds().forEach((t, ends) -> {
             if (ends.size() == 2) {
@@ -59,7 +59,8 @@ class TPnodeEquipments {
         CgmesDcTerminal t1 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 1));
         CgmesDcTerminal t2 = cgmesModel.dcTerminal(equipment.getId(CgmesNames.DC_TERMINAL + 2));
         String id = equipment.getId("DCLineSegment");
-        addEquipment(adjacency, id, t1.dcTopologicalNode(), t2.dcTopologicalNode(), EquipmentType.DC_LINE_SEGMENT);
+        addEquipment(adjacency, id, CgmesDcConversion.getDcNode(cgmesModel, t1),
+            CgmesDcConversion.getDcNode(cgmesModel, t2), EquipmentType.DC_LINE_SEGMENT);
     }
 
     private void computeTwoWindingsTransformer(CgmesModel cgmesModel, Adjacency adjacency, PropertyBags ends) {
@@ -69,11 +70,11 @@ class TPnodeEquipments {
         CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
 
         String id = end1.getId(CgmesNames.POWER_TRANSFORMER);
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        if (isValidTransformer(adjacency, topologicalNodes)) {
-            addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        List<String> nodes = new ArrayList<>();
+        nodes.add(CgmesDcConversion.getAcNode(cgmesModel, t1));
+        nodes.add(CgmesDcConversion.getAcNode(cgmesModel, t2));
+        if (isValidTransformer(adjacency, nodes)) {
+            addTransformer(adjacency, id, nodes, EquipmentType.TRANSFORMER);
         }
     }
 
@@ -86,52 +87,52 @@ class TPnodeEquipments {
         CgmesTerminal t3 = cgmesModel.terminal(end3.getId(CgmesNames.TERMINAL));
 
         String id = end1.getId(CgmesNames.POWER_TRANSFORMER);
-        List<String> topologicalNodes = new ArrayList<>();
-        topologicalNodes.add(t1.topologicalNode());
-        topologicalNodes.add(t2.topologicalNode());
-        topologicalNodes.add(t3.topologicalNode());
-        if (isValidTransformer(adjacency, topologicalNodes)) {
-            addTransformer(adjacency, id, topologicalNodes, EquipmentType.TRANSFORMER);
+        List<String> nodes = new ArrayList<>();
+        nodes.add(CgmesDcConversion.getAcNode(cgmesModel, t1));
+        nodes.add(CgmesDcConversion.getAcNode(cgmesModel, t2));
+        nodes.add(CgmesDcConversion.getAcNode(cgmesModel, t3));
+        if (isValidTransformer(adjacency, nodes)) {
+            addTransformer(adjacency, id, nodes, EquipmentType.TRANSFORMER);
         }
     }
 
-    private void addEquipment(Adjacency adjacency, String id, String topologicalNodeId1, String topologicalNodeId2,
+    private void addEquipment(Adjacency adjacency, String id, String nodeId1, String nodeId2,
         EquipmentType type) {
-        if (!adjacency.get().containsKey(topologicalNodeId1)
-            || !adjacency.get().containsKey(topologicalNodeId2)) {
+        if (!adjacency.get().containsKey(nodeId1)
+            || !adjacency.get().containsKey(nodeId2)) {
             return;
         }
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
-        nodeEquipments.computeIfAbsent(topologicalNodeId1, k -> new ArrayList<>()).add(eq);
-        nodeEquipments.computeIfAbsent(topologicalNodeId2, k -> new ArrayList<>()).add(eq);
+        nodeEquipments.computeIfAbsent(nodeId1, k -> new ArrayList<>()).add(eq);
+        nodeEquipments.computeIfAbsent(nodeId2, k -> new ArrayList<>()).add(eq);
     }
 
-    private void addEquipment(Adjacency adjacency, String id, String acTopologicalNodeId,
-        List<String> dcTopologicalNodeIds, EquipmentType type) {
-        if (!adjacency.get().containsKey(acTopologicalNodeId)) {
+    private void addEquipment(Adjacency adjacency, String id, String acNodeId,
+        List<String> dcNodeIds, EquipmentType type) {
+        if (!adjacency.get().containsKey(acNodeId)) {
             return;
         }
-        if (dcTopologicalNodeIds.stream().anyMatch(n -> !adjacency.get().containsKey(n))) {
+        if (dcNodeIds.stream().anyMatch(n -> !adjacency.get().containsKey(n))) {
             return;
         }
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
-        nodeEquipments.computeIfAbsent(acTopologicalNodeId, k -> new ArrayList<>()).add(eq);
-        dcTopologicalNodeIds.forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
+        nodeEquipments.computeIfAbsent(acNodeId, k -> new ArrayList<>()).add(eq);
+        dcNodeIds.forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
-    private boolean isValidTransformer(Adjacency adjacency, List<String> topologicalNodes) {
-        return topologicalNodes.stream().anyMatch(adjacency::containsAcDcConverter);
+    private boolean isValidTransformer(Adjacency adjacency, List<String> nodes) {
+        return nodes.stream().anyMatch(adjacency::containsAcDcConverter);
     }
 
-    private void addTransformer(Adjacency adjacency, String id, List<String> topologicalNodes, EquipmentType type) {
+    private void addTransformer(Adjacency adjacency, String id, List<String> nodes, EquipmentType type) {
         TPnodeEquipment eq = new TPnodeEquipment(type, id);
-        topologicalNodes.stream()
+        nodes.stream()
             .filter(n -> adjacency.get().containsKey(n))
             .forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
-    boolean containsAnyTransformer(String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+    boolean containsAnyTransformer(String node) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -139,8 +140,8 @@ class TPnodeEquipments {
             .anyMatch(eq -> eq.type == EquipmentType.TRANSFORMER);
     }
 
-    boolean containsAnyAcDcConverter(String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+    boolean containsAnyAcDcConverter(String node) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -148,8 +149,8 @@ class TPnodeEquipments {
             .anyMatch(eq -> eq.type == EquipmentType.AC_DC_CONVERTER);
     }
 
-    boolean multiAcDcConverter(String topologicalNode) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+    boolean multiAcDcConverter(String node) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -158,12 +159,12 @@ class TPnodeEquipments {
             .count() >= 2;
     }
 
-    boolean connectedEquipments(String equipment1, String equipment2, List<String> topologicalNodes) {
-        return topologicalNodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
+    boolean connectedEquipments(String equipment1, String equipment2, List<String> nodes) {
+        return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }
 
-    private boolean connectedEquipment(String topologicalNode, String equipment1, String equipment2) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(topologicalNode);
+    private boolean connectedEquipment(String node, String equipment1, String equipment2) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -182,7 +183,7 @@ class TPnodeEquipments {
     }
 
     private void debug(String tpNodeId, List<TPnodeEquipment> listTPnodeEquipment) {
-        LOG.debug("TopologicalNodeId: {}", tpNodeId);
+        LOG.debug("NodeId: {}", tpNodeId);
         listTPnodeEquipment.forEach(TPnodeEquipment::debug);
     }
 
@@ -191,7 +192,7 @@ class TPnodeEquipments {
     }
 
     private void debugEq(String node) {
-        LOG.debug("EQ. TopologicalNode {}", node);
+        LOG.debug("EQ. Node {}", node);
         if (nodeEquipments.containsKey(node)) {
             nodeEquipments.get(node)
                 .forEach(eq -> LOG.debug("    {} {}", eq.type, eq.equipmentId));

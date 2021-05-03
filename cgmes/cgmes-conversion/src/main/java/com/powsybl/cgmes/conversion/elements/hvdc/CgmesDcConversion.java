@@ -16,8 +16,10 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
+import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -58,10 +60,10 @@ public class CgmesDcConversion {
         Hvdc hvdc = new Hvdc();
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getNodes1());
 
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getNodes2());
 
             hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
         });
@@ -307,26 +309,42 @@ public class CgmesDcConversion {
 
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
+            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getNodes1());
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
+            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getNodes2());
 
             islandEndHvdc1.debug();
             islandEndHvdc2.debug();
 
-            adjacency.debug(ien.getTopologicalNodes1());
-            tpNodeEquipments.debugEq(ien.getTopologicalNodes1());
-            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes1());
+            adjacency.debug(ien.getNodes1());
+            tpNodeEquipments.debugEq(ien.getNodes1());
+            tpNodeEquipments.debugDcLs(ien.getNodes1());
 
-            adjacency.debug(ien.getTopologicalNodes2());
-            tpNodeEquipments.debugEq(ien.getTopologicalNodes2());
-            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes2());
+            adjacency.debug(ien.getNodes2());
+            tpNodeEquipments.debugEq(ien.getNodes2());
+            tpNodeEquipments.debugDcLs(ien.getNodes2());
         });
 
         islands.debug();
         islandsEnds.debug();
         adjacency.debug();
         tpNodeEquipments.debug();
+    }
+
+    static String getAcNode(CgmesModel cgmesModel, CgmesTerminal terminal) {
+        if (cgmesModel.isNodeBreaker()) {
+            return terminal.connectivityNode();
+        } else {
+            return terminal.topologicalNode();
+        }
+    }
+
+    static String getDcNode(CgmesModel cgmesModel, CgmesDcTerminal terminal) {
+        if (cgmesModel.isNodeBreaker()) {
+            return terminal.dcNode();
+        } else {
+            return terminal.dcTopologicalNode();
+        }
     }
 
     private final CgmesModel cgmesModel;
