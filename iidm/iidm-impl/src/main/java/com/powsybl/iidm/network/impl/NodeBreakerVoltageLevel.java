@@ -913,6 +913,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         // create the link terminal <-> graph vertex
         graph.setVertexObject(node, (NodeTerminal) terminal);
+
+        getNetwork().getVariantManager().forEachVariant(this::invalidateCache);
     }
 
     @Override
@@ -926,7 +928,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         graph.setVertexObject(node, null);
 
-        invalidateCache();
+        getNetwork().getVariantManager().forEachVariant(this::invalidateCache);
 
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
