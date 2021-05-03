@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.cgmes.model.test;
 
 import com.powsybl.cgmes.model.CgmesContainer;
@@ -22,6 +28,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
     private String modelId;

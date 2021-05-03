@@ -1648,7 +1648,10 @@
     "ptol" : 999.99,
     "arname" : "IEEE14      "
   } ],
+  "twoTerminalDcTransmissionLines" : [ ],
+  "voltageSourceConverterDcTransmissionLines" : [ ],
   "transformerImpedanceCorrections" : [ ],
+  "multiTerminalDcTransmissionLines" : [ ],
   "lineGrouping" : [ ],
   "zones" : [ {
     "i" : 1,
@@ -1660,5 +1663,7 @@
     "owname" : "1"
   } ],
   "facts" : [ ],
-  "switchedShunts" : [ ]
+  "switchedShunts" : [ ],
+  "gneDevice" : [ ],
+  "inductionMachines" : [ ]
 }

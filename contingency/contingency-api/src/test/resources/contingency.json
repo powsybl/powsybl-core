@@ -29,6 +29,12 @@
   }, {
     "id" : "DL1",
     "type" : "DANGLING_LINE"
+  }, {
+    "id" : "LINE1",
+    "type" : "LINE"
+  }, {
+    "id" : "TRANSFO1",
+    "type" : "TWO_WINDINGS_TRANSFORMER"
   } ],
   "extensions" : {
     "dummy-extension" : { }
