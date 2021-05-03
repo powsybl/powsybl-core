@@ -313,15 +313,8 @@ public final class JsonUtil {
      * Skip a part of a JSON document
      */
     public static void skip(JsonParser parser) throws IOException {
-        int objectCount = 0;
-        do {
-            JsonToken token = parser.nextToken();
-            if (token == JsonToken.START_OBJECT) {
-                objectCount++;
-            } else if (token == JsonToken.END_OBJECT) {
-                objectCount--;
-            }
-        } while (objectCount != 0);
+        parser.nextToken();
+        parser.skipChildren();
     }
 
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
