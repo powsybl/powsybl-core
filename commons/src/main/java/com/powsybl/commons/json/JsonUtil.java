@@ -248,6 +248,10 @@ public final class JsonUtil {
         Objects.requireNonNull(supplier);
 
         List<Extension<T>> extensions = new ArrayList<>();
+        if (parser.currentToken() != JsonToken.START_OBJECT) {
+            throw new PowsyblException("Error updating extensions, \"extensions\" field expected START_OBJECT, got "
+                    + parser.currentToken());
+        }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             Extension<T> extension = updateExtension(parser, context, supplier, extensionsNotFound, extendable);
             if (extension != null) {
@@ -292,6 +296,10 @@ public final class JsonUtil {
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
         List<Extension<T>> extensions = new ArrayList<>();
+        if (parser.currentToken() != JsonToken.START_OBJECT) {
+            throw new PowsyblException("Error reading extensions, \"extensions\" field expected START_OBJECT, got "
+                    + parser.currentToken());
+        }
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
             if (extension != null) {
