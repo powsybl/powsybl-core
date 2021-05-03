@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.function.BiConsumer;
 
 import static org.junit.Assert.assertEquals;
@@ -76,6 +77,18 @@ public class ExporterTest extends AbstractConverterTest {
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
     }
 
+    @Test
+    public void roundTripJsonWithProperties() throws IOException {
+        SecurityAnalysisResult result = create();
+
+        roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
+            SecurityAnalysisResultExporters.export(res, new Properties(), path, "JSON");
+        };
+        roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+    }
+
     private static void writeJson(SecurityAnalysisResult result, Path path) {
         SecurityAnalysisResultExporter exporter = SecurityAnalysisResultExporters.getExporter("JSON");
         assertNotNull(exporter);
@@ -83,6 +96,18 @@ public class ExporterTest extends AbstractConverterTest {
 
         try (Writer writer = Files.newBufferedWriter(path)) {
             exporter.export(result, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void writeJsonWithProperties(SecurityAnalysisResult result, Path path) {
+        SecurityAnalysisResultExporter exporter = SecurityAnalysisResultExporters.getExporter("JSON");
+        assertNotNull(exporter);
+        assertEquals("JSON", exporter.getFormat());
+
+        try (Writer writer = Files.newBufferedWriter(path)) {
+            exporter.export(result, new Properties(), writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
