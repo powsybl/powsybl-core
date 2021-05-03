@@ -7,12 +7,10 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,17 +18,36 @@ import java.util.function.Supplier;
 class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {
+        private final String id;
+        private final String name;
+        private boolean fictitious;
+        private double r;
+        private double x;
+        private double g1;
+        private double g2;
+        private double b1;
+        private double b2;
+
+        private final HalfLineBoundaryImpl boundary;
+
         TieLineImpl parent;
-        String id;
-        String name;
-        boolean fictitious = false;
-        double r = Double.NaN;
-        double x = Double.NaN;
-        double g1 = Double.NaN;
-        double g2 = Double.NaN;
-        double b1 = Double.NaN;
-        double b2 = Double.NaN;
-        HalfLineBoundaryImpl boundary;
+
+        HalfLineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2, Branch.Side side) {
+            this.id = Objects.requireNonNull(id);
+            this.name = name;
+            this.fictitious = fictitious;
+            this.r = r;
+            this.x = x;
+            this.g1 = g1;
+            this.b1 = b1;
+            this.g2 = g2;
+            this.b2 = b2;
+            this.boundary = new HalfLineBoundaryImpl(this, side);
+        }
+
+        TieLineImpl getParent() {
+            return parent;
+        }
 
         private void setParent(TieLineImpl parent) {
             this.parent = parent;
@@ -162,13 +179,12 @@ class TieLineImpl extends LineImpl implements TieLine {
     TieLineImpl(String id, String name, boolean fictitious, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
         super(id, name, fictitious, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = attach(half1, Side.ONE, this::getTerminal1);
-        this.half2 = attach(half2, Side.TWO, this::getTerminal2);
+        this.half1 = attach(half1);
+        this.half2 = attach(half2);
     }
 
-    private HalfLineImpl attach(HalfLineImpl half, Branch.Side side, Supplier<Terminal> terminalSupplier) {
+    private HalfLineImpl attach(HalfLineImpl half) {
         half.setParent(this);
-        half.boundary = new HalfLineBoundaryImpl(this, side, terminalSupplier);
         return half;
     }
 
