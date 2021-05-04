@@ -18,7 +18,7 @@ public abstract class AbstractHalfLineBoundaryImpl implements Boundary {
     private final TieLine.HalfLine parent;
     private final Branch.Side side;
 
-    public AbstractHalfLineBoundaryImpl(TieLine.HalfLine parent, Branch.Side side) {
+    protected AbstractHalfLineBoundaryImpl(TieLine.HalfLine parent, Branch.Side side) {
         this.parent = Objects.requireNonNull(parent);
         this.side = Objects.requireNonNull(side);
     }
