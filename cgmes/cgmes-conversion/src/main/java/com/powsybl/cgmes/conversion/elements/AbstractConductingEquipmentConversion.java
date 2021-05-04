@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -244,6 +245,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE));
+        setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
         addMappingForTopologicalNode(dl, modelSide, 1);
@@ -264,6 +266,23 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
             } else {
                 setDanglingLineModelSideFlow(dl, boundaryNode);
+            }
+        }
+    }
+
+    private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
+        if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
+            dl.newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+                    .setHvdc(context.boundary().isHvdc(boundaryNode))
+                    .setLineEnergyIdentificationCodeEic(context.boundary().lineAtBoundary(boundaryNode))
+                    .add();
+
+            // TODO: when merged extensions will be handled, this code can be deleted
+            if (context.boundary().isHvdc(boundaryNode)) {
+                dl.setProperty("isHvdc", "true");
+            }
+            if (context.boundary().lineAtBoundary(boundaryNode) != null) {
+                dl.setProperty("lineEnergyIdentificationCodeEIC", context.boundary().lineAtBoundary(boundaryNode));
             }
         }
     }

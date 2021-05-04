@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.iidm.network.*;
 
@@ -184,7 +185,14 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
             boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
             boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        return adder.add();
+        TieLine tieLine = adder.add();
+        if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
+            tieLine.newExtension(CgmesLineBoundaryNodeAdder.class)
+                    .setHvdc(context.boundary().isHvdc(boundaryNode))
+                    .setLineEnergyIdentificationCodeEic(context.boundary().lineAtBoundary(boundaryNode))
+                    .add();
+        }
+        return tieLine;
     }
 
     // TODO support transformer + Line
