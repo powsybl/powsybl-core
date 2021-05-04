@@ -7,8 +7,7 @@
 package com.powsybl.security.execution;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.security.SecurityAnalysisResult;
-import com.powsybl.security.SecurityAnalysisResultWithLog;
+import com.powsybl.security.SecurityAnalysisReport;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -23,10 +22,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SecurityAnalysisExecution {
 
-    CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager,
+    CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager,
                                                       SecurityAnalysisExecutionInput data);
-
-    CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager,
-                                                                    SecurityAnalysisExecutionInput data);
-
 }

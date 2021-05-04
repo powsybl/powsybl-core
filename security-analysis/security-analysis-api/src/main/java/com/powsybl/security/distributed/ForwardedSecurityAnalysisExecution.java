@@ -9,8 +9,7 @@ package com.powsybl.security.distributed;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionEnvironment;
 import com.powsybl.computation.ExecutionHandler;
-import com.powsybl.security.SecurityAnalysisResult;
-import com.powsybl.security.SecurityAnalysisResultWithLog;
+import com.powsybl.security.SecurityAnalysisReport;
 import com.powsybl.security.execution.SecurityAnalysisExecution;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 
@@ -44,20 +43,11 @@ public class ForwardedSecurityAnalysisExecution implements SecurityAnalysisExecu
     }
 
     @Override
-    public CompletableFuture<SecurityAnalysisResult> execute(ComputationManager computationManager,
+    public CompletableFuture<SecurityAnalysisReport> execute(ComputationManager computationManager,
                                                              SecurityAnalysisExecutionInput data) {
 
         ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_", config.isDebug());
-        ExecutionHandler<SecurityAnalysisResult> executionHandler = SecurityAnalysisExecutionHandlers.forwarded(data, forwardedTaskCount);
-        return computationManager.execute(itoolsEnv, executionHandler);
-    }
-
-    @Override
-    public CompletableFuture<SecurityAnalysisResultWithLog> executeWithLog(ComputationManager computationManager,
-                                                                           SecurityAnalysisExecutionInput data) {
-
-        ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_", config.isDebug());
-        ExecutionHandler<SecurityAnalysisResultWithLog> executionHandler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(data, forwardedTaskCount);
+        ExecutionHandler<SecurityAnalysisReport> executionHandler = SecurityAnalysisExecutionHandlers.forwarded(data, forwardedTaskCount);
         return computationManager.execute(itoolsEnv, executionHandler);
     }
 

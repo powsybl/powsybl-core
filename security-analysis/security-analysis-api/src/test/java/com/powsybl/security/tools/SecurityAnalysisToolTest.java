@@ -192,16 +192,12 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
             ToolRunningContext context = new ToolRunningContext(out, err, fileSystem, cm, cm);
 
-            SecurityAnalysisExecutionBuilder builderRunWithLog = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
+            SecurityAnalysisExecutionBuilder builderRun = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
                     "SecurityAnalysisToolProviderMock",
-                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant().getNetwork(), "runWithLog"));
-
-            // Invoked methods run() & runWithLog() now are controlled by variantId
-            // run() should run only when variantId 'run'
-            // runWithLog() should run only when variantId 'runWithLog'
+                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
 
             // Check runWithLog execution
-            tool.run(cl, context, builderRunWithLog,
+            tool.run(cl, context, builderRun,
                     SecurityAnalysisParameters::new,
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
@@ -213,9 +209,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
             // Check run execution
             when(cl.hasOption("log-file")).thenReturn(false);
-            SecurityAnalysisExecutionBuilder builderRun = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
-                "SecurityAnalysisToolProviderMock",
-                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
 
             tool.run(cl, context, builderRun,
                     SecurityAnalysisParameters::new,
@@ -246,20 +239,13 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-            CompletableFuture<SecurityAnalysisResult> cfSar = mock(CompletableFuture.class);
-            SecurityAnalysisResult result = mock(SecurityAnalysisResult.class);
-            when(result.getPreContingencyResult()).thenReturn(mock(LimitViolationsResult.class));
-            when(cfSar.join()).thenReturn(result);
-            return cfSar;
-        }
-
-        @Override
-        public CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
-            CompletableFuture<SecurityAnalysisResultWithLog> cfSar = mock(CompletableFuture.class);
-            SecurityAnalysisResultWithLog result = mock(SecurityAnalysisResultWithLog.class);
-            when(result.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
-            when(cfSar.join()).thenReturn(result);
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+            CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
+            SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
+            when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
+            when(report.getResult().getPreContingencyResult()).thenReturn(mock(LimitViolationsResult.class));
+            when(report.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
+            when(cfSar.join()).thenReturn(report);
             return cfSar;
         }
 
@@ -277,7 +263,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisExceptionProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisResult> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
             ceb.addOutLog("out", "outLog")
                     .addErrLog("err", "errLog");

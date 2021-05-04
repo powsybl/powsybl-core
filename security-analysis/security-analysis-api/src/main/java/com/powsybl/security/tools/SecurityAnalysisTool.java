@@ -162,7 +162,7 @@ public class SecurityAnalysisTool implements Tool {
                 .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
 
         options.getPath(CONTINGENCIES_FILE_OPTION)
-                .map(p -> FileUtil.asByteSource(p))
+                .map(FileUtil::asByteSource)
                 .ifPresent(inputs::setContingenciesSource);
 
         options.getValues(LIMIT_TYPES_OPTION)
@@ -171,6 +171,9 @@ public class SecurityAnalysisTool implements Tool {
 
         options.getValues(WITH_EXTENSIONS_OPTION)
                 .ifPresent(inputs::addResultExtensions);
+
+        options.getValues(OUTPUT_LOG_OPTION)
+                .ifPresent(f -> inputs.setWithLogs(true));
     }
 
     private static SecurityAnalysisInputBuildStrategy configBasedInputBuildStrategy(PlatformConfig config) {
@@ -220,16 +223,17 @@ public class SecurityAnalysisTool implements Tool {
         return builder.build();
     }
 
-    private static SecurityAnalysisResult runSecurityAnalysisWithLog(ComputationManager computationManager,
-                                                             SecurityAnalysisExecution execution,
-                                                             SecurityAnalysisExecutionInput input,
-                                                             Path logPath) {
+    private static SecurityAnalysisReport runSecurityAnalysisWithLog(ComputationManager computationManager,
+                                                                     SecurityAnalysisExecution execution,
+                                                                     SecurityAnalysisExecutionInput input,
+                                                                     Path logPath) {
         try {
-            SecurityAnalysisResultWithLog resultWithLog = execution.executeWithLog(computationManager, input).join();
+
+            SecurityAnalysisReport report = execution.execute(computationManager, input).join();
             // copy log bytes to file
-            resultWithLog.getLogBytes()
+            report.getLogBytes()
                     .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
-            return resultWithLog.getResult();
+            return report;
         } catch (CompletionException e) {
             if (e.getCause() instanceof ComputationException) {
                 ComputationException computationException = (ComputationException) e.getCause();
@@ -299,9 +303,11 @@ public class SecurityAnalysisTool implements Tool {
         ComputationManager computationManager = options.hasOption(TASK) ? context.getShortTimeExecutionComputationManager() :
                 context.getLongTimeExecutionComputationManager();
 
-        SecurityAnalysisResult result = options.getPath(OUTPUT_LOG_OPTION)
+        SecurityAnalysisReport report = options.getPath(OUTPUT_LOG_OPTION)
                 .map(logPath -> runSecurityAnalysisWithLog(computationManager, execution, executionInput, logPath))
                 .orElseGet(() -> execution.execute(computationManager, executionInput).join());
+
+        SecurityAnalysisResult result = report.getResult();
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
