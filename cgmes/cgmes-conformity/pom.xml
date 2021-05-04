@@ -100,12 +100,6 @@
         <!-- Test with all known triple store engines -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-jena</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
