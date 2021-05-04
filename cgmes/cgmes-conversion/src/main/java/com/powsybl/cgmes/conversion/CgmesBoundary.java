@@ -23,6 +23,9 @@ import java.util.*;
 
 public class CgmesBoundary {
 
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE = "energyIdentCodeEicFromNode";
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER = "energyIdentCodeEicFromNodeContainer";
+
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
@@ -48,12 +51,12 @@ public class CgmesBoundary {
                     hvdcNodes.add(cn);
                     hvdcNodes.add(tn);
                 }
-                if (node.containsKey("energyIdentCodeEicFromNode")) {
-                    lineAtNodes.put(cn, node.getId("energyIdentCodeEicFromNode"));
-                    lineAtNodes.put(tn, node.getId("energyIdentCodeEicFromNode"));
-                } else if (node.containsKey("energyIdentCodeEicFromNodeContainer")) { // EIC code on node has priority but if absent, EIC code on Line is used
-                    lineAtNodes.put(cn, node.getId("energyIdentCodeEicFromNodeContainer"));
-                    lineAtNodes.put(tn, node.getId("energyIdentCodeEicFromNodeContainer"));
+                if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE)) {
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                } else if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER)) { // EIC code on node has priority but if absent, EIC code on Line is used
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
                 }
             });
         } else {
