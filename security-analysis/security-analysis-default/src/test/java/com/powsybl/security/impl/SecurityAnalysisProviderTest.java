@@ -64,49 +64,49 @@ public class SecurityAnalysisProviderTest {
 
     @Test
     public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-        assertNotNull(result.get());
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        assertNotNull(report.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithFilter() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, filter, computationManager);
-        assertNotNull(result.get());
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, filter, computationManager);
+        assertNotNull(report.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithComputationManager() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network, computationManager);
-        assertNotNull(result.get());
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network, computationManager);
+        assertNotNull(report.get());
     }
 
     @Test
     public void testAsyncDefaultProviderWithMiminumArguments() throws InterruptedException, ExecutionException {
-        CompletableFuture<SecurityAnalysisResult> result = SecurityAnalysis.runAsync(network);
-        assertNotNull(result.get());
+        CompletableFuture<SecurityAnalysisReport> report = SecurityAnalysis.runAsync(network);
+        assertNotNull(report.get());
     }
 
     @Test
     public void testSyncDefaultProvider() {
-        SecurityAnalysisResult result = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-        assertNotNull(result);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderWithFilter() {
-        SecurityAnalysisResult result = SecurityAnalysis.run(network, filter, computationManager);
-        assertNotNull(result);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, filter, computationManager);
+        assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderWithComputationManager() {
-        SecurityAnalysisResult result = SecurityAnalysis.run(network, computationManager);
-        assertNotNull(result);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, computationManager);
+        assertNotNull(report);
     }
 
     @Test
     public void testSyncDefaultProviderWithMiminumArguments() {
-        SecurityAnalysisResult result = SecurityAnalysis.run(network);
-        assertNotNull(result);
+        SecurityAnalysisReport report = SecurityAnalysis.run(network);
+        assertNotNull(report);
     }
 }

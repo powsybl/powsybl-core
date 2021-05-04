@@ -36,6 +36,7 @@ public class SecurityAnalysisExecutionInput {
     private SecurityAnalysisParameters parameters;
     private final List<String> resultExtensions = new ArrayList<>();
     private final Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
+    private boolean withLogs = false;
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -55,6 +56,10 @@ public class SecurityAnalysisExecutionInput {
 
     public NetworkVariant getNetworkVariant() {
         return networkVariant;
+    }
+
+    public boolean isWithLogs() {
+        return withLogs;
     }
 
     public SecurityAnalysisExecutionInput setContingenciesSource(ByteSource contingenciesSource) {
@@ -89,6 +94,11 @@ public class SecurityAnalysisExecutionInput {
 
     public SecurityAnalysisExecutionInput setNetworkVariant(Network network, String variantId) {
         networkVariant = new NetworkVariant(network, variantId);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setWithLogs(boolean withLogs) {
+        this.withLogs = withLogs;
         return this;
     }
 }

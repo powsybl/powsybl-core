@@ -102,7 +102,7 @@ public class DefaultSecurityAnalysis {
         return new SecurityAnalysisResultBuilder(violationFilter, new RunningContext(network, initialWorkingStateId), interceptors);
     }
 
-    public CompletableFuture<SecurityAnalysisResult> run(String workingVariantId,
+    public CompletableFuture<SecurityAnalysisReport> run(String workingVariantId,
                                                          SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(workingVariantId);
         Objects.requireNonNull(securityAnalysisParameters);
@@ -132,7 +132,7 @@ public class DefaultSecurityAnalysis {
                         return setPreContingencyKo(resultBuilder);
                     }
                 })
-                .thenApply(aVoid -> resultBuilder.build());
+                .thenApply(aVoid -> new SecurityAnalysisReport(resultBuilder.build()));
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {

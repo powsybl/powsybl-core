@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -37,35 +37,12 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
     /**
      * Run an asynchronous single security analysis job.
      *
-     * @param network IIDM network on which the security analysis will be performed
-     * @param workingVariantId network variant ID on which the analysis will be performed
-     * @param detector
-     * @param filter
-     * @param computationManager
-     * @param parameters specific security analysis parameters
-     * @param contingenciesProvider provides list of contingencies
-     * @param interceptors
-     * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
-     */
-    CompletableFuture<SecurityAnalysisResult> run(Network network,
-                                                  String workingVariantId,
-                                                  LimitViolationDetector detector,
-                                                  LimitViolationFilter filter,
-                                                  ComputationManager computationManager,
-                                                  SecurityAnalysisParameters parameters,
-                                                  ContingenciesProvider contingenciesProvider,
-                                                  List<SecurityAnalysisInterceptor> interceptors);
-
-    /**
-     * To be consistent with {@link #run(Network, String, LimitViolationDetector, LimitViolationFilter, ComputationManager, SecurityAnalysisParameters, ContingenciesProvider, List)}, this method would also complete exceptionally
      * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
      * are be collected in the {@link com.powsybl.computation.ComputationException} too.
      *
-     *
      * <pre> {@code
      * try {
-     *       SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runAsyncWithLog(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
-     *       result = resultWithLog.getResult();
+     *       SecurityAnalysisResult result = securityAnalysis.run(network, variantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).join();
      *   } catch (CompletionException e) {
      *       if (e.getCause() instanceof ComputationException) {
      *           ComputationException computationException = (ComputationException) e.getCause();
@@ -82,6 +59,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      *       throw e;
      *   }
      * }</pre>
+     *
      * @param network IIDM network on which the security analysis will be performed
      * @param workingVariantId network variant ID on which the analysis will be performed
      * @param detector
@@ -90,17 +68,14 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param parameters specific security analysis parameters
      * @param contingenciesProvider provides list of contingencies
      * @param interceptors
-     * @return
+     * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
-
-    default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(Network network,
-                                                                        String workingVariantId,
-                                                                        LimitViolationDetector detector,
-                                                                        LimitViolationFilter filter,
-                                                                        ComputationManager computationManager,
-                                                                        SecurityAnalysisParameters parameters,
-                                                                        ContingenciesProvider contingenciesProvider,
-                                                                        List<SecurityAnalysisInterceptor> interceptors) {
-        return run(network, workingVariantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
-    }
+    CompletableFuture<SecurityAnalysisReport> run(Network network,
+                                                  String workingVariantId,
+                                                  LimitViolationDetector detector,
+                                                  LimitViolationFilter filter,
+                                                  ComputationManager computationManager,
+                                                  SecurityAnalysisParameters parameters,
+                                                  ContingenciesProvider contingenciesProvider,
+                                                  List<SecurityAnalysisInterceptor> interceptors);
 }
