@@ -57,7 +57,7 @@ class DanglingLineBoundaryImpl implements Boundary {
     }
 
     @Override
-    public Connectable getConnectable() {
+    public DanglingLine getConnectable() {
         return parent;
     }
 
