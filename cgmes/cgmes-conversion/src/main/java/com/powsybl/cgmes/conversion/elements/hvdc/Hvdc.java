@@ -48,6 +48,7 @@ class Hvdc {
                 addC1LSn(hvdc1, hvdc2);
                 break;
             case HVDC_T2_C2_LS1:
+            case HVDC_T0_C2_LS1:
                 addC2LS1(tpNodeEquipments, hvdc1, hvdc2);
                 break;
             case HVDC_TN_CN_LSN:

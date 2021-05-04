@@ -159,6 +159,15 @@ class TPnodeEquipments {
             .count() >= 2;
     }
 
+    boolean containsAcDcConverter(String node, String acDcConverter) {
+        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        if (listEquipment == null) {
+            return false;
+        }
+        return listEquipment.stream()
+            .anyMatch(eq -> eq.equipmentId.equals(acDcConverter) && eq.type == EquipmentType.AC_DC_CONVERTER);
+    }
+
     boolean connectedEquipments(String equipment1, String equipment2, List<String> nodes) {
         return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }
@@ -195,7 +204,7 @@ class TPnodeEquipments {
         LOG.debug("EQ. Node {}", node);
         if (nodeEquipments.containsKey(node)) {
             nodeEquipments.get(node)
-                .forEach(eq -> LOG.debug("    {} {}", eq.type, eq.equipmentId));
+                .forEach(eq ->  LOG.debug("    {} {}", eq.type, eq.equipmentId));
         }
     }
 

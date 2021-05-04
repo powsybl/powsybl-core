@@ -69,7 +69,7 @@ public class CgmesDcConversion {
         });
 
         // Convert to IIDM each converter - dcLineSegment configuration
-        hvdc.getHvdcData().forEach(h -> convert(h.converters, h.dcLineSegments));
+        hvdc.getHvdcData().forEach(h -> convert(tpNodeEquipments, h.converters, h.dcLineSegments));
 
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
@@ -80,21 +80,42 @@ public class CgmesDcConversion {
         }
     }
 
-    private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
+    private void convert(TPnodeEquipments tpNodeEquipments, List<HvdcConverter> converters, List<String> dcLineSegments) {
         int converterNum = converters.size();
         int dcLineSegmentNum = dcLineSegments.size();
 
         if (converterNum == 1 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
+            if (isHvdcWellOriented(tpNodeEquipments, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
+                convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
+            } else {
+                convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0));
+            }
         } else if (converterNum == 2 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
+            if (isHvdcWellOriented(tpNodeEquipments, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
+                convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
+                convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
+            } else {
+                convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), false);
+                convert(converters.get(1).acDcConvertersEnd2, converters.get(1).acDcConvertersEnd1, dcLineSegments.get(0), true);
+            }
         } else if (converterNum == 1 && dcLineSegmentNum == 2) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
+            if (isHvdcWellOriented(tpNodeEquipments, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
+                convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
+            } else {
+                convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), dcLineSegments.get(1));
+            }
         } else {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Converters %d DcLineSegments %d",
                 converterNum, dcLineSegmentNum));
         }
+    }
+
+    // Determine if the converter is well orientated. It is well orientated if acDcConverterId is at end1
+    private boolean isHvdcWellOriented(TPnodeEquipments tpNodeEquipments, String acDcConverterId, String dcLineSegmentId) {
+        PropertyBag pb = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId);
+        CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
+        String node = getDcNode(cgmesModel, t1);
+        return tpNodeEquipments.containsAcDcConverter(node, acDcConverterId);
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
