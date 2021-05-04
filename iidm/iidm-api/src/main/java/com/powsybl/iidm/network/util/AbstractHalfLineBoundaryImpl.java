@@ -4,68 +4,66 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class DanglingLineBoundaryImpl implements Boundary {
-    // for SV use: side represents the network side, that is always
-    // Side.ONE for a dangling line.
+public abstract class AbstractHalfLineBoundaryImpl implements Boundary {
 
-    private final DanglingLine parent;
+    private final TieLine.HalfLine parent;
+    private final Branch.Side side;
 
-    DanglingLineBoundaryImpl(DanglingLine parent) {
+    public AbstractHalfLineBoundaryImpl(TieLine.HalfLine parent, Branch.Side side) {
         this.parent = Objects.requireNonNull(parent);
+        this.side = Objects.requireNonNull(side);
     }
+
+
 
     @Override
     public double getV() {
-        Terminal t = parent.getTerminal();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
-        Terminal t = parent.getTerminal();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideA(parent);
     }
 
     @Override
     public double getP() {
-        Terminal t = parent.getTerminal();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
-        Terminal t = parent.getTerminal();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideQ(parent);
     }
 
     @Override
     public Branch.Side getSide() {
-        return null;
+        return side;
     }
 
     @Override
-    public DanglingLine getConnectable() {
-        return parent;
-    }
+    public abstract TieLine getConnectable();
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return parent.getTerminal().getVoltageLevel();
+        return getConnectable().getTerminal(side).getVoltageLevel();
     }
 
     private static double getV(Bus b) {
@@ -74,5 +72,9 @@ class DanglingLineBoundaryImpl implements Boundary {
 
     private static double getAngle(Bus b) {
         return b == null ? Double.NaN : b.getAngle();
+    }
+
+    protected TieLine.HalfLine getParent() {
+        return parent;
     }
 }
