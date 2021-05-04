@@ -365,10 +365,10 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         DanglingLine dl = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
 
-        assertEquals(2.2926145244444456, dl.getR(), 0.0);
-        assertEquals(14.26244971555556, dl.getX(), 0.0);
-        assertEquals(0.001418832123834479, dl.getG(), 0.0);
-        assertEquals(0.0018289836095867727, dl.getB(), 0.0);
+        assertEquals(2.588687265185185, dl.getR(), 0.0);
+        assertEquals(13.880789206913578, dl.getX(), 0.0);
+        assertEquals(0.0, dl.getG(), 0.0);
+        assertEquals(0.0, dl.getB(), 0.0);
     }
 
     @Test
@@ -466,12 +466,12 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         Line m = network.getLine("_8fdc7abd-3746-481a-a65e-3df56acd8b13 + _17086487-56ba-4979-b8de-064025a6b4da");
 
-        assertEquals(4.492614524444446, m.getR(), tolerance);
-        assertEquals(80.262449715555560, m.getX(), tolerance);
+        assertEquals(4.848348287766893, m.getR(), tolerance);
+        assertEquals(80.200697327706370, m.getX(), tolerance);
         assertEquals(0.000024200000000, m.getG1(), tolerance);
         assertEquals(0.000089849500000, m.getB1(), tolerance);
-        assertEquals(0.000014517600840, m.getG2(), tolerance);
-        assertEquals(-0.000077844767020, m.getB2(), tolerance);
+        assertEquals(0.000006589225755, m.getG2(), tolerance);
+        assertEquals(-0.000035332059986, m.getB2(), tolerance);
 
         InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
@@ -481,12 +481,12 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         m = network.getLine("_8fdc7abd-3746-481a-a65e-3df56acd8b13 + _17086487-56ba-4979-b8de-064025a6b4da");
 
-        assertEquals(2.810520137864289, m.getR(), tolerance);
-        assertEquals(78.769367592271540, m.getX(), tolerance);
-        assertEquals(0.000314728292474, m.getG1(), tolerance);
-        assertEquals(0.000353375758717, m.getB1(), tolerance);
-        assertEquals(-0.000209132731690, m.getG2(), tolerance);
-        assertEquals(-0.000334021747075, m.getB2(), tolerance);
+        assertEquals(4.778261354238538, m.getR(), tolerance);
+        assertEquals(78.674522640829100, m.getX(), tolerance);
+        assertEquals(-0.000002010109504, m.getG1(), tolerance);
+        assertEquals(0.000338108995941, m.getB1(), tolerance);
+        assertEquals(0.000027040930001, m.getG2(), tolerance);
+        assertEquals(-0.000253086783073, m.getB2(), tolerance);
     }
 
     @Test

@@ -115,8 +115,16 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
+        // The twoWindingsTransformer is converted to half line of a TieLine with different VoltageLevels at its ends
+        // and the tapChanger fixed to the current tap position.
+        // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
+        // ratioTapChanger and / or phaseTapChanger with zero angle.
+        // Since the angle has been fixed to 0.0, if the current angle of the transformer (getAngle(convertedT2xModel))
+        // is non-zero we will have differences in the LF computation.
+        // TODO support in the TieLine the complete twoWindingsTransformer model (transformer + tapChangers)
+
         PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
-            getB(convertedT2xModel), getRatio(convertedT2xModel), getAngle(convertedT2xModel));
+            getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
         boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
 
         return boundaryLine;
@@ -128,11 +136,14 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
-        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
-            getB(convertedT2xModel), getRatio(convertedT2xModel), getAngle(convertedT2xModel));
-
-        // TODO extend the danglingLine to support twoWindingsTransformer
-        convertToDanglingLine(boundarySide, pm.r1, pm.x1, pm.g1, pm.b1);
+        // The twoWindingsTransformer is converted to a danglingLine with different VoltageLevels at its ends.
+        // As the current danglingLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
+        // ratio 1.0 and angle 0.0
+        // Since the ratio has been fixed to 1.0, if the current (ratio, angle) of the transformer
+        // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
+        // we will have differences in the LF computation.
+        // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
+        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
