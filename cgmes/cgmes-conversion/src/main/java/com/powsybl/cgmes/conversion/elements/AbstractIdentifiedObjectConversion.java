@@ -60,6 +60,10 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     public void identify(IdentifiableAdder<?> adder, String id, String name) {
+        identify(context, adder, id, name);
+    }
+
+    public static void identify(Context context, IdentifiableAdder<?> adder, String id, String name) {
         adder
                 .setId(id)
                 .setName(name)

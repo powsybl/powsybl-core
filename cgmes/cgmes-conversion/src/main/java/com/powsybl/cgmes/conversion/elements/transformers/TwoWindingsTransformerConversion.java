@@ -7,10 +7,16 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import org.apache.commons.math3.complex.Complex;
+import org.apache.commons.math3.complex.ComplexUtils;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
+import com.powsybl.cgmes.conversion.elements.BoundaryLine;
+import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
@@ -53,7 +59,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TwoWindingsTransformerConversion extends AbstractTransformerConversion {
+public class TwoWindingsTransformerConversion extends AbstractTransformerConversion implements EquipmentAtBoundaryConversion {
 
     public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super(CgmesNames.POWER_TRANSFORMER, ends, context);
@@ -61,13 +67,15 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
 
     @Override
     public boolean valid() {
-        if (!super.valid()) {
-            return false;
-        }
-        if (context.boundary().containsNode(nodeId(1))
-            || context.boundary().containsNode(nodeId(2))) {
-            invalid("2 windings transformer end point at boundary is not supported");
-            return false;
+        // An transformer end voltage level may be null
+        // (when it is in the boundary and the boundary nodes are not converted)
+        // So we do not use the generic validity check for conducting equipment
+        // or branch. We only ensure we have nodes at both ends
+        for (int k = 1; k <= 2; k++) {
+            if (nodeId(k) == null) {
+                missing(nodeIdPropertyName() + k);
+                return false;
+            }
         }
         return true;
     }
@@ -79,6 +87,63 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
 
         setToIidm(convertedT2xModel);
+    }
+
+    @Override
+    public void convertAtBoundary() {
+        // If we have created buses and substations for boundary nodes,
+        // convert as a regular line
+        if (context.config().convertBoundary()) {
+            convert();
+            return;
+        }
+
+        if (isBoundary(1)) {
+            convertTwoWindingsTransformerAtBoundary(1);
+        } else if (isBoundary(2)) {
+            convertTwoWindingsTransformerAtBoundary(2);
+        } else {
+            throw new ConversionException("Boundary must be at one end of the twoWindingsTransformer");
+        }
+    }
+
+    @Override
+    public BoundaryLine asBoundaryLine(String boundaryNode) {
+        BoundaryLine boundaryLine = super.createBoundaryLine(boundaryNode);
+
+        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
+        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
+        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
+
+        // The twoWindingsTransformer is converted to half line of a TieLine with different VoltageLevels at its ends
+        // and the tapChanger fixed to the current tap position.
+        // As the current TieLine only supports a Line at each half we can only map twoWindingsTransformers with
+        // ratioTapChanger and / or phaseTapChanger with zero angle.
+        // Since the angle has been fixed to 0.0, if the current angle of the transformer (getAngle(convertedT2xModel))
+        // is non-zero we will have differences in the LF computation.
+        // TODO support in the TieLine the complete twoWindingsTransformer model (transformer + tapChangers)
+
+        PiModel pm = piModel(getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel),
+            getB(convertedT2xModel), getRatio(convertedT2xModel), 0.0);
+        boundaryLine.setParameters(pm.r1, pm.x1, pm.g1, pm.b1, pm.g2, pm.b2);
+
+        return boundaryLine;
+    }
+
+    private void convertTwoWindingsTransformerAtBoundary(int boundarySide) {
+
+        CgmesT2xModel cgmesT2xModel = new CgmesT2xModel(ps, context);
+        InterpretedT2xModel interpretedT2xModel = new InterpretedT2xModel(cgmesT2xModel, context.config(), context);
+        ConvertedT2xModel convertedT2xModel = new ConvertedT2xModel(interpretedT2xModel, context);
+
+        // The twoWindingsTransformer is converted to a danglingLine with different VoltageLevels at its ends.
+        // As the current danglingLine only supports shunt admittance at the end1 we can only map twoWindingsTransformers with
+        // ratio 1.0 and angle 0.0
+        // Since the ratio has been fixed to 1.0, if the current (ratio, angle) of the transformer
+        // (getRatio(convertedT2xModel), getAngle(convertedT2xModel)) is not (1.0, 0.0)
+        // we will have differences in the LF computation.
+        // TODO support in the danglingLine the complete twoWindingsTransformer model (transformer + tapChangers)
+        convertToDanglingLine(boundarySide, getR(convertedT2xModel), getX(convertedT2xModel), getG(convertedT2xModel), getB(convertedT2xModel));
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
@@ -136,5 +201,112 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         CgmesRegulatingControlPhase rcPtc = setContextRegulatingDataPhase(convertedT2xModel.end1.phaseTapChanger);
 
         context.regulatingControlMapping().forTransformers().add(tx.getId(), rcRtc, rcPtc);
+    }
+
+    private static double getRatio(ConvertedT2xModel convertedT2xModel) {
+        double a = convertedT2xModel.end1.ratedU / convertedT2xModel.end2.ratedU;
+        if (convertedT2xModel.end1.ratioTapChanger != null) {
+            a *= convertedT2xModel.end1.ratioTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.ratioTapChanger)).getRatio();
+        }
+        if (convertedT2xModel.end1.phaseTapChanger != null) {
+            a *= convertedT2xModel.end1.phaseTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getRatio();
+        }
+        return a;
+    }
+
+    private static double getAngle(ConvertedT2xModel convertedT2xModel) {
+        double angle = 0.0;
+        if (convertedT2xModel.end1.phaseTapChanger != null) {
+            angle = Math.toRadians(convertedT2xModel.end1.phaseTapChanger.getSteps()
+                .get(getStepIndex(convertedT2xModel.end1.phaseTapChanger)).getAngle());
+        }
+        return angle;
+    }
+
+    private static int getStepIndex(TapChanger tapChanger) {
+        return tapChanger.getTapPosition();
+    }
+
+    private static double getStepR(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getR();
+        }
+        return 0.0;
+    }
+
+    private static double getStepX(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getX();
+        }
+        return 0.0;
+    }
+
+    private static double getStepG1(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getG1();
+        }
+        return 0.0;
+    }
+
+    private static double getStepB1(TapChanger tapChanger) {
+        if (tapChanger != null) {
+            return tapChanger.getSteps().get(getStepIndex(tapChanger)).getB1();
+        }
+        return 0.0;
+    }
+
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
+    }
+
+    private static double getR(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.r, getStepR(convertedT2xModel.end1.ratioTapChanger), getStepR(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getX(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.x, getStepX(convertedT2xModel.end1.ratioTapChanger), getStepX(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getG(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.end1.g, getStepG1(convertedT2xModel.end1.ratioTapChanger), getStepG1(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private static double getB(ConvertedT2xModel convertedT2xModel) {
+        return getValue(convertedT2xModel.end1.b, getStepB1(convertedT2xModel.end1.ratioTapChanger), getStepB1(convertedT2xModel.end1.phaseTapChanger));
+    }
+
+    private PiModel piModel(double r, double x, double g, double b, double a, double angle) {
+        PiModel piModel = new PiModel();
+
+        Complex ratio = ComplexUtils.polar2Complex(a, angle);
+        Complex ytr = new Complex(r, x).reciprocal();
+        Complex ytr1 = ytr.divide(ratio.conjugate());
+        Complex ytr2 = ytr.divide(ratio);
+        Complex ysh1 = new Complex(g, b).divide(ratio.multiply(ratio.conjugate()))
+            .add(ytr.multiply(ratio.reciprocal().subtract(1.0)).divide(ratio.conjugate()));
+        Complex ysh2 = ytr.multiply(ratio.reciprocal().negate().add(1.0));
+
+        piModel.r1 = ytr1.reciprocal().getReal();
+        piModel.x1 = ytr1.reciprocal().getImaginary();
+        piModel.g1 = ysh1.getReal();
+        piModel.b1 = ysh1.getImaginary();
+        piModel.r2 = ytr2.reciprocal().getReal();
+        piModel.x2 = ytr2.reciprocal().getImaginary();
+        piModel.g2 = ysh2.getReal();
+        piModel.b2 = ysh2.getImaginary();
+        return piModel;
+    }
+
+    private static class PiModel {
+        double r1;
+        double x1;
+        double g1;
+        double b1;
+        double r2;
+        double x2;
+        double g2;
+        double b2;
     }
 }
