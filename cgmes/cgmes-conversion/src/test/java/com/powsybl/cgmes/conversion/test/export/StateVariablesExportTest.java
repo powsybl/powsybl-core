@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertTrue;
 
@@ -46,6 +47,19 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGridAssembled() throws IOException, XMLStreamException {
+        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), 4, exportedSv -> {
+            Repackager repackager = new Repackager(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource());
+            addRepackagerFiles("NL", repackager);
+            addRepackagerFiles("BE", repackager);
+            repackager.with("test_SV.xml", exportedSv)
+                    .with("test_EQ_BD.xml", Repackager::eqBd)
+                    .with("test_TP_BD.xml", Repackager::tpBd);
+            return repackager;
+        });
+    }
+
+    @Test
     public void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4);
     }
@@ -55,7 +69,23 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
     }
 
+    private void addRepackagerFiles(String tso, Repackager repackager) {
+        repackager.with("test_" + tso + "_EQ.xml", name -> name.contains(tso) && name.contains("EQ"))
+                .with("test_" + tso + "_TP.xml", name -> name.contains(tso) && name.contains("TP"))
+                .with("test_" + tso + "_SSH.xml", name -> name.contains(tso) && name.contains("SSH"));
+    }
+
     private void test(ReadOnlyDataSource dataSource, int svVersion) throws IOException, XMLStreamException {
+        test(dataSource, svVersion, exportedSv -> new Repackager(dataSource)
+                .with("test_EQ.xml", Repackager::eq)
+                .with("test_TP.xml", Repackager::tp)
+                .with("test_SV.xml", exportedSv)
+                .with("test_SSH.xml", Repackager::ssh)
+                .with("test_EQ_BD.xml", Repackager::eqBd)
+                .with("test_TP_BD.xml", Repackager::tpBd));
+    }
+
+    private void test(ReadOnlyDataSource dataSource, int svVersion, Function<Path, Repackager> repackagerSupplier) throws XMLStreamException, IOException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
@@ -87,18 +117,12 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
         // Zip with new SV
         Path repackaged = tmpDir.resolve("repackaged.zip");
-        Repackager r = new Repackager(dataSource)
-            .with("test_EQ.xml", Repackager::eq)
-            .with("test_TP.xml", Repackager::tp)
-            .with("test_SV.xml", exportedSv)
-            .with("test_SSH.xml", Repackager::ssh)
-            .with("test_EQ_BD.xml", Repackager::eqBd)
-            .with("test_TP_BD.xml", Repackager::tpBd);
+        Repackager r = repackagerSupplier.apply(exportedSv);
         r.zip(repackaged);
 
         // Import with new SV
         Network actual = Importers.loadNetwork(repackaged,
-            DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
+                DefaultComputationManagerConfig.load().createShortTimeExecutionComputationManager(), ImportConfig.load(), properties);
 
         // Export original and with new SV
         // comparison without extensions, only Networks
