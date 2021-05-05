@@ -7,30 +7,30 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.powsybl.cgmes.conversion.BoundaryEquipment.BoundaryEquipmentType;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
+
 public class CgmesBoundary {
+
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE = "energyIdentCodeEicFromNode";
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER = "energyIdentCodeEicFromNodeContainer";
 
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
+        lineAtNodes = new HashMap<>();
+        hvdcNodes = new HashSet<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
@@ -40,9 +40,24 @@ public class CgmesBoundary {
             }
             nodes = new HashSet<>(bns.size());
             bns.forEach(node -> {
-                String id = node.getId("Node");
-                nodes.add(id);
-                nodesName.put(id, node.get("Name"));
+                String cn = node.getId("ConnectivityNode");
+                String tn = node.getId("TopologicalNode");
+
+                nodes.add(cn);
+                nodes.add(tn);
+                nodesName.put(cn, node.get("name"));
+                nodesName.put(tn, node.get("topologicalNodeName"));
+                if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+                    hvdcNodes.add(cn);
+                    hvdcNodes.add(tn);
+                }
+                if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE)) {
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                } else if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER)) { // EIC code on node has priority but if absent, EIC code on Line is used
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+                }
             });
         } else {
             nodes = Collections.emptySet();
@@ -65,10 +80,40 @@ public class CgmesBoundary {
         return nodesPowerFlow.get(node);
     }
 
+    /**
+     * @deprecated Not used anymore. To set an equipment at boundary node, use
+     * {@link CgmesBoundary#addAcLineSegmentAtNode(PropertyBag, String)} or
+     * {@link CgmesBoundary#addSwitchAtNode(PropertyBag, String)} or
+     * {@link CgmesBoundary#addTransformerAtNode(PropertyBags, String)} or
+     * {@link CgmesBoundary#addEquivalentBranchAtNode(PropertyBag, String)}  instead.
+     */
+    @Deprecated
     public void addEquipmentAtNode(PropertyBag line, String node) {
-        List<PropertyBag> equipment;
+        throw new ConversionException("Deprecated. Not used anymore");
+    }
+
+    public void addAcLineSegmentAtNode(PropertyBag line, String node) {
+        List<BoundaryEquipment> equipment;
         equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
-        equipment.add(line);
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.AC_LINE_SEGMENT, line));
+    }
+
+    public void addSwitchAtNode(PropertyBag sw, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.SWITCH, sw));
+    }
+
+    public void addTransformerAtNode(PropertyBags transformerEnds, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.TRANSFORMER, transformerEnds));
+    }
+
+    public void addEquivalentBranchAtNode(PropertyBag equivalentBranch, String node) {
+        List<BoundaryEquipment> equipment;
+        equipment = nodesEquipment.computeIfAbsent(node, ls -> new ArrayList<>(2));
+        equipment.add(new BoundaryEquipment(BoundaryEquipmentType.EQUIVALENT_BRANCH, equivalentBranch));
     }
 
     public void addEquivalentInjectionAtNode(PropertyBag equivalentInjection, String node) {
@@ -98,7 +143,16 @@ public class CgmesBoundary {
         return nodesVoltage.containsKey(node) ? nodesVoltage.get(node).angle : Double.NaN;
     }
 
+    /**
+     * @deprecated Not used anymore. To get the equipment at boundary node, use
+     * {@link CgmesBoundary#boundaryEquipmentAtNode(String)} instead.
+     */
+    @Deprecated
     public List<PropertyBag> equipmentAtNode(String node) {
+        throw new ConversionException("Deprecated. Not used anymore");
+    }
+
+    public List<BoundaryEquipment> boundaryEquipmentAtNode(String node) {
         return nodesEquipment.getOrDefault(node, Collections.emptyList());
     }
 
@@ -107,7 +161,15 @@ public class CgmesBoundary {
     }
 
     public String nameAtBoundary(String node) {
-        return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
+        return nodesName.getOrDefault(node, "XnodeCode-unknown");
+    }
+
+    public String lineAtBoundary(String node) {
+        return lineAtNodes.get(node);
+    }
+
+    public boolean isHvdc(String node) {
+        return hvdcNodes.contains(node);
     }
 
     private static class Voltage {
@@ -116,11 +178,13 @@ public class CgmesBoundary {
     }
 
     private final Set<String> nodes;
-    private final Map<String, List<PropertyBag>> nodesEquipment;
+    private final Map<String, List<BoundaryEquipment>> nodesEquipment;
     private final Map<String, List<PropertyBag>> nodesEquivalentInjections;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
+    private final Map<String, String> lineAtNodes;
+    private final Set<String> hvdcNodes;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
 }
