@@ -36,6 +36,12 @@ public interface LoadFlowResult {
         int getComponentNum();
 
         /**
+         * Get synchronous component number.
+         * @return component number
+         */
+        int getSynchronousComponentNum();
+
+        /**
          * Get detailed status of the computation on this component.
          * @return the detailed status of the computation on this component
          */
