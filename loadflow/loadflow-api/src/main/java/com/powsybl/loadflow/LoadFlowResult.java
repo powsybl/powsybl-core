@@ -33,7 +33,7 @@ public interface LoadFlowResult {
          * Get component number.
          * @return component number
          */
-        int getComponentNum();
+        int getConnectedComponentNum();
 
         /**
          * Get synchronous component number.

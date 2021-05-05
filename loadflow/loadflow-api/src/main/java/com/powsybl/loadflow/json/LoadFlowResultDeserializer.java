@@ -43,7 +43,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "componentNum":
+                case "connectedComponentNum":
                     parser.nextToken();
                     componentNum = parser.getValueAsInt();
                     break;
