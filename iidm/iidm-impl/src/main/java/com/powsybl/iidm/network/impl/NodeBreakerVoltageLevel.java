@@ -950,6 +950,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public boolean connect(TerminalExt terminal) {
         assert terminal instanceof NodeTerminal;
+
+        // already connected?
+        if (terminal.isConnected()) {
+            return false;
+        }
+
         int node = ((NodeTerminal) terminal).getNode();
         // find all paths starting from the current terminal to a busbar section that does not contain an open disconnector
         // paths are already sorted
