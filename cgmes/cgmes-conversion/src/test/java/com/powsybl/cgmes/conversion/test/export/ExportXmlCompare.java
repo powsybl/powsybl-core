@@ -225,6 +225,22 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringSimilarPowerFlows(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (control.getParentNode() != null
+                && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
+                && (control.getParentNode().getLocalName().equals("SvPowerFlow.p") || control.getParentNode().getLocalName().equals("SvPowerFlow.q"))) {
+                double expected = Double.valueOf(control.getNodeValue());
+                double actual = Double.valueOf(comparison.getTestDetails().getTarget().getNodeValue());
+                if (Math.abs(expected - actual) < 0.2d) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     // Present in small grid
     private static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
             "#_65a95678-1819-43cd-94d2-a03756822725",
@@ -309,9 +325,9 @@ public final class ExportXmlCompare {
                     || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
-            // DanglingLine p, q attributes in IIDM Network
+            // DanglingLine p, q, p0, q0 attributes in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q");
+            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0");
         }
         return false;
     }
@@ -321,6 +337,8 @@ public final class ExportXmlCompare {
             return 1e-5;
         } else if (n.getLocalName().equals("p") || n.getLocalName().equals("q")) {
             return 1e-1;
+        } else if (n.getLocalName().equals("p0") || n.getLocalName().equals("q0")) {
+            return 1e-5;
         }
         return 1e-10;
     }
