@@ -81,6 +81,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         try (OutputStream os = Files.newOutputStream(exportedSv)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             context.getSvModelDescription().setVersion(svVersion);
+            context.setExportBoundaryPowerFlows(true);
             StateVariablesExport.write(expected, writer, context);
         }
 
