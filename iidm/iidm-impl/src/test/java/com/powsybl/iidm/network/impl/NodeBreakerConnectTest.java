@@ -24,8 +24,8 @@ public class NodeBreakerConnectTest {
      *           |    B1   |
      *           |---[+]---|
      *       B2 [-]       [+] B3
-     *           |   C     |
-     *  BBS1 -------[-]-------- BBS2
+     *           |    C    |
+     *  BBS1 --------[-]-------- BBS2
      * </pre>
      */
     private Network createNetwork() {
@@ -147,6 +147,18 @@ public class NodeBreakerConnectTest {
         l.getTerminal().connect();
         assertTrue(network.getSwitch("B2").isOpen());
         assertTrue(l.getTerminal().isConnected());
+    }
+
+    @Test
+    public void testNodeBreakerDisconnectDisconnectedLoad() {
+        Network network = createNetwork();
+        network.getSwitch("B3").setOpen(true);
+        Load l = network.getLoad("LD");
+        assertFalse(l.getTerminal().isConnected());
+
+        l.getTerminal().disconnect();
+        assertFalse(network.getSwitch("B1").isOpen());
+        assertFalse(l.getTerminal().isConnected());
     }
 
     @Test
