@@ -767,9 +767,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
 
-        private final BusCache busBreakerViewCache = new BusCache(() ->
-            getVoltageLevelStream().filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
-                .flatMap(vl -> getBusBreakerView().getBusStream()));
+        //For bus breaker view, we exclude bus breaker topologies from the cache,
+        //because thoses buses are already indexed in the NetworkIndex
+        private final BusCache busBreakerViewCache = new BusCache(() -> getVoltageLevelStream()
+            .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+            .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
