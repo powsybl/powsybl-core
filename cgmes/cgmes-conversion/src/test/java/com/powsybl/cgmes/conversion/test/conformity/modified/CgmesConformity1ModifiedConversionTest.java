@@ -757,6 +757,12 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void smallBusBranchTieFlowWithoutControlArea() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallBusBranchTieFlowsWithoutControlArea().dataSource(), null);
+        assertNull(network.getExtension(CgmesControlAreas.class));
+    }
+
+    @Test
     public void smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         // Small Grid Node Breaker HVDC modified so in the dcLine2
         // SVC1 (that is at side 2 of the DC line) is interpreted as a rectifier and
