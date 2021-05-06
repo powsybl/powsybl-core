@@ -40,6 +40,13 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeBooleanField("dc", parameters.isDc());
         jsonGenerator.writeBooleanField("distributedSlack", parameters.isDistributedSlack());
         jsonGenerator.writeStringField("balanceType", parameters.getBalanceType().name());
+        jsonGenerator.writeBooleanField("dcUseTransformerRatio", parameters.getDcUseTransformerRatio());
+        jsonGenerator.writeArrayFieldStart("countriesToBalance");
+        for (String arg : parameters.getCountriesToBalance()) {
+            jsonGenerator.writeString(arg);
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeStringField("computedConnectedComponent", parameters.getComputedConnectedComponent().name());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers());
 

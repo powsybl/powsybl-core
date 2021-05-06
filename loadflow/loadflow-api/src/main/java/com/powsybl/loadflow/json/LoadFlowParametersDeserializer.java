@@ -121,6 +121,21 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setBalanceType(parser.readValueAs(BalanceType.class));
                     break;
 
+                case "dcUseTransformerRatio":
+                    parser.nextToken();
+                    parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "countriesToBalance":
+                    parser.nextToken();
+                    parameters.setCountriesToBalance(parser.readValueAs(List.class));
+                    break;
+
+                case "computedConnectedComponent":
+                    parser.nextToken();
+                    parameters.setComputedConnectedComponent(parser.readValueAs(LoadFlowParameters.ComputedConnectedComponentType.class));
+                    break;
+
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.updateExtensions(parser, deserializationContext, JsonLoadFlowParameters.getExtensionSerializers(), parameters);

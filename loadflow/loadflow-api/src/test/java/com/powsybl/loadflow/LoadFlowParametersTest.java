@@ -30,6 +30,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -56,7 +58,9 @@ public class LoadFlowParametersTest {
                              boolean transformerVoltageControlOn, boolean noGeneratorReactiveLimits,
                              boolean phaseShifterRegulationOn, boolean twtSplitShuntAdmittance,
                              boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
-                             boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType) {
+                             boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType,
+                             boolean dcUseTransformerRatio, List<String> countriesToBalance,
+                             LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
         assertEquals(parameters.isPhaseShifterRegulationOn(), phaseShifterRegulationOn);
@@ -68,6 +72,9 @@ public class LoadFlowParametersTest {
         assertEquals(parameters.isDc(), dc);
         assertEquals(parameters.isDistributedSlack(), distributedSlack);
         assertEquals(parameters.getBalanceType(), balanceType);
+        assertEquals(parameters.getDcUseTransformerRatio(), dcUseTransformerRatio);
+        assertEquals(parameters.getCountriesToBalance(), countriesToBalance);
+        assertEquals(parameters.getComputedConnectedComponent(), computedConnectedComponent);
     }
 
     @Test
@@ -84,7 +91,10 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
-                LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
+                LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -101,6 +111,9 @@ public class LoadFlowParametersTest {
         boolean distributedSlack = true;
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
+        boolean dcUseTransformerRatio = true;
+        List<String> countriesToBalance = new ArrayList<>();
+        LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
         moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
@@ -115,12 +128,15 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("dc", Boolean.toString(dc));
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(dc));
         moduleConfig.setStringProperty("balanceType", balanceType.name());
+        moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dc));
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance);
+        moduleConfig.setStringProperty("computedConnectedComponent", computedConnectedComponent.name());
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn,
                     noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType);
+                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
     }
 
     @Test
@@ -134,7 +150,9 @@ public class LoadFlowParametersTest {
                 transformerVoltageControlOn, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -145,7 +163,9 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -156,7 +176,9 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_NO_GENERATOR_REACTIVE_LIMITS,
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE,
                 LoadFlowParameters.DEFAULT_SIMUL_SHUNT, LoadFlowParameters.DEFAULT_READ_SLACK_BUS, LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
-                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_DC, LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK, LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -172,7 +194,10 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
-                LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
+                LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -188,7 +213,10 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 LoadFlowParameters.DEFAULT_DC,
                 LoadFlowParameters.DEFAULT_DISTRIBUTED_SLACK,
-                LoadFlowParameters.DEFAULT_BALANCE_TYPE);
+                LoadFlowParameters.DEFAULT_BALANCE_TYPE,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
+                LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
 
         LoadFlowParameters parameters1 = new LoadFlowParameters(parameters);
         parameters1.setDc(true);
@@ -204,7 +232,10 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_WRITE_SLACK_BUS,
                 true,
                 false,
-                LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD);
+                LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD,
+                LoadFlowParameters.DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT,
+                LoadFlowParameters.DEFAULT_COUNTRIES_TO_BALANCE,
+                LoadFlowParameters.DEFAULT_COMPUTED_CONNECTED_COMPONENT);
     }
 
     @Test
@@ -220,6 +251,9 @@ public class LoadFlowParametersTest {
         boolean distributedSlack = false;
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
+        boolean dcUseTransformerRatio = true;
+        List<String> countriesToBalance = new ArrayList<>();
+        LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);
@@ -237,7 +271,7 @@ public class LoadFlowParametersTest {
 
         checkValues(parameters, voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits,
                     phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                    dc, distributedSlack, balanceType);
+                    dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
     }
 
     @Test
@@ -253,14 +287,18 @@ public class LoadFlowParametersTest {
         boolean distributedSlack = false;
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
+        boolean dcUseTransformerRatio = true;
+        List<String> countriesToBalance = new ArrayList<>();
+        LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
                                                                noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
-                                                               dc, distributedSlack, balanceType);
+                                                               dc, distributedSlack, balanceType, dcUseTransformerRatio, countriesToBalance, computedConnectedComponent);
         LoadFlowParameters parametersCloned = parameters.copy();
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isSimulShunt(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
-                parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType());
+                parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.getDcUseTransformerRatio(),
+                parameters.getCountriesToBalance(), parameters.getComputedConnectedComponent());
     }
 
     @Test
