@@ -80,7 +80,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         .setId(reader.getAttributeValue(null, "id"))
                         .setName(reader.getAttributeValue(null, "name"))
                         .setEnergyIdentificationCodeEic(reader.getAttributeValue(null, "energyIdentificationCodeEic"))
-                        .setNetInterchange(XmlUtil.readDoubleAttribute(reader, "netInterchange"))
+                        .setNetInterchange(XmlUtil.readOptionalDoubleAttribute(reader, "netInterchange"))
                         .add();
                 readBoundariesAndTerminals(networkContext, reader, cgmesControlArea, extendable);
             } else {
