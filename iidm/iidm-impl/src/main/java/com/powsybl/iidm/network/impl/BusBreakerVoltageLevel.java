@@ -777,7 +777,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public boolean disconnect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
-        // already connected?
+        // already disconnected?
         if (!terminal.isConnected()) {
             return false;
         }
