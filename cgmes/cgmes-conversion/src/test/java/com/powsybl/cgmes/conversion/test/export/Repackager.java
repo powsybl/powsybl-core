@@ -65,9 +65,6 @@ public class Repackager {
 
     static String getName(ReadOnlyDataSource ds, Predicate<String> file) {
         CgmesOnDataSource ns = new CgmesOnDataSource(ds);
-        if (ns.names().stream().noneMatch(n -> file.test(n))) {
-            System.out.println("test");
-        }
         return ns.names().stream().filter(n -> file.test(n)).findFirst().get();
     }
 
