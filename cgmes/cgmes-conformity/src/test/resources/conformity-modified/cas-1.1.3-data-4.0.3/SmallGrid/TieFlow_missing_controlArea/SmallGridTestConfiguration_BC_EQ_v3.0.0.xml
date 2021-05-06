@@ -15246,4 +15246,9 @@
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_b05800c4-9744-45d8-8d9e-c1f39562e4fb" />
     <cim:CurrentLimit.value>2186</cim:CurrentLimit.value>
   </cim:CurrentLimit>
+  <cim:TieFlow rdf:ID="test">
+    <cim:TieFlow.positiveFlowIn>true</cim:TieFlow.positiveFlowIn>
+    <cim:TieFlow.ControlArea rdf:resource="#missing"/>
+    <cim:TieFlow.Terminal rdf:resource="#_04607f19-c766-11e1-8775-005056c00008"/>
+  </cim:TieFlow>
 </rdf:RDF>
