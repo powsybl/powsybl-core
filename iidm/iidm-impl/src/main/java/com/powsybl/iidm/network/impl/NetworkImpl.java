@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -20,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -80,10 +82,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             if (bus != null) {
                 return bus;
             }
-            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            return variants.get().busBreakerViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busBreakerViewCache.invalidate();
         }
     }
 
@@ -109,10 +112,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            return variants.get().busViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busViewCache.invalidate();
         }
 
     }
@@ -719,6 +723,40 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
+    /**
+     * Caching buses by their ID :
+     * the cache is fully builts on first call to {@link BusCache#getBus(String)},
+     * and must be invalidated on any topology change.
+     */
+    private static final class BusCache {
+
+        private final Supplier<Stream<Bus>> busStream;
+        private Map<String, Bus> cache;
+
+        private BusCache(Supplier<Stream<Bus>> busStream) {
+            this.busStream = busStream;
+        }
+
+        private void buildCache() {
+            cache = busStream.get().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
+        synchronized void invalidate() {
+            cache = null;
+        }
+
+        private synchronized Map<String, Bus> getCache() {
+            if (cache == null) {
+                buildCache();
+            }
+            return cache;
+        }
+
+        Bus getBus(String id) {
+            return getCache().get(id);
+        }
+    }
+
     private class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
@@ -726,6 +764,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
+
+        private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
+
+        private final BusCache busBreakerViewCache = new BusCache(() ->
+            getVoltageLevelStream().filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+                .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
