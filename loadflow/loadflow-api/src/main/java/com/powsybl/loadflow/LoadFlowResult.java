@@ -30,8 +30,8 @@ public interface LoadFlowResult {
         }
 
         /**
-         * Get component number.
-         * @return component number
+         * Get connected component number.
+         * @return connected component number
          */
         int getConnectedComponentNum();
 

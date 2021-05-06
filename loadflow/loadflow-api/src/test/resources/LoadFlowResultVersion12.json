@@ -1,5 +1,5 @@
 {
-  "version" : "1.1",
+  "version" : "1.2",
   "isOK" : true,
   "metrics" : {
     "nbiter" : "4",
@@ -10,7 +10,8 @@
     "csprMarcheForcee" : "0"
   },
   "componentResults" : [ {
-    "componentNum" : 0,
+    "connectedComponentNum" : 0,
+    "synchronousComponentNum" : 0,
     "status" : "CONVERGED",
     "iterationCount" : 7,
     "slackBusId" : "bus1",

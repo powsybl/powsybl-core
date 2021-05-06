@@ -34,8 +34,8 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
     }
 
     public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser) throws IOException {
-        Integer componentNum = null;
-        int synchronousComponentNum = 0;
+        Integer connectedComponentNum = null;
+        Integer synchronousComponentNum = null;
         LoadFlowResult.ComponentResult.Status status = null;
         Integer iterationCount = null;
         String slackBusId = null;
@@ -45,10 +45,12 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             switch (parser.getCurrentName()) {
                 case "connectedComponentNum":
                     parser.nextToken();
-                    componentNum = parser.getValueAsInt();
+                    connectedComponentNum = parser.getValueAsInt();
                     break;
 
                 case "synchronousComponentNum":
+
+                case "componentNum":
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                     break;
@@ -78,7 +80,10 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             }
         }
 
-        if (componentNum == null) {
+        if (connectedComponentNum == null) {
+            connectedComponentNum = 0;
+        }
+        if (synchronousComponentNum == null) {
             throw new IllegalStateException("Component number field not found");
         }
         if (iterationCount == null) {
@@ -88,7 +93,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             throw new IllegalStateException("Slack bus active power mismatch field not found");
         }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(componentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
     }
 
     public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults) throws IOException {

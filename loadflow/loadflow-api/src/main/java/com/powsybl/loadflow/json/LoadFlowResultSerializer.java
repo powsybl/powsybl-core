@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 public class LoadFlowResultSerializer extends StdSerializer<LoadFlowResult> {
 
-    private static final String VERSION = "1.1";
+    private static final String VERSION = "1.2";
 
     LoadFlowResultSerializer() {
         super(LoadFlowResult.class);
