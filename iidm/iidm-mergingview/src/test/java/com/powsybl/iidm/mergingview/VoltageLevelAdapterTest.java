@@ -449,6 +449,5 @@ public class VoltageLevelAdapterTest {
 
         // Not implemented
         TestUtil.notImplemented(() -> nbv.removeSwitch(""));
-        TestUtil.notImplemented(() -> nbv.traverse(0, null));
     }
 }
