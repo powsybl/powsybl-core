@@ -145,4 +145,50 @@ class LoadScalable extends AbstractInjectionScalable {
 
         return done;
     }
+
+    public double scale_with_constant_power_factor(Network n, double asked, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
+
+        Load l = n.getLoad(id);
+
+        double done = 0;
+        if (l == null) {
+            LOGGER.warn("Load {} not found", id);
+            return done;
+        }
+
+        Terminal t = l.getTerminal();
+        if (!t.isConnected()) {
+            t.connect();
+            LOGGER.info("Connecting {}", l.getId());
+        }
+
+        double oldP0 = l.getP0();
+        double oldQ0 = l.getQ0();
+        if (oldP0 < minValue || oldP0 > maxValue) {
+            LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
+            return 0.;
+        }
+
+        // We use natural load convention to compute the limits.
+        // The actual convention is taken into account afterwards.
+        double availableDown = oldP0 - minValue;
+        double availableUp = maxValue - oldP0;
+
+        if (scalingConvention == LOAD) {
+            done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
+            l.setP0(oldP0 + done);
+            l.setQ0((oldP0 + done) * oldQ0 / oldP0)
+        } else {
+            done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
+            l.setP0(oldP0 - done);
+            l.setQ0((oldP0 - done) * oldQ0 / oldP0)
+        }
+
+        LOGGER.info("Change active power setpoint of {} from {} to {} ",
+                l.getId(), oldP0, l.getP0());
+
+        return done;
+    }
 }
