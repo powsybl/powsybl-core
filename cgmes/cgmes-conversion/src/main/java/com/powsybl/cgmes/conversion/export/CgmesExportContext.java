@@ -28,7 +28,7 @@ public class CgmesExportContext {
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
-    private boolean exportBoundaryPowerFlows = false;
+    private boolean exportBoundaryPowerFlows = true;
 
     private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();

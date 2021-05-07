@@ -71,7 +71,8 @@ public class CgmesExport implements Exporter {
         String baseName = baseName(network, params);
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
-        CgmesExportContext context = new CgmesExportContext(network);
+        CgmesExportContext context = new CgmesExportContext(network)
+                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER));
         try (OutputStream osv = ds.newOutputStream(filenameSv, false);
                 OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
             XMLStreamWriter writer;
@@ -110,6 +111,7 @@ public class CgmesExport implements Exporter {
 
     public static final String USING_ONLY_NETWORK = "iidm.export.cgmes.using-only-network";
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
+    public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
 
     private static final Parameter USING_ONLY_NETWORK_PARAMETER = new Parameter(
             USING_ONLY_NETWORK,
@@ -121,8 +123,14 @@ public class CgmesExport implements Exporter {
             ParameterType.STRING,
             "Basename for output files",
             null);
+    private static final Parameter EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER = new Parameter(
+            EXPORT_BOUNDARY_POWER_FLOWS,
+            ParameterType.BOOLEAN,
+            "Export boundaries' power flows",
+            Boolean.TRUE);
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             USING_ONLY_NETWORK_PARAMETER,
-            BASE_NAME_PARAMETER);
+            BASE_NAME_PARAMETER,
+            EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER);
 }

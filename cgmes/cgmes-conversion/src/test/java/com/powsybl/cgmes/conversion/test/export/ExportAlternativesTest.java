@@ -106,6 +106,7 @@ public class ExportAlternativesTest {
         e.export(network0, ep, tmpUsingCgmes);
         ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
         ep.setProperty(CgmesExport.BASE_NAME, ds.getBaseName());
+        ep.setProperty(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, "false");
         network0.removeExtension(CgmesModelExtension.class);
         e.export(network0, ep, tmpUsingOnlyNetwork);
 

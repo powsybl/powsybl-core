@@ -22,7 +22,6 @@ import java.util.List;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -82,7 +81,7 @@ public class CgmesExportContextTest {
         assertEquals(1, context.getSvModelDescription().getVersion());
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
         assertEquals("powsybl.org", context.getSvModelDescription().getModelingAuthoritySet());
-        assertFalse(context.exportBoundaryPowerFlows());
+        assertTrue(context.exportBoundaryPowerFlows());
     }
 
     @Test
