@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Collection;
@@ -22,8 +23,8 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
 
     private final OperationalLimitsHolderImpl operationalLimitsHolder2;
 
-    AbstractBranch(String id, String name, boolean fictitious) {
-        super(id, name, fictitious);
+    AbstractBranch(Ref<NetworkImpl> network, String id, String name, boolean fictitious) {
+        super(network, id, name, fictitious);
         operationalLimitsHolder1 = new OperationalLimitsHolderImpl(this, "limits1");
         operationalLimitsHolder2 = new OperationalLimitsHolderImpl(this, "limits2");
     }
