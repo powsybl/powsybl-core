@@ -18,6 +18,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Rule;
 import org.junit.Test;
@@ -113,8 +114,8 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion15.json"));
         assertTrue(parameters.getDcUseTransformerRatio());
         assertEquals(2, parameters.getCountriesToBalance().size());
-        assertEquals("FR", parameters.getCountriesToBalance().get(0));
-        assertEquals("KI", parameters.getCountriesToBalance().get(1));
+        assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
+        assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
         assertEquals(LoadFlowParameters.ComputedConnectedComponentType.MAIN, parameters.getComputedConnectedComponent());
     }
 

@@ -15,6 +15,7 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
 import com.powsybl.commons.extensions.ExtensionProviders;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 
 import java.io.ByteArrayInputStream;
@@ -75,7 +76,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
-    public static final List<String> DEFAULT_COUNTRIES_TO_BALANCE = new ArrayList<>();
+    public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = new HashSet<>();
     public static final ComputedConnectedComponentType DEFAULT_COMPUTED_CONNECTED_COMPONENT = ComputedConnectedComponentType.MAIN;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
@@ -123,7 +124,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setDistributedSlack(config.getBooleanProperty("distributedSlack", DEFAULT_DISTRIBUTED_SLACK));
                 parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
                 parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
-                parameters.setCountriesToBalance(config.getStringListProperty("countriesToBalance", DEFAULT_COUNTRIES_TO_BALANCE));
+                parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
                 parameters.setComputedConnectedComponent(config.getEnumProperty("computedConnectedComponent", ComputedConnectedComponentType.class, DEFAULT_COMPUTED_CONNECTED_COMPONENT));
             });
     }
@@ -152,7 +153,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private boolean dcUseTransformerRatio;
 
-    private List<String> countriesToBalance;
+    private Set<Country> countriesToBalance;
 
     private ComputedConnectedComponentType computedConnectedComponent;
 
@@ -160,7 +161,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
                               boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
-                              List<String> countriesToBalance, ComputedConnectedComponentType computedConnectedComponent) {
+                              Set<Country> countriesToBalance, ComputedConnectedComponentType computedConnectedComponent) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
@@ -374,12 +375,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return dcUseTransformerRatio;
     }
 
-    public LoadFlowParameters setCountriesToBalance(List<String> countriesToBalance) {
+    public LoadFlowParameters setCountriesToBalance(Set<Country> countriesToBalance) {
         this.countriesToBalance = countriesToBalance;
         return this;
     }
 
-    public List<String> getCountriesToBalance() {
+    public Set<Country> getCountriesToBalance() {
         return countriesToBalance;
     }
 

@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
@@ -19,6 +20,8 @@ import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -128,7 +131,8 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
 
                 case "countriesToBalance":
                     parser.nextToken();
-                    parameters.setCountriesToBalance(parser.readValueAs(List.class));
+                    Set<String> countries = parser.readValueAs(Set.class);
+                    parameters.setCountriesToBalance(countries.stream().map(c -> Country.valueOf(c)).collect(Collectors.toSet()));
                     break;
 
                 case "computedConnectedComponent":

@@ -22,6 +22,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParametersTest;
 import org.junit.After;
@@ -30,8 +31,9 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -59,7 +61,7 @@ public class LoadFlowParametersTest {
                              boolean phaseShifterRegulationOn, boolean twtSplitShuntAdmittance,
                              boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
                              boolean dc, boolean distributedSlack, LoadFlowParameters.BalanceType balanceType,
-                             boolean dcUseTransformerRatio, List<String> countriesToBalance,
+                             boolean dcUseTransformerRatio, Set<Country> countriesToBalance,
                              LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent) {
         assertEquals(parameters.getVoltageInitMode(), voltageInitMode);
         assertEquals(parameters.isTransformerVoltageControlOn(), transformerVoltageControlOn);
@@ -112,7 +114,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         boolean dcUseTransformerRatio = true;
-        List<String> countriesToBalance = new ArrayList<>();
+        Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
@@ -129,7 +131,7 @@ public class LoadFlowParametersTest {
         moduleConfig.setStringProperty("distributedSlack", Boolean.toString(dc));
         moduleConfig.setStringProperty("balanceType", balanceType.name());
         moduleConfig.setStringProperty("dcUseTransformerRatio", Boolean.toString(dc));
-        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance);
+        moduleConfig.setStringListProperty("countriesToBalance", countriesToBalance.stream().map(e -> e.name()).collect(Collectors.toList()));
         moduleConfig.setStringProperty("computedConnectedComponent", computedConnectedComponent.name());
 
         LoadFlowParameters parameters = new LoadFlowParameters();
@@ -252,7 +254,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.DC_VALUES;
         boolean dcUseTransformerRatio = true;
-        List<String> countriesToBalance = new ArrayList<>();
+        Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
 
         LoadFlowParameters parameters = new LoadFlowParameters();
@@ -288,7 +290,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.BalanceType balanceType = LoadFlowParameters.BalanceType.PROPORTIONAL_TO_LOAD;
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
         boolean dcUseTransformerRatio = true;
-        List<String> countriesToBalance = new ArrayList<>();
+        Set<Country> countriesToBalance = new HashSet<>();
         LoadFlowParameters.ComputedConnectedComponentType computedConnectedComponent = LoadFlowParameters.ComputedConnectedComponentType.MAIN;
         LoadFlowParameters parameters = new LoadFlowParameters(voltageInitMode, transformerVoltageControlOn,
                                                                noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, simulShunt, readSlackBus, writeSlackBus,
