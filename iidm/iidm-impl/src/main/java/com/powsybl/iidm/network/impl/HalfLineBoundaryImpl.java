@@ -29,28 +29,28 @@ class HalfLineBoundaryImpl implements Boundary {
     public double getV() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideA(parent);
     }
 
     @Override
     public double getP() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideQ(parent);
     }
 
     @Override

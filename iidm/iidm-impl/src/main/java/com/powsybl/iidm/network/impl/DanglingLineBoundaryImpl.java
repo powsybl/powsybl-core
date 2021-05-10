@@ -27,28 +27,28 @@ class DanglingLineBoundaryImpl implements Boundary {
     public double getV() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideU(parent, true);
     }
 
     @Override
     public double getAngle() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideA(parent, true);
     }
 
     @Override
     public double getP() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideP(parent, true);
     }
 
     @Override
     public double getQ() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), 1).otherSideQ(parent, true);
     }
 
     @Override

@@ -6,10 +6,12 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
@@ -17,56 +19,44 @@ import org.apache.commons.math3.complex.ComplexUtils;
  * Utility class to compute the state variables on one side of a branch, knowing
  * the state variables on the other side.
  *
+ *  | Y11   Y12 ||V1|   |I1|
+ *  |           ||  | = |  |
+ *  | Y21   Y22 ||V2|   |I2|
+ *
+ *  I1 = S1* / V1* and I2 = S2* / V2*
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class SV {
 
-    public static double getRho(TwoWindingsTransformer twt) {
-        return twt.getRatedU2() / twt.getRatedU1() * twt.getOptionalRatioTapChanger().map(rtc -> rtc.getCurrentStep().getRho()).orElse(1d);
-    }
-
-    public static double getR(TwoWindingsTransformer twt) {
-        return twt.getR() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getR() / 100).orElse(1d);
-    }
-
-    public static double getX(TwoWindingsTransformer twt) {
-        return twt.getX() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getX() / 100).orElse(1d);
-    }
-
-    public static double getG(TwoWindingsTransformer twt) {
-        return twt.getG() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getG() / 100).orElse(1d);
-    }
-
-    public static double getB(TwoWindingsTransformer twt) {
-        return twt.getB() * twt.getOptionalRatioTapChanger().map(rtc -> 1 + rtc.getCurrentStep().getB() / 100).orElse(1d);
-    }
-
-    double p;
-
-    double q;
-
-    double u;
-
-    double a;
-
-    private Complex s1;
-
-    private Complex u1;
-
-    private Complex v1;
-
-    private Complex i1;
-
-    public SV(double p, double q, double u, double a) {
+    public SV(double p, double q, double u, double a, int end) {
         this.p = p;
         this.q = q;
         this.u = u;
         this.a = a;
-        s1 = new Complex(p, q); // s=p+jq
-        u1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
-        v1 = u1.divide(Math.sqrt(3f)); // v1=u1/sqrt(3)
-        i1 = s1.divide(v1.multiply(3)).conjugate(); // i1=conj(s1/(3*v1))
+        this.end = end;
     }
+
+    /**
+     * @deprecated Not used anymore. The end associated to the voltage and flow must be defined. Use
+     * {@link SV#SV(double, double, double, double, int)}
+     */
+    @Deprecated
+    public SV(double p, double q, double u, double a) {
+        throw new PowsyblException("Deprecated. Not used anymore");
+    }
+
+    private final double p;
+
+    private final double q;
+
+    private final double u;
+
+    private final double a;
+
+    private final int end;
 
     public double getP() {
         return p;
@@ -84,132 +74,336 @@ public class SV {
         return a;
     }
 
-    private Complex computeU2(Complex y1, Complex y2, Complex z, double rho) {
-        Complex v1p = v1.multiply(rho); // v1p=v1*rho
-        Complex i1p = i1.divide(rho); // i1p=i1/rho
-
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
-        Complex s2 = v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
-        return v2.multiply(Math.sqrt(3f));
+    public int getEnd() {
+        return end;
     }
 
-    private Complex computeU2(Complex y, Complex z, double rho) {
-        return computeU2(y, new Complex(0, 0), z, rho);
-    }
-
-    private Complex computeS2(Complex y1, Complex y2, Complex z, double rho) {
-        Complex v1p = v1.multiply(rho); // v1p=v1*rho
-        Complex i1p = i1.divide(rho); // i1p=i1/rho
-
-        Complex i2p = i1p.subtract(y1.multiply(v1p)); // i2p=i1p-y1*v1p
-        Complex v2 = v1p.subtract(z.multiply(i2p)); // v2p=v1p-z*i2
-        Complex i2 = i2p.subtract(y2.multiply(v2)); // i2=i2p-y2*v2
-        return v2.multiply(3).multiply(i2.conjugate()); // s2=3*v2*conj(i2)
-    }
-
-    private Complex computeS2(Complex y, Complex z, double rho) {
-        return computeS2(y, new Complex(0, 0), z, rho);
-    }
-
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSide(double, double, double, double, double, double, double)}
+     */
+    @Deprecated
     public SV otherSide(double r, double x, double g, double b, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y = new Complex(g, b); // y=g+jb
-        Complex u2 = computeU2(y, z, rho);
-        Complex s2 = computeS2(y, z, rho);
-        return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex u2 = computeU2(y1, y2, z, rho);
-        Complex s2 = computeS2(y1, y2, z, rho);
-        return new SV(-s2.getReal(), -s2.getImaginary(), u2.abs(), Math.toDegrees(u2.getArgument()));
+        return otherSide(r, x, g1, b1, g2, b2, rho, 0.0);
+    }
+
+    public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
+        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+            new Complex(g1, b1), new Complex(g2, b2));
+        return otherSide(adm);
+    }
+
+    // Has been modified
+    // Before: otherSide(l.getR(), l.getX(), l.getG1() + l.getG2(), l.getB1() + l.getB2(), 0.0, 0.0, 1.0, 0.0);
+    public SV otherSide(Line l) {
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1.0, 0.0);
+    }
+
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSide(Line)}
+     */
+    public SV otherSideY1Y2(Line l) {
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
-        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), getRho(twt));
+        return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt));
     }
 
-    public SV otherSide(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1() + l.getG2(), l.getB1() + l.getB2(), 1);
+    public SV otherSide(TwoWindingsTransformer twt, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSide(getR(twt), getX(twt), getG(twt) * 0.5, getB(twt) * 0.5, getG(twt) * 0.5, getB(twt) * 0.5, getRho(twt), getAlpha(twt));
+        } else {
+            return otherSide(getR(twt), getX(twt), getG(twt), getB(twt), 0.0, 0.0, getRho(twt), getAlpha(twt));
+        }
     }
 
-    public SV otherSideY1Y2(Line l) {
-        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1);
-    }
-
+    // Has been modified
+    // Before: otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1.0, 0.0);
     public SV otherSide(DanglingLine dl) {
-        return otherSide(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
+        return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
+    public SV otherSide(DanglingLine dl, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSide(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+        } else {
+            return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        }
+    }
+
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSideP(double, double, double, double, double, double, double, double)}
+     */
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s2 = computeS2(y1, y2, z, rho);
-        return -s2.getReal();
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
+    public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
+        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+            new Complex(g1, b1), new Complex(g2, b2));
+        return otherSideP(adm);
+    }
+
+    // Has been modified
+    // Before: otherSideP(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1.0, 0.0);
     public double otherSideP(DanglingLine dl) {
-        return otherSideP(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
+        return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    }
+
+    public double otherSideP(DanglingLine dl, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSideP(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+        } else {
+            return otherSideP(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        }
     }
 
     public double otherSideP(TieLine.HalfLine hl) {
-        return otherSideP(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0);
+        return otherSideP(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
     }
 
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSideQ(double, double, double, double, double, double, double, double)}
+     */
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex y2 = new Complex(g2, b2); // y2=g2+jb2
-        Complex s2 = computeS2(y1, y2, z, rho);
-        return -s2.getImaginary();
+        throw new PowsyblException("Deprecated. Not used anymore");
+    }
+
+    public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
+        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+            new Complex(g1, b1), new Complex(g2, b2));
+        return otherSideQ(adm);
+    }
+
+    // Has been modified
+    // Before: otherSideQ(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1.0, 0.0);
+    public double otherSideQ(DanglingLine dl) {
+        return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    }
+
+    public double otherSideQ(DanglingLine dl, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSideQ(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+        } else {
+            return otherSideQ(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        }
     }
 
     public double otherSideQ(TieLine.HalfLine hl) {
-        return otherSideQ(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0);
+        return otherSideQ(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
     }
 
-    public double otherSideQ(DanglingLine dl) {
-        return otherSideQ(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, dl.getG() / 2.0, dl.getB() / 2.0, 1);
-    }
-
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSideU(double, double, double, double, double, double, double, double)}
+     */
     public double otherSideU(double r, double x, double g1, double b1, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex u2 = computeU2(y1, new Complex(0, 0), z, rho);
-        return u2.abs();
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
-    public double otherSideU(TieLine.HalfLine hl) {
-        return otherSideU(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 1.0);
+    public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
+        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+            new Complex(g1, b1), new Complex(g2, b2));
+        return otherSideU(adm);
     }
 
+    // Has been modified
+    // Before: otherSideU(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 0.0, 0.0, 1.0, 0.0);
     public double otherSideU(DanglingLine dl) {
-        return otherSideU(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 1);
+        return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
     }
 
+    public double otherSideU(DanglingLine dl, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSideU(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+        } else {
+            return otherSideU(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        }
+    }
+
+    // Has been modified
+    // Before: otherSideU(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideU(TieLine.HalfLine hl) {
+        return otherSideU(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
+    }
+
+    /**
+     * @deprecated Not used anymore. Use
+     * {@link SV#otherSideA(double, double, double, double, double, double, double, double)}
+     */
     public double otherSideA(double r, double x, double g1, double b1, double rho) {
-        Complex z = new Complex(r, x); // z=r+jx
-        Complex y1 = new Complex(g1, b1); // y1=g1+jb1
-        Complex u2 = computeU2(y1, new Complex(0, 0), z, rho);
-        return Math.toDegrees(u2.getArgument());
+        throw new PowsyblException("Deprecated. Not used anymore");
     }
 
-    public double otherSideA(TieLine.HalfLine hl) {
-        return otherSideA(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 1.0);
+    public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
+        LinkData.BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1 / rho, -alpha, 1.0, 0.0,
+            new Complex(g1, b1), new Complex(g2, b2));
+        return otherSideA(adm);
     }
 
+    // Has been modified
+    // Before: otherSideA(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 0.0, 0.0, 1.0, 0.0);
     public double otherSideA(DanglingLine dl) {
-        return otherSideA(dl.getR(), dl.getX(), dl.getG() / 2.0, dl.getB() / 2.0, 1.0);
+        return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+    }
+
+    public double otherSideA(DanglingLine dl, boolean splitShuntAdmittance) {
+        if (splitShuntAdmittance) {
+            return otherSideA(dl.getR(), dl.getX(), dl.getG() * 0.5, dl.getB() * 0.5, dl.getG() * 0.5, dl.getB() * 0.5, 1.0, 0.0);
+        } else {
+            return otherSideA(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 0.0, 0.0, 1.0, 0.0);
+        }
+    }
+
+    // Has been modified
+    // Before: otherSideA(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), 0.0, 0.0, 1.0, 0.0);
+    public double otherSideA(TieLine.HalfLine hl) {
+        return otherSideA(hl.getR(), hl.getX(), hl.getG1(), hl.getB1(), hl.getG2(), hl.getB2(), 1.0, 0.0);
+    }
+
+    public static double getRho(TwoWindingsTransformer twt) {
+        double rho = twt.getRatedU2() / twt.getRatedU1();
+        if (twt.getRatioTapChanger() != null) {
+            rho = rho * twt.getRatioTapChanger().getCurrentStep().getRho();
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            rho = rho * twt.getPhaseTapChanger().getCurrentStep().getRho();
+        }
+        return rho;
+    }
+
+    public static double getAlpha(TwoWindingsTransformer twt) {
+        double alpha = 0.0;
+        if (twt.getPhaseTapChanger() != null) {
+            alpha = twt.getPhaseTapChanger().getCurrentStep().getAlpha();
+        }
+        return Math.toRadians(alpha);
+    }
+
+    public static double getR(TwoWindingsTransformer twt) {
+        double r = twt.getR();
+        if (twt.getRatioTapChanger() != null) {
+            r = r * (1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100);
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            r = r * (1 + twt.getPhaseTapChanger().getCurrentStep().getR() / 100);
+        }
+        return r;
+    }
+
+    public static double getX(TwoWindingsTransformer twt) {
+        double x = twt.getX();
+        if (twt.getRatioTapChanger() != null) {
+            x = x * (1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100);
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            x = x * (1 + twt.getPhaseTapChanger().getCurrentStep().getX() / 100);
+        }
+        return x;
+    }
+
+    public static double getG(TwoWindingsTransformer twt) {
+        double g = twt.getG();
+        if (twt.getRatioTapChanger() != null) {
+            g = g * (1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100);
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            g = g * (1 + twt.getPhaseTapChanger().getCurrentStep().getG() / 100);
+        }
+        return g;
+    }
+
+    public static double getB(TwoWindingsTransformer twt) {
+        double b = twt.getG();
+        if (twt.getRatioTapChanger() != null) {
+            b = b * (1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100);
+        }
+        if (twt.getPhaseTapChanger() != null) {
+            b = b * (1 + twt.getPhaseTapChanger().getCurrentStep().getB() / 100);
+        }
+        return b;
     }
 
     @Override
     public String toString() {
-        return "p=" + p + ", q=" + q + ", u=" + u + ", a=" + a;
+        return "p=" + p + ", q=" + q + ", u=" + u + ", a=" + a + ", end=" + end;
+    }
+
+    private SV otherSide(LinkData.BranchAdmittanceMatrix adm) {
+        Complex v;
+        Complex s;
+        int otherEnd;
+        if (end == 1) {
+            Complex v1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
+            Complex s1 = new Complex(p, q);
+            v = voltageAtEnd2(adm, v1, s1);
+            s = flowAtEnd2(adm, v1, v);
+            otherEnd = 2;
+        } else {
+            Complex v2 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
+            Complex s2 = new Complex(p, q);
+            v = voltageAtEnd1(adm, v2, s2);
+            s = flowAtEnd1(adm, v, v2);
+            otherEnd = 1;
+        }
+        return new SV(s.getReal(), s.getImaginary(), v.abs(), Math.toDegrees(v.getArgument()), otherEnd);
+    }
+
+    private double otherSideP(LinkData.BranchAdmittanceMatrix adm) {
+        return otherSide(adm).getP();
+    }
+
+    private double otherSideQ(LinkData.BranchAdmittanceMatrix adm) {
+        return otherSide(adm).getQ();
+    }
+
+    private Complex otherSideV(LinkData.BranchAdmittanceMatrix adm) {
+        Complex v;
+        if (end == 1) {
+            Complex v1 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
+            Complex s1 = new Complex(p, q);
+            v = voltageAtEnd2(adm, v1, s1);
+        } else {
+            Complex v2 = ComplexUtils.polar2Complex(u, Math.toRadians(a));
+            Complex s2 = new Complex(p, q);
+            v = voltageAtEnd1(adm, v2, s2);
+        }
+        return v;
+    }
+
+    private double otherSideU(LinkData.BranchAdmittanceMatrix adm) {
+        return otherSideV(adm).abs();
+    }
+
+    private double otherSideA(LinkData.BranchAdmittanceMatrix adm) {
+        return Math.toDegrees(otherSideV(adm).getArgument());
+    }
+
+    // Get V2 from Y11.V1 + Y12.V2 = S1* / V1*
+    private static Complex voltageAtEnd2(LinkData.BranchAdmittanceMatrix adm, Complex vEnd1, Complex sEnd1) {
+        return sEnd1.conjugate().divide(vEnd1.conjugate()).subtract(adm.y11().multiply(vEnd1)).divide(adm.y12());
+    }
+
+    // Get V1 from Y21.V1 + Y22.V2 = S2* / V2*
+    private static Complex voltageAtEnd1(LinkData.BranchAdmittanceMatrix adm, Complex vEnd2, Complex sEnd2) {
+        return sEnd2.conjugate().divide(vEnd2.conjugate()).subtract(adm.y22().multiply(vEnd2)).divide(adm.y21());
+    }
+
+    // Get S1 from Y11.V1 + Y12.V2 = S1* / V1*
+    private static Complex flowAtEnd1(LinkData.BranchAdmittanceMatrix adm, Complex vEnd1, Complex vEnd2) {
+        return adm.y11().multiply(vEnd1).add(adm.y12().multiply(vEnd2)).multiply(vEnd1.conjugate()).conjugate();
+    }
+
+    // Get S2 from Y21.V1 + Y22.V2 = S2* / V2*
+    private static Complex flowAtEnd2(LinkData.BranchAdmittanceMatrix adm, Complex vEnd1, Complex vEnd2) {
+        return adm.y21().multiply(vEnd1).add(adm.y22().multiply(vEnd2)).multiply(vEnd2.conjugate()).conjugate();
     }
 }
