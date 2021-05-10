@@ -222,6 +222,9 @@ public class TransformerConverter extends AbstractConverter {
 
         ThreeWindingsTransformer twt = adder.add();
 
+        twt.setProperty("v", Double.toString(psseTransformer.getVmstar() * v0));
+        twt.setProperty("angle", Double.toString(psseTransformer.getAnstar()));
+
         tapChangersToIidm(tapChanger1AdjustedYsh, tapChanger2, tapChanger3, twt);
         defineOperationalLimits(twt, voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), voltageLevel3.getNominalV());
     }
@@ -268,7 +271,7 @@ public class TransformerConverter extends AbstractConverter {
                 xw = xw * sbase / windingSbase;
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CZ = " + cz);
+                throw new PsseException("Unexpected CZ = " + cz);
         }
         return new Complex(rw, xw);
     }
@@ -296,7 +299,7 @@ public class TransformerConverter extends AbstractConverter {
                 }
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CM = " + cm);
+                throw new PsseException("Unexpected CM = " + cm);
         }
         return new Complex(g, b);
     }
@@ -318,7 +321,7 @@ public class TransformerConverter extends AbstractConverter {
                 ratio = windV * nomV / baskv;
                 break;
             default:
-                throw new PsseException("PSSE: Unexpected CW = " + cw);
+                throw new PsseException("Unexpected CW = " + cw);
         }
         return ratio;
     }
@@ -729,6 +732,10 @@ public class TransformerConverter extends AbstractConverter {
         }
 
         Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
+        // Discard control if the transformer is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return false;
+        }
         double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
         double vmin = winding.getVmi() * vnom;
         double vmax = winding.getVma() * vnom;
@@ -756,11 +763,15 @@ public class TransformerConverter extends AbstractConverter {
             return false;
         }
 
+        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
+        // Discard control if the transformer is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return false;
+        }
         double activePowerMin = winding.getVmi();
         double activePowerMax = winding.getVma();
         double targetValue = 0.5 * (activePowerMin + activePowerMax);
         double targetDeadBand = activePowerMax - activePowerMin;
-        Terminal regulatingTerminal = defineRegulatingTerminal(network, id, winding);
         boolean regulating = true;
         if (targetDeadBand < 0.0) {
             regulating = false;
@@ -792,8 +803,7 @@ public class TransformerConverter extends AbstractConverter {
             regulatingTerminal = bus.getConnectedTerminalStream().findFirst().orElse(null);
         }
         if (regulatingTerminal == null) {
-            throw new PsseException("PSSE. Transformer " + id + ". RegulatingBusId: "
-                + regulatingBusId + ". Unexpected regulatingTerminal.");
+            LOGGER.warn("Transformer {}. Regulating terminal is not assigned as the bus is isolated", id);
         }
         return regulatingTerminal;
     }

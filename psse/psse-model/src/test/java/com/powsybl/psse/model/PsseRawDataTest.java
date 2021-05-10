@@ -20,6 +20,7 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.pf.*;
+import com.powsybl.psse.model.pf.io.PowerFlowRawData32;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
@@ -30,11 +31,13 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 
 import static com.powsybl.psse.model.PsseVersion.fromRevision;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.*;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -86,6 +89,18 @@ public class PsseRawDataTest extends AbstractConverterTest {
         return new ResourceDataSource("IEEE_14_bus_completed_rev35", new ResourceSet("/", "IEEE_14_bus_completed_rev35.rawx"));
     }
 
+    private ReadOnlyDataSource ieee14InvalidRaw() {
+        return new ResourceDataSource("IEEE_14_bus_invalid", new ResourceSet("/", "IEEE_14_bus_invalid.raw"));
+    }
+
+    private ReadOnlyDataSource exampleVersion32() {
+        return new ResourceDataSource("ExampleVersion32", new ResourceSet("/", "ExampleVersion32.raw"));
+    }
+
+    private ReadOnlyDataSource ieee14IsolatedBusesRaw() {
+        return new ResourceDataSource("IEEE_14_isolated_buses", new ResourceSet("/", "IEEE_14_isolated_buses.raw"));
+    }
+
     private static String toJson(PssePowerFlowModel rawData) throws JsonProcessingException {
         PsseVersion version = fromRevision(rawData.getCaseIdentification().getRev());
         SimpleBeanPropertyFilter filter = new SimpleBeanPropertyFilter() {
@@ -108,7 +123,28 @@ public class PsseRawDataTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testAccessToFieldNotPresentInVersion() throws IOException {
+    public void testAccessToFieldNotPresentInVersion32() throws IOException {
+        PssePowerFlowModel raw32 = new PowerFlowRawData32().read(exampleVersion32(), "raw", new Context());
+        assertNotNull(raw32);
+
+        PsseBus b = raw32.getBuses().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(b::getNvhi)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'nvhi' is valid since version 33");
+
+        PsseLoad l = raw32.getLoads().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(l::getIntrpt)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'intrpt' is valid since version 33");
+
+        PsseTransformer t = raw32.getTransformers().get(0);
+        assertThatExceptionOfType(PsseException.class)
+            .isThrownBy(t::getVecgrp)
+            .withMessage("Wrong version of PSSE RAW model (32). Field 'vecgrp' is valid since version 33");
+    }
+
+    @Test
+    public void testAccessToFieldNotPresentInVersion33() throws IOException {
         PssePowerFlowModel raw33 = new PowerFlowRawData33().read(ieee14Raw(), "raw", new Context());
         assertNotNull(raw33);
 
@@ -139,13 +175,13 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PsseRates br35 = raw35.getNonTransformerBranches().get(0).getRates();
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(br35::getRatea)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 32 until 33");
 
         PsseTransformer twt35 = raw35.getTransformers().get(0);
         PsseRates winding135Rates = twt35.getWinding1Rates();
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(winding135Rates::getRatea)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'ratea' is valid since version 32 until 33");
     }
 
     @Test
@@ -164,7 +200,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
         PsseFacts f35 = raw35.getFacts().get(0);
         assertThatExceptionOfType(PsseException.class)
             .isThrownBy(f35::getRemot)
-            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 33 until 33");
+            .withMessage("Wrong version of PSSE RAW model (35). Field 'remot' is valid since version 32 until 33");
     }
 
     @Test
@@ -201,12 +237,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
         String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
-        String[] expected2wTransformerDataReadFields = new String[]{"i", "j", "k", "ckt", "cw", "cz", "cm",
-            "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r12", "x12", "sbase12",
-            "windv1", "nomv1", "ang1", "rata1", "ratb1", "ratc1", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
-            "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
-        assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
+        String[] expected2wTransformerDataFirstRecordReadFields = new String[]{"i", "j", "k", "ckt", "cw", "cz", "cm",
+            "mag1", "mag2", "nmetr", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+        String[] actual2wTransformerDataFirstRecordReadFields = context.getFieldNames(TRANSFORMER);
+        assertArrayEquals(expected2wTransformerDataFirstRecordReadFields, actual2wTransformerDataFirstRecordReadFields);
+
+        String[] expected2wTransformerDataSecondRecordReadFields = new String[]{"r12", "x12", "sbase12"};
+        String[] actual2wTransformerDataSecondRecordReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_IMPEDANCES);
+        assertArrayEquals(expected2wTransformerDataSecondRecordReadFields, actual2wTransformerDataSecondRecordReadFields);
+
+        String[] expected2wTransformerDataWindingRecordReadFields = new String[] {"windv", "nomv", "ang",
+            "rata", "ratb", "ratc", "cod", "cont", "rma", "rmi", "vma", "vmi", "ntp", "tab", "cr", "cx"};
+        String[] actual2wTransformerDataWindingRecordReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_WINDING);
+        assertArrayEquals(expected2wTransformerDataWindingRecordReadFields, actual2wTransformerDataWindingRecordReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"i", "isw", "pdes", "ptol", "arname"};
         String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AREA_INTERCHANGE);
@@ -225,6 +268,14 @@ public class PsseRawDataTest extends AbstractConverterTest {
     public void ieee14BusWhitespaceAsDelimiterTest() throws IOException {
         String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus.json")), StandardCharsets.UTF_8);
         PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14WhitespaceAsDelimiterRaw(), "raw", new Context());
+        assertNotNull(rawData);
+        assertEquals(expectedJson, toJson(rawData));
+    }
+
+    @Test
+    public void ieee14IsolatedBusesTest() throws IOException {
+        String expectedJson = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_isolated_buses.json")), StandardCharsets.UTF_8);
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14IsolatedBusesRaw(), "raw", new Context());
         assertNotNull(rawData);
         assertEquals(expectedJson, toJson(rawData));
     }
@@ -334,7 +385,7 @@ public class PsseRawDataTest extends AbstractConverterTest {
             "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r1_2", "x1_2", "sbase1_2",
             "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "cod1", "cont1", "rma1", "rmi1", "vma1", "vmi1",
             "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
+        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER);
         assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
@@ -392,13 +443,21 @@ public class PsseRawDataTest extends AbstractConverterTest {
         String[] actualNonTransformerBranchDataReadFields = context.getFieldNames(NON_TRANSFORMER_BRANCH);
         assertArrayEquals(expectedNonTransformerBranchDataReadFields, actualNonTransformerBranchDataReadFields);
 
-        String[] expected2wTransformerDataReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
-            "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4", "r1_2", "x1_2", "sbase1_2",
-            "windv1", "nomv1", "ang1", "wdg1rate1", "wdg1rate2", "wdg1rate3", "wdg1rate4", "wdg1rate5", "wdg1rate6", "wdg1rate7",
-            "wdg1rate8", "wdg1rate9", "wdg1rate10", "wdg1rate11", "wdg1rate12", "cod1", "cont1", "node1", "rma1", "rmi1", "vma1",
-            "vmi1", "ntp1", "tab1", "cr1", "cx1", "windv2", "nomv2"};
-        String[] actual2wTransformerDataReadFields = context.getFieldNames(TRANSFORMER_2);
-        assertArrayEquals(expected2wTransformerDataReadFields, actual2wTransformerDataReadFields);
+        String[] expected2wTransformerDataFirstRecordReadFields = new String[]{"ibus", "jbus", "kbus", "ckt", "cw", "cz", "cm",
+            "mag1", "mag2", "nmet", "name", "stat", "o1", "f1", "o2", "f2", "o3", "f3", "o4", "f4"};
+        String[] actual2wTransformerDataFirstRecrodReadFields = context.getFieldNames(TRANSFORMER);
+        assertArrayEquals(expected2wTransformerDataFirstRecordReadFields, actual2wTransformerDataFirstRecrodReadFields);
+
+        String[] expected2wTransformerDataSecondRecordReadFields = new String[]{"r12", "x12", "sbase12"};
+        String[] actual2wTransformerDataSecondRecrodReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_IMPEDANCES);
+        assertArrayEquals(expected2wTransformerDataSecondRecordReadFields, actual2wTransformerDataSecondRecrodReadFields);
+
+        String[] expected2wTransformerDataWindingRecordReadFields = new String[]{"windv", "nomv", "ang",
+            "wdgrate1", "wdgrate2", "wdgrate3", "wdgrate4", "wdgrate5", "wdgrate6", "wdgrate7",
+            "wdgrate8", "wdgrate9", "wdgrate10", "wdgrate11", "wdgrate12", "cod", "cont", "node", "rma", "rmi", "vma",
+            "vmi", "ntp", "tab", "cr", "cx"};
+        String[] actual2wTransformerDataWindingRecrodReadFields = context.getFieldNames(INTERNAL_TRANSFORMER_WINDING);
+        assertArrayEquals(expected2wTransformerDataWindingRecordReadFields, actual2wTransformerDataWindingRecrodReadFields);
 
         String[] expectedAreaInterchangeDataReadFields = new String[]{"iarea", "isw", "pdes", "ptol", "arname"};
         String[] actualAreaInterchangeDataReadFields = context.getFieldNames(AREA_INTERCHANGE);
@@ -475,6 +534,19 @@ public class PsseRawDataTest extends AbstractConverterTest {
         rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_whitespaceAsDelimiter_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_whitespaceAsDelimiter_exported.raw"), is);
+        }
+    }
+
+    @Test
+    public void ieee14IsolatedBusesWriteTest() throws IOException {
+        Context context = new Context();
+
+        PowerFlowRawData33 rawData33 = new PowerFlowRawData33();
+        PssePowerFlowModel rawData = rawData33.read(ieee14IsolatedBusesRaw(), "raw", context);
+        assertNotNull(rawData);
+        rawData33.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_isolated_buses_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_isolated_buses_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_isolated_buses_exported.raw"), is);
         }
     }
 
@@ -634,6 +706,38 @@ public class PsseRawDataTest extends AbstractConverterTest {
         rawxData35.write(rawData, context, new FileDataSource(fileSystem.getPath("/work/"), "IEEE_14_bus_completed_rev35_exported"));
         try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "IEEE_14_bus_completed_rev35_exported.rawx"))) {
             compareTxt(getClass().getResourceAsStream("/" + "IEEE_14_bus_completed_rev35_exported.rawx"), is);
+        }
+    }
+
+    @Test
+    public void invalidIeee14BusTest() throws IOException {
+        Context context = new Context();
+        PssePowerFlowModel rawData = new PowerFlowRawData33().read(ieee14InvalidRaw(), "raw", context);
+        assertNotNull(rawData);
+
+        PsseValidation psseValidation = new PsseValidation(rawData, context.getVersion());
+        List<String> warnings = psseValidation.getWarnings();
+        StringBuilder sb = new StringBuilder();
+        warnings.forEach(warning -> {
+            String s = String.format("%s%n", warning);
+            sb.append(s);
+        });
+        String warningsRef = new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/IEEE_14_bus_invalid.txt")), StandardCharsets.UTF_8);
+        assertEquals(warningsRef, sb.toString());
+        assertFalse(psseValidation.isValidCase());
+    }
+
+    @Test
+    public void exampleVersion32WriteTest() throws IOException {
+        Context context = new Context();
+        PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
+        PssePowerFlowModel rawData = rawData32.read(exampleVersion32(), "raw", context);
+        assertNotNull(rawData);
+
+        rawData32.write(rawData, context,
+            new FileDataSource(fileSystem.getPath("/work/"), "ExampleVersion32_exported"));
+        try (InputStream is = Files.newInputStream(fileSystem.getPath("/work/", "ExampleVersion32_exported.raw"))) {
+            compareTxt(getClass().getResourceAsStream("/" + "ExampleVersion32_exported.raw"), is);
         }
     }
 

@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <version>4.2.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -25,7 +25,6 @@
 
     <modules>
         <module>triple-store-api</module>
-        <module>triple-store-impl-blazegraph</module>
         <module>triple-store-impl-jena</module>
         <module>triple-store-impl-rdf4j</module>
         <module>triple-store-test</module>

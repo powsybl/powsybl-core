@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-cgmes</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <version>4.2.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-cgmes-conversion</artifactId>
@@ -47,6 +47,11 @@
 
     <dependencies>
         <!-- Compilation dependencies -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-model</artifactId>
@@ -133,12 +138,6 @@
         </dependency>
 
         <!-- Test with all known triple store engines -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-jena</artifactId>

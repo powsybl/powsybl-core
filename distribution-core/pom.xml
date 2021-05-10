@@ -15,7 +15,7 @@
     <parent>
         <groupId>com.powsybl</groupId>
         <artifactId>powsybl-core</artifactId>
-        <version>4.1.0-SNAPSHOT</version>
+        <version>4.2.0-SNAPSHOT</version>
     </parent>
 
     <packaging>pom</packaging>
@@ -69,6 +69,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cgmes-conversion</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -328,12 +334,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-simulation-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-time-series-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -362,19 +362,6 @@
             <artifactId>powsybl-triple-store-impl-jena</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
-            <version>${project.version}</version>
-            <scope>runtime</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>jline</groupId>
-                    <artifactId>jline</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
 
         <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->

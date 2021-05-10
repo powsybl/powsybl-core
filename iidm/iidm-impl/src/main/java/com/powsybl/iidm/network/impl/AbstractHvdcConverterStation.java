@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,8 +23,8 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
 
     private float lossFactor = Float.NaN;
 
-    AbstractHvdcConverterStation(String id, String name, boolean fictitious, float lossFactor) {
-        super(id, name, fictitious);
+    AbstractHvdcConverterStation(Ref<NetworkImpl> network, String id, String name, boolean fictitious, float lossFactor) {
+        super(network, id, name, fictitious);
         this.hvdcLine = null;
         this.lossFactor = lossFactor;
     }

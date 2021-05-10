@@ -7,7 +7,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -16,7 +15,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseFixedShunt {
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(field = {"id", "shntid"}, defaultNullRead = "1")

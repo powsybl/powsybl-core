@@ -216,6 +216,26 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModelResources microGridBaseCaseBEWithTieFlow() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_with_tie_flow/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-BaseCase-BE-With-Tie-Flow",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModelResources microGridBaseCaseBEInvalidSvInjection() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
@@ -390,6 +410,63 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModelResources microGridBaseCaseBETransformerAtBoundary() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-TransformerAtBoundary",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModelResources microGridBaseCaseBEEquivalentBranchAtBoundary() {
+        String base = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-EquivalentBranchAtBoundary",
+            null,
+            new ResourceSet(baseModified,
+                "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+            new ResourceSet(base,
+                "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+            new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModelResources microGridBaseCaseBEEquivalentBranch() {
+        String base = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+            + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-EquivalentBranch",
+            null,
+            new ResourceSet(baseModified,
+                "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+            new ResourceSet(base,
+                "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+            new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModelResources microGridBaseCaseBELimits() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
@@ -409,6 +486,25 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModelResources microGridBaseBEFixedMinPMaxP() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_fixed_minP_maxP/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-fixed-minP-maxP",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModelResources microGridBaseCaseAssembledSwitchAtBoundary() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
@@ -417,6 +513,50 @@ public final class CgmesConformity1ModifiedCatalog {
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
         return new TestGridModelResources("MicroGrid-BaseCase-Assembled-SwitchAtBoundary",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModelResources microGridBaseCaseAssembledTransformerAtBoundary() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_transformer_at_boundary/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-Assembled-TransformerAtBoundary",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                        "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
+    public static TestGridModelResources microGridBaseCaseAssembledEquivalentBranchAtBoundary() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_eqbranch_at_boundary/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-Assembled-EquivalentBranchAtBoundary",
                 null,
                 new ResourceSet(baseModified,
                         "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),

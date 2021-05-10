@@ -324,6 +324,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void invalidateCache() {
         calculatedBusTopology.invalidateCache();
+        getNetwork().getBusView().invalidateCache();
+        getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }
@@ -777,7 +779,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public boolean disconnect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
-        // already connected?
+        // already disconnected?
         if (!terminal.isConnected()) {
             return false;
         }
@@ -965,7 +967,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             ConfiguredBus bus2 = graph.getVertexObject(v2);
             // Assign an id to the edge to allow parallel edges (multigraph)
             GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
-                    .style(sw.isOpen() ? "solid" : "dotted");
+                    .style(sw.isOpen() ? "dotted" : "solid");
             if (DRAW_SWITCH_ID) {
                 String label = sw.getKind().toString()
                     + System.lineSeparator() + sw.getId()

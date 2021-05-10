@@ -6,17 +6,17 @@
  */
 package com.powsybl.psse.model.pf;
 
+import com.powsybl.psse.model.PsseVersioned;
+import com.powsybl.psse.model.Revision;
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PsseBus {
+public class PsseBus extends PsseVersioned {
 
     @Parsed(field = {"i", "ibus"})
-    @Validate
     private int i;
 
     @Parsed(defaultNullRead = "            ")
@@ -44,15 +44,19 @@ public class PsseBus {
     private double va = 0;
 
     @Parsed
+    @Revision(since = 33)
     private double nvhi = 1.1;
 
     @Parsed
+    @Revision(since = 33)
     private double nvlo = 0.9;
 
     @Parsed
+    @Revision(since = 33)
     private double evhi = 1.1;
 
     @Parsed
+    @Revision(since = 33)
     private double evlo = 0.9;
 
     public int getI() {
@@ -128,34 +132,42 @@ public class PsseBus {
     }
 
     public double getNvhi() {
+        checkVersion("nvhi");
         return nvhi;
     }
 
     public void setNvhi(double nvhi) {
+        checkVersion("nvhi");
         this.nvhi = nvhi;
     }
 
     public double getNvlo() {
+        checkVersion("nvlo");
         return nvlo;
     }
 
     public void setNvlo(double nvlo) {
+        checkVersion("nvlo");
         this.nvlo = nvlo;
     }
 
     public double getEvhi() {
+        checkVersion("evhi");
         return evhi;
     }
 
     public void setEvhi(double evhi) {
+        checkVersion("evhi");
         this.evhi = evhi;
     }
 
     public double getEvlo() {
+        checkVersion("evlo");
         return evlo;
     }
 
     public void setEvlo(double evlo) {
+        checkVersion("evlo");
         this.evlo = evlo;
     }
 }

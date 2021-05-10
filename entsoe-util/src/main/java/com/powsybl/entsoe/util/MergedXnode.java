@@ -27,6 +27,18 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXdp(float xdp);
 
+    String getLine1Name();
+
+    MergedXnode setLine1Name(String line1Name);
+
+    default boolean isLine1Fictitious() {
+        return false;
+    }
+
+    default MergedXnode setLine1Fictitious(boolean line1Fictitious) {
+        return this;
+    }
+
     double getXnodeP1();
 
     MergedXnode setXnodeP1(double xNodeP1);
@@ -34,6 +46,34 @@ public interface MergedXnode extends Extension<Line> {
     double getXnodeQ1();
 
     MergedXnode setXnodeQ1(double xNodeQ1);
+
+    default float getB1dp() {
+        return 0.5f;
+    }
+
+    default MergedXnode setB1dp(float b1dp) {
+        return this;
+    }
+
+    default float getG1dp() {
+        return 0.5f;
+    }
+
+    default MergedXnode setG1dp(float g1dp) {
+        return this;
+    }
+
+    String getLine2Name();
+
+    MergedXnode setLine2Name(String line2Name);
+
+    default boolean isLine2Fictitious() {
+        return false;
+    }
+
+    default MergedXnode setLine2Fictitious(boolean line1Fictitious) {
+        return this;
+    }
 
     double getXnodeP2();
 
@@ -43,13 +83,21 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ2(double xNodeQ2);
 
-    String getLine1Name();
+    default float getB2dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setLine1Name(String line1Name);
+    default MergedXnode setB2dp(float b2dp) {
+        return this;
+    }
 
-    String getLine2Name();
+    default float getG2dp() {
+        return 0.5f;
+    }
 
-    MergedXnode setLine2Name(String line2Name);
+    default MergedXnode setG2dp(float g2dp) {
+        return this;
+    }
 
     String getCode();
 

@@ -12,6 +12,7 @@ import com.powsybl.psse.model.pf.PsseBus;
 
 import java.io.OutputStream;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.io.FileFormat.LEGACY_TEXT;
@@ -24,6 +25,7 @@ class BusData extends AbstractRecordGroup<PsseBus> {
 
     BusData() {
         super(PowerFlowRecordGroup.BUS);
+        withFieldNames(V32, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va");
         withFieldNames(V33, "i", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
         withFieldNames(V35, "ibus", "name", "baskv", "ide", "area", "zone", "owner", "vm", "va", "nvhi", "nvlo", "evhi", "evlo");
         withQuotedFields("name");

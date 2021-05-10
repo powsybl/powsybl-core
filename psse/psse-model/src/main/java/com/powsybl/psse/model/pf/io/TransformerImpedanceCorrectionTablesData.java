@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.psse.model.PsseVersion.Major.V32;
 import static com.powsybl.psse.model.PsseVersion.Major.V33;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.TRANSFORMER_IMPEDANCE_CORRECTION_TABLES;
@@ -34,6 +35,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
     TransformerImpedanceCorrectionTablesData() {
         super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES);
+        withIO(FileFormat.LEGACY_TEXT, V32, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V33, new IOLegacyText33(this));
         withIO(FileFormat.LEGACY_TEXT, V35, new IOLegacyText35(this));
         withIO(FileFormat.JSON, new IOJson(this));
@@ -117,8 +119,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
 
         private static class ZCorr33Data extends AbstractRecordGroup<ZCorr33> {
             ZCorr33Data() {
-                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES);
-                withFieldNames(V33, "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
+                super(TRANSFORMER_IMPEDANCE_CORRECTION_TABLES, "i", "t1", "f1", "t2", "f2", "t3", "f3", "t4", "f4", "t5", "f5", "t6", "f6", "t7", "f7", "t8", "f8", "t9", "f9", "t10", "f10", "t11", "f11");
                 withQuotedFields();
             }
 

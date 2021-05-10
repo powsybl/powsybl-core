@@ -137,6 +137,10 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
+    default PropertyBags tieFlows() {
+        return new PropertyBags();
+    }
+
     default PropertyBags topologicalIslands() {
         return new PropertyBags();
     }
