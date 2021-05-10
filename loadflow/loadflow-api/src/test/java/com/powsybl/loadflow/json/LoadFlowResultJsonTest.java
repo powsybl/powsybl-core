@@ -8,9 +8,12 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,6 +25,9 @@ import static org.junit.Assert.*;
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public class LoadFlowResultJsonTest extends AbstractConverterTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     private static Map<String, String> createMetrics() {
         return ImmutableMap.<String, String>builder().put("nbiter", "4")
@@ -68,6 +74,13 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         assertEquals(createMetrics(), result.getMetrics());
         assertNull(result.getLogs());
         assertTrue(result.getComponentResults().isEmpty());
+    }
+
+    @Test
+    public void readJsonVersion12Exception() throws IOException {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Connected component number field not found.");
+        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
     }
 
     @Test
