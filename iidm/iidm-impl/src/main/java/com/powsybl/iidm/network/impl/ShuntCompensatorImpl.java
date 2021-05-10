@@ -40,11 +40,11 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the target deadband */
     private final TDoubleArrayList targetDeadband;
 
-    ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
+    ShuntCompensatorImpl(Ref<NetworkImpl> network,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
-        super(id, name, fictitious);
+        super(network, id, name, fictitious);
         this.network = network;
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();

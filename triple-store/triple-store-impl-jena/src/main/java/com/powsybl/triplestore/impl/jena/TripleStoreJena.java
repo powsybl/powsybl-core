@@ -190,7 +190,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         Objects.requireNonNull(dataset);
-        UpdateAction.execute(UpdateFactory.create(adjustedQuery(query)), dataset);
+        try {
+            UpdateAction.execute(UpdateFactory.create(adjustedQuery(query)), dataset);
+        } catch (QueryException e) {
+            throw new TripleStoreException(String.format("Query [%s]", query), e);
+        }
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.function.ThrowingRunnable;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -90,6 +91,19 @@ public class ExtensionTest extends AbstractConverterTest {
         assertNull(foo.getExtension(BarExt.class));
     }
 
+    private void assertBadExtensionJsonThrows(ThrowingRunnable runnable) {
+        PowsyblException exception = assertThrows(PowsyblException.class, runnable);
+        assertTrue("Exception should be about bad field exceptions, but got: " + exception.getMessage(),
+                exception.getMessage().contains("\"extensions\""));
+    }
+
+    @Test
+    public void testBadReadJson() throws IOException {
+        assertBadExtensionJsonThrows(() -> {
+            Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/BadExtensions.json"));
+        });
+    }
+
     @Test
     public void testWriteJson() throws IOException {
         Files.createFile(tmpDir.resolve("extensions.json"));
@@ -119,6 +133,14 @@ public class ExtensionTest extends AbstractConverterTest {
         FooDeserializer.update(getClass().getResourceAsStream("/extensionsUpdate.json"), foo);
         assertTrue(foo.getExtension(FooExt.class).getValue());
         assertEquals("Hello", foo.getExtension(FooExt.class).getValue2());
+    }
+
+    @Test
+    public void testBadUpdateAndDeserialize() throws IOException {
+        assertBadExtensionJsonThrows(() -> {
+            Foo foo = new Foo();
+            FooDeserializer.update(getClass().getResourceAsStream("/BadExtensions.json"), foo);
+        });
     }
 
     @Test
