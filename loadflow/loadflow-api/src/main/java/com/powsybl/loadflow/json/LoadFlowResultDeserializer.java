@@ -46,6 +46,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "connectedComponentNum":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     connectedComponentNum = parser.getValueAsInt();
                     break;
