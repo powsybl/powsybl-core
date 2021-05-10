@@ -266,12 +266,11 @@ public final class EquipmentExport {
     }
 
     private static int getPhaseTapChangerNeutralStep(PhaseTapChanger ptc) {
-        int neutralStep = ptc.getTapPosition();
+        int neutralStep = ptc.getLowTapPosition();
         while (ptc.getStep(neutralStep).getAlpha() != 0.0) {
-            if (ptc.getStep(neutralStep).getAlpha() > 0.0) {
-                neutralStep++;
-            } else {
-                neutralStep--;
+            neutralStep++;
+            if (neutralStep > ptc.getHighTapPosition()) {
+                return ptc.getHighTapPosition();
             }
         }
         return neutralStep;
@@ -291,12 +290,11 @@ public final class EquipmentExport {
     }
 
     private static int getRatioTapChangerNeutralStep(RatioTapChanger rtc) {
-        int neutralStep = rtc.getTapPosition();
+        int neutralStep = rtc.getLowTapPosition();
         while (rtc.getStep(neutralStep).getRho() != 1.0) {
-            if (rtc.getStep(neutralStep).getRho() > 1.0) {
-                neutralStep--;
-            } else {
-                neutralStep++;
+            neutralStep++;
+            if (neutralStep > rtc.getHighTapPosition()) {
+                return rtc.getHighTapPosition();
             }
         }
         return neutralStep;
