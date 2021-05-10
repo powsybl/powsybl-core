@@ -137,14 +137,6 @@ public abstract class AbstractShuntCompensatorTest {
         }
 
         // for linear model
-
-        // bPerSection
-        try {
-            shuntLinearModel.setBPerSection(0.0);
-            fail();
-        } catch (ValidationException ignored) {
-            // ignore
-        }
         shuntLinearModel.setBPerSection(-1.0);
         assertEquals(-1.0, shuntLinearModel.getBPerSection(), 0.0);
         assertEquals(-6.0, shuntCompensator.getB(), 0.0);
@@ -195,13 +187,6 @@ public abstract class AbstractShuntCompensatorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("section susceptance is invalid");
         createLinearShunt(INVALID, INVALID, Double.NaN, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN);
-    }
-
-    @Test
-    public void invalidZerobPerSection() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("susceptance per section is equal to zero");
-        createLinearShunt(INVALID, INVALID, 0.0, Double.NaN, 5, 10, null, false, Double.NaN, Double.NaN);
     }
 
     @Test

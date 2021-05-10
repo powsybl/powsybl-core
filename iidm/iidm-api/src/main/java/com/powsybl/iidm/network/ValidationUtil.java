@@ -232,6 +232,11 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated
+     * Use {@link #checkBPerSection(Validable, double)} instead.
+     */
+    @Deprecated(since = "4.2.0")
     public static void checkLinearBPerSection(Validable validable, double bPerSection) {
         checkBPerSection(validable, bPerSection);
         if (bPerSection == 0) {
