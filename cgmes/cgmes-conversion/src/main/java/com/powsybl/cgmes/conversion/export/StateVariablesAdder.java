@@ -261,7 +261,7 @@ public class StateVariablesAdder {
 
     private Map<String, String> boundaryNodesFromDanglingLines() {
         Map<String, String> nodesFromLines = new HashMap<>();
-        List<String> boundaryNodes = cgmes.boundaryNodes().pluckLocals("Node");
+        List<String> boundaryTopologicalNodes = cgmes.boundaryNodes().pluckLocals("TopologicalNode");
 
         for (PropertyBag line : cgmes.acLineSegments()) {
             String lineId = line.getId(CgmesNames.AC_LINE_SEGMENT);
@@ -269,13 +269,13 @@ public class StateVariablesAdder {
             if (network.getDanglingLine(lineId) == null) {
                 continue;
             }
-            String tpNode1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
-            String tpNode2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
+            String tn1 = cgmes.terminal(line.getId(CgmesNames.TERMINAL1)).topologicalNode();
+            String tn2 = cgmes.terminal(line.getId(CgmesNames.TERMINAL2)).topologicalNode();
             // find not null boundary node for line
-            if (boundaryNodes.contains(tpNode1)) {
-                nodesFromLines.put(lineId, tpNode1);
-            } else if (boundaryNodes.contains(tpNode2)) {
-                nodesFromLines.put(lineId, tpNode2);
+            if (boundaryTopologicalNodes.contains(tn1)) {
+                nodesFromLines.put(lineId, tn1);
+            } else if (boundaryTopologicalNodes.contains(tn2)) {
+                nodesFromLines.put(lineId, tn2);
             }
         }
         return nodesFromLines;

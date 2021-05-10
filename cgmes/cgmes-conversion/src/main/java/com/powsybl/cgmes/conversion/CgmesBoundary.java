@@ -23,9 +23,14 @@ import java.util.*;
 
 public class CgmesBoundary {
 
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE = "energyIdentCodeEicFromNode";
+    private static final String ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER = "energyIdentCodeEicFromNodeContainer";
+
     public CgmesBoundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
+        lineAtNodes = new HashMap<>();
+        hvdcNodes = new HashSet<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
@@ -35,9 +40,24 @@ public class CgmesBoundary {
             }
             nodes = new HashSet<>(bns.size());
             bns.forEach(node -> {
-                String id = node.getId("Node");
-                nodes.add(id);
-                nodesName.put(id, node.get("Name"));
+                String cn = node.getId("ConnectivityNode");
+                String tn = node.getId("TopologicalNode");
+
+                nodes.add(cn);
+                nodes.add(tn);
+                nodesName.put(cn, node.get("name"));
+                nodesName.put(tn, node.get("topologicalNodeName"));
+                if (node.containsKey("description") && node.getId("description").startsWith("HVDC")) {
+                    hvdcNodes.add(cn);
+                    hvdcNodes.add(tn);
+                }
+                if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE)) {
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE));
+                } else if (node.containsKey(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER)) { // EIC code on node has priority but if absent, EIC code on Line is used
+                    lineAtNodes.put(cn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+                    lineAtNodes.put(tn, node.getId(ENERGY_IDENT_CODE_EIC_FROM_NODE_CONTAINER));
+                }
             });
         } else {
             nodes = Collections.emptySet();
@@ -141,7 +161,15 @@ public class CgmesBoundary {
     }
 
     public String nameAtBoundary(String node) {
-        return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
+        return nodesName.getOrDefault(node, "XnodeCode-unknown");
+    }
+
+    public String lineAtBoundary(String node) {
+        return lineAtNodes.get(node);
+    }
+
+    public boolean isHvdc(String node) {
+        return hvdcNodes.contains(node);
     }
 
     private static class Voltage {
@@ -155,6 +183,8 @@ public class CgmesBoundary {
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
     private final Map<String, String> nodesName;
+    private final Map<String, String> lineAtNodes;
+    private final Set<String> hvdcNodes;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesBoundary.class);
 }
