@@ -89,6 +89,7 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         exception.expectMessage("Connected component number field not found.");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
     }
+
     @Test
     public void readJsonVersion12Exception2() throws IOException {
         exception.expect(PowsyblException.class);
