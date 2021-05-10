@@ -8,6 +8,7 @@ package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
@@ -120,22 +121,26 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "balanceType":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.3");
                     parser.nextToken();
                     parameters.setBalanceType(parser.readValueAs(BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
                     parser.nextToken();
                     parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
                     break;
 
                 case "countriesToBalance":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
                     parser.nextToken();
-                    Set<String> countries = parser.readValueAs(Set.class);
-                    parameters.setCountriesToBalance(countries.stream().map(c -> Country.valueOf(c)).collect(Collectors.toSet()));
+                    Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() {});
+                    parameters.setCountriesToBalance(countries);
                     break;
 
                 case "computedConnectedComponent":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
                     parser.nextToken();
                     parameters.setComputedConnectedComponent(parser.readValueAs(LoadFlowParameters.ComputedConnectedComponentType.class));
                     break;
