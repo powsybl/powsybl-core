@@ -146,7 +146,7 @@ public interface PlatformConfigNamedProvider {
                 String moduleName, List<String> propertyNames, Class<T> clazz,
                 PlatformConfig platformConfig) {
             List<T> providers = alwaysSameComputeIfAbsent(PROVIDERS, clazz,
-                k -> Lists.newArrayList(ServiceLoader.load(clazz)));
+                k -> Lists.newArrayList(ServiceLoader.load(clazz, PlatformConfigNamedProvider.class.getClassLoader())));
             return find(name, moduleName, propertyNames, providers, platformConfig, clazz);
         }
 

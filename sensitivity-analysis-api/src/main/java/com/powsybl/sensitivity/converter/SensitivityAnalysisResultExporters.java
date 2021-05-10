@@ -34,7 +34,7 @@ public final class SensitivityAnalysisResultExporters {
      */
     public static Collection<String> getFormats() {
         List<String> formats = new ArrayList<>();
-        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class)) {
+        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class, SensitivityAnalysisResultExporters.class.getClassLoader())) {
             formats.add(e.getFormat());
         }
         return formats;
@@ -49,7 +49,7 @@ public final class SensitivityAnalysisResultExporters {
      */
     public static SensitivityAnalysisResultExporter getExporter(String format) {
         Objects.requireNonNull(format);
-        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class)) {
+        for (SensitivityAnalysisResultExporter e : ServiceLoader.load(SensitivityAnalysisResultExporter.class, SensitivityAnalysisResultExporters.class.getClassLoader())) {
             if (format.equals(e.getFormat())) {
                 return e;
             }
