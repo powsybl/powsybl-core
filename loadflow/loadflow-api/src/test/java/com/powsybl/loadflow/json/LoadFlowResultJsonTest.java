@@ -8,6 +8,7 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Rule;
@@ -77,8 +78,8 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
 
     @Test
     public void readJsonVersion11Exception() throws IOException {
-        exception.expect(IllegalStateException.class);
-        exception.expectMessage("synchronousComponentNum field unexpected in version < 1.2");
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2 ");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json"));
     }
 
@@ -87,6 +88,13 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Connected component number field not found.");
         LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
+    }
+
+    @Test
+    public void readJsonVersion12Exception2() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 ");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json"));
     }
 
     @Test

@@ -46,22 +46,19 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "connectedComponentNum":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     connectedComponentNum = parser.getValueAsInt();
                     break;
 
                 case "synchronousComponentNum":
-                    if (cVersion.compareTo(ModuleDescriptor.Version.parse("1.2")) < 0) {
-                        throw new IllegalStateException("synchronousComponentNum field unexpected in version < 1.2");
-                    }
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                     break;
 
                 case "componentNum":
-                    if (cVersion.compareTo(ModuleDescriptor.Version.parse("1.2")) >= 0) {
-                        throw new IllegalStateException("componentNum field is deprecated in version >= 1.2");
-                    }
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
                     synchronousComponentNum = parser.getValueAsInt();
                     break;
