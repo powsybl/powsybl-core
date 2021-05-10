@@ -490,7 +490,11 @@ public class Conversion {
         BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
         BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            } else {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
+            }
         } else {
             context.invalid(node, "Unexpected boundaryLine");
         }
