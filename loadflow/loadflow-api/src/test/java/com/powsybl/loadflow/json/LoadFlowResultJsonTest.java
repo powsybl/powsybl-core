@@ -77,10 +77,17 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
     }
 
     @Test
+    public void readJsonVersion11Exception() throws IOException {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("synchronousComponentNum field unexpected in version < 1.2");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json"));
+    }
+
+    @Test
     public void readJsonVersion12Exception() throws IOException {
         exception.expect(IllegalStateException.class);
         exception.expectMessage("Connected component number field not found.");
-        LoadFlowResult result = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
     }
 
     @Test
