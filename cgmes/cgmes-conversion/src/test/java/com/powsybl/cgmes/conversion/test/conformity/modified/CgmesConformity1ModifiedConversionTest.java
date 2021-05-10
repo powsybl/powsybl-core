@@ -464,14 +464,14 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("_8fdc7abd-3746-481a-a65e-3df56acd8b13 + _17086487-56ba-4979-b8de-064025a6b4da");
+        Line m = network.getLine("_17086487-56ba-4979-b8de-064025a6b4da + _8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
         assertEquals(4.848348287766893, m.getR(), tolerance);
         assertEquals(80.200697327706370, m.getX(), tolerance);
-        assertEquals(0.000024200000000, m.getG1(), tolerance);
-        assertEquals(0.000089849500000, m.getB1(), tolerance);
-        assertEquals(0.000006589225755, m.getG2(), tolerance);
-        assertEquals(-0.000035332059986, m.getB2(), tolerance);
+        assertEquals(0.000006589225755, m.getG1(), tolerance);
+        assertEquals(-0.000035332059986, m.getB1(), tolerance);
+        assertEquals(0.000024200000000, m.getG2(), tolerance);
+        assertEquals(0.000089849500000, m.getB2(), tolerance);
 
         InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
@@ -479,14 +479,14 @@ public class CgmesConformity1ModifiedConversionTest {
 
         network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledTransformerAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        m = network.getLine("_8fdc7abd-3746-481a-a65e-3df56acd8b13 + _17086487-56ba-4979-b8de-064025a6b4da");
+        m = network.getLine("_17086487-56ba-4979-b8de-064025a6b4da + _8fdc7abd-3746-481a-a65e-3df56acd8b13");
 
-        assertEquals(4.778261354238538, m.getR(), tolerance);
-        assertEquals(78.674522640829100, m.getX(), tolerance);
-        assertEquals(-0.000002010109504, m.getG1(), tolerance);
-        assertEquals(0.000338108995941, m.getB1(), tolerance);
-        assertEquals(0.000027040930001, m.getG2(), tolerance);
-        assertEquals(-0.000253086783073, m.getB2(), tolerance);
+        assertEquals(4.878525165580548, m.getR(), tolerance);
+        assertEquals(81.68243698108938, m.getX(), tolerance);
+        assertEquals(-7.80495342249662E-6, m.getG1(), tolerance);
+        assertEquals(3.104924007305636E-4, m.getB1(), tolerance);
+        assertEquals(3.1997811967359416E-5, m.getG2(), tolerance);
+        assertEquals(-2.2862041055273706E-4, m.getB2(), tolerance);
     }
 
     @Test
@@ -499,13 +499,13 @@ public class CgmesConformity1ModifiedConversionTest {
 
         Network network = new CgmesImport(platformConfigTieLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        Line m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        Line m = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
         assertEquals(2.020000, m.getR(), tolerance);
         assertEquals(22.000000, m.getX(), tolerance);
-        assertEquals(0.000030, m.getG1(), tolerance);
-        assertEquals(0.0, m.getG2(), tolerance);
-        assertEquals(0.0001413717, m.getB1(), tolerance);
-        assertEquals(0.0, m.getB2(), tolerance);
+        assertEquals(0.0, m.getG1(), tolerance);
+        assertEquals(0.000030, m.getG2(), tolerance);
+        assertEquals(0.0, m.getB1(), tolerance);
+        assertEquals(0.0001413717, m.getB2(), tolerance);
 
         InMemoryPlatformConfig platformConfigMergeLines = new InMemoryPlatformConfig(fileSystem);
         platformConfigMergeLines.createModuleConfig("import-export-parameters-default-value")
@@ -513,13 +513,13 @@ public class CgmesConformity1ModifiedConversionTest {
 
         network = new CgmesImport(platformConfigMergeLines).importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseAssembledEquivalentBranchAtBoundary().dataSource(),
                 NetworkFactory.findDefault(), null);
-        m = network.getLine("_7f43f508-2496-4b64-9146-0a40406cbe49 + _78736387-5f60-4832-b3fe-d50daf81b0a6");
+        m = network.getLine("_78736387-5f60-4832-b3fe-d50daf81b0a6 + _7f43f508-2496-4b64-9146-0a40406cbe49");
         assertEquals(2.01664607413, m.getR(), tolerance);
         assertEquals(21.991922797567, m.getX(), tolerance);
-        assertEquals(0.000022090405366887755, m.getG1(), tolerance);
-        assertEquals(0.000007923595325107443, m.getG2(), tolerance);
-        assertEquals(0.00010279569981382285, m.getB1(), tolerance);
-        assertEquals(0.00003860095796167761, m.getB2(), tolerance);
+        assertEquals(0.000007923595325107443, m.getG1(), tolerance);
+        assertEquals(0.000022090405366887755, m.getG2(), tolerance);
+        assertEquals(0.00003860095796167761, m.getB1(), tolerance);
+        assertEquals(0.00010279569981382285, m.getB2(), tolerance);
     }
 
     @Test
