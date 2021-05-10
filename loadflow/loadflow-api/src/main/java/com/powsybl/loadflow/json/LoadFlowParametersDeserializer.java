@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -135,7 +134,7 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                 case "countriesToBalance":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
                     parser.nextToken();
-                    Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() {});
+                    Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() { });
                     parameters.setCountriesToBalance(countries);
                     break;
 
