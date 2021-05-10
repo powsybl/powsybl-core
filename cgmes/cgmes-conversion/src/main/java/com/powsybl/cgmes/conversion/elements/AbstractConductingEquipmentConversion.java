@@ -10,14 +10,20 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.extensions.CgmesDanglingLineBoundaryNodeAdder;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -76,7 +82,21 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public String findUcteXnodeCode(String boundaryNode) {
+        return findUcteXnodeCode(context, boundaryNode);
+    }
+
+    public static String findUcteXnodeCode(Context context, String boundaryNode) {
         return context.boundary().nameAtBoundary(boundaryNode);
+    }
+
+    public String boundaryNode() {
+        // Only one of the end points can be in the boundary
+        if (isBoundary(1)) {
+            return nodeId(1);
+        } else if (isBoundary(2)) {
+            return nodeId(2);
+        }
+        return null;
     }
 
     @Override
@@ -136,7 +156,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return true;
     }
 
-    String nodeIdPropertyName() {
+    protected String nodeIdPropertyName() {
         return context.nodeBreaker() ? "ConnectivityNode" : "TopologicalNode";
     }
 
@@ -164,8 +184,148 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].t.topologicalNode();
     }
 
-    boolean isBoundary(int n) {
+    protected boolean isBoundary(int n) {
         return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
+    }
+
+    public void convertToDanglingLine(int boundarySide) {
+        convertToDanglingLine(boundarySide, 0.0, 0.0, 0.0, 0.0);
+    }
+
+    public void convertToDanglingLine(int boundarySide, double r, double x, double gch, double bch) {
+        // Non-boundary side (other side) of the line
+        int modelSide = 3 - boundarySide;
+        String boundaryNode = nodeId(boundarySide);
+
+        // check again boundary node is correct
+        if (!isBoundary(boundarySide) || isBoundary(modelSide)) {
+            throw new PowsyblException(String.format("Unexpected boundarySide and modelSide at boundaryNode: %s", boundaryNode));
+        }
+
+        PowerFlow f = new PowerFlow(0, 0);
+        // Only consider potential power flow at boundary side if that side is connected
+        if (terminalConnected(boundarySide) && context.boundary().hasPowerFlow(boundaryNode)) {
+            f = context.boundary().powerFlowAtNode(boundaryNode);
+        }
+        // There should be some equipment at boundarySide to model exchange through that
+        // point
+        // But we have observed, for the test case conformity/miniBusBranch,
+        // that the ACLineSegment:
+        // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
+        // ends in a boundary node where there is no other line,
+        // does not have energy consumer or equivalent injection
+        if (terminalConnected(boundarySide)
+            && !context.boundary().hasPowerFlow(boundaryNode)
+            && context.boundary().equivalentInjectionsAtNode(boundaryNode).isEmpty()) {
+            missing("Equipment for modeling consumption/injection at boundary node");
+        }
+
+        DanglingLineAdder dlAdder = voltageLevel(modelSide).newDanglingLine()
+            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+            .setR(r)
+            .setX(x)
+            .setG(gch)
+            .setB(bch)
+            .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+        identify(dlAdder);
+        connect(dlAdder, modelSide);
+        EquivalentInjectionConversion equivalentInjectionConversion = getEquivalentInjectionConversionForDanglingLine(
+            boundaryNode);
+        DanglingLine dl;
+        if (equivalentInjectionConversion != null) {
+            dl = equivalentInjectionConversion.convertOverDanglingLine(dlAdder, f);
+            Optional.ofNullable(dl.getGeneration()).ifPresent(equivalentInjectionConversion::convertReactiveLimits);
+        } else {
+            dl = dlAdder
+                    .setP0(f.p())
+                    .setQ0(f.q())
+                    .add();
+        }
+        context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
+        dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE));
+        setBoundaryNodeInfo(boundaryNode, dl);
+        // In a Dangling Line the CGMES side and the IIDM side may not be the same
+        // Dangling lines in IIDM only have one terminal, one side
+        addMappingForTopologicalNode(dl, modelSide, 1);
+        context.convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
+
+        // If we do not have power flow at model side and we can compute it,
+        // do it and assign the result at the terminal of the dangling line
+        if (context.config().computeFlowsAtBoundaryDanglingLines()
+            && terminalConnected(modelSide)
+            && !powerFlow(modelSide).defined()
+            && context.boundary().hasVoltage(boundaryNode)) {
+
+            if (isZ0(dl)) {
+                // Flow out must be equal to the consumption seen at boundary
+                Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+                dl.getTerminal().setP(dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0));
+                dl.getTerminal().setQ(dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0));
+
+            } else {
+                setDanglingLineModelSideFlow(dl, boundaryNode);
+            }
+        }
+    }
+
+    private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
+        if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
+            dl.newExtension(CgmesDanglingLineBoundaryNodeAdder.class)
+                    .setHvdc(context.boundary().isHvdc(boundaryNode))
+                    .setLineEnergyIdentificationCodeEic(context.boundary().lineAtBoundary(boundaryNode))
+                    .add();
+
+            // TODO: when merged extensions will be handled, this code can be deleted
+            if (context.boundary().isHvdc(boundaryNode)) {
+                dl.setProperty("isHvdc", "true");
+            }
+            if (context.boundary().lineAtBoundary(boundaryNode) != null) {
+                dl.setProperty("lineEnergyIdentificationCodeEIC", context.boundary().lineAtBoundary(boundaryNode));
+            }
+        }
+    }
+
+    private boolean isZ0(DanglingLine dl) {
+        return dl.getR() == 0.0 && dl.getX() == 0.0 && dl.getG() == 0.0 && dl.getB() == 0.0;
+    }
+
+    private void setDanglingLineModelSideFlow(DanglingLine dl, String boundaryNode) {
+
+        double v = context.boundary().vAtBoundary(boundaryNode);
+        double angle = context.boundary().angleAtBoundary(boundaryNode);
+        // The net sum of power flow "entering" at boundary is "exiting"
+        // through the line, we have to change the sign of the sum of flows
+        // at the node when we consider flow at line end
+        Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
+        double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
+        double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
+        SV svboundary = new SV(-p, -q, v, angle);
+        // The other side power flow must be computed taking into account
+        // the same criteria used for ACLineSegment: total shunt admittance
+        // is divided in 2 equal shunt admittance at each side of series impedance
+        double g = dl.getG() / 2;
+        double b = dl.getB() / 2;
+        SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1);
+        dl.getTerminal().setP(svmodel.getP());
+        dl.getTerminal().setQ(svmodel.getQ());
+    }
+
+    private EquivalentInjectionConversion getEquivalentInjectionConversionForDanglingLine(String boundaryNode) {
+        List<PropertyBag> eis = context.boundary().equivalentInjectionsAtNode(boundaryNode);
+        if (eis.isEmpty()) {
+            return null;
+        } else if (eis.size() > 1) {
+            // This should not happen
+            // We have decided to create a dangling line,
+            // so only one MAS at this boundary point,
+            // so there must be only one equivalent injection
+            invalid("Multiple equivalent injections at boundary node");
+            return null;
+        } else {
+            return new EquivalentInjectionConversion(eis.get(0), context);
+        }
     }
 
     int iidmNode() {
@@ -234,8 +394,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected Substation substation() {
-        String sid = context.cgmes().substation(terminals[0].t, context.nodeBreaker());
-        return context.network().getSubstation(context.substationIdMapping().substationIidm(sid));
+        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : null;
     }
 
     private PowerFlow stateVariablesPowerFlow() {
@@ -378,6 +537,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public void connect(BranchAdder<?> adder,
         String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
         String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
+        connect(context, adder, iidmVoltageLevelId1, busId1, t1Connected, node1, iidmVoltageLevelId2, busId2, t2Connected, node2);
+    }
+
+    public static void connect(Context context, BranchAdder<?> adder,
+        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
+        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
             adder
                 .setVoltageLevel1(iidmVoltageLevelId1)
@@ -469,6 +634,27 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         int cgmesTerminalNumber = terminalNumber;
         int iidmTerminalNumber = cgmesTerminalNumber;
         addMappingForTopologicalNode(identifiable, cgmesTerminalNumber, iidmTerminalNumber);
+    }
+
+    protected BoundaryLine createBoundaryLine(String boundaryNode) {
+        int modelEnd = 1;
+        if (nodeId(1).equals(boundaryNode)) {
+            modelEnd = 2;
+        }
+        String id = iidmId();
+        String name = iidmName();
+        String modelIidmVoltageLevelId = iidmVoltageLevelId(modelEnd);
+        boolean modelTconnected = terminalConnected(modelEnd);
+        String modelBus = busId(modelEnd);
+        String modelTerminalId = terminalId(modelEnd);
+        String boundaryTerminalId = terminalId(modelEnd == 1 ? 2 : 1);
+        int modelNode = -1;
+        if (context.nodeBreaker()) {
+            modelNode = iidmNode(modelEnd);
+        }
+        PowerFlow modelPowerFlow = powerFlow(modelEnd);
+        return new BoundaryLine(id, name, modelIidmVoltageLevelId, modelBus, modelTconnected, modelNode,
+            modelTerminalId, boundaryTerminalId, modelPowerFlow);
     }
 
     private final TerminalData[] terminals;

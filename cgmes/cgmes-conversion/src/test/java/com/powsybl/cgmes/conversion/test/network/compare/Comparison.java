@@ -821,7 +821,6 @@ public class Comparison {
 
     private void compareNames(String context, String expected, String actual) {
         // The names could be different only in trailing whitespace
-        // Blazegraph does not preserve whitespace in input XML text
         String expected1 = expected.trim();
         String actual1 = actual.trim();
         if (config.compareNamesAllowSuffixes) {
