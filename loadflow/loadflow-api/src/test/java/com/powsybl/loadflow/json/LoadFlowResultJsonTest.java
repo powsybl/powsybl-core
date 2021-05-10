@@ -8,7 +8,6 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
 import org.junit.Rule;
