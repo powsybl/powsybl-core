@@ -18,6 +18,7 @@ import com.powsybl.loadflow.LoadFlowResultImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.lang.module.ModuleDescriptor;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -33,18 +34,33 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
         super(LoadFlowResult.class);
     }
 
-    public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser) throws IOException {
-        Integer componentNum = null;
+    public LoadFlowResult.ComponentResult deserializeComponentResult(JsonParser parser, String version) throws IOException {
+        Integer connectedComponentNum = null;
+        Integer synchronousComponentNum = null;
         LoadFlowResult.ComponentResult.Status status = null;
         Integer iterationCount = null;
         String slackBusId = null;
         Double slackBusActivePowerMismatch = null;
+        ModuleDescriptor.Version cVersion = ModuleDescriptor.Version.parse(version);
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
-                case "componentNum":
+                case "connectedComponentNum":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
                     parser.nextToken();
-                    componentNum = parser.getValueAsInt();
+                    connectedComponentNum = parser.getValueAsInt();
+                    break;
+
+                case "synchronousComponentNum":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
+                    parser.nextToken();
+                    synchronousComponentNum = parser.getValueAsInt();
+                    break;
+
+                case "componentNum":
+                    JsonUtil.assertLessThanReferenceVersion(LoadFlowResultDeserializer.class.getName(), parser.getCurrentName(), version, "1.2");
+                    parser.nextToken();
+                    synchronousComponentNum = parser.getValueAsInt();
                     break;
 
                 case "status":
@@ -72,22 +88,30 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
             }
         }
 
-        if (componentNum == null) {
-            throw new IllegalStateException("Component number field not found");
+        if (connectedComponentNum == null) {
+            if (cVersion.compareTo(ModuleDescriptor.Version.parse("1.2")) < 0) {
+                connectedComponentNum = 0;
+            } else {
+                throw new IllegalStateException("Connected component number field not found.");
+            }
+        }
+
+        if (synchronousComponentNum == null) {
+            throw new IllegalStateException("Synchronous component number field not found.");
         }
         if (iterationCount == null) {
-            throw new IllegalStateException("Iteration count field not found");
+            throw new IllegalStateException("Iteration count field not found.");
         }
         if (slackBusActivePowerMismatch == null) {
-            throw new IllegalStateException("Slack bus active power mismatch field not found");
+            throw new IllegalStateException("Slack bus active power mismatch field not found.");
         }
 
-        return new LoadFlowResultImpl.ComponentResultImpl(componentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
+        return new LoadFlowResultImpl.ComponentResultImpl(connectedComponentNum, synchronousComponentNum, status, iterationCount, slackBusId, slackBusActivePowerMismatch);
     }
 
-    public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults) throws IOException {
+    public void deserializeComponentResults(JsonParser parser, List<LoadFlowResult.ComponentResult> componentResults, String version) throws IOException {
         while (parser.nextToken() != JsonToken.END_ARRAY) {
-            componentResults.add(deserializeComponentResult(parser));
+            componentResults.add(deserializeComponentResult(parser, version));
         }
     }
 
@@ -119,7 +143,7 @@ public class LoadFlowResultDeserializer extends StdDeserializer<LoadFlowResult> 
                 case "componentResults":
                     JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: componentResults", version, "1.0");
                     parser.nextToken();
-                    deserializeComponentResults(parser, componentResults);
+                    deserializeComponentResults(parser, componentResults, version);
                     break;
 
                 default:

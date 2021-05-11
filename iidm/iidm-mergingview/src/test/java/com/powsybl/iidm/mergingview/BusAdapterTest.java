@@ -397,8 +397,11 @@ public class BusAdapterTest {
         assertNotNull(bus);
         assertSame(mergingView, bus.getNetwork());
 
-        Collection<Component> components = busView.getConnectedComponents();
-        assertTrue(components.iterator().hasNext());
+        Collection<Component> connectedComponents = busView.getConnectedComponents();
+        assertTrue(connectedComponents.iterator().hasNext());
+
+        Collection<Component> synchronousComponents = busView.getSynchronousComponents();
+        assertTrue(synchronousComponents.iterator().hasNext());
     }
 
     @Test
