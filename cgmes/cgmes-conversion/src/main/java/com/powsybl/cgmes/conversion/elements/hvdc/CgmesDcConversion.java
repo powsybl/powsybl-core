@@ -78,6 +78,30 @@ public class CgmesDcConversion {
         }
     }
 
+    // Supported configurations are:
+    //
+    //         CGMES Configuration                                                              IIDM configuration
+    //
+    // (1)  AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2        AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
+    //
+    // (2)  AcDcConverter1End1 ---                 --- AcDcConverter1End2
+    //                           |                 |                         AcDcConverter1End1 --- DcLineSegment --- AcDcConverter1End2
+    //                           -- DcLineSegment --
+    //                           |                 |                         AcDcConverter2End1 --- DcLineSegment-1 --- AcDcConverter2End2
+    //      AcDcConverter2End1 ---                 --- AcDcConverter2End2
+    //
+    //      where DcLineSegment is duplicated into DcLineSegment and DcLineSegment-1
+    //
+    // (3)
+    //
+    //                           --- DcLineSegment1 ---
+    //                           |                    |
+    //      AcDcConverterEnd1 ----                    --- AcDcConverterEnd2   AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
+    //                           |                    |
+    //                           --- DcLineSegment2 ---
+    //
+    //      where DcLineSegment = DcLineSegment1 + DcLineSegment2
+    //
     private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
         int converterNum = converters.size();
         int dcLineSegmentNum = dcLineSegments.size();
@@ -115,6 +139,7 @@ public class CgmesDcConversion {
         }
     }
 
+    // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
     private void defineACopyOfThePropertyBagWithUniqueId(PropertyBag dcLineSegment, String dcLineSegmentId) {
 
         // Create a copy of the property bag and change the id to guarantee uniqueness
