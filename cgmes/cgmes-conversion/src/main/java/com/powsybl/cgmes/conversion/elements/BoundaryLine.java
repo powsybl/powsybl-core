@@ -44,7 +44,7 @@ public class BoundaryLine {
         this.b2 = b2;
     }
 
-    String getId() {
+    public String getId() {
         return id;
     }
 
