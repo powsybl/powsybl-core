@@ -258,7 +258,7 @@ public class Conversion {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
         if (cgmesControlArea == null) {
-            context.ignored("Tie Flow", String.format("Tie Flow %s refers to an non-existing control area", tf.getId("TieFlow")));
+            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
             return;
         }
         String terminalId = tf.getId("terminal");
