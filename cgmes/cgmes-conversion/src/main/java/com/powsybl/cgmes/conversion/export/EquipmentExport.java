@@ -53,6 +53,7 @@ public final class EquipmentExport {
             writeTwoWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
             writeThreeWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
             writeDanglingLines(network, exportedTerminals, cimNamespace, writer);
+            writeHvdcLines(network, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -60,7 +61,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
+    private static void writeConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
                 writeNodes(vl, exportedNodes, cimNamespace, writer);
@@ -401,6 +402,18 @@ public final class EquipmentExport {
         }
     }
 
+    private static void writeHvdcLines(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (HvdcLine line : network.getHvdcLines()) {
+            DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
+            writeHvdcConverterStation(network, line.getConverterStation1(), line.getNominalV(), cimNamespace, writer);
+            writeHvdcConverterStation(network, line.getConverterStation2(), line.getNominalV(), cimNamespace, writer);
+        }
+    }
+
+    private static void writeHvdcConverterStation(Network network, HvdcConverterStation<?> converterStation, double ratedUdc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, cimNamespace, writer);
+    }
+
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (Load load : network.getLoads()) {
             writeTerminal(load.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), load.getId(), connectivityNodeId(exportedNodes, load.getTerminal()), 1, cimNamespace, writer);
@@ -430,6 +443,32 @@ public final class EquipmentExport {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
             writeTerminal(danglingLine.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), danglingLine.getId(), connectivityNodeId(exportedNodes, danglingLine.getTerminal()), 1, cimNamespace, writer);
         }
+        for (HvdcLine line : network.getHvdcLines()) {
+            String dcNode1 = CgmesExportUtil.getUniqueId();
+            writeDCNode(dcNode1, line.getNameOrId() + "_1", line.getConverterStation1().getId(), cimNamespace, writer);
+            String dcNode2 = CgmesExportUtil.getUniqueId();
+            writeDCNode(dcNode2, line.getNameOrId() + "_2", line.getConverterStation2().getId(), cimNamespace, writer);
+            writeDCTerminal(CgmesExportUtil.getUniqueId(), line.getId(), dcNode1, 1, cimNamespace, writer);
+            writeDCTerminal(CgmesExportUtil.getUniqueId(), line.getId(), dcNode2, 2, cimNamespace, writer);
+            HvdcConverterStation converter = line.getConverterStation1();
+            writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
+            writeACDCConverterDCTerminal(CgmesExportUtil.getUniqueId(), converter.getId(), dcNode1, 2, cimNamespace, writer);
+            converter = line.getConverterStation2();
+            writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
+            writeACDCConverterDCTerminal(CgmesExportUtil.getUniqueId(), converter.getId(), dcNode2, 2, cimNamespace, writer);
+        }
+    }
+
+    private static void writeDCNode(String id, String dcNodeName, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        DCNodeEq.write(id, dcNodeName, dcEquipmentContainerId, cimNamespace, writer);
+    }
+
+    private static void writeDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        DCTerminalEq.write(id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
+    }
+
+    private static void writeACDCConverterDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        ACDCConverterDCTerminalEq.write(id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
     private static void writeTerminal(Terminal terminal, Map<Terminal, String> exportedTerminals, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {

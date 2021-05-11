@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.EquipmentExport;
@@ -38,6 +39,12 @@ public class EquipmentExportTest extends AbstractConverterTest {
     public void microGridBE() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties));
+    }
+
+    @Test
+    public void nodeBreakerHvdc() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        test(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
     @Test
