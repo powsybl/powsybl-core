@@ -95,6 +95,16 @@ public class SVTest {
         assertEquals(q1, svB2.otherSideQ(dl), tol);
         assertEquals(v1, svB2.otherSideU(dl), tol);
         assertEquals(a1, svB2.otherSideA(dl), tol);
+
+        assertEquals(p2, svA1.otherSideP(dl, false), tol);
+        assertEquals(q2, svA1.otherSideQ(dl, false), tol);
+        assertEquals(v2, svA1.otherSideU(dl, false), tol);
+        assertEquals(a2, svA1.otherSideA(dl, false), tol);
+
+        assertEquals(p1, svB2.otherSideP(dl, false), tol);
+        assertEquals(q1, svB2.otherSideQ(dl, false), tol);
+        assertEquals(v1, svB2.otherSideU(dl, false), tol);
+        assertEquals(a1, svB2.otherSideA(dl, false), tol);
     }
 
     @Test
@@ -141,6 +151,36 @@ public class SVTest {
         double q2 = 48.692085;
         double v2 = 118.13329315185547;
         double a2 = 0.19568365812301636;
+
+        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA2 = svA1.otherSide(twt);
+        assertEquals(p2, svA2.getP(), tol);
+        assertEquals(q2, svA2.getQ(), tol);
+        assertEquals(v2, svA2.getU(), tol);
+        assertEquals(a2, svA2.getA(), tol);
+
+        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB1 = svB2.otherSide(twt);
+        assertEquals(p1, svB1.getP(), tol);
+        assertEquals(q1, svB1.getQ(), tol);
+        assertEquals(v1, svB1.getU(), tol);
+        assertEquals(a1, svB1.getA(), tol);
+    }
+
+    @Test
+    public void testTwoWindingsTransformerWithoutPtc() {
+        TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutPtcTestData().getTwoWindingsTransformer();
+
+        double tol = 0.0001;
+        double p1 = 220.644832;
+        double q1 = 8.699260;
+        double v1 = 197.66468811035156;
+        double a1 = 19.98349380493164;
+
+        double p2 = -219.092739124819760;
+        double q2 = 48.692081198528110;
+        double v2 = 118.133298648525750;
+        double a2 = 5.195684102383955;
 
         SV svA1 = new SV(p1, q1, v1, a1, 1);
         SV svA2 = svA1.otherSide(twt);
@@ -329,6 +369,51 @@ public class SVTest {
             Mockito.when(ptcStep.getX()).thenReturn(PTC_X);
             Mockito.when(ptcStep.getG()).thenReturn(PTC_G);
             Mockito.when(ptcStep.getB()).thenReturn(PTC_B);
+
+            Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
+            Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+        }
+
+        private TwoWindingsTransformer getTwoWindingsTransformer() {
+            return twt;
+        }
+    }
+
+    private static final class TwoWindingsTransformerWithoutPtcTestData {
+        private static double R = 0.43;
+        private static double X = 15.90;
+        private static double G = 0.0;
+        private static double B = 0.0;
+        private static double RTC_RHO = 0.98;
+        private static double RTC_R = 0.0;
+        private static double RTC_X = 0.0;
+        private static double RTC_G = 0.0;
+        private static double RTC_B = 0.0;
+        private static double RATEDU1 = 230.0;
+        private static double RATEDU2 = 138.0;
+
+        private static RatioTapChanger rtc;
+        private static RatioTapChangerStep rtcStep;
+        private static TwoWindingsTransformer twt;
+
+        private TwoWindingsTransformerWithoutPtcTestData() {
+            twt = Mockito.mock(TwoWindingsTransformer.class);
+            Mockito.when(twt.getR()).thenReturn(R);
+            Mockito.when(twt.getX()).thenReturn(X);
+            Mockito.when(twt.getG()).thenReturn(G);
+            Mockito.when(twt.getB()).thenReturn(B);
+
+            rtc = Mockito.mock(RatioTapChanger.class);
+            rtcStep = Mockito.mock(RatioTapChangerStep.class);
+            Mockito.when(twt.getRatioTapChanger()).thenReturn(rtc);
+            Mockito.when(rtc.getCurrentStep()).thenReturn(rtcStep);
+            Mockito.when(rtcStep.getRho()).thenReturn(RTC_RHO);
+            Mockito.when(rtcStep.getR()).thenReturn(RTC_R);
+            Mockito.when(rtcStep.getX()).thenReturn(RTC_X);
+            Mockito.when(rtcStep.getG()).thenReturn(RTC_G);
+            Mockito.when(rtcStep.getB()).thenReturn(RTC_B);
+
+            Mockito.when(twt.getPhaseTapChanger()).thenReturn(null);
 
             Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
             Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
