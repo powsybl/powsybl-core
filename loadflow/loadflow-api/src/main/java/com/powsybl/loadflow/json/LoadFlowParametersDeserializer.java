@@ -8,10 +8,12 @@ package com.powsybl.loadflow.json;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowParameters.VoltageInitMode;
 import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
@@ -19,6 +21,7 @@ import com.powsybl.loadflow.LoadFlowParameters.BalanceType;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -81,44 +84,64 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "twtSplitShuntAdmittance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, "1.1");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: twtSplitShuntAdmittance", version, "1.2");
                     parser.nextToken();
                     parameters.setTwtSplitShuntAdmittance(parser.readValueAs(Boolean.class));
                     break;
 
                 case "simulShunt":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: simulShunt", version, "1.3");
                     parser.nextToken();
                     parameters.setSimulShunt(parser.readValueAs(Boolean.class));
                     break;
 
                 case "readSlackBus":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: readSlackBus", version, "1.3");
                     parser.nextToken();
                     parameters.setReadSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "writeSlackBus":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.2");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: writeSlackBus", version, "1.3");
                     parser.nextToken();
                     parameters.setWriteSlackBus(parser.readValueAs(Boolean.class));
                     break;
 
                 case "dc":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: dc", version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: dc", version, "1.4");
                     parser.nextToken();
                     parameters.setDc(parser.readValueAs(Boolean.class));
                     break;
 
                 case "distributedSlack":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.3");
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.4");
                     parser.nextToken();
                     parameters.setDistributedSlack(parser.readValueAs(Boolean.class));
                     break;
 
                 case "balanceType":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setBalanceType(parser.readValueAs(BalanceType.class));
+                    break;
+
+                case "dcUseTransformerRatio":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
+                    parser.nextToken();
+                    parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
+                    break;
+
+                case "countriesToBalance":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
+                    parser.nextToken();
+                    Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() { });
+                    parameters.setCountriesToBalance(countries);
+                    break;
+
+                case "connectedComponentMode":
+                    JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
+                    parser.nextToken();
+                    parameters.setConnectedComponentMode(parser.readValueAs(LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
                 case "extensions":
