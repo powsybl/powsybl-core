@@ -107,6 +107,7 @@ public class SV {
      * @deprecated Not used anymore. Use
      * {@link SV#otherSide(Line)}
      */
+    @Deprecated
     public SV otherSideY1Y2(Line l) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
@@ -141,6 +142,7 @@ public class SV {
      * @deprecated Not used anymore. Use
      * {@link SV#otherSideP(double, double, double, double, double, double, double, double)}
      */
+    @Deprecated
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
@@ -173,6 +175,7 @@ public class SV {
      * @deprecated Not used anymore. Use
      * {@link SV#otherSideQ(double, double, double, double, double, double, double, double)}
      */
+    @Deprecated
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
@@ -205,6 +208,7 @@ public class SV {
      * @deprecated Not used anymore. Use
      * {@link SV#otherSideU(double, double, double, double, double, double, double, double)}
      */
+    @Deprecated
     public double otherSideU(double r, double x, double g1, double b1, double rho) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
@@ -239,6 +243,7 @@ public class SV {
      * @deprecated Not used anymore. Use
      * {@link SV#otherSideA(double, double, double, double, double, double, double, double)}
      */
+    @Deprecated
     public double otherSideA(double r, double x, double g1, double b1, double rho) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
