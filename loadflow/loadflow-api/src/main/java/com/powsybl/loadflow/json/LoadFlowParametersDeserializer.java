@@ -138,10 +138,10 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     parameters.setCountriesToBalance(countries);
                     break;
 
-                case "computedConnectedComponentScope":
+                case "connectedComponentMode":
                     JsonUtil.assertGreaterOrEqualThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.5");
                     parser.nextToken();
-                    parameters.setComputedConnectedComponentScope(parser.readValueAs(LoadFlowParameters.ComputedConnectedComponentScopeType.class));
+                    parameters.setConnectedComponentMode(parser.readValueAs(LoadFlowParameters.ConnectedComponentMode.class));
                     break;
 
                 case "extensions":

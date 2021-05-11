@@ -15,7 +15,7 @@
     "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
     "dcUseTransformerRatio" : true,
     "countriesToBalance" : [ ],
-    "computedConnectedComponentScope" : "MAIN"
+    "connectedComponentMode" : "MAIN"
   },
   "extensions" : {
     "dummy-extension" : { }
