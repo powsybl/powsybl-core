@@ -51,7 +51,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         PROPORTIONAL_TO_CONFORM_LOAD,
     }
 
-    public enum ComputedConnectedComponentType {
+    public enum ComputedConnectedComponentScopeType {
         MAIN,
         ALL,
     }
@@ -61,7 +61,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     // VERSION = 1.2 twtSplitShuntAdmittance,
     // VERSION = 1.3 simulShunt, read/write slack bus
     // VERSION = 1.4 dc, distributedSlack, balanceType
-    // VERSION = 1.5 dcUseTransformerRatio, countriesToBalance, computedConnectedComponent
+    // VERSION = 1.5 dcUseTransformerRatio, countriesToBalance, computedConnectedComponentScope
     public static final String VERSION = "1.5";
 
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
@@ -76,8 +76,8 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
     public static final BalanceType DEFAULT_BALANCE_TYPE = BalanceType.PROPORTIONAL_TO_GENERATION_P_MAX;
     public static final boolean DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT = true;
-    public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = new HashSet<>();
-    public static final ComputedConnectedComponentType DEFAULT_COMPUTED_CONNECTED_COMPONENT = ComputedConnectedComponentType.MAIN;
+    public static final Set<Country> DEFAULT_COUNTRIES_TO_BALANCE = EnumSet.noneOf(Country.class);
+    public static final ComputedConnectedComponentScopeType DEFAULT_COMPUTED_CONNECTED_COMPONENT_SCOPE = ComputedConnectedComponentScopeType.MAIN;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
@@ -125,7 +125,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 parameters.setBalanceType(config.getEnumProperty("balanceType", BalanceType.class, DEFAULT_BALANCE_TYPE));
                 parameters.setDcUseTransformerRatio(config.getBooleanProperty("dcUseTransformerRatio", DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT));
                 parameters.setCountriesToBalance(config.getEnumSetProperty("countriesToBalance", Country.class, DEFAULT_COUNTRIES_TO_BALANCE));
-                parameters.setComputedConnectedComponent(config.getEnumProperty("computedConnectedComponent", ComputedConnectedComponentType.class, DEFAULT_COMPUTED_CONNECTED_COMPONENT));
+                parameters.setComputedConnectedComponentScope(config.getEnumProperty("computedConnectedComponentScope", ComputedConnectedComponentScopeType.class, DEFAULT_COMPUTED_CONNECTED_COMPONENT_SCOPE));
             });
     }
 
@@ -155,13 +155,13 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
     private Set<Country> countriesToBalance;
 
-    private ComputedConnectedComponentType computedConnectedComponent;
+    private ComputedConnectedComponentScopeType computedConnectedComponentScope;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
                               boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
                               boolean twtSplitShuntAdmittance, boolean simulShunt, boolean readSlackBus, boolean writeSlackBus,
                               boolean dc, boolean distributedSlack, BalanceType balanceType, boolean dcUseTransformerRatio,
-                              Set<Country> countriesToBalance, ComputedConnectedComponentType computedConnectedComponent) {
+                              Set<Country> countriesToBalance, ComputedConnectedComponentScopeType computedConnectedComponentScope) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
@@ -175,14 +175,14 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         this.balanceType = balanceType;
         this.dcUseTransformerRatio = dcUseTransformerRatio;
         this.countriesToBalance = countriesToBalance;
-        this.computedConnectedComponent = computedConnectedComponent;
+        this.computedConnectedComponentScope = computedConnectedComponentScope;
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
         boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn,
         boolean twtSplitShuntAdmittance) {
         this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, twtSplitShuntAdmittance, DEFAULT_SIMUL_SHUNT, DEFAULT_READ_SLACK_BUS, DEFAULT_WRITE_SLACK_BUS,
-                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_COMPUTED_CONNECTED_COMPONENT);
+                DEFAULT_DC, DEFAULT_DISTRIBUTED_SLACK, DEFAULT_BALANCE_TYPE, DEFAULT_DC_USE_TRANSFORMER_RATIO_DEFAULT, DEFAULT_COUNTRIES_TO_BALANCE, DEFAULT_COMPUTED_CONNECTED_COMPONENT_SCOPE);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
@@ -212,7 +212,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         balanceType = other.balanceType;
         dcUseTransformerRatio = other.dcUseTransformerRatio;
         countriesToBalance = other.countriesToBalance;
-        computedConnectedComponent = other.computedConnectedComponent;
+        computedConnectedComponentScope = other.computedConnectedComponentScope;
     }
 
     public VoltageInitMode getVoltageInitMode() {
@@ -362,7 +362,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
                 .put("balanceType", balanceType)
                 .put("dcUseTransformerRatio", dcUseTransformerRatio)
                 .put("countriesToBalance", countriesToBalance)
-                .put("computedConnectedComponent", computedConnectedComponent);
+                .put("computedConnectedComponentScope", computedConnectedComponentScope);
         return immutableMapBuilder.build();
     }
 
@@ -384,12 +384,12 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return countriesToBalance;
     }
 
-    public ComputedConnectedComponentType getComputedConnectedComponent() {
-        return computedConnectedComponent;
+    public ComputedConnectedComponentScopeType getComputedConnectedComponentScope() {
+        return computedConnectedComponentScope;
     }
 
-    public LoadFlowParameters setComputedConnectedComponent(ComputedConnectedComponentType computedConnectedComponent) {
-        this.computedConnectedComponent = computedConnectedComponent;
+    public LoadFlowParameters setComputedConnectedComponentScope(ComputedConnectedComponentScopeType computedConnectedComponentScope) {
+        this.computedConnectedComponentScope = computedConnectedComponentScope;
         return this;
     }
 

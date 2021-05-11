@@ -47,7 +47,7 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
             jsonGenerator.writeString(arg.name());
         }
         jsonGenerator.writeEndArray();
-        jsonGenerator.writeStringField("computedConnectedComponent", parameters.getComputedConnectedComponent().name());
+        jsonGenerator.writeStringField("computedConnectedComponentScope", parameters.getComputedConnectedComponentScope().name());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers());
 

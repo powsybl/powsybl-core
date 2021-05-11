@@ -116,7 +116,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
         assertEquals(2, parameters.getCountriesToBalance().size());
         assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
         assertTrue(parameters.getCountriesToBalance().contains(Country.KI));
-        assertEquals(LoadFlowParameters.ComputedConnectedComponentType.MAIN, parameters.getComputedConnectedComponent());
+        assertEquals(LoadFlowParameters.ComputedConnectedComponentScopeType.MAIN, parameters.getComputedConnectedComponentScope());
     }
 
     @Test

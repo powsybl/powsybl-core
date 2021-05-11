@@ -120,28 +120,28 @@ public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowPara
                     break;
 
                 case "balanceType":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: distributedSlack", version, "1.3");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.3");
                     parser.nextToken();
                     parameters.setBalanceType(parser.readValueAs(BalanceType.class));
                     break;
 
                 case "dcUseTransformerRatio":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
                     parameters.setDcUseTransformerRatio(parser.readValueAs(Boolean.class));
                     break;
 
                 case "countriesToBalance":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
                     Set<Country> countries = parser.readValueAs(new TypeReference<Set<Country>>() { });
                     parameters.setCountriesToBalance(countries);
                     break;
 
-                case "computedConnectedComponent":
-                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: countriesToBalance", version, "1.4");
+                case "computedConnectedComponentScope":
+                    JsonUtil.assertGreaterThanReferenceVersion(CONTEXT_NAME, "Tag: " + parser.getCurrentName(), version, "1.4");
                     parser.nextToken();
-                    parameters.setComputedConnectedComponent(parser.readValueAs(LoadFlowParameters.ComputedConnectedComponentType.class));
+                    parameters.setComputedConnectedComponentScope(parser.readValueAs(LoadFlowParameters.ComputedConnectedComponentScopeType.class));
                     break;
 
                 case "extensions":
