@@ -15,6 +15,7 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -57,16 +58,16 @@ public class CgmesExportContextTest {
         assertEquals("powsybl.org", context1.getSvModelDescription().getModelingAuthoritySet());
 
         network.newExtension(CimCharacteristicsAdder.class)
-                .setCimVersion(14)
-                .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-                .add();
+            .setCimVersion(14)
+            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
+            .add();
         network.newExtension(CgmesSvMetadataAdder.class)
-                .setDescription("test")
-                .setSvVersion(2)
-                .addDependency("powsybl.test.org")
-                .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org")
-                .add();
+            .setDescription("test")
+            .setSvVersion(2)
+            .addDependency("powsybl.test.org")
+            .addDependency("cgmes")
+            .setModelingAuthoritySet("cgmes.org")
+            .add();
 
         CgmesExportContext context2 = new CgmesExportContext(network);
 
@@ -99,16 +100,16 @@ public class CgmesExportContextTest {
     @Test
     public void getSet() {
         CgmesExportContext context = new CgmesExportContext()
-                .setCimVersion(14)
-                .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
-                .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
-                .setExportBoundaryPowerFlows(true);
+            .setCimVersion(14)
+            .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
+            .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
+            .setExportBoundaryPowerFlows(true);
         context.getSvModelDescription()
-                .setDescription("test")
-                .setVersion(2)
-                .addDependency("powsybl.test.org")
-                .addDependency("cgmes")
-                .setModelingAuthoritySet("cgmes.org");
+            .setDescription("test")
+            .setVersion(2)
+            .addDependency("powsybl.test.org")
+            .addDependency("cgmes")
+            .setModelingAuthoritySet("cgmes.org");
 
         assertEquals(14, context.getCimVersion());
         assertEquals(CIM_14_NAMESPACE, context.getCimNamespace());
@@ -132,11 +133,13 @@ public class CgmesExportContextTest {
     }
 
     @Test
-    public void nodeBreakerBuildTNMappingNoNPE() throws IOException {
-        // Check that no exception is thrown
+    public void nodeBreakerBuildTNMappingError() throws IOException {
+        // Instead of a generic NPE exception,
+        // Check that a controlled exception is thrown explaining the problem
+
         // When a CgmesExportContext is built from a Network that has NOT been imported
         // with the option to create the mapping between buses and Topological Nodes
-        // That is, the CgmesExportContext is responsible for creating that mapping
+        // That is, the CgmesExportContext should be responsible for creating that mapping
         ReadOnlyDataSource ds = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
 
         // Import without creating mapping between buses and Topological Nodes during import
@@ -151,9 +154,21 @@ public class CgmesExportContextTest {
         ep.setProperty(CgmesExport.BASE_NAME, exportBaseName);
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            new CgmesExport().export(n, ep, new FileDataSource(tmpDir, exportBaseName));
-            assertTrue(Files.exists(tmpDir.resolve(exportBaseName + "_SSH.xml")));
-            assertTrue(Files.exists(tmpDir.resolve(exportBaseName + "_SV.xml")));
+            String expectedMessage = "Node/breaker model without explicit mapping between IIDM buses and CGMES Topological Nodes. "
+                + " To be able to export you must import the CGMES data with the parameter "
+                + CgmesImport.CREATE_CGMES_EXPORT_MAPPING
+                + " set to true";
+            assertThrows(expectedMessage,
+                PowsyblException.class,
+                () -> new CgmesExport().export(n, ep, new FileDataSource(tmpDir, exportBaseName)));
+            // TODO (Luma) After TP files are exported and exception is not thrown,
+            // check that these file exists:
+            // tmpDir.resolve(exportBaseName + "_SSH.xml")
+            // tmpDir.resolve(exportBaseName + "_SV.xml")
         }
+
+        // TODO (Luma) When TP files are exported,
+        // We should be able to export with and without the mapping Bus-TN from the import,
+        // and re-importing the exported data should give the same networks
     }
 }
