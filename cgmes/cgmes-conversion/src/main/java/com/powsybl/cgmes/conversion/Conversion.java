@@ -259,6 +259,10 @@ public class Conversion {
     private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
+        if (cgmesControlArea == null) {
+            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
+            return;
+        }
         String terminalId = tf.getId("terminal");
         if (context.terminalMapping().find(terminalId) != null) {
             cgmesControlArea.add(context.terminalMapping().find(terminalId));
@@ -492,7 +496,11 @@ public class Conversion {
         BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
         BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
         if (boundaryLine1 != null && boundaryLine2 != null) {
-            ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            } else {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
+            }
         } else {
             context.invalid(node, "Unexpected boundaryLine");
         }
