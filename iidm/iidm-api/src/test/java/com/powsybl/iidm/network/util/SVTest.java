@@ -128,6 +128,36 @@ public class SVTest {
     }
 
     @Test
+    public void testTwoWindingsTransformerWithoutRtc() {
+        TwoWindingsTransformer twt = new TwoWindingsTransformerWithoutRtcTestData().getTwoWindingsTransformer();
+
+        double tol = 0.0001;
+        double p1 = 220.644832;
+        double q1 = 8.699260;
+        double v1 = 197.66468811035156;
+        double a1 = 19.98349380493164;
+
+        double p2 = -219.092739;
+        double q2 = 48.692085;
+        double v2 = 118.13329315185547;
+        double a2 = 0.19568365812301636;
+
+        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA2 = svA1.otherSide(twt);
+        assertEquals(p2, svA2.getP(), tol);
+        assertEquals(q2, svA2.getQ(), tol);
+        assertEquals(v2, svA2.getU(), tol);
+        assertEquals(a2, svA2.getA(), tol);
+
+        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB1 = svB2.otherSide(twt);
+        assertEquals(p1, svB1.getP(), tol);
+        assertEquals(q1, svB1.getQ(), tol);
+        assertEquals(v1, svB1.getU(), tol);
+        assertEquals(a1, svB1.getA(), tol);
+    }
+
+    @Test
     public void testHalfLine() {
         TieLine.HalfLine halfLine = new HalfLineTestData().getHalfLine();
 
@@ -241,6 +271,53 @@ public class SVTest {
             Mockito.when(rtcStep.getX()).thenReturn(RTC_X);
             Mockito.when(rtcStep.getG()).thenReturn(RTC_G);
             Mockito.when(rtcStep.getB()).thenReturn(RTC_B);
+
+            ptc = Mockito.mock(PhaseTapChanger.class);
+            ptcStep = Mockito.mock(PhaseTapChangerStep.class);
+            Mockito.when(twt.getPhaseTapChanger()).thenReturn(ptc);
+            Mockito.when(ptc.getCurrentStep()).thenReturn(ptcStep);
+            Mockito.when(ptcStep.getRho()).thenReturn(PTC_RHO);
+            Mockito.when(ptcStep.getAlpha()).thenReturn(PTC_ALPHA);
+            Mockito.when(ptcStep.getR()).thenReturn(PTC_R);
+            Mockito.when(ptcStep.getX()).thenReturn(PTC_X);
+            Mockito.when(ptcStep.getG()).thenReturn(PTC_G);
+            Mockito.when(ptcStep.getB()).thenReturn(PTC_B);
+
+            Mockito.when(twt.getRatedU1()).thenReturn(RATEDU1);
+            Mockito.when(twt.getRatedU2()).thenReturn(RATEDU2);
+        }
+
+        private TwoWindingsTransformer getTwoWindingsTransformer() {
+            return twt;
+        }
+    }
+
+    private static final class TwoWindingsTransformerWithoutRtcTestData {
+        private static double R = 0.43;
+        private static double X = 15.90;
+        private static double G = 0.0;
+        private static double B = 0.0;
+        private static double PTC_RHO = 0.98;
+        private static double PTC_ALPHA = -5.0;
+        private static double PTC_R = 0.0;
+        private static double PTC_X = 0.0;
+        private static double PTC_G = 0.0;
+        private static double PTC_B = 0.0;
+        private static double RATEDU1 = 230.0;
+        private static double RATEDU2 = 138.0;
+
+        private static PhaseTapChanger ptc;
+        private static PhaseTapChangerStep ptcStep;
+        private static TwoWindingsTransformer twt;
+
+        private TwoWindingsTransformerWithoutRtcTestData() {
+            twt = Mockito.mock(TwoWindingsTransformer.class);
+            Mockito.when(twt.getR()).thenReturn(R);
+            Mockito.when(twt.getX()).thenReturn(X);
+            Mockito.when(twt.getG()).thenReturn(G);
+            Mockito.when(twt.getB()).thenReturn(B);
+
+            Mockito.when(twt.getRatioTapChanger()).thenReturn(null);
 
             ptc = Mockito.mock(PhaseTapChanger.class);
             ptcStep = Mockito.mock(PhaseTapChangerStep.class);
