@@ -163,13 +163,20 @@ public interface Network extends Container<Network> {
         }
 
         /**
-         * Get all connected compoments.
+         * Get all connected components.
          * <p>
          * Depends on the working variant.
          * @see VariantManager
          */
         Collection<Component> getConnectedComponents();
 
+        /**
+         * Get all synchronous components.
+         * <p>
+         * Depends on the working variant.
+         * @see VariantManager
+         */
+        Collection<Component> getSynchronousComponents();
     }
 
     /**
