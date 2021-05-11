@@ -130,6 +130,11 @@ public final class MergingView implements Network, MultiVariantObject {
         public Collection<Component> getConnectedComponents() {
             return Collections.unmodifiableList(index.getView().getConnectedComponentsManager().getConnectedComponents());
         }
+
+        @Override
+        public Collection<Component> getSynchronousComponents() {
+            return Collections.unmodifiableList(index.getView().getSynchronousComponentsManager().getConnectedComponents());
+        }
     }
 
     private final BusViewAdapter busView;

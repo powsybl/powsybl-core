@@ -871,8 +871,8 @@ WHERE {
     ?ControlArea
         a cim:ControlArea ;
         cim:IdentifiedObject.name ?name ;
-        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
-        cim:ControlArea.type ?controlAreaType
+        cim:ControlArea.type ?controlAreaType .
+        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
         
 }}

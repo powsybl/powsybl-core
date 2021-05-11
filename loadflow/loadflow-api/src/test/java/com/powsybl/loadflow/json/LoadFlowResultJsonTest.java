@@ -8,9 +8,12 @@ package com.powsybl.loadflow.json;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.loadflow.LoadFlowResult;
 import com.powsybl.loadflow.LoadFlowResultImpl;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -22,6 +25,9 @@ import static org.junit.Assert.*;
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public class LoadFlowResultJsonTest extends AbstractConverterTest {
+
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
 
     private static Map<String, String> createMetrics() {
         return ImmutableMap.<String, String>builder().put("nbiter", "4")
@@ -37,13 +43,28 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         return new LoadFlowResultImpl(true, createMetrics(), "");
     }
 
-    private static LoadFlowResult createVersion11() {
-        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
+    private static LoadFlowResult createVersion12() {
+        return new LoadFlowResultImpl(true, createMetrics(), "", Collections.singletonList(new LoadFlowResultImpl.ComponentResultImpl(0, 0, LoadFlowResult.ComponentResult.Status.CONVERGED, 7, "bus1", 235.3)));
     }
 
     @Test
-    public void roundTripVersion11Test() throws IOException {
-        roundTripTest(createVersion11(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion11.json");
+    public void roundTripVersion12Test() throws IOException {
+        roundTripTest(createVersion12(), LoadFlowResultSerializer::write, LoadFlowResultDeserializer::read, "/LoadFlowResultVersion12.json");
+    }
+
+    @Test
+    public void readJsonVersion11() throws IOException {
+        LoadFlowResult result11 = LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11.json"));
+        assertTrue(result11.isOk());
+
+        LoadFlowResult result12 = createVersion12();
+        assertTrue(result12.isOk());
+
+        LoadFlowResult.ComponentResult component11 = result11.getComponentResults().get(0);
+        LoadFlowResult.ComponentResult component12 = result12.getComponentResults().get(0);
+
+        assertEquals(component11.getConnectedComponentNum(), component12.getConnectedComponentNum());
+        assertEquals(component11.getSynchronousComponentNum(), component12.getSynchronousComponentNum());
     }
 
     @Test
@@ -53,6 +74,27 @@ public class LoadFlowResultJsonTest extends AbstractConverterTest {
         assertEquals(createMetrics(), result.getMetrics());
         assertNull(result.getLogs());
         assertTrue(result.getComponentResults().isEmpty());
+    }
+
+    @Test
+    public void readJsonVersion11Exception() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. synchronousComponentNum is not valid for version 1.1. Version should be >= 1.2 ");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion11Exception.json"));
+    }
+
+    @Test
+    public void readJsonVersion12Exception() throws IOException {
+        exception.expect(IllegalStateException.class);
+        exception.expectMessage("Connected component number field not found.");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception.json"));
+    }
+
+    @Test
+    public void readJsonVersion12Exception2() throws IOException {
+        exception.expect(PowsyblException.class);
+        exception.expectMessage("com.powsybl.loadflow.json.LoadFlowResultDeserializer. componentNum is not valid for version 1.2. Version should be < 1.2 ");
+        LoadFlowResultDeserializer.read(getClass().getResourceAsStream("/LoadFlowResultVersion12Exception2.json"));
     }
 
     @Test
