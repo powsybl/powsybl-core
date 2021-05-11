@@ -6,24 +6,35 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.powsybl.cgmes.extensions.CgmesTopologyKind;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
+import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -118,5 +129,31 @@ public class CgmesExportContextTest {
 
         context.getSvModelDescription().clearDependencies();
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
+    }
+
+    @Test
+    public void nodeBreakerBuildTNMappingNoNPE() throws IOException {
+        // Check that no exception is thrown
+        // When a CgmesExportContext is built from a Network that has NOT been imported
+        // with the option to create the mapping between buses and Topological Nodes
+        // That is, the CgmesExportContext is responsible for creating that mapping
+        ReadOnlyDataSource ds = CgmesConformity1Catalog.smallNodeBreaker().dataSource();
+
+        // Import without creating mapping between buses and Topological Nodes during import
+        Properties ip = new Properties();
+        ip.put("iidm.import.cgmes.create-cgmes-export-mapping", "false");
+        Network n = new CgmesImport().importData(ds, NetworkFactory.findDefault(), ip);
+
+        // Export SSH, SV files using only information from Network
+        Properties ep = new Properties();
+        ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
+        String exportBaseName = "testNoNPE";
+        ep.setProperty(CgmesExport.BASE_NAME, exportBaseName);
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+            new CgmesExport().export(n, ep, new FileDataSource(tmpDir, exportBaseName));
+            assertTrue(Files.exists(tmpDir.resolve(exportBaseName + "_SSH.xml")));
+            assertTrue(Files.exists(tmpDir.resolve(exportBaseName + "_SV.xml")));
+        }
     }
 }

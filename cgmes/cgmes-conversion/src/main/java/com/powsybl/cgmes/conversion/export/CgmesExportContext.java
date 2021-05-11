@@ -10,6 +10,7 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.joda.time.DateTime;
 
@@ -145,9 +146,19 @@ public class CgmesExportContext {
             Set<String> mappedTns = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
-                    String topologicalNode = configuredBus.getId();
-                    Bus busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
-                    if (busViewBus != null) {
+                    Bus busViewBus;
+                    String topologicalNode;
+                    if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                        topologicalNode = configuredBus.getId();
+                        busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
+                    } else {
+                        // TODO (Luma) The mapping between buses and Topological Nodes established here ...
+                        // Must be [consistent with / used in] the future TP export
+                        // Here we are selecting as TN identifiers directly the bus/breaker identifiers created by IIDM
+                        topologicalNode = configuredBus.getId();
+                        busViewBus = vl.getBusView().getBus(configuredBus.getId());
+                    }
+                    if (busViewBus != null && topologicalNode != null) {
                         tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);
                         mappedTns.add(topologicalNode);
                     }
