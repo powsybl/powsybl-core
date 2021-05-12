@@ -44,6 +44,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
     @Test
     public void nodeBreakerHvdc() throws IOException, XMLStreamException {
         Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         test(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcDcLine2Inverter1Rectifier2().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
