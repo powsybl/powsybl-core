@@ -112,7 +112,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     public void readJsonVersion15() {
         LoadFlowParameters parameters = JsonLoadFlowParameters
                 .read(getClass().getResourceAsStream("/LoadFlowParametersVersion15.json"));
-        assertTrue(parameters.getDcUseTransformerRatio());
+        assertTrue(parameters.isDcUseTransformerRatio());
         assertEquals(2, parameters.getCountriesToBalance().size());
         assertTrue(parameters.getCountriesToBalance().contains(Country.FR));
         assertTrue(parameters.getCountriesToBalance().contains(Country.KI));

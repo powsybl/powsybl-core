@@ -371,17 +371,17 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         return this;
     }
 
-    public boolean getDcUseTransformerRatio() {
+    public boolean isDcUseTransformerRatio() {
         return dcUseTransformerRatio;
     }
 
     public LoadFlowParameters setCountriesToBalance(Set<Country> countriesToBalance) {
-        this.countriesToBalance = countriesToBalance;
+        this.countriesToBalance = Objects.requireNonNull(countriesToBalance);
         return this;
     }
 
     public Set<Country> getCountriesToBalance() {
-        return countriesToBalance;
+        return Collections.unmodifiableSet(countriesToBalance);
     }
 
     public ConnectedComponentMode getConnectedComponentMode() {
