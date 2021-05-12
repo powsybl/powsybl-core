@@ -36,7 +36,7 @@ public final class ExtensionAdderProviders {
     private static final Logger LOGGER = LoggerFactory.getLogger(ExtensionAdderProviders.class);
 
     private static final Supplier<ConcurrentMap<String, List<ExtensionAdderProvider>>> ADDER_PROVIDERS = Suppliers
-            .memoize(() -> groupProvidersByName(ServiceLoader.load(ExtensionAdderProvider.class)))::get;
+            .memoize(() -> groupProvidersByName(ServiceLoader.load(ExtensionAdderProvider.class, ExtensionAdderProviders.class.getClassLoader())))::get;
 
     private static final ConcurrentMap<Pair<String, Class>, ExtensionAdderProvider> CACHE = new ConcurrentHashMap<>();
 

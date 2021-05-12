@@ -70,7 +70,7 @@ public final class CleanableExecutors {
     }
 
     public static ExecutorService newFixedThreadPool(String poolName, int nThreads) {
-        return newFixedThreadPool(poolName, nThreads, ServiceLoader.load(ThreadCleaner.class));
+        return newFixedThreadPool(poolName, nThreads, ServiceLoader.load(ThreadCleaner.class, CleanableExecutors.class.getClassLoader()));
     }
 
     public static ExecutorService newFixedThreadPool(String poolName, int nThreads, Iterable<ThreadCleaner> cleaners) {
@@ -83,7 +83,7 @@ public final class CleanableExecutors {
     }
 
     public static ExecutorService newCachedThreadPool(String poolName) {
-        return newCachedThreadPool(poolName, ServiceLoader.load(ThreadCleaner.class));
+        return newCachedThreadPool(poolName, ServiceLoader.load(ThreadCleaner.class, CleanableExecutors.class.getClassLoader()));
     }
 
     public static ExecutorService newCachedThreadPool(String poolName, Iterable<ThreadCleaner> cleaners) {
@@ -96,7 +96,7 @@ public final class CleanableExecutors {
     }
 
     public static ExecutorService newSizeLimitedThreadPool(String poolName, int maxSize) {
-        return newSizeLimitedThreadPool(poolName, maxSize, ServiceLoader.load(ThreadCleaner.class));
+        return newSizeLimitedThreadPool(poolName, maxSize, ServiceLoader.load(ThreadCleaner.class, CleanableExecutors.class.getClassLoader()));
     }
 
     public static ExecutorService newSizeLimitedThreadPool(String poolName, int maxSize, Iterable<ThreadCleaner> cleaners) {
