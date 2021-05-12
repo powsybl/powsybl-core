@@ -6,10 +6,13 @@
  */
 package com.powsybl.cgmes.conversion.export;
 
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import org.joda.time.DateTime;
 
@@ -145,9 +148,27 @@ public class CgmesExportContext {
             Set<String> mappedTns = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
-                    String topologicalNode = configuredBus.getId();
-                    Bus busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
-                    if (busViewBus != null) {
+                    Bus busViewBus;
+                    String topologicalNode;
+                    if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                        // Bus/breaker IIDM networks have been created from bus/branch CGMES data
+                        // CGMES Topological Nodes have been used as configured bus identifiers
+                        topologicalNode = configuredBus.getId();
+                        busViewBus = vl.getBusView().getMergedBus(configuredBus.getId());
+                    } else {
+                        // We throw an error if we do not have a Bus-TN mapping for node/breaker
+                        // TODO (Luma) When TP file is exported,
+                        // the identifiers for TN and the mapping Bus-TN should be established here.
+                        // TP export should use TN identifiers defined in the mapping
+                        // topologicalNode = ..
+                        // TODO (Luma) remove this exception when TN identifiers are assigned and TP file is exported
+                        String problem = "Node/breaker model without explicit mapping between IIDM buses and CGMES Topological Nodes";
+                        String solution = String.format("To be able to export you must import the CGMES data with the parameter %s set to true",
+                            CgmesImport.CREATE_CGMES_EXPORT_MAPPING);
+                        String msg = String.format("%s. %s", problem, solution);
+                        throw new PowsyblException(msg);
+                    }
+                    if (busViewBus != null && topologicalNode != null) {
                         tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);
                         mappedTns.add(topologicalNode);
                     }
