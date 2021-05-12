@@ -72,13 +72,36 @@ public final class EquipmentExport {
     }
 
     private static void writeNodes(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
+        for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
+            String node1 = exportedNodes.get(vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()));
+            if (node1 == null) {
+                node1 = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node1, CgmesExportUtil.format(vl.getNodeBreakerView().getNode1(sw.getId())), vl.getId(), cimNamespace, writer);
+                exportedNodes.put(vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()), node1);
+            }
+            String node2 = exportedNodes.get(vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()));
+            if (node2 == null) {
+                node2 = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node2, CgmesExportUtil.format(vl.getNodeBreakerView().getNode2(sw.getId())), vl.getId(), cimNamespace, writer);
+                exportedNodes.put(vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()), node2);
+            }
+            SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), cimNamespace, writer);
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node1, 1, cimNamespace, writer);
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
+        }
         for (VoltageLevel.NodeBreakerView.InternalConnection ic : vl.getNodeBreakerView().getInternalConnections()) {
-            String node1 = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(node1, CgmesExportUtil.format(ic.getNode1()), vl.getId(), cimNamespace, writer);
-            exportedNodes.put(vl.getId() + ic.getNode1(), node1);
-            String node2 = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(node2, CgmesExportUtil.format(ic.getNode2()), vl.getId(), cimNamespace, writer);
-            exportedNodes.put(vl.getId() + ic.getNode2(), node2);
+            String node1 = exportedNodes.get(vl.getId() + ic.getNode1());
+            if (node1 == null) {
+                node1 = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node1, CgmesExportUtil.format(ic.getNode1()), vl.getId(), cimNamespace, writer);
+                exportedNodes.put(vl.getId() + ic.getNode1(), node1);
+            }
+            String node2 = exportedNodes.get(vl.getId() + ic.getNode2());
+            if (node2 == null) {
+                node2 = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node2, CgmesExportUtil.format(ic.getNode2()), vl.getId(), cimNamespace, writer);
+                exportedNodes.put(vl.getId() + ic.getNode2(), node2);
+            }
             String switchId = CgmesExportUtil.getUniqueId();
             SwitchEq.write(switchId, ic.getNode1() + "_" + ic.getNode2(), SwitchKind.BREAKER, vl.getId(), cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), switchId, node1, 1, cimNamespace, writer);
@@ -93,12 +116,6 @@ public final class EquipmentExport {
         }
         for (Switch sw : vl.getBusBreakerView().getSwitches()) {
             SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), cimNamespace, writer);
-        }
-    }
-
-    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        for (Switch sw : network.getSwitches()) {
-            SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), sw.getVoltageLevel().getId(), cimNamespace, writer);
         }
     }
 
