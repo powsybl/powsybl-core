@@ -74,7 +74,7 @@ public class LoadFlowParametersTest {
         assertEquals(parameters.isDc(), dc);
         assertEquals(parameters.isDistributedSlack(), distributedSlack);
         assertEquals(parameters.getBalanceType(), balanceType);
-        assertEquals(parameters.getDcUseTransformerRatio(), dcUseTransformerRatio);
+        assertEquals(parameters.isDcUseTransformerRatio(), dcUseTransformerRatio);
         assertEquals(parameters.getCountriesToBalance(), countriesToBalance);
         assertEquals(parameters.getConnectedComponentMode(), computedConnectedComponent);
     }
@@ -299,7 +299,7 @@ public class LoadFlowParametersTest {
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isTwtSplitShuntAdmittance(),
                 parameters.isSimulShunt(), parameters.isReadSlackBus(), parameters.isWriteSlackBus(),
-                parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.getDcUseTransformerRatio(),
+                parameters.isDc(), parameters.isDistributedSlack(), parameters.getBalanceType(), parameters.isDcUseTransformerRatio(),
                 parameters.getCountriesToBalance(), parameters.getConnectedComponentMode());
     }
 
