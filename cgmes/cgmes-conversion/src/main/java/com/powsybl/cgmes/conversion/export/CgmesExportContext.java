@@ -148,8 +148,8 @@ public class CgmesExportContext {
             Set<String> mappedTns = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
-                    Bus busViewBus = null;
-                    String topologicalNode = null;
+                    Bus busViewBus;
+                    String topologicalNode;
                     if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                         // Bus/breaker IIDM networks have been created from bus/branch CGMES data
                         // CGMES Topological Nodes have been used as configured bus identifiers
@@ -161,7 +161,6 @@ public class CgmesExportContext {
                         // the identifiers for TN and the mapping Bus-TN should be established here.
                         // TP export should use TN identifiers defined in the mapping
                         // topologicalNode = ..
-                        busViewBus = vl.getBusView().getBus(configuredBus.getId());
                         // TODO (Luma) remove this exception when TN identifiers are assigned and TP file is exported
                         String problem = "Node/breaker model without explicit mapping between IIDM buses and CGMES Topological Nodes";
                         String solution = String.format("To be able to export you must import the CGMES data with the parameter %s set to true",
