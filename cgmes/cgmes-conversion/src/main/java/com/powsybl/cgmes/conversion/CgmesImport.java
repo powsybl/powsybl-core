@@ -251,6 +251,7 @@ public class CgmesImport implements Importer {
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
     public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
     public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
+    public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String MERGE_BOUNDARIES_USING_TIE_LINES = "iidm.import.cgmes.merge-boundaries-using-tie-lines";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
@@ -296,6 +297,11 @@ public class CgmesImport implements Importer {
             ParameterType.BOOLEAN,
             "Ensure IDs and aliases are unique",
             Boolean.FALSE);
+    private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
+            IMPORT_CONTROL_AREAS,
+            ParameterType.BOOLEAN,
+            "Import control areas",
+            Boolean.TRUE);
     private static final Parameter MERGE_BOUNDARIES_USING_TIE_LINES_PARAMETER = new Parameter(
             MERGE_BOUNDARIES_USING_TIE_LINES,
             ParameterType.BOOLEAN,
@@ -337,6 +343,7 @@ public class CgmesImport implements Importer {
             CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+            IMPORT_CONTROL_AREAS_PARAMETER,
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,

@@ -171,7 +171,7 @@ class ActionDslLoader extends DslLoader {
 
             // fill tasks spec with extensions
             List<ModificationTask> tasks = new ArrayList<>()
-            for (DslTaskExtension taskExtension : ServiceLoader.load(DslTaskExtension.class)) {
+            for (DslTaskExtension taskExtension : ServiceLoader.load(DslTaskExtension.class, ActionDslLoader.class.getClassLoader())) {
                 taskExtension.addToSpec(actionSpec.tasksSpec.metaClass, tasks, binding)
             }
 
