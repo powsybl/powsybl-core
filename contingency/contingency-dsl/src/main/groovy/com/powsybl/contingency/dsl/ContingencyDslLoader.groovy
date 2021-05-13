@@ -54,7 +54,7 @@ class ContingencyDslLoader extends DslLoader {
             ContingencySpec contingencySpec = new ContingencySpec()
 
             List<Extension<Contingency>> extensionList = new ArrayList<>();
-            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class)) {
+            for (ExtendableDslExtension dslContingencyExtension : ServiceLoader.load(ContingencyDslExtension.class, ContingencyDslLoader.class.getClassLoader())) {
                 dslContingencyExtension.addToSpec(contingencySpec.metaClass, extensionList, binding)
             }
 

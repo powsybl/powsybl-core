@@ -321,15 +321,8 @@ public final class JsonUtil {
      * Skip a part of a JSON document
      */
     public static void skip(JsonParser parser) throws IOException {
-        int objectCount = 0;
-        do {
-            JsonToken token = parser.nextToken();
-            if (token == JsonToken.START_OBJECT) {
-                objectCount++;
-            } else if (token == JsonToken.END_OBJECT) {
-                objectCount--;
-            }
-        } while (objectCount != 0);
+        parser.nextToken();
+        parser.skipChildren();
     }
 
     public static void assertLessThanOrEqualToReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
@@ -347,6 +340,26 @@ public final class JsonUtil {
         if (version.compareTo(referenceVersion) <= 0) {
             String exception = String.format(
                     "%s. %s is not valid for version %s. Version should be > %s %n",
+                    contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertGreaterOrEqualThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) < 0) {
+            String exception = String.format(
+                    "%s. %s is not valid for version %s. Version should be >= %s %n",
+                    contextName, elementName, version, referenceVersion);
+            throw new PowsyblException(exception);
+        }
+    }
+
+    public static void assertLessThanReferenceVersion(String contextName, String elementName, String version, String referenceVersion) {
+        Objects.requireNonNull(version);
+        if (version.compareTo(referenceVersion) >= 0) {
+            String exception = String.format(
+                    "%s. %s is not valid for version %s. Version should be < %s %n",
                     contextName, elementName, version, referenceVersion);
             throw new PowsyblException(exception);
         }

@@ -1,7 +1,7 @@
 {
   "version" : "1.0",
   "load-flow-parameters" : {
-    "version" : "1.4",
+    "version" : "1.5",
     "voltageInitMode" : "UNIFORM_VALUES",
     "transformerVoltageControlOn" : false,
     "phaseShifterRegulationOn" : false,
@@ -12,6 +12,9 @@
     "writeSlackBus" : false,
     "dc" : false,
     "distributedSlack" : true,
-    "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX"
+    "balanceType" : "PROPORTIONAL_TO_GENERATION_P_MAX",
+    "dcUseTransformerRatio" : true,
+    "countriesToBalance" : [ ],
+    "connectedComponentMode" : "MAIN"
   }
 }

@@ -7,17 +7,12 @@
 
 package com.powsybl.triplestore.api;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.stream.Collectors;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -208,17 +203,13 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public PropertyBag copy() {
-        List<String> propertyNamesCopy = new ArrayList<>(propertyNames.size());
-        propertyNamesCopy.addAll(propertyNames);
-        PropertyBag propertyBagCopy = new PropertyBag(propertyNamesCopy, removeInitialUnderscoreForIdentifiers);
-
-        propertyBagCopy.setResourceNames(resourceNames);
-        propertyBagCopy.setClassPropertyNames(classPropertyNames);
-        propertyBagCopy.setMultivaluedProperty(multiValuedPropertyNames);
-
-        this.entrySet().stream().forEach(c -> propertyBagCopy.put(c.getKey(), c.getValue()));
-
-        return propertyBagCopy;
+        // Create just a shallow copy of this property bag
+        PropertyBag pb1 = new PropertyBag(propertyNames, removeInitialUnderscoreForIdentifiers);
+        pb1.setResourceNames(resourceNames);
+        pb1.setClassPropertyNames(classPropertyNames);
+        pb1.setMultivaluedProperty(multiValuedPropertyNames);
+        pb1.putAll(this);
+        return pb1;
     }
 
     private final List<String> propertyNames;

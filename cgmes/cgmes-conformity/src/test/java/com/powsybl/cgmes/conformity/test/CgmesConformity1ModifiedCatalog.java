@@ -983,6 +983,26 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources smallBusBranchTieFlowsWithoutControlArea() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/SmallGrid/TieFlow_missing_controlArea";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-BusBranch-TieFlow-missing-ca",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
     public static TestGridModelResources smallNodeBreakerHvdcDcLine2Inverter1Rectifier2() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/SmallGrid/HVDC_dcLine2_targetPpcc_for_1inverter_2rectifier";

@@ -31,7 +31,7 @@
                         <xs:attribute name="id" use="required" type="xs:string"/>
                         <xs:attribute name="name" use="optional" type="xs:string"/>
                         <xs:attribute name="energyIdentificationCodeEic" use="optional" type="xs:string"/>
-                        <xs:attribute name="netInterchange" use="required" type="csm:nonEmptyString"/>
+                        <xs:attribute name="netInterchange" use="optional" type="csm:nonEmptyString"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

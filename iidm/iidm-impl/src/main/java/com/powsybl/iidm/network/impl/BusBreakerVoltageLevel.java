@@ -324,6 +324,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void invalidateCache() {
         calculatedBusTopology.invalidateCache();
+        getNetwork().getBusView().invalidateCache();
+        getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }
@@ -777,7 +779,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public boolean disconnect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
-        // already connected?
+        // already disconnected?
         if (!terminal.isConnected()) {
             return false;
         }
