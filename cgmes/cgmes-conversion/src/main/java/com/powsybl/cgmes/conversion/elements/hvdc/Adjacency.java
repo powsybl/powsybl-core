@@ -83,7 +83,7 @@ class Adjacency {
         PropertyBag end2 = ends.get(1);
         CgmesTerminal t2 = cgmesModel.terminal(end2.getId(CgmesNames.TERMINAL));
 
-        addTransformerAdjacency(end1, end2, Arrays.asList(CgmesDcConversion.getAcNode(cgmesModel, t1), CgmesDcConversion.getAcNode(cgmesModel, t2)));
+        addTransformerAdjacency(Arrays.asList(CgmesDcConversion.getAcNode(cgmesModel, t1), CgmesDcConversion.getAcNode(cgmesModel, t2)));
     }
 
     private void computeThreeWindingsTransformerAdjacency(CgmesModel cgmesModel, PropertyBags ends) {
@@ -96,18 +96,6 @@ class Adjacency {
 
         addTransformerAdjacency(Arrays.asList(CgmesDcConversion.getAcNode(cgmesModel, t1),
             CgmesDcConversion.getAcNode(cgmesModel, t2), CgmesDcConversion.getAcNode(cgmesModel, t3)));
-    }
-
-    private void addTransformerAdjacency(PropertyBag end1, PropertyBag end2, List<String> nodes) {
-        if (nodes.stream().anyMatch(this::containsAcDcConverter)) {
-
-            for (int k = 0; k < nodes.size() - 1; k++) {
-                String node = nodes.get(k);
-                for (int l = k + 1; l < nodes.size(); l++) {
-                    addAdjacency(node, nodes.get(l), AdjacentType.AC_TRANSFORMER);
-                }
-            }
-        }
     }
 
     private void addTransformerAdjacency(List<String> nodes) {
