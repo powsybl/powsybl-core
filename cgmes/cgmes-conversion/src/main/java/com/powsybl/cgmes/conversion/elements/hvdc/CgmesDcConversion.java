@@ -104,7 +104,7 @@ public class CgmesDcConversion {
     //
     //      where DcLineSegment = DcLineSegment1 + DcLineSegment2
     //
-private void convert(TPnodeEquipments tpNodeEquipments, List<HvdcConverter> converters, List<String> dcLineSegments) {
+    private void convert(TPnodeEquipments tpNodeEquipments, List<HvdcConverter> converters, List<String> dcLineSegments) {
         int converterNum = converters.size();
         int dcLineSegmentNum = dcLineSegments.size();
 
