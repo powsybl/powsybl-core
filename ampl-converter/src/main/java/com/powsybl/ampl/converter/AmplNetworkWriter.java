@@ -490,7 +490,7 @@ public class AmplNetworkWriter {
                 context.busIdsToExport.add(middleBusId);
                 int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, 1).otherSide(dl, true);
+                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
                 double nomV = t.getVoltageLevel().getNominalV();
                 double v = sv.getU() / nomV;
                 double theta = Math.toRadians(sv.getA());
@@ -985,7 +985,7 @@ public class AmplNetworkWriter {
             double zb = vb * vb / AmplConstants.SB;
             double p1 = t.getP();
             double q1 = t.getQ();
-            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, 1).otherSide(dl, true);
+            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
             double p2 = sv.getP();
             double q2 = sv.getQ();
             double patl = getPermanentLimit(dl.getCurrentLimits());

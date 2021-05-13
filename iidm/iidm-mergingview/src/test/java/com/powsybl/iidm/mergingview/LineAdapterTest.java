@@ -202,8 +202,8 @@ public class LineAdapterTest {
         dl2.getTerminal().setP(p2).setQ(q2);
         dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
         // Check P & Q are updated
-        SV expectedSV1 = new SV(p1, q1, v1, angle1, 1).otherSide(dl1, true);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2, 1).otherSide(dl2, true);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);

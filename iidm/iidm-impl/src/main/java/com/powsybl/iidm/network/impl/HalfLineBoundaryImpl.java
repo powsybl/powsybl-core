@@ -29,28 +29,28 @@ class HalfLineBoundaryImpl implements Boundary {
     public double getV() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), getEnd(side)).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), getEnd(side)).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideA(parent);
     }
 
     @Override
     public double getP() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), getEnd(side)).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), getEnd(side)).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideQ(parent);
     }
 
     @Override
@@ -74,13 +74,5 @@ class HalfLineBoundaryImpl implements Boundary {
 
     private static double getAngle(Bus b) {
         return b == null ? Double.NaN : b.getAngle();
-    }
-
-    private static int getEnd(Branch.Side side) {
-        if (side == Branch.Side.ONE) {
-            return 1;
-        } else {
-            return 2;
-        }
     }
 }

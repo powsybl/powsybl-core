@@ -11,6 +11,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.PhaseTapChanger;
@@ -42,14 +43,14 @@ public class SVTest {
         double v2 = 137.5232696533203;
         double a2 = -0.18332427740097046;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
         SV svA2 = svA1.otherSide(line);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(line);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
@@ -72,14 +73,14 @@ public class SVTest {
         double v2 = 138.0;
         double a2 = 0.0;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
         SV svA2 = svA1.otherSide(dl);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(dl);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
@@ -122,14 +123,14 @@ public class SVTest {
         double v2 = 118.13329315185547;
         double a2 = 0.19568365812301636;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
         SV svA2 = svA1.otherSide(twt);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(twt);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
@@ -152,14 +153,14 @@ public class SVTest {
         double v2 = 118.13329315185547;
         double a2 = 0.19568365812301636;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
         SV svA2 = svA1.otherSide(twt);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(twt);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
@@ -182,14 +183,14 @@ public class SVTest {
         double v2 = 118.133298648525750;
         double a2 = 5.195684102383955;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
         SV svA2 = svA1.otherSide(twt);
         assertEquals(p2, svA2.getP(), tol);
         assertEquals(q2, svA2.getQ(), tol);
         assertEquals(v2, svA2.getU(), tol);
         assertEquals(a2, svA2.getA(), tol);
 
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
         SV svB1 = svB2.otherSide(twt);
         assertEquals(p1, svB1.getP(), tol);
         assertEquals(q1, svB1.getQ(), tol);
@@ -212,8 +213,8 @@ public class SVTest {
         double v2 = 137.5232696533203;
         double a2 = -0.18332427740097046;
 
-        SV svA1 = new SV(p1, q1, v1, a1, 1);
-        SV svB2 = new SV(p2, q2, v2, a2, 2);
+        SV svA1 = new SV(p1, q1, v1, a1, Branch.Side.ONE);
+        SV svB2 = new SV(p2, q2, v2, a2, Branch.Side.TWO);
 
         assertEquals(p2, svA1.otherSideP(halfLine), tol);
         assertEquals(q2, svA1.otherSideQ(halfLine), tol);
