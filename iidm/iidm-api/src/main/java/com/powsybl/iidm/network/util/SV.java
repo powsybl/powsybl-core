@@ -20,17 +20,19 @@ import org.apache.commons.math3.complex.ComplexUtils;
  * Utility class to compute the state variables on one side of a branch, knowing
  * the state variables on the other side.
  *
- *  | Y11   Y12 ||V1|   |I1|
- *  |           ||  | = |  |
- *  | Y21   Y22 ||V2|   |I2|
- *
- *  I1 = S1* / V1* and I2 = S2* / V2*
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class SV {
+
+    //
+    // | Y11 Y12 ||V1|   |I1|
+    // |         ||  | = |  |
+    // | Y21 Y22 ||V2|   |I2|
+    //
+    // I1 = S1* / V1* and I2 = S2* / V2*
+    //
 
     public SV(double p, double q, double u, double a, Branch.Side side) {
         this.p = p;
