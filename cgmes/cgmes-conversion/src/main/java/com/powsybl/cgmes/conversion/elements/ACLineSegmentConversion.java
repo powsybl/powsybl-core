@@ -70,12 +70,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        Line mline;
-        if (context.config().mergeBoundariesUsingTieLines()) {
-            mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
-        } else {
-            mline = createLine(context, boundaryLine1, boundaryLine2);
-        }
+
+        Line mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
         mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY");
@@ -85,11 +81,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getTerminal1(), 1, boundaryLine1.getModelPowerFlow());
         context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getTerminal2(), 2, boundaryLine2.getModelPowerFlow());
 
-        if (mline instanceof TieLine) {
-            TieLine tl = (TieLine) mline;
-            context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
-            context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
-        }
+        TieLine tl = (TieLine) mline;
+        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
+        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
     }
 
     private void convertLine() {
@@ -193,37 +187,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                     .add();
         }
         return tieLine;
-    }
-
-    // TODO support transformer + Line
-    private static Line createLine(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        PiModel pi1 = new PiModel();
-        pi1.r = boundaryLine1.getR();
-        pi1.x = boundaryLine1.getX();
-        pi1.g1 = boundaryLine1.getG1();
-        pi1.b1 = boundaryLine1.getB1();
-        pi1.g2 = boundaryLine1.getG2();
-        pi1.b2 = boundaryLine1.getB2();
-        PiModel pi2 = new PiModel();
-        pi2.r = boundaryLine2.getR();
-        pi2.x = boundaryLine2.getX();
-        pi2.g1 = boundaryLine2.getG1();
-        pi2.b1 = boundaryLine2.getB1();
-        pi2.g2 = boundaryLine2.getG2();
-        pi2.b2 = boundaryLine2.getB2();
-        PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-        LineAdder adder = context.network().newLine()
-            .setR(pim.r)
-            .setX(pim.x)
-            .setG1(pim.g1)
-            .setG2(pim.g2)
-            .setB1(pim.b1)
-            .setB2(pim.b2);
-        identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
-        connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
-            boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
-            boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        return adder.add();
     }
 
     static class PiModel {
