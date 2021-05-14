@@ -213,10 +213,18 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String limitType = p.getLocal(LIMIT_TYPE);
         if (limitTypeName.equalsIgnoreCase("highvoltage") || "LimitTypeKind.highVoltage".equals(limitType)) {
             if (value < vl.getHighVoltageLimit() || Double.isNaN(vl.getHighVoltageLimit())) {
+                if (value < vl.getLowVoltageLimit()) {
+                    context.ignored("HighVoltageLimit", "Inconsistent with low voltage limit (" + vl.getLowVoltageLimit() + "kV)");
+                    return;
+                }
                 vl.setHighVoltageLimit(value);
             }
         } else if (limitTypeName.equalsIgnoreCase("lowvoltage") || "LimitTypeKind.lowVoltage".equals(limitType)) {
             if (value > vl.getLowVoltageLimit() || Double.isNaN(vl.getLowVoltageLimit())) {
+                if (value > vl.getHighVoltageLimit()) {
+                    context.ignored("LowVoltageLimit", "Inconsistent with high voltage limit (" + vl.getHighVoltageLimit() + "kV)");
+                    return;
+                }
                 vl.setLowVoltageLimit(value);
             }
         } else {
@@ -265,6 +273,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
+        if (Double.isNaN(value)) {
+            context.ignored(TEMPORARY_LIMIT, "Temporary limit value is undefined");
+            return;
+        }
+
         if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)

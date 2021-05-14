@@ -96,7 +96,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
         setToIidmRatioTapChanger(convertedT2xModel, tx);
-        setToIidmPhaseTapChanger(convertedT2xModel, tx);
+        setToIidmPhaseTapChanger(convertedT2xModel, tx, context);
 
         setRegulatingControlContext(convertedT2xModel, tx);
         addCgmesReferences(tx, convertedT2xModel.end1.ratioTapChanger);
@@ -113,14 +113,14 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
-    private static void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx) {
+    private static void setToIidmPhaseTapChanger(ConvertedT2xModel convertedT2xModel, TwoWindingsTransformer tx, Context context) {
         TapChanger ptc = convertedT2xModel.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
 
         PhaseTapChangerAdder ptca = newPhaseTapChanger(tx);
-        setToIidmPhaseTapChanger(ptc, ptca);
+        setToIidmPhaseTapChanger(ptc, ptca, context);
     }
 
     private static RatioTapChangerAdder newRatioTapChanger(TwoWindingsTransformer tx) {
