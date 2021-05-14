@@ -226,7 +226,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 String s = r.get(0).get(propertyName);
                 if (s != null && !s.isEmpty()) {
                     // Assume date time given as UTC if no explicit zone is specified
-                    d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                    try {
+                        d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
+                    } catch (IllegalArgumentException e) {
+                        LOG.error("Invalid date: " + s + ". The date has been fixed to " + defaultValue);
+                        d = defaultValue;
+                    }
                 }
             }
         }
