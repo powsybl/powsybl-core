@@ -153,9 +153,6 @@ class IslandEndHvdc {
     }
 
     private static boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
-        if (hvdcEnd1.transformersEnd.size() != hvdcEnd2.transformersEnd.size()) {
-            return false;
-        }
         if (hvdcEnd1.acDcConvertersEnd.size() != hvdcEnd2.acDcConvertersEnd.size()) {
             return false;
         }
