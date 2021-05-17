@@ -239,6 +239,10 @@ public final class StateVariablesExport {
                 .ifPresent(t -> writePowerFlow((String) t, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer));
             if (b instanceof TieLine && context.exportBoundaryPowerFlows()) {
                 TieLine tl = (TieLine) b;
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_NETWORK"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer));
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_NETWORK"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer));
                 tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY")
                         .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer));
                 tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY")
