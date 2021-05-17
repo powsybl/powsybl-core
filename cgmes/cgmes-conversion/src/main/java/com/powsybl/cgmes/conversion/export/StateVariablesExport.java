@@ -225,10 +225,10 @@ public final class StateVariablesExport {
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                        .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
+                        .ifPresent(terminal -> writePowerFlow(terminal, dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer));
             }
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                    .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), cimNamespace, writer));
+                    .ifPresent(eit -> writePowerFlow(eit, -dl.getBoundary().getP(), -dl.getBoundary().getQ(), cimNamespace, writer));
         });
 
         network.getBranchStream().forEach(b -> {
@@ -236,6 +236,13 @@ public final class StateVariablesExport {
                 .ifPresent(t -> writePowerFlow((String) t, b.getTerminal1().getP(), b.getTerminal1().getQ(), cimNamespace, writer));
             b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
                 .ifPresent(t -> writePowerFlow((String) t, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer));
+            if (b instanceof TieLine && context.exportBoundaryPowerFlows()) {
+                TieLine tl = (TieLine) b;
+                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY")
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer));
+                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY")
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer));
+            }
         });
         network.getThreeWindingsTransformerStream().forEach(twt -> {
             twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
