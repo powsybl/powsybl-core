@@ -123,8 +123,15 @@ public class RegulatingControlMapping {
     }
 
     Terminal findRegulatingTerminal(String cgmesTerminalId) {
+        return findRegulatingTerminal(cgmesTerminalId, false);
+    }
+
+    Terminal findRegulatingTerminal(String cgmesTerminalId, boolean canBeNull) {
         return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).filter(Terminal::isConnected)
                 .orElseGet(() -> {
+                    if (canBeNull) {
+                        return null;
+                    }
                     CgmesTerminal cgmesTerminal = context.cgmes().terminal(cgmesTerminalId);
                     if (cgmesTerminal != null) {
                         // Try to obtain Terminal from TopologicalNode
@@ -142,6 +149,10 @@ public class RegulatingControlMapping {
 
     static boolean isControlModeVoltage(String controlMode) {
         return controlMode != null && controlMode.endsWith(VOLTAGE);
+    }
+
+    static boolean isControlModeReactivePower(String controlMode) {
+        return controlMode != null && controlMode.endsWith("reactivepower");
     }
 
     static String getRegulatingControlId(PropertyBag p) {

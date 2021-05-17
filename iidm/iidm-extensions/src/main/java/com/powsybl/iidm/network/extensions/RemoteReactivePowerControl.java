@@ -5,12 +5,20 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 
 public interface RemoteReactivePowerControl extends Extension<Generator> {
+    @Override
+    default String getName() {
+        return "generatorRemoteReactivePowerControl";
+    }
 
-    void setRemoteQ(double q);
+    void setTargetQ(double targetQ);
 
-    double getRemoteQ();
+    double getTargetQ();
 
     void setRegulatingTerminal(Terminal t);
 
     Terminal getRegulatingTerminal();
+
+    void setEnabled(boolean enabled);
+
+    boolean isEnabled();
 }

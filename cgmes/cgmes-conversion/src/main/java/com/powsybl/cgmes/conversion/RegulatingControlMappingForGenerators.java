@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
@@ -81,6 +82,8 @@ public class RegulatingControlMappingForGenerators {
         boolean okSet = false;
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, rc.controlEnabled, gen);
+        } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
+            okSet = setRegulatingControlReactivePower(controlId, control, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
@@ -108,9 +111,9 @@ public class RegulatingControlMappingForGenerators {
             voltageRegulatorOn = true;
         }
 
-        gen.setRegulatingTerminal(terminal);
-        gen.setTargetV(targetV);
-        gen.setVoltageRegulatorOn(voltageRegulatorOn);
+        gen.setRegulatingTerminal(terminal)
+            .setTargetV(targetV)
+            .setVoltageRegulatorOn(voltageRegulatorOn);
 
         // add qPercent as an extension
         if (!Double.isNaN(qPercent)) {
@@ -118,6 +121,33 @@ public class RegulatingControlMappingForGenerators {
                     .withQPercent(qPercent)
                     .add();
         }
+        gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
+
+        return true;
+    }
+
+    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, Generator gen) {
+        // Take default terminal if it has not been defined in CGMES file. If it null, ignore
+        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
+        if (terminal == null) {
+            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
+            return false;
+        }
+
+        double targetQ;
+        if (Double.isNaN(control.targetValue)) {
+            context.fixed(controlId, "Invalid value for regulating target value. Real flows are considered targets.");
+            return false;
+        } else {
+            targetQ = control.targetValue;
+        }
+
+        gen.newExtension(RemoteReactivePowerControlAdder.class)
+                .withTargetQ(targetQ)
+                .withRegulatingTerminal(terminal)
+                .withEnabled(control.enabled)
+                .add();
+
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
         return true;

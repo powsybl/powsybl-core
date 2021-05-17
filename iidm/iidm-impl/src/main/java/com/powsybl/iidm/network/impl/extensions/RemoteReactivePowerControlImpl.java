@@ -1,5 +1,6 @@
 package com.powsybl.iidm.network.impl.extensions;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
@@ -7,45 +8,41 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public class RemoteReactivePowerControlImpl implements RemoteReactivePowerControl {
-    double remoteQ;
+public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator> implements RemoteReactivePowerControl {
+
+    double targetQ;
 
     Terminal regulatingTerminal;
 
-    Generator extendedGenerator;
+    boolean enabled;
 
     @Override
-    public String getName() {
-        return null;
+    public void setTargetQ(double targetQ) {
+        this.targetQ = targetQ;
     }
 
     @Override
-    public Generator getExtendable() {
-        return extendedGenerator;
+    public double getTargetQ() {
+        return targetQ;
     }
 
     @Override
-    public void setExtendable(final Generator extendable) {
-        extendedGenerator = extendable;
-    }
-
-    @Override
-    public void setRemoteQ(double q) {
-        remoteQ = q;
-    }
-
-    @Override
-    public double getRemoteQ() {
-        return remoteQ;
-    }
-
-    @Override
-    public void setRegulatingTerminal(final Terminal t) {
-        regulatingTerminal = t;
+    public void setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = regulatingTerminal;
     }
 
     @Override
     public Terminal getRegulatingTerminal() {
         return regulatingTerminal;
+    }
+
+    @Override
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 }
