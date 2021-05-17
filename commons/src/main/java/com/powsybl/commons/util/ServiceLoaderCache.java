@@ -28,7 +28,7 @@ public class ServiceLoaderCache<S> {
 
     public synchronized List<S> getServices() {
         if (services == null) {
-            services = Lists.newArrayList(ServiceLoader.load(serviceClass));
+            services = Lists.newArrayList(ServiceLoader.load(serviceClass, ServiceLoaderCache.class.getClassLoader()));
         }
         return services;
     }
