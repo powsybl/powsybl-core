@@ -243,7 +243,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Boundary" , terminalId(boundarySide));
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Network" , terminalId(boundarySide == 1 ? 2 : 1));
         Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE));
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
