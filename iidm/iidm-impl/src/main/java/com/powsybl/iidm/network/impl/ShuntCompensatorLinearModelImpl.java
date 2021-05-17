@@ -49,7 +49,7 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
-        ValidationUtil.checkLinearBPerSection(shuntCompensator, bPerSection);
+        ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);

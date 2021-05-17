@@ -52,7 +52,20 @@ public final class ExportXmlCompare {
         }
     }
 
+    static void compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+        try (InputStream expectedIs = Files.newInputStream(expected);
+             InputStream actualIs = Files.newInputStream(actual)) {
+            compareNetworks(expectedIs, actualIs, knownDiffs);
+        }
+    }
+
     static void compareNetworks(InputStream expected, InputStream actual) {
+        compareNetworks(expected, actual, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator));
+    }
+
+    static void compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -61,9 +74,7 @@ public final class ExportXmlCompare {
                 .ignoreWhitespace()
                 .ignoreComments()
                 .withAttributeFilter(ExportXmlCompare::isConsideredForNetwork)
-                .withDifferenceEvaluator(DifferenceEvaluators.chain(
-                        DifferenceEvaluators.Default,
-                        ExportXmlCompare::numericDifferenceEvaluator))
+                .withDifferenceEvaluator(knownDiffs)
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertTrue(!diff.hasDifferences());
@@ -282,6 +293,28 @@ public final class ExportXmlCompare {
             assertEquals(ComparisonType.CHILD_NODELIST_SEQUENCE, d.getComparison().getType());
             assertEquals(ComparisonResult.SIMILAR, d.getResult());
         }
+    }
+
+    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
+                Node control = comparison.getControlDetails().getTarget();
+                Node test = comparison.getTestDetails().getTarget();
+                if (control.getLocalName().equals("controlArea")
+                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
+                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getValue().toString().equals("netInterchange")
+                        && control.getTarget().getLocalName().equals("controlArea")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
     }
 
     static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {

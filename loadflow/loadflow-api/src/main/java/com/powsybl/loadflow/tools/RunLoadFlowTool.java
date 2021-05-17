@@ -200,13 +200,15 @@ public class RunLoadFlowTool implements Tool {
             try (TableFormatter formatter = formatterFactory.create(writer,
                     "Components results",
                     formatterConfig,
-                    new Column("Component number"),
+                    new Column("Connected component number"),
+                    new Column("Synchronous component number"),
                     new Column("Status"),
                     new Column("Iteration count"),
                     new Column("Slack bus ID"),
                     new Column("Slack bus mismatch (MW)"))) {
                 for (LoadFlowResult.ComponentResult componentResult : result.getComponentResults()) {
-                    formatter.writeCell(componentResult.getComponentNum());
+                    formatter.writeCell(componentResult.getConnectedComponentNum());
+                    formatter.writeCell(componentResult.getSynchronousComponentNum());
                     formatter.writeCell(componentResult.getStatus().name());
                     formatter.writeCell(componentResult.getIterationCount());
                     formatter.writeCell(componentResult.getSlackBusId());

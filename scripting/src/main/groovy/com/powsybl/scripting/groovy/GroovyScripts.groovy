@@ -37,7 +37,7 @@ class GroovyScripts {
     }
 
     static void run(Reader codeReader, Binding binding, PrintStream out) {
-        run(codeReader, binding, ServiceLoader.load(GroovyScriptExtension.class), out)
+        run(codeReader, binding, ServiceLoader.load(GroovyScriptExtension.class, GroovyScripts.class.getClassLoader()), out)
     }
 
     static void run(Reader codeReader, Iterable<GroovyScriptExtension> extensions, PrintStream out) {
