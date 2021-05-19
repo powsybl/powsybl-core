@@ -13,7 +13,7 @@ import java.util.Objects;
 
 import com.google.common.base.Equivalence;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.results.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
 
 /**
@@ -36,7 +36,7 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
         PostContingencyResultComparator postContingencyResultComparator = new PostContingencyResultComparator();
 
         // compare precontingency results
-        boolean equivalent = violationsResultEquivalence.equivalent(result1.getPreContingencyResult(), result2.getPreContingencyResult());
+        boolean equivalent = violationsResultEquivalence.equivalent(result1.getpreLimitViolationsResult(), result2.getpreLimitViolationsResult());
 
         // I still carry on the comparison even if equivalent is already false because I need to print the violations of the post contingency results
         // compare postcontingency results

@@ -6,10 +6,12 @@
  */
 package com.powsybl.security.execution;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.monitor.StateMonitor;
 
 import java.util.*;
 
@@ -37,6 +39,7 @@ public class SecurityAnalysisExecutionInput {
     private final List<String> resultExtensions = new ArrayList<>();
     private final Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
     private boolean withLogs = false;
+    private final List<StateMonitor> monitors = new ArrayList<>();
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -56,6 +59,10 @@ public class SecurityAnalysisExecutionInput {
 
     public NetworkVariant getNetworkVariant() {
         return networkVariant;
+    }
+
+    public List<StateMonitor> getMonitors() {
+        return ImmutableList.copyOf(monitors);
     }
 
     public boolean isWithLogs() {
@@ -94,6 +101,11 @@ public class SecurityAnalysisExecutionInput {
 
     public SecurityAnalysisExecutionInput setNetworkVariant(Network network, String variantId) {
         networkVariant = new NetworkVariant(network, variantId);
+        return this;
+    }
+
+    public SecurityAnalysisExecutionInput setMonitors(List<StateMonitor> monitors) {
+        this.monitors.addAll(monitors);
         return this;
     }
 

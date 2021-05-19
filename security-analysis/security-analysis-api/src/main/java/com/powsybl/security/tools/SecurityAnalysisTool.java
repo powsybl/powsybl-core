@@ -32,6 +32,7 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
+import com.powsybl.security.monitor.StateMonitorJson;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessors;
 import com.powsybl.tools.Command;
@@ -89,69 +90,74 @@ public class SecurityAnalysisTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                    .desc("the case path")
+                    .hasArg()
+                    .argName("FILE")
+                    .required()
+                    .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
-                        .desc("loadflow parameters as JSON file")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                    .desc("loadflow parameters as JSON file")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
-                        .desc("limit type filter (all if not set)")
-                        .hasArg()
-                        .argName("LIMIT-TYPES")
-                        .build());
+                    .desc("limit type filter (all if not set)")
+                    .hasArg()
+                    .argName("LIMIT-TYPES")
+                    .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                        .desc("the output path")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                    .desc("the output path")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
-                        .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
-                        .hasArg()
-                        .argName("FORMAT")
-                        .build());
+                    .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
+                    .hasArg()
+                    .argName("FORMAT")
+                    .build());
                 options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
-                        .desc("the contingencies path")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                    .desc("the contingencies path")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
-                        .desc("the extension list to enable")
-                        .hasArg()
-                        .argName("EXTENSIONS")
-                        .build());
+                    .desc("the extension list to enable")
+                    .hasArg()
+                    .argName("EXTENSIONS")
+                    .build());
                 options.addOption(Option.builder().longOpt(TASK_COUNT)
-                        .desc("number of tasks used for parallelization")
-                        .hasArg()
-                        .argName("NTASKS")
-                        .build());
+                    .desc("number of tasks used for parallelization")
+                    .hasArg()
+                    .argName("NTASKS")
+                    .build());
                 options.addOption(Option.builder().longOpt(TASK)
-                        .desc("task identifier (task-index/task-count)")
-                        .hasArg()
-                        .argName("TASKID")
-                        .build());
+                    .desc("task identifier (task-index/task-count)")
+                    .hasArg()
+                    .argName("TASKID")
+                    .build());
                 options.addOption(Option.builder().longOpt(EXTERNAL)
-                        .desc("external execution")
-                        .build());
+                    .desc("external execution")
+                    .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
-                        .desc("log output path (.zip)")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
+                    .desc("log output path (.zip)")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
+                options.addOption(Option.builder().longOpt(MONITORING_FILE)
+                    .desc("monitoring file (.json) to get network's infos after computation")
+                    .hasArg()
+                    .argName("FILE")
+                    .build());
                 return options;
             }
 
             @Override
             public String getUsageFooter() {
                 return String.join(System.lineSeparator(),
-                        "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
-                        "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
+                    "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
+                    "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
                 );
             }
         };
@@ -159,31 +165,31 @@ public class SecurityAnalysisTool implements Tool {
 
     static void updateInput(ToolOptions options, SecurityAnalysisExecutionInput inputs) {
         options.getPath(PARAMETERS_FILE_OPTION)
-                .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
+            .ifPresent(f -> JsonSecurityAnalysisParameters.update(inputs.getParameters(), f));
 
         options.getPath(CONTINGENCIES_FILE_OPTION)
-                .map(FileUtil::asByteSource)
-                .ifPresent(inputs::setContingenciesSource);
+            .map(FileUtil::asByteSource)
+            .ifPresent(inputs::setContingenciesSource);
 
         options.getValues(LIMIT_TYPES_OPTION)
-                .map(types -> types.stream().map(LimitViolationType::valueOf).collect(Collectors.toList()))
-                .ifPresent(inputs::addViolationTypes);
+            .map(types -> types.stream().map(LimitViolationType::valueOf).collect(Collectors.toList()))
+            .ifPresent(inputs::addViolationTypes);
 
         options.getValues(WITH_EXTENSIONS_OPTION)
-                .ifPresent(inputs::addResultExtensions);
+            .ifPresent(inputs::addResultExtensions);
 
         options.getValues(OUTPUT_LOG_OPTION)
-                .ifPresent(f -> inputs.setWithLogs(true));
+            .ifPresent(f -> inputs.setWithLogs(true));
     }
 
     private static SecurityAnalysisInputBuildStrategy configBasedInputBuildStrategy(PlatformConfig config) {
         return preprocessedInputBuildStrategy(() -> LimitViolationFilter.load(config),
-                SecurityAnalysisPreprocessors.configuredFactory(config)
-                        .orElseGet(() -> SecurityAnalysisPreprocessors.wrap(ContingenciesProviders.newDefaultFactory(config))));
+            SecurityAnalysisPreprocessors.configuredFactory(config)
+                .orElseGet(() -> SecurityAnalysisPreprocessors.wrap(ContingenciesProviders.newDefaultFactory(config))));
     }
 
     private static SecurityAnalysisInputBuildStrategy preprocessedInputBuildStrategy(Supplier<LimitViolationFilter> filterInitializer,
-                                                                             SecurityAnalysisPreprocessorFactory preprocessorFactory) {
+                                                                                     SecurityAnalysisPreprocessorFactory preprocessorFactory) {
         return executionInput -> buildPreprocessedInput(executionInput, filterInitializer, preprocessorFactory);
     }
 
@@ -192,20 +198,20 @@ public class SecurityAnalysisTool implements Tool {
                                                         SecurityAnalysisPreprocessorFactory preprocessorFactory) {
 
         SecurityAnalysisInput input = new SecurityAnalysisInput(executionInput.getNetworkVariant())
-                .setParameters(executionInput.getParameters())
-                .setFilter(filterInitializer.get());
+            .setParameters(executionInput.getParameters())
+            .setFilter(filterInitializer.get());
 
         executionInput.getResultExtensions().stream()
-                .map(SecurityAnalysisInterceptors::createInterceptor)
-                .forEach(input::addInterceptor);
+            .map(SecurityAnalysisInterceptors::createInterceptor)
+            .forEach(input::addInterceptor);
 
         if (!executionInput.getViolationTypes().isEmpty()) {
             input.getFilter().setViolationTypes(ImmutableSet.copyOf(executionInput.getViolationTypes()));
         }
 
         executionInput.getContingenciesSource()
-                .map(preprocessorFactory::newPreprocessor)
-                .ifPresent(p -> p.preprocess(input));
+            .map(preprocessorFactory::newPreprocessor)
+            .ifPresent(p -> p.preprocess(input));
 
         return input;
     }
@@ -228,11 +234,10 @@ public class SecurityAnalysisTool implements Tool {
                                                                      SecurityAnalysisExecutionInput input,
                                                                      Path logPath) {
         try {
-
             SecurityAnalysisReport report = execution.execute(computationManager, input).join();
             // copy log bytes to file
             report.getLogBytes()
-                    .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
+                .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
             return report;
         } catch (CompletionException e) {
             if (e.getCause() instanceof ComputationException) {
@@ -247,9 +252,8 @@ public class SecurityAnalysisTool implements Tool {
     static Network readNetwork(CommandLine line, ToolRunningContext context, ImportersLoader importersLoader) throws IOException {
         ToolOptions options = new ToolOptions(line, context);
         Path caseFile = options.getPath(CASE_FILE_OPTION)
-                .orElseThrow(AssertionError::new);
+            .orElseThrow(AssertionError::new);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, importersLoader);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
@@ -267,10 +271,10 @@ public class SecurityAnalysisTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         run(line, context,
-                createBuilder(PlatformConfig.defaultConfig()),
-                SecurityAnalysisParameters::load,
-                new ImportersServiceLoader(),
-                TableFormatterConfig::load);
+            createBuilder(PlatformConfig.defaultConfig()),
+            SecurityAnalysisParameters::load,
+            new ImportersServiceLoader(),
+            TableFormatterConfig::load);
     }
 
     void run(CommandLine line, ToolRunningContext context,
@@ -278,38 +282,42 @@ public class SecurityAnalysisTool implements Tool {
              Supplier<SecurityAnalysisParameters> parametersLoader,
              ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
-
         ToolOptions options = new ToolOptions(line, context);
 
         // Output file and output format
         Path outputFile = options.getPath(OUTPUT_FILE_OPTION)
-                .orElse(null);
+            .orElse(null);
         String format = null;
         if (outputFile != null) {
             format = options.getValue(OUTPUT_FORMAT_OPTION)
-                            .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION));
+                .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION));
         }
 
         Network network = readNetwork(line, context, importersLoader);
 
         SecurityAnalysisExecutionInput executionInput = new SecurityAnalysisExecutionInput()
-                .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
-                .setParameters(parametersLoader.get());
+            .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)
+            .setParameters(parametersLoader.get());
+
+        Path monitorFilePath = options.getPath(MONITORING_FILE).orElse(null);
+        if (monitorFilePath != null) {
+            executionInput.setMonitors(StateMonitorJson.read(monitorFilePath));
+        }
 
         updateInput(options, executionInput);
 
         SecurityAnalysisExecution execution = buildExecution(options, executionBuilder);
 
         ComputationManager computationManager = options.hasOption(TASK) ? context.getShortTimeExecutionComputationManager() :
-                context.getLongTimeExecutionComputationManager();
+            context.getLongTimeExecutionComputationManager();
 
         SecurityAnalysisReport report = options.getPath(OUTPUT_LOG_OPTION)
-                .map(logPath -> runSecurityAnalysisWithLog(computationManager, execution, executionInput, logPath))
-                .orElseGet(() -> execution.execute(computationManager, executionInput).join());
+            .map(logPath -> runSecurityAnalysisWithLog(computationManager, execution, executionInput, logPath))
+            .orElseGet(() -> execution.execute(computationManager, executionInput).join());
 
         SecurityAnalysisResult result = report.getResult();
 
-        if (!result.getPreContingencyResult().isComputationOk()) {
+        if (!result.getpreLimitViolationsResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
         }
 

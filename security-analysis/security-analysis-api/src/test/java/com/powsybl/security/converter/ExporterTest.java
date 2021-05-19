@@ -17,15 +17,18 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 import com.powsybl.security.extensions.VoltageExtension;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
+import com.powsybl.security.results.BranchResult;
+import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.security.results.ThreeWindingsTransformerResult;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
 import java.util.function.BiConsumer;
 
 import static org.junit.Assert.*;
@@ -51,19 +54,38 @@ public class ExporterTest extends AbstractConverterTest {
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
         Contingency contingency = Contingency.builder("contingency")
-                                             .addBranch("NHV1_NHV2_2", "VLNHV1")
-                                             .addBranch("NHV1_NHV2_1")
-                                             .addGenerator("GEN")
-                                             .addBusbarSection("BBS1")
-                                             .build();
+            .addBranch("NHV1_NHV2_2", "VLNHV1")
+            .addBranch("NHV1_NHV2_1")
+            .addGenerator("GEN")
+            .addBusbarSection("BBS1")
+            .build();
 
-        LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
+        LimitViolationsResult limitViolationsResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
 
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
-        result.setNetworkMetadata(new NetworkMetadata(NETWORK));
+        List<BranchResult> preContingencyBranchResults = new ArrayList<>();
+        preContingencyBranchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0));
+        List<BusResults> preContingencyBusResults = new ArrayList<>();
+        preContingencyBusResults.add(new BusResults("voltageLevelId", "busId", 400, 3.14));
+        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();
+        threeWindingsTransformerResults.add(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
+            0, 0, 0, 0, 0, 0, 0, 0, 0));
+        Map<String, BranchResult> branchResults = new HashMap<>();
 
+        SecurityAnalysisResult result = new SecurityAnalysisResult(limitViolationsResult, Collections.singletonList(postContingencyResult),
+            preContingencyBranchResults, preContingencyBusResults, threeWindingsTransformerResults);
+        result.setNetworkMetadata(new NetworkMetadata(NETWORK));
         return result;
+    }
+
+    @Test
+    public void testCompatibilityV1Deserialization() {
+        LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
+        violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
+        SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
+        Assertions.assertThat(result.getpreLimitViolationsResult().getLimitViolations()).hasSize(1);
+        assertEquals(0, LimitViolations.comparator().compare(violation1, result.getpreLimitViolationsResult().getLimitViolations().get(0)));
+
     }
 
     @Test

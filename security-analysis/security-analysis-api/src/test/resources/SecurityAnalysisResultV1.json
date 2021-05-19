@@ -1,5 +1,5 @@
 {
-  "version" : "1.1",
+  "version" : "1.0",
   "network" : {
     "id" : "sim1",
     "sourceFormat" : "test",
@@ -7,7 +7,6 @@
     "forecastDistance" : 0
   },
   "preContingencyResult" : {
-    "limitViolationsResult" : {
       "computationOk" : true,
       "limitViolations" : [ {
         "subjectId" : "NHV1_NHV2_1",
@@ -24,7 +23,7 @@
       } ],
       "actionsTaken" : [ ]
     },
-    "branchResults" : [ {
+    "preContingencyBranchResults" : [ {
       "branchId" : "branchId",
       "p1" : 0.0,
       "q1" : 0.0,
@@ -33,13 +32,13 @@
       "q2" : 0.0,
       "i2" : 0.0
     } ],
-    "busResults" : [ {
+    "preContingencyBusResults" : [ {
       "voltageLevelId" : "voltageLevelId",
       "busId" : "busId",
       "v" : 400.0,
       "angle" : 3.14
     } ],
-    "threeWindingsTransformerResults" : [ {
+    "preContingencyThreeWindingsTransformerResults" : [ {
       "threeWindingsTransformerId" : "threeWindingsTransformerId",
       "p1" : 0.0,
       "q1" : 0.0,
@@ -50,8 +49,7 @@
       "p3" : 0.0,
       "q3" : 0.0,
       "i3" : 0.0
-    } ]
-  },
+    } ],
   "postContingencyResults" : [ {
     "contingency" : {
       "id" : "contingency",

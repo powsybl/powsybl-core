@@ -8,6 +8,8 @@ package com.powsybl.security.json;
 
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.security.*;
+import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.security.results.PreContingencyResult;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,11 +22,13 @@ public class SecurityAnalysisJsonModule extends ContingencyJsonModule {
         addSerializer(PostContingencyResult.class, new PostContingencyResultSerializer());
         addSerializer(LimitViolationsResult.class, new LimitViolationsResultSerializer());
         addSerializer(LimitViolation.class, new LimitViolationSerializer());
+        addSerializer(PreContingencyResult.class, new PreContingencyResultSerializer());
 
         addDeserializer(SecurityAnalysisResult.class, new SecurityAnalysisResultDeserializer());
         addDeserializer(NetworkMetadata.class, new NetworkMetadataDeserializer());
         addDeserializer(PostContingencyResult.class, new PostContingencyResultDeserializer());
         addDeserializer(LimitViolationsResult.class, new LimitViolationResultDeserializer());
         addDeserializer(LimitViolation.class, new LimitViolationDeserializer());
+        addDeserializer(PreContingencyResult.class, new PreContingencyResultDeserializer());
     }
 }

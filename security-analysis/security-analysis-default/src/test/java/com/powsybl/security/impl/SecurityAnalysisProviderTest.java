@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.monitor.StateMonitor;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -40,6 +41,7 @@ public class SecurityAnalysisProviderTest {
     private SecurityAnalysisParameters parameters;
     private ContingenciesProvider contingenciesProvider;
     private List<SecurityAnalysisInterceptor> interceptors;
+    private List<StateMonitor> monitors;
 
     @Before
     public void setUp() {
@@ -53,6 +55,8 @@ public class SecurityAnalysisProviderTest {
         parameters = SecurityAnalysisParameters.load();
         contingenciesProvider = new EmptyContingencyListProvider();
         interceptors = Collections.emptyList();
+        monitors = Collections.emptyList();
+
     }
 
     @Test
@@ -89,6 +93,12 @@ public class SecurityAnalysisProviderTest {
     @Test
     public void testSyncDefaultProvider() {
         SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
+        assertNotNull(report);
+    }
+
+    @Test
+    public void testSyncDefaultProviderMonitor() {
+        SecurityAnalysisReport report = SecurityAnalysis.run(network, "v", detector, filter, computationManager, parameters, contingenciesProvider, interceptors, monitors);
         assertNotNull(report);
     }
 

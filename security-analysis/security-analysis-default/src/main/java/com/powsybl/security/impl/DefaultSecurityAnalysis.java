@@ -11,7 +11,10 @@ import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -19,14 +22,17 @@ import com.powsybl.security.*;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.monitor.StateMonitor;
+import com.powsybl.security.monitor.StateMonitorIndex;
+import com.powsybl.security.results.BranchResult;
+import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -61,9 +67,9 @@ public class DefaultSecurityAnalysis {
      */
     private static int getOptionalIntProperty(String moduleName, String propertyName, int defaultValue) {
         return PlatformConfig.defaultConfig()
-                .getOptionalModuleConfig(moduleName)
-                .map(m -> m.getOptionalIntProperty(propertyName).orElse(defaultValue))
-                .orElse(defaultValue);
+            .getOptionalModuleConfig(moduleName)
+            .map(m -> m.getOptionalIntProperty(propertyName).orElse(defaultValue))
+            .orElse(defaultValue);
     }
 
     private static ExecutorService createThreadPool(int poolSize) {
@@ -78,15 +84,17 @@ public class DefaultSecurityAnalysis {
     private final LimitViolationDetector violationDetector;
     private final LimitViolationFilter violationFilter;
     private final List<SecurityAnalysisInterceptor> interceptors;
+    private final StateMonitorIndex monitorIndex;
 
     public DefaultSecurityAnalysis(Network network, LimitViolationDetector detector,
-                                   LimitViolationFilter filter, ComputationManager computationManager) {
+                                   LimitViolationFilter filter, ComputationManager computationManager,
+                                   List<StateMonitor> monitors) {
         this.network = Objects.requireNonNull(network);
         this.violationDetector = Objects.requireNonNull(detector);
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
         this.computationManager = Objects.requireNonNull(computationManager);
-
+        this.monitorIndex = new StateMonitorIndex(monitors);
         interceptors.add(new CurrentLimitViolationInterceptor());
     }
 
@@ -112,32 +120,34 @@ public class DefaultSecurityAnalysis {
 
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy()
-                .setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
+            .setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingVariantId);
 
         return LoadFlow
-                .runAsync(network, workingVariantId, computationManager, loadFlowParameters)
-                .thenCompose(loadFlowResult -> {
-                    if (loadFlowResult.isOk()) {
-                        return CompletableFuture
-                                .runAsync(() -> {
-                                    network.getVariantManager().setWorkingVariant(workingVariantId);
-                                    setPreContigencyOkAndCheckViolations(resultBuilder);
-                                }, computationManager.getExecutor())
-                                .thenComposeAsync(aVoid ->
-                                                submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder),
-                                        SCHEDULER_EXECUTOR);
-                    } else {
-                        return setPreContingencyKo(resultBuilder);
-                    }
-                })
-                .thenApply(aVoid -> new SecurityAnalysisReport(resultBuilder.build()));
+            .runAsync(network, workingVariantId, computationManager, loadFlowParameters)
+            .thenCompose(loadFlowResult -> {
+                if (loadFlowResult.isOk()) {
+                    return CompletableFuture
+                        .runAsync(() -> {
+                            network.getVariantManager().setWorkingVariant(workingVariantId);
+                            setPreContigencyOkAndCheckViolations(resultBuilder);
+                        }, computationManager.getExecutor())
+                        .thenComposeAsync(aVoid ->
+                                submitAllLoadFlows(workingVariantId, contingenciesProvider, postContParameters, resultBuilder),
+                            SCHEDULER_EXECUTOR);
+                } else {
+                    return setPreContingencyKo(resultBuilder);
+                }
+            })
+            .thenApply(aVoid -> new SecurityAnalysisReport(resultBuilder.build()));
     }
 
     private void setPreContigencyOkAndCheckViolations(SecurityAnalysisResultBuilder resultBuilder) {
         SecurityAnalysisResultBuilder.PreContingencyResultBuilder builder = resultBuilder.preContingency().setComputationOk(true);
         violationDetector.checkAll(network, builder::addViolation);
+        addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
+        addMonitorInfos(network, monitorIndex.getNoneStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
         builder.endPreContingency();
     }
 
@@ -159,10 +169,10 @@ public class DefaultSecurityAnalysis {
         network.getVariantManager().cloneVariant(workingVariantId, variantIds);
 
         return CompletableFuture
-                .allOf(contingencies.stream()
-                        .map(contingency -> submitOneLoadFlow(workingVariantId, contingency, postContParameters, resultBuilder, queue))
-                        .toArray(CompletableFuture[]::new))
-                .whenComplete((aVoid, throwable) -> variantIds.forEach(network.getVariantManager()::removeVariant));
+            .allOf(contingencies.stream()
+                .map(contingency -> submitOneLoadFlow(workingVariantId, contingency, postContParameters, resultBuilder, queue))
+                .toArray(CompletableFuture[]::new))
+            .whenComplete((aVoid, throwable) -> variantIds.forEach(network.getVariantManager()::removeVariant));
     }
 
     private static List<String> makeWorkingVariantsNames(int workerCount) {
@@ -177,7 +187,7 @@ public class DefaultSecurityAnalysis {
         return CompletableFuture.completedFuture(null).thenCompose(aaVoid -> {
             String postContVariantId = getVariantId(queue);
             return runOneLoadFlowAsync(workingVariantId, postContVariantId, postContParameters, resultBuilder, contingency)
-                    .whenComplete((aVoid, throwable) -> queue.add(postContVariantId));
+                .whenComplete((aVoid, throwable) -> queue.add(postContVariantId));
         });
     }
 
@@ -193,17 +203,17 @@ public class DefaultSecurityAnalysis {
     private CompletableFuture<Void> runOneLoadFlowAsync(String workingVariantId, String postContVariantId, LoadFlowParameters postContParameters,
                                                         SecurityAnalysisResultBuilder resultBuilder, Contingency contingency) {
         return CompletableFuture
-                .runAsync(() -> {
-                    LOGGER.debug("Worker {} run loadflow for contingency '{}'.", postContVariantId, contingency.getId());
-                    applyContingency(workingVariantId, postContVariantId, contingency);
-                }, computationManager.getExecutor())
-                .thenCompose(aVoid ->
-                    LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters)
-                )
-                .thenApplyAsync(lfResult -> {
-                    setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);
-                    return null;
-                }, computationManager.getExecutor());
+            .runAsync(() -> {
+                LOGGER.debug("Worker {} run loadflow for contingency '{}'.", postContVariantId, contingency.getId());
+                applyContingency(workingVariantId, postContVariantId, contingency);
+            }, computationManager.getExecutor())
+            .thenCompose(aVoid ->
+                LoadFlow.runAsync(network, postContVariantId, computationManager, postContParameters)
+            )
+            .thenApplyAsync(lfResult -> {
+                setContingencyOkAndCheckViolations(postContVariantId, resultBuilder, contingency, lfResult);
+                return null;
+            }, computationManager.getExecutor());
     }
 
     private void setContingencyOkAndCheckViolations(String postContVariantId, SecurityAnalysisResultBuilder resultBuilder,
@@ -212,6 +222,11 @@ public class DefaultSecurityAnalysis {
         SecurityAnalysisResultBuilder.PostContingencyResultBuilder builder = resultBuilder.contingency(contingency).setComputationOk(lfResult.isOk());
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
+            addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
+            StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitor(contingency.getId());
+            if (stateMonitor != null) {
+                addMonitorInfos(network, stateMonitor, builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
+            }
         }
         builder.endContingency();
     }
@@ -220,6 +235,32 @@ public class DefaultSecurityAnalysis {
         network.getVariantManager().cloneVariant(workingVariantId, postContVariantId, true);
         network.getVariantManager().setWorkingVariant(postContVariantId);
         contingency.toTask().modify(network, computationManager);
+    }
+
+    private void addMonitorInfos(Network network, StateMonitor monitor, Consumer<BranchResult> branchResultConsumer,
+                                 Consumer<BusResults> busResultsConsumer, Consumer<ThreeWindingsTransformerResult> threeWindingsTransformerResultConsumer) {
+        monitor.getBranchIds().forEach(branchId -> branchResultConsumer.accept(createBranchResult(network.getBranch(branchId))));
+        monitor.getVoltageLevelIds().forEach(voltageLevelId ->
+            network.getVoltageLevel(voltageLevelId).getBusView().getBuses().forEach(bus ->
+                busResultsConsumer.accept(createBusResult(bus, voltageLevelId))));
+        monitor.getThreeWindingsTransformerIds().forEach(threeWindingsTransformerId -> threeWindingsTransformerResultConsumer
+                .accept(createThreeWindingsTransformerResult(network.getThreeWindingsTransformer(threeWindingsTransformerId))));
+    }
+
+    private BranchResult createBranchResult(Branch branch) {
+        return new BranchResult(branch.getId(), branch.getTerminal1().getP(), branch.getTerminal1().getQ(), branch.getTerminal1().getI(),
+            branch.getTerminal2().getP(), branch.getTerminal2().getQ(), branch.getTerminal2().getI());
+    }
+
+    private BusResults createBusResult(Bus bus, String voltageLevelId) {
+        return new BusResults(voltageLevelId, bus.getId(), bus.getV(), bus.getAngle());
+    }
+
+    private ThreeWindingsTransformerResult createThreeWindingsTransformerResult(ThreeWindingsTransformer threeWindingsTransformer) {
+        return new ThreeWindingsTransformerResult(threeWindingsTransformer.getId(), threeWindingsTransformer.getLeg1().getTerminal().getP(),
+                threeWindingsTransformer.getLeg1().getTerminal().getQ(), threeWindingsTransformer.getLeg1().getTerminal().getI(),
+                threeWindingsTransformer.getLeg2().getTerminal().getP(), threeWindingsTransformer.getLeg2().getTerminal().getQ(), threeWindingsTransformer.getLeg2().getTerminal().getI(),
+                threeWindingsTransformer.getLeg3().getTerminal().getP(), threeWindingsTransformer.getLeg3().getTerminal().getQ(), threeWindingsTransformer.getLeg3().getTerminal().getI());
     }
 
 }

@@ -10,6 +10,8 @@ import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObser
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.security.*;
+import com.powsybl.security.results.PostContingencyResult;
+
 import java.util.*;
 import java.util.stream.Collectors;
 

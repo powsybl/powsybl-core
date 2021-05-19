@@ -9,7 +9,7 @@ package com.powsybl.security.comparator;
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.results.PostContingencyResult;
 
 /**
  *

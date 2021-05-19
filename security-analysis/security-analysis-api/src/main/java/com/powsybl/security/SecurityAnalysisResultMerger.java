@@ -20,14 +20,14 @@ public final class SecurityAnalysisResultMerger {
         //If one of the subtasks has failed, return a failed result
         Objects.requireNonNull(results);
         for (SecurityAnalysisResult subResult : results) {
-            if (!subResult.getPreContingencyResult().isComputationOk()) {
+            if (!subResult.getpreLimitViolationsResult().isComputationOk()) {
                 return FAILED_SECURITY_ANALYSIS_RESULT;
             }
         }
 
         //Else, actually merge results
         final SecurityAnalysisResult res = new SecurityAnalysisResult(
-                                results[0].getPreContingencyResult(), new ArrayList<>(results[0].getPostContingencyResults()))
+                                results[0].getpreLimitViolationsResult(), new ArrayList<>(results[0].getPostContingencyResults()))
                                 .setNetworkMetadata(results[0].getNetworkMetadata());
         if (results.length > 1) {
             Arrays.stream(results, 1, results.length).forEach(r -> res.getPostContingencyResults().addAll(r.getPostContingencyResults()));
