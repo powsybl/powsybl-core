@@ -24,6 +24,7 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
@@ -34,7 +35,6 @@ import com.powsybl.iidm.network.VoltageLevel;
  * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class SwitchesFlow {
-
     private final VoltageLevel voltageLevel;
     private final Map<String, SwFlow> switchesFlows;
 
@@ -51,12 +51,14 @@ public class SwitchesFlow {
         buildGraph(swNodeInjection, graph);
         calculateInjections(swNodeInjection);
 
-        ConnectivityInspector<SwNode, SwEdge> ci = new ConnectivityInspector<SwNode, SwEdge>(graph);
-        ci.connectedSets().forEach(connectedSet -> {
-            connectedComponentSwitchesFlow(swNodeInjection, graph, connectedSet);
-        });
+        ConnectivityInspector<SwNode, SwEdge> ci = new ConnectivityInspector<>(graph);
+        ci.connectedSets().forEach(connectedSet -> connectedComponentSwitchesFlow(swNodeInjection, graph, connectedSet));
 
         assignZeroFlowToEdgesOutsideAllTrees(graph);
+    }
+
+    public boolean isEmpty() {
+        return switchesFlows.isEmpty();
     }
 
     public double getP1(String switchId) {
@@ -165,6 +167,33 @@ public class SwitchesFlow {
     }
 
     private void calculateInjections(Map<String, SwNode> swNodeInjection) {
+        if (voltageLevel.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            calculateInjectionsNodeBreaker(voltageLevel, swNodeInjection);
+        } else {
+            calculateInjectionsBusBreaker(voltageLevel, swNodeInjection);
+        }
+    }
+
+    private static void calculateInjectionsNodeBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
+        int[] nodes = voltageLevel.getNodeBreakerView().getNodes();
+        for (int i = 0; i < nodes.length; i++) {
+            int node = nodes[i];
+            Terminal terminal = voltageLevel.getNodeBreakerView().getTerminal(node);
+            if (terminal != null) {
+                double p = getTerminalP(terminal);
+                double q = getTerminalQ(terminal);
+                swNodeInjection.computeIfPresent(getKey(node), (key, value) -> value.addPQ(p, q));
+            }
+        }
+    }
+
+    private static void calculateInjectionsBusBreaker(VoltageLevel voltageLevel, Map<String, SwNode> swNodeInjection) {
+        voltageLevel.getBusBreakerView().getBuses().forEach(bus ->
+            bus.getConnectedTerminals().forEach(terminal -> {
+                double p = getTerminalP(terminal);
+                double q = getTerminalQ(terminal);
+                swNodeInjection.computeIfPresent(getKey(bus), (key, value) -> value.addPQ(p, q));
+            }));
     }
 
     private void connectedComponentSwitchesFlow(Map<String, SwNode> swNodeInjection,
@@ -232,8 +261,8 @@ public class SwitchesFlow {
         int level = levels.size() - 1;
         while (level >= 1) {
             levels.get(level).forEach(swNode -> {
-                double p = swNode.pflow - swNode.p0;
-                double q = swNode.qflow - swNode.q0;
+                double p = swNode.pflow + swNode.p;
+                double q = swNode.qflow + swNode.q;
                 SwEdge swEdge = parent.get(swNode);
                 addFlowToParentSwNode(swNodeInjection, otherSwNode(swEdge, swNode), p, q);
                 if (swEdge.isSwitch()) {
@@ -290,11 +319,27 @@ public class SwitchesFlow {
         }
     }
 
+    private static double getTerminalP(Terminal terminal) {
+        if (Double.isNaN(terminal.getP())) {
+            return 0.0;
+        } else {
+            return terminal.getP();
+        }
+    }
+
+    private static double getTerminalQ(Terminal terminal) {
+        if (Double.isNaN(terminal.getQ())) {
+            return 0.0;
+        } else {
+            return terminal.getQ();
+        }
+    }
+
     private static final class SwNode {
         private final Integer node;
         private final Bus bus;
-        private double p0;
-        private double q0;
+        private double p;
+        private double q;
         private double pflow;
         private double qflow;
 
@@ -312,6 +357,13 @@ public class SwitchesFlow {
             return node != null;
         }
 
+        private SwNode addPQ(double p, double q) {
+            this.p = this.p + p;
+            this.q = this.q + q;
+
+            return this;
+        }
+
         private SwNode addFlow(double pFlow, double qFlow) {
             this.pflow = this.pflow + pFlow;
             this.qflow = this.qflow + qFlow;
@@ -323,8 +375,8 @@ public class SwitchesFlow {
     private static final class SwEdge extends DefaultWeightedEdge {
         private final transient Switch sw;
         private final transient VoltageLevel.NodeBreakerView.InternalConnection ic;
-        private final SwNode swNode1;
-        private final SwNode swNode2;
+        private final transient SwNode swNode1;
+        private final transient SwNode swNode2;
 
         private SwEdge(Switch sw, SwNode swNode1, SwNode swNode2) {
             this.sw = sw;
@@ -350,6 +402,11 @@ public class SwitchesFlow {
             } else {
                 return null;
             }
+        }
+
+        @Override
+        protected double getWeight() {
+            return 0.0;
         }
     }
 
