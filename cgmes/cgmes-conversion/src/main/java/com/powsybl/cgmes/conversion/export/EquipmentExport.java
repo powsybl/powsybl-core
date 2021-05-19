@@ -42,6 +42,7 @@ public final class EquipmentExport {
             Map <Terminal, String> exportedTerminals = new HashMap<>();
             writeConnectivity(network, exportedNodes, cimNamespace, writer);
             writeTerminals(network, exportedTerminals, exportedNodes, cimNamespace, writer);
+            writeSwitches(network, exportedNodes, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
             writeVoltageLevels(network, cimNamespace, writer);
@@ -64,48 +65,20 @@ public final class EquipmentExport {
     private static void writeConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (VoltageLevel vl : network.getVoltageLevels()) {
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                writeNodes(vl, exportedNodes, cimNamespace, writer);
+                writeNodes(vl, new VoltageLevelAdjacency(vl), exportedNodes, cimNamespace, writer);
             } else {
                 writeBuses(vl, exportedNodes, cimNamespace, writer);
             }
         }
     }
 
-    private static void writeNodes(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
-        for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
-            String node1 = exportedNodes.get(vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()));
-            if (node1 == null) {
-                node1 = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node1, CgmesExportUtil.format(vl.getNodeBreakerView().getNode1(sw.getId())), vl.getId(), cimNamespace, writer);
-                exportedNodes.put(vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId()), node1);
+    private static void writeNodes(VoltageLevel vl, VoltageLevelAdjacency vlAdjacencies, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
+        for (List<Integer> nodes : vlAdjacencies.getNodes()) {
+            String node = CgmesExportUtil.getUniqueId();
+            ConnectivityNodeEq.write(node, CgmesExportUtil.format(nodes.get(0)), vl.getId(), cimNamespace, writer);
+            for (Integer nodeId : nodes) {
+                exportedNodes.put(vl.getId() + nodeId, node);
             }
-            String node2 = exportedNodes.get(vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()));
-            if (node2 == null) {
-                node2 = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node2, CgmesExportUtil.format(vl.getNodeBreakerView().getNode2(sw.getId())), vl.getId(), cimNamespace, writer);
-                exportedNodes.put(vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId()), node2);
-            }
-            SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node1, 1, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
-        }
-        for (VoltageLevel.NodeBreakerView.InternalConnection ic : vl.getNodeBreakerView().getInternalConnections()) {
-            String node1 = exportedNodes.get(vl.getId() + ic.getNode1());
-            if (node1 == null) {
-                node1 = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node1, CgmesExportUtil.format(ic.getNode1()), vl.getId(), cimNamespace, writer);
-                exportedNodes.put(vl.getId() + ic.getNode1(), node1);
-            }
-            String node2 = exportedNodes.get(vl.getId() + ic.getNode2());
-            if (node2 == null) {
-                node2 = CgmesExportUtil.getUniqueId();
-                ConnectivityNodeEq.write(node2, CgmesExportUtil.format(ic.getNode2()), vl.getId(), cimNamespace, writer);
-                exportedNodes.put(vl.getId() + ic.getNode2(), node2);
-            }
-            String switchId = CgmesExportUtil.getUniqueId();
-            SwitchEq.write(switchId, ic.getNode1() + "_" + ic.getNode2(), SwitchKind.BREAKER, vl.getId(), cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), switchId, node1, 1, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), switchId, node2, 2, cimNamespace, writer);
         }
     }
 
@@ -114,8 +87,32 @@ public final class EquipmentExport {
             ConnectivityNodeEq.write(bus.getId(), bus.getNameOrId(), vl.getId(), cimNamespace, writer);
             exportedNodes.put(bus.getId(), bus.getId());
         }
-        for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+    }
+
+    private static void writeSwitches(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
+        for (Switch sw : network.getSwitches()) {
+            VoltageLevel vl = sw.getVoltageLevel();
             SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), cimNamespace, writer);
+                String node1 = exportedNodes.get(getNode1Key(vl, sw));
+                TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node1, 1, cimNamespace, writer);
+                String node2 = exportedNodes.get(getNode2Key(vl, sw));
+                TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
+        }
+    }
+
+    private static String getNode1Key(VoltageLevel vl, Switch sw) {
+        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            return vl.getId() + vl.getNodeBreakerView().getNode1(sw.getId());
+        } else {
+            return vl.getBusBreakerView().getBus1(sw.getId()).getId();
+        }
+    }
+
+    private static String getNode2Key(VoltageLevel vl, Switch sw) {
+        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+            return vl.getId() + vl.getNodeBreakerView().getNode2(sw.getId());
+        } else {
+            return vl.getBusBreakerView().getBus2(sw.getId()).getId();
         }
     }
 
@@ -517,6 +514,77 @@ public final class EquipmentExport {
             key = terminal.getBusBreakerView().getBus().getId();
         }
         return exportedNodes.get(key);
+    }
+
+    private static class VoltageLevelAdjacency {
+
+        private final List<List<Integer>> voltageLevelNodes;
+
+        VoltageLevelAdjacency(VoltageLevel vl) {
+            voltageLevelNodes = new ArrayList<>();
+
+            NodeAdjacency adjacency = new NodeAdjacency(vl);
+            Set<Integer> visitedNodes = new HashSet<>();
+            adjacency.get().keySet().forEach(node -> {
+                if (visitedNodes.contains(node)) {
+                    return;
+                }
+                List<Integer> adjacentNodes = computeAdjacentNodes(node, adjacency, visitedNodes);
+                voltageLevelNodes.add(adjacentNodes);
+            });
+        }
+
+        private List<Integer> computeAdjacentNodes(int nodeId, NodeAdjacency adjacency, Set<Integer> visitedNodes) {
+
+            List<Integer> adjacentNodes = new ArrayList<>();
+            adjacentNodes.add(nodeId);
+            visitedNodes.add(nodeId);
+
+            int k = 0;
+            while (k < adjacentNodes.size()) {
+                Integer node = adjacentNodes.get(k);
+                if (adjacency.get().containsKey(node)) {
+                    adjacency.get().get(node).forEach(adjacent -> {
+                        if (visitedNodes.contains(adjacent)) {
+                            return;
+                        }
+                        adjacentNodes.add(adjacent);
+                        visitedNodes.add(adjacent);
+                    });
+                }
+                k++;
+            }
+            return adjacentNodes;
+        }
+
+        List<List<Integer>> getNodes() {
+            return voltageLevelNodes;
+        }
+    }
+
+    private static class NodeAdjacency {
+
+        private final Map<Integer, List<Integer>> adjacency;
+
+        NodeAdjacency (VoltageLevel vl) {
+            adjacency = new HashMap<>();
+            if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
+                vl.getNodeBreakerView().getInternalConnections().forEach(ic -> computeInternalConnectionAdjacency(ic));
+            }
+        }
+
+        private void computeInternalConnectionAdjacency(VoltageLevel.NodeBreakerView.InternalConnection ic) {
+            addAdjacency(ic.getNode1(), ic.getNode2());
+        }
+
+        private void addAdjacency(int node1, int node2) {
+            adjacency.computeIfAbsent(node1, k -> new ArrayList<>()).add(node2);
+            adjacency.computeIfAbsent(node2, k -> new ArrayList<>()).add(node1);
+        }
+
+        Map<Integer, List<Integer>> get() {
+            return adjacency;
+        }
     }
 
     private EquipmentExport() {
