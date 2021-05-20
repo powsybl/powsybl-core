@@ -23,7 +23,7 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     @Override
     protected RemoteReactivePowerControl createExtension(final Generator extendable) {
-        return null;
+        return new RemoteReactivePowerControlImpl(targetQ, regulatingTerminal, enabled);
     }
 
     @Override

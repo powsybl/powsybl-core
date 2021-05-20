@@ -5,6 +5,8 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
+
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
@@ -101,9 +103,10 @@ public abstract class AbstractRemoteReactivePowerControlTest {
         Network network = createNetwork();
         Generator g = network.getGenerator("g4");
         Line l = network.getLine("l34");
-
-        g.newExtension(RemoteReactivePowerControlAdder.class);
-
+        g.newExtension(RemoteReactivePowerControlAdder.class).withTargetQ(200.0).withRegulatingTerminal(l.getTerminal(Branch.Side.ONE)).withEnabled(true).add();
         RemoteReactivePowerControl control = g.getExtension(RemoteReactivePowerControl.class);
+        assertEquals(200.0, control.getTargetQ(), 0.0);
+        assertEquals(l.getTerminal(Branch.Side.ONE), control.getRegulatingTerminal());
+        assertEquals(true, control.isEnabled());
     }
 }

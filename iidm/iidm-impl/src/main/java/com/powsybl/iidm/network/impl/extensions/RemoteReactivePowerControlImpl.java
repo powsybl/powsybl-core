@@ -16,6 +16,12 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
 
     boolean enabled;
 
+    public RemoteReactivePowerControlImpl(double targetQ, Terminal regulatingTerminal, boolean enabled) {
+        this.targetQ = targetQ;
+        this.regulatingTerminal = regulatingTerminal;
+        this.enabled = enabled;
+    }
+
     @Override
     public void setTargetQ(double targetQ) {
         this.targetQ = targetQ;
