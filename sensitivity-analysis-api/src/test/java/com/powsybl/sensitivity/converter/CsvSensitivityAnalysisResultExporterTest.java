@@ -36,7 +36,7 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
         }
         List<SensitivityValue> sensitivityValues = new ArrayList<>(Collections.emptyList());
         factors.forEach(factor -> {
-            sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
+            sensitivityValues.add(new SensitivityValue(factor, "c1", 0, 0));
         });
         Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result

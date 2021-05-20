@@ -34,14 +34,19 @@ public class SensitivityAnalysisResultTest {
 
     @Before
     public void setUp() {
-        SensitivityVariable sensitivityVariable = Mockito.mock(SensitivityVariable.class);
-        // Both factors hae same variable but different function
+        SensitivityVariableType sensitivityVariableType = SensitivityVariableType.BUS_TARGET_VOLTAGE;
+        String sensitivityVariableId = "Variable Id";
+        // Both factors have same variable but different function
         factorOk = Mockito.mock(SensitivityFactor.class);
-        Mockito.when(factorOk.getFunction()).thenReturn(Mockito.mock(SensitivityFunction.class));
-        Mockito.when(factorOk.getVariable()).thenReturn(sensitivityVariable);
+        Mockito.when(factorOk.getFunctionType()).thenReturn(SensitivityFunctionType.BUS_VOLTAGE);
+        Mockito.when(factorOk.getFunctionId()).thenReturn("Function OK");
+        Mockito.when(factorOk.getVariableType()).thenReturn(sensitivityVariableType);
+        Mockito.when(factorOk.getVariableId()).thenReturn(sensitivityVariableId);
         factorNok = Mockito.mock(SensitivityFactor.class);
-        Mockito.when(factorNok.getFunction()).thenReturn(Mockito.mock(SensitivityFunction.class));
-        Mockito.when(factorNok.getVariable()).thenReturn(sensitivityVariable);
+        Mockito.when(factorNok.getFunctionType()).thenReturn(SensitivityFunctionType.BRANCH_CURRENT);
+        Mockito.when(factorNok.getFunctionId()).thenReturn("Function NOK");
+        Mockito.when(factorNok.getVariableType()).thenReturn(sensitivityVariableType);
+        Mockito.when(factorNok.getVariableId()).thenReturn(sensitivityVariableId);
     }
 
     @Test
@@ -82,8 +87,8 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValues() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
         assertEquals(values.size(), results.getSensitivityValues().size());
     }
@@ -91,8 +96,8 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValuesContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
         assertEquals(valuesContingency.get("Contingency").size(), results.getSensitivityValuesContingencies().get("Contingency").size());
@@ -101,82 +106,78 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValuesByFunction() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
-        assertEquals(1, results.getSensitivityValuesByFunction(factorOk.getFunction()).size());
-        assertEquals(1, results.getSensitivityValuesByFunction(factorNok.getFunction()).size());
+        assertEquals(1, results.getSensitivityValuesByFunction(factorOk.getFunctionType()).size());
+        assertEquals(1, results.getSensitivityValuesByFunction(factorNok.getFunctionType()).size());
     }
 
     @Test
     public void getSensitivityValuesByFunctionContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
-        assertEquals(1, results.getSensitivityValuesByFunction(factorOk.getFunction(), "Contingency").size());
-        assertEquals(1, results.getSensitivityValuesByFunction(factorNok.getFunction(), "Contingency").size());
+        assertEquals(1, results.getSensitivityValuesByFunction(factorOk.getFunctionType(), "Contingency").size());
+        assertEquals(1, results.getSensitivityValuesByFunction(factorNok.getFunctionType(), "Contingency").size());
     }
 
     @Test
     public void getSensitivityValuesByVariable() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
-        assertEquals(2, results.getSensitivityValuesByVariable(factorOk.getVariable()).size());
-        assertEquals(2, results.getSensitivityValuesByVariable(factorNok.getVariable()).size());
+        assertEquals(2, results.getSensitivityValuesByVariable(factorOk.getVariableType()).size());
+        assertEquals(2, results.getSensitivityValuesByVariable(factorNok.getVariableType()).size());
     }
 
     @Test
     public void getSensitivityValuesByVariableContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
-        assertEquals(2, results.getSensitivityValuesByVariable(factorOk.getVariable(), "Contingency").size());
-        assertEquals(2, results.getSensitivityValuesByVariable(factorNok.getVariable(), "Contingency").size());
+        assertEquals(2, results.getSensitivityValuesByVariable(factorOk.getVariableType(), "Contingency").size());
+        assertEquals(2, results.getSensitivityValuesByVariable(factorNok.getVariableType(), "Contingency").size());
     }
 
     @Test
     public void getNonExistingSensitivityValueByFunctionAndVariable() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
 
-        SensitivityFunction wrongFunction = Mockito.mock(SensitivityFunction.class);
-        SensitivityVariable wrongVariable = Mockito.mock(SensitivityVariable.class);
         exception.expect(NoSuchElementException.class);
-        results.getSensitivityValue(wrongFunction, wrongVariable);
+        results.getSensitivityValue(SensitivityFunctionType.BRANCH_ACTIVE_POWER, SensitivityVariableType.TRANSFORMER_PHASE);
     }
 
     @Test
     public void getNonExistingSensitivityValueByFunctionAndVariableContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
 
-        SensitivityFunction wrongFunction = Mockito.mock(SensitivityFunction.class);
-        SensitivityVariable wrongVariable = Mockito.mock(SensitivityVariable.class);
         exception.expect(NoSuchElementException.class);
-        results.getSensitivityValue(wrongFunction, wrongVariable, "Contingency");
+        results.getSensitivityValue(SensitivityFunctionType.BRANCH_ACTIVE_POWER, SensitivityVariableType.TRANSFORMER_PHASE, "Contingency");
     }
 
     @Test
     public void getNonExistingSensitivityValueByFactor() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
 
         SensitivityFactor wrongFactor = Mockito.mock(SensitivityFactor.class);
-        Mockito.when(wrongFactor.getFunction()).thenReturn(Mockito.mock(SensitivityFunction.class));
-        Mockito.when(wrongFactor.getVariable()).thenReturn(Mockito.mock(SensitivityVariable.class));
+        Mockito.when(wrongFactor.getFunctionType()).thenReturn(SensitivityFunctionType.BRANCH_ACTIVE_POWER);
+        Mockito.when(wrongFactor.getVariableType()).thenReturn(SensitivityVariableType.TRANSFORMER_PHASE);
         exception.expect(NoSuchElementException.class);
         results.getSensitivityValue(wrongFactor);
     }
@@ -184,14 +185,14 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getNonExistingSensitivityValueByFactorContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
 
         SensitivityFactor wrongFactor = Mockito.mock(SensitivityFactor.class);
-        Mockito.when(wrongFactor.getFunction()).thenReturn(Mockito.mock(SensitivityFunction.class));
-        Mockito.when(wrongFactor.getVariable()).thenReturn(Mockito.mock(SensitivityVariable.class));
+        Mockito.when(wrongFactor.getFunctionType()).thenReturn(SensitivityFunctionType.BRANCH_ACTIVE_POWER);
+        Mockito.when(wrongFactor.getVariableType()).thenReturn(SensitivityVariableType.TRANSFORMER_PHASE);
         exception.expect(NoSuchElementException.class);
         results.getSensitivityValue(wrongFactor, "Contingency");
     }
@@ -199,11 +200,11 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValue() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, Collections.emptyMap());
-        assertSame(factorOk, results.getSensitivityValue(factorOk.getFunction(), factorOk.getVariable()).getFactor());
-        assertSame(factorNok, results.getSensitivityValue(factorNok.getFunction(), factorNok.getVariable()).getFactor());
+        assertSame(factorOk, results.getSensitivityValue(factorOk.getFunctionType(), factorOk.getVariableType()).getFactor());
+        assertSame(factorNok, results.getSensitivityValue(factorNok.getFunctionType(), factorNok.getVariableType()).getFactor());
         assertSame(factorOk, results.getSensitivityValue(factorOk).getFactor());
         assertSame(factorNok, results.getSensitivityValue(factorNok).getFactor());
     }
@@ -211,12 +212,12 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValueContingency() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, Double.NaN, Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, Double.NaN, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
         Map<String, List<SensitivityValue>> valuesContingency = Collections.singletonMap("Contingency", values);
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values, valuesContingency);
-        assertSame(factorOk, results.getSensitivityValue(factorOk.getFunction(), factorOk.getVariable(), "Contingency").getFactor());
-        assertSame(factorNok, results.getSensitivityValue(factorNok.getFunction(), factorNok.getVariable(), "Contingency").getFactor());
+        assertSame(factorOk, results.getSensitivityValue(factorOk.getFunctionType(), factorOk.getVariableType(), "Contingency").getFactor());
+        assertSame(factorNok, results.getSensitivityValue(factorNok.getFunctionType(), factorNok.getVariableType(), "Contingency").getFactor());
         assertSame(factorOk, results.getSensitivityValue(factorOk, "Contingency").getFactor());
         assertSame(factorNok, results.getSensitivityValue(factorNok, "Contingency").getFactor());
     }

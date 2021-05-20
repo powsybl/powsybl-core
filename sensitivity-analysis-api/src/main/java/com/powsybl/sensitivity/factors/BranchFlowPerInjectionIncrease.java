@@ -6,23 +6,20 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.sensitivity.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
-public class BranchFlowPerInjectionIncrease extends SensitivityFactor<BranchFlow, InjectionIncrease> {
+public class BranchFlowPerInjectionIncrease extends SensitivityFactor {
 
     /**
      * Sensitivity factor standard implementation constructor.
-     *
-     * @param sensitivityFunction sensitivity function
-     * @param sensitivityVariable sensitivity variable
      */
-    @JsonCreator
-    public BranchFlowPerInjectionIncrease(@JsonProperty("function") BranchFlow sensitivityFunction,
-                                          @JsonProperty("variable") InjectionIncrease sensitivityVariable) {
-        super(sensitivityFunction, sensitivityVariable);
+    public BranchFlowPerInjectionIncrease(String functionId, String variableId,
+                                          ContingencyContext contingencyContext) {
+        super(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId,
+                SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId,
+                false, contingencyContext);
     }
 }

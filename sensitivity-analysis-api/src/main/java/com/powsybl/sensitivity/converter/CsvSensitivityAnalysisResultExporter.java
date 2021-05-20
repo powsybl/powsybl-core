@@ -28,11 +28,11 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
 
     private void writeCells(TableFormatter formatter, SensitivityValue sensitivityValue, String state) throws IOException {
         formatter.writeCell(state);
-        formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
-        formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
-        formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
-        formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
-        formatter.writeCell(sensitivityValue.getVariableReference());
+        formatter.writeCell(sensitivityValue.getFactor().getVariableId());
+        formatter.writeCell(sensitivityValue.getFactor().getVariableType().name());
+        formatter.writeCell(sensitivityValue.getFactor().getFunctionId());
+        formatter.writeCell(sensitivityValue.getFactor().getFunctionType().name());
+        // FIXME : formatter.writeCell(sensitivityValue.getVariableReference());
         formatter.writeCell(sensitivityValue.getFunctionReference());
         formatter.writeCell(sensitivityValue.getValue());
     }
@@ -57,7 +57,7 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
                 new Column("VariableName"),
                 new Column("FunctionId"),
                 new Column("FunctionName"),
-                new Column("VariableRefValue"),
+                // FIXME : new Column("VariableRefValue"),
                 new Column("FunctionRefValue"),
                 new Column("SensitivityValue"))) {
             result.getSensitivityValues().forEach(sensitivityValue -> {

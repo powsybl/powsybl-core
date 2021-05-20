@@ -6,30 +6,25 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.sensitivity.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.functions.BusVoltage;
-import com.powsybl.sensitivity.factors.variables.TargetVoltage;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 /**
  * Sensitivity factor for an impact of a targetV increase from a regulating equipment on a bus ref
  *
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
- * @see com.powsybl.sensitivity.factors.functions.BusVoltage
- * @see com.powsybl.sensitivity.factors.variables.TargetVoltage
  */
-public class BusVoltagePerTargetV extends SensitivityFactor<BusVoltage, TargetVoltage> {
+public class BusVoltagePerTargetV extends SensitivityFactor {
 
     /**
      * Sensitivity factor standard implementation constructor.
-     *
-     * @param sensitivityFunction sensitivity function
-     * @param sensitivityVariable sensitivity variable
      */
-    @JsonCreator
-    public BusVoltagePerTargetV(@JsonProperty("function") BusVoltage sensitivityFunction,
-                                @JsonProperty("variable") TargetVoltage sensitivityVariable) {
-        super(sensitivityFunction, sensitivityVariable);
+    public BusVoltagePerTargetV(String functionId, String variableId,
+                                   ContingencyContext contingencyContext) {
+        super(SensitivityFunctionType.BUS_VOLTAGE, functionId,
+                SensitivityVariableType.BUS_TARGET_VOLTAGE, variableId,
+                false, contingencyContext);
     }
 }

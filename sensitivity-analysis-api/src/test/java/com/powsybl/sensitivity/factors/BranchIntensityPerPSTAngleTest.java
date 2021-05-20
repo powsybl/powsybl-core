@@ -6,37 +6,46 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
-import org.junit.Before;
+import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertSame;
+import org.junit.rules.ExpectedException;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchIntensityPerPSTAngleTest {
 
-    private BranchIntensity branchIntensity;
-    private PhaseTapChangerAngle pstAngle;
-    private BranchIntensityPerPSTAngle factor;
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        branchIntensity = Mockito.mock(BranchIntensity.class);
-        pstAngle = Mockito.mock(PhaseTapChangerAngle.class);
-        factor = new BranchIntensityPerPSTAngle(branchIntensity, pstAngle);
+    @Test
+    public void checkFailsWhenNullFunction() {
+        exception.expect(NullPointerException.class);
+        new BranchIntensityPerPSTAngle(null, "12", ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void getFunction() {
-        assertSame(branchIntensity, factor.getFunction());
+    public void checkFailsWhenNullVariable() {
+        exception.expect(NullPointerException.class);
+        new BranchIntensityPerPSTAngle("12", null, ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void getVariable() {
-        assertSame(pstAngle, factor.getVariable());
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        String functionId = "86";
+        String variableId = "1664";
+        BranchIntensityPerPSTAngle factor = new BranchIntensityPerPSTAngle(functionId, variableId, context);
+        Assert.assertSame(context, factor.getContingencyContext());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityFunctionType.BRANCH_CURRENT, factor.getFunctionType());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+        Assert.assertEquals(variableId, factor.getVariableId());
+        Assert.assertFalse(factor.isVariableSet());
     }
 }

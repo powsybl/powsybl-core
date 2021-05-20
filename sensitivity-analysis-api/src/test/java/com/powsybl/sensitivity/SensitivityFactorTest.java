@@ -6,12 +6,10 @@
  */
 package com.powsybl.sensitivity;
 
+import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.assertSame;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -22,28 +20,17 @@ public class SensitivityFactorTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void checkNullFunctionThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(null, Mockito.mock(SensitivityVariable.class));
-    }
-
-    @Test
-    public void checkNullVariableThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(Mockito.mock(SensitivityFunction.class), null);
-    }
-
-    @Test
-    public void getFunction() {
-        SensitivityFunction function = Mockito.mock(SensitivityFunction.class);
-        SensitivityFactor factor = new SensitivityFactor(function, Mockito.mock(SensitivityVariable.class));
-        assertSame(function, factor.getFunction());
-    }
-
-    @Test
-    public void getVariable() {
-        SensitivityVariable variable = Mockito.mock(SensitivityVariable.class);
-        SensitivityFactor factor = new SensitivityFactor(Mockito.mock(SensitivityFunction.class), variable);
-        assertSame(variable, factor.getVariable());
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        String functionId = "86";
+        String variableId = "1664";
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId, SensitivityVariableType.TRANSFORMER_PHASE, variableId, true, context);
+        Assert.assertSame(context, factor.getContingencyContext());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+        Assert.assertEquals(variableId, factor.getVariableId());
+        Assert.assertTrue(factor.isVariableSet());
     }
 }

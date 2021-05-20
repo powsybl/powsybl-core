@@ -6,44 +6,46 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
-import org.junit.Before;
+import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
+import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.junit.Assert.assertSame;
+import org.junit.rules.ExpectedException;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 public class BranchFlowPerLinearGlskTest {
 
-    private BranchFlow branchFlow;
-    private LinearGlsk glsk;
-    private BranchFlowPerLinearGlsk factor;
+    @Rule
+    public ExpectedException exception = ExpectedException.none();
 
-    @Before
-    public void setUp() {
-        branchFlow = Mockito.mock(BranchFlow.class);
-        Map<String, Float> map = new HashMap<>();
-        map.put("Generator", 70f);
-        map.put("Load", 30f);
-        glsk = new LinearGlsk("GLSK id", "GLSK name", map);
-        factor = new BranchFlowPerLinearGlsk(branchFlow, glsk);
+    @Test
+    public void checkFailsWhenNullFunction() {
+        exception.expect(NullPointerException.class);
+        new BranchFlowPerLinearGlsk(null, "12", ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void getFunction() {
-        assertSame(branchFlow, factor.getFunction());
+    public void checkFailsWhenNullVariable() {
+        exception.expect(NullPointerException.class);
+        new BranchFlowPerLinearGlsk("12", null, ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void getVariable() {
-        assertSame(glsk, factor.getVariable());
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        String functionId = "86";
+        String variableId = "1664";
+        BranchFlowPerLinearGlsk factor = new BranchFlowPerLinearGlsk(functionId, variableId, context);
+        Assert.assertSame(context, factor.getContingencyContext());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
+        Assert.assertEquals(variableId, factor.getVariableId());
+        Assert.assertTrue(factor.isVariableSet());
     }
-
 }

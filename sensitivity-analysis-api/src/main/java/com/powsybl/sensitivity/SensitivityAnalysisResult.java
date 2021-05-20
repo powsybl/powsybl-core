@@ -124,37 +124,37 @@ public class SensitivityAnalysisResult {
     /**
      * Get a collection of all the sensitivity values associated with given function in state N.
      *
-     * @param function sensitivity function
+     * @param function sensitivity function type
      * @return a collection of all the sensitivity values associated with given function in state N.
      */
-    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunction function) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function))
+    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunctionType function) {
+        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function))
                 .collect(Collectors.toList());
     }
 
     /**
      * Get a collection of all the sensitivity values associated with given variable in state N.
      *
-     * @param variable sensitivity variable
+     * @param variable sensitivity variable type
      * @return a collection of all the sensitivity values associated with given variable in state N.
      */
-    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariable variable) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable))
+    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariableType variable) {
+        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariableType().equals(variable))
                 .collect(Collectors.toList());
     }
 
     /**
      * Get the sensitivity value associated with given function and given variable in state N.
      *
-     * @param function sensitivity function
-     * @param variable sensitivity variable
+     * @param function sensitivity function type
+     * @param variable sensitivity variable type
      * @return the sensitivity value associated with given function and given variable in state N.
      */
-    public SensitivityValue getSensitivityValue(SensitivityFunction function, SensitivityVariable variable) {
-        Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
-                && sensitivityValue.getFactor().getVariable().equals(variable)).findAny();
+    public SensitivityValue getSensitivityValue(SensitivityFunctionType function, SensitivityVariableType variable) {
+        Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function)
+                && sensitivityValue.getFactor().getVariableType().equals(variable)).findAny();
         if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, function.getId(), variable.getId()));
+            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, function.name(), variable.name()));
         }
         return returnValue.get();
     }
@@ -168,7 +168,7 @@ public class SensitivityAnalysisResult {
     public SensitivityValue getSensitivityValue(SensitivityFactor factor) {
         Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor)).findAny();
         if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId()));
+            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunctionId(), factor.getVariableId()));
         }
         return returnValue.get();
     }
@@ -195,13 +195,13 @@ public class SensitivityAnalysisResult {
      * Get a collection of all the sensitivity values associated with given function
      * for a specific contingency.
      *
-     * @param function sensitivity function
+     * @param function sensitivity function type
      * @param contingencyId the ID of the considered contingency
      * @return a collection of all the sensitivity values associated with given function for the given contingencyId
      */
-    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunction function, String contingencyId) {
+    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunctionType function, String contingencyId) {
         return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function))
                 .collect(Collectors.toList());
     }
 
@@ -209,30 +209,30 @@ public class SensitivityAnalysisResult {
      * Get a collection of all the sensitivity values associated with given variable
      * for a specific contingency.
      *
-     * @param variable sensitivity variable
+     * @param variable sensitivity variable type
      * @param contingencyId the ID of the considered contingency
      * @return a collection of all the sensitivity values associated with given variable
      */
-    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariable variable, String contingencyId) {
+    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariableType variable, String contingencyId) {
         return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariable().equals(variable))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariableType().equals(variable))
                 .collect(Collectors.toList());
     }
 
     /**
      * Get the sensitivity value associated with given function and given variable for a specific contingency.
      *
-     * @param function sensitivity function
-     * @param variable sensitivity variable
+     * @param function sensitivity function type
+     * @param variable sensitivity variable type
      * @param contingencyId the ID of the considered contingency
      * @return the sensitivity value associated with given function and given variable
      */
-    public SensitivityValue getSensitivityValue(SensitivityFunction function, SensitivityVariable variable, String contingencyId) {
+    public SensitivityValue getSensitivityValue(SensitivityFunctionType function, SensitivityVariableType variable, String contingencyId) {
         return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunction().equals(function)
-                        && sensitivityValue.getFactor().getVariable().equals(variable))
+                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function)
+                        && sensitivityValue.getFactor().getVariableType().equals(variable))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND_CONTINGENCY, function.getId(), variable.getId(), contingencyId)));
+                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND_CONTINGENCY, function.name(), variable.name(), contingencyId)));
     }
 
     /**
@@ -246,7 +246,7 @@ public class SensitivityAnalysisResult {
         return sensitivityValuesContingencies.get(contingencyId).stream()
                 .filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor))
                 .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunction().getId(), factor.getVariable().getId())));
+                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunctionId(), factor.getVariableId())));
     }
 
     public static SensitivityAnalysisResult empty() {

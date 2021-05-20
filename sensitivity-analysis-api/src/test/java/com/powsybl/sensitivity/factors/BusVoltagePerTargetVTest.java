@@ -6,13 +6,13 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.factors.functions.BusVoltage;
-import com.powsybl.sensitivity.factors.variables.TargetVoltage;
+import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 /**
  * @author Anne Tilloy {@literal <anne.tilloy at rte-france.com>}
@@ -24,31 +24,28 @@ public class BusVoltagePerTargetVTest {
 
     @Test
     public void checkFailsWhenNullFunction() {
-        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
         exception.expect(NullPointerException.class);
-        new BusVoltagePerTargetV(null, targetV);
+        new BusVoltagePerTargetV(null, "12", ContingencyContext.createAllContingencyContext());
     }
 
     @Test
     public void checkFailsWhenNullVariable() {
-        BusVoltage busVoltage = Mockito.mock(BusVoltage.class);
         exception.expect(NullPointerException.class);
-        new BusVoltagePerTargetV(busVoltage, null);
+        new BusVoltagePerTargetV("12", null, ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void testGetFunction() {
-        BusVoltage busVoltage = Mockito.mock(BusVoltage.class);
-        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
-        BusVoltagePerTargetV factor = new BusVoltagePerTargetV(busVoltage, targetV);
-        Assert.assertEquals(busVoltage, factor.getFunction());
-    }
-
-    @Test
-    public void testGetVariable() {
-        BusVoltage busVoltage = Mockito.mock(BusVoltage.class);
-        TargetVoltage targetV = Mockito.mock(TargetVoltage.class);
-        BusVoltagePerTargetV factor = new BusVoltagePerTargetV(busVoltage, targetV);
-        Assert.assertEquals(targetV, factor.getVariable());
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        String functionId = "86";
+        String variableId = "1664";
+        BusVoltagePerTargetV factor = new BusVoltagePerTargetV(functionId, variableId, context);
+        Assert.assertSame(context, factor.getContingencyContext());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityFunctionType.BUS_VOLTAGE, factor.getFunctionType());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityVariableType.BUS_TARGET_VOLTAGE, factor.getVariableType());
+        Assert.assertEquals(variableId, factor.getVariableId());
+        Assert.assertFalse(factor.isVariableSet());
     }
 }

@@ -6,84 +6,53 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import java.util.Objects;
-
 /**
  * Elementary result value of sensitivity analysis.
  * Associates a value to a sensitivity factor.
  *
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see SensitivityFactor
  */
 public class SensitivityValue {
 
-    @JsonProperty("factor")
-    private final SensitivityFactor sensitivityFactor;
+    private final SensitivityFactor factorContext;
 
-    @JsonProperty("value")
+    private final String contingencyId;
+
     private final double value;
 
-    @JsonProperty("functionReference")
     private final double functionReference;
 
-    @JsonProperty("variableReference")
-    private final double variableReference;
-
-    /**
-     * Constructor
-     *
-     * @param sensitivityFactor sensitivity factor input
-     * @param value value of the sensitivity
-     * @param functionReference reference value of the function
-     * @param variableReference reference value of the variable
-     */
-    @JsonCreator
-    public SensitivityValue(@JsonProperty("factor") SensitivityFactor sensitivityFactor,
-                            @JsonProperty("value") double value,
-                            @JsonProperty("functionReference") double functionReference,
-                            @JsonProperty("variableReference") double variableReference) {
-        this.sensitivityFactor = Objects.requireNonNull(sensitivityFactor);
+    public SensitivityValue(SensitivityFactor factorContext, String contingencyId, double value, double functionReference) {
+        this.factorContext = factorContext;
+        this.contingencyId = contingencyId;
         this.value = value;
         this.functionReference = functionReference;
-        this.variableReference = variableReference;
     }
 
-    /**
-     * Get the sensitivity factor
-     *
-     * @return the sensitivity factor
-     */
     public SensitivityFactor getFactor() {
-        return sensitivityFactor;
+        return factorContext;
     }
 
-    /**
-     * Get the value of the sensitivity
-     *
-     * @return the value of the sensitivity, and NaN if not computed
-     */
+    public String getContingencyId() {
+        return contingencyId;
+    }
+
     public double getValue() {
         return value;
     }
 
-    /**
-     * Get the value of the function in the reference network state
-     *
-     * @return the reference value of the function, and NaN if not computed
-     */
     public double getFunctionReference() {
         return functionReference;
     }
 
-    /**
-     * Get the value of the variable in the reference network state
-     *
-     * @return the reference value of the variable, and NaN if not computed
-     */
-    public double getVariableReference() {
-        return variableReference;
+    @Override
+    public String toString() {
+        return "SensitivityValue(" +
+                "factorContext=" + factorContext +
+                ", contingencyId='" + contingencyId + '\'' +
+                ", value=" + value +
+                ", functionReference=" + functionReference +
+                ')';
     }
 }

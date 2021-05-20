@@ -6,31 +6,25 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.sensitivity.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.LinearGlsk;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 /**
  * Sensitivity factor for an impact of linear GLSK variation on a branch flow
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- * @see BranchFlow
- * @see LinearGlsk
  */
-public class BranchFlowPerLinearGlsk extends SensitivityFactor<BranchFlow, LinearGlsk> {
+public class BranchFlowPerLinearGlsk extends SensitivityFactor {
 
     /**
-     * Constructor
-     *
-     * @param sensitivityFunction network branch which flow is used as sensitivity function
-     * @param sensitivityVariable linear GLSK which active injection is used as sensitivity variable
-     * @throws NullPointerException if sensitivityFunction or sensitivityVariable is null
+     * Sensitivity factor standard implementation constructor.
      */
-    @JsonCreator
-    public BranchFlowPerLinearGlsk(@JsonProperty("function") BranchFlow sensitivityFunction,
-                                   @JsonProperty("variable") LinearGlsk sensitivityVariable) {
-        super(sensitivityFunction, sensitivityVariable);
+    public BranchFlowPerLinearGlsk(String functionId, String variableId,
+                                   ContingencyContext contingencyContext) {
+        super(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId,
+                SensitivityVariableType.INJECTION_ACTIVE_POWER, variableId,
+                true, contingencyContext);
     }
 }

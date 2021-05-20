@@ -6,13 +6,13 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.factors.functions.BranchFlow;
-import com.powsybl.sensitivity.factors.variables.InjectionIncrease;
+import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -24,31 +24,28 @@ public class BranchFlowPerInjectionIncreaseTest {
 
     @Test
     public void checkFailsWhenNullFunction() {
-        InjectionIncrease injectionIncrease = Mockito.mock(InjectionIncrease.class);
         exception.expect(NullPointerException.class);
-        new BranchFlowPerInjectionIncrease(null, injectionIncrease);
+        new BranchFlowPerInjectionIncrease(null, "12", ContingencyContext.createAllContingencyContext());
     }
 
     @Test
     public void checkFailsWhenNullVariable() {
-        BranchFlow branchFlow = Mockito.mock(BranchFlow.class);
         exception.expect(NullPointerException.class);
-        new BranchFlowPerInjectionIncrease(branchFlow, null);
+        new BranchFlowPerInjectionIncrease("12", null, ContingencyContext.createAllContingencyContext());
     }
 
     @Test
-    public void testGetFunction() {
-        BranchFlow branchFlow = Mockito.mock(BranchFlow.class);
-        InjectionIncrease injectionIncrease = Mockito.mock(InjectionIncrease.class);
-        BranchFlowPerInjectionIncrease factor = new BranchFlowPerInjectionIncrease(branchFlow, injectionIncrease);
-        Assert.assertEquals(branchFlow, factor.getFunction());
-    }
-
-    @Test
-    public void testGetVariable() {
-        BranchFlow branchFlow = Mockito.mock(BranchFlow.class);
-        InjectionIncrease injectionIncrease = Mockito.mock(InjectionIncrease.class);
-        BranchFlowPerInjectionIncrease factor = new BranchFlowPerInjectionIncrease(branchFlow, injectionIncrease);
-        Assert.assertEquals(injectionIncrease, factor.getVariable());
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        String functionId = "86";
+        String variableId = "1664";
+        BranchFlowPerInjectionIncrease factor = new BranchFlowPerInjectionIncrease(functionId, variableId, context);
+        Assert.assertSame(context, factor.getContingencyContext());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        Assert.assertEquals(functionId, factor.getFunctionId());
+        Assert.assertEquals(SensitivityVariableType.INJECTION_ACTIVE_POWER, factor.getVariableType());
+        Assert.assertEquals(variableId, factor.getVariableId());
+        Assert.assertFalse(factor.isVariableSet());
     }
 }

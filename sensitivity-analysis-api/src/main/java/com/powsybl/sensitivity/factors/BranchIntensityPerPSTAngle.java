@@ -6,32 +6,26 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.powsybl.sensitivity.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFactor;
-import com.powsybl.sensitivity.factors.functions.BranchIntensity;
-import com.powsybl.sensitivity.factors.variables.PhaseTapChangerAngle;
+import com.powsybl.sensitivity.SensitivityFunctionType;
+import com.powsybl.sensitivity.SensitivityVariableType;
 
 /**
  * Sensitivity factor for an impact of phase shift transformer angle on a line intensity
  * Only available in AC computation
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
- * @see BranchIntensity
- * @see PhaseTapChangerAngle
  */
-public class BranchIntensityPerPSTAngle extends SensitivityFactor<BranchIntensity, PhaseTapChangerAngle> {
+public class BranchIntensityPerPSTAngle extends SensitivityFactor {
 
     /**
      * Constructor
-     *
-     * @param sensitivityFunction network line which intensity is used as sensitivity function
-     * @param sensitivityVariable network phase tap changer holder which angle is used as sensitivity variable
-     * @throws NullPointerException if sensitivityFunction or sensitivityVariable is null
      */
-    @JsonCreator
-    public BranchIntensityPerPSTAngle(@JsonProperty("function") BranchIntensity sensitivityFunction,
-                                      @JsonProperty("variable") PhaseTapChangerAngle sensitivityVariable) {
-        super(sensitivityFunction, sensitivityVariable);
+    public BranchIntensityPerPSTAngle(String functionId, String variableId,
+                                   ContingencyContext contingencyContext) {
+        super(SensitivityFunctionType.BRANCH_CURRENT, functionId,
+                SensitivityVariableType.TRANSFORMER_PHASE, variableId,
+                false, contingencyContext);
     }
 }
