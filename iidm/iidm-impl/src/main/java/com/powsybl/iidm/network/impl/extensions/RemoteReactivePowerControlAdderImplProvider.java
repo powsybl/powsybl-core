@@ -9,7 +9,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class RemoveReactivePowerControlAdderImplProvider implements ExtensionAdderProvider<Generator, RemoteReactivePowerControl, RemoteReactivePowerAdderImpl> {
+public class RemoteReactivePowerControlAdderImplProvider implements ExtensionAdderProvider<Generator, RemoteReactivePowerControl, RemoteReactivePowerAdderImpl> {
 
     @Override
     public String getImplementationName() {
