@@ -23,6 +23,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -418,6 +420,15 @@ public class CgmesConformity1ModifiedConversionTest {
         Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
         assertEquals(50.0, generator.getMinP(), 0.0);
         assertEquals(200.0, generator.getMaxP(), 0.0);
+    }
+
+    @Test
+    public void microBEIncorrectDate() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEIncorrectDate().dataSource(),
+                NetworkFactory.findDefault(), null);
+        assertNotNull(network);
+        assertEquals(0, network.getForecastDistance());
+        assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
     }
 
     @Test
