@@ -507,7 +507,7 @@ public final class CgmesConformity1ModifiedCatalog {
 
     public static TestGridModelResources microGridBaseCaseBEIncorrectDate() {
         String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MicroGrid/BaseCase/BC_BE_v2_incorrect_date/";
+                + "/MicroGrid/BaseCase/BC_BE_v2_incorrect_date_and_version/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
         return new TestGridModelResources("MicroGrid-BaseCase-BE-incorrect-date",

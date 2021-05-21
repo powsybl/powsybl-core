@@ -3,7 +3,7 @@
   <md:FullModel rdf:about="urn:uuid:c2960b34-0a04-4cd1-9c4d-f3112d85ec6c">
     <md:Model.created>this is not a date</md:Model.created>
     <md:Model.scenarioTime>this is not a date</md:Model.scenarioTime>
-    <md:Model.version>2</md:Model.version>
+    <md:Model.version>this is not a version</md:Model.version>
     <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
     <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66"/>
     <md:Model.DependentOn rdf:resource="urn:uuid:f2f43818-09c8-4252-9611-7af80c398d20"/>
