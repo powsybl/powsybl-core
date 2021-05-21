@@ -10,15 +10,9 @@ public interface RemoteReactivePowerControl extends Extension<Generator> {
         return "generatorRemoteReactivePowerControl";
     }
 
-    void setTargetQ(double targetQ);
-
     double getTargetQ();
 
-    void setRegulatingTerminal(Terminal t);
-
     Terminal getRegulatingTerminal();
-
-    void setEnabled(boolean enabled);
 
     boolean isEnabled();
 }

@@ -23,28 +23,13 @@ public class RemoteReactivePowerControlImpl extends AbstractExtension<Generator>
     }
 
     @Override
-    public void setTargetQ(double targetQ) {
-        this.targetQ = targetQ;
-    }
-
-    @Override
     public double getTargetQ() {
         return targetQ;
     }
 
     @Override
-    public void setRegulatingTerminal(Terminal regulatingTerminal) {
-        this.regulatingTerminal = regulatingTerminal;
-    }
-
-    @Override
     public Terminal getRegulatingTerminal() {
         return regulatingTerminal;
-    }
-
-    @Override
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override
