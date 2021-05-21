@@ -427,12 +427,19 @@ public class CgmesConformity1ModifiedConversionTest {
     public void microBEIncorrectDate() {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEIncorrectDate().dataSource(),
                 NetworkFactory.findDefault(), null);
-        assertNotNull(network);
         assertEquals(0, network.getForecastDistance());
         assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
         CgmesSvMetadata cgmesSvMetadata = network.getExtension(CgmesSvMetadata.class);
         assertNotNull(cgmesSvMetadata);
         assertEquals(1, cgmesSvMetadata.getSvVersion());
+    }
+
+    @Test
+    public void microBEMissingLimitValue() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
+                NetworkFactory.findDefault(), null);
+        DanglingLine line = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        assertNull(line.getCurrentLimits().getTemporaryLimit(10));
     }
 
     @Test
