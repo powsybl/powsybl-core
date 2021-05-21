@@ -356,8 +356,8 @@ public class Conversion {
         try {
             return propertyBags.get(0).asInt("version");
         } catch (NumberFormatException e) {
-            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 0");
-            return 0;
+            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
+            return 1;
         }
     }
 
