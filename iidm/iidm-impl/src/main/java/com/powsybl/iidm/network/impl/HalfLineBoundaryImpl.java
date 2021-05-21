@@ -16,6 +16,9 @@ import java.util.Objects;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class HalfLineBoundaryImpl implements Boundary {
+    // side represents the network side.
+    // side here is Side.ONE for the half line 1 of a tie line.
+    // side is Side.TWO for the half line 2 of a tie line.
 
     private final TieLineImpl.HalfLineImpl parent;
     private final Branch.Side side;

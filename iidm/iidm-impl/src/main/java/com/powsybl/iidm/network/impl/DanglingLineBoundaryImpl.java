@@ -16,6 +16,8 @@ import java.util.Objects;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class DanglingLineBoundaryImpl implements Boundary {
+    // for SV use: side represents the network side, that is always
+    // Side.ONE for a dangling line.
 
     private final DanglingLine parent;
 
