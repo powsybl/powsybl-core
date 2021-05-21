@@ -229,8 +229,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     try {
                         d = DateTime.parse(s, ISODateTimeFormat.dateTimeParser().withOffsetParsed().withZoneUTC());
                     } catch (IllegalArgumentException e) {
-                        LOG.error("Invalid date: " + s + ". The date has been fixed to " + defaultValue);
-                        d = defaultValue;
+                        LOG.error("Invalid date: {}. The date has been fixed to {}.", s, defaultValue);
+                        return defaultValue;
                     }
                 }
             }
