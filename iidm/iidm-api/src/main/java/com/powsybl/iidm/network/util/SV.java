@@ -34,6 +34,17 @@ public class SV {
     // I1 = S1* / V1* and I2 = S2* / V2*
     //
 
+    /**
+     * In this class, lines, two windings transformers, half line and dangling lines can be considered as equivalent branches (TODO: add SVG of generic branch model)
+     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side.
+     * For half lines, if the half line is on the side ONE of its tie line, side ONE is on network's side and side TWO is on boundary's side;
+     * if the half line is on the side TWO of its tie line, side ONE is on boundary's side and side TWO is on network's side. (TODO: add SVG of tie line and comment)
+     * @param p active power flow on the side of the branch we consider.
+     * @param q reactive power flow on the side of the branch we consider
+     * @param u voltage on the side of the branch we consider.
+     * @param a phase on the side of the branch we consider.
+     * @param side the side of the branch we consider.
+     */
     public SV(double p, double q, double u, double a, Branch.Side side) {
         this.p = p;
         this.q = q;
@@ -43,10 +54,9 @@ public class SV {
     }
 
     /**
-     * @deprecated Not used anymore. The end associated to the voltage and flow must be defined. Use
-     * {@link SV#SV(double, double, double, double, int)}
+     * @deprecated Not used anymore. The end associated to the voltage and flow must be defined. Use {@link #SV(double, double, double, double, Branch.Side)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public SV(double p, double q, double u, double a) {
         throw new PowsyblException("Deprecated. Not used anymore");
     }
@@ -86,9 +96,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public SV otherSide(double r, double x, double g, double b, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSide(r, x, g / 2, b / 2, g / 2, b / 2, rho, 0.0);
     }
 
     /**
@@ -96,9 +106,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSide(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSide(r, x, g1, b1, g2, b2, rho, 0.0);
     }
 
     public SV otherSide(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -112,12 +122,11 @@ public class SV {
     }
 
     /**
-     * @deprecated Not used anymore. Use
-     * {@link SV#otherSide(Line)}
+     * @deprecated Should not be used anymore. Use {@link SV#otherSide(Line)} instead.
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public SV otherSideY1Y2(Line l) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1, 0.0);
     }
 
     public SV otherSide(TwoWindingsTransformer twt) {
@@ -149,9 +158,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSideP(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSideP(r, x, g1, b1, g2, b2, rho, 0.0);
     }
 
     public double otherSideP(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -181,9 +190,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSideQ(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSideQ(r, x, g1, b1, g2, b2, rho, 0.0);
     }
 
     public double otherSideQ(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -213,9 +222,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSideU(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public double otherSideU(double r, double x, double g1, double b1, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSideU(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
     }
 
     public double otherSideU(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
@@ -245,9 +254,9 @@ public class SV {
      * of a generic branch has been deprecated to avoid misuse. Use the version that includes rho AND alpha.
      * {@link SV#otherSideA(double, double, double, double, double, double, double, double)}
      */
-    @Deprecated
+    @Deprecated(since = "4.3.0")
     public double otherSideA(double r, double x, double g1, double b1, double rho) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        return otherSideA(r, x, g1, b1, 0.0, 0.0, rho, 0.0);
     }
 
     public double otherSideA(double r, double x, double g1, double b1, double g2, double b2, double rho, double alpha) {
