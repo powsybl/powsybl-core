@@ -9,6 +9,8 @@ package com.powsybl.cgmes.extensions;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
@@ -16,6 +18,8 @@ import java.util.*;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIidmMapping {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CgmesIidmMappingImpl.class);
 
     // TODO(Luma) Improve serialization by not writing calculated bus ids
 
@@ -128,21 +132,24 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
                     return;
                 }
                 String busId = t.getBusView().getBus().getId();
-                checkAlreadyMapped(busId, tn);
-                busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
-                unmapped.remove(tn);
+                if (canBeMapped(busId, tn)) {
+                    busTopologicalNodeMap.computeIfAbsent(busId, bid -> new HashSet<>()).add(tn);
+                    unmapped.remove(tn);
+                }
             }
         });
     }
 
-    private void checkAlreadyMapped(String busId, String topologicalNodeId) {
+    private boolean canBeMapped(String busId, String topologicalNodeId) {
         // TN has been removed from unmapped collection (that starts with all TNs)
         // and this bus has not received it
         // because no mappings exist for this bus: get(busId) == null
         // or because the TN can not be found in the mappings for this bus: !get(busId).contains(TN)
         if (!unmapped.contains(topologicalNodeId) && (busTopologicalNodeMap.get(busId) == null || !busTopologicalNodeMap.get(busId).contains(topologicalNodeId))) {
-            throw new PowsyblException("TopologicalNode " + topologicalNodeId + " is already mapped to another bus");
+            LOGGER.warn("CGMES topological Node {} is already mapped and not to the given IIDM bus {}", topologicalNodeId, busId);
+            return false;
         }
+        return true;
     }
 
     private static class EquipmentSide {
