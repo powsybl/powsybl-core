@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesControlArea;
 import com.powsybl.cgmes.extensions.CgmesControlAreas;
+import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -23,6 +24,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -418,6 +421,25 @@ public class CgmesConformity1ModifiedConversionTest {
         Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
         assertEquals(50.0, generator.getMinP(), 0.0);
         assertEquals(200.0, generator.getMaxP(), 0.0);
+    }
+
+    @Test
+    public void microBEIncorrectDate() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEIncorrectDate().dataSource(),
+                NetworkFactory.findDefault(), null);
+        assertEquals(0, network.getForecastDistance());
+        assertTrue(new Duration(DateTime.now(), network.getCaseDate()).getStandardMinutes() < 10);
+        CgmesSvMetadata cgmesSvMetadata = network.getExtension(CgmesSvMetadata.class);
+        assertNotNull(cgmesSvMetadata);
+        assertEquals(1, cgmesSvMetadata.getSvVersion());
+    }
+
+    @Test
+    public void microBEMissingLimitValue() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEMissingLimitValue().dataSource(),
+                NetworkFactory.findDefault(), null);
+        DanglingLine line = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        assertNull(line.getCurrentLimits().getTemporaryLimit(10));
     }
 
     @Test
