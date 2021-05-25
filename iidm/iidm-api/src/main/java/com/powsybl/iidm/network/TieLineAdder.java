@@ -52,9 +52,9 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
-    TieLineAdder.HalfLineAdder newHalfLine1();
+    TieLineAdder.HalfLineAdder newHalfLine1(Branch.Side originalBoundarySide);
 
-    TieLineAdder.HalfLineAdder newHalfLine2();
+    TieLineAdder.HalfLineAdder newHalfLine2(Branch.Side originalBoundarySide);
 
     TieLine add();
 

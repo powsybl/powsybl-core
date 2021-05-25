@@ -132,8 +132,8 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
-        readHalf(adder.newHalfLine1(), context, 1);
-        readHalf(adder.newHalfLine2(), context, 2);
+        readHalf(adder.newHalfLine1(Branch.Side.ONE), context, 1);
+        readHalf(adder.newHalfLine2(Branch.Side.TWO), context, 2);
         readNodeOrBus(adder, context);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)

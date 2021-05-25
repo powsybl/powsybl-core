@@ -19,10 +19,12 @@ class HalfLineBoundaryImpl implements Boundary {
 
     private final TieLineImpl.HalfLineImpl parent;
     private final Branch.Side side;
+    private final Branch.Side originalBoundarySide;
 
-    HalfLineBoundaryImpl(TieLineImpl.HalfLineImpl parent, Branch.Side side) {
+    HalfLineBoundaryImpl(TieLineImpl.HalfLineImpl parent, Branch.Side side, Branch.Side originalBoundarySide) {
         this.parent = Objects.requireNonNull(parent);
         this.side = Objects.requireNonNull(side);
+        this.originalBoundarySide = Objects.requireNonNull(originalBoundarySide);
     }
 
     @Override
@@ -66,6 +68,10 @@ class HalfLineBoundaryImpl implements Boundary {
     @Override
     public VoltageLevel getVoltageLevel() {
         return getConnectable().getTerminal(side).getVoltageLevel();
+    }
+
+    public Branch.Side getOriginalBoundarySide() {
+        return originalBoundarySide;
     }
 
     private static double getV(Bus b) {

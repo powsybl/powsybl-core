@@ -17,6 +17,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         private final int num;
 
+        private final Branch.Side originalBoundarySide;
+
         protected String id;
 
         protected String name;
@@ -35,8 +37,9 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         protected double b2 = Double.NaN;
 
-        HalfLineAdderImpl(int num) {
+        HalfLineAdderImpl(int num, Branch.Side originalBoundarySide) {
             this.num = num;
+            this.originalBoundarySide = originalBoundarySide;
         }
 
         @Override
@@ -124,9 +127,9 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return TieLineAdderImpl.this;
         }
 
-        private TieLineImpl.HalfLineImpl build() {
+        private TieLineImpl.HalfLineImpl build(Branch.Side originalBoundarySide) {
             Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
-            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side);
+            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side, originalBoundarySide);
         }
 
         @Override
@@ -164,13 +167,13 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
-    public HalfLineAdderImpl newHalfLine1() {
-        return new HalfLineAdderImpl(1);
+    public HalfLineAdderImpl newHalfLine1(Branch.Side originalBoundarySide) {
+        return new HalfLineAdderImpl(1, originalBoundarySide);
     }
 
     @Override
-    public HalfLineAdderImpl newHalfLine2() {
-        return new HalfLineAdderImpl(2);
+    public HalfLineAdderImpl newHalfLine2(Branch.Side originalBoundarySide) {
+        return new HalfLineAdderImpl(2, originalBoundarySide);
     }
 
     @Override
@@ -193,8 +196,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             throw new ValidationException(this, "half line 2 is not set");
         }
 
-        TieLineImpl.HalfLineImpl half1 = halfLineAdder1.build();
-        TieLineImpl.HalfLineImpl half2 = halfLineAdder2.build();
+        TieLineImpl.HalfLineImpl half1 = halfLineAdder1.build(halfLineAdder1.originalBoundarySide);
+        TieLineImpl.HalfLineImpl half2 = halfLineAdder2.build(halfLineAdder2.originalBoundarySide);
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);

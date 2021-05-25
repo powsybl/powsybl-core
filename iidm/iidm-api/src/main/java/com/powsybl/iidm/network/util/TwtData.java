@@ -11,6 +11,7 @@ import java.util.Objects;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
+import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -388,8 +389,7 @@ public class TwtData {
         Complex ysh = LinkData.kronAntenna(openLeg.y11, openLeg.y12, openLeg.y21, openLeg.y22, true);
         Complex y22 = secondCloseLeg.y22.add(ysh);
 
-        return LinkData.kronChain(firstCloseLeg.y11, firstCloseLeg.y12, firstCloseLeg.y21, firstCloseLeg.y22,
-            secondCloseLeg.y11, secondCloseLeg.y12, secondCloseLeg.y21, y22);
+        return LinkData.kronChain(firstCloseLeg, Branch.Side.TWO, secondCloseLeg, Branch.Side.TWO);
     }
 
     private Complex calculateOneConnectedLegShunt(LinkData.BranchAdmittanceMatrix closeLeg,
