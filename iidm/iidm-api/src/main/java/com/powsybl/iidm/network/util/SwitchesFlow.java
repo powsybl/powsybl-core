@@ -41,9 +41,12 @@ public class SwitchesFlow {
     public SwitchesFlow(VoltageLevel voltageLevel) {
         this.voltageLevel = voltageLevel;
         switchesFlows = new HashMap<>();
+
+        compute();
     }
 
-    public void compute() {
+    // Compute switches flow
+    private void compute() {
 
         Map<String, SwNode> swNodeInjection = new HashMap<>();
         SimpleWeightedGraph<SwNode, SwEdge> graph = new SimpleWeightedGraph<>(SwEdge.class);
