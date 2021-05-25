@@ -16,6 +16,8 @@ import java.util.Objects;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class DanglingLineBoundaryImpl implements Boundary {
+    // for SV use: side represents the network side, that is always
+    // Side.ONE for a dangling line.
 
     private final DanglingLine parent;
 
@@ -27,28 +29,28 @@ class DanglingLineBoundaryImpl implements Boundary {
     public double getV() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideU(parent, true);
     }
 
     @Override
     public double getAngle() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideA(parent, true);
     }
 
     @Override
     public double getP() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideP(parent, true);
     }
 
     @Override
     public double getQ() {
         Terminal t = parent.getTerminal();
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), Branch.Side.ONE).otherSideQ(parent, true);
     }
 
     @Override

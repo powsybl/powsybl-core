@@ -11,22 +11,44 @@ package com.powsybl.iidm.network;
  */
 public interface Boundary {
 
+    /**
+     * Get the voltage of the boundary fictitious bus.
+     */
     double getV();
 
+    /**
+     * Get the angle of the boundary fictitious bus.
+     */
     double getAngle();
 
+    /**
+     * Get the active power at the fictitious terminal going from the boundary fictitious bus to the network.
+     */
     double getP();
 
+    /**
+     * Get the reactive power at the fictitious terminal going from the boundary fictitious bus to the network.
+     */
     double getQ();
 
+    /**
+     * A Boundary could be associated with one side of a branch to determine P and Q.
+     * Get the branch side the boundary refers to.
+     */
     default Branch.Side getSide() {
         return null;
     }
 
+    /**
+     * Get the equipment the boundary is associated to.
+     */
     default Connectable getConnectable() {
         return null;
     }
 
+    /**
+     * Get the voltage level at network side.
+     */
     default VoltageLevel getVoltageLevel() {
         return null;
     }
