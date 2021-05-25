@@ -33,7 +33,7 @@ public final class SecurityAnalysisResultExporters {
      */
     public static Collection<String> getFormats() {
         List<String> formats = new ArrayList<>();
-        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class)) {
+        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class, SecurityAnalysisResultExporters.class.getClassLoader())) {
             formats.add(e.getFormat());
         }
         return formats;
@@ -48,7 +48,7 @@ public final class SecurityAnalysisResultExporters {
      */
     public static SecurityAnalysisResultExporter getExporter(String format) {
         Objects.requireNonNull(format);
-        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class)) {
+        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class, SecurityAnalysisResultExporters.class.getClassLoader())) {
             if (format.equals(e.getFormat())) {
                 return e;
             }

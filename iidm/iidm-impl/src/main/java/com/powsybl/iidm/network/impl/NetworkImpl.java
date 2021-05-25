@@ -111,6 +111,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         @Override
+        public Collection<Component> getSynchronousComponents() {
+            return Collections.unmodifiableList(variants.get().synchronousComponentsManager.getConnectedComponents());
+        }
+
+        @Override
         public Bus getBus(String id) {
             return variants.get().busViewCache.getBus(id);
         }

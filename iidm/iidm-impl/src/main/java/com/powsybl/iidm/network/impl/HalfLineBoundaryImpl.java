@@ -16,6 +16,9 @@ import java.util.Objects;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class HalfLineBoundaryImpl implements Boundary {
+    // side represents the network side.
+    // side here is Side.ONE for the half line 1 of a tie line.
+    // side is Side.TWO for the half line 2 of a tie line.
 
     private final TieLineImpl.HalfLineImpl parent;
     private final Branch.Side side;
@@ -31,28 +34,28 @@ class HalfLineBoundaryImpl implements Boundary {
     public double getV() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideA(parent);
     }
 
     @Override
     public double getP() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideQ(parent);
     }
 
     @Override

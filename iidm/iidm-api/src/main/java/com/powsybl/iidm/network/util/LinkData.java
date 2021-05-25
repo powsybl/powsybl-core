@@ -25,11 +25,11 @@ public final class LinkData {
         return Math.abs(x) < epsilonX && applyReactanceCorrection ? epsilonX : x;
     }
 
-    public static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
-        double ratio2, double alpha2, Complex ysh1, Complex ysh2) {
+    public static BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double angle1,
+        double ratio2, double angle2, Complex ysh1, Complex ysh2) {
 
-        Complex a1 = ComplexUtils.polar2Complex(ratio1, alpha1);
-        Complex a2 = ComplexUtils.polar2Complex(ratio2, alpha2);
+        Complex a1 = ComplexUtils.polar2Complex(ratio1, angle1);
+        Complex a2 = ComplexUtils.polar2Complex(ratio2, angle2);
 
         Complex ytr;
         if (r == 0.0 && x == 0.0) {
