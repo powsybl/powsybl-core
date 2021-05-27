@@ -939,6 +939,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.b1 = dl1.getB();
             l.half1.b2 = 0;
             l.half1.fictitious = dl1.isFictitious();
+            l.half1.originalBoundarySide = Branch.Side.TWO;
             l.half2.id = dl2.getId();
             l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
@@ -948,6 +949,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.b2 = dl2.getB();
             l.half2.b1 = 0;
             l.half2.fictitious = dl2.isFictitious();
+            l.half2.originalBoundarySide = Branch.Side.ONE;
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1015,7 +1017,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .newHalfLine1(Branch.Side.ONE).setId(mergedLine.half1.id)
+                    .newHalfLine1().setId(mergedLine.half1.id)
                         .setName(mergedLine.half1.name)
                         .setR(mergedLine.half1.r)
                         .setX(mergedLine.half1.x)
@@ -1024,8 +1026,9 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB1(mergedLine.half1.b1)
                         .setB2(mergedLine.half1.b2)
                         .setFictitious(mergedLine.half1.fictitious)
+                        .setOriginalBoundarySide(mergedLine.half1.originalBoundarySide)
                     .add()
-                    .newHalfLine2(Branch.Side.TWO).setId(mergedLine.half2.id)
+                    .newHalfLine2().setId(mergedLine.half2.id)
                         .setName(mergedLine.half2.name)
                         .setR(mergedLine.half2.r)
                         .setX(mergedLine.half2.x)
@@ -1034,6 +1037,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setB1(mergedLine.half2.b1)
                         .setB2(mergedLine.half2.b2)
                         .setFictitious(mergedLine.half2.fictitious)
+                        .setOriginalBoundarySide(mergedLine.half2.originalBoundarySide)
                     .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
@@ -1086,6 +1090,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             double b1;
             double b2;
             boolean fictitious;
+            Branch.Side originalBoundarySide;
         }
 
         final HalfMergedLine half1 = new HalfMergedLine();

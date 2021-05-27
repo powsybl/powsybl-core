@@ -287,6 +287,8 @@ public abstract class AbstractLineTest {
 
     @Test
     public void testTieLineAdder() {
+        double tol = 0.0000001;
+
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
@@ -310,7 +312,7 @@ public abstract class AbstractLineTest {
                 .setBus2("busB")
                 .setConnectableBus2("busB")
                 .setUcteXnodeCode("ucte")
-                .newHalfLine1(Branch.Side.ONE)
+                .newHalfLine1()
                 .setId("hl1")
                 .setName(HALF1_NAME)
                 .setR(r)
@@ -319,8 +321,9 @@ public abstract class AbstractLineTest {
                 .setB2(hl1b2)
                 .setG1(hl1g1)
                 .setG2(hl1g2)
+                .setOriginalBoundarySide(Branch.Side.TWO)
                 .add()
-                .newHalfLine2(Branch.Side.TWO)
+                .newHalfLine2()
                 .setId("hl2")
                 .setR(r2)
                 .setX(x2)
@@ -328,6 +331,7 @@ public abstract class AbstractLineTest {
                 .setB2(hl2b2)
                 .setG1(hl2g1)
                 .setG2(hl2g2)
+                .setOriginalBoundarySide(Branch.Side.ONE)
                 .add();
         TieLine tieLine = adder.add();
         assertTrue(tieLine.isTieLine());
@@ -336,12 +340,12 @@ public abstract class AbstractLineTest {
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals(-12339.0, tieLine.getR(), tol);
+        assertEquals(1072.0, tieLine.getX(), tol);
+        assertEquals(30.020088480382720, tieLine.getG1(), tol);
+        assertEquals(135.200884803827200, tieLine.getG2(), tol);
+        assertEquals(39.960007687087310, tieLine.getB1(), tol);
+        assertEquals(144.600076870873070, tieLine.getB2(), tol);
 
         // invalid set line characteristics on tieLine
         try {
@@ -465,7 +469,7 @@ public abstract class AbstractLineTest {
                 .setBus2("busB")
                 .setConnectableBus2("busB")
                 .setUcteXnodeCode("ucte")
-                .newHalfLine1(Branch.Side.ONE)
+                .newHalfLine1()
                 .setId("hl1")
                 .setName(HALF1_NAME)
                 .setR(10.0)
@@ -474,6 +478,7 @@ public abstract class AbstractLineTest {
                 .setB2(45.0)
                 .setG1(30.0)
                 .setG2(35.0)
+                .setOriginalBoundarySide(Branch.Side.TWO)
                 .add()
                 .add();
     }
@@ -598,7 +603,7 @@ public abstract class AbstractLineTest {
         network.newTieLine()
                 .setId(id)
                 .setName(name)
-                .newHalfLine1(Branch.Side.ONE)
+                .newHalfLine1()
                 .setId(halfLineId)
                 .setName(HALF1_NAME)
                 .setR(r)
@@ -607,8 +612,9 @@ public abstract class AbstractLineTest {
                 .setB2(b2)
                 .setG1(g1)
                 .setG2(g2)
+                .setOriginalBoundarySide(Branch.Side.TWO)
                 .add()
-                .newHalfLine2(Branch.Side.TWO)
+                .newHalfLine2()
                 .setId("hl2")
                 .setName("half2_name")
                 .setR(1.0)
@@ -617,6 +623,7 @@ public abstract class AbstractLineTest {
                 .setB2(3.5)
                 .setG1(4.0)
                 .setG2(4.5)
+                .setOriginalBoundarySide(Branch.Side.ONE)
                 .add()
                 .setVoltageLevel1("vl1")
                 .setBus1("busA")

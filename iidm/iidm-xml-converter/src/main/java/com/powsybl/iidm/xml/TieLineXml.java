@@ -59,6 +59,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> context.getWriter().writeAttribute("originalBoundarySide_" + side, boundary.getOriginalBoundarySide().name()));
     }
 
     @Override
@@ -127,13 +128,22 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
+
+        if (side == 1) {
+            adder.setOriginalBoundarySide(Branch.Side.TWO);
+        } else {
+            adder.setOriginalBoundarySide(Branch.Side.ONE);
+        }
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> adder.setOriginalBoundarySide(
+            Branch.Side.valueOf(context.getReader().getAttributeValue(null, "originalBoundarySide_" + side))));
+
         adder.add();
     }
 
     @Override
     protected TieLine readRootElementAttributes(TieLineAdder adder, NetworkXmlReaderContext context) {
-        readHalf(adder.newHalfLine1(Branch.Side.ONE), context, 1);
-        readHalf(adder.newHalfLine2(Branch.Side.TWO), context, 2);
+        readHalf(adder.newHalfLine1(), context, 1);
+        readHalf(adder.newHalfLine2(), context, 2);
         readNodeOrBus(adder, context);
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         TieLine tl  = adder.setUcteXnodeCode(ucteXnodeCode)

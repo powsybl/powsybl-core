@@ -40,6 +40,14 @@ public interface Boundary {
     }
 
     /**
+     * A Boundary could be associated with one side of a branch to determine P and Q.
+     * Get the branch side the boundary refers to.
+     */
+    default Branch.Side getOriginalBoundarySide() {
+        return null;
+    }
+
+    /**
      * Get the equipment the boundary is associated to.
      */
     default Connectable getConnectable() {

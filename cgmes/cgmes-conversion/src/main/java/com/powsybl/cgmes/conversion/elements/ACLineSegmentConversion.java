@@ -152,7 +152,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         TieLineAdder adder = context.network().newTieLine()
             .setId(boundaryLine1.getId() + " + " + boundaryLine2.getId())
             .setName(boundaryLine1.getName() + " + " + boundaryLine2.getName())
-            .newHalfLine1(boundaryLine1.getBoundarySide())
+            .newHalfLine1()
                 .setId(boundaryLine1.getId())
                 .setName(boundaryLine1.getName())
                 .setR(boundaryLine1.getR())
@@ -161,8 +161,9 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .setG2(boundaryLine1.getG2())
                 .setB1(boundaryLine1.getB1())
                 .setB2(boundaryLine1.getB2())
+                .setOriginalBoundarySide(boundaryLine1.getBoundarySide())
                 .add()
-            .newHalfLine2(boundaryLine2.getBoundarySide())
+            .newHalfLine2()
                 .setId(boundaryLine2.getId())
                 .setName(boundaryLine2.getName())
                 .setR(boundaryLine2.getR())
@@ -171,6 +172,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                 .setG2(boundaryLine2.getG2())
                 .setB1(boundaryLine2.getB1())
                 .setB2(boundaryLine2.getB2())
+                .setOriginalBoundarySide(boundaryLine1.getBoundarySide())
                 .add()
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());

@@ -147,10 +147,24 @@ public final class LinkData {
     }
 
     public static class BranchAdmittanceMatrix {
-        Complex y11 = Complex.ZERO;
-        Complex y12 = Complex.ZERO;
-        Complex y21 = Complex.ZERO;
-        Complex y22 = Complex.ZERO;
+        private Complex y11;
+        private Complex y12;
+        private Complex y21;
+        private Complex y22;
+
+        public BranchAdmittanceMatrix() {
+            y11 = Complex.ZERO;
+            y12 = Complex.ZERO;
+            y21 = Complex.ZERO;
+            y22 = Complex.ZERO;
+        }
+
+        public BranchAdmittanceMatrix(Complex y11, Complex y12, Complex y21, Complex y22) {
+            this.y11 = y11;
+            this.y12 = y12;
+            this.y21 = y21;
+            this.y22 = y22;
+        }
 
         public Complex y11() {
             return y11;

@@ -315,6 +315,7 @@ class TieLineImpl extends LineImpl implements TieLine {
         throw createNotSupportedForTieLines();
     }
 
+    // zero impedance half lines should be supported
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(HalfLineImpl half1,
         HalfLineImpl half2) {
 
@@ -323,7 +324,21 @@ class TieLineImpl extends LineImpl implements TieLine {
         BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(half2.getR(), half2.getX(), 1.0, 0.0, 1.0, 0.0,
             new Complex(half2.getG1(), half2.getB1()), new Complex(half2.getG2(), half2.getB2()));
 
-        return LinkData.kronChain(adm1, half1.boundary.getOriginalBoundarySide(),
-            adm2, half2.boundary.getOriginalBoundarySide());
+        if (zeroImpedanceLine(adm1)) {
+            return adm2;
+        } else if (zeroImpedanceLine(adm2)) {
+            return adm1;
+        } else {
+            return LinkData.kronChain(adm1, half1.boundary.getOriginalBoundarySide(),
+                adm2, half2.boundary.getOriginalBoundarySide());
+        }
+    }
+
+    private static boolean zeroImpedanceLine(BranchAdmittanceMatrix adm) {
+        if (adm.y12().getReal() == 0.0 && adm.y12().getImaginary() == 0.0) {
+            return true;
+        } else {
+            return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
+        }
     }
 }
