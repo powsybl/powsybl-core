@@ -273,6 +273,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {
+        if (Double.isNaN(value)) {
+            context.ignored(TEMPORARY_LIMIT, "Temporary limit value is undefined");
+            return;
+        }
+
         if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)
