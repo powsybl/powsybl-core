@@ -6,11 +6,9 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import org.jgrapht.alg.util.Triple;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Sensitivity analysis result
@@ -33,27 +31,22 @@ import java.util.stream.Collectors;
  *  - some metadata (status, stats, logs)
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {
 
-    private static final String VALUE_NOT_FOUND = "Sensitivity value not found for function %s and variable %s.";
-    private static final String VALUE_NOT_FOUND_CONTINGENCY = "Sensitivity value not found for function %s and variable %s at contingencyId %s.";
-
-    @JsonProperty("ok")
     private final boolean ok;
 
-    @JsonProperty("metrics")
     private final Map<String, String> metrics;
 
-    @JsonProperty("logs")
     private final String logs;
 
-    @JsonProperty("values")
-    private final List<SensitivityValue> sensitivityValues;
+    private final List<SensitivityValue> values;
 
-    @JsonProperty("contingenciesValues")
-    private final Map<String, List<SensitivityValue>> sensitivityValuesContingencies;
+    private Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
+
+    private Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
 
     /**
      * Hades2 sensitivity analysis result
@@ -61,27 +54,22 @@ public class SensitivityAnalysisResult {
      * @param ok true if the analysis succeeded, false otherwise
      * @param metrics map of metrics about the analysis
      * @param logs analysis logs
-     * @param sensitivityValues result values of the sensitivity analysis in N
-     * @param sensitivityValuesContingencies result values of the sensitivity analysis on contingencies
+     * @param values result values of the sensitivity analysis in N
      */
-    @JsonCreator
-    public SensitivityAnalysisResult(@JsonProperty("ok") boolean ok,
-                                     @JsonProperty("metrics") Map<String, String> metrics,
-                                     @JsonProperty("logs") String logs,
-                                     @JsonProperty("values") List<SensitivityValue> sensitivityValues,
-                                     @JsonProperty("contingenciesValues") Map<String, List<SensitivityValue>> sensitivityValuesContingencies) {
-        this.ok = ok;
-        this.metrics = Objects.requireNonNull(metrics);
-        this.logs = Objects.requireNonNull(logs);
-        this.sensitivityValues = Collections.unmodifiableList(Objects.requireNonNull(sensitivityValues));
-        this.sensitivityValuesContingencies = Optional.ofNullable(sensitivityValuesContingencies).map(Collections::unmodifiableMap).orElse(Collections.emptyMap());
-    }
-
     public SensitivityAnalysisResult(boolean ok,
                                      Map<String, String> metrics,
                                      String logs,
-                                     List<SensitivityValue> sensitivityValues) {
-        this(ok, metrics, logs, sensitivityValues, Collections.emptyMap());
+                                     List<SensitivityValue> values) {
+        this.ok = ok;
+        this.metrics = Objects.requireNonNull(metrics);
+        this.logs = Objects.requireNonNull(logs);
+        this.values = Objects.requireNonNull(values);
+        for (SensitivityValue value : values) {
+            SensitivityFactor factor = value.getFactor();
+            valuesByContingencyId.computeIfAbsent(value.getContingencyId(), k -> new ArrayList<>())
+                    .add(value);
+            valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(value.getContingencyId(), factor.getFunctionId(), factor.getVariableId()), value);
+        }
     }
 
     /**
@@ -117,60 +105,30 @@ public class SensitivityAnalysisResult {
      *
      * @return a collection of all the sensitivity values in state N.
      */
-    public Collection<SensitivityValue> getSensitivityValues() {
-        return Collections.unmodifiableCollection(sensitivityValues);
+    public Collection<SensitivityValue> getValues() {
+        return Collections.unmodifiableCollection(values);
     }
 
     /**
-     * Get a collection of all the sensitivity values associated with given function in state N.
+     * Get a collection of sensitivity value associated with given contingency ID
      *
-     * @param function sensitivity function type
-     * @return a collection of all the sensitivity values associated with given function in state N.
+     * @param contingencyId the ID of the considered contingency
+     * @return the sensitivity value associated with given contingency ID
      */
-    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunctionType function) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function))
-                .collect(Collectors.toList());
+    public List<SensitivityValue> getValues(String contingencyId) {
+        return valuesByContingencyId.getOrDefault(contingencyId, Collections.emptyList());
     }
 
     /**
-     * Get a collection of all the sensitivity values associated with given variable in state N.
+     * Get the sensitivity value associated with given function and given variable for a specific contingency.
      *
-     * @param variable sensitivity variable type
-     * @return a collection of all the sensitivity values associated with given variable in state N.
+     * @param contingencyId the ID of the considered contingency
+     * @param functionId sensitivity function ID
+     * @param variableId sensitivity variable ID
+     * @return the sensitivity value associated with given function and given variable for given contingency
      */
-    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariableType variable) {
-        return sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getVariableType().equals(variable))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the sensitivity value associated with given function and given variable in state N.
-     *
-     * @param function sensitivity function type
-     * @param variable sensitivity variable type
-     * @return the sensitivity value associated with given function and given variable in state N.
-     */
-    public SensitivityValue getSensitivityValue(SensitivityFunctionType function, SensitivityVariableType variable) {
-        Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function)
-                && sensitivityValue.getFactor().getVariableType().equals(variable)).findAny();
-        if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, function.name(), variable.name()));
-        }
-        return returnValue.get();
-    }
-
-    /**
-     * Get the sensitivity value associated with given factor in state N.
-     *
-     * @param factor sensitivity factor
-     * @return the sensitivity value associated with given function and given variable in state N.
-     */
-    public SensitivityValue getSensitivityValue(SensitivityFactor factor) {
-        Optional<SensitivityValue> returnValue = sensitivityValues.stream().filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor)).findAny();
-        if (!returnValue.isPresent()) {
-            throw new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunctionId(), factor.getVariableId()));
-        }
-        return returnValue.get();
+    public SensitivityValue getValue(String contingencyId, String functionId, String variableId) {
+        return valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
     }
 
     /**
@@ -179,7 +137,7 @@ public class SensitivityAnalysisResult {
      * @return true if the analysis contains contingencies, false otherwise
      */
     public boolean contingenciesArePresent() {
-        return !sensitivityValuesContingencies.isEmpty();
+        return !valuesByContingencyId.isEmpty();
     }
 
     /**
@@ -187,69 +145,11 @@ public class SensitivityAnalysisResult {
      *
      * @return a collection of all the sensitivity values for all contingencies.
      */
-    public Map<String, List<SensitivityValue>> getSensitivityValuesContingencies() {
-        return Collections.unmodifiableMap(sensitivityValuesContingencies);
-    }
-
-    /**
-     * Get a collection of all the sensitivity values associated with given function
-     * for a specific contingency.
-     *
-     * @param function sensitivity function type
-     * @param contingencyId the ID of the considered contingency
-     * @return a collection of all the sensitivity values associated with given function for the given contingencyId
-     */
-    public Collection<SensitivityValue> getSensitivityValuesByFunction(SensitivityFunctionType function, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get a collection of all the sensitivity values associated with given variable
-     * for a specific contingency.
-     *
-     * @param variable sensitivity variable type
-     * @param contingencyId the ID of the considered contingency
-     * @return a collection of all the sensitivity values associated with given variable
-     */
-    public Collection<SensitivityValue> getSensitivityValuesByVariable(SensitivityVariableType variable, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getVariableType().equals(variable))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Get the sensitivity value associated with given function and given variable for a specific contingency.
-     *
-     * @param function sensitivity function type
-     * @param variable sensitivity variable type
-     * @param contingencyId the ID of the considered contingency
-     * @return the sensitivity value associated with given function and given variable
-     */
-    public SensitivityValue getSensitivityValue(SensitivityFunctionType function, SensitivityVariableType variable, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().getFunctionType().equals(function)
-                        && sensitivityValue.getFactor().getVariableType().equals(variable))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND_CONTINGENCY, function.name(), variable.name(), contingencyId)));
-    }
-
-    /**
-     * Get the sensitivity value associated with given factor for a specific contingency
-     *
-     * @param factor sensitivity factor
-     * @param contingencyId the ID of the considered contingency
-     * @return the sensitivity value associated with given function and given variable
-     */
-    public SensitivityValue getSensitivityValue(SensitivityFactor factor, String contingencyId) {
-        return sensitivityValuesContingencies.get(contingencyId).stream()
-                .filter(sensitivityValue -> sensitivityValue.getFactor().equals(factor))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException(String.format(VALUE_NOT_FOUND, factor.getFunctionId(), factor.getVariableId())));
+    public Map<String, List<SensitivityValue>> getValuesByContingencyId() {
+        return valuesByContingencyId;
     }
 
     public static SensitivityAnalysisResult empty() {
-        return new SensitivityAnalysisResult(false, Collections.emptyMap(), "", Collections.emptyList(), Collections.emptyMap());
+        return new SensitivityAnalysisResult(false, Collections.emptyMap(), "", Collections.emptyList());
     }
 }

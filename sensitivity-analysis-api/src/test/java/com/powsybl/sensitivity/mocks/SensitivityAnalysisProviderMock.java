@@ -32,8 +32,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
             true,
             new HashMap<>(),
             "ok",
-            new ArrayList<>(),
-            new HashMap<>()));
+            new ArrayList<>()));
     }
 
     @Override

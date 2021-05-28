@@ -28,7 +28,7 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
 
     private static SensitivityAnalysisResult createSensitivityResult() {
         // read sensitivity factors
-        List<SensitivityFactor> factors = Collections.emptyList();
+        List<SensitivityFactor> factors;
         try {
             factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
         } catch (IOException e) {
@@ -38,9 +38,8 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
         factors.forEach(factor -> {
             sensitivityValues.add(new SensitivityValue(factor, "c1", 0, 0));
         });
-        Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
+        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues);
     }
 
     public void writeCsv(SensitivityAnalysisResult results, Path path) {
@@ -55,6 +54,7 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
 
     @Test
     public void testComment() {
-        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityAnalysisResultExporters.getExporter("CSV").getComment());
+        SensitivityAnalysisResultExporter exporter = Objects.requireNonNull(SensitivityAnalysisResultExporters.getExporter("CSV"));
+        assertEquals("Export a sensitivity analysis result in CSV format", exporter.getComment());
     }
 }

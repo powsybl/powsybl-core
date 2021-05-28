@@ -60,7 +60,7 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
                 // FIXME : new Column("VariableRefValue"),
                 new Column("FunctionRefValue"),
                 new Column("SensitivityValue"))) {
-            result.getSensitivityValues().forEach(sensitivityValue -> {
+            result.getValues().forEach(sensitivityValue -> {
                 try {
                     writeCells(formatter, sensitivityValue, "State N");
                 } catch (IOException e) {
@@ -68,7 +68,7 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
                 }
             });
             if (result.contingenciesArePresent()) {
-                result.getSensitivityValuesContingencies().forEach((contId, sensitivityValues) -> sensitivityValues.forEach(sensitivityValue -> {
+                result.getValuesByContingencyId().forEach((contId, sensitivityValues) -> sensitivityValues.forEach(sensitivityValue -> {
                     try {
                         writeCells(formatter, sensitivityValue, "Contingency " + contId);
                     } catch (IOException e) {
