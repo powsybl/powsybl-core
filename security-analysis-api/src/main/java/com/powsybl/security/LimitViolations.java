@@ -65,6 +65,20 @@ public final class LimitViolations {
     }
 
     /**
+     * A builder for active power limit violations.
+     */
+    public static LimitViolationBuilder activePower() {
+        return new LimitViolationBuilder().type(LimitViolationType.ACTIVE_POWER);
+    }
+
+    /**
+     * A builder for apparent power limit violations.
+     */
+    public static LimitViolationBuilder apparentPower() {
+        return new LimitViolationBuilder().type(LimitViolationType.APPARENT_POWER);
+    }
+
+    /**
      * A builder for low short circuit current limit violations.
      */
     public static LimitViolationBuilder lowShortCircuitCurrent() {

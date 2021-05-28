@@ -50,6 +50,9 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
+        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.ONE);
+        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+
         Contingency contingency = Contingency.builder("contingency")
                                              .addBranch("NHV1_NHV2_2", "VLNHV1")
                                              .addBranch("NHV1_NHV2_1")
@@ -58,7 +61,7 @@ public class ExporterTest extends AbstractConverterTest {
                                              .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
 
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));

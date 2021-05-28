@@ -139,6 +139,42 @@ public class LimitViolationBuilderTest {
     }
 
     @Test
+    public void buildActivePowerViolation() {
+        LimitViolationBuilder builder = LimitViolations.activePower()
+                                                       .subject("id")
+                                                       .limit(1500)
+                                                       .value(2000)
+                                                       .side(Branch.Side.ONE);
+
+        LimitViolation violation = builder.build();
+        assertEquals("id", violation.getSubjectId());
+        assertSame(LimitViolationType.ACTIVE_POWER, violation.getLimitType());
+        assertSame(Branch.Side.ONE, violation.getSide());
+        assertNull(violation.getLimitName());
+        assertEquals(1500, violation.getLimit(), 0);
+        assertEquals(2000, violation.getValue(), 0);
+        assertEquals(1.0, violation.getLimitReduction(), 0);
+    }
+
+    @Test
+    public void buildApparentPowerViolation() {
+        LimitViolationBuilder builder = LimitViolations.apparentPower()
+                                                       .subject("id")
+                                                       .limit(1500)
+                                                       .value(2000)
+                                                       .side(Branch.Side.TWO);
+
+        LimitViolation violation = builder.build();
+        assertEquals("id", violation.getSubjectId());
+        assertSame(LimitViolationType.APPARENT_POWER, violation.getLimitType());
+        assertSame(Branch.Side.TWO, violation.getSide());
+        assertNull(violation.getLimitName());
+        assertEquals(1500, violation.getLimit(), 0);
+        assertEquals(2000, violation.getValue(), 0);
+        assertEquals(1.0, violation.getLimitReduction(), 0);
+    }
+
+    @Test
     public void testComparator() {
         LimitViolationBuilder builder = LimitViolations.highVoltage()
                 .subject("id")

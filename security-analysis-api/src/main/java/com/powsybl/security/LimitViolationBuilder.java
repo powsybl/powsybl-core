@@ -105,6 +105,9 @@ public class LimitViolationBuilder {
             case LOW_SHORT_CIRCUIT_CURRENT:
             case HIGH_SHORT_CIRCUIT_CURRENT:
                 return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value, null);
+            case ACTIVE_POWER:
+            case APPARENT_POWER:
+                return new LimitViolation(subjectId, subjectName, type, limitName, Integer.MAX_VALUE, limit, reduction, value, side);
             default:
                 throw new UnsupportedOperationException(String.format("Building %s limits is not supported.", type.name()));
         }
