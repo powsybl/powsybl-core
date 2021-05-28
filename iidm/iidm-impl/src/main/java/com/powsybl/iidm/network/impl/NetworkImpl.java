@@ -935,8 +935,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half1.r = dl1.getR();
             l.half1.x = dl1.getX();
             l.half1.g1 = dl1.getG();
-            l.half1.g2 = 0;
             l.half1.b1 = dl1.getB();
+            l.half1.g2 = 0;
             l.half1.b2 = 0;
             l.half1.fictitious = dl1.isFictitious();
             l.half1.originalBoundarySide = Branch.Side.TWO;
@@ -944,12 +944,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.half2.name = dl2.getNameOrId();
             l.half2.r = dl2.getR();
             l.half2.x = dl2.getX();
-            l.half2.g2 = dl2.getG();
-            l.half2.g1 = 0;
-            l.half2.b2 = dl2.getB();
-            l.half2.b1 = 0;
+            l.half2.g1 = dl2.getG();
+            l.half2.b1 = dl2.getB();
+            l.half2.g2 = 0;
+            l.half2.b2 = 0;
             l.half2.fictitious = dl2.isFictitious();
-            l.half2.originalBoundarySide = Branch.Side.ONE;
+            l.half2.originalBoundarySide = Branch.Side.TWO;
             l.limits1 = dl1.getCurrentLimits();
             l.limits2 = dl2.getCurrentLimits();
             if (t1.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
@@ -1022,8 +1022,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setR(mergedLine.half1.r)
                         .setX(mergedLine.half1.x)
                         .setG1(mergedLine.half1.g1)
-                        .setG2(mergedLine.half1.g2)
                         .setB1(mergedLine.half1.b1)
+                        .setG2(mergedLine.half1.g2)
                         .setB2(mergedLine.half1.b2)
                         .setFictitious(mergedLine.half1.fictitious)
                         .setOriginalBoundarySide(mergedLine.half1.originalBoundarySide)
@@ -1033,8 +1033,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                         .setR(mergedLine.half2.r)
                         .setX(mergedLine.half2.x)
                         .setG1(mergedLine.half2.g1)
-                        .setG2(mergedLine.half2.g2)
                         .setB1(mergedLine.half2.b1)
+                        .setG2(mergedLine.half2.g2)
                         .setB2(mergedLine.half2.b2)
                         .setFictitious(mergedLine.half2.fictitious)
                         .setOriginalBoundarySide(mergedLine.half2.originalBoundarySide)
