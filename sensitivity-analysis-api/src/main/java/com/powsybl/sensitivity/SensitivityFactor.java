@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +86,24 @@ public class SensitivityFactor {
                 ", variableSet=" + variableSet +
                 ", contingencyContext=" + contingencyContext +
                 ')';
+    }
+
+    static void writeJson(JsonGenerator generator, List<? extends SensitivityFactor> factorList) {
+        Objects.requireNonNull(factorList);
+        try {
+            generator.writeStartArray();
+            for (SensitivityFactor factor : factorList) {
+                SensitivityFactor.writeJson(generator, factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(),
+                        factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+            }
+            generator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static void writeJson(Writer writer, List<? extends SensitivityFactor> factorList) {
+        JsonUtil.writeJson(writer, generator -> writeJson(generator, factorList));
     }
 
     static void writeJson(JsonGenerator jsonGenerator, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,

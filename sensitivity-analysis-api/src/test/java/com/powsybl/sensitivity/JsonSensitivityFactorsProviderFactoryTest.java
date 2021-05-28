@@ -30,4 +30,5 @@ public class JsonSensitivityFactorsProviderFactoryTest {
 
         assertTrue(provider instanceof JsonSensitivityFactorsProvider);
     }
+
 }
