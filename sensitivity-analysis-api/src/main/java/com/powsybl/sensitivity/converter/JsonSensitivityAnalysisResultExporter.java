@@ -10,8 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 import com.powsybl.sensitivity.json.SensitivityAnalysisResultJsonSerializer;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 
 /**
@@ -34,10 +32,6 @@ public class JsonSensitivityAnalysisResultExporter implements SensitivityAnalysi
 
     @Override
     public void export(SensitivityAnalysisResult result, Writer writer) {
-        try {
-            SensitivityAnalysisResultJsonSerializer.write(result, writer);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        SensitivityAnalysisResultJsonSerializer.write(result, writer);
     }
 }

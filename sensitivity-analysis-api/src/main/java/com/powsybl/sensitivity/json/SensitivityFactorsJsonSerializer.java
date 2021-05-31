@@ -29,7 +29,7 @@ public final class SensitivityFactorsJsonSerializer {
      */
     public static List<SensitivityFactor> read(Reader reader) {
         Objects.requireNonNull(reader);
-        return JsonUtil.parseJson(reader, SensitivityFactor::parseJson);
+        return JsonUtil.parseJson(reader, SensitivityFactor::parseMultipleJson);
     }
 
     /**

@@ -17,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -127,10 +126,6 @@ public class SensitivityFactor {
         }
     }
 
-    public static List<SensitivityFactor> parseJson(Path jsonFile) {
-        return JsonUtil.parseJson(jsonFile, SensitivityFactor::parseJson);
-    }
-
     static final class ParsingContext {
         private SensitivityFunctionType functionType;
         private String functionId;
@@ -151,7 +146,7 @@ public class SensitivityFactor {
         }
     }
 
-    public static List<SensitivityFactor> parseJson(JsonParser parser) {
+    public static List<SensitivityFactor> parseMultipleJson(JsonParser parser) {
         Objects.requireNonNull(parser);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -204,5 +199,56 @@ public class SensitivityFactor {
         LOGGER.info("{} factors read in {} ms", factors.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return factors;
+    }
+
+    public static SensitivityFactor parseJson(JsonParser parser) {
+        Objects.requireNonNull(parser);
+
+        Stopwatch stopwatch = Stopwatch.createStarted();
+
+        ParsingContext context = new ParsingContext();
+        try {
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    String fieldName = parser.getCurrentName();
+                    switch (fieldName) {
+                        case "functionType":
+                            context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
+                            break;
+                        case "functionId":
+                            context.functionId = parser.nextTextValue();
+                            break;
+                        case "variableType":
+                            context.variableType = SensitivityVariableType.valueOf(parser.nextTextValue());
+                            break;
+                        case "variableId":
+                            context.variableId = parser.nextTextValue();
+                            break;
+                        case "variableSet":
+                            context.variableSet = parser.nextBooleanValue();
+                            break;
+                        case "contingencyContextType":
+                            context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                            break;
+                        case "contingencyId":
+                            context.contingencyId = parser.nextTextValue();
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        stopwatch.stop();
+        LOGGER.info("factor read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
+                new ContingencyContext(context.contingencyContextType, context.contingencyId));
     }
 }

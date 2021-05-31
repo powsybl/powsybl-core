@@ -6,9 +6,21 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Stopwatch;
+import com.powsybl.commons.json.JsonUtil;
 import org.jgrapht.alg.util.Triple;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.io.Writer;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Sensitivity analysis result
@@ -35,6 +47,8 @@ import java.util.*;
  * @see SensitivityValue
  */
 public class SensitivityAnalysisResult {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisResult.class);
 
     private final boolean ok;
 
@@ -151,5 +165,79 @@ public class SensitivityAnalysisResult {
 
     public static SensitivityAnalysisResult empty() {
         return new SensitivityAnalysisResult(false, Collections.emptyMap(), "", Collections.emptyList());
+    }
+
+    static final class ParsingContext {
+        private boolean ok;
+        private Map<String, String> metrics;
+        private String logs;
+        private List<SensitivityValue> values;
+    }
+
+    public static SensitivityAnalysisResult parseJson(JsonParser jsonParser) {
+        Objects.requireNonNull(jsonParser);
+
+        var stopwatch = Stopwatch.createStarted();
+
+        var context = new ParsingContext();
+        try {
+            JsonToken token;
+            while ((token = jsonParser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    String fieldName = jsonParser.getCurrentName();
+                    switch (fieldName) {
+                        case "ok":
+                            context.ok = jsonParser.nextBooleanValue();
+                            break;
+                        case "metrics":
+                            jsonParser.nextToken();
+                            context.metrics = new ObjectMapper().readValue(jsonParser, Map.class);
+                            break;
+                        case "logs":
+                            context.logs = jsonParser.nextTextValue();
+                            break;
+                        case "values":
+                            jsonParser.nextToken();
+                            context.values = SensitivityValue.parseJson(jsonParser);
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        stopwatch.stop();
+        LOGGER.info("result read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+
+        return new SensitivityAnalysisResult(context.ok, context.metrics, context.logs, context.values);
+    }
+
+    public static void writeJson(Writer writer, SensitivityAnalysisResult result) {
+        JsonUtil.writeJson(writer, generator -> writeJson(generator, result));
+    }
+
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityAnalysisResult result) {
+        try {
+            jsonGenerator.writeStartObject();
+
+            jsonGenerator.writeBooleanField("ok", result.isOk());
+
+            jsonGenerator.writeFieldName("metrics");
+            new ObjectMapper().writeValue(jsonGenerator, result.getMetrics());
+
+            jsonGenerator.writeStringField("logs", result.getLogs());
+
+            jsonGenerator.writeFieldName("values");
+            SensitivityValue.writeJson(jsonGenerator, result.getValues());
+
+            jsonGenerator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }
