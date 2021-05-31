@@ -30,7 +30,6 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
         formatter.writeCell(state);
         formatter.writeCell(sensitivityValue.getFactor().getVariableId());
         formatter.writeCell(sensitivityValue.getFactor().getFunctionId());
-        // FIXME : formatter.writeCell(sensitivityValue.getVariableReference());
         formatter.writeCell(sensitivityValue.getFunctionReference());
         formatter.writeCell(sensitivityValue.getValue());
     }
@@ -48,12 +47,11 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
     @Override
     public void export(SensitivityAnalysisResult result, Writer writer) {
         TableFormatterFactory factory = new CsvTableFormatterFactory();
-        TableFormatterConfig tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
+        var tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
         try (TableFormatter formatter = factory.create(writer, "", tfc,
                 new Column("Variant"),
                 new Column("VariableId"),
                 new Column("FunctionId"),
-                // FIXME : new Column("VariableRefValue"),
                 new Column("FunctionRefValue"),
                 new Column("SensitivityValue"))) {
             result.getValues().forEach(sensitivityValue -> {

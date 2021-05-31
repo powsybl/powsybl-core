@@ -9,7 +9,6 @@ package com.powsybl.sensitivity.json;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityFactor;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.List;
@@ -36,9 +35,8 @@ public final class SensitivityFactorsJsonSerializer {
      * Write sensitivity factors input in JSON format to writer
      * @param sensitivityFactors The sensitivity factors input to export
      * @param writer The writer to write to
-     * @throws IOException
      */
-    public static void write(List<SensitivityFactor> sensitivityFactors, Writer writer) throws IOException {
+    public static void write(List<SensitivityFactor> sensitivityFactors, Writer writer) {
         Objects.requireNonNull(sensitivityFactors);
         Objects.requireNonNull(writer);
         SensitivityFactor.writeJson(writer, sensitivityFactors);

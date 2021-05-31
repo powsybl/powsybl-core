@@ -149,40 +149,15 @@ public class SensitivityFactor {
     public static List<SensitivityFactor> parseMultipleJson(JsonParser parser) {
         Objects.requireNonNull(parser);
 
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        var stopwatch = Stopwatch.createStarted();
 
         List<SensitivityFactor> factors = new ArrayList<>();
         try {
-            ParsingContext context = new ParsingContext();
+            var context = new ParsingContext();
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
-                    switch (fieldName) {
-                        case "functionType":
-                            context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
-                            break;
-                        case "functionId":
-                            context.functionId = parser.nextTextValue();
-                            break;
-                        case "variableType":
-                            context.variableType = SensitivityVariableType.valueOf(parser.nextTextValue());
-                            break;
-                        case "variableId":
-                            context.variableId = parser.nextTextValue();
-                            break;
-                        case "variableSet":
-                            context.variableSet = parser.nextBooleanValue();
-                            break;
-                        case "contingencyContextType":
-                            context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
-                            break;
-                        case "contingencyId":
-                            context.contingencyId = parser.nextTextValue();
-                            break;
-                        default:
-                            break;
-                    }
+                    parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
                     factors.add(new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
                             new ContingencyContext(context.contingencyContextType, context.contingencyId)));
@@ -204,39 +179,14 @@ public class SensitivityFactor {
     public static SensitivityFactor parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
 
-        Stopwatch stopwatch = Stopwatch.createStarted();
+        var stopwatch = Stopwatch.createStarted();
 
-        ParsingContext context = new ParsingContext();
+        var context = new ParsingContext();
         try {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
-                    switch (fieldName) {
-                        case "functionType":
-                            context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
-                            break;
-                        case "functionId":
-                            context.functionId = parser.nextTextValue();
-                            break;
-                        case "variableType":
-                            context.variableType = SensitivityVariableType.valueOf(parser.nextTextValue());
-                            break;
-                        case "variableId":
-                            context.variableId = parser.nextTextValue();
-                            break;
-                        case "variableSet":
-                            context.variableSet = parser.nextBooleanValue();
-                            break;
-                        case "contingencyContextType":
-                            context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
-                            break;
-                        case "contingencyId":
-                            context.contingencyId = parser.nextTextValue();
-                            break;
-                        default:
-                            break;
-                    }
+                    parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
                     break;
                 }
@@ -250,5 +200,34 @@ public class SensitivityFactor {
 
         return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
                 new ContingencyContext(context.contingencyContextType, context.contingencyId));
+    }
+
+    private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        switch (fieldName) {
+            case "functionType":
+                context.functionType = SensitivityFunctionType.valueOf(parser.nextTextValue());
+                break;
+            case "functionId":
+                context.functionId = parser.nextTextValue();
+                break;
+            case "variableType":
+                context.variableType = SensitivityVariableType.valueOf(parser.nextTextValue());
+                break;
+            case "variableId":
+                context.variableId = parser.nextTextValue();
+                break;
+            case "variableSet":
+                context.variableSet = parser.nextBooleanValue();
+                break;
+            case "contingencyContextType":
+                context.contingencyContextType = ContingencyContextType.valueOf(parser.nextTextValue());
+                break;
+            case "contingencyId":
+                context.contingencyId = parser.nextTextValue();
+                break;
+            default:
+                break;
+        }
     }
 }
