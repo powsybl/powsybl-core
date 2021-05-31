@@ -146,7 +146,7 @@ class LoadScalable extends AbstractInjectionScalable {
         return done;
     }
 
-    public double scale_with_constant_power_factor(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -179,11 +179,11 @@ class LoadScalable extends AbstractInjectionScalable {
         if (scalingConvention == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
-            l.setQ0((oldP0 + done) * oldQ0 / oldP0)
+            l.setQ0((oldP0 + done) * oldQ0 / oldP0);
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
             l.setP0(oldP0 - done);
-            l.setQ0((oldP0 - done) * oldQ0 / oldP0)
+            l.setQ0((oldP0 - done) * oldQ0 / oldP0);
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
