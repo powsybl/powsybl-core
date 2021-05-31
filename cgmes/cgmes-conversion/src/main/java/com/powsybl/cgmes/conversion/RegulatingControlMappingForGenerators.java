@@ -127,7 +127,7 @@ public class RegulatingControlMappingForGenerators {
     }
 
     private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, Generator gen) {
-        // Take default terminal if it has not been defined in CGMES file. If it null, ignore
+        // Ignore control if the terminal is not mapped.
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
         if (terminal == null) {
             context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
