@@ -23,8 +23,6 @@ public abstract class AbstractHalfLineBoundaryImpl implements Boundary {
         this.side = Objects.requireNonNull(side);
     }
 
-
-
     @Override
     public double getV() {
         Terminal t = getConnectable().getTerminal(side);

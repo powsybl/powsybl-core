@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
@@ -58,7 +57,11 @@ public class SV {
      */
     @Deprecated(since = "4.3.0")
     public SV(double p, double q, double u, double a) {
-        throw new PowsyblException("Deprecated. Not used anymore");
+        this.p = p;
+        this.q = q;
+        this.u = u;
+        this.a = a;
+        this.side = Branch.Side.ONE;
     }
 
     private final double p;

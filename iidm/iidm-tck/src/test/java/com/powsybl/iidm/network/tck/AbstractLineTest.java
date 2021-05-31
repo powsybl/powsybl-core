@@ -445,8 +445,8 @@ public abstract class AbstractLineTest {
         tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
 
         // test boundaries values
-        SV expectedSV1 = new SV(p1, q1, v1, angle1);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
         assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getP(), 0.0d);
