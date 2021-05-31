@@ -8,6 +8,7 @@ package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
@@ -46,9 +47,9 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         this(EnumSet.allOf(Security.CurrentLimitType.class));
     }
 
-    private void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    private void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
-        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value)) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
             consumer.accept(new LimitViolation(branch.getId(),
                     ((Branch<?>) branch).getOptionalName().orElse(null),
                     LimitViolationType.CURRENT,
@@ -64,7 +65,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
     @Override
     public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, LimitType.CURRENT);
 
         if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
             consumer.accept(new LimitViolation(branch.getId(),
@@ -77,7 +78,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                     value,
                     side));
         } else if (currentLimitTypes.contains(Security.CurrentLimitType.PATL)) {
-            checkPermanentLimit(branch, side, value, consumer);
+            checkPermanentLimit(branch, side, value, consumer, LimitType.CURRENT);
         }
     }
 
