@@ -52,10 +52,10 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
             consumer.accept(new LimitViolation(branch.getId(),
                     ((Branch<?>) branch).getOptionalName().orElse(null),
-                    LimitViolationType.CURRENT,
+                    toLimitViolationType(type),
                     null,
                     Integer.MAX_VALUE,
-                    branch.getCurrentLimits(side).getPermanentLimit(),
+                    branch.getLimits(type, side).getPermanentLimit(),
                     limitReduction,
                     value,
                     side));

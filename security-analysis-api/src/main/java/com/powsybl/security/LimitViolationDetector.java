@@ -7,10 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 
 import java.util.function.Consumer;
 
@@ -192,4 +189,25 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkAll(Network network, Consumer<LimitViolation> consumer);
+
+    /**
+     * Helper function to convert a limit type to a limit violation type
+     *
+     * @param type The limit type to convert.
+     * @return The matching LimitViolationTYpe
+     */
+    default LimitViolationType toLimitViolationType(LimitType type) {
+        switch (type) {
+
+            case ACTIVE_POWER:
+                return LimitViolationType.ACTIVE_POWER;
+            case APPARENT_POWER:
+                return LimitViolationType.APPARENT_POWER;
+            case CURRENT:
+                return LimitViolationType.CURRENT;
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupported conversion for %s from limit type to limit violation type.", type.name()));
+        }
+    }
 }
