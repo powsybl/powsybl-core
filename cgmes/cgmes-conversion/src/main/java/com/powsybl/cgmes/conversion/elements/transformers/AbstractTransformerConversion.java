@@ -57,7 +57,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
         rtca.add();
     }
 
-    protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca) {
+    protected static void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca, Context context) {
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
         ptca.setLowTapPosition(lowStep).setTapPosition(position);
@@ -67,6 +67,10 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             double angle = step.getAngle();
             double r = step.getR();
             double x = step.getX();
+            if (Double.isNaN(x)) {
+                context.fixed("ptc.step.x", "ptc.step.x is undefined", x, 0.0);
+                x = 0.0;
+            }
             double b1 = step.getB1();
             double g1 = step.getG1();
             // double b2 = step.getB2();

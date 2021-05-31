@@ -143,8 +143,8 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network);
         assignNetworkProperties(context);
-        addCgmesSvMetadata(network);
-        addCgmesSshMetadata(network);
+        addCgmesSvMetadata(network, context);
+        addCgmesSshMetadata(network, context);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
@@ -328,27 +328,36 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvMetadata(Network network) {
+    private void addCgmesSvMetadata(Network network, Context context) {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
                     .setDescription(svDescription.get(0).getId("description"))
-                    .setSvVersion(svDescription.get(0).asInt("version"))
+                    .setSvVersion(readVersion(svDescription, context))
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
     }
 
-    private void addCgmesSshMetadata(Network network) {
+    private void addCgmesSshMetadata(Network network, Context context) {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
                     .setDescription(sshDescription.get(0).getId("description"))
-                    .setSshVersion(sshDescription.get(0).asInt("version"))
+                    .setSshVersion(readVersion(sshDescription, context))
                     .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
             sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
+        }
+    }
+
+    private int readVersion(PropertyBags propertyBags, Context context) {
+        try {
+            return propertyBags.get(0).asInt("version");
+        } catch (NumberFormatException e) {
+            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
+            return 1;
         }
     }
 
@@ -586,15 +595,6 @@ public class Conversion {
             return this;
         }
 
-        public boolean mergeBoundariesUsingTieLines() {
-            return mergeBoundariesUsingTieLines;
-        }
-
-        public Config setMergeBoundariesUsingTieLines(boolean b) {
-            this.mergeBoundariesUsingTieLines = b;
-            return this;
-        }
-
         public boolean changeSignForShuntReactivePowerFlowInitialState() {
             return changeSignForShuntReactivePowerFlowInitialState;
         }
@@ -737,7 +737,6 @@ public class Conversion {
 
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
-        private boolean mergeBoundariesUsingTieLines = true;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 7.0E-5;
         private double lowImpedanceLineX = 7.0E-5;
