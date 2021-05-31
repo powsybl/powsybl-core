@@ -198,7 +198,6 @@ public interface LimitViolationDetector {
      */
     default LimitViolationType toLimitViolationType(LimitType type) {
         switch (type) {
-
             case ACTIVE_POWER:
                 return LimitViolationType.ACTIVE_POWER;
             case APPARENT_POWER:

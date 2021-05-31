@@ -211,18 +211,16 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     }
 
     default LoadingLimits getLimits(LimitType type, Branch.Side side) {
-        LoadingLimits limits;
         switch (type) {
             case CURRENT:
-                limits = getCurrentLimits(side);
+                return getCurrentLimits(side);
             case ACTIVE_POWER:
-                limits = getActivePowerLimits(side);
+                return getActivePowerLimits(side);
             case APPARENT_POWER:
-                limits = getApparentPowerLimits(side);
+                return getApparentPowerLimits(side);
             default:
-                limits = getCurrentLimits(side);
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }
-        return limits;
     }
 
     boolean isOverloaded();

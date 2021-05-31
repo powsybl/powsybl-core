@@ -47,7 +47,15 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         this(EnumSet.allOf(Security.CurrentLimitType.class));
     }
 
-    private void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+    /**
+     * Generic implementation for permanent limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    public void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
             consumer.accept(new LimitViolation(branch.getId(),
@@ -96,4 +104,26 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
+    /**
+     * Generic implementation for temporary limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    public void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+        if (overload != null) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    overload.getPreviousLimitName(),
+                    overload.getTemporaryLimit().getAcceptableDuration(),
+                    overload.getPreviousLimit(),
+                    limitReduction,
+                    value,
+                    side));
+        }
+    }
 }
