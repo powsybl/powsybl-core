@@ -144,6 +144,7 @@ public class LimitViolationBuilderTest {
                                                        .subject("id")
                                                        .limit(1500)
                                                        .value(2000)
+                                                       .duration(20, TimeUnit.MINUTES)
                                                        .side(Branch.Side.ONE);
 
         LimitViolation violation = builder.build();
@@ -162,6 +163,7 @@ public class LimitViolationBuilderTest {
                                                        .subject("id")
                                                        .limit(1500)
                                                        .value(2000)
+                                                       .duration(20, TimeUnit.MINUTES)
                                                        .side(Branch.Side.TWO);
 
         LimitViolation violation = builder.build();
