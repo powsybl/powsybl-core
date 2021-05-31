@@ -152,7 +152,7 @@ public class RegulatingControlMapping {
     }
 
     static boolean isControlModeReactivePower(String controlMode) {
-        return controlMode != null && controlMode.endsWith("reactivepower");
+        return controlMode != null && controlMode.toLowerCase().endsWith("reactivepower");
     }
 
     static String getRegulatingControlId(PropertyBag p) {
