@@ -6,10 +6,7 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
@@ -124,5 +121,41 @@ public class DefaultLimitViolationDetectorTest {
                     assertNull(v.getSide());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
+    }
+
+    @Test
+    public void detectPermanentActivePowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+        line2 = network.getLine("NHV1_NHV2_2");
+
+        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1100, l.getLimit(), 0d);
+                      assertEquals(1101, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectPermanentApparentPowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+        line2 = network.getLine("NHV1_NHV2_2");
+
+        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1100, l.getLimit(), 0d);
+                      assertEquals(1101, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
     }
 }

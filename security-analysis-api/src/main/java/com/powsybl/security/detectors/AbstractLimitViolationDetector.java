@@ -7,10 +7,8 @@
 package com.powsybl.security.detectors;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 
@@ -67,6 +65,22 @@ public abstract class AbstractLimitViolationDetector extends AbstractContingency
         network.getVoltageLevelStream()
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(contingency, b, consumer));
+    }
+
+    @Override
+    public void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    null,
+                    Integer.MAX_VALUE,
+                    branch.getLimits(type, side).getPermanentLimit(),
+                    1.0f,
+                    value,
+                    side));
+        }
     }
 
 }

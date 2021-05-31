@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.function.Consumer;
 
@@ -207,6 +208,51 @@ public interface LimitViolationDetector {
             case VOLTAGE:
             default:
                 throw new UnsupportedOperationException(String.format("Unsupported conversion for %s from limit type to limit violation type.", type.name()));
+        }
+    }
+
+    /**
+     * Generic implementation for permanent limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    default void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    null,
+                    Integer.MAX_VALUE,
+                    branch.getLimits(type, side).getPermanentLimit(),
+                    1.0f,
+                    value,
+                    side));
+        }
+    }
+
+    /**
+     * Generic implementation for temporary limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    default void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, 1.0f, value, type);
+        if (overload != null) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    overload.getPreviousLimitName(),
+                    overload.getTemporaryLimit().getAcceptableDuration(),
+                    overload.getPreviousLimit(),
+                    1.0f,
+                    value,
+                    side));
         }
     }
 }

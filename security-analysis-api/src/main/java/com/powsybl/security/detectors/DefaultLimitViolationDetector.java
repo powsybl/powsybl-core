@@ -55,6 +55,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
      * @param consumer
      * @param type
      */
+    @Override
     public void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
 
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value, type)) {
@@ -104,14 +105,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
-    /**
-     * Generic implementation for temporary limit checks
-     * @param branch
-     * @param side
-     * @param value
-     * @param consumer
-     * @param type
-     */
+    @Override
     public void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
         if (overload != null) {
