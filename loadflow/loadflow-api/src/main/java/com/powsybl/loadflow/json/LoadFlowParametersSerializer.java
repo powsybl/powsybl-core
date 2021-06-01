@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.io.IOException;
@@ -40,6 +41,13 @@ public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParamete
         jsonGenerator.writeBooleanField("dc", parameters.isDc());
         jsonGenerator.writeBooleanField("distributedSlack", parameters.isDistributedSlack());
         jsonGenerator.writeStringField("balanceType", parameters.getBalanceType().name());
+        jsonGenerator.writeBooleanField("dcUseTransformerRatio", parameters.isDcUseTransformerRatio());
+        jsonGenerator.writeArrayFieldStart("countriesToBalance");
+        for (Country arg : parameters.getCountriesToBalance()) {
+            jsonGenerator.writeString(arg.name());
+        }
+        jsonGenerator.writeEndArray();
+        jsonGenerator.writeStringField("connectedComponentMode", parameters.getConnectedComponentMode().name());
 
         JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonLoadFlowParameters.getExtensionSerializers());
 

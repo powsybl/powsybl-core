@@ -243,12 +243,18 @@ public class RegulatingControlMappingForTransformers {
             return false;
         }
 
+        boolean fixedRegulating = regulating;
+        if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            context.fixed("RegulationMode", "Regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
+            fixedRegulating = false;
+        }
+
         // Order is important
         ptc.setRegulationTerminal(terminal)
                 .setRegulationValue(control.targetValue)
                 .setTargetDeadband(control.targetDeadband)
                 .setRegulationMode(regulationMode)
-                .setRegulating(regulating);
+                .setRegulating(fixedRegulating);
 
         return true;
     }

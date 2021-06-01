@@ -90,26 +90,26 @@ SELECT *
 }}
 
 # query: boundaryNodes
-# All topological nodes belonging to a graph that has a modelProfile that contains the string "TopologyBoundary"
-# Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation
+# All pairs (Connectiviy Node, Topological Node) from a graph that has a modelProfile EquipmentBoundaryOperation
+# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
 {
-{ GRAPH ?graphBDTP {
-    ?FullModel md:Model.profile ?modelProfile .
-    FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
-    ?Node
-        a cim:TopologicalNode ;
-        cim:IdentifiedObject.name ?Name
-}}
-UNION
-{ GRAPH ?graphBDEQ {
+GRAPH ?graphBDEQ {
     ?FullModel md:Model.profile ?modelProfile .
     FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
-    ?Node
+    ?ConnectivityNode
         a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?Name
-}}
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+}
+GRAPH ?grapBDTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}
 }
 
 # query: baseVoltages
@@ -871,8 +871,8 @@ WHERE {
     ?ControlArea
         a cim:ControlArea ;
         cim:IdentifiedObject.name ?name ;
-        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
-        cim:ControlArea.type ?controlAreaType
+        cim:ControlArea.type ?controlAreaType .
+        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
         
 }}

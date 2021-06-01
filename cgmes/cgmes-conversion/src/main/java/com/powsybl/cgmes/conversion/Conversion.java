@@ -15,7 +15,6 @@ import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.iidm.network.Connectable;
@@ -108,10 +107,6 @@ public class Conversion {
         NETWORK_SIDE, STAR_BUS_SIDE, END1, END2, END3
     }
 
-    private enum BoundaryConfigurationType {
-        NONE, LINE, SWITCH, LINE_LINE, LINE_SWITCH
-    }
-
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -148,8 +143,8 @@ public class Conversion {
         Network network = createNetwork();
         Context context = createContext(network);
         assignNetworkProperties(context);
-        addCgmesSvMetadata(network);
-        addCgmesSshMetadata(network);
+        addCgmesSvMetadata(network, context);
+        addCgmesSshMetadata(network, context);
         addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
@@ -196,12 +191,12 @@ public class Conversion {
         Set<String> delayedBoundaryNodes = new HashSet<>();
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes);
-        delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
 
-        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
+        convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
-        convertTransformers(context);
+        convertTransformers(context, delayedBoundaryNodes);
+        delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
 
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
@@ -209,11 +204,13 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.loadingLimitsMapping().addAll();
 
-        network.newExtension(CgmesControlAreasAdder.class).add();
-        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
-        cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
-        cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
-        cgmesControlAreas.cleanIfEmpty();
+        if (config.importControlAreas()) {
+            network.newExtension(CgmesControlAreasAdder.class).add();
+            CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+            cgmes.controlAreas().forEach(ca -> createControlArea(cgmesControlAreas, ca));
+            cgmes.tieFlows().forEach(tf -> addTieFlow(context, cgmesControlAreas, tf));
+            cgmesControlAreas.cleanIfEmpty();
+        }
 
         if (config.convertSvInjections()) {
             convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
@@ -262,6 +259,10 @@ public class Conversion {
     private static void addTieFlow(Context context, CgmesControlAreas cgmesControlAreas, PropertyBag tf) {
         String controlAreaId = tf.getId("ControlArea");
         CgmesControlArea cgmesControlArea = cgmesControlAreas.getCgmesControlArea(controlAreaId);
+        if (cgmesControlArea == null) {
+            context.ignored("Tie Flow", String.format("Tie Flow %s refers to a non-existing control area", tf.getId("TieFlow")));
+            return;
+        }
         String terminalId = tf.getId("terminal");
         if (context.terminalMapping().find(terminalId) != null) {
             cgmesControlArea.add(context.terminalMapping().find(terminalId));
@@ -327,27 +328,36 @@ public class Conversion {
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
     }
 
-    private void addCgmesSvMetadata(Network network) {
+    private void addCgmesSvMetadata(Network network, Context context) {
         PropertyBags svDescription = cgmes.fullModel(CgmesSubset.STATE_VARIABLES.getProfile());
         if (svDescription != null && !svDescription.isEmpty()) {
             CgmesSvMetadataAdder adder = network.newExtension(CgmesSvMetadataAdder.class)
                     .setDescription(svDescription.get(0).getId("description"))
-                    .setSvVersion(svDescription.get(0).asInt("version"))
+                    .setSvVersion(readVersion(svDescription, context))
                     .setModelingAuthoritySet(svDescription.get(0).getId("modelingAuthoritySet"));
             svDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
         }
     }
 
-    private void addCgmesSshMetadata(Network network) {
+    private void addCgmesSshMetadata(Network network, Context context) {
         PropertyBags sshDescription = cgmes.fullModel(CgmesSubset.STEADY_STATE_HYPOTHESIS.getProfile());
         if (sshDescription != null && !sshDescription.isEmpty()) {
             CgmesSshMetadataAdder adder = network.newExtension(CgmesSshMetadataAdder.class)
                     .setDescription(sshDescription.get(0).getId("description"))
-                    .setSshVersion(sshDescription.get(0).asInt("version"))
+                    .setSshVersion(readVersion(sshDescription, context))
                     .setModelingAuthoritySet(sshDescription.get(0).getId("modelingAuthoritySet"));
             sshDescription.pluckLocals("DependentOn").forEach(adder::addDependency);
             adder.add();
+        }
+    }
+
+    private int readVersion(PropertyBags propertyBags, Context context) {
+        try {
+            return propertyBags.get(0).asInt("version");
+        } catch (NumberFormatException e) {
+            context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
+            return 1;
         }
     }
 
@@ -378,8 +388,8 @@ public class Conversion {
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
-                if (node != null) {
-                    context.boundary().addEquipmentAtNode(line, node);
+                if (node != null && !context.config().convertBoundary()) {
+                    context.boundary().addAcLineSegmentAtNode(line, node);
                     delayedBoundaryNodes.add(node);
                 } else {
                     c.convert();
@@ -398,8 +408,8 @@ public class Conversion {
             SwitchConversion c = new SwitchConversion(sw, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
-                if (node != null) {
-                    context.boundary().addEquipmentAtNode(sw, node);
+                if (node != null && !context.config().convertBoundary()) {
+                    context.boundary().addSwitchAtNode(sw, node);
                     delayedBoundaryNodes.add(node);
                 } else {
                     c.convert();
@@ -408,127 +418,101 @@ public class Conversion {
         }
     }
 
-    // Supported conversions:
-    // Only one Line (--> create dangling line)
-    // Only one Switch (--> create dangling line with z0)
-    // Two lines (--> merge both lines and replace by equivalent)
-    // Line and Switch (--> switch to z0 line and merge both lines)
-
-    private void convertEquipmentAtBoundaryNode(Context context, String node) {
-        // At least each delayed boundary node should have one equipment attached to it
-        // Currently supported equipment at boundary are lines and switches
-        List<PropertyBag> beqs = context.boundary().equipmentAtNode(node);
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
-            beqs.forEach(beq -> LOG.debug(beq.tabulateLocals("EquipmentAtBoundary")));
-        }
-        if (beqs.size() > 2) {
-            context.invalid(node, "Too many equipment at boundary node");
-            return;
-        }
-
-        BoundaryConfigurationType boundaryConfigurationType = boundaryConfiguration(context, beqs, node);
-        switch (boundaryConfigurationType) {
-            case NONE:
-                break;
-            case LINE:
-                new ACLineSegmentConversion(getBoundaryLine(beqs), context).convert();
-                break;
-            case SWITCH:
-                new SwitchConversion(getBoundarySwitch(beqs), context).convert();
-                break;
-            case LINE_LINE:
-                new ACLineSegmentConversion(getBoundaryLine(beqs), context)
-                    .convertMergedLinesAtNode(getBoundaryOtherLine(beqs), node);
-                break;
-            case LINE_SWITCH:
-                new ACLineSegmentConversion(getBoundaryLine(beqs), context)
-                    .convertLineAndSwitchAtNode(getBoundarySwitch(beqs), node);
-                break;
-        }
-    }
-
-    private static BoundaryConfigurationType boundaryConfiguration(Context context, List<PropertyBag> beqs, String node) {
-        if (beqs.size() == 1) {
-            PropertyBag beq = beqs.get(0);
-            String lineId = beq.getId(CgmesNames.AC_LINE_SEGMENT);
-            String switchId = beq.getId(CgmesNames.SWITCH);
-            if (lineId != null) {
-                return BoundaryConfigurationType.LINE;
-            } else if (switchId != null) {
-                return BoundaryConfigurationType.SWITCH;
-            } else {
-                // Should have been a line or a switch
-                context.invalid(node, "Unexpected equipment at boundary node. Expected ACLineSegment or Switch");
-                return BoundaryConfigurationType.NONE;
+    private void convertEquivalentBranchesToLines(Context context, Set<String> delayedBoundaryNodes) {
+        Iterator<PropertyBag> k = cgmes.equivalentBranches().iterator();
+        while (k.hasNext()) {
+            PropertyBag equivalentBranch = k.next();
+            if (LOG.isDebugEnabled()) {
+                LOG.debug(equivalentBranch.tabulateLocals("EquivalentBranch"));
             }
-        } else {
-            // Exactly two equipment at boundary node
-            String lineId0 = beqs.get(0).getId(CgmesNames.AC_LINE_SEGMENT);
-            String lineId1 = beqs.get(1).getId(CgmesNames.AC_LINE_SEGMENT);
-            String switchId0 = beqs.get(0).getId(CgmesNames.SWITCH);
-            String switchId1 = beqs.get(1).getId(CgmesNames.SWITCH);
-            if (lineId0 != null && lineId1 != null) {
-                return BoundaryConfigurationType.LINE_LINE;
-            } else if (lineId0 != null && switchId1 != null) {
-                return BoundaryConfigurationType.LINE_SWITCH;
-            } else if (lineId1 != null && switchId0 != null) {
-                return BoundaryConfigurationType.LINE_SWITCH;
-            } else {
-                context.invalid(node, "Equipment configuration not supported at boundary node");
-                return BoundaryConfigurationType.NONE;
+            EquivalentBranchConversion c = new EquivalentBranchConversion(equivalentBranch, context);
+            if (c.valid()) {
+                String node = c.boundaryNode();
+                if (node != null && !context.config().convertBoundary()) {
+                    context.boundary().addEquivalentBranchAtNode(equivalentBranch, node);
+                    delayedBoundaryNodes.add(node);
+                } else {
+                    c.convert();
+                }
             }
         }
     }
 
-    private static PropertyBag getBoundaryLine(List<PropertyBag> beqs) {
-        if (beqs.size() == 1) {
-            return beqs.get(0);
-        } else {
-            if (beqs.get(0).getId(CgmesNames.AC_LINE_SEGMENT) != null) {
-                return beqs.get(0);
-            } else {
-                return beqs.get(1);
-            }
-        }
-    }
-
-    private static PropertyBag getBoundarySwitch(List<PropertyBag> beqs) {
-        if (beqs.size() == 1) {
-            return beqs.get(0);
-        } else {
-            if (beqs.get(0).getId(CgmesNames.SWITCH) != null) {
-                return beqs.get(0);
-            } else {
-                return beqs.get(1);
-            }
-        }
-    }
-
-    private static PropertyBag getBoundaryOtherLine(List<PropertyBag> beqs) {
-        return beqs.get(1);
-    }
-
-    private void convertTransformers(Context context) {
+    private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Transformer {}, {}-winding", t, ends.size());
                 ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
             }
-            AbstractConductingEquipmentConversion c = null;
             if (ends.size() == 2) {
-                c = new TwoWindingsTransformerConversion(ends, context);
+                convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);
             } else if (ends.size() == 3) {
-                c = new ThreeWindingsTransformerConversion(ends, context);
+                convertThreeWindingsTransformers(context, ends);
             } else {
                 String what = "PowerTransformer " + t;
                 Supplier<String> reason = () -> String.format("Has %d ends. Only 2 or 3 ends are supported", ends.size());
                 context.invalid(what, reason);
             }
-            if (c != null && c.valid()) {
+        });
+    }
+
+    private static void convertTwoWindingsTransformers(Context context, PropertyBags ends, Set<String> delayedBoundaryNodes) {
+        AbstractConductingEquipmentConversion c = new TwoWindingsTransformerConversion(ends, context);
+        if (c.valid()) {
+            String node = c.boundaryNode();
+            if (node != null && !context.config().convertBoundary()) {
+                context.boundary().addTransformerAtNode(ends, node);
+                delayedBoundaryNodes.add(node);
+            } else {
                 c.convert();
             }
-        });
+        }
+    }
+
+    private static void convertThreeWindingsTransformers(Context context, PropertyBags ends) {
+        AbstractConductingEquipmentConversion c = new ThreeWindingsTransformerConversion(ends, context);
+        if (c.valid()) {
+            c.convert();
+        }
+    }
+
+    // Supported conversions:
+    // Only one Line (--> create dangling line)
+    // Only one Switch (--> create dangling line with z0)
+    // Only one Transformer (--> create dangling line)
+    // Only one EquivalentBranch (--> create dangling line)
+    // Any combination of Line, Switch, Transformer and EquivalentBranch
+
+    private void convertEquipmentAtBoundaryNode(Context context, String node) {
+        // At least each delayed boundary node should have one equipment attached to it
+        // Currently supported equipment at boundary are lines and switches
+        List<BoundaryEquipment> beqs = context.boundary().boundaryEquipmentAtNode(node);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("Delayed boundary node {} with {} equipment at it", node, beqs.size());
+            beqs.forEach(BoundaryEquipment::log);
+        }
+        int numEquipmentsAtNode = beqs.size();
+        if (numEquipmentsAtNode == 1) {
+            beqs.get(0).createConversion(context).convertAtBoundary();
+        } else if (numEquipmentsAtNode == 2) {
+            convertTwoEquipmentsAtBoundaryNode(context, node, beqs.get(0), beqs.get(1));
+        } else if (numEquipmentsAtNode > 2) {
+            context.invalid(node, "Too many equipment at boundary node");
+        }
+    }
+
+    private static void convertTwoEquipmentsAtBoundaryNode(Context context, String node, BoundaryEquipment beq1, BoundaryEquipment beq2) {
+        BoundaryLine boundaryLine1 = beq1.createConversion(context).asBoundaryLine(node);
+        BoundaryLine boundaryLine2 = beq2.createConversion(context).asBoundaryLine(node);
+        if (boundaryLine1 != null && boundaryLine2 != null) {
+            if (boundaryLine2.getId().compareTo(boundaryLine1.getId()) >= 0) {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine1, boundaryLine2);
+            } else {
+                ACLineSegmentConversion.convertBoundaryLines(context, node, boundaryLine2, boundaryLine1);
+            }
+        } else {
+            context.invalid(node, "Unexpected boundaryLine");
+        }
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {
@@ -608,15 +592,6 @@ public class Conversion {
 
         public Config setConvertBoundary(boolean convertBoundary) {
             this.convertBoundary = convertBoundary;
-            return this;
-        }
-
-        public boolean mergeBoundariesUsingTieLines() {
-            return mergeBoundariesUsingTieLines;
-        }
-
-        public Config setMergeBoundariesUsingTieLines(boolean b) {
-            this.mergeBoundariesUsingTieLines = b;
             return this;
         }
 
@@ -703,6 +678,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean importControlAreas() {
+            return importControlAreas;
+        }
+
+        public Config setImportControlAreas(boolean importControlAreas) {
+            this.importControlAreas = importControlAreas;
+            return this;
+        }
+
         public Xfmr2RatioPhaseInterpretationAlternative getXfmr2RatioPhase() {
             return xfmr2RatioPhase;
         }
@@ -753,7 +737,6 @@ public class Conversion {
 
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
-        private boolean mergeBoundariesUsingTieLines = true;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 7.0E-5;
         private double lowImpedanceLineX = 7.0E-5;
@@ -765,6 +748,7 @@ public class Conversion {
         private boolean storeCgmesConversionContextAsNetworkExtension = false;
 
         private boolean ensureIdAliasUnicity = false;
+        private boolean importControlAreas = true;
 
         private boolean createCgmesExportMapping = false;
 

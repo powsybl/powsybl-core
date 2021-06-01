@@ -78,6 +78,30 @@ public class CgmesDcConversion {
         }
     }
 
+    // Supported configurations are:
+    //
+    //         CGMES Configuration                                                              IIDM configuration
+    //
+    // (1)  AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2        AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
+    //
+    // (2)  AcDcConverter1End1 ---                 --- AcDcConverter1End2
+    //                           |                 |                         AcDcConverter1End1 --- DcLineSegment --- AcDcConverter1End2
+    //                           -- DcLineSegment --
+    //                           |                 |                         AcDcConverter2End1 --- DcLineSegment-1 --- AcDcConverter2End2
+    //      AcDcConverter2End1 ---                 --- AcDcConverter2End2
+    //
+    //      where DcLineSegment is duplicated into DcLineSegment and DcLineSegment-1
+    //
+    // (3)
+    //
+    //                           --- DcLineSegment1 ---
+    //                           |                    |
+    //      AcDcConverterEnd1 ----                    --- AcDcConverterEnd2   AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
+    //                           |                    |
+    //                           --- DcLineSegment2 ---
+    //
+    //      where DcLineSegment = DcLineSegment1 + DcLineSegment2
+    //
     private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
         int converterNum = converters.size();
         int dcLineSegmentNum = dcLineSegments.size();
@@ -85,8 +109,8 @@ public class CgmesDcConversion {
         if (converterNum == 1 && dcLineSegmentNum == 1) {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
         } else if (converterNum == 2 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0));
+            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
+            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
         } else if (converterNum == 1 && dcLineSegmentNum == 2) {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
         } else {
@@ -96,14 +120,37 @@ public class CgmesDcConversion {
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
+        convert(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId, false);
+    }
+
+    private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId, boolean isDuplicated) {
         if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
         this.r = computeR(this.dcLineSegment);
 
+        // After collecting all commomData the id can be modified to guarantee uniqueness
+        if (isDuplicated) {
+            defineACopyOfThePropertyBagWithUniqueId(dcLineSegment, dcLineSegmentId);
+        }
+
         if (createHvdc()) {
             setCommonDataUsed();
         }
+    }
+
+    // We do not use "#n" to guarantee uniqueness since the getId() method does not support more than one '#' character
+    private void defineACopyOfThePropertyBagWithUniqueId(PropertyBag dcLineSegment, String dcLineSegmentId) {
+
+        // Create a copy of the property bag and change the id to guarantee uniqueness
+        PropertyBag dcLineSegmentCopy = dcLineSegment.copy();
+
+        String completeId = dcLineSegmentCopy.get("DCLineSegment");
+        String uniqueId = dcLineSegmentId + "-1";
+        dcLineSegmentCopy.put("DCLineSegment", completeId.replace(dcLineSegmentId, uniqueId));
+
+        this.dcLineSegmentId = uniqueId;
+        this.dcLineSegment = dcLineSegmentCopy;
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId1, String dcLineSegmentId2) {
