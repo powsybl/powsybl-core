@@ -16,12 +16,13 @@ import java.nio.file.Path;
 public class WorkingDirectory implements AutoCloseable {
 
     private final Path path;
-
     private final boolean debug;
+    private boolean closed;
 
     public WorkingDirectory(Path parentDir, String prefix, boolean debug) throws IOException {
-        path = Files.createTempDirectory(parentDir, prefix);
+        this.path = Files.createTempDirectory(parentDir, prefix);
         this.debug = debug;
+        this.closed = false;
     }
 
     public Path toPath() {
@@ -33,9 +34,10 @@ public class WorkingDirectory implements AutoCloseable {
     }
 
     @Override
-    public void close() throws IOException {
-        if (!debug) {
+    public synchronized void close() throws IOException {
+        if (!debug && !closed) {
             FileUtil.removeDir(path);
+            closed = true;
         }
     }
 }
