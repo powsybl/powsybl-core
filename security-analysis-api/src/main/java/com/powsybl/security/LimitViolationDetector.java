@@ -130,6 +130,32 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
+     * Checks whether the specified active power value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param value         The active power value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the specified apparent power value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param value         The apparent power value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+
+    /**
      * Checks whether the current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.

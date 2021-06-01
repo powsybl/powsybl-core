@@ -32,7 +32,7 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
     protected final List<SecurityAnalysisInterceptor> interceptors;
 
     protected AbstractSecurityAnalysis(Network network, LimitViolationFilter violationFilter) {
-        this(network, new DefaultLimitViolationDetector(EnumSet.allOf(Security.CurrentLimitType.class)), violationFilter);
+        this(network, new DefaultLimitViolationDetector(EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class)), violationFilter);
     }
 
     protected AbstractSecurityAnalysis(Network network, LimitViolationDetector detector, LimitViolationFilter filter) {
