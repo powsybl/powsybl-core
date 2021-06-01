@@ -27,16 +27,16 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-class TPnodeEquipments {
+class NodeEquipment {
 
     enum EquipmentType {
         TRANSFORMER, AC_DC_CONVERTER, DC_LINE_SEGMENT
     }
 
-    private final Map<String, List<TPnodeEquipment>> nodeEquipments;
+    private final Map<String, List<EquipmentReference>> nodeEquipment;
 
-    TPnodeEquipments(CgmesModel cgmesModel, Adjacency adjacency) {
-        nodeEquipments = new HashMap<>();
+    NodeEquipment(CgmesModel cgmesModel, Adjacency adjacency) {
+        nodeEquipment = new HashMap<>();
 
         cgmesModel.dcLineSegments().forEach(dcls -> computeDcLineSegment(cgmesModel, adjacency, dcls));
 
@@ -102,9 +102,9 @@ class TPnodeEquipments {
             || !adjacency.get().containsKey(nodeId2)) {
             return;
         }
-        TPnodeEquipment eq = new TPnodeEquipment(type, id);
-        nodeEquipments.computeIfAbsent(nodeId1, k -> new ArrayList<>()).add(eq);
-        nodeEquipments.computeIfAbsent(nodeId2, k -> new ArrayList<>()).add(eq);
+        EquipmentReference eq = new EquipmentReference(type, id);
+        nodeEquipment.computeIfAbsent(nodeId1, k -> new ArrayList<>()).add(eq);
+        nodeEquipment.computeIfAbsent(nodeId2, k -> new ArrayList<>()).add(eq);
     }
 
     private void addEquipment(Adjacency adjacency, String id, String acNodeId,
@@ -115,9 +115,9 @@ class TPnodeEquipments {
         if (dcNodeIds.stream().anyMatch(n -> !adjacency.get().containsKey(n))) {
             return;
         }
-        TPnodeEquipment eq = new TPnodeEquipment(type, id);
-        nodeEquipments.computeIfAbsent(acNodeId, k -> new ArrayList<>()).add(eq);
-        dcNodeIds.forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
+        EquipmentReference eq = new EquipmentReference(type, id);
+        nodeEquipment.computeIfAbsent(acNodeId, k -> new ArrayList<>()).add(eq);
+        dcNodeIds.forEach(n -> nodeEquipment.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
     private boolean isValidTransformer(Adjacency adjacency, List<String> nodes) {
@@ -125,14 +125,14 @@ class TPnodeEquipments {
     }
 
     private void addTransformer(Adjacency adjacency, String id, List<String> nodes, EquipmentType type) {
-        TPnodeEquipment eq = new TPnodeEquipment(type, id);
+        EquipmentReference eq = new EquipmentReference(type, id);
         nodes.stream()
             .filter(n -> adjacency.get().containsKey(n))
-            .forEach(n -> nodeEquipments.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
+            .forEach(n -> nodeEquipment.computeIfAbsent(n, k -> new ArrayList<>()).add(eq));
     }
 
     boolean containsAnyTransformer(String node) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -141,7 +141,7 @@ class TPnodeEquipments {
     }
 
     boolean containsAnyAcDcConverter(String node) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -150,7 +150,7 @@ class TPnodeEquipments {
     }
 
     boolean multiAcDcConverter(String node) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -160,7 +160,7 @@ class TPnodeEquipments {
     }
 
     boolean containsAcDcConverter(String node, String acDcConverter) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -168,12 +168,12 @@ class TPnodeEquipments {
             .anyMatch(eq -> eq.equipmentId.equals(acDcConverter) && eq.type == EquipmentType.AC_DC_CONVERTER);
     }
 
-    boolean connectedEquipments(String equipment1, String equipment2, List<String> nodes) {
+    boolean connectedEquipment(String equipment1, String equipment2, List<String> nodes) {
         return nodes.stream().anyMatch(n -> connectedEquipment(n, equipment1, equipment2));
     }
 
     private boolean connectedEquipment(String node, String equipment1, String equipment2) {
-        List<TPnodeEquipment> listEquipment = nodeEquipments.get(node);
+        List<EquipmentReference> listEquipment = nodeEquipment.get(node);
         if (listEquipment == null) {
             return false;
         }
@@ -182,18 +182,18 @@ class TPnodeEquipments {
             .count() == 2;
     }
 
-    Map<String, List<TPnodeEquipment>> getNodeEquipments() {
-        return nodeEquipments;
+    Map<String, List<EquipmentReference>> getNodeEquipment() {
+        return nodeEquipment;
     }
 
     void debug() {
-        LOG.debug("TPnodeEquipments");
-        nodeEquipments.forEach(this::debug);
+        LOG.debug("NodeEquipment");
+        nodeEquipment.forEach(this::debug);
     }
 
-    private void debug(String tpNodeId, List<TPnodeEquipment> listTPnodeEquipment) {
-        LOG.debug("NodeId: {}", tpNodeId);
-        listTPnodeEquipment.forEach(TPnodeEquipment::debug);
+    private void debug(String nodeId, List<EquipmentReference> listNodeEquipment) {
+        LOG.debug("NodeId: {}", nodeId);
+        listNodeEquipment.forEach(EquipmentReference::debug);
     }
 
     void debugEq(List<String> lnodes) {
@@ -202,8 +202,8 @@ class TPnodeEquipments {
 
     private void debugEq(String node) {
         LOG.debug("EQ. Node {}", node);
-        if (nodeEquipments.containsKey(node)) {
-            nodeEquipments.get(node)
+        if (nodeEquipment.containsKey(node)) {
+            nodeEquipment.get(node)
                 .forEach(eq ->  LOG.debug("    {} {}", eq.type, eq.equipmentId));
         }
     }
@@ -213,18 +213,18 @@ class TPnodeEquipments {
     }
 
     private void debugDcLs(String node) {
-        if (nodeEquipments.containsKey(node)) {
-            nodeEquipments.get(node).stream()
-                .filter(eq -> eq.type == TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT)
+        if (nodeEquipment.containsKey(node)) {
+            nodeEquipment.get(node).stream()
+                .filter(eq -> eq.type == NodeEquipment.EquipmentType.DC_LINE_SEGMENT)
                 .forEach(eq -> LOG.debug("DcLineSegment {}", eq.equipmentId));
         }
     }
 
-    static class TPnodeEquipment {
+    static class EquipmentReference {
         EquipmentType type;
         String equipmentId;
 
-        TPnodeEquipment(EquipmentType type, String equipmentId) {
+        EquipmentReference(EquipmentType type, String equipmentId) {
             this.type = type;
             this.equipmentId = equipmentId;
         }
@@ -234,5 +234,5 @@ class TPnodeEquipments {
         }
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(TPnodeEquipments.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NodeEquipment.class);
 }

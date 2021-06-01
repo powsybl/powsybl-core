@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
-import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipment;
+import com.powsybl.cgmes.conversion.elements.hvdc.NodeEquipment.EquipmentReference;
 import com.powsybl.commons.PowsyblException;
 
 /**
@@ -41,7 +41,7 @@ class IslandEndHvdc {
         hvdc = new ArrayList<>();
     }
 
-    void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, List<String> islandNodesEnd) {
+    void add(Adjacency adjacency, NodeEquipment nodeEquipment, List<String> islandNodesEnd) {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
@@ -52,8 +52,8 @@ class IslandEndHvdc {
         while (k < islandNodesEnd.size()) {
             String nodeEnd = islandNodesEnd.get(k);
             if (!visitedNodes.contains(nodeEnd)
-                && tpNodeEquipments.containsAnyTransformer(nodeEnd)) {
-                add(adjacency, tpNodeEquipments, visitedNodes, nodeEnd, islandNodesEnd);
+                && nodeEquipment.containsAnyTransformer(nodeEnd)) {
+                add(adjacency, nodeEquipment, visitedNodes, nodeEnd, islandNodesEnd);
             }
             k++;
         }
@@ -67,55 +67,55 @@ class IslandEndHvdc {
         while (k < islandNodesEnd.size()) {
             String nodeEnd = islandNodesEnd.get(k);
             if (!visitedNodes.contains(nodeEnd)
-                && tpNodeEquipments.containsAnyAcDcConverter(nodeEnd)) {
-                add(adjacency, tpNodeEquipments, visitedNodes, nodeEnd, islandNodesEnd);
+                && nodeEquipment.containsAnyAcDcConverter(nodeEnd)) {
+                add(adjacency, nodeEquipment, visitedNodes, nodeEnd, islandNodesEnd);
             }
             k++;
         }
     }
 
-    private void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Set<String> visitedNodes,
+    private void add(Adjacency adjacency, NodeEquipment nodeEquipment, Set<String> visitedNodes,
         String nodeEnd, List<String> islandNodesEnd) {
 
-        List<String> hvdcNodes = computeHvdcNodes(adjacency, tpNodeEquipments, visitedNodes,
+        List<String> hvdcNodes = computeHvdcNodes(adjacency, nodeEquipment, visitedNodes,
             nodeEnd, islandNodesEnd);
-        Set<String> transformers = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.TRANSFORMER);
-        Set<String> acDcConverters = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.AC_DC_CONVERTER);
-        Set<String> dcLineSegment = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT);
+        Set<String> transformers = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.TRANSFORMER);
+        Set<String> acDcConverters = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.AC_DC_CONVERTER);
+        Set<String> dcLineSegment = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.DC_LINE_SEGMENT);
 
         HvdcEnd hvdcEnd = new HvdcEnd(hvdcNodes, transformers, acDcConverters, dcLineSegment);
         hvdc.add(hvdcEnd);
     }
 
-    private static List<String> computeHvdcNodes(Adjacency adjacency, TPnodeEquipments tpNodeEquipments,
+    private static List<String> computeHvdcNodes(Adjacency adjacency, NodeEquipment nodeEquipment,
         Set<String> visitedNodes,
         String nodeEnd, List<String> islandNodesEnd) {
-        List<String> listTp = new ArrayList<>();
+        List<String> listNodes = new ArrayList<>();
 
-        listTp.add(nodeEnd);
+        listNodes.add(nodeEnd);
         visitedNodes.add(nodeEnd);
 
         int k = 0;
-        while (k < listTp.size()) {
-            String node = listTp.get(k);
+        while (k < listNodes.size()) {
+            String node = listNodes.get(k);
             if (adjacency.get().containsKey(node)) {
                 adjacency.get().get(node).forEach(adjacent -> {
-                    if (isAdjacentOk(tpNodeEquipments, visitedNodes, islandNodesEnd,
+                    if (isAdjacentOk(nodeEquipment, visitedNodes, islandNodesEnd,
                         adjacent.type, adjacent.node)) {
-                        listTp.add(adjacent.node);
+                        listNodes.add(adjacent.node);
                         visitedNodes.add(adjacent.node);
                     }
                 });
             }
             k++;
         }
-        return listTp;
+        return listNodes;
     }
 
-    private static boolean isAdjacentOk(TPnodeEquipments tpNodeEquipments, Set<String> visitedNodes,
+    private static boolean isAdjacentOk(NodeEquipment nodeEquipment, Set<String> visitedNodes,
         List<String> islandNodesEnd, AdjacentType adType, String adNode) {
         if (Adjacency.isDcLineSegment(adType)) {
             return false;
@@ -126,20 +126,20 @@ class IslandEndHvdc {
         if (visitedNodes.contains(adNode)) {
             return false;
         }
-        return !tpNodeEquipments.multiAcDcConverter(adNode);
+        return !nodeEquipment.multiAcDcConverter(adNode);
     }
 
-    private static Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
-        TPnodeEquipments.EquipmentType type) {
+    private static Set<String> computeEquipment(NodeEquipment nodeEquipment, List<String> hvdcNode,
+        NodeEquipment.EquipmentType type) {
         Set<String> listEq = new HashSet<>();
 
-        hvdcNode.forEach(n -> addEquipments(tpNodeEquipments, n, type, listEq));
+        hvdcNode.forEach(n -> addEquipment(nodeEquipment, n, type, listEq));
         return listEq;
     }
 
-    private static void addEquipments(TPnodeEquipments tpNodeEquipments, String node,
-        TPnodeEquipments.EquipmentType type, Set<String> listEq) {
-        List<TPnodeEquipment> listEqNode = tpNodeEquipments.getNodeEquipments().get(node);
+    private static void addEquipment(NodeEquipment nodeEquipment, String node,
+        NodeEquipment.EquipmentType type, Set<String> listEq) {
+        List<EquipmentReference> listEqNode = nodeEquipment.getNodeEquipment().get(node);
         if (listEqNode == null) {
             return;
         }
