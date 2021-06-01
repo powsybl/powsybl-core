@@ -27,6 +27,7 @@ public final class LimitViolationUtils {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Branch, Branch.Side, float, double, LimitType)} instead.
      */
+    @Deprecated
     public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i) {
         return checkTemporaryLimits(branch, side, limitReduction, i, LimitType.CURRENT);
     }
@@ -54,6 +55,7 @@ public final class LimitViolationUtils {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Branch, Branch.Side, float, double, LimitType)} instead.
      */
+    @Deprecated
     public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i) {
         return checkPermanentLimit(branch, side, limitReduction, i, LimitType.CURRENT);
     }
