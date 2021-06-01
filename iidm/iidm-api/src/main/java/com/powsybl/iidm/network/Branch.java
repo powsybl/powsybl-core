@@ -223,33 +223,99 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         }
     }
 
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
     boolean isOverloaded();
 
+    /**
+     * Only checks overloading for LimitType.Current and permanent limits
+     */
     boolean isOverloaded(float limitReduction);
 
     int getOverloadDuration();
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Side, float, LimitType)} instead.
+     */
+    boolean checkPermanentLimit(Side side, float limitReduction);
+
     boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Side, LimitType)} instead.
+     */
+    boolean checkPermanentLimit(Side side);
 
     boolean checkPermanentLimit(Side side, LimitType type);
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(float, LimitType)} instead.
+     */
+    boolean checkPermanentLimit1(float limitReduction);
+
     boolean checkPermanentLimit1(float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(LimitType)} instead.
+     */
+    boolean checkPermanentLimit1();
 
     boolean checkPermanentLimit1(LimitType type);
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(float, LimitType)} instead.
+     */
+    boolean checkPermanentLimit2(float limitReduction);
+
     boolean checkPermanentLimit2(float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(LimitType)} instead.
+     */
+    boolean checkPermanentLimit2();
 
     boolean checkPermanentLimit2(LimitType type);
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, float, LimitType)} instead.
+     */
+    Overload checkTemporaryLimits(Side side, float limitReduction);
+
     Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, LimitType)} instead.
+     */
+    Overload checkTemporaryLimits(Side side);
 
     Overload checkTemporaryLimits(Side side, LimitType type);
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(float, LimitType)} instead.
+     */
+    Overload checkTemporaryLimits1(float limitReduction);
+
     Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(LimitType)} instead.
+     */
+    Overload checkTemporaryLimits1();
 
     Overload checkTemporaryLimits1(LimitType type);
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(float, LimitType)} instead.
+     */
+    Overload checkTemporaryLimits2(float limitReduction);
+
     Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(LimitType)} instead.
+     */
+    Overload checkTemporaryLimits2();
 
     Overload checkTemporaryLimits2(LimitType type);
 }

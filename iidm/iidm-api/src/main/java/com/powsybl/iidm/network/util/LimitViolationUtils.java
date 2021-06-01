@@ -24,6 +24,13 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Branch, Branch.Side, float, double, LimitType)} instead.
+     */
+    public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i) {
+        return checkTemporaryLimits(branch, side, limitReduction, i, LimitType.CURRENT);
+    }
+
     public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
@@ -42,6 +49,13 @@ public final class LimitViolationUtils {
             }
         }
         return null;
+    }
+
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Branch, Branch.Side, float, double, LimitType)} instead.
+     */
+    public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i) {
+        return checkPermanentLimit(branch, side, limitReduction, i, LimitType.CURRENT);
     }
 
     public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i, LimitType type) {

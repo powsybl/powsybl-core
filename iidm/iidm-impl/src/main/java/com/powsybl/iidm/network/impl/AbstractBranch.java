@@ -224,8 +224,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public boolean checkPermanentLimit(Side side, float limitReduction) {
+        return checkPermanentLimit(side, limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public boolean checkPermanentLimit(Side side, LimitType type) {
         return checkPermanentLimit(side, 1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit(Side side) {
+        return checkPermanentLimit(side, LimitType.CURRENT);
     }
 
     @Override
@@ -234,8 +244,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public boolean checkPermanentLimit1(float limitReduction) {
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public boolean checkPermanentLimit1(LimitType type) {
         return checkPermanentLimit1(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit1() {
+        return checkPermanentLimit1(LimitType.CURRENT);
     }
 
     @Override
@@ -244,8 +264,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public boolean checkPermanentLimit2(float limitReduction) {
+        return checkPermanentLimit2(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public boolean checkPermanentLimit2(LimitType type) {
         return checkPermanentLimit2(1f, type);
+    }
+
+    @Override
+    public boolean checkPermanentLimit2() {
+        return checkPermanentLimit2(LimitType.CURRENT);
     }
 
     @Override
@@ -264,8 +294,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction) {
+        return checkTemporaryLimits(side, limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public Branch.Overload checkTemporaryLimits(Side side, LimitType type) {
         return checkTemporaryLimits(side, 1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side) {
+        return checkTemporaryLimits(side, LimitType.CURRENT);
     }
 
     @Override
@@ -274,8 +314,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public Branch.Overload checkTemporaryLimits1(float limitReduction) {
+        return checkTemporaryLimits1(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public Branch.Overload checkTemporaryLimits1(LimitType type) {
         return checkTemporaryLimits1(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits1() {
+        return checkTemporaryLimits1(LimitType.CURRENT);
     }
 
     @Override
@@ -284,8 +334,18 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     }
 
     @Override
+    public Branch.Overload checkTemporaryLimits2(float limitReduction) {
+        return checkTemporaryLimits2(limitReduction, LimitType.CURRENT);
+    }
+
+    @Override
     public Branch.Overload checkTemporaryLimits2(LimitType type) {
         return checkTemporaryLimits2(1f, type);
+    }
+
+    @Override
+    public Branch.Overload checkTemporaryLimits2() {
+        return checkTemporaryLimits2(LimitType.CURRENT);
     }
 
     public double getValueForLimit(Terminal t, LimitType type) {
