@@ -6,15 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
+import com.powsybl.iidm.network.*;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -22,11 +14,7 @@ import org.jgrapht.graph.AsSubgraph;
 import org.jgrapht.graph.DefaultWeightedEdge;
 import org.jgrapht.graph.SimpleWeightedGraph;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import java.util.*;
 
 /**
  * Utility class to compute the flow of the switches associated to a voltageLevel
@@ -62,6 +50,10 @@ public class SwitchesFlow {
 
     public boolean isEmpty() {
         return switchesFlows.isEmpty();
+    }
+
+    public boolean hasFlow(String id) {
+        return switchesFlows.containsKey(id);
     }
 
     public double getP1(String switchId) {
