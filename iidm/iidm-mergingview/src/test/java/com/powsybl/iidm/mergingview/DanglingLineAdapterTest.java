@@ -219,14 +219,24 @@ public class DanglingLineAdapterTest {
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE));
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO));
         assertFalse(mergedLine.checkPermanentLimit1(LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit2(LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit1());
+        assertFalse(mergedLine.checkPermanentLimit2());
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE));
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO));
         assertNull(mergedLine.checkTemporaryLimits1(1.0f, LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits1(LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits1(1.0f));
+        assertNull(mergedLine.checkTemporaryLimits1());
         assertNull(mergedLine.checkTemporaryLimits2(1.0f, LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits2(LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits2(1.0f));
+        assertNull(mergedLine.checkTemporaryLimits2());
         mergedLine.getTerminals().forEach(t -> {
             assertTrue(t instanceof TerminalAdapter);
             assertNotNull(t);

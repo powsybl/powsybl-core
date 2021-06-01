@@ -111,6 +111,20 @@ public class LineAdapterTest {
         assertEquals(lineRef.checkTemporaryLimits1(LimitType.CURRENT), lineAdapted.checkTemporaryLimits1(LimitType.CURRENT));
         assertEquals(lineRef.checkTemporaryLimits2(0.0f, LimitType.CURRENT), lineAdapted.checkTemporaryLimits2(0.0f, LimitType.CURRENT));
         assertEquals(lineRef.checkTemporaryLimits2(LimitType.CURRENT), lineAdapted.checkTemporaryLimits2(LimitType.CURRENT));
+
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f));
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.TWO), lineAdapted.checkPermanentLimit(Branch.Side.TWO));
+        assertEquals(lineRef.checkPermanentLimit1(0.0f), lineAdapted.checkPermanentLimit1(0.0f));
+        assertEquals(lineRef.checkPermanentLimit1(), lineAdapted.checkPermanentLimit1());
+        assertEquals(lineRef.checkPermanentLimit2(0.0f), lineAdapted.checkPermanentLimit2(0.0f));
+        assertEquals(lineRef.checkPermanentLimit2(), lineAdapted.checkPermanentLimit2());
+        assertEquals(lineRef.checkTemporaryLimits(Branch.Side.ONE, 0.0f), lineAdapted.checkTemporaryLimits(Branch.Side.ONE, 0.0f));
+        assertEquals(lineRef.checkTemporaryLimits(Branch.Side.TWO), lineAdapted.checkTemporaryLimits(Branch.Side.TWO));
+        assertEquals(lineRef.checkTemporaryLimits1(0.0f), lineAdapted.checkTemporaryLimits1(0.0f));
+        assertEquals(lineRef.checkTemporaryLimits1(), lineAdapted.checkTemporaryLimits1());
+        assertEquals(lineRef.checkTemporaryLimits2(0.0f), lineAdapted.checkTemporaryLimits2(0.0f));
+        assertEquals(lineRef.checkTemporaryLimits2(), lineAdapted.checkTemporaryLimits2());
+
         assertEquals(lineRef.getType(), lineAdapted.getType());
         assertEquals(lineRef.getTerminals().size(), lineAdapted.getTerminals().size());
 
