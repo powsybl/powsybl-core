@@ -139,6 +139,11 @@ public class LimitViolationDetectorTest {
             @Override
             public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
             }
+
+            @Override
+            public void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+
+            }
         };
     }
 

@@ -238,7 +238,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Side, float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit(Side side, float limitReduction);
 
     boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
@@ -246,7 +246,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Side, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit(Side side);
 
     boolean checkPermanentLimit(Side side, LimitType type);
@@ -254,7 +254,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit1(float limitReduction);
 
     boolean checkPermanentLimit1(float limitReduction, LimitType type);
@@ -262,7 +262,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit1();
 
     boolean checkPermanentLimit1(LimitType type);
@@ -270,7 +270,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit2(float limitReduction);
 
     boolean checkPermanentLimit2(float limitReduction, LimitType type);
@@ -278,7 +278,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     boolean checkPermanentLimit2();
 
     boolean checkPermanentLimit2(LimitType type);
@@ -286,7 +286,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits(Side side, float limitReduction);
 
     Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
@@ -294,7 +294,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits(Side side);
 
     Overload checkTemporaryLimits(Side side, LimitType type);
@@ -302,7 +302,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits1(float limitReduction);
 
     Overload checkTemporaryLimits1(float limitReduction, LimitType type);
@@ -310,7 +310,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits1();
 
     Overload checkTemporaryLimits1(LimitType type);
@@ -318,7 +318,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(float, LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits2(float limitReduction);
 
     Overload checkTemporaryLimits2(float limitReduction, LimitType type);
@@ -326,7 +326,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(LimitType)} instead.
      */
-    @Deprecated(since="4.3.0")
+    @Deprecated(since = "4.3.0")
     Overload checkTemporaryLimits2();
 
     Overload checkTemporaryLimits2(LimitType type);
