@@ -40,7 +40,8 @@
       "variableType" : "INJECTION_ACTIVE_POWER",
       "variableId" : "FFR1AA1 _generator",
       "variableSet" : false,
-      "contingencyContextType" : "ALL"
+      "contingencyContextType" : "SPECIFIC",
+      "contingencyId" : "c3"
     },
     "contingencyId" : "c1",
     "value" : 1.25,

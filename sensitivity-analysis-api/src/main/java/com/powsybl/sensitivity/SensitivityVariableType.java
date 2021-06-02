@@ -12,5 +12,6 @@ package com.powsybl.sensitivity;
 public enum SensitivityVariableType {
     INJECTION_ACTIVE_POWER, // MW
     TRANSFORMER_PHASE, // A
-    BUS_TARGET_VOLTAGE // Kv
+    BUS_TARGET_VOLTAGE, // Kv
+    HVDC_LINE_ACTIVE_POWER // MW
 }

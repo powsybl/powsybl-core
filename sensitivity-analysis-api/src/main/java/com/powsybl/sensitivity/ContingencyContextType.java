@@ -9,7 +9,7 @@ package com.powsybl.sensitivity;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-enum ContingencyContextType {
+public enum ContingencyContextType {
     ALL,
     NONE,
     SPECIFIC,

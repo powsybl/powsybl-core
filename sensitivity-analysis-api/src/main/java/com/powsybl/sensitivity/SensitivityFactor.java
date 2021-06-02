@@ -230,4 +230,16 @@ public class SensitivityFactor {
                 break;
         }
     }
+
+    public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, List<String> functionIds,
+                                                        SensitivityVariableType variableType, List<String> variableIds,
+                                                        boolean variableSet, ContingencyContext contingencyContext) {
+        List<SensitivityFactor> factors = new ArrayList<>();
+        for (String functionId : functionIds) {
+            for (String variableId : variableIds) {
+                factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext));
+            }
+        }
+        return factors;
+    }
 }
