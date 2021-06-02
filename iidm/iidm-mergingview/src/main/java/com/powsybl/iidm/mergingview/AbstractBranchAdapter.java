@@ -142,18 +142,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
-        return checkPermanentLimit(side, limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public boolean checkPermanentLimit(final Side side, LimitType type) {
         return getDelegate().checkPermanentLimit(side, type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit(final Side side) {
-        return checkPermanentLimit(side, LimitType.CURRENT);
     }
 
     @Override
@@ -162,18 +152,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        return checkPermanentLimit1(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public boolean checkPermanentLimit1(LimitType type) {
         return getDelegate().checkPermanentLimit1(type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit1() {
-        return checkPermanentLimit1(LimitType.CURRENT);
     }
 
     @Override
@@ -182,18 +162,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        return checkPermanentLimit2(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public boolean checkPermanentLimit2(LimitType type) {
         return getDelegate().checkPermanentLimit2(type);
-    }
-
-    @Override
-    public boolean checkPermanentLimit2() {
-        return checkPermanentLimit2(LimitType.CURRENT);
     }
 
     @Override
@@ -202,18 +172,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
-        return checkTemporaryLimits(side, limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public Overload checkTemporaryLimits(final Side side, LimitType type) {
         return getDelegate().checkTemporaryLimits(side, type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        return checkTemporaryLimits(side, LimitType.CURRENT);
     }
 
     @Override
@@ -222,18 +182,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        return checkTemporaryLimits1(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public Overload checkTemporaryLimits1(LimitType type) {
         return getDelegate().checkTemporaryLimits1(type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits1() {
-        return checkTemporaryLimits1(LimitType.CURRENT);
     }
 
     @Override
@@ -242,17 +192,7 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        return checkTemporaryLimits2(limitReduction, LimitType.CURRENT);
-    }
-
-    @Override
     public Overload checkTemporaryLimits2(LimitType type) {
         return getDelegate().checkTemporaryLimits2(type);
-    }
-
-    @Override
-    public Overload checkTemporaryLimits2() {
-        return checkTemporaryLimits2(LimitType.CURRENT);
     }
 }
