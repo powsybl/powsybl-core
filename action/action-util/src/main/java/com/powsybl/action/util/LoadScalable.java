@@ -192,7 +192,7 @@ public class LoadScalable extends AbstractInjectionScalable {
         return done;
     }
 
-    public double scaleConstantPowerFactor(Network n, double asked){
+    public double scaleConstantPowerFactor(Network n, double asked) {
         return scaleConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 }
