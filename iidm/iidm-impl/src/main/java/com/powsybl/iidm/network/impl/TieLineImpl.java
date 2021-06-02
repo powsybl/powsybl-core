@@ -302,6 +302,10 @@ class TieLineImpl extends LineImpl implements TieLine {
     }
 
     // zero impedance half lines should be supported
+    // half line parameters are defined as they are specified in the initial line or dangling line mapped to it.
+    // getOriginalBoundarySide defines the initial orientation of the line or dangling line before mapping it to the tie line
+    // getOriginalBoundarySide is used to properly calculate the equivalent branch associated with the tie line
+    // after removing the boundary node
     private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(HalfLineImpl half1,
         HalfLineImpl half2) {
 

@@ -40,8 +40,11 @@ public interface Boundary {
     }
 
     /**
-     * A Boundary could be associated with one side of a branch to determine P and Q.
-     * Get the branch side the boundary refers to.
+     * A Boundary could be associated with one side of a branch in the initial model.
+     * Branch parameters are always defined as they are specified in the initial model.
+     * OriginalBoundarySide is used to manage properly the branch parameters when the branch
+     * is reoriented before creating a tie line.
+     * Get the branch original side the boundary refers to.
      */
     default Branch.Side getOriginalBoundarySide() {
         return null;
