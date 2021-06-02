@@ -243,7 +243,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit(side, limitReduction, LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit(Side side, float limitReduction, LimitType type);
+    default boolean checkPermanentLimit(Side side, float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit(side, limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Side, LimitType)} instead.
@@ -253,7 +260,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit(side, LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit(Side side, LimitType type);
+    default boolean checkPermanentLimit(Side side, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit(side);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(float, LimitType)} instead.
@@ -263,7 +277,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit1(limitReduction, LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit1(float limitReduction, LimitType type);
+    default boolean checkPermanentLimit1(float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit1(limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit1(LimitType)} instead.
@@ -273,7 +294,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit1(LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit1(LimitType type);
+    default boolean checkPermanentLimit1(LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit1();
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(float, LimitType)} instead.
@@ -283,7 +311,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit2(float limitReduction, LimitType type);
+    default boolean checkPermanentLimit2(float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit2(limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkPermanentLimit2(LimitType)} instead.
@@ -293,7 +328,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkPermanentLimit2(LimitType.CURRENT);
     }
 
-    boolean checkPermanentLimit2(LimitType type);
+    default boolean checkPermanentLimit2(LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkPermanentLimit2();
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, float, LimitType)} instead.
@@ -303,7 +345,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits(side, limitReduction, LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type);
+    default Overload checkTemporaryLimits(Side side, float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits(side, limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Side, LimitType)} instead.
@@ -313,7 +362,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits(side, LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits(Side side, LimitType type);
+    default Overload checkTemporaryLimits(Side side, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits(side);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(float, LimitType)} instead.
@@ -323,7 +379,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits1(limitReduction, LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits1(float limitReduction, LimitType type);
+    default Overload checkTemporaryLimits1(float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits1(limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits1(LimitType)} instead.
@@ -333,7 +396,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits1(LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits1(LimitType type);
+    default Overload checkTemporaryLimits1(LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits1();
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(float, LimitType)} instead.
@@ -343,7 +413,14 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits2(limitReduction, LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits2(float limitReduction, LimitType type);
+    default Overload checkTemporaryLimits2(float limitReduction, LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits2(limitReduction);
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 
     /**
      * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits2(LimitType)} instead.
@@ -353,5 +430,12 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
         return checkTemporaryLimits2(LimitType.CURRENT);
     }
 
-    Overload checkTemporaryLimits2(LimitType type);
+    default Overload checkTemporaryLimits2(LimitType type) {
+        if (type == LimitType.CURRENT) {
+            return checkTemporaryLimits2();
+        } else {
+            throw new UnsupportedOperationException(
+                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+        }
+    }
 }
