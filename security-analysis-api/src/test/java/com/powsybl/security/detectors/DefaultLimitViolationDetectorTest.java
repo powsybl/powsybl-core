@@ -200,7 +200,7 @@ public class DefaultLimitViolationDetectorTest {
         network = EurostagTutorialExample1Factory.createWithFixedLimits();
         line1 = network.getLine("NHV1_NHV2_1");
 
-        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class));
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkActivePower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -218,7 +218,7 @@ public class DefaultLimitViolationDetectorTest {
         network = EurostagTutorialExample1Factory.createWithFixedLimits();
         line1 = network.getLine("NHV1_NHV2_1");
 
-        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class));
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
         cdetector.checkApparentPower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
@@ -237,7 +237,7 @@ public class DefaultLimitViolationDetectorTest {
             network = EurostagTutorialExample1Factory.createWithFixedLimits();
             line1 = network.getLine("NHV1_NHV2_1");
 
-            DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class));
+            DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
             cdetector.checkLimitViolation(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
         });
     }

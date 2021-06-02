@@ -27,27 +27,10 @@ import java.util.function.Consumer;
  */
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
-    /**
-     * Permanently or temporarily admissible limit violations,
-     * as defined in the ENTSO-E operation handbook.
-     *
-     * @see <a href="https://www.entsoe.eu/fileadmin/user_upload/_library/publications/entsoe/Operation_Handbook/Policy_3_final.pdf">Policy 3 of ENTSO-E operation handbook</a>
-     */
-    public enum CurrentLimitType {
-        /**
-         * Permanently Admissible Transmission Loading.
-         */
-        PATL,
-        /**
-         * Temporary Admissible Transmission Loading.
-         */
-        TATL
-    }
-
     private final float limitReduction;
-    private final Set<CurrentLimitType> currentLimitTypes;
+    private final Set<LoadingLimitType> currentLimitTypes;
 
-    public DefaultLimitViolationDetector(float limitReduction, Collection<CurrentLimitType> currentLimitTypes) {
+    public DefaultLimitViolationDetector(float limitReduction, Collection<LoadingLimitType> currentLimitTypes) {
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
@@ -55,12 +38,12 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
-    public DefaultLimitViolationDetector(Collection<CurrentLimitType> currentLimitTypes) {
+    public DefaultLimitViolationDetector(Collection<LoadingLimitType> currentLimitTypes) {
         this(1.0f, currentLimitTypes);
     }
 
     public DefaultLimitViolationDetector() {
-        this(EnumSet.allOf(CurrentLimitType.class));
+        this(EnumSet.allOf(LoadingLimitType.class));
     }
 
     @Override
@@ -99,7 +82,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
 
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
 
-        if (currentLimitTypes.contains(CurrentLimitType.TATL) && (overload != null)) {
+        if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
             consumer.accept(new LimitViolation(branch.getId(),
                     ((Branch<?>) branch).getOptionalName().orElse(null),
                     toLimitViolationType(type),
@@ -109,7 +92,7 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
                     limitReduction,
                     value,
                     side));
-        } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
+        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
             checkPermanentLimit(branch, side, value, consumer, type);
         }
     }

@@ -11,6 +11,7 @@ import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.detectors.LoadingLimitType;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -46,19 +47,19 @@ public final class Security {
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
-        return checkLimits(network, EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class), 1f);
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), 1f);
     }
 
     public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
-        return checkLimits(network, EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class), limitReduction);
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReduction);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, DefaultLimitViolationDetector.CurrentLimitType currentLimitType, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, float limitReduction) {
         Objects.requireNonNull(currentLimitType);
         return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, Set<DefaultLimitViolationDetector.CurrentLimitType> currentLimitTypes, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
 

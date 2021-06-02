@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.detectors.LoadingLimitType;
 import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
@@ -32,7 +33,7 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
     protected final List<SecurityAnalysisInterceptor> interceptors;
 
     protected AbstractSecurityAnalysis(Network network, LimitViolationFilter violationFilter) {
-        this(network, new DefaultLimitViolationDetector(EnumSet.allOf(DefaultLimitViolationDetector.CurrentLimitType.class)), violationFilter);
+        this(network, new DefaultLimitViolationDetector(EnumSet.allOf(LoadingLimitType.class)), violationFilter);
     }
 
     protected AbstractSecurityAnalysis(Network network, LimitViolationDetector detector, LimitViolationFilter filter) {
