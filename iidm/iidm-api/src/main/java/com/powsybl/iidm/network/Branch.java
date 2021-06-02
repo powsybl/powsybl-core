@@ -248,7 +248,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit(side, limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -265,7 +265,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit(side);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -282,7 +282,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit1(limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -299,7 +299,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit1();
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -316,7 +316,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit2(limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -333,7 +333,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkPermanentLimit2();
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -350,7 +350,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits(side, limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -367,7 +367,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits(side);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -384,7 +384,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits1(limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -401,7 +401,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits1();
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -418,7 +418,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits2(limitReduction);
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 
@@ -435,7 +435,7 @@ public interface Branch<I extends Branch<I>> extends Connectable<I> {
             return checkTemporaryLimits2();
         } else {
             throw new UnsupportedOperationException(
-                    String.format("Limit type %s not supported in default implementation. Only LimitType.Current is supported.", type.name()));
+                    String.format("Limit type %s not supported in default implementation. Only %s is supported.", type.name(), LimitType.CURRENT));
         }
     }
 }
