@@ -185,7 +185,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected boolean isBoundary(int n) {
-        return context.boundary().containsNode(nodeId(n));
+        return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
     }
 
     public void convertToDanglingLine(int boundarySide) {

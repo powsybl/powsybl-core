@@ -194,14 +194,13 @@ public class Conversion {
         Map<String, PropertyBags> lines = new HashMap<>();
         convertSwitches(context, delayedBoundaryNodes);
         convertACLineSegmentsToLines(context, delayedBoundaryNodes, lines);
-        delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
-        lines.forEach((lineId, segments) -> convertLine(context, lineId, segments));
 
         convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context, delayedBoundaryNodes);
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
+        lines.forEach((lineId, segments) -> convertLine(context, lineId, segments));
 
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
@@ -394,9 +393,6 @@ public class Conversion {
             if (c.valid()) {
                 String node = c.boundaryNode();
                 if (node != null && !context.config().convertBoundary()) {
-                    context.boundary().addAcLineSegmentAtNode(line, node);
-                    delayedBoundaryNodes.add(node);
-                } else if (c.voltageLevel(1) == null || c.voltageLevel(2) == null) {
                     String lineId = line.getId("Line");
                     lines.computeIfAbsent(lineId, l -> new PropertyBags()).add(line);
                 } else {
@@ -404,6 +400,17 @@ public class Conversion {
                 }
             }
         }
+        Map<String, PropertyBags> linesCopy = new HashMap<>(lines);
+        linesCopy.forEach((lineId, p) -> {
+            if (p.size() < 3) {
+                p.forEach(line -> {
+                    ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
+                    context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
+                    delayedBoundaryNodes.add(c.boundaryNode());
+                });
+                lines.remove(lineId, p);
+            }
+        });
     }
 
     private void convertLine(Context context, String lineId, PropertyBags lineSegments) {
