@@ -18,7 +18,7 @@ import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-class LoadScalable extends AbstractInjectionScalable {
+public class LoadScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
@@ -190,5 +190,9 @@ class LoadScalable extends AbstractInjectionScalable {
                 l.getId(), oldP0, l.getP0());
 
         return done;
+    }
+
+    public double scaleConstantPowerFactor(Network n, double asked){
+        return scaleConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 }
