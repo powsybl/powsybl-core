@@ -128,19 +128,19 @@ public class LoadScalable extends AbstractInjectionScalable {
         if (scalingConvention == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
-            if (constantPowerFactor) {
-                l.setQ0((oldP0 + done) * oldQ0 / oldP0);
-            }
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
             l.setP0(oldP0 - done);
-            if (constantPowerFactor) {
-                l.setQ0((oldP0 - done) * oldQ0 / oldP0);
-            }
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
+
+        if (constantPowerFactor) {
+            l.setQ0(l.getP0() * oldQ0 / oldP0);
+            LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
+                    l.getId(), oldQ0, l.getQ0());
+        }
 
         return done;
     }

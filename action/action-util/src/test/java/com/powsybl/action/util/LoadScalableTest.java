@@ -24,6 +24,7 @@ public class LoadScalableTest {
 
     private Network network;
     private Scalable l1;
+    private LoadScalable ls1;
     private Scalable l2;
     private Scalable l3;
     private Scalable l4;
@@ -34,6 +35,7 @@ public class LoadScalableTest {
 
         network = createNetwork();
         l1 = Scalable.onLoad("l1");
+        ls1 = (LoadScalable) l1;
 
         l2 = new LoadScalable("l1", 110);
         l3 = new LoadScalable("l1", 20, 100);
@@ -164,5 +166,23 @@ public class LoadScalableTest {
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(-10, l4.scale(network, -20, convention), 1e-3);
         assertEquals(-10, load.getP0(), 1e-3);
+    }
+
+    @Test
+    public void testConstantPowerFactor() {
+        //test with ScalingConvention.GENERATOR
+        convention = GENERATOR;
+
+        //test with default maxValue = Double.MAX_VALUE and minValue = 0
+        Load load = network.getLoad("l1");
+
+        ls1.scaleConstantPowerFactor(network, 20, convention);
+        assertEquals(0.0, load.getQ0(), 1e-3);
+
+        load.setQ0(10.0);
+        assertEquals(10.0, load.getQ0(), 1e-3);
+        ls1.scaleConstantPowerFactor(network, 20, convention);
+        assertEquals(60, load.getP0(), 1e-3);
+        assertEquals(7.5, load.getQ0(), 1e-3);
     }
 }
