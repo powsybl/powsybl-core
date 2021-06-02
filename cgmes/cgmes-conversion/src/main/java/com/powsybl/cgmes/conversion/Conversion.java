@@ -449,21 +449,6 @@ public class Conversion {
         double x = lineSegments.stream().mapToDouble(s -> s.asDouble("x")).sum();
         double b = lineSegments.stream().mapToDouble(s -> s.asDouble("bch")).sum();
         double g = lineSegments.stream().mapToDouble(s -> s.asDouble("gch", 0)).sum();
-        if (vl2Id == null) {
-            // RQ: not really in the standards, dunno if it should be here
-            context.network().getVoltageLevel(vl1Id)
-                    .newDanglingLine()
-                    .setId(lineId)
-                    .setP0(1) // FIXME
-                    .setQ0(1) // FIXME
-                    .setR(r)
-                    .setX(x)
-                    .setG(g)
-                    .setB(b)
-                    .setNode(context.nodeMapping().iidmNodeForTerminal(t1, context.network().getVoltageLevel(vl1Id)))
-                    .add();
-            return;
-        }
         context.network().newLine()
                 .setId(lineId)
                 .setR(r)
