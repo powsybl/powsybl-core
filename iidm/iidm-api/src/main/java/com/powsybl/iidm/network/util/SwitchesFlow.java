@@ -115,7 +115,7 @@ public class SwitchesFlow {
         voltageLevel.getNodeBreakerView().getInternalConnections().forEach(ic -> {
             SwNode swNode1 = addSwNode(swNodeInjection, ic.getNode1());
             SwNode swNode2 = addSwNode(swNodeInjection, ic.getNode2());
-            SwEdge swEdge = new SwEdge(ic, swNode1, swNode2);
+            SwEdge swEdge = new SwEdge(swNode1, swNode2);
             // Discard loops
             if (swNode1 == swNode2) {
                 return;
@@ -369,20 +369,17 @@ public class SwitchesFlow {
 
     private static final class SwEdge extends DefaultWeightedEdge {
         private final transient Switch sw;
-        private final transient VoltageLevel.NodeBreakerView.InternalConnection ic;
         private final transient SwNode swNode1;
         private final transient SwNode swNode2;
 
         private SwEdge(Switch sw, SwNode swNode1, SwNode swNode2) {
             this.sw = sw;
-            ic = null;
             this.swNode1 = swNode1;
             this.swNode2 = swNode2;
         }
 
-        private SwEdge(VoltageLevel.NodeBreakerView.InternalConnection ic, SwNode swNode1, SwNode swNode2) {
+        private SwEdge(SwNode swNode1, SwNode swNode2) {
             sw = null;
-            this.ic = ic;
             this.swNode1 = swNode1;
             this.swNode2 = swNode2;
         }
