@@ -151,7 +151,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
             .setR(convertedT2xModel.r)
             .setX(convertedT2xModel.x)
             .setG(convertedT2xModel.end1.g)
-            .setB(convertedT2xModel.end1.b)
+            .setB(Double.isNaN(convertedT2xModel.end1.b) ? 0.0 : convertedT2xModel.end1.b) // TODO: check why there is a NaN b
             .setRatedU1(convertedT2xModel.end1.ratedU)
             .setRatedU2(convertedT2xModel.end2.ratedU);
         identify(adder);
