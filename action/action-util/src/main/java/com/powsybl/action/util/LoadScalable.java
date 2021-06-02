@@ -95,58 +95,7 @@ public class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-
-    /**
-     * {@inheritDoc}
-     *
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
-     */
-    @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
-        Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingConvention);
-
-        Load l = n.getLoad(id);
-
-        double done = 0;
-        if (l == null) {
-            LOGGER.warn("Load {} not found", id);
-            return done;
-        }
-
-        Terminal t = l.getTerminal();
-        if (!t.isConnected()) {
-            t.connect();
-            LOGGER.info("Connecting {}", l.getId());
-        }
-
-        double oldP0 = l.getP0();
-        if (oldP0 < minValue || oldP0 > maxValue) {
-            LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
-            return 0.;
-        }
-
-        // We use natural load convention to compute the limits.
-        // The actual convention is taken into account afterwards.
-        double availableDown = oldP0 - minValue;
-        double availableUp = maxValue - oldP0;
-
-        if (scalingConvention == LOAD) {
-            done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
-            l.setP0(oldP0 + done);
-        } else {
-            done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
-            l.setP0(oldP0 - done);
-        }
-
-        LOGGER.info("Change active power setpoint of {} from {} to {} ",
-                l.getId(), oldP0, l.getP0());
-
-        return done;
-    }
-
-    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -179,17 +128,36 @@ public class LoadScalable extends AbstractInjectionScalable {
         if (scalingConvention == LOAD) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             l.setP0(oldP0 + done);
-            l.setQ0((oldP0 + done) * oldQ0 / oldP0);
+            if (constantPowerFactor) {
+                l.setQ0((oldP0 + done) * oldQ0 / oldP0);
+            }
         } else {
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
             l.setP0(oldP0 - done);
-            l.setQ0((oldP0 - done) * oldQ0 / oldP0);
+            if (constantPowerFactor) {
+                l.setQ0((oldP0 - done) * oldQ0 / oldP0);
+            }
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
         return done;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
+     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
+     */
+    @Override
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention, false);
+    }
+
+    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention, true);
     }
 
     public double scaleConstantPowerFactor(Network n, double asked) {
