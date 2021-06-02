@@ -18,21 +18,7 @@ import java.util.Objects;
 import org.apache.commons.math3.complex.Complex;
 
 /**
- * A tie line is constituted of two half lines, halfLine1 and halfLine2.
- * <p>
- * The tie line is always oriented in the same way, <br>
- * networkModelNode at end1 of halfLine1 - boundaryNode at end2 of halfLine1 -
- * bondaryNode at end1 of halfLine2 - networkModelNode ant end2 of halfLine2 <br>
- * <p>
- * Each halfLine has the attribute originalBoundarySide that defines how the initial line
- * and the parameters are orientated. <br>
- * If boundary.originalBoundarySide is ONE means that the initial line is
- * boundaryNode - networkModelNode and the parameters are defined from boundaryNode
- * to networkModelNode. <br>
- * If boundary.originalBoundarySide is TWO means that the initial line is
- * networkModelNode - boundaryNode and the parameters are defined from networkModelNode to
- * boundaryNode.
- * <p>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
