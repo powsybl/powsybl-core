@@ -11,6 +11,7 @@ import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
+import com.powsybl.security.detectors.LoadingLimitType;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -42,40 +43,23 @@ public final class Security {
     private static final String ABS_VALUE_LIMIT = "abs(value-limit)";
     private static final String LOADING_RATE = "Loading rate %";
 
-    /**
-     * Permanently or temporarily admissible currents,
-     * as defined in the ENTSO-E operation handbook.
-     *
-     * @see <a href="https://www.entsoe.eu/fileadmin/user_upload/_library/publications/entsoe/Operation_Handbook/Policy_3_final.pdf">Policy 3 of ENTSO-E operation handbook</a>
-     */
-    public enum CurrentLimitType {
-        /**
-         * Permanently Admissible Transmission Loading.
-         */
-        PATL,
-        /**
-         * Temporary Admissible Transmission Loading.
-         */
-        TATL
-    }
-
     private Security() {
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
-        return checkLimits(network, EnumSet.allOf(CurrentLimitType.class), 1f);
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), 1f);
     }
 
     public static List<LimitViolation> checkLimits(Network network, float limitReduction) {
-        return checkLimits(network, EnumSet.allOf(CurrentLimitType.class), limitReduction);
+        return checkLimits(network, EnumSet.allOf(LoadingLimitType.class), limitReduction);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, CurrentLimitType currentLimitType, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, LoadingLimitType currentLimitType, float limitReduction) {
         Objects.requireNonNull(currentLimitType);
         return checkLimits(network, EnumSet.of(currentLimitType), limitReduction);
     }
 
-    public static List<LimitViolation> checkLimits(Network network, Set<CurrentLimitType> currentLimitTypes, float limitReduction) {
+    public static List<LimitViolation> checkLimits(Network network, Set<LoadingLimitType> currentLimitTypes, float limitReduction) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(currentLimitTypes);
 

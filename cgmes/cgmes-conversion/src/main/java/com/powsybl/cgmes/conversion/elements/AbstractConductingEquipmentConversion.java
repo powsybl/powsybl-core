@@ -243,8 +243,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
         context.terminalMapping().add(terminalId(boundarySide), dl.getBoundary(), 2);
         dl.addAlias(terminalId(boundarySide), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary");
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Boundary", terminalId(boundarySide)); // TODO: delete when aliases are correctly handled by mergedlines
         dl.addAlias(terminalId(boundarySide == 1 ? 2 : 1), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
-        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE));
+        dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + ".Terminal_Network", terminalId(boundarySide == 1 ? 2 : 1)); // TODO: delete when aliases are correctly handled by mergedlines
+        Optional.ofNullable(topologicalNodeId(boundarySide)).ifPresent(tn -> {
+            dl.addAlias(tn, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
+            dl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + dl.getId() + "." + CgmesNames.TOPOLOGICAL_NODE, tn); // TODO: delete when aliases are correctly handled by mergedlines
+        });
         setBoundaryNodeInfo(boundaryNode, dl);
         // In a Dangling Line the CGMES side and the IIDM side may not be the same
         // Dangling lines in IIDM only have one terminal, one side
@@ -301,13 +306,13 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         Optional<DanglingLine.Generation> generation = Optional.ofNullable(dl.getGeneration());
         double p = dl.getP0() - generation.map(DanglingLine.Generation::getTargetP).orElse(0.0);
         double q = dl.getQ0() - generation.map(DanglingLine.Generation::getTargetQ).orElse(0.0);
-        SV svboundary = new SV(-p, -q, v, angle);
+        SV svboundary = new SV(-p, -q, v, angle, Branch.Side.ONE);
         // The other side power flow must be computed taking into account
         // the same criteria used for ACLineSegment: total shunt admittance
         // is divided in 2 equal shunt admittance at each side of series impedance
         double g = dl.getG() / 2;
         double b = dl.getB() / 2;
-        SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1);
+        SV svmodel = svboundary.otherSide(dl.getR(), dl.getX(), g, b, g, b, 1.0, 0.0);
         dl.getTerminal().setP(svmodel.getP());
         dl.getTerminal().setQ(svmodel.getQ());
     }

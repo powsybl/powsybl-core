@@ -217,14 +217,24 @@ public class DanglingLineAdapterTest {
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE));
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO));
+        assertFalse(mergedLine.checkPermanentLimit1(LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit2(LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit1());
         assertFalse(mergedLine.checkPermanentLimit2());
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE));
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO));
+        assertNull(mergedLine.checkTemporaryLimits1(1.0f, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits1(LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits1(1.0f));
         assertNull(mergedLine.checkTemporaryLimits1());
+        assertNull(mergedLine.checkTemporaryLimits2(1.0f, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits2(LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits2(1.0f));
         assertNull(mergedLine.checkTemporaryLimits2());
         mergedLine.getTerminals().forEach(t -> {
@@ -265,8 +275,8 @@ public class DanglingLineAdapterTest {
         t2.getBusView().getBus().setV(v2).setAngle(angle2);
 
         // Check P & Q are computed by Listener
-        SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);

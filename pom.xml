@@ -20,7 +20,7 @@
     </parent>
 
     <artifactId>powsybl-core</artifactId>
-    <version>4.2.0-SNAPSHOT</version>
+    <version>4.3.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>powsybl</name>
@@ -101,7 +101,7 @@
         <gdata.version>1.41.1_1</gdata.version>
         <graphviz-builder.version>1.0.11</graphviz-builder.version>
         <groovy.version>3.0.7</groovy.version>
-        <guava.version>29.0-jre</guava.version>
+        <guava.version>30.0-jre</guava.version>
         <jackson.version>2.10.5</jackson.version>
         <jackson-databind.version>2.10.5.1</jackson-databind.version>
         <jama.version>1.0.3</jama.version>
