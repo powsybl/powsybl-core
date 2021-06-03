@@ -17,10 +17,7 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -277,6 +274,8 @@ public class CgmesConformity1ConversionTest {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), null));
     }
 
+    // FIXME(Marcos) Requires integration of PR #1717
+    @Ignore("Requires integration of PR #1717")
     @Test
     public void smallNodeBreakerHvdcOnlyEQ() {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), null));
