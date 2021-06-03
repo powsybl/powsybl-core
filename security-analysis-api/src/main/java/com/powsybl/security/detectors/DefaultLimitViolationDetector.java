@@ -8,11 +8,11 @@ package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.LimitType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
-import com.powsybl.security.Security;
 
 import java.util.Collection;
 import java.util.EnumSet;
@@ -28,9 +28,9 @@ import java.util.function.Consumer;
 public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
     private final float limitReduction;
-    private final Set<Security.CurrentLimitType> currentLimitTypes;
+    private final Set<LoadingLimitType> currentLimitTypes;
 
-    public DefaultLimitViolationDetector(float limitReduction, Collection<Security.CurrentLimitType> currentLimitTypes) {
+    public DefaultLimitViolationDetector(float limitReduction, Collection<LoadingLimitType> currentLimitTypes) {
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
@@ -38,47 +38,30 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         this.currentLimitTypes = EnumSet.copyOf(Objects.requireNonNull(currentLimitTypes));
     }
 
-    public DefaultLimitViolationDetector(Collection<Security.CurrentLimitType> currentLimitTypes) {
+    public DefaultLimitViolationDetector(Collection<LoadingLimitType> currentLimitTypes) {
         this(1.0f, currentLimitTypes);
     }
 
     public DefaultLimitViolationDetector() {
-        this(EnumSet.allOf(Security.CurrentLimitType.class));
-    }
-
-    private void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
-
-        if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    LimitViolationType.CURRENT,
-                    null,
-                    Integer.MAX_VALUE,
-                    branch.getCurrentLimits(side).getPermanentLimit(),
-                    limitReduction,
-                    value,
-                    side));
-        }
+        this(EnumSet.allOf(LoadingLimitType.class));
     }
 
     @Override
     public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
-        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
+        checkLimitViolation(branch, side, value, consumer, LimitType.CURRENT);
+    }
 
-        if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
-            consumer.accept(new LimitViolation(branch.getId(),
-                    ((Branch<?>) branch).getOptionalName().orElse(null),
-                    LimitViolationType.CURRENT,
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    limitReduction,
-                    value,
-                    side));
-        } else if (currentLimitTypes.contains(Security.CurrentLimitType.PATL)) {
-            checkPermanentLimit(branch, side, value, consumer);
-        }
+    @Override
+    public void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+
+        checkLimitViolation(branch, side, value, consumer, LimitType.ACTIVE_POWER);
+    }
+
+    @Override
+    public void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+
+        checkLimitViolation(branch, side, value, consumer, LimitType.APPARENT_POWER);
     }
 
     @Override
@@ -95,4 +78,22 @@ public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetec
         }
     }
 
+    public void checkLimitViolation(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value, type);
+
+        if (currentLimitTypes.contains(LoadingLimitType.TATL) && (overload != null)) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    overload.getPreviousLimitName(),
+                    overload.getTemporaryLimit().getAcceptableDuration(),
+                    overload.getPreviousLimit(),
+                    limitReduction,
+                    value,
+                    side));
+        } else if (currentLimitTypes.contains(LoadingLimitType.PATL)) {
+            checkPermanentLimit(branch, side, value, consumer, type);
+        }
+    }
 }
