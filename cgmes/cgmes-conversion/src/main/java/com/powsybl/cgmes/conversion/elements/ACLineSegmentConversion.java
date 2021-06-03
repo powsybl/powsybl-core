@@ -12,8 +12,6 @@ import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.iidm.network.*;
 
-import org.apache.commons.math3.complex.Complex;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -70,26 +68,20 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
     }
 
     public static void convertBoundaryLines(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        Line mline;
-        if (context.config().mergeBoundariesUsingTieLines()) {
-            mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
-        } else {
-            mline = createLine(context, boundaryLine1, boundaryLine2);
-        }
+
+        Line mline = createTieLine(context, boundaryNode, boundaryLine1, boundaryLine2);
 
         mline.addAlias(boundaryLine1.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 1);
-        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_BOUNDARY");
+        mline.addAlias(boundaryLine1.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary");
         mline.addAlias(boundaryLine2.getModelTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + 2);
-        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_BOUNDARY");
+        mline.addAlias(boundaryLine2.getBoundaryTerminalId(), Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary");
 
         context.convertedTerminal(boundaryLine1.getModelTerminalId(), mline.getTerminal1(), 1, boundaryLine1.getModelPowerFlow());
         context.convertedTerminal(boundaryLine2.getModelTerminalId(), mline.getTerminal2(), 2, boundaryLine2.getModelPowerFlow());
 
-        if (mline instanceof TieLine) {
-            TieLine tl = (TieLine) mline;
-            context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
-            context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
-        }
+        TieLine tl = (TieLine) mline;
+        context.terminalMapping().add(boundaryLine1.getBoundaryTerminalId(), tl.getHalf1().getBoundary(), 2);
+        context.terminalMapping().add(boundaryLine2.getBoundaryTerminalId(), tl.getHalf2().getBoundary(), 1);
     }
 
     private void convertLine() {
@@ -193,104 +185,5 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                     .add();
         }
         return tieLine;
-    }
-
-    // TODO support transformer + Line
-    private static Line createLine(Context context, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
-        PiModel pi1 = new PiModel();
-        pi1.r = boundaryLine1.getR();
-        pi1.x = boundaryLine1.getX();
-        pi1.g1 = boundaryLine1.getG1();
-        pi1.b1 = boundaryLine1.getB1();
-        pi1.g2 = boundaryLine1.getG2();
-        pi1.b2 = boundaryLine1.getB2();
-        PiModel pi2 = new PiModel();
-        pi2.r = boundaryLine2.getR();
-        pi2.x = boundaryLine2.getX();
-        pi2.g1 = boundaryLine2.getG1();
-        pi2.b1 = boundaryLine2.getB1();
-        pi2.g2 = boundaryLine2.getG2();
-        pi2.b2 = boundaryLine2.getB2();
-        PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-        LineAdder adder = context.network().newLine()
-            .setR(pim.r)
-            .setX(pim.x)
-            .setG1(pim.g1)
-            .setG2(pim.g2)
-            .setB1(pim.b1)
-            .setB2(pim.b2);
-        identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
-        connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
-            boundaryLine1.getModelNode(), boundaryLine2.getModelIidmVoltageLevelId(), boundaryLine2.getModelBus(),
-            boundaryLine2.isModelTconnected(), boundaryLine2.getModelNode());
-        return adder.add();
-    }
-
-    static class PiModel {
-        double r;
-        double x;
-        double g1;
-        double b1;
-        double g2;
-        double b2;
-    }
-
-    static class Quadripole {
-        Complex a;
-        Complex b;
-        Complex c;
-        Complex d;
-
-        public static Quadripole from(PiModel pi) {
-            Quadripole y1 = Quadripole.fromShuntAdmittance(pi.g1, pi.b1);
-            Quadripole z = Quadripole.fromSeriesImpedance(pi.r, pi.x);
-            Quadripole y2 = Quadripole.fromShuntAdmittance(pi.g2, pi.b2);
-            return y1.cascade(z).cascade(y2);
-        }
-
-        public static Quadripole fromSeriesImpedance(double r, double x) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(r, x);
-            q.c = new Complex(0);
-            q.d = new Complex(1);
-            return q;
-        }
-
-        public static Quadripole fromShuntAdmittance(double g, double b) {
-            Quadripole q = new Quadripole();
-            q.a = new Complex(1);
-            q.b = new Complex(0);
-            q.c = new Complex(g, b);
-            q.d = new Complex(1);
-            return q;
-        }
-
-        public Quadripole cascade(Quadripole q2) {
-            Quadripole q1 = this;
-            Quadripole qr = new Quadripole();
-            qr.a = q1.a.multiply(q2.a).add(q1.b.multiply(q2.c));
-            qr.b = q1.a.multiply(q2.b).add(q1.b.multiply(q2.d));
-            qr.c = q1.c.multiply(q2.a).add(q1.d.multiply(q2.c));
-            qr.d = q1.c.multiply(q2.b).add(q1.d.multiply(q2.d));
-            return qr;
-        }
-
-        public PiModel toPiModel() {
-            PiModel pi = new PiModel();
-
-            // Y2 = (A - 1)/B
-            // Y1 = (D - 1)/B
-            Complex y1 = d.add(-1).divide(b);
-            Complex y2 = a.add(-1).divide(b);
-
-            pi.r = b.getReal();
-            pi.x = b.getImaginary();
-            pi.g1 = y1.getReal();
-            pi.b1 = y1.getImaginary();
-            pi.g2 = y2.getReal();
-            pi.b2 = y2.getImaginary();
-            return pi;
-        }
     }
 }
