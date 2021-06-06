@@ -287,6 +287,8 @@ public abstract class AbstractLineTest {
 
     @Test
     public void testTieLineAdder() {
+        double tol = 0.0000001;
+
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
@@ -336,12 +338,12 @@ public abstract class AbstractLineTest {
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
-        assertEquals(r + r2, tieLine.getR(), 0.0);
-        assertEquals(x + x2, tieLine.getX(), 0.0);
-        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
-        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
-        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
-        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        assertEquals(-12339.0, tieLine.getR(), tol);
+        assertEquals(1072.0, tieLine.getX(), tol);
+        assertEquals(30.020088480382720, tieLine.getG1(), tol);
+        assertEquals(135.200884803827200, tieLine.getG2(), tol);
+        assertEquals(39.960007687087310, tieLine.getB1(), tol);
+        assertEquals(144.600076870873070, tieLine.getB2(), tol);
 
         // invalid set line characteristics on tieLine
         try {

@@ -11,13 +11,14 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.iidm.network.*;
-
+import com.powsybl.iidm.network.util.BranchReorientedParameters;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion implements EquipmentAtBoundaryConversion {
 
@@ -149,29 +150,37 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
 
     // TODO support transformer + Line
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
+
+        BranchReorientedParameters brp1 = new BranchReorientedParameters(boundaryLine1.getR(), boundaryLine1.getX(),
+            boundaryLine1.getG1(), boundaryLine1.getB1(), boundaryLine1.getG2(), boundaryLine1.getB2(),
+            isLine1Reoriented(boundaryLine1.getBoundarySide()));
+        BranchReorientedParameters brp2 = new BranchReorientedParameters(boundaryLine2.getR(), boundaryLine2.getX(),
+            boundaryLine2.getG1(), boundaryLine2.getB1(), boundaryLine2.getG2(), boundaryLine2.getB2(),
+            isLine2Reoriented(boundaryLine2.getBoundarySide()));
+
         TieLineAdder adder = context.network().newTieLine()
             .setId(boundaryLine1.getId() + " + " + boundaryLine2.getId())
             .setName(boundaryLine1.getName() + " + " + boundaryLine2.getName())
             .newHalfLine1()
-                .setId(boundaryLine1.getId())
-                .setName(boundaryLine1.getName())
-                .setR(boundaryLine1.getR())
-                .setX(boundaryLine1.getX())
-                .setG1(boundaryLine1.getG1())
-                .setG2(boundaryLine1.getG2())
-                .setB1(boundaryLine1.getB1())
-                .setB2(boundaryLine1.getB2())
-                .add()
+            .setId(boundaryLine1.getId())
+            .setName(boundaryLine1.getName())
+            .setR(brp1.getR())
+            .setX(brp1.getX())
+            .setG1(brp1.getG1())
+            .setB1(brp1.getB1())
+            .setG2(brp1.getG2())
+            .setB2(brp1.getB2())
+            .add()
             .newHalfLine2()
-                .setId(boundaryLine2.getId())
-                .setName(boundaryLine2.getName())
-                .setR(boundaryLine2.getR())
-                .setX(boundaryLine2.getX())
-                .setG1(boundaryLine2.getG1())
-                .setG2(boundaryLine2.getG2())
-                .setB1(boundaryLine2.getB1())
-                .setB2(boundaryLine2.getB2())
-                .add()
+            .setId(boundaryLine2.getId())
+            .setName(boundaryLine2.getName())
+            .setR(brp2.getR())
+            .setX(brp2.getX())
+            .setG1(brp2.getG1())
+            .setB1(brp2.getB1())
+            .setG2(brp2.getG2())
+            .setB2(brp2.getB2())
+            .add()
             .setUcteXnodeCode(findUcteXnodeCode(context, boundaryNode));
         identify(context, adder, boundaryLine1.getId() + " + " + boundaryLine2.getId(), boundaryLine1.getName() + " + " + boundaryLine2.getName());
         connect(context, adder, boundaryLine1.getModelIidmVoltageLevelId(), boundaryLine1.getModelBus(), boundaryLine1.isModelTconnected(),
@@ -185,5 +194,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                     .add();
         }
         return tieLine;
+    }
+
+    private static boolean isLine1Reoriented(Branch.Side boundarySide) {
+        return boundarySide.equals(Branch.Side.ONE);
+    }
+
+    private static boolean isLine2Reoriented(Branch.Side boundarySide) {
+        return boundarySide.equals(Branch.Side.TWO);
     }
 }

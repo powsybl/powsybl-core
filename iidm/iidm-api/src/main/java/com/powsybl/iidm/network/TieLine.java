@@ -8,11 +8,17 @@ package com.powsybl.iidm.network;
 
 /**
  * A tie line is an AC line sharing power between two neighbouring regional grids. It is constituted of two [half lines](#half-line).
- * A tie line is created by matching two [dangling lines](#dangling-line) with the same Xnode code.
- * It has line characteristics, with $$R$$ (resp. $$X$$) being the sum of the series resistances (resp. reactances) of the two half lines.
- * $$G1$$ (resp. $$B1$$) is equal to the sum of the first half line's $$G1$$ and $$G2$$ (resp. $$B1$$ and $$B2$$).
- * $$G2$$ (resp. $$B2$$) is equal to the sum of the second half line's $$G1$$ and $$G2$$ (resp. $$B1$$ and $$B2$$).
- *
+ * <p>
+ * The tie line is always oriented in the same way, <br>
+ * The network model node of the Half 1 is always at end 1. <br>
+ * The network model node of the Half 2 is always at end 2. <br>
+ * </p>
+ * As there is not injection at the boundary node, by applying kron reduction, this node can be
+ * removed getting an equivalent branch between both network model nodes.
+ * <p><div>
+ * <object data="doc-files/TieLine.svg" type="image/svg+xml">
+ * </object> </div>
+ * </p>
  * <p>
  *  Characteristics
  * </p>
@@ -75,7 +81,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">&Omega;</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series resistance (sum of the series resistances of the two Half lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The series resistance (resistance of the equivalent branch model) **NB: this attribute is read-only**</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">X</td>
@@ -83,7 +89,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">&Omega;</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The series reactance (sum of the series reactances of the two Hald lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The series reactance (reactance of the equivalent branch model) **NB: this attribute is read-only**</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">G1</td>
@@ -91,7 +97,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt conductance (sum of the first side shunt conductances of the two Half lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The first side shunt conductance (shunt conductance of the equivalent branch at end 1) **NB: this attribute is read-only**</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">B1</td>
@@ -99,7 +105,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The first side shunt susceptance (sum of the first side shunt susceptances of the two Half lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The first side shunt susceptance (shunt susceptance of the equivalent branch at end 1) **NB: this attribute is read-only**</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">G2</td>
@@ -107,7 +113,7 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt conductance (sum of the second side shunt conductances of the two Half lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The second side shunt conductance (shunt conductance of the equivalent branch at end 2) **NB: this attribute is read-only**</td>
  *         </tr>
  *         <tr>
  *             <td style="border: 1px solid black">B2</td>
@@ -115,11 +121,39 @@ package com.powsybl.iidm.network;
  *             <td style="border: 1px solid black">S</td>
  *             <td style="border: 1px solid black">yes</td>
  *             <td style="border: 1px solid black"> - </td>
- *             <td style="border: 1px solid black">The second side shunt susceptance (sum of the second side shunt susceptances of the two Half lines) **NB: this attribute is read-only**</td>
+ *             <td style="border: 1px solid black">The second side shunt susceptance (shunt susceptance of the equivalent branch at end 2) **NB: this attribute is read-only**</td>
  *         </tr>
  *     </tbody>
  * </table>
+ *
+ * <p>
+ * In the Merging View: <br>
+ * A tie line is created by matching two [dangling lines](#dangling-line) with the same Xnode code. <br>
+ * We have two Dangling Lines as Half line objects of a Tie Line. <br>
+ * The first dangling line maps directly to the first half line. <br>
+ * The second dangling line must be reoriented before mapping it to the second half line (In dangling lines we assume that the boundary side is always at end 2).
+ * </p>
+ *
+ * <p><div>
+ * <object data="doc-files/TwoDanglingLinesToTieLine.svg" type="image/svg+xml">
+ * </object> </div>
+ * </p>
+ *
+ * <p>
+ * In the CGMES import of an assembled model : <br>
+ * A tie line is created by matching two lines with the same boundary node. <br>
+ * Depending on the initial orientation of the lines,
+ * none, only one or maybe both lines must be reoriented before mapping them to the half lines.
+ * </p>
+ *
+ * <p><div>
+ * <object data="doc-files/TwoLinesToTieLine.svg" type="image/svg+xml">
+ * </object> </div>
+ * </p>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 public interface TieLine extends Line {
 
