@@ -8,10 +8,7 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
-import org.anarres.graphviz.builder.GraphVizAttribute;
-import org.anarres.graphviz.builder.GraphVizEdge;
-import org.anarres.graphviz.builder.GraphVizGraph;
-import org.anarres.graphviz.builder.GraphVizScope;
+import org.anarres.graphviz.builder.*;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -37,6 +34,8 @@ public class GraphvizConnectivity {
 
     private final Random random;
 
+    private boolean countryCluster = false;
+
     public GraphvizConnectivity(Network network) {
         this(network, new SecureRandom());
     }
@@ -44,6 +43,10 @@ public class GraphvizConnectivity {
     public GraphvizConnectivity(Network network, Random random) {
         this.network = Objects.requireNonNull(network);
         this.random = Objects.requireNonNull(random);
+    }
+
+    public void setCountryCluster(boolean countryCluster) {
+        this.countryCluster = countryCluster;
     }
 
     private static String getBusId(Bus bus) {
@@ -67,12 +70,21 @@ public class GraphvizConnectivity {
             long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(Generator::getMaxP).sum());
             String busId = getBusId(b);
             String tooltip = "load=" + load + "MW" + NEWLINE + "max generation=" + maxGeneration + "MW" + NEWLINE + "cc=" + b.getConnectedComponent().getNum();
-            graph.node(scope, busId).label(busId)
+            GraphVizNode node = graph.node(scope, busId).label(busId)
                     .attr(GraphVizAttribute.shape, "ellipse")
                     .attr(GraphVizAttribute.style, "filled")
                     .attr(GraphVizAttribute.fontsize, "10")
                     .attr(GraphVizAttribute.fillcolor, colors[b.getConnectedComponent().getNum()])
                     .attr(GraphVizAttribute.tooltip, tooltip);
+            if (countryCluster) {
+                Country country = b.getVoltageLevel().getSubstation().getNullableCountry();
+                if (country != null) {
+                    graph.cluster(scope, country)
+                            .label(country.name())
+                            .attr(GraphVizAttribute.style, "rounded")
+                            .add(node);
+                }
+            }
         }
         for (Branch branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
