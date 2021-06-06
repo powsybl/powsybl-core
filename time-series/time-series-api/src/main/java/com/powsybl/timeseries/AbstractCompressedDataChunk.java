@@ -12,6 +12,7 @@ import com.powsybl.commons.json.JsonUtil;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,6 +29,7 @@ public abstract class AbstractCompressedDataChunk {
         this.offset = offset;
         this.uncompressedLength = uncompressedLength;
         this.stepLengths = Objects.requireNonNull(stepLengths);
+        check(uncompressedLength, stepLengths);
     }
 
     static void check(int offset, int uncompressedLength, int stepValuesLength, int stepLengthsLength) {
@@ -43,6 +45,13 @@ public abstract class AbstractCompressedDataChunk {
         }
         if (stepValuesLength < 1) {
             throw new IllegalArgumentException("Bad step arrays length " + stepValuesLength);
+        }
+    }
+
+    static void check(int uncompressedLength, int[] stepLengths) {
+        if (IntStream.of(stepLengths).sum() != uncompressedLength) {
+            throw new IllegalArgumentException("Inconsistent uncompressedLength length: "
+                + uncompressedLength + " with sum of step length");
         }
     }
 

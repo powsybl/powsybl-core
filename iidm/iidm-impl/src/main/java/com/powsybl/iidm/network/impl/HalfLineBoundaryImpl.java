@@ -6,55 +6,69 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class HalfLineBoundaryImpl implements Boundary {
+    // side represents the network side.
+    // side here is Side.ONE for the half line 1 of a tie line.
+    // side is Side.TWO for the half line 2 of a tie line.
 
-    private final Supplier<Terminal> terminalSupplier;
+    private final TieLineImpl.HalfLineImpl parent;
+    private final Branch.Side side;
 
-    private final TieLine.HalfLine halfLine;
-
-    HalfLineBoundaryImpl(TieLine.HalfLine halfLine, Supplier<Terminal> terminalSupplier) {
-        this.halfLine = Objects.requireNonNull(halfLine);
-        this.terminalSupplier = Objects.requireNonNull(terminalSupplier);
+    HalfLineBoundaryImpl(TieLineImpl.HalfLineImpl parent, Branch.Side side) {
+        this.parent = Objects.requireNonNull(parent);
+        this.side = Objects.requireNonNull(side);
     }
 
     @Override
     public double getV() {
-        Terminal t = terminalSupplier.get();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideU(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
-        Terminal t = terminalSupplier.get();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideA(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideA(parent);
     }
 
     @Override
     public double getP() {
-        Terminal t = terminalSupplier.get();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideP(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
-        Terminal t = terminalSupplier.get();
+        Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b)).otherSideQ(halfLine);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideQ(parent);
+    }
+
+    @Override
+    public Branch.Side getSide() {
+        return side;
+    }
+
+    @Override
+    public TieLine getConnectable() {
+        return parent.getParent();
+    }
+
+    @Override
+    public VoltageLevel getVoltageLevel() {
+        return getConnectable().getTerminal(side).getVoltageLevel();
     }
 
     private static double getV(Bus b) {

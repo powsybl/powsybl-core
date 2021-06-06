@@ -40,6 +40,12 @@ public final class TerminalRefXml {
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
+        if (t.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER
+                && context.getOptions().getTopologyLevel() != TopologyLevel.NODE_BREAKER
+                && t.getConnectable() instanceof BusbarSection) {
+            throw new PowsyblException(String.format("Terminal ref should not point to a busbar section (here %s). Try to export in node-breaker or delete this terminal ref.",
+                    t.getConnectable().getId()));
+        }
         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
@@ -58,6 +64,9 @@ public final class TerminalRefXml {
 
     public static Terminal readTerminalRef(Network network, String id, String side) {
         Identifiable identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            throw new PowsyblException("Terminal reference identifiable not found: '" + id + "'");
+        }
         if (identifiable instanceof Injection) {
             return ((Injection) identifiable).getTerminal();
         } else if (identifiable instanceof Branch) {
@@ -67,7 +76,7 @@ public final class TerminalRefXml {
             ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
             return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
         } else {
-            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
+            throw new PowsyblException("Unexpected terminal reference identifiable instance: " + identifiable.getClass());
         }
     }
 

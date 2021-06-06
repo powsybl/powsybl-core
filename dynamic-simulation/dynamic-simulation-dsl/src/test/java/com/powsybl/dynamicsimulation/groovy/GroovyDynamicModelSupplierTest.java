@@ -54,7 +54,22 @@ public class GroovyDynamicModelSupplierTest {
         assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
 
         DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(fileSystem.getPath("/dynamicModels.groovy"), extensions);
+        testDynamicModels(supplier, network);
+    }
 
+    @Test
+    public void testWithInputStream() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        List<DynamicModelGroovyExtension> extensions = GroovyExtension.find(DynamicModelGroovyExtension.class, "dummy");
+        assertEquals(1, extensions.size());
+        assertTrue(extensions.get(0) instanceof DynamicModelGroovyExtension);
+
+        DynamicModelsSupplier supplier = new GroovyDynamicModelsSupplier(getClass().getResourceAsStream("/dynamicModels.groovy"), extensions);
+        testDynamicModels(supplier, network);
+    }
+
+    public void testDynamicModels(DynamicModelsSupplier supplier, Network network) {
         List<DynamicModel> dynamicModels = supplier.get(network);
         assertEquals(2, dynamicModels.size());
 

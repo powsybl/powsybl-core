@@ -12,13 +12,13 @@ import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
+import java.util.Collection;
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
+class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
@@ -234,8 +234,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final GenerationImpl generation;
 
-    private CurrentLimitsImpl limits;
-
+    private final OperationalLimitsHolderImpl operationalLimitsHolder;
     // attributes depending on the variant
 
     private final TDoubleArrayList p0;
@@ -244,8 +243,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
-        super(id, name, fictitious);
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
+        super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
@@ -259,6 +258,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         this.g = g;
         this.b = b;
         this.ucteXnodeCode = ucteXnodeCode;
+        this.operationalLimitsHolder = new OperationalLimitsHolderImpl(this, "limits");
         this.boundary = new DanglingLineBoundaryImpl(this);
         this.generation = generation != null ? generation.attach(this) : null;
     }
@@ -375,20 +375,38 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public void setCurrentLimits(Void side, CurrentLimitsImpl limits) {
-        CurrentLimitsImpl oldValue = this.limits;
-        this.limits = limits;
-        notifyUpdate("currentlimits", oldValue, limits);
+    public Collection<OperationalLimits> getOperationalLimits() {
+        return operationalLimitsHolder.getOperationalLimits();
     }
 
     @Override
-    public CurrentLimitsImpl getCurrentLimits() {
-        return limits;
+    public CurrentLimits getCurrentLimits() {
+        return operationalLimitsHolder.getOperationalLimits(LimitType.CURRENT, CurrentLimits.class);
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits() {
+        return operationalLimitsHolder.getOperationalLimits(LimitType.ACTIVE_POWER, ActivePowerLimits.class);
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits() {
+        return operationalLimitsHolder.getOperationalLimits(LimitType.APPARENT_POWER, ApparentPowerLimits.class);
     }
 
     @Override
     public CurrentLimitsAdder newCurrentLimits() {
-        return new CurrentLimitsAdderImpl<>(null, this);
+        return operationalLimitsHolder.newCurrentLimits();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits() {
+        return operationalLimitsHolder.newActivePowerLimits();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits() {
+        return operationalLimitsHolder.newApparentPowerLimits();
     }
 
     @Override

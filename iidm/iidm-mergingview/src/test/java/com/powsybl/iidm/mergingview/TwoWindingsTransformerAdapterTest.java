@@ -165,29 +165,27 @@ public class TwoWindingsTransformerAdapterTest {
                 .add();
         assertFalse(currentLimits1 instanceof AbstractAdapter<?>);
         assertFalse(currentLimits2 instanceof AbstractAdapter<?>);
-        assertEquals(twt.getCurrentLimits(Side.ONE), twt.getCurrentLimits1());
-        assertEquals(twt.getCurrentLimits(Side.TWO), twt.getCurrentLimits2());
         assertFalse(twt.isOverloaded());
         assertFalse(twt.isOverloaded(0.0f));
         assertEquals(Integer.MAX_VALUE, twt.getOverloadDuration());
 
-        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE));
-        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE, 0.9f));
-        assertFalse(twt.checkPermanentLimit1());
-        assertFalse(twt.checkPermanentLimit1(0.9f));
-        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE, 0.9f));
-        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE));
-        assertNull(twt.checkTemporaryLimits1());
-        assertNull(twt.checkTemporaryLimits1(0.9f));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit1(LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit1(0.9f, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits1(LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits1(0.9f, LimitType.CURRENT));
 
-        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO, 0.9f));
-        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO));
-        assertFalse(twt.checkPermanentLimit2());
-        assertFalse(twt.checkPermanentLimit2(0.9f));
-        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO, 0.9f));
-        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO));
-        assertNull(twt.checkTemporaryLimits2());
-        assertNull(twt.checkTemporaryLimits2(0.9f));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit2(LimitType.CURRENT));
+        assertFalse(twt.checkPermanentLimit2(0.9f, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits2(LimitType.CURRENT));
+        assertNull(twt.checkTemporaryLimits2(0.9f, LimitType.CURRENT));
 
         // Topology
         TopologyVisitor visitor = mock(TopologyVisitor.class);

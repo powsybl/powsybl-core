@@ -6,10 +6,9 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
+
+import java.util.Collection;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -53,8 +52,8 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public CurrentLimits getCurrentLimits(final Side side) {
-        return getDelegate().getCurrentLimits(side);
+    public Collection<OperationalLimits> getOperationalLimits1() {
+        return getDelegate().getOperationalLimits1();
     }
 
     @Override
@@ -68,6 +67,31 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
+    public ApparentPowerLimits getApparentPowerLimits1() {
+        return getDelegate().getApparentPowerLimits1();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits1() {
+        return getDelegate().newApparentPowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits1() {
+        return getDelegate().getActivePowerLimits1();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits1() {
+        return getDelegate().newActivePowerLimits1();
+    }
+
+    @Override
+    public Collection<OperationalLimits> getOperationalLimits2() {
+        return getDelegate().getOperationalLimits2();
+    }
+
+    @Override
     public CurrentLimits getCurrentLimits2() {
         return getDelegate().getCurrentLimits2();
     }
@@ -75,6 +99,26 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return getDelegate().newCurrentLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimits getApparentPowerLimits2() {
+        return getDelegate().getApparentPowerLimits2();
+    }
+
+    @Override
+    public ApparentPowerLimitsAdder newApparentPowerLimits2() {
+        return getDelegate().newApparentPowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimits getActivePowerLimits2() {
+        return getDelegate().getActivePowerLimits2();
+    }
+
+    @Override
+    public ActivePowerLimitsAdder newActivePowerLimits2() {
+        return getDelegate().newActivePowerLimits2();
     }
 
     @Override
@@ -93,62 +137,62 @@ abstract class AbstractBranchAdapter<I extends Branch<I>> extends AbstractConnec
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
-        return getDelegate().checkPermanentLimit(side, limitReduction);
+    public boolean checkPermanentLimit(final Side side, final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit(side, limitReduction, type);
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side) {
-        return getDelegate().checkPermanentLimit(side);
+    public boolean checkPermanentLimit(final Side side, LimitType type) {
+        return getDelegate().checkPermanentLimit(side, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        return getDelegate().checkPermanentLimit1(limitReduction);
+    public boolean checkPermanentLimit1(final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit1(limitReduction, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1() {
-        return getDelegate().checkPermanentLimit1();
+    public boolean checkPermanentLimit1(LimitType type) {
+        return getDelegate().checkPermanentLimit1(type);
     }
 
     @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        return getDelegate().checkPermanentLimit2(limitReduction);
+    public boolean checkPermanentLimit2(final float limitReduction, LimitType type) {
+        return getDelegate().checkPermanentLimit2(limitReduction, type);
     }
 
     @Override
-    public boolean checkPermanentLimit2() {
-        return getDelegate().checkPermanentLimit2();
+    public boolean checkPermanentLimit2(LimitType type) {
+        return getDelegate().checkPermanentLimit2(type);
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
-        return getDelegate().checkTemporaryLimits(side, limitReduction);
+    public Overload checkTemporaryLimits(final Side side, final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits(side, limitReduction, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        return getDelegate().checkTemporaryLimits(side);
+    public Overload checkTemporaryLimits(final Side side, LimitType type) {
+        return getDelegate().checkTemporaryLimits(side, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        return getDelegate().checkTemporaryLimits1(limitReduction);
+    public Overload checkTemporaryLimits1(final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits1(limitReduction, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1() {
-        return getDelegate().checkTemporaryLimits1();
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return getDelegate().checkTemporaryLimits1(type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        return getDelegate().checkTemporaryLimits2(limitReduction);
+    public Overload checkTemporaryLimits2(final float limitReduction, LimitType type) {
+        return getDelegate().checkTemporaryLimits2(limitReduction, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2() {
-        return getDelegate().checkTemporaryLimits2();
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return getDelegate().checkTemporaryLimits2(type);
     }
 }

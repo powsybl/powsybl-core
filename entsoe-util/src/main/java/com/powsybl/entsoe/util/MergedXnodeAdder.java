@@ -19,21 +19,49 @@ public interface MergedXnodeAdder extends ExtensionAdder<Line, MergedXnode> {
         return MergedXnode.class;
     }
 
-    MergedXnodeAdder withRdp(float rdp);
+    default MergedXnodeAdder withRdp(float rdp) {
+        return this;
+    }
 
-    MergedXnodeAdder withXdp(float xdp);
+    default MergedXnodeAdder withXdp(float xdp) {
+        return this;
+    }
+
+    MergedXnodeAdder withLine1Name(String line1Name);
+
+    default MergedXnodeAdder withLine1Fictitious(boolean line1Fictitious) {
+        return this;
+    }
 
     MergedXnodeAdder withXnodeP1(double xnodeP1);
 
     MergedXnodeAdder withXnodeQ1(double xnodeQ1);
 
+    default MergedXnodeAdder withB1dp(float b1dp) {
+        return this;
+    }
+
+    default MergedXnodeAdder withG1dp(float g1dp) {
+        return this;
+    }
+
+    MergedXnodeAdder withLine2Name(String line2Name);
+
+    default MergedXnodeAdder withLine2Fictitious(boolean line2Fictitious) {
+        return this;
+    }
+
     MergedXnodeAdder withXnodeP2(double xnodeP2);
 
     MergedXnodeAdder withXnodeQ2(double xnodeQ2);
 
-    MergedXnodeAdder withLine1Name(String line1Name);
+    default MergedXnodeAdder withB2dp(float b2dp) {
+        return this;
+    }
 
-    MergedXnodeAdder withLine2Name(String line2Name);
+    default MergedXnodeAdder withG2dp(float g2dp) {
+        return this;
+    }
 
     MergedXnodeAdder withCode(String code);
 }

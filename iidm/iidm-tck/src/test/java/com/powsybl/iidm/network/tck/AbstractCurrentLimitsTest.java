@@ -16,7 +16,7 @@ import static org.junit.Assert.*;
  */
 public abstract class AbstractCurrentLimitsTest {
 
-    private Network createNetwork() {
+    private static Network createNetwork() {
         Network network = Network.create("test", "test");
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -87,22 +87,22 @@ public abstract class AbstractCurrentLimitsTest {
         l.getTerminal1().setP(100.0).setQ(50.0); // i = 165.51212
         assertFalse(Double.isNaN(l.getTerminal1().getI()));
         assertFalse(l.isOverloaded());
-        assertFalse(l.checkPermanentLimit1());
-        assertNull(l.checkTemporaryLimits1());
+        assertFalse(l.checkPermanentLimit1(LimitType.CURRENT));
+        assertNull(l.checkTemporaryLimits1(LimitType.CURRENT));
 
         l.getTerminal1().setP(800.0).setQ(400.0); // i = 1324.0969
         assertTrue(l.isOverloaded());
         assertEquals(5 * 60L, l.getOverloadDuration());
-        assertTrue(l.checkPermanentLimit1());
-        assertNotNull(l.checkTemporaryLimits1());
-        assertEquals(5 * 60L, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
-        assertEquals(1200.0, l.checkTemporaryLimits1().getPreviousLimit(), 0.0);
+        assertTrue(l.checkPermanentLimit1(LimitType.CURRENT));
+        assertNotNull(l.checkTemporaryLimits1(LimitType.CURRENT));
+        assertEquals(5 * 60L, l.checkTemporaryLimits1(LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1200.0, l.checkTemporaryLimits1(LimitType.CURRENT).getPreviousLimit(), 0.0);
 
         l.getTerminal1().setP(900.0).setQ(500.0); // i = 1524.1499
         assertEquals(60, l.getOverloadDuration());
-        assertNotNull(l.checkTemporaryLimits1());
-        assertEquals(60, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
-        assertEquals(1400.0, l.checkTemporaryLimits1().getPreviousLimit(), 0.0);
+        assertNotNull(l.checkTemporaryLimits1(LimitType.CURRENT));
+        assertEquals(60, l.checkTemporaryLimits1(LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1400.0, l.checkTemporaryLimits1(LimitType.CURRENT).getPreviousLimit(), 0.0);
     }
 
     @Test
@@ -128,9 +128,68 @@ public abstract class AbstractCurrentLimitsTest {
         try {
             currentLimitsAdder.beginTemporaryLimit()
                     .setAcceptableDuration(5 * 60)
+                    .setName("fail")
+                    .setFictitious(true)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
+                    .setName("fail")
+                    .setValue(-1200.0)
+                    .setFictitious(true)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(-1)
+                    .setName("fail")
+                    .setValue(1200.0)
+                    .setFictitious(true)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setName("fail")
+                    .setValue(1200.0)
+                    .setFictitious(true)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
                     .setValue(1400.0)
                     .setFictitious(true)
                     .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+            // ignore
+        }
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1400.0)
+                    .setName("20'")
+                    .setFictitious(true)
+                    .endTemporaryLimit()
+                    .add();
             fail();
         } catch (ValidationException ignored) {
             // ignore
@@ -156,6 +215,7 @@ public abstract class AbstractCurrentLimitsTest {
             // ignore
         }
 
+        assertEquals(LimitType.CURRENT, currentLimits.getLimitType());
         currentLimits.setPermanentLimit(1000.0);
         assertEquals(1000.0, currentLimits.getPermanentLimit(), 0.0);
         assertEquals(3, currentLimits.getTemporaryLimits().size());
@@ -166,6 +226,9 @@ public abstract class AbstractCurrentLimitsTest {
         assertTrue(temporaryLimit300.isFictitious());
         assertEquals(1400.0, temporaryLimit300.getValue(), 0.0);
         assertEquals(300, temporaryLimit300.getAcceptableDuration());
+
+        currentLimits.remove();
+        assertNull(line.getCurrentLimits1());
     }
 
     @Test

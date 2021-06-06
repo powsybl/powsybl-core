@@ -73,7 +73,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             identify(adder);
             connect(adder);
             VscConverterStation c = adder.add();
-            addAliases(c);
+            addAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
         } else if (converterType.equals(HvdcType.LCC)) {
@@ -88,7 +88,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
-            addAliases(c);
+            addAliasesAndProperties(c);
 
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());

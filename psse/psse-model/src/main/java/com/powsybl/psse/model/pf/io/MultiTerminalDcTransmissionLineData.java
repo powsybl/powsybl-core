@@ -6,8 +6,6 @@
  */
 package com.powsybl.psse.model.pf.io;
 
-import static com.powsybl.psse.model.PsseVersion.Major.V33;
-import static com.powsybl.psse.model.PsseVersion.Major.V35;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.MULTI_TERMINAL_DC_TRANSMISSION_LINE;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_CONVERTER;
 import static com.powsybl.psse.model.pf.io.PowerFlowRecordGroup.INTERNAL_MULTI_TERMINAL_DC_BUS;
@@ -62,69 +60,122 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         @Override
         public List<PsseMultiTerminalDcTransmissionLine> read(BufferedReader reader, Context context) throws IOException {
-            List<String> records = readRecords(reader);
 
             MultiTerminalDcMainData mainData = new MultiTerminalDcMainData();
-            MultiTerminalDcConverterData converterData = new MultiTerminalDcConverterData();
-            MultiTerminalDcBusData busData = new MultiTerminalDcBusData();
-            MultiTerminalDcLinkData linkData = new MultiTerminalDcLinkData();
-
             List<PsseMultiTerminalDcTransmissionLine> multiTerminalList = new ArrayList<>();
 
-            int i = 0;
-            while (i < records.size()) {
-                PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(records.get(i++)), context).get(0);
+            List<String> converterRecords = new ArrayList<>();
+            List<String> busRecords = new ArrayList<>();
+            List<String> linkRecords = new ArrayList<>();
 
-                List<String> converterRecords = new ArrayList<>();
-                int nConverter = 0;
-                while (nConverter < main.getNconv()) {
-                    converterRecords.add(records.get(i++));
-                    nConverter++;
-                }
-                List<String> busRecords = new ArrayList<>();
-                int nBus = 0;
-                while (nBus < main.getNdcbs()) {
-                    busRecords.add(records.get(i++));
-                    nBus++;
-                }
-                List<String> linkRecords = new ArrayList<>();
-                int nLinks = 0;
-                while (nLinks < main.getNdcln()) {
-                    linkRecords.add(records.get(i++));
-                    nLinks++;
-                }
+            String line = readRecordLine(reader);
+            while (!endOfBlock(line)) {
+                PsseMultiTerminalDcMain main = mainData.readFromStrings(Collections.singletonList(line), context).get(0);
+
+                addNextNrecords(reader, converterRecords, main.getNconv());
+                addNextNrecords(reader, busRecords, main.getNdcbs());
+                addNextNrecords(reader, linkRecords, main.getNdcln());
+                line = readRecordLine(reader);
 
                 PsseMultiTerminalDcTransmissionLine multiTerminal = new PsseMultiTerminalDcTransmissionLine(main);
-                multiTerminal.getDcConverters().addAll(converterData.readFromStrings(converterRecords, context));
-                multiTerminal.getDcBuses().addAll(busData.readFromStrings(busRecords, context));
-                multiTerminal.getDcLinks().addAll(linkData.readFromStrings(linkRecords, context));
                 multiTerminalList.add(multiTerminal);
             }
+
+            List<PsseMultiTerminalDcConverter> converterList = new MultiTerminalDcConverterData().readFromStrings(converterRecords, context);
+            List<PsseMultiTerminalDcBus> busList = new MultiTerminalDcBusData().readFromStrings(busRecords, context);
+            List<PsseMultiTerminalDcLink> linkList = new MultiTerminalDcLinkData().readFromStrings(linkRecords, context);
+
+            int indexConverter = 0;
+            int indexBus = 0;
+            int indexLink = 0;
+            for (PsseMultiTerminalDcTransmissionLine multiTerminal : multiTerminalList) {
+                indexConverter = addNextN(multiTerminal.getDcConverters(), converterList, multiTerminal.getNconv(), indexConverter);
+                indexBus = addNextN(multiTerminal.getDcBuses(), busList, multiTerminal.getNdcbs(), indexBus);
+                indexLink = addNextN(multiTerminal.getDcLinks(), linkList, multiTerminal.getNdcln(), indexLink);
+            }
+
             return multiTerminalList;
+        }
+
+        private static void addNextNrecords(BufferedReader reader, List<String> records, int nRecords) throws IOException {
+            int n = 0;
+            while (n < nRecords) {
+                records.add(readRecordLine(reader));
+                n++;
+            }
+        }
+
+        private static <T> int addNextN(List<T> multiTerminalItems, List<T> items, int nItems, int initialIndex) {
+            int index = initialIndex;
+            int n = 0;
+            while (n < nItems) {
+                multiTerminalItems.add(items.get(index));
+                index++;
+                n++;
+            }
+            return index;
         }
 
         @Override
         public void write(List<PsseMultiTerminalDcTransmissionLine> multiTerminalList, Context context, OutputStream outputStream) {
+            List<PsseMultiTerminalDcMain> mainList = new ArrayList<>();
+            List<PsseMultiTerminalDcConverter> converterList = new ArrayList<>();
+            List<PsseMultiTerminalDcBus> busList = new ArrayList<>();
+            List<PsseMultiTerminalDcLink> linkList = new ArrayList<>();
+
+            multiTerminalList.forEach(multiTerminal -> {
+                mainList.add(multiTerminal.getMain());
+                converterList.addAll(multiTerminal.getDcConverters());
+                busList.addAll(multiTerminal.getDcBuses());
+                linkList.addAll(multiTerminal.getDcLinks());
+            });
+
             MultiTerminalDcMainData mainData = new MultiTerminalDcMainData();
+            List<String> mainStrings = mainData.buildRecords(mainList, context.getFieldNames(MULTI_TERMINAL_DC_TRANSMISSION_LINE), mainData.quotedFields(), context);
+
             MultiTerminalDcConverterData converterData = new MultiTerminalDcConverterData();
+            List<String> converterStrings = converterData.buildRecords(converterList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_CONVERTER), converterData.quotedFields(), context);
+
             MultiTerminalDcBusData busData = new MultiTerminalDcBusData();
+            List<String> busStrings = busData.buildRecords(busList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_BUS), busData.quotedFields(), context);
+
             MultiTerminalDcLinkData linkData = new MultiTerminalDcLinkData();
+            List<String> linkStrings = linkData.buildRecords(linkList, context.getFieldNames(INTERNAL_MULTI_TERMINAL_DC_LINK), linkData.quotedFields(), context);
+
+            int indexMain = 0;
+            int indexConverter = 0;
+            int indexBus = 0;
+            int indexLink = 0;
 
             writeBegin(outputStream);
-            multiTerminalList.forEach(multiTerminal -> {
-                write(String.format("%s%n", mainData.buildRecord(multiTerminal.getMain(), mainData.fieldNames(context.getVersion()), mainData.quotedFields(), context)), outputStream);
-                write(converterData.buildRecords(multiTerminal.getDcConverters(), converterData.fieldNames(context.getVersion()), converterData.quotedFields(), context), outputStream);
-                write(busData.buildRecords(multiTerminal.getDcBuses(), busData.fieldNames(context.getVersion()), busData.quotedFields(), context), outputStream);
-                write(linkData.buildRecords(multiTerminal.getDcLinks(), linkData.fieldNames(context.getVersion()), linkData.quotedFields(), context), outputStream);
-            });
+            for (PsseMultiTerminalDcTransmissionLine multiTerminal : multiTerminalList) {
+                List<String> strings = new ArrayList<>();
+
+                indexMain = addNextNstrings(mainStrings, strings, 1, indexMain);
+                indexConverter = addNextNstrings(converterStrings, strings, multiTerminal.getNconv(), indexConverter);
+                indexBus = addNextNstrings(busStrings, strings, multiTerminal.getNdcbs(), indexBus);
+                indexLink = addNextNstrings(linkStrings, strings, multiTerminal.getNdcln(), indexLink);
+                write(strings, outputStream);
+            }
             writeEnd(outputStream);
+        }
+
+        private static int addNextNstrings(List<String> sourceStrings, List<String> strings, int nStrings,
+            int initialIndex) {
+            int index = initialIndex;
+            int n = 0;
+            while (n < nStrings) {
+                strings.add(sourceStrings.get(index));
+                index++;
+                n++;
+
+            }
+            return index;
         }
 
         private static class MultiTerminalDcConverterData extends AbstractRecordGroup<PsseMultiTerminalDcConverter> {
             MultiTerminalDcConverterData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER);
-                withFieldNames(V33, FIELD_NAMES_CONVERTER);
-                withFieldNames(V35, FIELD_NAMES_CONVERTER);
+                super(INTERNAL_MULTI_TERMINAL_DC_CONVERTER, "ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -136,9 +187,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcBusData extends AbstractRecordGroup<PsseMultiTerminalDcBus> {
             MultiTerminalDcBusData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_BUS);
-                withFieldNames(V33, FIELD_NAMES_BUS);
-                withFieldNames(V35, FIELD_NAMES_BUS);
+                super(INTERNAL_MULTI_TERMINAL_DC_BUS, "idc", "ib", "area", "zone", "dcname", "idc2", "rgrnd", "owner");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -150,9 +199,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
         private static class MultiTerminalDcLinkData extends AbstractRecordGroup<PsseMultiTerminalDcLink> {
             MultiTerminalDcLinkData() {
-                super(INTERNAL_MULTI_TERMINAL_DC_LINK);
-                withFieldNames(V33, FIELD_NAMES_LINK);
-                withFieldNames(V35, FIELD_NAMES_LINK);
+                super(INTERNAL_MULTI_TERMINAL_DC_LINK, "idc", "jdc", "dcckt", "met", "rdc", "ldc");
                 withQuotedFields(QUOTED_FIELDS);
             }
 
@@ -261,9 +308,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
 
     private static class MultiTerminalDcMainData extends AbstractRecordGroup<PsseMultiTerminalDcMain> {
         MultiTerminalDcMainData() {
-            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE);
-            withFieldNames(V33, FIELD_NAMES_MAIN);
-            withFieldNames(V35, FIELD_NAMES_MAIN);
+            super(MULTI_TERMINAL_DC_TRANSMISSION_LINE, "name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn");
             withQuotedFields(QUOTED_FIELDS);
         }
 
@@ -273,10 +318,6 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
         }
     }
 
-    private static final String[] FIELD_NAMES_MAIN = {"name", "nconv", "ndcbs", "ndcln", "mdc", "vconv", "vcmod", "vconvn"};
-    private static final String[] FIELD_NAMES_CONVERTER = {"ib", "n", "angmx", "angmn", "rc", "xc", "ebas", "tr", "tap", "tpmx", "tpmn", "tstp", "setvl", "dcpf", "marg", "cnvcod"};
-    private static final String[] FIELD_NAMES_BUS = {"idc", "ib", "area", "zone", "dcname", "idc2", "rgrnd", "owner"};
-    private static final String[] FIELD_NAMES_LINK = {"idc", "jdc", "dcckt", "met", "rdc", "ldc"};
     private static final String[] QUOTED_FIELDS = {"name", "dcname", "dcckt"};
 
 }

@@ -15,7 +15,7 @@
     <parent>
         <artifactId>powsybl-core</artifactId>
         <groupId>com.powsybl</groupId>
-        <version>3.9.0-SNAPSHOT</version>
+        <version>4.3.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>powsybl-scripting</artifactId>
@@ -52,16 +52,8 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>org.jline</groupId>
-            <artifactId>jline</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.groovy</groupId>
-            <artifactId>groovy-groovysh</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>

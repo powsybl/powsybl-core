@@ -61,6 +61,6 @@ Transformer: 24 22 17 1  Unexpected winding2 Cont: 22
 Transformer: 24 22 17 1  Unexpected winding3 Cont: 0
 Transformer: Multiple branches (2) between buses 2, 4 and 7 with the same Id 1 
 SwitchedShunt: Unexpected I: 17
-SwitchedShunt: 6 Unexpected Swrem: 17
+SwitchedShunt: 6 Unexpected Swrem/Swreg: 17
 SwitchedShunt: 6 Unexpected Vswlo Vswhi: 1.99000 1.00000
 SwitchedShunt: Multiple fixed shunts (2) at bus 6

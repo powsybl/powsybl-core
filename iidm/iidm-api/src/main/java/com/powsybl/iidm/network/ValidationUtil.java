@@ -9,11 +9,15 @@ package com.powsybl.iidm.network;
 import java.util.Set;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class ValidationUtil {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidationUtil.class);
 
     private ValidationUtil() {
     }
@@ -228,6 +232,11 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated
+     * Use {@link #checkBPerSection(Validable, double)} instead.
+     */
+    @Deprecated(since = "4.2.0")
     public static void checkLinearBPerSection(Validable validable, double bPerSection) {
         checkBPerSection(validable, bPerSection);
         if (bPerSection == 0) {
@@ -317,24 +326,35 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
+    private static void throwExceptionOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message) {
+        if (loadTapChangingCapabilities) {
+            throw new ValidationException(validable, message);
+        } else {
+            LOGGER.warn(message);
+        }
+    }
+
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
                                                       Terminal regulationTerminal, double targetV, Network network) {
         if (regulating) {
             if (Double.isNaN(targetV)) {
-                throw new ValidationException(validable,
-                        "a target voltage has to be set for a regulating ratio tap changer");
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a target voltage has to be set for a regulating ratio tap changer");
             }
             if (targetV <= 0) {
-                throw new ValidationException(validable, "bad target voltage " + targetV);
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "bad target voltage " + targetV);
             }
             if (regulationTerminal == null) {
-                throw new ValidationException(validable,
-                        "a regulation terminal has to be set for a regulating ratio tap changer");
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer");
             }
-            if (regulationTerminal.getVoltageLevel().getNetwork() != network) {
-                throw new ValidationException(validable, "regulation terminal is not part of the network");
+            if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "regulation terminal is not part of the network");
             }
         }
+    }
+
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
+                                                      Terminal regulationTerminal, double targetV, Network network) {
+        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, network);
     }
 
     public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
@@ -385,8 +405,9 @@ public final class ValidationUtil {
     }
 
     public static void checkPermanentLimit(Validable validable, double permanentLimit) {
+        // TODO: if (Double.isNaN(permanentLimit) || permanentLimit <= 0) {
         if (permanentLimit <= 0) {
-            throw new ValidationException(validable, "permanent limit must be > 0");
+            throw new ValidationException(validable, "permanent limit must be defined and be > 0");
         }
     }
 

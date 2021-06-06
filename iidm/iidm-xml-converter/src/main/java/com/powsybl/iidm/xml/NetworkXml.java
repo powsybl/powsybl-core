@@ -77,17 +77,19 @@ public final class NetworkXml {
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-        int length = IidmXmlVersion.values().length;
-        Source[] sources = new Source[additionalSchemas.size() + length];
-        int i = 0;
-        for (IidmXmlVersion version : IidmXmlVersion.values()) {
-            sources[i] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + version.getXsd()));
-            i++;
-        }
-        for (int j = 0; j < additionalSchemas.size(); j++) {
-            sources[j + length] = additionalSchemas.get(j);
-        }
         try {
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+            factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+            int length = IidmXmlVersion.values().length;
+            Source[] sources = new Source[additionalSchemas.size() + length];
+            int i = 0;
+            for (IidmXmlVersion version : IidmXmlVersion.values()) {
+                sources[i] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + version.getXsd()));
+                i++;
+            }
+            for (int j = 0; j < additionalSchemas.size(); j++) {
+                sources[j + length] = additionalSchemas.get(j);
+            }
             Schema schema = factory.newSchema(sources);
             Validator validator = schema.newValidator();
             validator.validate(xml);
@@ -428,7 +430,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
                         "not found !");
             } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+                LOGGER.warn("Extensions {} not found", extensionNamesNotFound);
             }
         }
     }

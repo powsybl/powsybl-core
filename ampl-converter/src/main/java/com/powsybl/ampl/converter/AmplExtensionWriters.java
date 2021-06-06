@@ -20,7 +20,7 @@ public final class AmplExtensionWriters {
 
     public static AmplExtensionWriter getWriter(String name) {
         Objects.requireNonNull(name);
-        for (AmplExtensionWriter w : ServiceLoader.load(AmplExtensionWriter.class)) {
+        for (AmplExtensionWriter w : ServiceLoader.load(AmplExtensionWriter.class, AmplExtensionWriters.class.getClassLoader())) {
             if (w.getName().equals(name)) {
                 return w;
             }

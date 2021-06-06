@@ -8,6 +8,7 @@ package com.powsybl.ucte.network.ext;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.ucte.network.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
@@ -16,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UcteNetworkExt implements UcteNetwork {
@@ -175,12 +176,37 @@ public class UcteNetworkExt implements UcteNetwork {
         node2voltageLevel = null;
     }
 
-    private int compareVoltageLevelThenBusbar(UcteNodeCode nodeCode1, UcteNodeCode nodeCode2) {
-        int c = Integer.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
-        if (c == 0) {
-            c = nodeCode2.getBusbar().compareTo(nodeCode1.getBusbar());
+    private static int compareUcteNodeCode(UcteNodeCode nodeCode1, UcteNodeCode nodeCode2) {
+        // If there is a real node and a Xnode, prefer the real node
+        if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
+                nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
+            return 1;
         }
-        return c;
+        if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX &&
+                nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
+            return -1;
+        }
+
+        // Prefer the node with the highest nominal voltage
+        int c = Integer.compare(nodeCode2.getVoltageLevelCode().getVoltageLevel(), nodeCode1.getVoltageLevelCode().getVoltageLevel());
+        if (c != 0) {
+            return c;
+        }
+
+        // Compare the geographical name
+        c = nodeCode1.getGeographicalSpot().compareTo(nodeCode2.getGeographicalSpot());
+        if (c != 0) {
+            return c;
+        }
+
+        // Prefer the lowest node index
+        c = nodeCode1.getBusbar().compareTo(nodeCode2.getBusbar());
+        if (c != 0) {
+            return c;
+        }
+
+        // Prefer the first node in the alphabetical order
+        return nodeCode1.compareTo(nodeCode2);
     }
 
     private void updateSubstation() {
@@ -190,25 +216,11 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                // the main node of the substation is not an xnode and the one with the highest voltage
-                // level and the lowest busbar number.
-                UcteNodeCode mainNode = substationNodes.stream()
-                        .sorted((nodeCode1, nodeCode2) -> {
-                            if (nodeCode1.getUcteCountryCode() == UcteCountryCode.XX &&
-                                    nodeCode2.getUcteCountryCode() != UcteCountryCode.XX) {
-                                return 1;
-                            } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX &&
-                                    nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
-                                return -1;
-                            } else {
-                                return compareVoltageLevelThenBusbar(nodeCode1, nodeCode2);
-                            }
-                        })
-                        .findFirst()
-                        .orElseThrow(AssertionError::new);
+                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
+                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(AssertionError::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
-                        = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);
+                        = Multimaps.index(sortedNodes, UcteNodeCode::getVoltageLevelCode);
 
                 String substationName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot();
                 List<UcteVoltageLevel> voltageLevels = new ArrayList<>();
@@ -242,8 +254,8 @@ public class UcteNetworkExt implements UcteNetwork {
     }
 
     @Override
-    public void fix() {
-        network.fix();
+    public void fix(Reporter reporter) {
+        network.fix(reporter);
     }
 
 }

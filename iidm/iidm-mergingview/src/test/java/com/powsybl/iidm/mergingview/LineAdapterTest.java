@@ -7,11 +7,7 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyVisitor;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import com.powsybl.iidm.network.util.SV;
@@ -86,13 +82,36 @@ public class LineAdapterTest {
         lineAdapted.setB2(++b2);
         assertEquals(b2, lineAdapted.getB2(), 0.0);
         assertSame(lineRef.getCurrentLimits1(), lineAdapted.getCurrentLimits1());
+        assertSame(lineRef.getActivePowerLimits1(), lineAdapted.getActivePowerLimits1());
+        assertSame(lineRef.getApparentPowerLimits1(), lineAdapted.getApparentPowerLimits1());
         assertSame(lineRef.getCurrentLimits2(), lineAdapted.getCurrentLimits2());
+        assertSame(lineRef.getActivePowerLimits2(), lineAdapted.getActivePowerLimits2());
+        assertSame(lineRef.getApparentPowerLimits2(), lineAdapted.getApparentPowerLimits2());
         assertSame(lineRef.getCurrentLimits(Branch.Side.ONE), lineAdapted.getCurrentLimits(Branch.Side.ONE));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.ONE), lineAdapted.getActivePowerLimits(Branch.Side.ONE));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.ONE), lineAdapted.getApparentPowerLimits(Branch.Side.ONE));
         assertSame(lineRef.getCurrentLimits(Branch.Side.TWO), lineAdapted.getCurrentLimits(Branch.Side.TWO));
+        assertSame(lineRef.getActivePowerLimits(Branch.Side.TWO), lineAdapted.getActivePowerLimits(Branch.Side.TWO));
+        assertSame(lineRef.getApparentPowerLimits(Branch.Side.TWO), lineAdapted.getApparentPowerLimits(Branch.Side.TWO));
+        assertEquals(lineRef.getOperationalLimits1().size(), lineAdapted.getOperationalLimits1().size());
+        assertEquals(lineRef.getOperationalLimits2().size(), lineAdapted.getOperationalLimits2().size());
 
         assertEquals(lineRef.isOverloaded(), lineAdapted.isOverloaded());
         assertEquals(lineRef.isOverloaded(0.0f), lineAdapted.isOverloaded(0.0f));
         assertEquals(lineRef.getOverloadDuration(), lineAdapted.getOverloadDuration());
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f,  LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT), lineAdapted.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit1(0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit1(0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit1(LimitType.CURRENT), lineAdapted.checkPermanentLimit1(LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit2(0.0f, LimitType.CURRENT), lineAdapted.checkPermanentLimit2(0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkPermanentLimit2(LimitType.CURRENT), lineAdapted.checkPermanentLimit2(LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits(Branch.Side.ONE, 0.0f, LimitType.CURRENT), lineAdapted.checkTemporaryLimits(Branch.Side.ONE, 0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT), lineAdapted.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits1(0.0f, LimitType.CURRENT), lineAdapted.checkTemporaryLimits1(0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits1(LimitType.CURRENT), lineAdapted.checkTemporaryLimits1(LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits2(0.0f, LimitType.CURRENT), lineAdapted.checkTemporaryLimits2(0.0f, LimitType.CURRENT));
+        assertEquals(lineRef.checkTemporaryLimits2(LimitType.CURRENT), lineAdapted.checkTemporaryLimits2(LimitType.CURRENT));
+
         assertEquals(lineRef.checkPermanentLimit(Branch.Side.ONE, 0.0f), lineAdapted.checkPermanentLimit(Branch.Side.ONE, 0.0f));
         assertEquals(lineRef.checkPermanentLimit(Branch.Side.TWO), lineAdapted.checkPermanentLimit(Branch.Side.TWO));
         assertEquals(lineRef.checkPermanentLimit1(0.0f), lineAdapted.checkPermanentLimit1(0.0f));
@@ -105,6 +124,7 @@ public class LineAdapterTest {
         assertEquals(lineRef.checkTemporaryLimits1(), lineAdapted.checkTemporaryLimits1());
         assertEquals(lineRef.checkTemporaryLimits2(0.0f), lineAdapted.checkTemporaryLimits2(0.0f));
         assertEquals(lineRef.checkTemporaryLimits2(), lineAdapted.checkTemporaryLimits2());
+
         assertEquals(lineRef.getType(), lineAdapted.getType());
         assertEquals(lineRef.getTerminals().size(), lineAdapted.getTerminals().size());
 
@@ -196,8 +216,8 @@ public class LineAdapterTest {
         dl2.getTerminal().setP(p2).setQ(q2);
         dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
         // Check P & Q are updated
-        SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);

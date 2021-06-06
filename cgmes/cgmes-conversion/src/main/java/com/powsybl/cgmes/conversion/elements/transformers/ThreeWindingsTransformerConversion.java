@@ -90,15 +90,15 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         l3adder.add();
 
         ThreeWindingsTransformer tx = txadder.add();
-        addAliases(tx);
+        addAliasesAndProperties(tx);
         convertedTerminals(
             tx.getLeg1().getTerminal(),
             tx.getLeg2().getTerminal(),
             tx.getLeg3().getTerminal());
 
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding1, tx);
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding2, tx);
-        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding1, tx, context);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding2, tx, context);
+        setToIidmWindingTapChanger(convertedT3xModel, convertedT3xModel.winding3, tx, context);
 
         setRegulatingControlContext(convertedT3xModel, tx);
         addCgmesReferences(tx, convertedT3xModel.winding1.end1.ratioTapChanger);
@@ -118,9 +118,9 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     }
 
     private static void setToIidmWindingTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedModelWinding,
-        ThreeWindingsTransformer tx) {
+        ThreeWindingsTransformer tx, Context context) {
         setToIidmRatioTapChanger(convertedT3xModel, convertedModelWinding, tx);
-        setToIidmPhaseTapChanger(convertedT3xModel, convertedModelWinding, tx);
+        setToIidmPhaseTapChanger(convertedT3xModel, convertedModelWinding, tx, context);
     }
 
     private static void setToIidmRatioTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
@@ -133,14 +133,14 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         setToIidmRatioTapChanger(rtc, rtca);
     }
 
-    private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx) {
+    private static void setToIidmPhaseTapChanger(ConvertedT3xModel convertedT3xModel, ConvertedT3xModel.ConvertedWinding convertedWinding, ThreeWindingsTransformer tx, Context context) {
         TapChanger ptc = convertedWinding.end1.phaseTapChanger;
         if (ptc == null) {
             return;
         }
 
         PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedT3xModel, tx, convertedWinding.end1.terminal);
-        setToIidmPhaseTapChanger(ptc, ptca);
+        setToIidmPhaseTapChanger(ptc, ptca, context);
     }
 
     private static RatioTapChangerAdder newRatioTapChanger(ConvertedT3xModel convertedT3xModel, ThreeWindingsTransformer tx,

@@ -38,13 +38,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
-    GeneratorImpl(Ref<? extends VariantManagerHolder> ref,
+    GeneratorImpl(Ref<NetworkImpl> ref,
                   String id, String name, boolean fictitious, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
                   double targetP, double targetQ, double targetV,
                   double ratedS) {
-        super(id, name, fictitious);
+        super(ref, id, name, fictitious);
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;

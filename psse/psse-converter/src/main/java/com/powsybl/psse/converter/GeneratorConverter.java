@@ -1,21 +1,23 @@
 /**
- * Copyright (c) 2020, RTE (http://www.rte-france.com)
+ * Copyright (c) 2021, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.psse.converter;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
-import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
 
@@ -27,21 +29,23 @@ public class GeneratorConverter extends AbstractConverter {
 
     public GeneratorConverter(PsseGenerator psseGenerator, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
-        this.psseGenerator = psseGenerator;
+        this.psseGenerator = Objects.requireNonNull(psseGenerator);
     }
 
     public void create() {
         String busId = getBusId(psseGenerator.getI());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseGenerator.getI()));
-        Generator generator = voltageLevel.newGenerator()
+        GeneratorAdder adder = voltageLevel.newGenerator()
                 .setId(getGeneratorId(busId, psseGenerator))
                 .setConnectableBus(busId)
                 .setTargetP(psseGenerator.getPg())
                 .setMaxP(psseGenerator.getPt())
                 .setMinP(psseGenerator.getPb())
                 .setTargetQ(psseGenerator.getQg())
-                .setVoltageRegulatorOn(false)
-                .add();
+                .setVoltageRegulatorOn(false);
+
+        adder.setBus(psseGenerator.getStat() == 1 ? busId : null);
+        Generator generator = adder.add();
 
         generator.newMinMaxReactiveLimits()
                 .setMinQ(psseGenerator.getQb())
@@ -50,10 +54,6 @@ public class GeneratorConverter extends AbstractConverter {
 
         if (psseGenerator.getRt() != 0.0 || psseGenerator.getXt() != 0.0) {
             LOGGER.warn("Implicit method where a transformer is specified with the generator is not supported ({})", generator.getId());
-        }
-
-        if (psseGenerator.getStat() == 1) {
-            generator.getTerminal().connect();
         }
     }
 
@@ -66,10 +66,14 @@ public class GeneratorConverter extends AbstractConverter {
             return;
         }
 
-        double vnom = generator.getTerminal().getVoltageLevel().getNominalV();
-        double targetV = psseGenerator.getVs() * vnom;
-        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
         Terminal regulatingTerminal = defineRegulatingTerminal(psseGenerator, getNetwork());
+        // Discard control if the generator is controlling an isolated bus
+        if (regulatingTerminal == null) {
+            return;
+        }
+        boolean psseVoltageRegulatorOn = defineVoltageRegulatorOn(psseBus);
+        double vnom = regulatingTerminal.getVoltageLevel().getNominalV();
+        double targetV = psseGenerator.getVs() * vnom;
         boolean voltageRegulatorOn = false;
         if (targetV > 0.0 && psseGenerator.getQb() < psseGenerator.getQt()) {
             voltageRegulatorOn = psseVoltageRegulatorOn;
@@ -84,7 +88,7 @@ public class GeneratorConverter extends AbstractConverter {
         return psseBus.getIde() == 2 || psseBus.getIde() == 3;
     }
 
-    // TODO complete all cases. Consider Nreg (version 35)
+    // Nreg (version 35) is not yet considered
     private static Terminal defineRegulatingTerminal(PsseGenerator psseGenerator, Network network) {
         String defaultRegulatingBusId = getBusId(psseGenerator.getI());
         Terminal regulatingTerminal = null;
@@ -99,8 +103,8 @@ public class GeneratorConverter extends AbstractConverter {
             }
         }
         if (regulatingTerminal == null) {
-            throw new PsseException("PSSE. Generator " + defaultRegulatingBusId + "-"
-                + getGeneratorId(defaultRegulatingBusId, psseGenerator) + ". Unexpected regulatingTerminal.");
+            String generatorId = getGeneratorId(defaultRegulatingBusId, psseGenerator);
+            LOGGER.warn("Generator {}. Regulating terminal is not assigned as the bus is isolated", generatorId);
         }
         return regulatingTerminal;
     }

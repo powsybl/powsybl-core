@@ -133,22 +133,22 @@ public abstract class AbstractLineTest {
         terminal1.setQ(Math.sqrt(2.0));
         busA.setV(1.0);
         // i1 = 1000
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, 0.9f));
-        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE));
-        assertTrue(acLine.checkPermanentLimit1());
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, 0.9f));
-        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE));
+        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertTrue(acLine.checkPermanentLimit1(LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, 0.9f, LimitType.CURRENT));
+        assertNotNull(acLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
 
         Terminal terminal2 = acLine.getTerminal2();
         terminal2.setP(1.0);
         terminal2.setQ(Math.sqrt(2.0));
         busB.setV(1.0e3);
         // i2 = 1
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, 0.9f));
-        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO));
-        assertFalse(acLine.checkPermanentLimit2());
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f));
-        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO));
+        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
+        assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
+        assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
     }
 
     @Test
@@ -333,6 +333,7 @@ public abstract class AbstractLineTest {
         assertTrue(tieLine.isTieLine());
         assertEquals(ConnectableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
+        assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());
         assertEquals("hl2", tieLine.getHalf2().getId());
         assertEquals(r + r2, tieLine.getR(), 0.0);

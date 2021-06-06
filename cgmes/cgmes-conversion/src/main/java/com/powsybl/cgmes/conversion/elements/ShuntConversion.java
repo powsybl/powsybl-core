@@ -52,11 +52,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         String shuntType = p.getId("type");
         if ("LinearShuntCompensator".equals(shuntType)) {
             double bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, Float.MIN_VALUE);
-            if (bPerSection == 0) {
-                double bPerSectionFixed = Double.MIN_VALUE;
-                fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
-                bPerSection = bPerSectionFixed;
-            }
             double gPerSection = p.asDouble("gPerSection", Double.NaN);
             adder.newLinearModel()
                     .setBPerSection(bPerSection)
@@ -83,7 +78,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         identify(adder);
         connect(adder);
         ShuntCompensator shunt = adder.add();
-        addAliases(shunt);
+        addAliasesAndProperties(shunt);
 
         // At a shunt terminal, only Q can be set
         PowerFlow f = powerFlow();

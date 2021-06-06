@@ -6,11 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -77,10 +78,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            Bus bus = index.get(id, Bus.class);
+            if (bus != null) {
+                return bus;
+            }
+            return variants.get().busBreakerViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busBreakerViewCache.invalidate();
         }
     }
 
@@ -105,11 +111,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         @Override
+        public Collection<Component> getSynchronousComponents() {
+            return Collections.unmodifiableList(variants.get().synchronousComponentsManager.getConnectedComponents());
+        }
+
+        @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            return variants.get().busViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busViewCache.invalidate();
         }
 
     }
@@ -716,6 +728,40 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
+    /**
+     * Caching buses by their ID :
+     * the cache is fully builts on first call to {@link BusCache#getBus(String)},
+     * and must be invalidated on any topology change.
+     */
+    private static final class BusCache {
+
+        private final Supplier<Stream<Bus>> busStream;
+        private Map<String, Bus> cache;
+
+        private BusCache(Supplier<Stream<Bus>> busStream) {
+            this.busStream = busStream;
+        }
+
+        private void buildCache() {
+            cache = busStream.get().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
+        synchronized void invalidate() {
+            cache = null;
+        }
+
+        private synchronized Map<String, Bus> getCache() {
+            if (cache == null) {
+                buildCache();
+            }
+            return cache;
+        }
+
+        Bus getBus(String id) {
+            return getCache().get(id);
+        }
+    }
+
     private class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
@@ -723,6 +769,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
+
+        private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
+
+        //For bus breaker view, we exclude bus breaker topologies from the cache,
+        //because thoses buses are already indexed in the NetworkIndex
+        private final BusCache busBreakerViewCache = new BusCache(() -> getVoltageLevelStream()
+            .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+            .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
@@ -997,8 +1051,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                 la.setNode2(mergedLine.node2);
             }
             TieLineImpl l = la.add();
-            l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
-            l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
+            l.getLimitsHolder1().setOperationalLimits(LimitType.CURRENT, mergedLine.limits1);
+            l.getLimitsHolder2().setOperationalLimits(LimitType.CURRENT, mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);
             l.getTerminal2().setP(mergedLine.p2).setQ(mergedLine.q2);
             mergedLine.properties.forEach((key, val) -> l.setProperty(key.toString(), val.toString()));

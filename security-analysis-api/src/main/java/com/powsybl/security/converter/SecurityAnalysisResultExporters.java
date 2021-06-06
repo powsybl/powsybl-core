@@ -33,7 +33,7 @@ public final class SecurityAnalysisResultExporters {
      */
     public static Collection<String> getFormats() {
         List<String> formats = new ArrayList<>();
-        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class)) {
+        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class, SecurityAnalysisResultExporters.class.getClassLoader())) {
             formats.add(e.getFormat());
         }
         return formats;
@@ -48,7 +48,7 @@ public final class SecurityAnalysisResultExporters {
      */
     public static SecurityAnalysisResultExporter getExporter(String format) {
         Objects.requireNonNull(format);
-        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class)) {
+        for (SecurityAnalysisResultExporter e : ServiceLoader.load(SecurityAnalysisResultExporter.class, SecurityAnalysisResultExporters.class.getClassLoader())) {
             if (format.equals(e.getFormat())) {
                 return e;
             }
@@ -66,6 +66,16 @@ public final class SecurityAnalysisResultExporters {
         }
     }
 
+    public static void export(SecurityAnalysisResult result, Properties parameters, Path path, String format) {
+        Objects.requireNonNull(path);
+
+        try (Writer writer = Files.newBufferedWriter(path)) {
+            export(result, parameters, writer, format);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static void export(SecurityAnalysisResult result, Writer writer, String format) {
         SecurityAnalysisResultExporter exporter = getExporter(format);
         if (exporter == null) {
@@ -73,5 +83,14 @@ public final class SecurityAnalysisResultExporters {
         }
 
         exporter.export(result, writer);
+    }
+
+    public static void export(SecurityAnalysisResult result, Properties parameters, Writer writer, String format) {
+        SecurityAnalysisResultExporter exporter = getExporter(format);
+        if (exporter == null) {
+            throw new PowsyblException("Unsupported format: " + format + " [" + getFormats() + "]");
+        }
+
+        exporter.export(result, parameters, writer);
     }
 }

@@ -49,11 +49,11 @@ public class Context {
         nodeBreaker = cgmes.isNodeBreaker() && config.useNodeBreaker();
 
         namingStrategy = new NamingStrategy.Identity();
-        boundary = new Boundary(cgmes);
+        cgmesBoundary = new CgmesBoundary(cgmes);
         substationIdMapping = new SubstationIdMapping(this);
         terminalMapping = new TerminalMapping();
         dcMapping = new DcMapping(this);
-        currentLimitsMapping = new CurrentLimitsMapping(this);
+        loadingLimitsMapping = new LoadingLimitsMapping(this);
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
@@ -110,16 +110,16 @@ public class Context {
         return substationIdMapping;
     }
 
-    public Boundary boundary() {
-        return boundary;
+    public CgmesBoundary boundary() {
+        return cgmesBoundary;
     }
 
     public DcMapping dc() {
         return dcMapping;
     }
 
-    public CurrentLimitsMapping currentLimitsMapping() {
-        return currentLimitsMapping;
+    public LoadingLimitsMapping loadingLimitsMapping() {
+        return loadingLimitsMapping;
     }
 
     public RegulatingControlMapping regulatingControlMapping() {
@@ -269,11 +269,11 @@ public class Context {
     private final boolean nodeBreaker;
     private final NamingStrategy namingStrategy;
     private final SubstationIdMapping substationIdMapping;
-    private final Boundary boundary;
+    private final CgmesBoundary cgmesBoundary;
     private final TerminalMapping terminalMapping;
     private final NodeMapping nodeMapping;
     private final DcMapping dcMapping;
-    private final CurrentLimitsMapping currentLimitsMapping;
+    private final LoadingLimitsMapping loadingLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;

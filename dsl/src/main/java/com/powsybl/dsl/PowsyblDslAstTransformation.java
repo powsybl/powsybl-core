@@ -28,18 +28,10 @@ public class PowsyblDslAstTransformation implements ASTTransformation {
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(PowsyblDslAstTransformation.class);
 
-    private static final boolean DEBUG = false;
-
     protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer) {
         LOGGER.trace("Apply AST transformation");
         ModuleNode ast = sourceUnit.getAST();
         BlockStatement blockStatement = ast.getStatementBlock();
-
-        if (DEBUG) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(AstUtil.toString(blockStatement));
-            }
-        }
 
         List<MethodNode> methods = ast.getMethods();
         for (MethodNode methodNode : methods) {
@@ -47,12 +39,6 @@ public class PowsyblDslAstTransformation implements ASTTransformation {
         }
 
         blockStatement.visit(transformer);
-
-        if (DEBUG) {
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug(AstUtil.toString(blockStatement));
-            }
-        }
     }
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {

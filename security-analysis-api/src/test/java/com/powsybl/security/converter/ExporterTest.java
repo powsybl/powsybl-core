@@ -7,6 +7,7 @@
 package com.powsybl.security.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
@@ -21,12 +22,13 @@ import org.junit.Test;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Properties;
 import java.util.function.BiConsumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -48,6 +50,9 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolation violation4 = new LimitViolation("GEN2", LimitViolationType.LOW_VOLTAGE, 100, 0.7f, 115);
         violation4.addExtension(VoltageExtension.class, new VoltageExtension(400.0));
 
+        LimitViolation violation5 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.ONE);
+        LimitViolation violation6 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, "20'", 1200, 100, 1.0f, 110.0, Branch.Side.TWO);
+
         Contingency contingency = Contingency.builder("contingency")
                                              .addBranch("NHV1_NHV2_2", "VLNHV1")
                                              .addBranch("NHV1_NHV2_1")
@@ -56,7 +61,7 @@ public class ExporterTest extends AbstractConverterTest {
                                              .build();
 
         LimitViolationsResult preContingencyResult = new LimitViolationsResult(true, Collections.singletonList(violation1));
-        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4), Arrays.asList("action1", "action2"));
+        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
 
         SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, Collections.singletonList(postContingencyResult));
         result.setNetworkMetadata(new NetworkMetadata(NETWORK));
@@ -74,6 +79,28 @@ public class ExporterTest extends AbstractConverterTest {
             SecurityAnalysisResultExporters.export(res, path, "JSON");
         };
         roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        // Check invalid path
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, Paths.get(""), "JSON"));
+        // Check invalid format
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, tmpDir.resolve("data"), "XXX"));
+    }
+
+    @Test
+    public void roundTripJsonWithProperties() throws IOException {
+        SecurityAnalysisResult result = create();
+
+        roundTripTest(result, ExporterTest::writeJsonWithProperties, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        BiConsumer<SecurityAnalysisResult, Path> exporter = (res, path) -> {
+            SecurityAnalysisResultExporters.export(res, null, path, "JSON");
+        };
+        roundTripTest(result, exporter, SecurityAnalysisResultDeserializer::read, "/SecurityAnalysisResult.json");
+
+        // Check invalid path
+        assertThrows(UncheckedIOException.class, () -> SecurityAnalysisResultExporters.export(result, null, Paths.get(""), "JSON"));
+        // Check invalid format
+        assertThrows(PowsyblException.class, () -> SecurityAnalysisResultExporters.export(result, null, tmpDir.resolve("data"), "XXX"));
     }
 
     private static void writeJson(SecurityAnalysisResult result, Path path) {
@@ -83,6 +110,18 @@ public class ExporterTest extends AbstractConverterTest {
 
         try (Writer writer = Files.newBufferedWriter(path)) {
             exporter.export(result, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void writeJsonWithProperties(SecurityAnalysisResult result, Path path) {
+        SecurityAnalysisResultExporter exporter = SecurityAnalysisResultExporters.getExporter("JSON");
+        assertNotNull(exporter);
+        assertEquals("JSON", exporter.getFormat());
+
+        try (Writer writer = Files.newBufferedWriter(path)) {
+            exporter.export(result, new Properties(), writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
