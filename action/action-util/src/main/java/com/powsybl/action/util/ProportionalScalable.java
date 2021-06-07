@@ -124,23 +124,28 @@ class ProportionalScalable extends AbstractCompoundScalable {
         });
     }
 
-    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention) {
+    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += scaleIteration(n, asked - done, scalingConvention);
+            done += scaleIteration(n, asked - done, scalingConvention, constantPowerFactor);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention) {
+    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
-            double doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
+            double doneOnScalable = 0;
+            if (constantPowerFactor && s instanceof LoadScalable) {
+                doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable);
+            } else {
+                doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
+            }
             if (Math.abs(doneOnScalable - askedOnScalable) > EPSILON) {
                 scalablePercentage.setSaturated(true);
             }
@@ -150,14 +155,30 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scaleConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    }
+
+    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+        Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
+        reinitIterationPercentage();
+        if (iterative) {
+            return iterativeScale(n, asked, scalingConvention, true);
+        } else {
+            return scaleIteration(n, asked, scalingConvention, true);
+        }
+    }
+
+    @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
         if (iterative) {
-            return iterativeScale(n, asked, scalingConvention);
+            return iterativeScale(n, asked, scalingConvention, false);
         } else {
-            return scaleIteration(n, asked, scalingConvention);
+            return scaleIteration(n, asked, scalingConvention, false);
         }
     }
 

@@ -176,12 +176,12 @@ public class LoadScalableTest {
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
 
-        ls1.scaleConstantPowerFactor(network, 20, convention);
+        ls1.scaleWithConstantPowerFactor(network, 20, convention);
         assertEquals(0.0, load.getQ0(), 1e-3);
 
         load.setQ0(10.0);
         assertEquals(10.0, load.getQ0(), 1e-3);
-        ls1.scaleConstantPowerFactor(network, 20, convention);
+        ls1.scaleWithConstantPowerFactor(network, 20, convention);
         assertEquals(60, load.getP0(), 1e-3);
         assertEquals(7.5, load.getQ0(), 1e-3);
     }

@@ -125,6 +125,10 @@ public interface Scalable {
      */
     List<Injection> filterInjections(Network network);
 
+    default double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scale(n, asked);
+    }
+
     /**
      * Scale the given network using Generator convention by default.
      * The actual scaling value may be different to the one asked, if

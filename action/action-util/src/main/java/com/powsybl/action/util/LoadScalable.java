@@ -18,7 +18,7 @@ import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-public class LoadScalable extends AbstractInjectionScalable {
+class LoadScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
@@ -95,7 +95,7 @@ public class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-    public double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
+    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -156,11 +156,12 @@ public class LoadScalable extends AbstractInjectionScalable {
         return scale(n, asked, scalingConvention, false);
     }
 
-    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
         return scale(n, asked, scalingConvention, true);
     }
 
-    public double scaleConstantPowerFactor(Network n, double asked) {
-        return scaleConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+    @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 }
