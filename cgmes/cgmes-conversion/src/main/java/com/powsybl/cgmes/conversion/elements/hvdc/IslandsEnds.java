@@ -12,9 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  *
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -88,11 +85,6 @@ class IslandsEnds {
         return islandsEndsNodes;
     }
 
-    void debug() {
-        LOG.debug("IslandsEnds");
-        islandsEndsNodes.forEach(IslandEnd::debug);
-    }
-
     static class IslandEnd {
         private final List<String> nodes1;
         private final List<String> nodes2;
@@ -109,13 +101,5 @@ class IslandsEnds {
         List<String> getNodes2() {
             return nodes2;
         }
-
-        void debug() {
-            LOG.debug("    Nodes1: {}", this.nodes1);
-            LOG.debug("    Nodes2: {}", this.nodes2);
-            LOG.debug("---");
-        }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(IslandsEnds.class);
 }

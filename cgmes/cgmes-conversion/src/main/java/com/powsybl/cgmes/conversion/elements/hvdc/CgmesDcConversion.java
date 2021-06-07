@@ -74,10 +74,6 @@ public class CgmesDcConversion {
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
         context.dc().reportCgmesDcLineSegmentNotUsed();
-
-        if (LOG.isDebugEnabled()) {
-            debugHvdc(adjacency, nodeEquipment, islands, islandsEnds, hvdc);
-        }
     }
 
     // Supported configurations are:
@@ -370,35 +366,6 @@ public class CgmesDcConversion {
     private static double getPowerFactor(LccConverterStation iconverter) {
         return iconverter.getTerminal().getP()
             / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
-    }
-
-    private void debugHvdc(Adjacency adjacency, NodeEquipment nodeEquipment, Islands islands,
-        IslandsEnds islandsEnds, Hvdc hvdc) {
-
-        hvdc.debug();
-
-        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
-            IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, nodeEquipment, ien.getNodes1());
-            IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, nodeEquipment, ien.getNodes2());
-
-            islandEndHvdc1.debug();
-            islandEndHvdc2.debug();
-
-            adjacency.debug(ien.getNodes1());
-            nodeEquipment.debugEq(ien.getNodes1());
-            nodeEquipment.debugDcLs(ien.getNodes1());
-
-            adjacency.debug(ien.getNodes2());
-            nodeEquipment.debugEq(ien.getNodes2());
-            nodeEquipment.debugDcLs(ien.getNodes2());
-        });
-
-        islands.debug();
-        islandsEnds.debug();
-        adjacency.debug();
-        nodeEquipment.debug();
     }
 
     static String getAcNode(CgmesModel cgmesModel, CgmesTerminal terminal) {

@@ -12,9 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -186,40 +183,6 @@ class NodeEquipment {
         return nodeEquipment;
     }
 
-    void debug() {
-        LOG.debug("NodeEquipment");
-        nodeEquipment.forEach(this::debug);
-    }
-
-    private void debug(String nodeId, List<EquipmentReference> listNodeEquipment) {
-        LOG.debug("NodeId: {}", nodeId);
-        listNodeEquipment.forEach(EquipmentReference::debug);
-    }
-
-    void debugEq(List<String> lnodes) {
-        lnodes.forEach(this::debugEq);
-    }
-
-    private void debugEq(String node) {
-        LOG.debug("EQ. Node {}", node);
-        if (nodeEquipment.containsKey(node)) {
-            nodeEquipment.get(node)
-                .forEach(eq ->  LOG.debug("    {} {}", eq.type, eq.equipmentId));
-        }
-    }
-
-    void debugDcLs(List<String> lnodes) {
-        lnodes.forEach(this::debugDcLs);
-    }
-
-    private void debugDcLs(String node) {
-        if (nodeEquipment.containsKey(node)) {
-            nodeEquipment.get(node).stream()
-                .filter(eq -> eq.type == NodeEquipment.EquipmentType.DC_LINE_SEGMENT)
-                .forEach(eq -> LOG.debug("DcLineSegment {}", eq.equipmentId));
-        }
-    }
-
     static class EquipmentReference {
         EquipmentType type;
         String equipmentId;
@@ -228,11 +191,5 @@ class NodeEquipment {
             this.type = type;
             this.equipmentId = equipmentId;
         }
-
-        void debug() {
-            LOG.debug("    {} {}", this.type, this.equipmentId);
-        }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(NodeEquipment.class);
 }

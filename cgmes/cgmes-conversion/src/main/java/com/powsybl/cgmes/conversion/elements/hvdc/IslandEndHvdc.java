@@ -13,9 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
 import com.powsybl.cgmes.conversion.elements.hvdc.NodeEquipment.EquipmentReference;
 import com.powsybl.commons.PowsyblException;
@@ -168,9 +165,9 @@ class IslandEndHvdc {
         return hvdc;
     }
 
-    void debug() {
-        LOG.debug("IslandEndHvdc");
-        hvdc.forEach(HvdcEnd::debug);
+    void report(List<String> reportList) {
+        reportList.add("IslandEndHvdc");
+        hvdc.forEach(hvdcEnd -> hvdcEnd.report(reportList));
     }
 
     static class HvdcEnd {
@@ -214,14 +211,12 @@ class IslandEndHvdc {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
         }
 
-        void debug() {
-            LOG.debug("    nodesEnd: {}", this.nodesEnd);
-            LOG.debug("    transformersEnd: {}", this.transformersEnd);
-            LOG.debug("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
-            LOG.debug("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
-            LOG.debug("---");
+        void report(List<String> reportList) {
+            reportList.add(String.format("    nodesEnd: %s", this.nodesEnd));
+            reportList.add(String.format("    transformersEnd: %s", this.transformersEnd));
+            reportList.add(String.format("    acDcConvertersEnd: %s", this.acDcConvertersEnd));
+            reportList.add(String.format("    dcLineSegmentsEnd: %s", this.dcLineSegmentsEnd));
+            reportList.add("---");
         }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(IslandEndHvdc.class);
 }

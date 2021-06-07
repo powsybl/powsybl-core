@@ -14,9 +14,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -139,27 +136,6 @@ class Adjacency {
         return adjacency.isEmpty();
     }
 
-    void debug() {
-        LOG.debug("Adjacency");
-        adjacency.forEach(this::debug);
-    }
-
-    private void debug(String nodeId, List<Adjacent> adjacent) {
-        LOG.debug("NodeId {}", nodeId);
-        adjacent.forEach(Adjacent::debug);
-    }
-
-    void debug(List<String> lnodes) {
-        lnodes.forEach(this::debug);
-    }
-
-    private void debug(String node) {
-        LOG.debug("AD Node {}", node);
-        if (adjacency.containsKey(node)) {
-            adjacency.get(node).forEach(ad -> LOG.debug("    {} {}", ad.type, ad.node));
-        }
-    }
-
     static class Adjacent {
         AdjacentType type;
         String node;
@@ -170,11 +146,5 @@ class Adjacency {
             this.type = type;
             this.node = node;
         }
-
-        void debug() {
-            LOG.debug("    {}  {}", this.type, this.node);
-        }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(Adjacency.class);
 }

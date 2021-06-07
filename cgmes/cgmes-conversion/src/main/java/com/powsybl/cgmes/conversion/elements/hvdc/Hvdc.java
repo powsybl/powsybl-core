@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
 
@@ -133,11 +130,6 @@ class Hvdc {
         return hvdcData;
     }
 
-    void debug() {
-        LOG.debug("Hvdc");
-        hvdcData.forEach(HvdcEquipment::debug);
-    }
-
     static class HvdcEquipment {
         final List<HvdcConverter> converters;
         final List<String> dcLineSegments;
@@ -159,14 +151,6 @@ class Hvdc {
         void add(String dcLineSegment) {
             this.dcLineSegments.add(dcLineSegment);
         }
-
-        void debug() {
-            LOG.debug("    Converters:");
-            this.converters.forEach(HvdcConverter::debug);
-            LOG.debug("    dcLineSegments");
-            this.dcLineSegments.forEach(ls -> LOG.debug("    {} ", ls));
-            LOG.debug("---");
-        }
     }
 
     static class HvdcConverter {
@@ -179,11 +163,5 @@ class Hvdc {
             this.acDcConvertersEnd1 = acDcConvertersEnd1;
             this.acDcConvertersEnd2 = acDcConvertersEnd2;
         }
-
-        void debug() {
-            LOG.debug("    End1: {} End2: {}", this.acDcConvertersEnd1, this.acDcConvertersEnd2);
-        }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(Hvdc.class);
 }
