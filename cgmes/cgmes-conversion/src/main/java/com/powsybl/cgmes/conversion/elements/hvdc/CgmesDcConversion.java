@@ -10,9 +10,6 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
@@ -397,6 +394,4 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }
