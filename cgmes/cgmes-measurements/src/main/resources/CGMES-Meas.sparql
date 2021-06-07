@@ -1,0 +1,40 @@
+#
+# Copyright (c) 2021, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: analogs
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Analog
+        a cim:Analog ;
+        cim:Measurement.PowerSystemResource ?powerSystemResource ;
+        cim:Measurement.measurementType ?type .
+    OPTIONAL { ?Analog cim:Terminal ?Terminal }
+}}
+}
+
+# query: discretes
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Discrete
+        a cim:Discrete ;
+        cim:Measurement.PowerSystemResource ?powerSystemResource ;
+        cim:Measurement.measurementType ?type .
+    OPTIONAL { ?Discrete cim:Terminal ?Terminal }
+}}
+}
+
+# query: bays
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Bay
+        a cim:Bay;
+        cim:VoltageLevel ?VoltageLevel
+}}
+}
