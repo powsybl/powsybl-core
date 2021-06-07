@@ -56,7 +56,7 @@ public class PsseExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
 
         PssePowerFlowModel psseModel = network.getExtension(PsseModelExtension.class).getPsseModel();
-        PssePowerFlowModel updatePsseModel = createUpdatePsseModel(psseModel);
+        PssePowerFlowModel updatePsseModel = createUpdatePsseModel(network, psseModel);
 
         Context context = network.getExtension(PsseConversionContextExtension.class).getContext();
         if (context.getFileFormat() == FileFormat.JSON) {
@@ -98,29 +98,37 @@ public class PsseExporter implements Exporter {
         }
     }
 
-    private static PssePowerFlowModel createUpdatePsseModel(PssePowerFlowModel psseModel) {
-        PssePowerFlowModel updatePsseModel = new PssePowerFlowModel(
-            psseModel.getCaseIdentification(),
-            psseModel.getLoads(),
-            psseModel.getFixedShunts(),
-            psseModel.getGenerators(),
-            psseModel.getNonTransformerBranches(),
-            psseModel.getTransformers(),
-            psseModel.getAreas(),
-            psseModel.getTwoTerminalDcTransmissionLines(),
-            psseModel.getVoltageSourceConverterDcTransmissionLines(),
-            psseModel.getTransformerImpedanceCorrections(),
-            psseModel.getMultiTerminalDcTransmissionLines(),
-            psseModel.getLineGrouping(),
-            psseModel.getZones(),
-            psseModel.getInterareaTransfer(),
-            psseModel.getOwners(),
-            psseModel.getFacts(),
-            psseModel.getSwitchedShunts(),
-            psseModel.getGneDevice(),
-            psseModel.getInductionMachines()
-            );
-        updatePsseModel.addBuses(psseModel.getBuses());
+    private static PssePowerFlowModel createUpdatePsseModel(Network network, PssePowerFlowModel psseModel) {
+        PssePowerFlowModel updatePsseModel = new PssePowerFlowModel(psseModel.getCaseIdentification());
+
+        copyPermanentBlocks(psseModel, updatePsseModel);
+        updateModifiedBlocks(network, psseModel, updatePsseModel);
         return updatePsseModel;
+    }
+
+    private static void copyPermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        //updatePsseModel.addBuses(psseModel.getBuses());
+        updatePsseModel.addLoads(psseModel.getLoads());
+        updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
+        updatePsseModel.addGenerators(psseModel.getGenerators());
+        updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
+        updatePsseModel.addTransformers(psseModel.getTransformers());
+        updatePsseModel.addAreas(psseModel.getAreas());
+        updatePsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
+        updatePsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
+        updatePsseModel.addTransformerImpedanceCorrections(psseModel.getTransformerImpedanceCorrections());
+        updatePsseModel.addMultiTerminalDcTransmissionLines(psseModel.getMultiTerminalDcTransmissionLines());
+        updatePsseModel.addLineGrouping(psseModel.getLineGrouping());
+        updatePsseModel.addZones(psseModel.getZones());
+        updatePsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
+        updatePsseModel.addOwners(psseModel.getOwners());
+        updatePsseModel.addFacts(psseModel.getFacts());
+        updatePsseModel.addSwitchedShunts(psseModel.getSwitchedShunts());
+        updatePsseModel.addGneDevice(psseModel.getGneDevice());
+        updatePsseModel.addInductionMachines(psseModel.getInductionMachines());
+    }
+
+    private static void updateModifiedBlocks(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        updatePsseModel.addBuses(psseModel.getBuses());
     }
 }
