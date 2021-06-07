@@ -11,8 +11,10 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.extensions.ExtensionSeriesBuilder;
 import com.powsybl.commons.extensions.ExtensionSeriesSerializer;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -53,30 +55,26 @@ public class ApcExtensionSeriesSerializer implements ExtensionSeriesSerializer<G
 
     @Override
     public void deserialize(Generator generator, String name, double value) {
-        Optional.ofNullable(generator.getExtension(ActivePowerControlImpl.class))
-                .ifPresent(ext -> {
-                    switch (name) {
-                        case DROOP:
-                            ((ActivePowerControlImpl) ext).setDroop((float) value);
-                            break;
-                        default:
-                            throw new UnsupportedOperationException("Series name not supported for ActivePowerControlImpl: " + name);
-                    }
-                });
+        Objects.requireNonNull(generator);
+        Objects.requireNonNull(name);
+        ActivePowerControlImpl ext = getOrCreateActivePowerControl(generator);
+        if (name.equals(DROOP)) {
+            ext.setDroop((float) value);
+        } else {
+            throw new UnsupportedOperationException("Series name not supported for ActivePowerControlImpl: " + name);
+        }
     }
 
     @Override
     public void deserialize(Generator element, String name, int value) {
-        Optional.ofNullable(element.getExtension(ActivePowerControlImpl.class))
-                .ifPresent(ext -> {
-                    switch (name) {
-                        case PARTICIPATE:
-                            ((ActivePowerControlImpl) ext).setParticipate(value == 1);
-                            break;
-                        default:
-                            throw new UnsupportedOperationException("Series name not supported for ActivePowerControlImpl: " + name);
-                    }
-                });
+        Objects.requireNonNull(element);
+        Objects.requireNonNull(name);
+        ActivePowerControlImpl ext = getOrCreateActivePowerControl(element);
+        if (name.equals(PARTICIPATE)) {
+            ext.setParticipate(value == 1);
+        } else {
+            throw new UnsupportedOperationException("Series name not supported for ActivePowerControlImpl: " + name);
+        }
     }
 
     @Override
@@ -103,4 +101,12 @@ public class ApcExtensionSeriesSerializer implements ExtensionSeriesSerializer<G
         return ActivePowerControlImpl.class;
     }
 
+    private static ActivePowerControlImpl getOrCreateActivePowerControl(Injection injection) {
+        ActivePowerControlImpl extension = (ActivePowerControlImpl) injection.getExtension(ActivePowerControlImpl.class);
+        if (extension == null) {
+            extension = new ActivePowerControlImpl(injection, false, 0.0f);
+            injection.addExtension(ActivePowerControlImpl.class, extension);
+        }
+        return extension;
+    }
 }

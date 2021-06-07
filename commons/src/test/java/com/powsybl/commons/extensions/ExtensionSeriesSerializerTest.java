@@ -19,7 +19,8 @@ import java.util.function.Predicate;
 import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -43,8 +44,9 @@ public class ExtensionSeriesSerializerTest {
         extensionSeriesSerializer.serialize(mockSeriesBuilder);
         mockSeriesBuilder.check();
 
+        // add extension
         extensionSeriesSerializer.deserialize(f2, "fooExt_value", 1);
-        assertNull(f2.getExtension(FooExt.class));
+        assertEquals(new FooExt(true, ""), f2.getExtension(FooExt.class));
         extensionSeriesSerializer.deserialize(f1, "fooExt_value", 1);
         extensionSeriesSerializer.deserialize(f1, "fooExt_value2", "bar");
         assertEquals(new FooExt(true, "bar"), f1.getExtension(FooExt.class));

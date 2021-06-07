@@ -41,26 +41,38 @@ public class FooExtSeriesSerializer implements ExtensionSeriesSerializer<Foo, Fo
 
     @Override
     public void deserialize(Foo element, String name, int value) {
-        Optional.ofNullable(element.getExtension(FooExt.class))
-                .ifPresent(ext -> {
-                    if (name.equals("fooExt_value")) {
-                        element.addExtension(FooExt.class, new FooExt(value == 1, ((FooExt) ext).getValue2()));
-                    } else {
-                        throw new IllegalArgumentException();
-                    }
-                });
+        final FooExt old = element.getExtension(FooExt.class);
+        if (old != null) {
+            if (name.equals("fooExt_value")) {
+                element.addExtension(FooExt.class, new FooExt(value == 1, old.getValue2()));
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } else {
+            if (name.equals("fooExt_value")) {
+                element.addExtension(FooExt.class, new FooExt(value == 1, ""));
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
     }
 
     @Override
     public void deserialize(Foo element, String name, String value) {
-        Optional.ofNullable(element.getExtension(FooExt.class))
-                .ifPresent(ext -> {
-                    if (name.equals("fooExt_value2")) {
-                        element.addExtension(FooExt.class, new FooExt(((FooExt) ext).getValue(), value));
-                    } else {
-                        throw new IllegalArgumentException();
-                    }
-                });
+        FooExt old = element.getExtension(FooExt.class);
+        if (old != null) {
+            if (name.equals("fooExt_value2")) {
+                element.addExtension(FooExt.class, new FooExt(old.getValue(), value));
+            } else {
+                throw new IllegalArgumentException();
+            }
+        } else {
+            if (name.equals("fooExt_value2")) {
+                element.addExtension(FooExt.class, new FooExt(false, value));
+            } else {
+                throw new IllegalArgumentException();
+            }
+        }
     }
 
     @Override
