@@ -36,43 +36,41 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
         CgmesMeasurementsModel model = new CgmesMeasurementsModel(tripleStore);
         PropertyBags bays = model.bays();
         for (PropertyBag analog : model.analogs()) {
-            process(network, analog.getId("Analog"), analog.getId("Terminal"), analog.getId("powerSystemResource"), "Analog", bays);
+            process(network, analog.getId("Analog"), analog.getId("Terminal"), analog.getId("powerSystemResource"), "Analog", analog.getId("type"), bays);
         }
         for (PropertyBag discrete : model.discretes()) {
-            process(network, discrete.getId("Discrete"), discrete.getId("Terminal"), discrete.getId("powerSystemResource"), "Discrete", bays);
+            process(network, discrete.getId("Discrete"), discrete.getId("Terminal"), discrete.getId("powerSystemResource"), "Discrete", discrete.getId("type"), bays);
         }
     }
 
-    private static void process(Network network, String id, String terminalId, String powerSystemResourceId, String type, PropertyBags bays) {
+    private static void process(Network network, String id, String terminalId, String powerSystemResourceId, String type, String measurementType, PropertyBags bays) {
         if (terminalId != null) {
             Identifiable identifiable = network.getIdentifiable(terminalId);
             if (identifiable == null) {
-                LOG.warn("Ignored terminal {} of {} {}: not found", terminalId, type, id);
+                LOG.warn("Ignored terminal {} of {} {}: not found", terminalId, measurementType, id);
             } else {
-                identifiable.addAlias(id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type + getSide(terminalId, identifiable));
+                addAliasOrProperty(identifiable, id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type + "_" + measurementType + getSide(terminalId, identifiable));
                 return;
             }
         }
         Identifiable<?> identifiable = network.getIdentifiable(powerSystemResourceId);
         if (identifiable != null) {
-            if (identifiable.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type).isEmpty()) {
-                identifiable.addAlias(id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type);
-            } else {
-                identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type, id);
-            }
+            addAliasOrProperty(identifiable, id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type + "_" + measurementType);
             return;
         }
         PropertyBag bay = bays.stream().filter(b -> b.getId("Bay").equals(powerSystemResourceId)).findFirst().orElse(null);
         if (bay != null) {
             String voltageLevelId = bay.getId("VoltageLevel");
+            LOG.info("Power resource system {} of {} {} is a Bay: {} is attached to the associated voltage level {}",
+                    powerSystemResourceId, type, id, type, voltageLevelId);
             VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
-                LOG.warn("Ignored {} {}: attached voltage level {} not found", type, id, voltageLevelId);
+                LOG.warn("Ignored {} {}: associated voltage level {} not found", measurementType, id, voltageLevelId);
                 return;
             }
-            voltageLevel.addAlias(id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + type);
+            voltageLevel.addAlias(id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + measurementType);
         } else {
-            LOG.warn("Ignored {} {}: attached power system resource {} not found", type, id, powerSystemResourceId);
+            LOG.warn("Ignored {} {}: attached power system resource {} not found", measurementType, id, powerSystemResourceId);
         }
     }
 
@@ -86,5 +84,13 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
             }
         }
         return "";
+    }
+
+    private static void addAliasOrProperty(Identifiable identifiable, String id, String type) {
+        if (identifiable.getAliasFromType(type).isEmpty()) {
+            identifiable.addAlias(id, type);
+        } else {
+            identifiable.setProperty(type, id);
+        }
     }
 }

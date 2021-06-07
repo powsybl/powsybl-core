@@ -13,7 +13,7 @@ WHERE {
         a cim:Analog ;
         cim:Measurement.PowerSystemResource ?powerSystemResource ;
         cim:Measurement.measurementType ?type .
-    OPTIONAL { ?Analog cim:Terminal ?Terminal }
+    OPTIONAL { ?Analog cim:Measurement.Terminal ?Terminal }
 }}
 }
 
@@ -25,7 +25,7 @@ WHERE {
         a cim:Discrete ;
         cim:Measurement.PowerSystemResource ?powerSystemResource ;
         cim:Measurement.measurementType ?type .
-    OPTIONAL { ?Discrete cim:Terminal ?Terminal }
+    OPTIONAL { ?Discrete cim:Measurement.Terminal ?Terminal }
 }}
 }
 
