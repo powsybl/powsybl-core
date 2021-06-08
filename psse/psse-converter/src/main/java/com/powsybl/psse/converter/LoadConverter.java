@@ -6,13 +6,16 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Collections;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseLoad;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -49,7 +52,42 @@ public class LoadConverter extends AbstractConverter {
     }
 
     private String getLoadId(String busId) {
-        return busId + "-L" + psseLoad.getId();
+        return getLoadId(busId, psseLoad.getId());
+    }
+
+    private static String getLoadId(String busId, String loadId) {
+        return busId + "-L" + loadId;
+    }
+
+    // At the moment we do not consider new loads
+    static void updateLoads(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getLoads().forEach(psseLoad -> {
+            String loadId = getLoadId(getBusId(psseLoad.getI()), psseLoad.getId());
+            Load load = network.getLoad(loadId);
+            if (load == null) {
+                psseLoad.setStatus(0);
+            } else {
+                psseLoad.setPl(getP(load));
+                psseLoad.setQl(getQ(load));
+            }
+            updatePsseModel.addLoads(Collections.singletonList(psseLoad));
+        });
+    }
+
+    private static double getP(Load load) {
+        if (Double.isNaN(load.getTerminal().getP())) {
+            return load.getP0();
+        } else {
+            return load.getTerminal().getP();
+        }
+    }
+
+    private static double getQ(Load load) {
+        if (Double.isNaN(load.getTerminal().getQ())) {
+            return load.getQ0();
+        } else {
+            return load.getTerminal().getQ();
+        }
     }
 
     private final PsseLoad psseLoad;

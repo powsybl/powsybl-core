@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import com.powsybl.iidm.network.Bus;
@@ -13,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,6 +35,23 @@ public class BusConverter extends AbstractConverter {
             .add();
         bus.setV(psseBus.getVm() * voltageLevel.getNominalV())
             .setAngle(psseBus.getVa());
+    }
+
+    // At the moment we do not consider new buses
+    static void updateBuses(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getBuses().forEach(psseBus -> {
+            String busId = AbstractConverter.getBusId(psseBus.getI());
+            Bus bus = network.getBusBreakerView().getBus(busId);
+            if (bus == null) {
+                psseBus.setVm(0.0);
+                psseBus.setVa(0.0);
+                psseBus.setIde(4);
+            } else {
+                psseBus.setVm(bus.getV() / bus.getVoltageLevel().getNominalV());
+                psseBus.setVa(bus.getAngle());
+            }
+            updatePsseModel.addBuses(Collections.singletonList(psseBus));
+        });
     }
 
     private final PsseBus psseBus;

@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -110,7 +112,42 @@ public class GeneratorConverter extends AbstractConverter {
     }
 
     private static String getGeneratorId(String busId, PsseGenerator psseGenerator) {
-        return busId + "-G" + psseGenerator.getId();
+        return getGeneratorId(busId, psseGenerator.getId());
+    }
+
+    private static String getGeneratorId(String busId, String generatorId) {
+        return busId + "-G" + generatorId;
+    }
+
+    // At the moment we do not consider new generators
+    static void updateGenerators(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getGenerators().forEach(psseGen -> {
+            String genId = getGeneratorId(getBusId(psseGen.getI()), psseGen.getId());
+            Generator gen = network.getGenerator(genId);
+            if (gen == null) {
+                psseGen.setStat(0);
+            } else {
+                psseGen.setPg(getP(gen));
+                psseGen.setQg(getQ(gen));
+            }
+            updatePsseModel.addGenerators(Collections.singletonList(psseGen));
+        });
+    }
+
+    private static double getP(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getP())) {
+            return gen.getTargetP();
+        } else {
+            return -gen.getTerminal().getP();
+        }
+    }
+
+    private static double getQ(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getQ())) {
+            return gen.getTargetQ();
+        } else {
+            return -gen.getTerminal().getQ();
+        }
     }
 
     private final PsseGenerator psseGenerator;

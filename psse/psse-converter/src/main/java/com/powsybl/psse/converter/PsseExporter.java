@@ -108,9 +108,9 @@ public class PsseExporter implements Exporter {
 
     private static void copyPermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
         //updatePsseModel.addBuses(psseModel.getBuses());
-        updatePsseModel.addLoads(psseModel.getLoads());
-        updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
-        updatePsseModel.addGenerators(psseModel.getGenerators());
+        //updatePsseModel.addLoads(psseModel.getLoads());
+        //updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
+        //updatePsseModel.addGenerators(psseModel.getGenerators());
         updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
         updatePsseModel.addTransformers(psseModel.getTransformers());
         updatePsseModel.addAreas(psseModel.getAreas());
@@ -129,6 +129,9 @@ public class PsseExporter implements Exporter {
     }
 
     private static void updateModifiedBlocks(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        updatePsseModel.addBuses(psseModel.getBuses());
+        BusConverter.updateBuses(network, psseModel, updatePsseModel);
+        LoadConverter.updateLoads(network, psseModel, updatePsseModel);
+        FixedShuntCompensatorConverter.updateFixedShunts(network, psseModel, updatePsseModel);
+        GeneratorConverter.updateGenerators(network, psseModel, updatePsseModel);
     }
 }
