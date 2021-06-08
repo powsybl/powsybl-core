@@ -40,17 +40,19 @@ public class BusConverter extends AbstractConverter {
     // At the moment we do not consider new buses
     static void updateBuses(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
         psseModel.getBuses().forEach(psseBus -> {
-            String busId = AbstractConverter.getBusId(psseBus.getI());
+            updatePsseModel.addBuses(Collections.singletonList(psseBus));
+            PsseBus updatePsseBus = updatePsseModel.getBuses().get(updatePsseModel.getBuses().size() - 1);
+
+            String busId = AbstractConverter.getBusId(updatePsseBus.getI());
             Bus bus = network.getBusBreakerView().getBus(busId);
             if (bus == null) {
-                psseBus.setVm(0.0);
-                psseBus.setVa(0.0);
-                psseBus.setIde(4);
+                updatePsseBus.setVm(0.0);
+                updatePsseBus.setVa(0.0);
+                updatePsseBus.setIde(4);
             } else {
-                psseBus.setVm(bus.getV() / bus.getVoltageLevel().getNominalV());
-                psseBus.setVa(bus.getAngle());
+                updatePsseBus.setVm(bus.getV() / bus.getVoltageLevel().getNominalV());
+                updatePsseBus.setVa(bus.getAngle());
             }
-            updatePsseModel.addBuses(Collections.singletonList(psseBus));
         });
     }
 

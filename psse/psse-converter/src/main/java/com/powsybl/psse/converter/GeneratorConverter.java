@@ -122,15 +122,18 @@ public class GeneratorConverter extends AbstractConverter {
     // At the moment we do not consider new generators
     static void updateGenerators(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
         psseModel.getGenerators().forEach(psseGen -> {
-            String genId = getGeneratorId(getBusId(psseGen.getI()), psseGen.getId());
+            updatePsseModel.addGenerators(Collections.singletonList(psseGen));
+            PsseGenerator updatePsseGen = updatePsseModel.getGenerators().get(updatePsseModel.getGenerators().size() - 1);
+
+            String genId = getGeneratorId(getBusId(updatePsseGen.getI()), updatePsseGen.getId());
             Generator gen = network.getGenerator(genId);
             if (gen == null) {
-                psseGen.setStat(0);
+                updatePsseGen.setStat(0);
             } else {
-                psseGen.setPg(getP(gen));
-                psseGen.setQg(getQ(gen));
+                updatePsseGen.setStat(1);
+                updatePsseGen.setPg(getP(gen));
+                updatePsseGen.setQg(getQ(gen));
             }
-            updatePsseModel.addGenerators(Collections.singletonList(psseGen));
         });
     }
 

@@ -111,7 +111,7 @@ public class PsseExporter implements Exporter {
         //updatePsseModel.addLoads(psseModel.getLoads());
         //updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
         //updatePsseModel.addGenerators(psseModel.getGenerators());
-        updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
+        //updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
         updatePsseModel.addTransformers(psseModel.getTransformers());
         updatePsseModel.addAreas(psseModel.getAreas());
         updatePsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
@@ -123,7 +123,7 @@ public class PsseExporter implements Exporter {
         updatePsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
         updatePsseModel.addOwners(psseModel.getOwners());
         updatePsseModel.addFacts(psseModel.getFacts());
-        updatePsseModel.addSwitchedShunts(psseModel.getSwitchedShunts());
+        //updatePsseModel.addSwitchedShunts(psseModel.getSwitchedShunts());
         updatePsseModel.addGneDevice(psseModel.getGneDevice());
         updatePsseModel.addInductionMachines(psseModel.getInductionMachines());
     }
@@ -133,5 +133,7 @@ public class PsseExporter implements Exporter {
         LoadConverter.updateLoads(network, psseModel, updatePsseModel);
         FixedShuntCompensatorConverter.updateFixedShunts(network, psseModel, updatePsseModel);
         GeneratorConverter.updateGenerators(network, psseModel, updatePsseModel);
+        LineConverter.updateLines(network, psseModel, updatePsseModel);
+        SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, psseModel, updatePsseModel);
     }
 }

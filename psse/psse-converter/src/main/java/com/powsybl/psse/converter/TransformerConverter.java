@@ -7,6 +7,7 @@
 package com.powsybl.psse.converter;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +35,7 @@ import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseBus;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 import com.powsybl.psse.model.pf.PsseTransformer;
 import com.powsybl.psse.model.pf.PsseTransformerWinding;
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
@@ -324,6 +326,24 @@ public class TransformerConverter extends AbstractConverter {
                 throw new PsseException("Unexpected CW = " + cw);
         }
         return ratio;
+    }
+
+    private static double defineWindV(double ratio, double baskv, double nomV, int cw) {
+        double windV;
+        switch (cw) {
+            case 1:
+                windV = ratio;
+                break;
+            case 2:
+                windV = ratio * baskv;
+                break;
+            case 3:
+                windV = ratio * baskv / nomV;
+                break;
+            default:
+                throw new PsseException("Unexpected CW = " + cw);
+        }
+        return windV;
     }
 
     private static TapChanger defineTapChanger(ComplexRatio complexRatio, PsseTransformerWinding winding, double baskv,
@@ -672,11 +692,15 @@ public class TransformerConverter extends AbstractConverter {
     }
 
     public void addControl() {
-        if (psseTransformer.getK() == 0) {
+        if (isTwoWindingsTransformer(psseTransformer)) {
             addControlTwoWindingsTransformer();
         } else {
             addControlThreeWindingsTransformer();
         }
+    }
+
+    private static boolean isTwoWindingsTransformer(PsseTransformer psseTransformer) {
+        return psseTransformer.getK() == 0;
     }
 
     private void addControlTwoWindingsTransformer() {
@@ -814,6 +838,60 @@ public class TransformerConverter extends AbstractConverter {
 
     private static String getTransformerId(int i, int j, int k, String ckt) {
         return "T-" + i + "-" + j + "-" + k + "-" + ckt;
+    }
+
+    // At the moment we do not consider new transformers and antenna twoWindingsTransformers are exported as open
+    static void updateTransformers(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getTransformers().forEach(psseTransformer -> {
+            updatePsseModel.addTransformers(Collections.singletonList(psseTransformer));
+            PsseTransformer updatePsseTransformer = updatePsseModel.getTransformers().get(updatePsseModel.getTransformers().size() - 1);
+
+            if (isTwoWindingsTransformer(updatePsseTransformer)) {
+                updateTwoWindingsTransformer(network, updatePsseTransformer);
+            } else {
+                updateThreeWindingsTransformer(network, updatePsseTransformer);
+            }
+        });
+    }
+
+    private static void updateTwoWindingsTransformer(Network network, PsseTransformer updatePsseTransformer) {
+        String transformerId = getTransformerId(updatePsseTransformer.getI(), updatePsseTransformer.getJ(), updatePsseTransformer.getCkt());
+        TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer(transformerId);
+        if (tw2t == null) {
+            updatePsseTransformer.setStat(0);
+        } else {
+            //updatePsseTransformer.getWinding1().setWindv(defineWindV(1.0 / getRho(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            //updatePsseTransformer.getWinding1().setAng(-getAlpha(tw2t.getPhaseTapChanger()));
+
+            if (tw2t.getTerminal1().isConnected() && tw2t.getTerminal2().isConnected()) {
+                updatePsseTransformer.setStat(1);
+            } else {
+                updatePsseTransformer.setStat(0);
+            }
+        }
+    }
+
+    private static void updateThreeWindingsTransformer(Network network, PsseTransformer updatePsseTransformer) {
+
+    }
+
+    private static double getRho(RatioTapChanger rtc, PhaseTapChanger ptc) {
+        double rho = 1.0;
+        if (rtc != null) {
+            rho = rho * rtc.getCurrentStep().getRho();
+        }
+        if (ptc != null) {
+            rho = rho * ptc.getCurrentStep().getRho();
+        }
+        return rho;
+    }
+
+    private static double getAlpha(PhaseTapChanger ptc) {
+        double alpha = 0.0;
+        if (ptc != null) {
+            alpha = ptc.getCurrentStep().getAlpha();
+        }
+        return alpha;
     }
 
     private final PsseTransformer psseTransformer;
