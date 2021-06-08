@@ -13,11 +13,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.elements.hvdc.Adjacency.AdjacentType;
-import com.powsybl.cgmes.conversion.elements.hvdc.TPnodeEquipments.TPnodeEquipment;
+import com.powsybl.cgmes.conversion.elements.hvdc.NodeEquipment.EquipmentReference;
 import com.powsybl.commons.PowsyblException;
 
 /**
@@ -32,7 +29,7 @@ class IslandEndHvdc {
     // T2: two transformers, C2: two acDcConverters, LS2: two dcLineSegments
     // TN: n transformers (usually 2), CN: n acDcConverters (usually 2), LSN: n dcLineSegments (usually 2)
     enum HvdcEndType {
-        HVDC_T0_C1_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
+        HVDC_T0_C1_LS1, HVDC_T0_C1_LS2, HVDC_T0_C2_LS1, HVDC_T1_C1_LS1, HVDC_TN_CN_LSN, HVDC_T1_C1_LS2, HVDC_T2_C2_LS1,
     }
 
     private final List<HvdcEnd> hvdc;
@@ -41,105 +38,105 @@ class IslandEndHvdc {
         hvdc = new ArrayList<>();
     }
 
-    void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, List<String> islandNodesEnd) {
+    void add(Adjacency adjacency, NodeEquipment nodeEquipment, List<String> islandNodesEnd) {
         if (islandNodesEnd.isEmpty()) {
             return;
         }
-        Set<String> visitedTopologicalNodes = new HashSet<>();
+        Set<String> visitedNodes = new HashSet<>();
 
         // Take a non-visited node with transformers
         int k = 0;
         while (k < islandNodesEnd.size()) {
-            String topologicalNodeEnd = islandNodesEnd.get(k);
-            if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
-                && tpNodeEquipments.containsAnyTransformer(topologicalNodeEnd)) {
-                add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
+            String nodeEnd = islandNodesEnd.get(k);
+            if (!visitedNodes.contains(nodeEnd)
+                && nodeEquipment.containsAnyTransformer(nodeEnd)) {
+                add(adjacency, nodeEquipment, visitedNodes, nodeEnd, islandNodesEnd);
             }
             k++;
         }
 
-        if (!visitedTopologicalNodes.isEmpty()) {
+        if (!visitedNodes.isEmpty()) {
             return;
         }
         // IslandsEnds without transformers
         // Take a non-visited node with acDcConverters
         k = 0;
         while (k < islandNodesEnd.size()) {
-            String topologicalNodeEnd = islandNodesEnd.get(k);
-            if (!visitedTopologicalNodes.contains(topologicalNodeEnd)
-                && tpNodeEquipments.containsAnyAcDcConverter(topologicalNodeEnd)) {
-                add(adjacency, tpNodeEquipments, visitedTopologicalNodes, topologicalNodeEnd, islandNodesEnd);
+            String nodeEnd = islandNodesEnd.get(k);
+            if (!visitedNodes.contains(nodeEnd)
+                && nodeEquipment.containsAnyAcDcConverter(nodeEnd)) {
+                add(adjacency, nodeEquipment, visitedNodes, nodeEnd, islandNodesEnd);
             }
             k++;
         }
     }
 
-    private void add(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Set<String> visitedTopologicalNodes,
-        String topologicalNodeEnd, List<String> islandNodesEnd) {
+    private void add(Adjacency adjacency, NodeEquipment nodeEquipment, Set<String> visitedNodes,
+        String nodeEnd, List<String> islandNodesEnd) {
 
-        List<String> hvdcNodes = computeHvdcNodes(adjacency, tpNodeEquipments, visitedTopologicalNodes,
-            topologicalNodeEnd, islandNodesEnd);
-        Set<String> transformers = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.TRANSFORMER);
-        Set<String> acDcConverters = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.AC_DC_CONVERTER);
-        Set<String> dcLineSegment = computeEquipments(tpNodeEquipments, hvdcNodes,
-            TPnodeEquipments.EquipmentType.DC_LINE_SEGMENT);
+        List<String> hvdcNodes = computeHvdcNodes(adjacency, nodeEquipment, visitedNodes,
+            nodeEnd, islandNodesEnd);
+        Set<String> transformers = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.TRANSFORMER);
+        Set<String> acDcConverters = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.AC_DC_CONVERTER);
+        Set<String> dcLineSegment = computeEquipment(nodeEquipment, hvdcNodes,
+            NodeEquipment.EquipmentType.DC_LINE_SEGMENT);
 
         HvdcEnd hvdcEnd = new HvdcEnd(hvdcNodes, transformers, acDcConverters, dcLineSegment);
         hvdc.add(hvdcEnd);
     }
 
-    private static List<String> computeHvdcNodes(Adjacency adjacency, TPnodeEquipments tpNodeEquipments,
-        Set<String> visitedTopologicalNodes,
-        String topologicalNodeEnd, List<String> islandNodesEnd) {
-        List<String> listTp = new ArrayList<>();
+    private static List<String> computeHvdcNodes(Adjacency adjacency, NodeEquipment nodeEquipment,
+        Set<String> visitedNodes,
+        String nodeEnd, List<String> islandNodesEnd) {
+        List<String> listNodes = new ArrayList<>();
 
-        listTp.add(topologicalNodeEnd);
-        visitedTopologicalNodes.add(topologicalNodeEnd);
+        listNodes.add(nodeEnd);
+        visitedNodes.add(nodeEnd);
 
         int k = 0;
-        while (k < listTp.size()) {
-            String topologicalNode = listTp.get(k);
-            if (adjacency.get().containsKey(topologicalNode)) {
-                adjacency.get().get(topologicalNode).forEach(adjacent -> {
-                    if (isAdjacentOk(tpNodeEquipments, visitedTopologicalNodes, islandNodesEnd,
-                        adjacent.type, adjacent.topologicalNode)) {
-                        listTp.add(adjacent.topologicalNode);
-                        visitedTopologicalNodes.add(adjacent.topologicalNode);
+        while (k < listNodes.size()) {
+            String node = listNodes.get(k);
+            if (adjacency.get().containsKey(node)) {
+                adjacency.get().get(node).forEach(adjacent -> {
+                    if (isAdjacentOk(nodeEquipment, visitedNodes, islandNodesEnd,
+                        adjacent.type, adjacent.node)) {
+                        listNodes.add(adjacent.node);
+                        visitedNodes.add(adjacent.node);
                     }
                 });
             }
             k++;
         }
-        return listTp;
+        return listNodes;
     }
 
-    private static boolean isAdjacentOk(TPnodeEquipments tpNodeEquipments, Set<String> visitedTopologicalNodes,
-        List<String> islandNodesEnd, AdjacentType adType, String adTopologicalNode) {
+    private static boolean isAdjacentOk(NodeEquipment nodeEquipment, Set<String> visitedNodes,
+        List<String> islandNodesEnd, AdjacentType adType, String adNode) {
         if (Adjacency.isDcLineSegment(adType)) {
             return false;
         }
-        if (!islandNodesEnd.contains(adTopologicalNode)) {
+        if (!islandNodesEnd.contains(adNode)) {
             return false;
         }
-        if (visitedTopologicalNodes.contains(adTopologicalNode)) {
+        if (visitedNodes.contains(adNode)) {
             return false;
         }
-        return !tpNodeEquipments.multiAcDcConverter(adTopologicalNode);
+        return !nodeEquipment.multiAcDcConverter(adNode);
     }
 
-    private static Set<String> computeEquipments(TPnodeEquipments tpNodeEquipments, List<String> hvdcNode,
-        TPnodeEquipments.EquipmentType type) {
+    private static Set<String> computeEquipment(NodeEquipment nodeEquipment, List<String> hvdcNode,
+        NodeEquipment.EquipmentType type) {
         Set<String> listEq = new HashSet<>();
 
-        hvdcNode.forEach(n -> addEquipments(tpNodeEquipments, n, type, listEq));
+        hvdcNode.forEach(n -> addEquipment(nodeEquipment, n, type, listEq));
         return listEq;
     }
 
-    private static void addEquipments(TPnodeEquipments tpNodeEquipments, String topologicalNode,
-        TPnodeEquipments.EquipmentType type, Set<String> listEq) {
-        List<TPnodeEquipment> listEqNode = tpNodeEquipments.getNodeEquipments().get(topologicalNode);
+    private static void addEquipment(NodeEquipment nodeEquipment, String node,
+        NodeEquipment.EquipmentType type, Set<String> listEq) {
+        List<EquipmentReference> listEqNode = nodeEquipment.getNodeEquipment().get(node);
         if (listEqNode == null) {
             return;
         }
@@ -153,9 +150,6 @@ class IslandEndHvdc {
     }
 
     private static boolean isCompatible(HvdcEnd hvdcEnd1, HvdcEnd hvdcEnd2) {
-        if (hvdcEnd1.transformersEnd.size() != hvdcEnd2.transformersEnd.size()) {
-            return false;
-        }
         if (hvdcEnd1.acDcConvertersEnd.size() != hvdcEnd2.acDcConvertersEnd.size()) {
             return false;
         }
@@ -171,23 +165,23 @@ class IslandEndHvdc {
         return hvdc;
     }
 
-    void debug() {
-        LOG.debug("IslandEndHvdc");
-        hvdc.forEach(HvdcEnd::debug);
+    void report(List<String> reportList) {
+        reportList.add("IslandEndHvdc");
+        hvdc.forEach(hvdcEnd -> hvdcEnd.report(reportList));
     }
 
     static class HvdcEnd {
-        final List<String> topologicalNodesEnd;
+        final List<String> nodesEnd;
         final Set<String> transformersEnd;
         final Set<String> acDcConvertersEnd;
         final Set<String> dcLineSegmentsEnd;
 
-        HvdcEnd(List<String> topologicalNodesEnd, Set<String> transformersEnd, Set<String> acDcConvertersEnd, Set<String> dcLineSegmentsEnd) {
-            Objects.requireNonNull(topologicalNodesEnd);
+        HvdcEnd(List<String> nodesEnd, Set<String> transformersEnd, Set<String> acDcConvertersEnd, Set<String> dcLineSegmentsEnd) {
+            Objects.requireNonNull(nodesEnd);
             Objects.requireNonNull(transformersEnd);
             Objects.requireNonNull(acDcConvertersEnd);
             Objects.requireNonNull(dcLineSegmentsEnd);
-            this.topologicalNodesEnd = topologicalNodesEnd;
+            this.nodesEnd = nodesEnd;
             this.transformersEnd = transformersEnd;
             this.acDcConvertersEnd = acDcConvertersEnd;
             this.dcLineSegmentsEnd = dcLineSegmentsEnd;
@@ -200,6 +194,10 @@ class IslandEndHvdc {
 
             if (t == 0 && c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_T0_C1_LS1;
+            } else if (t == 0 && c == 1 && ls == 2) {
+                return HvdcEndType.HVDC_T0_C1_LS2;
+            } else if (t == 0 && c == 2 && ls == 1) {
+                return HvdcEndType.HVDC_T0_C2_LS1;
             } else if (t == 1 && c == 1 && ls == 1) {
                 return HvdcEndType.HVDC_T1_C1_LS1;
             } else if (t == 1 && c == 1 && ls == 2) {
@@ -213,14 +211,12 @@ class IslandEndHvdc {
             throw new PowsyblException(String.format("Unexpected HVDC configuration: Transformers %d Converters %d DcLineSegments %d", t, c, ls));
         }
 
-        void debug() {
-            LOG.debug("    topologicalNodesEnd: {}", this.topologicalNodesEnd);
-            LOG.debug("    transformersEnd: {}", this.transformersEnd);
-            LOG.debug("    acDcConvertersEnd: {}", this.acDcConvertersEnd);
-            LOG.debug("    dcLineSegmentsEnd: {}", this.dcLineSegmentsEnd);
-            LOG.debug("---");
+        void report(List<String> reportList) {
+            reportList.add(String.format("    nodesEnd: %s", this.nodesEnd));
+            reportList.add(String.format("    transformersEnd: %s", this.transformersEnd));
+            reportList.add(String.format("    acDcConvertersEnd: %s", this.acDcConvertersEnd));
+            reportList.add(String.format("    dcLineSegmentsEnd: %s", this.dcLineSegmentsEnd));
+            reportList.add("---");
         }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(IslandEndHvdc.class);
 }
