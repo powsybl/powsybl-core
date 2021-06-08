@@ -12,9 +12,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEnd;
 import com.powsybl.cgmes.conversion.elements.hvdc.IslandEndHvdc.HvdcEndType;
 
@@ -30,11 +27,11 @@ class Hvdc {
         this.hvdcData = new ArrayList<>();
     }
 
-    void add(TPnodeEquipments tpNodeEquipments, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
-        islandEndHvdc1.getHvdc().forEach(h -> add(tpNodeEquipments, h, islandEndHvdc2));
+    void add(NodeEquipment nodeEquipment, IslandEndHvdc islandEndHvdc1, IslandEndHvdc islandEndHvdc2) {
+        islandEndHvdc1.getHvdc().forEach(h -> add(nodeEquipment, h, islandEndHvdc2));
     }
 
-    private void add(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, IslandEndHvdc islandEndHvdc2) {
+    private void add(NodeEquipment nodeEquipment, HvdcEnd hvdc1, IslandEndHvdc islandEndHvdc2) {
         HvdcEnd hvdc2 = islandEndHvdc2.selectSymmetricHvdcEnd(hvdc1);
         if (hvdc2 == null) {
             return;
@@ -42,15 +39,17 @@ class Hvdc {
         HvdcEndType type = hvdc1.computeType();
         switch (type) {
             case HVDC_T0_C1_LS1:
+            case HVDC_T0_C1_LS2:
             case HVDC_T1_C1_LS1:
             case HVDC_T1_C1_LS2:
                 addC1LSn(hvdc1, hvdc2);
                 break;
             case HVDC_T2_C2_LS1:
-                addC2LS1(tpNodeEquipments, hvdc1, hvdc2);
+            case HVDC_T0_C2_LS1:
+                addC2LS1(nodeEquipment, hvdc1, hvdc2);
                 break;
             case HVDC_TN_CN_LSN:
-                addCnLSn(tpNodeEquipments, hvdc1, hvdc2);
+                addCnLSn(nodeEquipment, hvdc1, hvdc2);
                 break;
         }
     }
@@ -64,10 +63,10 @@ class Hvdc {
         this.hvdcData.add(hvdcEq);
     }
 
-    private void addC2LS1(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+    private void addC2LS1(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
 
         String dcLineSegment = hvdc1.dcLineSegmentsEnd.iterator().next();
-        HvdcConverter hvdcConverter1 = computeConverter(tpNodeEquipments, dcLineSegment, hvdc1, hvdc2);
+        HvdcConverter hvdcConverter1 = computeConverter(nodeEquipment, dcLineSegment, hvdc1, hvdc2);
         if (hvdcConverter1 == null) {
             return;
         }
@@ -81,10 +80,10 @@ class Hvdc {
         this.hvdcData.add(hvdcEq);
     }
 
-    private void addCnLSn(TPnodeEquipments tpNodeEquipments, HvdcEnd hvdc1, HvdcEnd hvdc2) {
+    private void addCnLSn(NodeEquipment nodeEquipment, HvdcEnd hvdc1, HvdcEnd hvdc2) {
 
         hvdc1.dcLineSegmentsEnd.forEach(dcLineSegment -> {
-            HvdcConverter hvdcConverter = computeConverter(tpNodeEquipments, dcLineSegment, hvdc1, hvdc2);
+            HvdcConverter hvdcConverter = computeConverter(nodeEquipment, dcLineSegment, hvdc1, hvdc2);
             if (hvdcConverter == null) {
                 return;
             }
@@ -94,13 +93,13 @@ class Hvdc {
         });
     }
 
-    private static HvdcConverter computeConverter(TPnodeEquipments tpNodeEquipments, String dcLineSegment, HvdcEnd hvdc1,
+    private static HvdcConverter computeConverter(NodeEquipment nodeEquipment, String dcLineSegment, HvdcEnd hvdc1,
         HvdcEnd hvdc2) {
-        String acDcConverter1 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.topologicalNodesEnd);
+        String acDcConverter1 = computeEquipmentConnectedToEquipment(nodeEquipment, dcLineSegment, hvdc1.acDcConvertersEnd, hvdc1.nodesEnd);
         if (acDcConverter1 == null) {
             return null;
         }
-        String acDcConverter2 = computeEquipmentConnectedToEquipment(tpNodeEquipments, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.topologicalNodesEnd);
+        String acDcConverter2 = computeEquipmentConnectedToEquipment(nodeEquipment, dcLineSegment, hvdc2.acDcConvertersEnd, hvdc2.nodesEnd);
         if (acDcConverter2 == null) {
             return null;
         }
@@ -119,21 +118,16 @@ class Hvdc {
         return new HvdcConverter(acDcConverter1, acDcConverter2);
     }
 
-    private static String computeEquipmentConnectedToEquipment(TPnodeEquipments tpNodeEquipments, String equipment,
-        Set<String> connectedEquipments, List<String> topologicalNodes) {
-        return connectedEquipments.stream()
-            .filter(eq -> tpNodeEquipments.connectedEquipments(equipment, eq, topologicalNodes))
+    private static String computeEquipmentConnectedToEquipment(NodeEquipment nodeEquipment, String equipment,
+        Set<String> connectedEquipment, List<String> nodes) {
+        return connectedEquipment.stream()
+            .filter(eq -> nodeEquipment.connectedEquipment(equipment, eq, nodes))
             .findFirst()
             .orElse(null);
     }
 
     List<HvdcEquipment> getHvdcData() {
         return hvdcData;
-    }
-
-    void debug() {
-        LOG.debug("Hvdc");
-        hvdcData.forEach(HvdcEquipment::debug);
     }
 
     static class HvdcEquipment {
@@ -157,14 +151,6 @@ class Hvdc {
         void add(String dcLineSegment) {
             this.dcLineSegments.add(dcLineSegment);
         }
-
-        void debug() {
-            LOG.debug("    Converters:");
-            this.converters.forEach(HvdcConverter::debug);
-            LOG.debug("    dcLineSegments");
-            this.dcLineSegments.forEach(ls -> LOG.debug("    {} ", ls));
-            LOG.debug("---");
-        }
     }
 
     static class HvdcConverter {
@@ -177,11 +163,5 @@ class Hvdc {
             this.acDcConvertersEnd1 = acDcConvertersEnd1;
             this.acDcConvertersEnd2 = acDcConvertersEnd2;
         }
-
-        void debug() {
-            LOG.debug("    End1: {} End2: {}", this.acDcConvertersEnd1, this.acDcConvertersEnd2);
-        }
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(Hvdc.class);
 }
