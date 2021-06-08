@@ -156,10 +156,11 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     @Override
     public double scaleWithConstantPowerFactor(Network n, double asked) {
-        return scaleConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 
-    public double scaleConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+    @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
         reinitIterationPercentage();
