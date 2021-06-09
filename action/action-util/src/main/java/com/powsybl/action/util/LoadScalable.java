@@ -156,6 +156,7 @@ class LoadScalable extends AbstractInjectionScalable {
         return scale(n, asked, scalingConvention, false);
     }
 
+    @Override
     public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
         return scale(n, asked, scalingConvention, true);
     }
