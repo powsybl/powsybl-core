@@ -18,17 +18,13 @@ public interface AnalogMeasurement {
     }
 
     enum Type {
-        THREE_PHASE_POWER,
-        THREE_PHASE_ACTIVE_POWER,
-        THREE_PHRASE_REACTIVE_POWER,
-        LINE_CURRENT,
-        PHASE_VOLTAGE,
-        LINE_TO_LINE_VOLTAGE,
         ANGLE,
         ACTIVE_POWER,
+        APPARENT_POWER,
         REACTIVE_POWER,
         CURRENT,
         VOLTAGE,
+        FREQUENCY,
         OTHER
     }
 
