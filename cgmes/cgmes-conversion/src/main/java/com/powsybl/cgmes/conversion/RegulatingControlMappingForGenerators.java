@@ -83,7 +83,7 @@ public class RegulatingControlMappingForGenerators {
         if (RegulatingControlMapping.isControlModeVoltage(control.mode)) {
             okSet = setRegulatingControlVoltage(controlId, control, rc.qPercent, rc.controlEnabled, gen);
         } else if (RegulatingControlMapping.isControlModeReactivePower(control.mode)) {
-            okSet = setRegulatingControlReactivePower(controlId, control, gen);
+            okSet = setRegulatingControlReactivePower(controlId, control, rc.qPercent, rc.controlEnabled, gen);
         } else {
             context.ignored(control.mode, "Unsupported regulation mode for generator " + gen.getId());
         }
@@ -126,7 +126,7 @@ public class RegulatingControlMappingForGenerators {
         return true;
     }
 
-    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, Generator gen) {
+    private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
         // Ignore control if the terminal is not mapped.
         Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
         if (terminal == null) {
@@ -145,8 +145,15 @@ public class RegulatingControlMappingForGenerators {
         gen.newExtension(RemoteReactivePowerControlAdder.class)
                 .withTargetQ(targetQ)
                 .withRegulatingTerminal(terminal)
-                .withEnabled(control.enabled)
+                .withEnabled(control.enabled && eqControlEnabled)
                 .add();
+
+        // add qPercent as an extension
+        if (!Double.isNaN(qPercent)) {
+            gen.newExtension(CoordinatedReactiveControlAdder.class)
+                    .withQPercent(qPercent)
+                    .add();
+        }
 
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
