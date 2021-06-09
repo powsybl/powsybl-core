@@ -78,6 +78,24 @@
             "preContingencyValue" : 400.0
           }
         }
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "ACTIVE_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "side" : "ONE"
+      }, {
+        "subjectId" : "NHV1_NHV2_2",
+        "limitType" : "APPARENT_POWER",
+        "limitName" : "20'",
+        "acceptableDuration" : 1200,
+        "limit" : 100.0,
+        "limitReduction" : 1.0,
+        "value" : 110.0,
+        "side" : "TWO"
       } ],
       "actionsTaken" : [ "action1", "action2" ]
     }

@@ -10,6 +10,8 @@ package com.powsybl.security;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum LimitViolationType {
+    ACTIVE_POWER,
+    APPARENT_POWER,
     CURRENT,
     LOW_VOLTAGE,
     HIGH_VOLTAGE,

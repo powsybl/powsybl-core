@@ -10,14 +10,13 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.List;
 import java.util.Objects;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.hvdc.DcLineSegmentConversion.DcLineSegmentConverter;
 import com.powsybl.cgmes.conversion.elements.hvdc.Hvdc.HvdcConverter;
+import com.powsybl.cgmes.model.CgmesDcTerminal;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -49,7 +48,7 @@ public class CgmesDcConversion {
         if (adjacency.isEmpty()) {
             return;
         }
-        TPnodeEquipments tpNodeEquipments = new TPnodeEquipments(cgmesModel, adjacency);
+        NodeEquipment nodeEquipment = new NodeEquipment(cgmesModel, adjacency);
         Islands islands = new Islands(adjacency);
 
         IslandsEnds islandsEnds = new IslandsEnds();
@@ -58,33 +57,62 @@ public class CgmesDcConversion {
         Hvdc hvdc = new Hvdc();
         islandsEnds.getIslandsEndsNodes().forEach(ien -> {
             IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
+            islandEndHvdc1.add(adjacency, nodeEquipment, ien.getNodes1());
 
             IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
+            islandEndHvdc2.add(adjacency, nodeEquipment, ien.getNodes2());
 
-            hvdc.add(tpNodeEquipments, islandEndHvdc1, islandEndHvdc2);
+            hvdc.add(nodeEquipment, islandEndHvdc1, islandEndHvdc2);
         });
 
         // Convert to IIDM each converter - dcLineSegment configuration
-        hvdc.getHvdcData().forEach(h -> convert(h.converters, h.dcLineSegments));
+        hvdc.getHvdcData().forEach(h -> convert(nodeEquipment, h.converters, h.dcLineSegments));
 
         // warnings
         context.dc().reportCgmesConvertersNotUsed();
         context.dc().reportCgmesDcLineSegmentNotUsed();
-
-        if (LOG.isDebugEnabled()) {
-            debugHvdc(adjacency, tpNodeEquipments, islands, islandsEnds, hvdc);
-        }
     }
 
     // Supported configurations are:
     //
+    // (1) One AcDcConverter pair One DcLineSegment
+    // (2) Two AcDcConverter pairs One DcLineSegment
+    // (3) One AcDcConverter pair Two DcLineSegments
+    //
+    private void convert(NodeEquipment nodeEquipment, List<HvdcConverter> converters, List<String> dcLineSegments) {
+        int converterNum = converters.size();
+        int dcLineSegmentNum = dcLineSegments.size();
+
+        if (converterNum == 1 && dcLineSegmentNum == 1) {
+            oneAcDcConverterPairOneDcLineSegment(nodeEquipment, converters, dcLineSegments);
+        } else if (converterNum == 2 && dcLineSegmentNum == 1) {
+            twoAcDcConverterPairsOneDcLineSegment(nodeEquipment, converters, dcLineSegments);
+        } else if (converterNum == 1 && dcLineSegmentNum == 2) {
+            oneAcDcConverterPairTwoDcLineSegments(nodeEquipment, converters, dcLineSegments);
+        } else {
+            throw new PowsyblException(String.format("Unexpected HVDC configuration: Converters %d DcLineSegments %d",
+                converterNum, dcLineSegmentNum));
+        }
+    }
+
+    // (1)
     //         CGMES Configuration                                                              IIDM configuration
     //
-    // (1)  AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2        AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
+    //      AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2        AcDcConverterEnd1 --- DcLineSegment --- AcDcConverterEnd2
     //
-    // (2)  AcDcConverter1End1 ---                 --- AcDcConverter1End2
+    private void oneAcDcConverterPairOneDcLineSegment(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
+        List<String> dcLineSegments) {
+        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
+            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
+        } else {
+            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0));
+        }
+    }
+
+    // (2)
+    //         CGMES Configuration                                                              IIDM configuration
+    //
+    //      AcDcConverter1End1 ---                 --- AcDcConverter1End2
     //                           |                 |                         AcDcConverter1End1 --- DcLineSegment --- AcDcConverter1End2
     //                           -- DcLineSegment --
     //                           |                 |                         AcDcConverter2End1 --- DcLineSegment-1 --- AcDcConverter2End2
@@ -92,7 +120,19 @@ public class CgmesDcConversion {
     //
     //      where DcLineSegment is duplicated into DcLineSegment and DcLineSegment-1
     //
+    private void twoAcDcConverterPairsOneDcLineSegment(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
+        List<String> dcLineSegments) {
+        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
+            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
+            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
+        } else {
+            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), false);
+            convert(converters.get(1).acDcConvertersEnd2, converters.get(1).acDcConvertersEnd1, dcLineSegments.get(0), true);
+        }
+    }
+
     // (3)
+    //         CGMES Configuration                                                              IIDM configuration
     //
     //                           --- DcLineSegment1 ---
     //                           |                    |
@@ -102,21 +142,21 @@ public class CgmesDcConversion {
     //
     //      where DcLineSegment = DcLineSegment1 + DcLineSegment2
     //
-    private void convert(List<HvdcConverter> converters, List<String> dcLineSegments) {
-        int converterNum = converters.size();
-        int dcLineSegmentNum = dcLineSegments.size();
-
-        if (converterNum == 1 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0));
-        } else if (converterNum == 2 && dcLineSegmentNum == 1) {
-            convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), false);
-            convert(converters.get(1).acDcConvertersEnd1, converters.get(1).acDcConvertersEnd2, dcLineSegments.get(0), true);
-        } else if (converterNum == 1 && dcLineSegmentNum == 2) {
+    private void oneAcDcConverterPairTwoDcLineSegments(NodeEquipment nodeEquipment, List<HvdcConverter> converters,
+        List<String> dcLineSegments) {
+        if (isHvdcWellOriented(nodeEquipment, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0))) {
             convert(converters.get(0).acDcConvertersEnd1, converters.get(0).acDcConvertersEnd2, dcLineSegments.get(0), dcLineSegments.get(1));
         } else {
-            throw new PowsyblException(String.format("Unexpected HVDC configuration: Converters %d DcLineSegments %d",
-                converterNum, dcLineSegmentNum));
+            convert(converters.get(0).acDcConvertersEnd2, converters.get(0).acDcConvertersEnd1, dcLineSegments.get(0), dcLineSegments.get(1));
         }
+    }
+
+    // Determine if the converter is well orientated. It is well orientated if acDcConverterId is at end1
+    private boolean isHvdcWellOriented(NodeEquipment nodeEquipment, String acDcConverterId, String dcLineSegmentId) {
+        PropertyBag pb = context.dc().getCgmesDcLineSegmentPropertyBag(dcLineSegmentId);
+        CgmesDcTerminal t1 = cgmesModel.dcTerminal(pb.getId(CgmesNames.DC_TERMINAL + 1));
+        String node = getDcNode(cgmesModel, t1);
+        return nodeEquipment.containsAcDcConverter(node, acDcConverterId);
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
@@ -325,33 +365,20 @@ public class CgmesDcConversion {
             / Math.hypot(iconverter.getTerminal().getP(), iconverter.getTerminal().getQ());
     }
 
-    private void debugHvdc(Adjacency adjacency, TPnodeEquipments tpNodeEquipments, Islands islands,
-        IslandsEnds islandsEnds, Hvdc hvdc) {
+    static String getAcNode(CgmesModel cgmesModel, CgmesTerminal terminal) {
+        if (cgmesModel.isNodeBreaker()) {
+            return terminal.connectivityNode();
+        } else {
+            return terminal.topologicalNode();
+        }
+    }
 
-        hvdc.debug();
-
-        islandsEnds.getIslandsEndsNodes().forEach(ien -> {
-            IslandEndHvdc islandEndHvdc1 = new IslandEndHvdc();
-            islandEndHvdc1.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes1());
-            IslandEndHvdc islandEndHvdc2 = new IslandEndHvdc();
-            islandEndHvdc2.add(adjacency, tpNodeEquipments, ien.getTopologicalNodes2());
-
-            islandEndHvdc1.debug();
-            islandEndHvdc2.debug();
-
-            adjacency.debug(ien.getTopologicalNodes1());
-            tpNodeEquipments.debugEq(ien.getTopologicalNodes1());
-            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes1());
-
-            adjacency.debug(ien.getTopologicalNodes2());
-            tpNodeEquipments.debugEq(ien.getTopologicalNodes2());
-            tpNodeEquipments.debugDcLs(ien.getTopologicalNodes2());
-        });
-
-        islands.debug();
-        islandsEnds.debug();
-        adjacency.debug();
-        tpNodeEquipments.debug();
+    static String getDcNode(CgmesModel cgmesModel, CgmesDcTerminal terminal) {
+        if (cgmesModel.isNodeBreaker()) {
+            return terminal.dcNode();
+        } else {
+            return terminal.dcTopologicalNode();
+        }
     }
 
     private final CgmesModel cgmesModel;
@@ -367,6 +394,4 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }

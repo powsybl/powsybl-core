@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.LimitType;
+import com.powsybl.iidm.network.LoadingLimits;
 
 import java.util.Objects;
 
@@ -22,11 +24,19 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkTemporaryLimits(Branch, Branch.Side, float, double, LimitType)} instead.
+     */
+    @Deprecated(since = "4.3.0")
     public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i) {
+        return checkTemporaryLimits(branch, side, limitReduction, i, LimitType.CURRENT);
+    }
+
+    public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i, LimitType type) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(side);
 
-        CurrentLimits limits = branch.getCurrentLimits(side);
+        LoadingLimits limits = branch.getLimits(type, side);
 
         if (limits != null && !Double.isNaN(limits.getPermanentLimit()) && !Double.isNaN(i)) {
             String previousLimitName = null;
@@ -42,8 +52,16 @@ public final class LimitViolationUtils {
         return null;
     }
 
+    /**
+     * @deprecated Since 4.3.0, use {@link #checkPermanentLimit(Branch, Branch.Side, float, double, LimitType)} instead.
+     */
+    @Deprecated(since = "4.3.0")
     public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i) {
-        CurrentLimits limits = branch.getCurrentLimits(side);
+        return checkPermanentLimit(branch, side, limitReduction, i, LimitType.CURRENT);
+    }
+
+    public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i, LimitType type) {
+        LoadingLimits limits = branch.getLimits(type, side);
         return limits != null &&
                 !Double.isNaN(limits.getPermanentLimit()) &&
                 !Double.isNaN(i) &&
