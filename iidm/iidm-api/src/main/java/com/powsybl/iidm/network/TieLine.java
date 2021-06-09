@@ -141,9 +141,16 @@ package com.powsybl.iidm.network;
  *
  * <p>
  * In the CGMES import of an assembled model : <br>
- * A tie line is created by matching two lines with the same boundary node. <br>
- * Depending on the initial orientation of the lines,
- * none, only one or maybe both lines must be reoriented before mapping them to the half lines.
+ * A tie line is created by matching two links with the same boundary node. <br>
+ * Depending on the initial orientation of the links,
+ * none, only one or maybe both links must be reoriented before mapping them to the half lines. <br>
+ * Each link can be: <br>
+ * <ol>
+ <li>A line.</li>
+ <li>A Breaker or Disconnector.</li>
+ <li>An equivalent branch.</li>
+ <li>A transformer with fixed ratio and zero phase shift angle.</li>
+</ol>
  * </p>
  *
  * <p><div>

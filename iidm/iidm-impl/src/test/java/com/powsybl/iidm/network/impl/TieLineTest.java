@@ -185,10 +185,8 @@ public class TieLineTest {
 
         createBus(s2vl1, "S2VL1-BUS");
 
-        BranchReorientedParameters brp1 = new BranchReorientedParameters(0.019, 0.059, 0.02000, 0.050 * 0.5 + 0.05000,
-            0.03000, 0.050 * 0.5 + 0.04000, isLine1Reoriented(boundarySide1));
-        BranchReorientedParameters brp2 = new BranchReorientedParameters(0.038, 0.118, 0.01500, 0.050 * 0.5 + 0.02500,
-            0.02500, 0.050 * 0.5 + 0.05500, isLine2Reoriented(boundarySide2));
+        BranchReorientedParameters brp1 = new BranchReorientedParameters(0.019, 0.059, 0.02, 0.075, 0.03, 0.065, isLine1Reoriented(boundarySide1));
+        BranchReorientedParameters brp2 = new BranchReorientedParameters(0.038, 0.118, 0.015, 0.050, 0.025, 0.080, isLine2Reoriented(boundarySide2));
 
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())

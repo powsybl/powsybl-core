@@ -148,7 +148,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
-    // TODO support transformer + Line
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
         BranchReorientedParameters brp1 = new BranchReorientedParameters(boundaryLine1.getR(), boundaryLine1.getX(),
