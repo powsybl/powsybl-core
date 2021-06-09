@@ -26,19 +26,14 @@ import org.apache.commons.math3.complex.ComplexUtils;
  */
 public class SV {
 
-    //
-    // | Y11 Y12 ||V1|   |I1|
-    // |         ||  | = |  |
-    // | Y21 Y22 ||V2|   |I2|
-    //
-    // I1 = S1* / V1* and I2 = S2* / V2*
-    //
-
     /**
-     * In this class, lines, two windings transformers, half line and dangling lines can be considered as equivalent branches (TODO: add SVG of generic branch model)
-     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side.
-     * For half lines, if the half line is on the side ONE of its tie line, side ONE is on network's side and side TWO is on boundary's side;
-     * if the half line is on the side TWO of its tie line, side ONE is on boundary's side and side TWO is on network's side. (TODO: add SVG of tie line and comment)
+     * In this class, lines, two windings transformers, half line and dangling lines can be considered as equivalent branches.
+     * <p><div>
+     * <object data="doc-files/SV.svg" type="image/svg+xml">
+     * </object> </div>
+     * For dangling lines, side ONE is always on network's side and side TWO is always on boundary's side. <br>
+     * For half lines, if the half line is on the side ONE of its tie line, side ONE is on network's side and side TWO is on boundary's side; <br>
+     * if the half line is on the side TWO of its tie line, side ONE is on boundary's side and side TWO is on network's side.
      * @param p active power flow on the side of the branch we consider.
      * @param q reactive power flow on the side of the branch we consider
      * @param u voltage on the side of the branch we consider.

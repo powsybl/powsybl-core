@@ -149,14 +149,12 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         double previousLimit = Double.NaN;
         for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
             if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greather than permanent limit", owner.getMessageHeader());
+                LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
             }
             if (Double.isNaN(previousLimit)) {
                 previousLimit = tl.getValue();
-            } else {
-                if (tl.getValue() <= previousLimit) {
-                    LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
-                }
+            } else if (tl.getValue() <= previousLimit) {
+                LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
             }
         }
         // check name unicity
