@@ -589,7 +589,7 @@
     <cim:IdentifiedObject.name>30-38_0</cim:IdentifiedObject.name>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
     <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_def17739-0126-4d31-98e8-da946e063c5b" />
+    <cim:Terminal.ConnectivityNode rdf:resource="#_e39fd8bc-9500-49ca-b1bf-e96ba1c2ac0a" />
     <cim:Terminal.ConductingEquipment rdf:resource="#_b08e9e50-4e0c-4ac0-9f21-4a27429caeb2" />
   </cim:Terminal>
   <cim:Terminal rdf:ID="_04479fea-c766-11e1-8775-005056c00008">
@@ -13848,157 +13848,6 @@
     <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage" />
     <cim:RegulatingControl.Terminal rdf:resource="#_04607f19-c766-11e1-8775-005056c00008" />
   </cim:RegulatingControl>
-  <cim:CsConverter rdf:ID="_7393a68f-c4e6-48dd-9347-543858363fdb">
-    <cim:IdentifiedObject.name>Conv1b</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_d68844a9-2c41-4798-9f83-5fdf4d1f3955" />
-    <cim:ACDCConverter.baseS>68.8</cim:ACDCConverter.baseS>
-    <cim:ACDCConverter.idleLoss>0</cim:ACDCConverter.idleLoss>
-    <cim:ACDCConverter.maxUdc>520</cim:ACDCConverter.maxUdc>
-    <cim:ACDCConverter.minUdc>390</cim:ACDCConverter.minUdc>
-    <cim:ACDCConverter.ratedUdc>480</cim:ACDCConverter.ratedUdc>
-    <cim:ACDCConverter.resistiveLoss>0</cim:ACDCConverter.resistiveLoss>
-    <cim:ACDCConverter.switchingLoss>0</cim:ACDCConverter.switchingLoss>
-    <cim:CsConverter.maxAlpha>30</cim:CsConverter.maxAlpha>
-    <cim:CsConverter.minAlpha>5</cim:CsConverter.minAlpha>
-    <cim:CsConverter.ratedIdc>120</cim:CsConverter.ratedIdc>
-  </cim:CsConverter>
-  <cim:Terminal rdf:ID="_739658a8-e08b-4395-8d79-93e87b7855e3">
-    <cim:IdentifiedObject.name>ConvTerm1b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_a1b184cb-b033-4674-aef5-1e3476566812" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_7393a68f-c4e6-48dd-9347-543858363fdb" />
-  </cim:Terminal>
- <cim:ACDCConverterDCTerminal rdf:ID="_7780ec9f-6743-4c53-aac2-f123637d5274">
-    <cim:IdentifiedObject.name>dcTerm11b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_d6fde9fc-7f90-43c5-b0a4-f930c46f52d3" />
-    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_7393a68f-c4e6-48dd-9347-543858363fdb" />
-  </cim:ACDCConverterDCTerminal>
-  <cim:ConnectivityNode rdf:ID="_a1b184cb-b033-4674-aef5-1e3476566812">
-    <cim:IdentifiedObject.name>CONNECTIVITY_NODE1220b</cim:IdentifiedObject.name>
-    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_3bbfa58a-a1ad-4b23-a526-3d76b096c1f4" />
-  </cim:ConnectivityNode>
-  <cim:Disconnector rdf:ID="_4d08a685-cdcb-484a-a767-03b10f4ada7f">
-    <cim:IdentifiedObject.name>DISCONNECTOR735b</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_f27980e9-e5c4-4165-b940-ded3f9e4eebd" />
-    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_31909ded-528f-46af-92a7-d47839d529bc" />
-    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-    <cim:Switch.retained>false</cim:Switch.retained>
-  </cim:Disconnector>
-  <cim:Terminal rdf:ID="_ee96be75-4d86-4eb1-9150-2d594bfcfe1d">
-    <cim:IdentifiedObject.name>Term1_ADD_DSC11b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:ACDCTerminal.BusNameMarker rdf:resource="#_bfdf3593-2e04-eb73-a1be-698076a77c4d" />
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_a1b184cb-b033-4674-aef5-1e3476566812" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_4d08a685-cdcb-484a-a767-03b10f4ada7f" />
-  </cim:Terminal>
-  <cim:Terminal rdf:ID="_8cb24cbb-8dff-4ef9-9ba5-dbdb086e77e0">
-    <cim:IdentifiedObject.name>Term1_ADD_DSC12b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_32e14314-e376-4871-9433-89d611c35f2d" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_4d08a685-cdcb-484a-a767-03b10f4ada7f" />
-  </cim:Terminal>
-  <cim:ConnectivityNode rdf:ID="_32e14314-e376-4871-9433-89d611c35f2d">
-    <cim:IdentifiedObject.name>CONNECTIVITY_NODE1221b</cim:IdentifiedObject.name>
-    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_f27980e9-e5c4-4165-b940-ded3f9e4eebd" />
-  </cim:ConnectivityNode>
-  <cim:PowerTransformer rdf:ID="_b08e9e51-4e0c-4ac0-9f21-4a27429caeb2">
-    <cim:IdentifiedObject.name>PowTrans1b</cim:IdentifiedObject.name>
-    <cim:Equipment.aggregate>false</cim:Equipment.aggregate>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_0466e7ba-c766-11e1-8775-005056c00008" />
-  </cim:PowerTransformer>
-  <cim:PowerTransformerEnd rdf:ID="_f6e9c314-d8c9-4d2f-85bc-e42a40ad56de">
-    <cim:IdentifiedObject.name>PowTransEnd12b</cim:IdentifiedObject.name>
-    <cim:TransformerEnd.endNumber>1</cim:TransformerEnd.endNumber>
-    <cim:TransformerEnd.Terminal rdf:resource="#_a5bf9703-545a-437d-9663-773550202828" />
-    <cim:TransformerEnd.BaseVoltage rdf:resource="#_31909ded-528f-46af-92a7-d47839d529bc" />
-    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
-    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y" />
-    <cim:PowerTransformerEnd.ratedS>500</cim:PowerTransformerEnd.ratedS>
-    <cim:PowerTransformerEnd.ratedU>400</cim:PowerTransformerEnd.ratedU>
-    <cim:PowerTransformerEnd.r>1.6</cim:PowerTransformerEnd.r>
-    <cim:PowerTransformerEnd.x>60</cim:PowerTransformerEnd.x>
-    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_b08e9e51-4e0c-4ac0-9f21-4a27429caeb2" />
-  </cim:PowerTransformerEnd>
-  <cim:PowerTransformerEnd rdf:ID="_917b6724-a6d0-429e-b26c-00a49333ccf6">
-    <cim:IdentifiedObject.name>PowTransend11b</cim:IdentifiedObject.name>
-    <cim:TransformerEnd.endNumber>2</cim:TransformerEnd.endNumber>
-    <cim:TransformerEnd.Terminal rdf:resource="#_046ba2ab-c766-11e1-8775-005056c00008" />
-    <cim:TransformerEnd.BaseVoltage rdf:resource="#_60ee59f3-5ed7-4551-b623-f4346554b22a" />
-    <cim:PowerTransformerEnd.b>0</cim:PowerTransformerEnd.b>
-    <cim:PowerTransformerEnd.connectionKind rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#WindingConnection.Y" />
-    <cim:PowerTransformerEnd.ratedS>500</cim:PowerTransformerEnd.ratedS>
-    <cim:PowerTransformerEnd.ratedU>220</cim:PowerTransformerEnd.ratedU>
-    <cim:PowerTransformerEnd.r>0</cim:PowerTransformerEnd.r>
-    <cim:PowerTransformerEnd.x>0</cim:PowerTransformerEnd.x>
-    <cim:PowerTransformerEnd.PowerTransformer rdf:resource="#_b08e9e51-4e0c-4ac0-9f21-4a27429caeb2" />
-  </cim:PowerTransformerEnd>
-  <cim:Terminal rdf:ID="_a5bf9703-545a-437d-9663-773550202828">
-    <cim:IdentifiedObject.name>Term1b</cim:IdentifiedObject.name>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_32e14314-e376-4871-9433-89d611c35f2d" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_b08e9e51-4e0c-4ac0-9f21-4a27429caeb2" />
-  </cim:Terminal>
-  <cim:Terminal rdf:ID="_046ba2ab-c766-11e1-8775-005056c00008">
-    <cim:IdentifiedObject.name>30-38_0b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_bc3d6c41-baa4-4273-aee9-44a4ae68335c" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_b08e9e51-4e0c-4ac0-9f21-4a27429caeb2" />
-  </cim:Terminal>
-  <cim:CsConverter rdf:ID="_9793118e-5ba1-4a9c-b2e0-db1d15be5913">
-    <cim:IdentifiedObject.name>Conv2b</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_cfff319b-96bb-4e41-af91-9c2071a5b6f3" />
-    <cim:ACDCConverter.baseS>84.4</cim:ACDCConverter.baseS>
-    <cim:ACDCConverter.idleLoss>0</cim:ACDCConverter.idleLoss>
-    <cim:ACDCConverter.maxUdc>520</cim:ACDCConverter.maxUdc>
-    <cim:ACDCConverter.minUdc>390</cim:ACDCConverter.minUdc>
-    <cim:ACDCConverter.ratedUdc>480</cim:ACDCConverter.ratedUdc>
-    <cim:ACDCConverter.resistiveLoss>0</cim:ACDCConverter.resistiveLoss>
-    <cim:ACDCConverter.switchingLoss>0</cim:ACDCConverter.switchingLoss>
-    <cim:CsConverter.maxGamma>30</cim:CsConverter.maxGamma>
-    <cim:CsConverter.minGamma>5</cim:CsConverter.minGamma>
-    <cim:CsConverter.ratedIdc>120</cim:CsConverter.ratedIdc>
-  </cim:CsConverter>
-  <cim:Terminal rdf:ID="_453bdc58-5855-4eb5-8712-d6a0255e0da8">
-    <cim:IdentifiedObject.name>ConvTerm2b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_f36dc205-a4b4-4fc2-b855-2436fd93ae34" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_9793118e-5ba1-4a9c-b2e0-db1d15be5913" />
-  </cim:Terminal>
- <cim:ACDCConverterDCTerminal rdf:ID="_c4af08e1-9608-4654-b74f-e359a7a29dfc">
-    <cim:IdentifiedObject.name>dcTerm21b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:DCBaseTerminal.DCNode rdf:resource="#_438f8a65-7c69-4881-a1f3-7b8f788eae70" />
-    <cim:ACDCConverterDCTerminal.DCConductingEquipment rdf:resource="#_9793118e-5ba1-4a9c-b2e0-db1d15be5913" />
-  </cim:ACDCConverterDCTerminal>
-  <cim:ConnectivityNode rdf:ID="_f36dc205-a4b4-4fc2-b855-2436fd93ae34">
-    <cim:IdentifiedObject.name>CONNECTIVITY_NODE1224b</cim:IdentifiedObject.name>
-    <cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_04f97116-552a-4a34-afd9-4862f62ac7aa" />
-  </cim:ConnectivityNode>
-  <cim:Disconnector rdf:ID="_71f8df71-c805-42fc-9a09-c9527e6f8175">
-    <cim:IdentifiedObject.name>DISCONNECTOR737b</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_04dc60a2-9606-4b44-8601-250dbafd4817" />
-    <cim:ConductingEquipment.BaseVoltage rdf:resource="#_31909ded-528f-46af-92a7-d47839d529bc" />
-    <cim:Switch.normalOpen>false</cim:Switch.normalOpen>
-    <cim:Switch.retained>false</cim:Switch.retained>
-  </cim:Disconnector>
-  <cim:Terminal rdf:ID="_89c3d445-cf42-4e48-9825-96160ba9895f">
-    <cim:IdentifiedObject.name>Term2_ADD_DSC11b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
-    <cim:ACDCTerminal.BusNameMarker rdf:resource="#_e0e9fdc5-2500-289f-7d26-d4134dfac1b4" />
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_f36dc205-a4b4-4fc2-b855-2436fd93ae34" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_71f8df71-c805-42fc-9a09-c9527e6f8175" />
-  </cim:Terminal>
-  <cim:Terminal rdf:ID="_09c871ab-e7a9-40ac-9580-ed616b994397">
-    <cim:IdentifiedObject.name>Term2_ADD_DSC12b</cim:IdentifiedObject.name>
-    <cim:ACDCTerminal.sequenceNumber>2</cim:ACDCTerminal.sequenceNumber>
-    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC" />
-    <cim:Terminal.ConnectivityNode rdf:resource="#_5479e7fd-52b8-4d90-94e0-dba227c04239" />
-    <cim:Terminal.ConductingEquipment rdf:resource="#_71f8df71-c805-42fc-9a09-c9527e6f8175" />
-  </cim:Terminal>
   <cim:CsConverter rdf:ID="_7393a68e-c4e6-48dd-9347-543858363fdb">
     <cim:IdentifiedObject.name>Conv1</cim:IdentifiedObject.name>
     <cim:Equipment.EquipmentContainer rdf:resource="#_d68844a9-2c41-4798-9f83-5fdf4d1f3955" />
@@ -14144,7 +13993,7 @@
   </cim:Terminal>
   <cim:Terminal rdf:ID="_a5bf9702-545a-437d-9663-773550202828">
     <cim:IdentifiedObject.name>Term1</cim:IdentifiedObject.name>
-    <cim:Terminal.ConnectivityNode rdf:resource="#_c3a38204-0da8-4752-90e0-80daab0860a8" />
+    <cim:Terminal.ConnectivityNode rdf:resource="#_a1b184ca-b033-4674-aef5-1e3476566812" />
     <cim:Terminal.ConductingEquipment rdf:resource="#_b08e9e50-4e0c-4ac0-9f21-4a27429caeb2" />
   </cim:Terminal>
   <cim:PowerTransformerEnd rdf:ID="_f6e9c313-d8c9-4d2f-85bc-e42a40ad56de">
