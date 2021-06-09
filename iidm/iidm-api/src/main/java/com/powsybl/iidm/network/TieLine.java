@@ -145,12 +145,12 @@ package com.powsybl.iidm.network;
  * Depending on the initial orientation of the links,
  * none, only one or maybe both links must be reoriented before mapping them to the half lines. <br>
  * Each link can be: <br>
- * <ol>
+ * <ul>
  <li>A line.</li>
  <li>A Breaker or Disconnector.</li>
  <li>An equivalent branch.</li>
  <li>A transformer with fixed ratio and zero phase shift angle.</li>
-</ol>
+</ul>
  * </p>
  *
  * <p><div>
