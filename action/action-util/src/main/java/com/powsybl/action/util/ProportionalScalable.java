@@ -141,7 +141,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             double iterationPercentage = scalablePercentage.getIterationPercentage();
             double askedOnScalable = iterationPercentage / 100 * asked;
             double doneOnScalable = 0;
-            if (constantPowerFactor && s instanceof LoadScalable) {
+            if (constantPowerFactor) {
                 doneOnScalable = s.scaleWithConstantPowerFactor(n, askedOnScalable);
             } else {
                 doneOnScalable = s.scale(n, askedOnScalable, scalingConvention);
