@@ -9,25 +9,25 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.Discretes;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class DiscretesAdderImplProvider<I extends Identifiable<I>> implements ExtensionAdderProvider<I, Discretes<I>, DiscretesAdderImpl<I>> {
+public class DiscretesAdderImplProvider<I extends Identifiable<I>> implements ExtensionAdderProvider<I, DiscreteMeasurements<I>, DiscreteMeasurementsAdderImpl<I>> {
     @Override
     public String getImplementationName() {
         return "Default";
     }
 
     @Override
-    public Class<? super DiscretesAdderImpl<I>> getAdderClass() {
-        return DiscretesAdderImpl.class;
+    public Class<? super DiscreteMeasurementsAdderImpl<I>> getAdderClass() {
+        return DiscreteMeasurementsAdderImpl.class;
     }
 
     @Override
-    public DiscretesAdderImpl<I> newAdder(I extendable) {
-        return new DiscretesAdderImpl<>(extendable);
+    public DiscreteMeasurementsAdderImpl<I> newAdder(I extendable) {
+        return new DiscreteMeasurementsAdderImpl<>(extendable);
     }
 }

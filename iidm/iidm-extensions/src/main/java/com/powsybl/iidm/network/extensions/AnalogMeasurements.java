@@ -7,23 +7,23 @@
 package com.powsybl.iidm.network.extensions;
 
 import com.powsybl.commons.extensions.Extension;
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Connectable;
 
 import java.util.Collection;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface Discretes<I extends Identifiable<I>> extends Extension<I> {
+public interface AnalogMeasurements<C extends Connectable<C>> extends Extension<C> {
 
     @Override
     default String getName() {
-        return "discretes";
+        return "analogs";
     }
 
-    Collection<Discrete> getDiscretes();
+    Collection<AnalogMeasurement> getAnalogMeasurements();
 
-    Discrete getDiscrete(String id);
+    AnalogMeasurement getAnalogMeasurement(String id);
 
-    DiscreteAdder newDiscrete();
+    AnalogMeasurementAdder newAnalogMeasurement();
 }

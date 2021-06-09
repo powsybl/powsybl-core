@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.extensions;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface Analog {
+public interface AnalogMeasurement {
 
     enum Side {
         ONE,
@@ -25,6 +25,10 @@ public interface Analog {
         PHASE_VOLTAGE,
         LINE_TO_LINE_VOLTAGE,
         ANGLE,
+        ACTIVE_POWER,
+        REACTIVE_POWER,
+        CURRENT,
+        VOLTAGE,
         OTHER
     }
 
@@ -34,9 +38,13 @@ public interface Analog {
 
     Object getProperty(String name);
 
-    Analog putProperty(String name, Object property);
+    AnalogMeasurement putProperty(String name, Object property);
 
     double getValue();
+
+    boolean isValid();
+
+    AnalogMeasurement setValid(boolean valid);
 
     Side getSide();
 }

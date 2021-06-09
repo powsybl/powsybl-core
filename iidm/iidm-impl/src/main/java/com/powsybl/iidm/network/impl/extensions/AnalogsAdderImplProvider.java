@@ -9,25 +9,25 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionAdderProvider;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.Analogs;
+import com.powsybl.iidm.network.extensions.AnalogMeasurements;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class AnalogsAdderImplProvider<C extends Connectable<C>> implements ExtensionAdderProvider<C, Analogs<C>, AnalogsAdderImpl<C>> {
+public class AnalogsAdderImplProvider<C extends Connectable<C>> implements ExtensionAdderProvider<C, AnalogMeasurements<C>, AnalogMeasurementsAdderImpl<C>> {
     @Override
     public String getImplementationName() {
         return "Default";
     }
 
     @Override
-    public Class<? super AnalogsAdderImpl<C>> getAdderClass() {
-        return AnalogsAdderImpl.class;
+    public Class<? super AnalogMeasurementsAdderImpl<C>> getAdderClass() {
+        return AnalogMeasurementsAdderImpl.class;
     }
 
     @Override
-    public AnalogsAdderImpl<C> newAdder(C extendable) {
-        return new AnalogsAdderImpl<>(extendable);
+    public AnalogMeasurementsAdderImpl<C> newAdder(C extendable) {
+        return new AnalogMeasurementsAdderImpl<>(extendable);
     }
 }

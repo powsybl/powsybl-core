@@ -12,10 +12,10 @@ import com.powsybl.iidm.network.Connectable;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface AnalogsAdder<C extends Connectable<C>> extends ExtensionAdder<C, Analogs<C>> {
+public interface AnalogMeasurementsAdder<C extends Connectable<C>> extends ExtensionAdder<C, AnalogMeasurements<C>> {
 
     @Override
-    default Class<Analogs> getExtensionClass() {
-        return Analogs.class;
+    default Class<AnalogMeasurements> getExtensionClass() {
+        return AnalogMeasurements.class;
     }
 }

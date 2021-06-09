@@ -8,20 +8,20 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.extensions.Discretes;
-import com.powsybl.iidm.network.extensions.DiscretesAdder;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class DiscretesAdderImpl<I extends Identifiable<I>> extends AbstractExtensionAdder<I, Discretes<I>> implements DiscretesAdder<I> {
+class DiscreteMeasurementsAdderImpl<I extends Identifiable<I>> extends AbstractExtensionAdder<I, DiscreteMeasurements<I>> implements DiscreteMeasurementsAdder<I> {
 
-    DiscretesAdderImpl(I extendable) {
+    DiscreteMeasurementsAdderImpl(I extendable) {
         super(extendable);
     }
 
     @Override
-    protected Discretes<I> createExtension(I extendable) {
-        return new DiscretesImpl<>();
+    protected DiscreteMeasurements<I> createExtension(I extendable) {
+        return new DiscreteMeasurementsImpl<>();
     }
 }

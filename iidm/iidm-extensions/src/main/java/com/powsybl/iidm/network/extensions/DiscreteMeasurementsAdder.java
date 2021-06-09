@@ -6,20 +6,16 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.iidm.network.Identifiable;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface AnalogAdder {
+public interface DiscreteMeasurementsAdder<I extends Identifiable<I>> extends ExtensionAdder<I, DiscreteMeasurements<I>> {
 
-    AnalogAdder setId(String id);
-
-    AnalogAdder putProperty(String name, Object property);
-
-    AnalogAdder setType(Analog.Type type);
-
-    AnalogAdder setValue(double value);
-
-    AnalogAdder setSide(Analog.Side side);
-
-    Analogs add();
+    @Override
+    default Class<DiscreteMeasurements> getExtensionClass() {
+        return DiscreteMeasurements.class;
+    }
 }

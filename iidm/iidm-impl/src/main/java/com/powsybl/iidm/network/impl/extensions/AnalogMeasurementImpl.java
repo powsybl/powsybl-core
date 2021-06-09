@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.impl.extensions;
-import com.powsybl.iidm.network.extensions.Analog;
+import com.powsybl.iidm.network.extensions.AnalogMeasurement;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -13,19 +13,22 @@ import java.util.Properties;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class AnalogImpl implements Analog {
+class AnalogMeasurementImpl implements AnalogMeasurement {
 
     private final String id;
-    private final Analog.Type type;
+    private final AnalogMeasurement.Type type;
     private final Properties properties = new Properties();
-    private final double value;
-    private final Analog.Side side;
+    private final AnalogMeasurement.Side side;
 
-    AnalogImpl(String id, Analog.Type type, Properties properties, double value, Analog.Side side) {
+    private double value;
+    private boolean valid;
+
+    AnalogMeasurementImpl(String id, AnalogMeasurement.Type type, Properties properties, double value, boolean valid, AnalogMeasurement.Side side) {
         this.id = id;
         this.type = type;
         this.properties.putAll(properties);
         this.value = value;
+        this.valid = valid;
         this.side = side;
     }
 
@@ -45,7 +48,7 @@ class AnalogImpl implements Analog {
     }
 
     @Override
-    public Analog putProperty(String name, Object property) {
+    public AnalogMeasurement putProperty(String name, Object property) {
         properties.put(Objects.requireNonNull(name), property);
         return this;
     }
@@ -53,6 +56,17 @@ class AnalogImpl implements Analog {
     @Override
     public double getValue() {
         return value;
+    }
+
+    @Override
+    public boolean isValid() {
+        return valid;
+    }
+
+    @Override
+    public AnalogMeasurement setValid(boolean valid) {
+        this.valid = valid;
+        return this;
     }
 
     @Override

@@ -11,9 +11,9 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.Discrete;
-import com.powsybl.iidm.network.extensions.DiscreteAdder;
-import com.powsybl.iidm.network.extensions.Discretes;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -21,70 +21,77 @@ import java.util.Properties;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class DiscreteAdderImpl implements DiscreteAdder {
+class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
-    private final DiscretesImpl discretes;
+    private final DiscreteMeasurementsImpl discretes;
     private final Properties properties = new Properties();
 
     private String id;
-    private Discrete.Type type;
+    private DiscreteMeasurement.Type type;
     private String valueAsString;
     private int valueAsInt = -1;
+    private boolean valid = true;
 
-    DiscreteAdderImpl(DiscretesImpl discretes) {
+    DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl discretes) {
         this.discretes = Objects.requireNonNull(discretes);
     }
 
     @Override
-    public DiscreteAdder setId(String id) {
+    public DiscreteMeasurementAdder setId(String id) {
         this.id = id;
         return this;
     }
 
     @Override
-    public DiscreteAdder putProperty(String name, Object value) {
+    public DiscreteMeasurementAdder putProperty(String name, Object value) {
         properties.put(Objects.requireNonNull(name), value);
         return this;
     }
 
     @Override
-    public DiscreteAdder setType(Discrete.Type type) {
+    public DiscreteMeasurementAdder setType(DiscreteMeasurement.Type type) {
         this.type = type;
         return this;
     }
 
     @Override
-    public DiscreteAdder setStringValue(String value) {
+    public DiscreteMeasurementAdder setStringValue(String value) {
         this.valueAsString = value;
         return this;
     }
 
     @Override
-    public DiscreteAdder setIntValue(int value) {
+    public DiscreteMeasurementAdder setIntValue(int value) {
         this.valueAsInt = value;
         return this;
     }
 
     @Override
-    public Discretes add() {
-        checkType(type, (Identifiable) discretes.getExtendable());
-        checkValues(valueAsString, valueAsInt);
-        return discretes.addDiscrete(new DiscreteImpl(id, type, properties, valueAsString, valueAsInt));
+    public DiscreteMeasurementAdder setValid(boolean valid) {
+        this.valid = valid;
+        return this;
     }
 
-    private static void checkType(Discrete.Type type, Identifiable i) {
+    @Override
+    public DiscreteMeasurements add() {
+        checkType(type, (Identifiable) discretes.getExtendable());
+        checkValues(valueAsString, valueAsInt);
+        return discretes.addDiscrete(new DiscreteMeasurementImpl(id, type, properties, valueAsString, valueAsInt, valid));
+    }
+
+    private static void checkType(DiscreteMeasurement.Type type, Identifiable i) {
         Objects.requireNonNull(type);
-        if (type == Discrete.Type.SWITCH_POSITION && !(i instanceof Switch)) {
+        if (type == DiscreteMeasurement.Type.SWITCH_POSITION && !(i instanceof Switch)) {
             throw new PowsyblException("SWITCH_POSITION discrete not linked to a switch");
         }
-        if (type == Discrete.Type.TAP_POSITION && !(i instanceof TwoWindingsTransformer || i instanceof ThreeWindingsTransformer)) {
+        if (type == DiscreteMeasurement.Type.TAP_POSITION && !(i instanceof TwoWindingsTransformer || i instanceof ThreeWindingsTransformer)) {
             throw new PowsyblException("TAP_POSITION discrete not linked to a transformer");
         }
     }
 
     private static void checkValues(String valueAsString, int valueAsInt) {
         if (valueAsString == null && valueAsInt == -1) {
-            throw new PowsyblException("A string or an integer value must be defined for Discrete");
+            throw new PowsyblException("A string or an integer value must be defined for DiscreteMeasurement");
         }
     }
 }
