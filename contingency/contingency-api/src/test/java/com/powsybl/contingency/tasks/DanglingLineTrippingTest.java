@@ -29,7 +29,7 @@ public class DanglingLineTrippingTest extends AbstractTrippingTest {
     }
 
     @Test
-    public void generatorTrippingTest() {
+    public void dlTrippingTest() {
         assertTrue(network.getDanglingLine("DL").getTerminal().isConnected());
 
         Contingency contingency = Contingency.danglingLine("DL");
@@ -41,7 +41,7 @@ public class DanglingLineTrippingTest extends AbstractTrippingTest {
     }
 
     @Test(expected = PowsyblException.class)
-    public void unknownShuntCompensatorTest() {
+    public void unknownDlTest() {
         DanglingLineTripping tripping = new DanglingLineTripping("DL_THAT_DO_NOT_EXIST");
         tripping.modify(network, null);
     }
