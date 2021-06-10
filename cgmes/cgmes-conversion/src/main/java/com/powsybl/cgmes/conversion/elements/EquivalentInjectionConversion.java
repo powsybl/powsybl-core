@@ -114,14 +114,6 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         convertReactiveLimits(g);
     }
 
-    private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : 0.0;
-    }
-
-    private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : 0.0;
-    }
-
     static class Regulation {
         private boolean status;
         private double targetV;

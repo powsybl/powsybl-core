@@ -36,12 +36,4 @@ public class EnergySourceConversion extends AbstractConductingEquipmentConversio
         addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
     }
-
-    private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : 0.0;
-    }
-
-    private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : 0.0;
-    }
 }

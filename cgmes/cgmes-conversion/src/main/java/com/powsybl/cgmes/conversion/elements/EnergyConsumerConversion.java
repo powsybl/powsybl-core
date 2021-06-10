@@ -39,14 +39,6 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         setLoadDetail(loadKind, load);
     }
 
-    private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
-    }
-
-    private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
-    }
-
     private static void setLoadDetail(String type, Load load) {
         if (type.endsWith("#ConformLoad")) { // ConformLoad represent loads that follow a daily load change pattern where the pattern can be used to scale the load with a system load
             load.newExtension(LoadDetailAdder.class)
