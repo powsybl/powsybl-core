@@ -720,7 +720,10 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        float nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
+        float nominalPower = Float.NaN;
+        if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
+            nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
+        }
 
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,

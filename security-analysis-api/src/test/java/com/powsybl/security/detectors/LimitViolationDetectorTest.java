@@ -109,6 +109,14 @@ public class LimitViolationDetectorTest {
             public void checkVoltage(Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(null, bus, consumer);
             }
+
+            @Override
+            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
+
+            @Override
+            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
         };
     }
 
@@ -122,6 +130,19 @@ public class LimitViolationDetectorTest {
             @Override
             public void checkVoltage(Contingency contingency, Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
                 doCheckVoltage(contingency, bus, consumer);
+            }
+
+            @Override
+            public void checkActivePower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
+
+            @Override
+            public void checkApparentPower(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+            }
+
+            @Override
+            public void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+
             }
         };
     }

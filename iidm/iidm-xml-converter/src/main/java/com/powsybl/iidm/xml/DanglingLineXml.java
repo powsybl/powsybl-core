@@ -156,14 +156,14 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
             switch (context.getReader().getLocalName()) {
                 case ACTIVE_POWER_LIMITS:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl::newActivePowerLimits, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(null, dl.newActivePowerLimits(), context.getReader()));
                     break;
                 case APPARENT_POWER_LIMITS:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(null, dl::newApparentPowerLimits, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(null, dl.newApparentPowerLimits(), context.getReader()));
                     break;
                 case "currentLimits":
-                    readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
+                    readCurrentLimits(null, dl.newCurrentLimits(), context.getReader());
                     break;
                 case "reactiveCapabilityCurve":
                 case "minMaxReactiveLimits":

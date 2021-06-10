@@ -868,7 +868,9 @@ public class UcteImporter implements Importer {
     }
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
+        if (!Float.isNaN(transformer.getNominalPower())) {
+            twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
+        }
     }
 
     private static void addXnodeStatusProperty(UcteNode ucteNode, Identifiable identifiable) {

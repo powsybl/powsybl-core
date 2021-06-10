@@ -6,10 +6,7 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
@@ -20,6 +17,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -124,5 +122,123 @@ public class DefaultLimitViolationDetectorTest {
                     assertNull(v.getSide());
                     assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
                 });
+    }
+
+    @Test
+    public void detectPermanentActivePowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+        line2 = network.getLine("NHV1_NHV2_2");
+
+        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1100, l.getLimit(), 0d);
+                      assertEquals(1101, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectPermanentApparentPowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+        line2 = network.getLine("NHV1_NHV2_2");
+
+        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1100, l.getLimit(), 0d);
+                      assertEquals(1101, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectTemporaryActivePowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+
+        detector.checkTemporary(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1200, l.getLimit(), 0d);
+                      assertEquals(1201, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectTemporaryApparentPowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+
+        detector.checkTemporary(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1200, l.getLimit(), 0d);
+                      assertEquals(1201, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectAllActivePowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkActivePower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1200, l.getLimit(), 0d);
+                      assertEquals(1201, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void detectAllApparentPowerLimitOnSide2OfLine1() {
+
+        network = EurostagTutorialExample1Factory.createWithFixedLimits();
+        line1 = network.getLine("NHV1_NHV2_1");
+
+        DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+        cdetector.checkApparentPower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
+
+        Assertions.assertThat(violationsCollector)
+                  .hasSize(1)
+                  .allSatisfy(l -> {
+                      assertEquals(1200, l.getLimit(), 0d);
+                      assertEquals(1201, l.getValue(), 0d);
+                      assertSame(Branch.Side.ONE, l.getSide());
+                  });
+    }
+
+    @Test
+    public void testCheckLimitViolationUnsupportedVoltage() {
+
+        assertThrows(UnsupportedOperationException.class, () -> {
+            network = EurostagTutorialExample1Factory.createWithFixedLimits();
+            line1 = network.getLine("NHV1_NHV2_1");
+
+            DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
+            cdetector.checkLimitViolation(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.VOLTAGE);
+        });
     }
 }
