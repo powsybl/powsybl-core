@@ -112,7 +112,7 @@ public class PsseExporter implements Exporter {
         //updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
         //updatePsseModel.addGenerators(psseModel.getGenerators());
         //updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
-        updatePsseModel.addTransformers(psseModel.getTransformers());
+        //updatePsseModel.addTransformers(psseModel.getTransformers());
         updatePsseModel.addAreas(psseModel.getAreas());
         updatePsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
         updatePsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
@@ -134,6 +134,7 @@ public class PsseExporter implements Exporter {
         FixedShuntCompensatorConverter.updateFixedShunts(network, psseModel, updatePsseModel);
         GeneratorConverter.updateGenerators(network, psseModel, updatePsseModel);
         LineConverter.updateLines(network, psseModel, updatePsseModel);
+        TransformerConverter.updateTransformers(network, psseModel, updatePsseModel);
         SwitchedShuntCompensatorConverter.updateSwitchedShunts(network, psseModel, updatePsseModel);
     }
 }

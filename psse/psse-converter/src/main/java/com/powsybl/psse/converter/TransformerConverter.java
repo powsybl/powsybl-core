@@ -860,8 +860,8 @@ public class TransformerConverter extends AbstractConverter {
         if (tw2t == null) {
             updatePsseTransformer.setStat(0);
         } else {
-            //updatePsseTransformer.getWinding1().setWindv(defineWindV(1.0 / getRho(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
-            //updatePsseTransformer.getWinding1().setAng(-getAlpha(tw2t.getPhaseTapChanger()));
+            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            updatePsseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
 
             if (tw2t.getTerminal1().isConnected() && tw2t.getTerminal2().isConnected()) {
                 updatePsseTransformer.setStat(1);
@@ -872,10 +872,38 @@ public class TransformerConverter extends AbstractConverter {
     }
 
     private static void updateThreeWindingsTransformer(Network network, PsseTransformer updatePsseTransformer) {
+        String transformerId = getTransformerId(updatePsseTransformer.getI(), updatePsseTransformer.getJ(), updatePsseTransformer.getK(), updatePsseTransformer.getCkt());
+        ThreeWindingsTransformer tw3t = network.getThreeWindingsTransformer(transformerId);
+        if (tw3t == null) {
+            updatePsseTransformer.setStat(0);
+        } else {
+            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            updatePsseTransformer.getWinding1().setAng(getAngle(tw3t.getLeg1().getPhaseTapChanger()));
+            updatePsseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            updatePsseTransformer.getWinding2().setAng(getAngle(tw3t.getLeg2().getPhaseTapChanger()));
+            updatePsseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            updatePsseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
 
+            updatePsseTransformer.setStat(getTw3tStatus(tw3t));
+        }
     }
 
-    private static double getRho(RatioTapChanger rtc, PhaseTapChanger ptc) {
+    private static int getTw3tStatus(ThreeWindingsTransformer tw3t) {
+        if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().isConnected()
+            && tw3t.getLeg3().getTerminal().isConnected()) {
+            return 1;
+        } else if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().isConnected()) {
+            return 3;
+        } else if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg3().getTerminal().isConnected()) {
+            return 2;
+        } else if (tw3t.getLeg2().getTerminal().isConnected() && tw3t.getLeg3().getTerminal().isConnected()) {
+            return 4;
+        } else {
+            return 0;
+        }
+    }
+
+    private static double getRatio(RatioTapChanger rtc, PhaseTapChanger ptc) {
         double rho = 1.0;
         if (rtc != null) {
             rho = rho * rtc.getCurrentStep().getRho();
@@ -883,13 +911,17 @@ public class TransformerConverter extends AbstractConverter {
         if (ptc != null) {
             rho = rho * ptc.getCurrentStep().getRho();
         }
-        return rho;
+        return 1.0 / rho;
     }
 
-    private static double getAlpha(PhaseTapChanger ptc) {
+    private static double getAngle(PhaseTapChanger ptc) {
         double alpha = 0.0;
         if (ptc != null) {
             alpha = ptc.getCurrentStep().getAlpha();
+        }
+        // To avoid - 0.0
+        if (alpha != 0.0) {
+            return -alpha;
         }
         return alpha;
     }
