@@ -286,6 +286,18 @@ public class ScalableTest {
     }
 
     @Test
+    public void testConstantPowerFactorScaling() {
+        reset();
+        network.getLoad("l1").setQ0(10);
+        network.getLoad("l1").setP0(100);
+        double done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, l1)).scaleWithConstantPowerFactor(network, 100.0);
+        assertEquals(100.0, done, 1e-5);
+        assertEquals(50.0, network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(5.0, network.getLoad("l1").getQ0(), 1e-5);
+        assertEquals(50.0, network.getGenerator("g1").getTargetP(), 1e-5);
+    }
+
+    @Test
     public void testStackScale() {
         //By default ScalingConvention.GENERATOR
         Scalable scalable = Scalable.stack(g1, g2);
