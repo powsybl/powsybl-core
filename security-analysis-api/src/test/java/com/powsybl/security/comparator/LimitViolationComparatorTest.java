@@ -31,14 +31,18 @@ public class LimitViolationComparatorTest {
         LimitViolation line2Violation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, Branch.Side.ONE);
         LimitViolation vl1Violation1 = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
         LimitViolation vl1Violation2 = new LimitViolation("VL1", LimitViolationType.HIGH_SHORT_CIRCUIT_CURRENT, 200.0, 1, 250.0);
+        LimitViolation line1AcPViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        LimitViolation line2AppViolation = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 900.0, 0.95f, 950.0, Branch.Side.ONE);
 
-        List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2);
+        List<LimitViolation> violations = Arrays.asList(line1Violation2, vl1Violation1, line2Violation, line1Violation1, vl1Violation2, line1AcPViolation, line2AppViolation);
         Collections.sort(violations, new LimitViolationComparator());
 
-        assertEquals(line1Violation1, violations.get(0));
-        assertEquals(line1Violation2, violations.get(1));
-        assertEquals(line2Violation, violations.get(2));
-        assertEquals(vl1Violation1, violations.get(3));
-        assertEquals(vl1Violation2, violations.get(4));
+        assertEquals(line1AcPViolation, violations.get(0));
+        assertEquals(line1Violation1, violations.get(1));
+        assertEquals(line1Violation2, violations.get(2));
+        assertEquals(line2AppViolation, violations.get(3));
+        assertEquals(line2Violation, violations.get(4));
+        assertEquals(vl1Violation1, violations.get(5));
+        assertEquals(vl1Violation2, violations.get(6));
     }
 }

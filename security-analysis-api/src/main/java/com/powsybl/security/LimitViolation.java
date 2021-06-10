@@ -207,7 +207,9 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
     }
 
     private static Branch.Side checkSide(LimitViolationType limitType, Branch.Side side) {
-        if (limitType == LimitViolationType.CURRENT) {
+        if (limitType == LimitViolationType.ACTIVE_POWER
+            || limitType == LimitViolationType.APPARENT_POWER
+            || limitType == LimitViolationType.CURRENT) {
             return Objects.requireNonNull(side);
         } else {
             return null;

@@ -86,15 +86,22 @@ public class LimitViolationFilterTest {
         LimitViolation line1Violation = new LimitViolation("LINE1", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 1000.0, 1, 1100.0, Branch.Side.ONE);
         LimitViolation line2Violation = new LimitViolation("LINE2", LimitViolationType.CURRENT, "", Integer.MAX_VALUE, 900.0, 1, 950.0, Branch.Side.TWO);
         LimitViolation vl1Violation = new LimitViolation("VL1", LimitViolationType.HIGH_VOLTAGE, 200.0, 1, 250.0);
+        LimitViolation line1ViolationAcP = new LimitViolation("VL1", LimitViolationType.ACTIVE_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.ONE);
+        LimitViolation line1ViolationApP = new LimitViolation("VL1", LimitViolationType.APPARENT_POWER, "", Integer.MAX_VALUE, 200.0, 1, 250.0, Branch.Side.TWO);
 
         LimitViolationFilter filter = new LimitViolationFilter();
-        List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
-        assertEquals(3, filteredViolations.size());
+        List<LimitViolation> filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP, line1ViolationApP), network);
+        assertEquals(5, filteredViolations.size());
 
         filter = new LimitViolationFilter();
         filter.setViolationTypes(EnumSet.of(LimitViolationType.HIGH_VOLTAGE));
         filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation), network);
         checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.HIGH_VOLTAGE, 220.0, Country.FR, "VL1");
+
+        filter = new LimitViolationFilter();
+        filter.setViolationTypes(EnumSet.of(LimitViolationType.ACTIVE_POWER));
+        filteredViolations = filter.apply(Arrays.asList(line1Violation, line2Violation, vl1Violation, line1ViolationAcP), network);
+        checkFilteredViolations(filteredViolations, network, "VL1", LimitViolationType.ACTIVE_POWER, 220.0, Country.FR, "VL1");
 
         filter = new LimitViolationFilter();
         filter.setMinBaseVoltage(300.0);

@@ -44,6 +44,12 @@ public class LimitViolationEquivalenceTest {
 
         violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
         assertFalse(violationEquivalence.equivalent(violation1, violation2));
+
+        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.ACTIVE_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
+        assertFalse(violationEquivalence.equivalent(violation1, violation2));
+
+        violation2 = new LimitViolation("NHV1_NHV2_2", LimitViolationType.APPARENT_POWER, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.TWO);
+        assertFalse(violationEquivalence.equivalent(violation1, violation2));
     }
 
 }

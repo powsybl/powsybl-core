@@ -7,10 +7,8 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.function.Consumer;
 
@@ -132,6 +130,32 @@ public interface LimitViolationDetector {
     void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
+     * Checks whether the specified active power value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param value         The active power value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkActivePower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+
+    /**
+     * Checks whether the specified apparent power value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     *
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param value         The apparent power value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    void checkApparentPower(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer);
+
+    /**
      * Checks whether the current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
@@ -192,4 +216,69 @@ public interface LimitViolationDetector {
      * @param consumer      Will be fed with possibly created limit violations.
      */
     void checkAll(Network network, Consumer<LimitViolation> consumer);
+
+    /**
+     * Helper function to convert a limit type to a limit violation type
+     *
+     * @param type The limit type to convert.
+     * @return The matching LimitViolationTYpe
+     */
+    default LimitViolationType toLimitViolationType(LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return LimitViolationType.ACTIVE_POWER;
+            case APPARENT_POWER:
+                return LimitViolationType.APPARENT_POWER;
+            case CURRENT:
+                return LimitViolationType.CURRENT;
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Unsupported conversion for %s from limit type to limit violation type.", type.name()));
+        }
+    }
+
+    /**
+     * Generic implementation for permanent limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    default void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        if (LimitViolationUtils.checkPermanentLimit(branch, side, 1.0f, value, type)) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    null,
+                    Integer.MAX_VALUE,
+                    branch.getLimits(type, side).getPermanentLimit(),
+                    1.0f,
+                    value,
+                    side));
+        }
+    }
+
+    /**
+     * Generic implementation for temporary limit checks
+     * @param branch
+     * @param side
+     * @param value
+     * @param consumer
+     * @param type
+     */
+    default void checkTemporary(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer, LimitType type) {
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, 1.0f, value, type);
+        if (overload != null) {
+            consumer.accept(new LimitViolation(branch.getId(),
+                    ((Branch<?>) branch).getOptionalName().orElse(null),
+                    toLimitViolationType(type),
+                    overload.getPreviousLimitName(),
+                    overload.getTemporaryLimit().getAcceptableDuration(),
+                    overload.getPreviousLimit(),
+                    1.0f,
+                    value,
+                    side));
+        }
+    }
 }
