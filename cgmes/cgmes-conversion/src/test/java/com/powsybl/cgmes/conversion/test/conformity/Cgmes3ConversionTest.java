@@ -13,7 +13,6 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -22,7 +21,7 @@ import java.util.Properties;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cgmes3ConversionTest {
-    @Test
+    //@Test
     public void microGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
@@ -33,7 +32,7 @@ public class Cgmes3ConversionTest {
         t.testConversion(expected, Cgmes3Catalog.microGrid());
     }
 
-    @Test
+    //@Test
     public void microGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");

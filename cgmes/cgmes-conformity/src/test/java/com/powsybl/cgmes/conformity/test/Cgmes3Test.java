@@ -21,4 +21,19 @@ public class Cgmes3Test {
     public void microGrid() throws IOException {
         new CgmesModelTester(Cgmes3Catalog.microGrid()).test();
     }
+
+    @Test
+    public void miniGrid() throws IOException {
+        new CgmesModelTester(Cgmes3Catalog.miniGrid()).test();
+    }
+
+    @Test
+    public void smallGrid() throws IOException {
+        new CgmesModelTester(Cgmes3Catalog.smallGrid()).test();
+    }
+
+    @Test
+    public void svedala() throws IOException {
+        new CgmesModelTester(Cgmes3Catalog.svedala()).test();
+    }
 }

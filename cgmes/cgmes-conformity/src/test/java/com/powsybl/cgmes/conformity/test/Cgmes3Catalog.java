@@ -37,5 +37,49 @@ public final class Cgmes3Catalog {
                 new ResourceSet(baseBoundary, "20171002T0930Z_ENTSO-E_EQ_BD_2.xml"));
     }
 
+    public static TestGridModelResources miniGrid() {
+        String base = CGMES_3_TEST_MODELS + "/MiniGrid/";
+        String baseBoundary = base;
+        return new TestGridModelResources(
+                "MiniGrid",
+                null,
+                new ResourceSet(base, "" +
+                    "20210202T1930Z_1D_ASSEMBLED_DL_7.xml",
+                    "20210202T1930Z_1D_ASSEMBLED_SV_7.xml",
+                    "20210202T1930Z_1D_AA_EQ_7.xml",
+                    "20210202T1930Z_1D_AA_SSH_7.xml",
+                    "20210202T1930Z_1D_AA_TP_7.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallGrid() {
+        String base = CGMES_3_TEST_MODELS + "/SmallGrid/";
+        String baseBoundary = base;
+        return new TestGridModelResources(
+                "SmallGrid",
+                null,
+                new ResourceSet(base, "" +
+                    "20210112T1742Z_1D_GB_DL_001.xml",
+                    "20210112T1742Z_1D_GB_SV_001.xml",
+                    "20210112T1742Z_1D_GB_EQ_001.xml",
+                    "20210112T1742Z_1D_GB_GL_001.xml",
+                    "20210112T1742Z_1D_GB_SSH_001.xml",
+                    "20210112T1742Z_1D_GB_TP_001.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources svedala() {
+        String base = CGMES_3_TEST_MODELS + "/Svedala/";
+        return new TestGridModelResources(
+                "Svedala",
+                null,
+                new ResourceSet(base, "" +
+                    "20201202T1843Z_1D_Svedala Area_DL_001.xml",
+                    "20201202T1843Z_1D_Svedala Area_SV_001.xml",
+                    "20201202T1843Z_1D_Svedala Area_EQ_001.xml",
+                    "20201202T1843Z_1D_Svedala Area_SSH_001.xml",
+                    "20201202T1843Z_1D_Svedala Area_TP_001.xml"));
+    }
+
     private static final String CGMES_3_TEST_MODELS = "/cgmes3-test-models";
 }
