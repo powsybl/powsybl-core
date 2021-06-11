@@ -256,6 +256,8 @@ public class CgmesDcConversion {
             } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
                 // Both ends are rectifier or inverter
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+            } else {
+                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
@@ -264,15 +266,14 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
-        throw new PowsyblException("Unexpected HVDC type: " + converterType);
     }
 
     private static boolean inverter(String operatingMode) {
-        return operatingMode.toLowerCase().endsWith("inverter");
+        return operatingMode != null && operatingMode.toLowerCase().endsWith("inverter");
     }
 
     private static boolean rectifier(String operatingMode) {
-        return operatingMode.toLowerCase().endsWith("rectifier");
+        return operatingMode != null && operatingMode.toLowerCase().endsWith("rectifier");
     }
 
     private double computeR(PropertyBag dcLs) {

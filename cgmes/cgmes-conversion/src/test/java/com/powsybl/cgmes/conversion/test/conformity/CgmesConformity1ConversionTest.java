@@ -274,8 +274,6 @@ public class CgmesConformity1ConversionTest {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), null));
     }
 
-    // FIXME(Marcos) Requires integration of PR #1717
-    @Ignore("Requires integration of PR #1717")
     @Test
     public void smallNodeBreakerHvdcOnlyEQ() {
         assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), null));
