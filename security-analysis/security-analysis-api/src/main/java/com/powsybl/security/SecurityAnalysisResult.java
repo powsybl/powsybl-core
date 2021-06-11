@@ -60,7 +60,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
         return this;
     }
 
-    public LimitViolationsResult getpreLimitViolationsResult() {
+    public LimitViolationsResult getPreContingencyLimitViolationsResult() {
         return preContingencyResult.getLimitViolationsResult();
     }
 

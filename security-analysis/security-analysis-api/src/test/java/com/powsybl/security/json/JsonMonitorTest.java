@@ -10,7 +10,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.contingency.ContingencyContextType;
 import com.powsybl.security.monitor.StateMonitor;
-import com.powsybl.security.monitor.StateMonitorJson;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,6 +26,6 @@ public class JsonMonitorTest extends AbstractConverterTest {
         List<StateMonitor> monitors = new ArrayList<>();
         monitors.add(new StateMonitor(new ContingencyContext("contingency1", ContingencyContextType.SPECIFIC),
             Collections.singleton("Branch1"), Collections.singleton("Bus1"), Collections.singleton("ThreeWindingsTransformer1")));
-        roundTripTest(monitors, StateMonitorJson::write, StateMonitorJson::read, "/MonitoringFileTest.json");
+        roundTripTest(monitors, StateMonitor::write, StateMonitor::read, "/MonitoringFileTest.json");
     }
 }

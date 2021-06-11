@@ -104,8 +104,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertTrue(result.getpreLimitViolationsResult().getLimitViolations().isEmpty());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(result.getPostContingencyResults().isEmpty());
     }
 
@@ -256,8 +256,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertTrue(result.getpreLimitViolationsResult().getLimitViolations().isEmpty());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
@@ -325,8 +325,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertTrue(result.getpreLimitViolationsResult().getLimitViolations().isEmpty());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(2, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
         assertEquals("c2", result.getPostContingencyResults().get(1).getContingency().getId());
@@ -372,8 +372,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         SecurityAnalysisResult result = report.getResult();
 
         assertNotNull(result);
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertTrue(result.getpreLimitViolationsResult().getLimitViolations().isEmpty());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(result.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertEquals(1, result.getPostContingencyResults().size());
         assertEquals("c1", result.getPostContingencyResults().get(0).getContingency().getId());
 

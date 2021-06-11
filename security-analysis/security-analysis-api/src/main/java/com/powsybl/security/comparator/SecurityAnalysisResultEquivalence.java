@@ -36,7 +36,7 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
         PostContingencyResultComparator postContingencyResultComparator = new PostContingencyResultComparator();
 
         // compare precontingency results
-        boolean equivalent = violationsResultEquivalence.equivalent(result1.getpreLimitViolationsResult(), result2.getpreLimitViolationsResult());
+        boolean equivalent = violationsResultEquivalence.equivalent(result1.getPreContingencyLimitViolationsResult(), result2.getPreContingencyLimitViolationsResult());
 
         // I still carry on the comparison even if equivalent is already false because I need to print the violations of the post contingency results
         // compare postcontingency results

@@ -12,7 +12,7 @@ package com.powsybl.contingency;
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
  *
  * Define for a contingencyContext the type of information asked.
- * It can be n situation (N_SITUATION), n-k situation on a specific contingency (SPECIFIC) or both (ALL)
+ * It can be a pre-contingency state, a post-contingency state on a specific contingency (SPECIFIC) or both (ALL)
  */
 
 public enum ContingencyContextType {

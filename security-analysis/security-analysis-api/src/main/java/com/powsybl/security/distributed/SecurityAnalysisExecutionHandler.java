@@ -14,7 +14,7 @@ import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
-import com.powsybl.security.monitor.StateMonitorJson;
+import com.powsybl.security.monitor.StateMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +113,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     public List<CommandExecution> before(Path workingDir) throws IOException {
         CommandExecution execution = createSecurityAnalysisCommandExecution(workingDir);
         if (!this.input.getMonitors().isEmpty()) {
-            StateMonitorJson.write(this.input.getMonitors(), workingDir.resolve("montoring_file.json"));
+            StateMonitor.write(this.input.getMonitors(), workingDir.resolve("montoring_file.json"));
         }
         return Collections.singletonList(execution);
     }

@@ -48,7 +48,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         assertRunningContext(context);
         assertNotNull(result);
-        assertPreContingencyResult(result.getpreLimitViolationsResult());
+        assertPreContingencyResult(result.getPreContingencyLimitViolationsResult());
         result.getPostContingencyResults().forEach(SecurityAnalysisInterceptorMock::assertPostContingencyResult);
         onSecurityAnalysisResultCount++;
     }

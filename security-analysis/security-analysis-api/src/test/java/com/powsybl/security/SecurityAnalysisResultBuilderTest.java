@@ -34,8 +34,8 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResult res = builder.preContingency().setComputationOk(false).endPreContingency().build();
 
-        assertFalse(res.getpreLimitViolationsResult().isComputationOk());
-        assertTrue(res.getpreLimitViolationsResult().getLimitViolations().isEmpty());
+        assertFalse(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(res.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(res.getPostContingencyResults().isEmpty());
     }
 
@@ -71,7 +71,7 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(1, postResultContext.getCalledCount());
 
         SecurityAnalysisResult result = builder.build();
-        assertEquals(4, result.getpreLimitViolationsResult().getLimitViolations().size());
+        assertEquals(4, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(1, baseContext.getCalledCount());
     }
 
@@ -105,8 +105,8 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResult res = builder.build();
 
-        assertTrue(res.getpreLimitViolationsResult().isComputationOk());
-        assertEquals(4, res.getpreLimitViolationsResult().getLimitViolations().size());
+        assertTrue(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertEquals(4, res.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(2, res.getPostContingencyResults().size());
 
         PostContingencyResult res1 = res.getPostContingencyResults().get(0);

@@ -32,7 +32,7 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.execution.SecurityAnalysisInputBuildStrategy;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
-import com.powsybl.security.monitor.StateMonitorJson;
+import com.powsybl.security.monitor.StateMonitor;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessors;
 import com.powsybl.tools.Command;
@@ -301,7 +301,7 @@ public class SecurityAnalysisTool implements Tool {
 
         Path monitorFilePath = options.getPath(MONITORING_FILE).orElse(null);
         if (monitorFilePath != null) {
-            executionInput.setMonitors(StateMonitorJson.read(monitorFilePath));
+            executionInput.setMonitors(StateMonitor.read(monitorFilePath));
         }
 
         updateInput(options, executionInput);
@@ -317,7 +317,7 @@ public class SecurityAnalysisTool implements Tool {
 
         SecurityAnalysisResult result = report.getResult();
 
-        if (!result.getpreLimitViolationsResult().isComputationOk()) {
+        if (!result.getPreContingencyLimitViolationsResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
         }
 

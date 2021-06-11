@@ -61,7 +61,7 @@ public class SecurityAnalysisResultMergerTest {
             result1, result2
         };
         SecurityAnalysisResult mergedResult = SecurityAnalysisResultMerger.merge(results);
-        assertEquals(preContingencyResult, mergedResult.getpreLimitViolationsResult());
+        assertEquals(preContingencyResult, mergedResult.getPreContingencyLimitViolationsResult());
         assertEquals(Arrays.asList(postContingencyResult, postContingencyResult2), mergedResult.getPostContingencyResults());
     }
 

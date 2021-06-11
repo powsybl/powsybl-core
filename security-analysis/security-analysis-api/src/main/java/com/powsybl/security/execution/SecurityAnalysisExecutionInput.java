@@ -105,6 +105,8 @@ public class SecurityAnalysisExecutionInput {
     }
 
     public SecurityAnalysisExecutionInput setMonitors(List<StateMonitor> monitors) {
+        Objects.requireNonNull(monitors);
+        this.monitors.clear();
         this.monitors.addAll(monitors);
         return this;
     }

@@ -83,8 +83,8 @@ public class ExporterTest extends AbstractConverterTest {
         LimitViolation violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 100, 0.95f, 110.0, Branch.Side.ONE);
         violation1.addExtension(ActivePowerExtension.class, new ActivePowerExtension(220.0));
         SecurityAnalysisResult result = SecurityAnalysisResultDeserializer.read(getClass().getResourceAsStream("/SecurityAnalysisResultV1.json"));
-        Assertions.assertThat(result.getpreLimitViolationsResult().getLimitViolations()).hasSize(1);
-        assertEquals(0, LimitViolations.comparator().compare(violation1, result.getpreLimitViolationsResult().getLimitViolations().get(0)));
+        Assertions.assertThat(result.getPreContingencyLimitViolationsResult().getLimitViolations()).hasSize(1);
+        assertEquals(0, LimitViolations.comparator().compare(violation1, result.getPreContingencyLimitViolationsResult().getLimitViolations().get(0)));
 
     }
 

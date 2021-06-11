@@ -17,7 +17,7 @@ import java.util.Objects;
  * <p>
  * provide the context to get information of the network after a security analysis
  * it contains a contingency's id and a context type. Context type defines
- * if we want the information on N situation, N-k situation or both.
+ * if we want the information in a pre-contingency state, a post-contingency state or both.
  * contingency's id is defined if informations are needed after
  * a specific contingency computation
  */

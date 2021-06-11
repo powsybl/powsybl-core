@@ -244,7 +244,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
-            when(report.getResult().getpreLimitViolationsResult()).thenReturn(mock(LimitViolationsResult.class));
+            when(report.getResult().getPreContingencyLimitViolationsResult()).thenReturn(mock(LimitViolationsResult.class));
             when(report.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
             when(cfSar.join()).thenReturn(report);
             return cfSar;

@@ -114,8 +114,8 @@ public class SecurityAnalysisTest {
 
         SecurityAnalysisResult result = report.getResult();
 
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertEquals(0, result.getpreLimitViolationsResult().getLimitViolations().size());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         PostContingencyResult postcontingencyResult = result.getPostContingencyResults().get(0);
         assertTrue(postcontingencyResult.getLimitViolationsResult().isComputationOk());
         assertEquals(1, postcontingencyResult.getLimitViolationsResult().getLimitViolations().size());
@@ -159,8 +159,8 @@ public class SecurityAnalysisTest {
                 interceptors);
         SecurityAnalysisResult result = report.getResult();
 
-        assertTrue(result.getpreLimitViolationsResult().isComputationOk());
-        assertEquals(0, result.getpreLimitViolationsResult().getLimitViolations().size());
+        assertTrue(result.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertEquals(0, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(0, result.getPostContingencyResults().size());
 
         Assert.assertEquals(0, interceptorMock.getOnPostContingencyResultCount());

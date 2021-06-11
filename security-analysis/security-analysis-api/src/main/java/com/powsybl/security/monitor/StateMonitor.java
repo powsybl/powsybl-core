@@ -7,8 +7,15 @@
 package com.powsybl.security.monitor;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 
 /**
@@ -108,5 +115,23 @@ public class StateMonitor {
             ", voltageLevelIds=" + voltageLevelIds +
             ", threeWindingsTransformerIds=" + threeWindingsTransformerIds +
             '}';
+    }
+
+    public static void write(List<StateMonitor> monitors, Path jsonFile) {
+        try {
+            OutputStream out = Files.newOutputStream(jsonFile);
+            JsonUtil.createObjectMapper().writer().writeValue(out, monitors);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static List<StateMonitor> read(Path jsonFile) {
+        try {
+            return JsonUtil.createObjectMapper().readerFor(new TypeReference<List<StateMonitor>>() {
+            }).readValue(Files.newInputStream(jsonFile));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

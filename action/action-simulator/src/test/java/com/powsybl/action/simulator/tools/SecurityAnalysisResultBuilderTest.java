@@ -51,7 +51,7 @@ public class SecurityAnalysisResultBuilderTest {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
 
-                testLimitViolation(result.getpreLimitViolationsResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
+                testLimitViolation(result.getPreContingencyLimitViolationsResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
 
                 List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
                 assertEquals(1, postContingencyResults.size());

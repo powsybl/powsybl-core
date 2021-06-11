@@ -245,8 +245,8 @@ public final class Security {
         NumberFormat percentageFormat = getFormatter(printConfig.getFormatterConfig().getLocale(), 2, 2);
 
         List<LimitViolation> filteredLimitViolations = printConfig.getFilter() != null
-                ? printConfig.getFilter().apply(result.getpreLimitViolationsResult().getLimitViolations(), network)
-                : result.getpreLimitViolationsResult().getLimitViolations();
+                ? printConfig.getFilter().apply(result.getPreContingencyLimitViolationsResult().getLimitViolations(), network)
+                : result.getPreContingencyLimitViolationsResult().getLimitViolations();
 
         try (TableFormatter formatter = formatterFactory.create(writer,
                 "Pre-contingency violations",
@@ -271,7 +271,7 @@ public final class Security {
                 new Column(LOADING_RATE)
                     .setHorizontalAlignment(HorizontalAlignment.RIGHT)
                     .setNumberFormat(percentageFormat))) {
-            for (String action : result.getpreLimitViolationsResult().getActionsTaken()) {
+            for (String action : result.getPreContingencyLimitViolationsResult().getActionsTaken()) {
                 formatter.writeCell(action)
                         .writeEmptyCell()
                         .writeEmptyCell()
@@ -401,7 +401,7 @@ public final class Security {
         Objects.requireNonNull(writeConfig);
         if (!result.getPostContingencyResults().isEmpty()) {
             Set<LimitViolationKey> preContingencyViolations = writeConfig.isFilterPreContingencyViolations()
-                    ? result.getpreLimitViolationsResult().getLimitViolations()
+                    ? result.getPreContingencyLimitViolationsResult().getLimitViolations()
                             .stream()
                             .map(Security::toKey)
                             .collect(Collectors.toSet())
