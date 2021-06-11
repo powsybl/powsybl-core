@@ -11,10 +11,7 @@ import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
@@ -30,7 +27,10 @@ import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -223,7 +223,7 @@ public class DefaultSecurityAnalysis {
         if (lfResult.isOk()) {
             violationDetector.checkAll(contingency, network, builder::addViolation);
             addMonitorInfos(network, monitorIndex.getAllStateMonitor(), builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
-            StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitor(contingency.getId());
+            StateMonitor stateMonitor = monitorIndex.getSpecificStateMonitors().get(contingency.getId());
             if (stateMonitor != null) {
                 addMonitorInfos(network, stateMonitor, builder::addBranchResult, builder::addBusResult, builder::addThreeWindingsTransformerResult);
             }
@@ -239,12 +239,26 @@ public class DefaultSecurityAnalysis {
 
     private void addMonitorInfos(Network network, StateMonitor monitor, Consumer<BranchResult> branchResultConsumer,
                                  Consumer<BusResults> busResultsConsumer, Consumer<ThreeWindingsTransformerResult> threeWindingsTransformerResultConsumer) {
-        monitor.getBranchIds().forEach(branchId -> branchResultConsumer.accept(createBranchResult(network.getBranch(branchId))));
-        monitor.getVoltageLevelIds().forEach(voltageLevelId ->
-            network.getVoltageLevel(voltageLevelId).getBusView().getBuses().forEach(bus ->
-                busResultsConsumer.accept(createBusResult(bus, voltageLevelId))));
-        monitor.getThreeWindingsTransformerIds().forEach(threeWindingsTransformerId -> threeWindingsTransformerResultConsumer
-                .accept(createThreeWindingsTransformerResult(network.getThreeWindingsTransformer(threeWindingsTransformerId))));
+        monitor.getBranchIds().forEach(branchId -> {
+            Branch branch = network.getBranch(branchId);
+            if (branch != null) {
+                branchResultConsumer.accept(createBranchResult(network.getBranch(branchId)));
+            }
+        });
+        monitor.getVoltageLevelIds().forEach(voltageLevelId -> {
+            VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
+            if (voltageLevel != null) {
+                voltageLevel.getBusView().getBuses().forEach(bus ->
+                        busResultsConsumer.accept(createBusResult(bus, voltageLevelId)));
+            }
+        });
+        monitor.getThreeWindingsTransformerIds().forEach(threeWindingsTransformerId -> {
+            ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(threeWindingsTransformerId);
+            if (twt != null) {
+                threeWindingsTransformerResultConsumer
+                        .accept(createThreeWindingsTransformerResult(twt));
+            }
+        });
     }
 
     private BranchResult createBranchResult(Branch branch) {

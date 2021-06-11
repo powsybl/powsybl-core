@@ -23,33 +23,6 @@
       } ],
       "actionsTaken" : [ ]
     },
-    "preContingencyBranchResults" : [ {
-      "branchId" : "branchId",
-      "p1" : 0.0,
-      "q1" : 0.0,
-      "i1" : 0.0,
-      "p2" : 0.0,
-      "q2" : 0.0,
-      "i2" : 0.0
-    } ],
-    "preContingencyBusResults" : [ {
-      "voltageLevelId" : "voltageLevelId",
-      "busId" : "busId",
-      "v" : 400.0,
-      "angle" : 3.14
-    } ],
-    "preContingencyThreeWindingsTransformerResults" : [ {
-      "threeWindingsTransformerId" : "threeWindingsTransformerId",
-      "p1" : 0.0,
-      "q1" : 0.0,
-      "i1" : 0.0,
-      "p2" : 0.0,
-      "q2" : 0.0,
-      "i2" : 0.0,
-      "p3" : 0.0,
-      "q3" : 0.0,
-      "i3" : 0.0
-    } ],
   "postContingencyResults" : [ {
     "contingency" : {
       "id" : "contingency",

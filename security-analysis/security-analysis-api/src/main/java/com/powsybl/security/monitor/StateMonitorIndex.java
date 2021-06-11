@@ -29,11 +29,7 @@ public class StateMonitorIndex {
         stateMonitors.forEach(monitor -> {
             String id = monitor.getContingencyContext().getContingencyId();
             if (id != null) {
-                if (this.specificStateMonitors.containsKey(id)) {
-                    this.specificStateMonitors.get(id).merge(monitor);
-                } else {
-                    this.specificStateMonitors.put(id, monitor);
-                }
+                this.specificStateMonitors.merge(id, monitor, StateMonitor::merge);
             } else if (monitor.getContingencyContext().getContextType() == ContingencyContextType.ALL) {
                 allStateMonitor.merge(monitor);
             } else if (monitor.getContingencyContext().getContextType() == ContingencyContextType.NONE) {
@@ -48,10 +44,6 @@ public class StateMonitorIndex {
 
     public StateMonitor getNoneStateMonitor() {
         return noneStateMonitor;
-    }
-
-    public StateMonitor getSpecificStateMonitor(String id) {
-        return specificStateMonitors.get(id);
     }
 
     public Map<String, StateMonitor> getSpecificStateMonitors() {

@@ -15,8 +15,7 @@ import com.powsybl.security.results.*;
 import java.util.*;
 
 /**
- * Facilitates the creation of security analysis results, in particular
- * for subclasses of {@link AbstractSecurityAnalysis}.
+ * Facilitates the creation of security analysis results.
  * <p>
  * Encapsulates filtering of limit violations with a provided {@link LimitViolationFilter},
  * as well as notifications to {@link SecurityAnalysisInterceptor}s.
@@ -54,15 +53,15 @@ public class SecurityAnalysisResultBuilder {
     }
 
     private void addPreContingencyBranchResults(Map<String, BranchResult> preContingencyBranchResults) {
-        this.preContingencyResult.addPreContingencyBranchResults(Objects.requireNonNull(preContingencyBranchResults));
+        this.preContingencyResult.addPreContingencyBranchResults(Objects.requireNonNull(preContingencyBranchResults.values()));
     }
 
     private void addPreContingencyBusResults(Map<String, BusResults> preContingencyBusResults) {
-        this.preContingencyResult.addPreContingencyBusResults(Objects.requireNonNull(preContingencyBusResults));
+        this.preContingencyResult.addPreContingencyBusResults(Objects.requireNonNull(preContingencyBusResults.values()));
     }
 
     private void addPreContingencyThreeWindingsTransformerResults(Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this.preContingencyResult.addPreContingencyThreeWindingsTransformerResults(Objects.requireNonNull(threeWindingsTransformerResults));
+        this.preContingencyResult.addPreContingencyThreeWindingsTransformerResults(Objects.requireNonNull(threeWindingsTransformerResults.values()));
     }
 
     /**

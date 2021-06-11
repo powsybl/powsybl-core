@@ -36,10 +36,8 @@ import java.util.Objects;
  */
 public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
 
-    private static final String CONTEXT_NAME = "SecurityAnalysisResult";
-
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
@@ -84,24 +82,6 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     });
                     break;
 
-                case "preContingencyBranchResults":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: preContingencyBranchResults", version, "1.0");
-                    parser.nextToken();
-                    branchResults = parser.readValueAs(new TypeReference<ArrayList<BranchResult>>() {
-                    });
-                    break;
-                case "preContingencyBusResults":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: preContingencyBusResults", version, "1.0");
-                    parser.nextToken();
-                    busResults = parser.readValueAs(new TypeReference<ArrayList<BusResults>>() {
-                    });
-                    break;
-                case "preContingencyThreeWindingsTransformerResults":
-                    JsonUtil.assertLessThanOrEqualToReferenceVersion(CONTEXT_NAME, "Tag: preContingencyThreeWindingsTransformerResults", version, "1.0");
-                    parser.nextToken();
-                    threeWindingsTransformerResults = parser.readValueAs(new TypeReference<ArrayList<ThreeWindingsTransformerResult>>() {
-                    });
-                    break;
                 case "extensions":
                     parser.nextToken();
                     extensions = JsonUtil.readExtensions(parser, ctx, SUPPLIER.get());
@@ -135,7 +115,7 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
         Objects.requireNonNull(is);
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-            .registerModule(new SecurityAnalysisJsonModule());
+                .registerModule(new SecurityAnalysisJsonModule());
         try {
             return objectMapper.readValue(is, SecurityAnalysisResult.class);
         } catch (IOException e) {

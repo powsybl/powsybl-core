@@ -20,32 +20,32 @@ public class PreContingencyResult {
     private final Map<String, ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults = new HashMap<>();
 
     public PreContingencyResult() {
-        this(null, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        this(null, Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
     }
 
-    public PreContingencyResult(LimitViolationsResult preContingencyResult, Map<String, BranchResult> preContingencyBranchResults,
-                                Map<String, BusResults> preContingencyBusResults,
-                                Map<String, ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
+    public PreContingencyResult(LimitViolationsResult preContingencyResult, Collection<BranchResult> preContingencyBranchResults,
+                                Collection<BusResults> preContingencyBusResults,
+                                Collection<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
         this.limitViolationsResult = preContingencyResult;
-        this.preContingencyBranchResults.putAll(Objects.requireNonNull(preContingencyBranchResults));
-        this.preContingencyBusResults.putAll(Objects.requireNonNull(preContingencyBusResults));
-        this.preContingencyThreeWindingsTransformerResults.putAll(Objects.requireNonNull(preContingencyThreeWindingsTransformerResults));
+        Objects.requireNonNull(preContingencyBranchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
+        Objects.requireNonNull(preContingencyBusResults).forEach(r -> this.preContingencyBusResults.put(r.getBusId(), r));
+        Objects.requireNonNull(preContingencyThreeWindingsTransformerResults).forEach(r -> this.preContingencyThreeWindingsTransformerResults.put(r.getThreeWindingsTransformerId(), r));
     }
 
     public void setLimitViolationsResult(LimitViolationsResult limitViolationsResult) {
         this.limitViolationsResult = limitViolationsResult;
     }
 
-    public void addPreContingencyBranchResults(Map<String, BranchResult> branchResults) {
-        this.preContingencyBranchResults.putAll(Objects.requireNonNull(branchResults));
+    public void addPreContingencyBranchResults(Collection<BranchResult> branchResults) {
+        Objects.requireNonNull(branchResults).forEach(r -> this.preContingencyBranchResults.put(r.getBranchId(), r));
     }
 
-    public void addPreContingencyBusResults(Map<String, BusResults> busResults) {
-        this.preContingencyBusResults.putAll(Objects.requireNonNull(busResults));
+    public void addPreContingencyBusResults(Collection<BusResults> busResults) {
+        Objects.requireNonNull(busResults).forEach(r -> this.preContingencyBusResults.put(r.getBusId(), r));
     }
 
-    public void addPreContingencyThreeWindingsTransformerResults(Map<String, ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
-        this.preContingencyThreeWindingsTransformerResults.putAll(threeWindingsTransformerResults);
+    public void addPreContingencyThreeWindingsTransformerResults(Collection<ThreeWindingsTransformerResult> threeWindingsTransformerResults) {
+        Objects.requireNonNull(threeWindingsTransformerResults).forEach(r -> this.preContingencyThreeWindingsTransformerResults.put(r.getThreeWindingsTransformerId(), r));
     }
 
     public LimitViolationsResult getLimitViolationsResult() {
@@ -56,11 +56,23 @@ public class PreContingencyResult {
         return List.copyOf(preContingencyBusResults.values());
     }
 
+    public BusResults getPreContingencyBusResult(String id) {
+        return preContingencyBusResults.get(Objects.requireNonNull(id));
+    }
+
     public List<BranchResult> getPreContingencyBranchResults() {
         return List.copyOf(preContingencyBranchResults.values());
     }
 
+    public BranchResult getPreContingencyBranchResult(String id) {
+        return preContingencyBranchResults.get(Objects.requireNonNull(id));
+    }
+
     public List<ThreeWindingsTransformerResult> getPreContingencyThreeWindingsTransformerResults() {
         return List.copyOf(preContingencyThreeWindingsTransformerResults.values());
+    }
+
+    public ThreeWindingsTransformerResult getPreContingencyThreeWindingsTransformerResult(String id) {
+        return preContingencyThreeWindingsTransformerResults.get(Objects.requireNonNull(id));
     }
 }

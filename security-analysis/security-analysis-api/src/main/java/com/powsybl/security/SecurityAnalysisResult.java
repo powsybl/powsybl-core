@@ -10,8 +10,6 @@ import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.security.results.*;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,7 +28,7 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults) {
-        this(new PreContingencyResult(preContingencyResult, Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap()), postContingencyResults);
+        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), postContingencyResults);
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
@@ -38,10 +36,9 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
                                   List<BranchResult> preContingencyBranchResults,
                                   List<BusResults> preContingencyBusResults,
                                   List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
-        this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults.stream().collect(Collectors.toMap(BranchResult::getBranchId, Function.identity())),
-                preContingencyBusResults.stream().collect(Collectors.toMap(BusResults::getVoltageLevelId, Function.identity())),
-                preContingencyThreeWindingsTransformerResults.stream()
-                    .collect(Collectors.toMap(ThreeWindingsTransformerResult::getThreeWindingsTransformerId, Function.identity()))),
+        this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
+                preContingencyBusResults,
+                preContingencyThreeWindingsTransformerResults),
             postContingencyResults);
     }
 
@@ -66,18 +63,6 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
 
     public List<PostContingencyResult> getPostContingencyResults() {
         return postContingencyResults;
-    }
-
-    public List<BranchResult> getBranchResultsAsList() {
-        return preContingencyResult.getPreContingencyBranchResults();
-    }
-
-    public List<BusResults> getBusResultsAsList() {
-        return preContingencyResult.getPreContingencyBusResults();
-    }
-
-    public List<ThreeWindingsTransformerResult> getThreeWindingsTransformerResultsAsList() {
-        return preContingencyResult.getPreContingencyThreeWindingsTransformerResults();
     }
 
     public PreContingencyResult getPreContingencyResult() {

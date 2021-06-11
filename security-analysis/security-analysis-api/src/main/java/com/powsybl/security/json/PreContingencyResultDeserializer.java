@@ -17,8 +17,6 @@ import com.powsybl.security.results.*;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * @author Etienne Lesot <etienne.lesot at rte-france.com>
@@ -64,8 +62,8 @@ class PreContingencyResultDeserializer extends StdDeserializer<PreContingencyRes
         }
 
         return new PreContingencyResult(preContingencyResult,
-            branchResults.stream().collect(Collectors.toMap(BranchResult::getBranchId, Function.identity())),
-            busResults.stream().collect(Collectors.toMap(BusResults::getBusId, Function.identity())),
-            threeWindingsTransformerResults.stream().collect(Collectors.toMap(ThreeWindingsTransformerResult::getThreeWindingsTransformerId, Function.identity())));
+            branchResults,
+            busResults,
+            threeWindingsTransformerResults);
     }
 }

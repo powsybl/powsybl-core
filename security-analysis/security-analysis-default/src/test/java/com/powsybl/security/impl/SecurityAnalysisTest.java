@@ -39,6 +39,7 @@ import java.nio.file.FileSystem;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -225,13 +226,15 @@ public class SecurityAnalysisTest {
         monitors.add(new StateMonitor(new ContingencyContext("NHV1_NHV2_2", ContingencyContextType.SPECIFIC),
             Collections.singleton("NHV1_NHV2_2"), Collections.emptySet(), Collections.emptySet()));
         monitors.add(new StateMonitor(new ContingencyContext(null, ContingencyContextType.NONE),
-            Collections.singleton("NHV1_NHV2_1"), Collections.singleton("VLHV1"), Collections.emptySet()));
+                Set.of("NHV1_NHV2_1", "NOT_EXISTING_BRANCH"), Set.of("VLHV1", "NOT_EXISTING_VOLTAGE_LEVEL"), Collections.singleton("NOT_EXISTING_T3W"))); // ignore IDs of non existing equipment
 
         DefaultSecurityAnalysis defaultSecurityAnalysis = new DefaultSecurityAnalysis(network, detector, filter, computationManager, monitors);
         SecurityAnalysisReport report = defaultSecurityAnalysis.run(network.getVariantManager().getWorkingVariantId(), saParameters, contingenciesProvider).join();
         SecurityAnalysisResult result = report.getResult();
-        Assertions.assertThat(result.getBusResultsAsList()).containsExactly(new BusResults("VLHV1", "VLHV1_0", 380.0, 0.0));
-        Assertions.assertThat(result.getBranchResultsAsList()).containsExactly(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResults()).containsExactly(new BusResults("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBusResult("VLHV1_0")).isEqualToComparingOnlyGivenFields(new BusResults("VLHV1", "VLHV1_0", 380.0, 0.0));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583));
+        Assertions.assertThat(result.getPreContingencyResult().getPreContingencyBranchResult("NHV1_NHV2_1")).isEqualToComparingOnlyGivenFields(new BranchResult("NHV1_NHV2_1",  560.0, 550.0,  1192.5631358010583, 560.0,  550.0, 1192.5631358010583));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getBranchResults()).containsExactly(new BranchResult("NHV1_NHV2_2",  600.0, 500.0,  1186.6446717954987, 600.0,  500.0, 1186.6446717954987));
         Assertions.assertThat(result.getPostContingencyResults().get(0).getBusResults()).containsExactly(new BusResults("VLHV2", "VLHV2_0", 380.0, 0.0));
     }
