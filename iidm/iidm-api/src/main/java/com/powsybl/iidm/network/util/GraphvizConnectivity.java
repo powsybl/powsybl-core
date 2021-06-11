@@ -45,8 +45,9 @@ public class GraphvizConnectivity {
         this.random = Objects.requireNonNull(random);
     }
 
-    public void setCountryCluster(boolean countryCluster) {
+    public GraphvizConnectivity setCountryCluster(boolean countryCluster) {
         this.countryCluster = countryCluster;
+        return this;
     }
 
     private static String getBusId(Bus bus) {
