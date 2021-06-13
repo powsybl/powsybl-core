@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 
+import java.util.Properties;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -19,8 +21,12 @@ public final class IeeeCdfNetworkFactory {
     private IeeeCdfNetworkFactory() {
     }
 
+    private static Network create(String baseName, NetworkFactory networkFactory, Properties properties) {
+        return new IeeeCdfImporter().importData(new ResourceDataSource(baseName, new ResourceSet("/", baseName + ".txt")), networkFactory, properties);
+    }
+
     private static Network create(String baseName, NetworkFactory networkFactory) {
-        return new IeeeCdfImporter().importData(new ResourceDataSource(baseName, new ResourceSet("/", baseName + ".txt")), networkFactory, null);
+        return create(baseName, networkFactory, null);
     }
 
     public static Network create9(NetworkFactory networkFactory) {
@@ -42,7 +48,9 @@ public final class IeeeCdfNetworkFactory {
     // test case adapted to CDF from .raw file obtained
     // https://icseg.iti.illinois.edu/ieee-14-bus-system/
     public static Network create14Solved(NetworkFactory networkFactory) {
-        return create("ieee14cdf-solved", networkFactory);
+        Properties properties = new Properties();
+        properties.setProperty("ignore-base-voltage", "true");
+        return create("ieee14cdf-solved", networkFactory, properties);
     }
 
     public static Network create14Solved() {

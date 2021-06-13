@@ -8,6 +8,7 @@ package com.powsybl.ieeecdf.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
@@ -44,7 +45,7 @@ public class IeeeCdfImporter implements Importer {
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
                                                                                  ParameterType.BOOLEAN,
                                                                                  "Ignore base voltage specified in the file",
-                                                                                 Boolean.TRUE);
+                                                                                 Boolean.FALSE);
 
     private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
 
@@ -209,9 +210,37 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
+    private static double getNominalV(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext) {
+        if (perUnitContext.isIgnoreBaseVoltage()) {
+            return 1;
+        }
+        if (ieeeCdfBus.getBaseVoltage() == 0) {
+            // try to find the base voltage in the bus name
+            // HV to be 135 kV, LV to be 20kV and ZV 14 kV and LV to be 12 kV (for example)
+            if (ieeeCdfBus.getName().endsWith("V1")) {
+                return 138;
+            } else if (ieeeCdfBus.getName().endsWith("V2")) {
+                return 161;
+            } else if (ieeeCdfBus.getName().endsWith("V3")) {
+                return 345;
+            } else if (ieeeCdfBus.getName().endsWith("HV")) {
+                return 135;
+            } else if (ieeeCdfBus.getName().endsWith("TV")) {
+                return 20;
+            } else if (ieeeCdfBus.getName().endsWith("ZV")) {
+                return 14;
+            } else if (ieeeCdfBus.getName().endsWith("LV")) {
+                return 12;
+            } else {
+                throw new PowsyblException("Cannot find base voltage from bus name: '" + ieeeCdfBus.getName() + "'");
+            }
+        }
+        return ieeeCdfBus.getBaseVoltage();
+    }
+
     private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
                                                    String voltageLevelId, Substation substation, Network network) {
-        double nominalV = perUnitContext.isIgnoreBaseVoltage() || ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+        double nominalV = getNominalV(ieeeCdfBus, perUnitContext);
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
