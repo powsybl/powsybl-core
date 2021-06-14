@@ -93,4 +93,9 @@ public class ContingencyBuilder {
         elements.add(new DanglingLineContingency(id));
         return this;
     }
+
+    public ContingencyBuilder addThreeWindingsTransformer(String id) {
+        elements.add(new ThreeWindingsTransformerContingency(id));
+        return this;
+    }
 }

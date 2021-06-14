@@ -15,7 +15,6 @@ import com.powsybl.iidm.xml.util.IidmXmlUtil;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -165,20 +164,19 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 .setQ(q);
     }
 
-    public static void readActivePowerLimits(Integer index, Supplier<ActivePowerLimitsAdder> activePowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsOwner, reader);
+    public static void readActivePowerLimits(Integer index, ActivePowerLimitsAdder activePowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+        readLoadingLimits(index, ACTIVE_POWER_LIMITS, activePowerLimitsAdder, reader);
     }
 
-    public static void readApparentPowerLimits(Integer index, Supplier<ApparentPowerLimitsAdder> apparentPowerLimitsOwner, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsOwner, reader);
+    public static void readApparentPowerLimits(Integer index, ApparentPowerLimitsAdder apparentPowerLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+        readLoadingLimits(index, APPARENT_POWER_LIMITS, apparentPowerLimitsAdder, reader);
     }
 
-    public static void readCurrentLimits(Integer index, Supplier<CurrentLimitsAdder> currentLimitOwner, XMLStreamReader reader) throws XMLStreamException {
-        readLoadingLimits(index, CURRENT_LIMITS, currentLimitOwner, reader);
+    public static void readCurrentLimits(Integer index, CurrentLimitsAdder currentLimitsAdder, XMLStreamReader reader) throws XMLStreamException {
+        readLoadingLimits(index, CURRENT_LIMITS, currentLimitsAdder, reader);
     }
 
-    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, Supplier<A> limitOwner, XMLStreamReader reader) throws XMLStreamException {
-        A adder = limitOwner.get();
+    private static <A extends LoadingLimitsAdder> void readLoadingLimits(Integer index, String type, A adder, XMLStreamReader reader) throws XMLStreamException {
         double permanentLimit = XmlUtil.readOptionalDoubleAttribute(reader, "permanentLimit");
         adder.setPermanentLimit(permanentLimit);
         XmlUtil.readUntilEndElement(type + indexToString(index), reader, () -> {
