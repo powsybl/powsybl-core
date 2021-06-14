@@ -58,5 +58,15 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         // else: EnergyConsumer - undefined
     }
 
+    @Override
+    protected double p0() {
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
+    }
+
+    @Override
+    protected double q0() {
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
+    }
+
     private final String loadKind;
 }
