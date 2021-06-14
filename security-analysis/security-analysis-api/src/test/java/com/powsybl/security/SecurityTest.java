@@ -13,6 +13,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

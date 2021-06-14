@@ -5,6 +5,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.interceptors.*;
+import com.powsybl.security.results.BranchResult;
+import com.powsybl.security.results.BusResults;
+import com.powsybl.security.results.PostContingencyResult;
+import com.powsybl.security.results.ThreeWindingsTransformerResult;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -30,8 +34,8 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResult res = builder.preContingency().setComputationOk(false).endPreContingency().build();
 
-        assertFalse(res.getPreContingencyResult().isComputationOk());
-        assertTrue(res.getPreContingencyResult().getLimitViolations().isEmpty());
+        assertFalse(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertTrue(res.getPreContingencyLimitViolationsResult().getLimitViolations().isEmpty());
         assertTrue(res.getPostContingencyResults().isEmpty());
     }
 
@@ -67,7 +71,7 @@ public class SecurityAnalysisResultBuilderTest {
         assertEquals(1, postResultContext.getCalledCount());
 
         SecurityAnalysisResult result = builder.build();
-        assertEquals(4, result.getPreContingencyResult().getLimitViolations().size());
+        assertEquals(4, result.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(1, baseContext.getCalledCount());
     }
 
@@ -87,6 +91,10 @@ public class SecurityAnalysisResultBuilderTest {
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
         builder.contingency(new Contingency("contingency1")).setComputationOk(true)
+                .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0))
+                .addBusResult(new BusResults("voltageLevelId", "busId", 400, 3.14))
+                .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
+                0, 0, 0, 0, 0, 0, 0, 0, 0))
                 .addViolations(Security.checkLimits(network))
                 .endContingency();
 
@@ -97,12 +105,16 @@ public class SecurityAnalysisResultBuilderTest {
 
         SecurityAnalysisResult res = builder.build();
 
-        assertTrue(res.getPreContingencyResult().isComputationOk());
-        assertEquals(4, res.getPreContingencyResult().getLimitViolations().size());
+        assertTrue(res.getPreContingencyLimitViolationsResult().isComputationOk());
+        assertEquals(4, res.getPreContingencyLimitViolationsResult().getLimitViolations().size());
         assertEquals(2, res.getPostContingencyResults().size());
 
         PostContingencyResult res1 = res.getPostContingencyResults().get(0);
         assertEquals("contingency1", res1.getContingency().getId());
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0), res1.getBranchResult("branchId"));
+        assertEquals(new BusResults("voltageLevelId", "busId", 400, 3.14), res1.getBusResult("busId"));
+        assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
+            0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
         assertEquals(2, res.getPostContingencyResults().size());
 
         List<LimitViolation> violations1 = res1.getLimitViolationsResult().getLimitViolations();

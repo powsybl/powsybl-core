@@ -18,7 +18,7 @@ import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.NetworkMetadata;
-import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.results.*;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.io.IOException;
@@ -32,13 +32,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
 public class SecurityAnalysisResultDeserializer extends StdDeserializer<SecurityAnalysisResult> {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "security-analysis"));
 
     SecurityAnalysisResultDeserializer() {
         super(SecurityAnalysisResult.class);
@@ -46,15 +45,21 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
     @Override
     public SecurityAnalysisResult deserialize(JsonParser parser, DeserializationContext ctx) throws IOException {
+        String version = null;
         NetworkMetadata networkMetadata = null;
-        LimitViolationsResult preContingencyResult = null;
+        LimitViolationsResult limitViolationsResult = null;
         List<PostContingencyResult> postContingencyResults = Collections.emptyList();
         List<Extension<SecurityAnalysisResult>> extensions = Collections.emptyList();
+        PreContingencyResult preContingencyResult = null;
+        List<BranchResult> branchResults = Collections.emptyList();
+        List<BusResults> busResults = Collections.emptyList();
+        List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = Collections.emptyList();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "version":
                     parser.nextToken(); // skip
+                    version = parser.getValueAsString();
                     break;
 
                 case "network":
@@ -64,7 +69,11 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
 
                 case "preContingencyResult":
                     parser.nextToken();
-                    preContingencyResult = parser.readValueAs(LimitViolationsResult.class);
+                    if (version != null && version.equals("1.0")) {
+                        limitViolationsResult = parser.readValueAs(LimitViolationsResult.class);
+                    } else {
+                        preContingencyResult = parser.readValueAs(PreContingencyResult.class);
+                    }
                     break;
 
                 case "postContingencyResults":
@@ -82,8 +91,12 @@ public class SecurityAnalysisResultDeserializer extends StdDeserializer<Security
                     throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
-
-        SecurityAnalysisResult result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        SecurityAnalysisResult result = null;
+        if (preContingencyResult == null) {
+            result = new SecurityAnalysisResult(limitViolationsResult, postContingencyResults, branchResults, busResults, threeWindingsTransformerResults);
+        } else {
+            result = new SecurityAnalysisResult(preContingencyResult, postContingencyResults);
+        }
         result.setNetworkMetadata(networkMetadata);
         SUPPLIER.get().addExtensions(result, extensions);
 

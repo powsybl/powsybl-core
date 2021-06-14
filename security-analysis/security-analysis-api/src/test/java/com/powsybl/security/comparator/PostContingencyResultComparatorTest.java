@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.security.PostContingencyResult;
+import com.powsybl.security.results.PostContingencyResult;
 
 /**
  *

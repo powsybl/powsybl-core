@@ -7,10 +7,9 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
+import com.powsybl.security.results.*;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,15 +18,31 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
 
     private NetworkMetadata networkMetadata;
 
-    private final LimitViolationsResult preContingencyResult;
-
     private final List<PostContingencyResult> postContingencyResults;
+
+    private final PreContingencyResult preContingencyResult;
 
     public static SecurityAnalysisResult empty() {
         return new SecurityAnalysisResult(LimitViolationsResult.empty(), Collections.emptyList());
     }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  List<PostContingencyResult> postContingencyResults) {
+        this(new PreContingencyResult(preContingencyResult, Collections.emptyList(), Collections.emptyList(), Collections.emptyList()), postContingencyResults);
+    }
+
+    public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
+                                  List<PostContingencyResult> postContingencyResults,
+                                  List<BranchResult> preContingencyBranchResults,
+                                  List<BusResults> preContingencyBusResults,
+                                  List<ThreeWindingsTransformerResult> preContingencyThreeWindingsTransformerResults) {
+        this(new PreContingencyResult(preContingencyResult, preContingencyBranchResults,
+                preContingencyBusResults,
+                preContingencyThreeWindingsTransformerResults),
+            postContingencyResults);
+    }
+
+    public SecurityAnalysisResult(PreContingencyResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults) {
         this.preContingencyResult = Objects.requireNonNull(preContingencyResult);
         this.postContingencyResults = Objects.requireNonNull(postContingencyResults);
@@ -42,11 +57,15 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
         return this;
     }
 
-    public LimitViolationsResult getPreContingencyResult() {
-        return preContingencyResult;
+    public LimitViolationsResult getPreContingencyLimitViolationsResult() {
+        return preContingencyResult.getLimitViolationsResult();
     }
 
     public List<PostContingencyResult> getPostContingencyResults() {
         return postContingencyResults;
+    }
+
+    public PreContingencyResult getPreContingencyResult() {
+        return preContingencyResult;
     }
 }

@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
+import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -60,7 +61,7 @@ public class SecurityAnalysisResultMergerTest {
             result1, result2
         };
         SecurityAnalysisResult mergedResult = SecurityAnalysisResultMerger.merge(results);
-        assertEquals(preContingencyResult, mergedResult.getPreContingencyResult());
+        assertEquals(preContingencyResult, mergedResult.getPreContingencyLimitViolationsResult());
         assertEquals(Arrays.asList(postContingencyResult, postContingencyResult2), mergedResult.getPostContingencyResults());
     }
 

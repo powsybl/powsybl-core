@@ -14,6 +14,7 @@ import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
+import com.powsybl.security.monitor.StateMonitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,7 +31,6 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
- *
  * Base implementation for {@link ExecutionHandler}s which may execute one or multiple {@literal itools security-analysis} command(s).
  * The exact behaviour is provided through the constructor argument.
  * Instances are provided by factory methods of {@link SecurityAnalysisExecutionHandlers}.
@@ -85,11 +85,11 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     /**
      * Creates a new security analysis execution handler.
      *
-     * @param reader Defines how results should be read from working directory.
+     * @param reader            Defines how results should be read from working directory.
      * @param optionsCustomizer If not {@code null}, defines additional command options.
-     * @param exceptionHandler Used to translate exceptions to a {@link ComputationException}.
-     * @param executionCount The number of executions of the command.
-     * @param input The execution input data.
+     * @param exceptionHandler  Used to translate exceptions to a {@link ComputationException}.
+     * @param executionCount    The number of executions of the command.
+     * @param input             The execution input data.
      */
     public SecurityAnalysisExecutionHandler(ResultReader<R> reader,
                                             OptionsCustomizer optionsCustomizer,
@@ -112,6 +112,9 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     @Override
     public List<CommandExecution> before(Path workingDir) throws IOException {
         CommandExecution execution = createSecurityAnalysisCommandExecution(workingDir);
+        if (!this.input.getMonitors().isEmpty()) {
+            StateMonitor.write(this.input.getMonitors(), workingDir.resolve("montoring_file.json"));
+        }
         return Collections.singletonList(execution);
     }
 
@@ -136,9 +139,9 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     private CommandExecution createSecurityAnalysisCommandExecution(Path workingDir) {
         SecurityAnalysisCommandOptions options = new SecurityAnalysisCommandOptions()
-                .id("security-analysis")
-                .resultExtensions(input.getResultExtensions())
-                .violationTypes(input.getViolationTypes());
+            .id("security-analysis")
+            .resultExtensions(input.getResultExtensions())
+            .violationTypes(input.getViolationTypes());
 
         addCaseFile(options, workingDir, input.getNetworkVariant());
         addParametersFile(options, workingDir, input.getParameters());

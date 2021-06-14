@@ -9,6 +9,7 @@ package com.powsybl.security.impl.interceptors;
 import com.powsybl.security.*;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisResultContext;
+import com.powsybl.security.results.PostContingencyResult;
 
 import static org.junit.Assert.*;
 
@@ -47,7 +48,7 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         assertRunningContext(context);
         assertNotNull(result);
-        assertPreContingencyResult(result.getPreContingencyResult());
+        assertPreContingencyResult(result.getPreContingencyLimitViolationsResult());
         result.getPostContingencyResults().forEach(SecurityAnalysisInterceptorMock::assertPostContingencyResult);
         onSecurityAnalysisResultCount++;
     }

@@ -70,7 +70,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 13, 1);
+        assertCommand(tool.getCommand(), "security-analysis", 14, 1);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
         assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
@@ -82,6 +82,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "task", false, true);
         assertOption(tool.getCommand().getOptions(), "external", false, false);
         assertOption(tool.getCommand().getOptions(), "log-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "monitoring-file", false, true);
     }
 
     @Test
@@ -243,7 +244,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             CompletableFuture<SecurityAnalysisReport> cfSar = mock(CompletableFuture.class);
             SecurityAnalysisReport report = mock(SecurityAnalysisReport.class);
             when(report.getResult()).thenReturn(mock(SecurityAnalysisResult.class));
-            when(report.getResult().getPreContingencyResult()).thenReturn(mock(LimitViolationsResult.class));
+            when(report.getResult().getPreContingencyLimitViolationsResult()).thenReturn(mock(LimitViolationsResult.class));
             when(report.getLogBytes()).thenReturn(Optional.of("Hello world".getBytes()));
             when(cfSar.join()).thenReturn(report);
             return cfSar;

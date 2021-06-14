@@ -63,6 +63,6 @@ public class SecurityAnalysisExecutionImpl implements SecurityAnalysisExecution 
                 computationManager,
                 input.getParameters(),
                 input.getContingenciesProvider(),
-                new ArrayList<>(input.getInterceptors()));
+                new ArrayList<>(input.getInterceptors()), data.getMonitors());
     }
 }
