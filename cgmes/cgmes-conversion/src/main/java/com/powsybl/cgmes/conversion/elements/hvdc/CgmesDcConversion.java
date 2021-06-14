@@ -259,8 +259,8 @@ public class CgmesDcConversion {
                 // Both ends are rectifier or inverter
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else {
-                LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Inverter - Side2 Rectifier\"");
-                return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+                LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Rectifier - Side2 Inverter\"");
+                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
