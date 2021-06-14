@@ -23,6 +23,8 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -257,6 +259,7 @@ public class CgmesDcConversion {
                 // Both ends are rectifier or inverter
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             } else {
+                LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Inverter - Side2 Rectifier\"");
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         } else {
@@ -395,4 +398,6 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }
