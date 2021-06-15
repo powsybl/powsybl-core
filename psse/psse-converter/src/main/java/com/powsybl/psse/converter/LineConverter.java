@@ -117,13 +117,17 @@ public class LineConverter extends AbstractConverter {
             if (line == null) {
                 updatePsseLine.setSt(0);
             } else {
-                if (line.getTerminal1().isConnected() && line.getTerminal2().isConnected()) {
-                    updatePsseLine.setSt(1);
-                } else {
-                    updatePsseLine.setSt(0);
-                }
+                updatePsseLine.setSt(getStatus(line));
             }
         });
+    }
+
+    private static int getStatus(Line line) {
+        if (line.getTerminal1().isConnected() && line.getTerminal2().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private final PsseNonTransformerBranch psseLine;

@@ -19,6 +19,7 @@ import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.io.Context;
 import com.powsybl.psse.model.io.FileFormat;
 import com.powsybl.psse.model.pf.PssePowerFlowModel;
+import com.powsybl.psse.model.pf.io.PowerFlowRawData32;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData33;
 import com.powsybl.psse.model.pf.io.PowerFlowRawData35;
 import com.powsybl.psse.model.pf.io.PowerFlowRawxData35;
@@ -92,6 +93,14 @@ public class PsseExporter implements Exporter {
                         throw new UncheckedIOException(e);
                     }
                     break;
+                case V32:
+                    PowerFlowRawData32 rawData32 = new PowerFlowRawData32();
+                    try {
+                        rawData32.write(updatePsseModel, context, dataSource);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                    break;
                 default:
                     throw new PsseException("Unsupported version " + version);
             }
@@ -107,12 +116,6 @@ public class PsseExporter implements Exporter {
     }
 
     private static void copyPermanentBlocks(PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
-        //updatePsseModel.addBuses(psseModel.getBuses());
-        //updatePsseModel.addLoads(psseModel.getLoads());
-        //updatePsseModel.addFixedShunts(psseModel.getFixedShunts());
-        //updatePsseModel.addGenerators(psseModel.getGenerators());
-        //updatePsseModel.addNonTransformerBranches(psseModel.getNonTransformerBranches());
-        //updatePsseModel.addTransformers(psseModel.getTransformers());
         updatePsseModel.addAreas(psseModel.getAreas());
         updatePsseModel.addTwoTerminalDcTransmissionLines(psseModel.getTwoTerminalDcTransmissionLines());
         updatePsseModel.addVoltageSourceConverterDcTransmissionLines(psseModel.getVoltageSourceConverterDcTransmissionLines());
@@ -123,7 +126,6 @@ public class PsseExporter implements Exporter {
         updatePsseModel.addInterareaTransfer(psseModel.getInterareaTransfer());
         updatePsseModel.addOwners(psseModel.getOwners());
         updatePsseModel.addFacts(psseModel.getFacts());
-        //updatePsseModel.addSwitchedShunts(psseModel.getSwitchedShunts());
         updatePsseModel.addGneDevice(psseModel.getGneDevice());
         updatePsseModel.addInductionMachines(psseModel.getInductionMachines());
     }

@@ -130,11 +130,19 @@ public class GeneratorConverter extends AbstractConverter {
             if (gen == null) {
                 updatePsseGen.setStat(0);
             } else {
-                updatePsseGen.setStat(1);
+                updatePsseGen.setStat(getStatus(gen));
                 updatePsseGen.setPg(getP(gen));
                 updatePsseGen.setQg(getQ(gen));
             }
         });
+    }
+
+    private static int getStatus(Generator gen) {
+        if (gen.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static double getP(Generator gen) {

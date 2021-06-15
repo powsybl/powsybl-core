@@ -73,10 +73,18 @@ public class FixedShuntCompensatorConverter extends AbstractConverter {
             if (fixedShunt == null) {
                 updatePsseFixedShunt.setStatus(0);
             } else {
-                updatePsseFixedShunt.setStatus(1);
+                updatePsseFixedShunt.setStatus(getStatus(fixedShunt));
                 updatePsseFixedShunt.setBl(getQ(fixedShunt));
             }
         });
+    }
+
+    private static int getStatus(ShuntCompensator fixedShunt) {
+        if (fixedShunt.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static double getQ(ShuntCompensator fixedShunt) {

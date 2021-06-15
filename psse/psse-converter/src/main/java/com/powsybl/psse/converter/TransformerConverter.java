@@ -860,14 +860,20 @@ public class TransformerConverter extends AbstractConverter {
         if (tw2t == null) {
             updatePsseTransformer.setStat(0);
         } else {
-            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            double baskv1 = tw2t.getTerminal1().getVoltageLevel().getNominalV();
+            double nomV1 = getNomV(updatePsseTransformer.getWinding1(), tw2t.getTerminal1().getVoltageLevel());
+            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw2t.getRatioTapChanger(), tw2t.getPhaseTapChanger()), baskv1, nomV1, updatePsseTransformer.getCw()));
             updatePsseTransformer.getWinding1().setAng(getAngle(tw2t.getPhaseTapChanger()));
 
-            if (tw2t.getTerminal1().isConnected() && tw2t.getTerminal2().isConnected()) {
-                updatePsseTransformer.setStat(1);
-            } else {
-                updatePsseTransformer.setStat(0);
-            }
+            updatePsseTransformer.setStat(getStatus(tw2t));
+        }
+    }
+
+    private static int getStatus(TwoWindingsTransformer tw2t) {
+        if (tw2t.getTerminal1().isConnected() && tw2t.getTerminal2().isConnected()) {
+            return 1;
+        } else {
+            return 0;
         }
     }
 
@@ -877,18 +883,26 @@ public class TransformerConverter extends AbstractConverter {
         if (tw3t == null) {
             updatePsseTransformer.setStat(0);
         } else {
-            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+            double baskv1 = tw3t.getLeg1().getTerminal().getVoltageLevel().getNominalV();
+            double nomV1 = getNomV(updatePsseTransformer.getWinding1(), tw3t.getLeg1().getTerminal().getVoltageLevel());
+            updatePsseTransformer.getWinding1().setWindv(defineWindV(getRatio(tw3t.getLeg1().getRatioTapChanger(), tw3t.getLeg1().getPhaseTapChanger()), baskv1, nomV1, updatePsseTransformer.getCw()));
             updatePsseTransformer.getWinding1().setAng(getAngle(tw3t.getLeg1().getPhaseTapChanger()));
-            updatePsseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+
+            double baskv2 = tw3t.getLeg2().getTerminal().getVoltageLevel().getNominalV();
+            double nomV2 = getNomV(updatePsseTransformer.getWinding2(), tw3t.getLeg2().getTerminal().getVoltageLevel());
+            updatePsseTransformer.getWinding2().setWindv(defineWindV(getRatio(tw3t.getLeg2().getRatioTapChanger(), tw3t.getLeg2().getPhaseTapChanger()), baskv2, nomV2, updatePsseTransformer.getCw()));
             updatePsseTransformer.getWinding2().setAng(getAngle(tw3t.getLeg2().getPhaseTapChanger()));
-            updatePsseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), 0.0, 0.0, updatePsseTransformer.getCw()));
+
+            double baskv3 = tw3t.getLeg3().getTerminal().getVoltageLevel().getNominalV();
+            double nomV3 = getNomV(updatePsseTransformer.getWinding3(), tw3t.getLeg3().getTerminal().getVoltageLevel());
+            updatePsseTransformer.getWinding3().setWindv(defineWindV(getRatio(tw3t.getLeg3().getRatioTapChanger(), tw3t.getLeg3().getPhaseTapChanger()), baskv3, nomV3, updatePsseTransformer.getCw()));
             updatePsseTransformer.getWinding3().setAng(getAngle(tw3t.getLeg3().getPhaseTapChanger()));
 
-            updatePsseTransformer.setStat(getTw3tStatus(tw3t));
+            updatePsseTransformer.setStat(getStatus(tw3t));
         }
     }
 
-    private static int getTw3tStatus(ThreeWindingsTransformer tw3t) {
+    private static int getStatus(ThreeWindingsTransformer tw3t) {
         if (tw3t.getLeg1().getTerminal().isConnected() && tw3t.getLeg2().getTerminal().isConnected()
             && tw3t.getLeg3().getTerminal().isConnected()) {
             return 1;

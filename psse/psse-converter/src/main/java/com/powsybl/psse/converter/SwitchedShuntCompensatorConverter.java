@@ -281,10 +281,18 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
             if (switchedShunt == null) {
                 updatePsseSwitchedShunt.setStat(0);
             } else {
-                updatePsseSwitchedShunt.setStat(1);
+                updatePsseSwitchedShunt.setStat(getStatus(switchedShunt));
                 updatePsseSwitchedShunt.setBinit(getQ(switchedShunt));
             }
         });
+    }
+
+    private static int getStatus(ShuntCompensator switchedShunt) {
+        if (switchedShunt.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static double getQ(ShuntCompensator switchedShunt) {

@@ -70,11 +70,19 @@ public class LoadConverter extends AbstractConverter {
             if (load == null) {
                 updatePsseLoad.setStatus(0);
             } else {
-                updatePsseLoad.setStatus(1);
+                updatePsseLoad.setStatus(getStatus(load));
                 updatePsseLoad.setPl(getP(load));
                 updatePsseLoad.setQl(getQ(load));
             }
         });
+    }
+
+    private static int getStatus(Load load) {
+        if (load.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private static double getP(Load load) {
