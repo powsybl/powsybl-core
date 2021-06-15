@@ -61,6 +61,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
                                              .addDanglingLine("DL1")
                                              .addLine("LINE1")
                                              .addTwoWindingsTransformer("TRANSFO1")
+                                             .addThreeWindingsTransformer("TWT3")
                                              .build();
 
         contingency.addExtension(DummyExtension.class, new DummyExtension());
