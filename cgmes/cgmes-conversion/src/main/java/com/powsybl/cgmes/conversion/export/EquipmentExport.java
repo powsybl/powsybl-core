@@ -8,6 +8,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.elements.*;
+import com.powsybl.cgmes.extensions.CgmesControlArea;
+import com.powsybl.cgmes.extensions.CgmesControlAreas;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
@@ -53,8 +55,11 @@ public final class EquipmentExport {
             writeLines(network, exportedTerminals, cimNamespace, writer);
             writeTwoWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
             writeThreeWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
-            writeDanglingLines(network, exportedTerminals, cimNamespace, writer);
+            Map <Boundary, String> danglingLineBoundaries = new HashMap<>();
+            writeDanglingLines(network, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
             writeHvdcLines(network, exportedTerminals, exportedNodes, cimNamespace, writer);
+
+            writeControlAreas(network, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
 
             writer.writeEndDocument();
         } catch (XMLStreamException e) {
@@ -93,10 +98,10 @@ public final class EquipmentExport {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
             SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), cimNamespace, writer);
-                String node1 = exportedNodes.get(getNode1Key(vl, sw));
-                TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node1, 1, cimNamespace, writer);
-                String node2 = exportedNodes.get(getNode2Key(vl, sw));
-                TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
+            String node1 = exportedNodes.get(getNode1Key(vl, sw));
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node1, 1, cimNamespace, writer);
+            String node2 = exportedNodes.get(getNode2Key(vl, sw));
+            TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
         }
     }
 
@@ -315,27 +320,19 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static void writeDanglingLines(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeDanglingLines(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (DanglingLine danglingLine : network.getDanglingLines()) {
-            // New Substation
-            String geographicalRegionId = CgmesExportUtil.getUniqueId();
-            GeographicalRegionEq.write(geographicalRegionId, danglingLine.getNameOrId() + "_GR", cimNamespace, writer);
-            String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
-            SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getNameOrId() + "_SGR", geographicalRegionId, cimNamespace, writer);
-            String substationId = CgmesExportUtil.getUniqueId();
-            SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
-            // New VoltageLevel
-            String baseVoltageId = CgmesExportUtil.getUniqueId();
-            BaseVoltageEq.write(baseVoltageId, danglingLine.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
-            String voltageLevelId = CgmesExportUtil.getUniqueId();
-            VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", substationId, baseVoltageId, cimNamespace, writer);
-            // New ConnectivityNode
-            String connectivityNodeId = CgmesExportUtil.getUniqueId();
-            ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+
+            String substationId = writeDanglingLineSubstation(danglingLine, cimNamespace, writer);
+            String baseVoltageId = writeDanglingLineBaseVoltage(danglingLine, cimNamespace, writer);
+            String voltageLevelId = writeDanglingLineVoltageLevel(danglingLine, substationId, baseVoltageId, cimNamespace, writer);
+            String connectivityNodeId = writeDanglingLineConnectivity(danglingLine, voltageLevelId, danglingLineBoundaries, cimNamespace, writer);
+
             // New Load
             String loadId = CgmesExportUtil.getUniqueId();
             EnergyConsumerEq.write(loadId, danglingLine.getNameOrId() + "_LOAD", null, voltageLevelId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), loadId, connectivityNodeId, 1, cimNamespace, writer);
+
             // New Equivalent Injection
             double minP = 0.0;
             double maxP = 0.0;
@@ -355,11 +352,51 @@ public final class EquipmentExport {
             String equivalentInjectionId = CgmesExportUtil.getUniqueId();
             EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
+
             // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId(), danglingLine.getR(), danglingLine.getX(), danglingLine.getB(), danglingLine.getR(), cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), danglingLine.getId(), connectivityNodeId, 2, cimNamespace, writer);
             writeFlowsLimits(danglingLine, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
         }
+    }
+
+    private static String writeDanglingLineSubstation(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // New Substation
+        String geographicalRegionId = CgmesExportUtil.getUniqueId();
+        GeographicalRegionEq.write(geographicalRegionId, danglingLine.getNameOrId() + "_GR", cimNamespace, writer);
+        String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
+        SubGeographicalRegionEq.write(subGeographicalRegionId, danglingLine.getNameOrId() + "_SGR", geographicalRegionId, cimNamespace, writer);
+        String substationId = CgmesExportUtil.getUniqueId();
+        SubstationEq.write(substationId, danglingLine.getNameOrId() + "_SUBSTATION", subGeographicalRegionId, cimNamespace, writer);
+
+        return substationId;
+    }
+
+    private static String writeDanglingLineBaseVoltage(DanglingLine danglingLine, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // New VoltageLevel
+        String baseVoltageId = CgmesExportUtil.getUniqueId();
+        BaseVoltageEq.write(baseVoltageId, danglingLine.getTerminal().getVoltageLevel().getNominalV(), cimNamespace, writer);
+
+        return baseVoltageId;
+    }
+
+    private static String writeDanglingLineVoltageLevel(DanglingLine danglingLine, String substationId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // New VoltageLevel
+        String voltageLevelId = CgmesExportUtil.getUniqueId();
+        VoltageLevelEq.write(voltageLevelId, danglingLine.getNameOrId() + "_VL", substationId, baseVoltageId, cimNamespace, writer);
+
+        return voltageLevelId;
+    }
+
+    private static String writeDanglingLineConnectivity(DanglingLine danglingLine, String voltageLevelId, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        // New ConnectivityNode
+        String connectivityNodeId = CgmesExportUtil.getUniqueId();
+        ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
+        // New Terminal
+        String terminalId = CgmesExportUtil.getUniqueId();
+        TerminalEq.write(terminalId, danglingLine.getId(), connectivityNodeId, 2, cimNamespace, writer);
+        danglingLineBoundaries.put(danglingLine.getBoundary(), terminalId);
+
+        return connectivityNodeId;
     }
 
     private static void writeBranchLimits(Branch branch, String terminalId1, String terminalId2, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -458,6 +495,29 @@ public final class EquipmentExport {
 
     private static void writeAcdcConverterDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         AcdcConverterDCTerminalEq.write(id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
+    }
+
+    private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
+        if (cgmesControlAreas != null) {
+            for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
+                ControlAreaEq.write(cgmesControlArea.getId(), cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, writer);
+                for (Terminal terminal : cgmesControlArea.getTerminals()) {
+                    TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(exportedTerminals, terminal), cimNamespace, writer);
+                }
+                for (Boundary boundary : cgmesControlArea.getBoundaries()) {
+                    if (cgmesControlArea.getBoundaries().contains(boundary)) {
+                        TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), danglingLineBoundaries.get(boundary), cimNamespace, writer);
+                    }
+                }
+            }
+        } else {
+            String cgmesControlAreaId = CgmesExportUtil.getUniqueId();
+            ControlAreaEq.write(cgmesControlAreaId, "Network", "Network--1", cimNamespace, writer);
+            for (DanglingLine danglingLine : network.getDanglingLines()) {
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlAreaId, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
+            }
+        }
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -566,7 +626,7 @@ public final class EquipmentExport {
 
         private final Map<Integer, List<Integer>> adjacency;
 
-        NodeAdjacency (VoltageLevel vl) {
+        NodeAdjacency(VoltageLevel vl) {
             adjacency = new HashMap<>();
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
                 vl.getNodeBreakerView().getInternalConnections().forEach(ic -> computeInternalConnectionAdjacency(ic));
