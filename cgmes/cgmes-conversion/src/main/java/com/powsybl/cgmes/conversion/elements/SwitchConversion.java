@@ -75,7 +75,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion impl
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
-            boolean retained = p.asBoolean("retained", normalOpen);
+            boolean retained = p.asBoolean("retained", false);
             adder.setRetained(retained);
             s = adder.add();
         } else {
