@@ -10,6 +10,7 @@ import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.*;
+import com.powsybl.security.results.PostContingencyResult;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class SecurityAnalysisResultBuilderTest {
             @Override
             public void onFinalStateResult(SecurityAnalysisResult result) {
 
-                testLimitViolation(result.getPreContingencyResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
+                testLimitViolation(result.getPreContingencyLimitViolationsResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
 
                 List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
                 assertEquals(1, postContingencyResults.size());

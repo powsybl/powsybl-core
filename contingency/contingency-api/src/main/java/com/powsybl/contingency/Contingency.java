@@ -117,6 +117,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     valid = checkTwoWindingsTransformerContingency(this, (TwoWindingsTransformerContingency) element, network);
                     break;
 
+                case THREE_WINDINGS_TRANSFORMER:
+                    valid = checkThreeWindingsTransformerContingency(this, (ThreeWindingsTransformerContingency) element, network);
+                    break;
+
                 default:
                     throw new AssertionError("Unknown contingency element type " + element.getType());
             }
@@ -220,6 +224,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkThreeWindingsTransformerContingency(Contingency contingency, ThreeWindingsTransformerContingency element, Network network) {
+        if (network.getThreeWindingsTransformer(element.getId()) == null) {
+            LOGGER.warn("ThreeWindingsTransformer '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -274,5 +286,9 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     public static Contingency danglingLine(String id) {
         return builder(id).addDanglingLine(id).build();
+    }
+
+    public static Contingency threeWindingsTransformer(String id) {
+        return builder(id).addThreeWindingsTransformer(id).build();
     }
 }
