@@ -68,7 +68,15 @@ public class PsseExporterTest extends AbstractConverterTest {
     @Test
     public void importExportTest24() throws IOException {
         Network network = importTest("IEEE_24_bus", "IEEE_24_bus.raw", false);
+        changeIEEE24BusNetwork(network);
         exportTest(network, "IEEE_24_bus_updated_exported", "IEEE_24_bus_updated_exported.raw");
+    }
+
+    private static void changeIEEE24BusNetwork(Network network) {
+        network.getBusBreakerView().getBuses().forEach(bus -> {
+            bus.setV(bus.getV() * 1.01);
+            bus.setAngle(bus.getAngle() * 1.01);
+        });
     }
 
     @Test
