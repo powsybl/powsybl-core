@@ -132,4 +132,16 @@ public class PsseExporterTest extends AbstractConverterTest {
         Network network = importTest("twoTerminalDc", "twoTerminalDc.raw", false);
         exportTest(network, "twoTerminalDc_updated_exported", "twoTerminalDc_updated_exported.raw");
     }
+
+    @Test
+    public void importExportIEEE14BusRev35() throws IOException {
+        Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.raw", false);
+        exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.raw");
+    }
+
+    @Test
+    public void importExportIEEE14BusRev35x() throws IOException {
+        Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.rawx", false);
+        exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.rawx");
+    }
 }
