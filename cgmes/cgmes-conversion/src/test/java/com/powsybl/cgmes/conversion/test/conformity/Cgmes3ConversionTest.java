@@ -17,11 +17,13 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 import java.io.IOException;
 import java.util.Properties;
 
+import org.junit.Test;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cgmes3ConversionTest {
-    //@Test
+    @Test
     public void microGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
@@ -32,7 +34,7 @@ public class Cgmes3ConversionTest {
         t.testConversion(expected, Cgmes3Catalog.microGrid());
     }
 
-    //@Test
+    @Test
     public void microGridConvertBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
@@ -42,5 +44,74 @@ public class Cgmes3ConversionTest {
             new ComparisonConfig());
         Network expected = null;
         t.testConversion(expected, Cgmes3Catalog.microGrid());
+    }
+
+    @Test
+    public void miniGrid() throws IOException {
+        Properties importParams = new Properties();
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.miniGrid());
+    }
+
+    @Test
+    public void miniGridConvertBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.miniGrid());
+    }
+
+    @Test
+    public void smallGrid() throws IOException {
+        Properties importParams = new Properties();
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.smallGrid());
+    }
+
+    @Test
+    public void smallGridConvertBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.smallGrid());
+    }
+
+    @Test
+    public void svedala() throws IOException {
+        Properties importParams = new Properties();
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.svedala());
+    }
+
+    @Test
+    public void svedalaConvertBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, Cgmes3Catalog.svedala());
     }
 }
