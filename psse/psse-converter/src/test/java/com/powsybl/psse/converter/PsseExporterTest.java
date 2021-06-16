@@ -13,7 +13,12 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -80,6 +85,31 @@ public class PsseExporterTest extends AbstractConverterTest {
             bus.setV(bus.getV() * 1.01);
             bus.setAngle(bus.getAngle() * 1.01);
         });
+
+        Load load21 = network.getLoad("B2-L1 ");
+        load21.getTerminal().disconnect();
+
+        Load load31 = network.getLoad("B3-L1 ");
+        load31.getTerminal().setP(Double.NaN);
+        load31.getTerminal().setQ(Double.NaN);
+
+        Generator gen11 = network.getGenerator("B1-G1 ");
+        gen11.getTerminal().disconnect();
+
+        Generator gen21 = network.getGenerator("B2-G1 ");
+        gen21.getTerminal().setP(Double.NaN);
+        gen21.getTerminal().setQ(Double.NaN);
+
+        ShuntCompensator sh11 = network.getShuntCompensator("B1-SwSH1");
+        sh11.getTerminal().disconnect();
+
+        Line line = network.getLine("L-1-2-1 ");
+        line.getTerminal1().disconnect();
+        line.getTerminal2().disconnect();
+
+        TwoWindingsTransformer tw2t = network.getTwoWindingsTransformer("T-24-3-1 ");
+        tw2t.getTerminal1().disconnect();
+        tw2t.getTerminal2().disconnect();
     }
 
     @Test
