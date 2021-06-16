@@ -153,6 +153,11 @@ public class PsseImporterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void twoWindingsTransformerPhase() throws IOException {
+        importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
+    }
+
+    @Test
     public void testRates() throws IOException {
         Context context = new Context();
         ReadOnlyDataSource ds = new ResourceDataSource("ThreeMIB_T3W_modified", new ResourceSet("/", "ThreeMIB_T3W_modified.raw"));

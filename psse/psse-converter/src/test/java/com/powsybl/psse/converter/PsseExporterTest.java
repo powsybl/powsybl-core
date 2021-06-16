@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.converter;
 
+import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
@@ -16,6 +17,8 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.joda.time.DateTime;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -143,5 +146,20 @@ public class PsseExporterTest extends AbstractConverterTest {
     public void importExportIEEE14BusRev35x() throws IOException {
         Network network = importTest("IEEE_14_bus_rev35", "IEEE_14_bus_rev35.rawx", false);
         exportTest(network, "IEEE_14_bus_rev35_exported", "IEEE_14_bus_rev35_exported.rawx");
+    }
+
+    @Test
+    public void importExportTwoWindingsTransformerPhase() throws IOException {
+        Network network = importTest("TwoWindingsTransformerPhase", "TwoWindingsTransformerPhase.raw", false);
+        exportTest(network, "TwoWindingsTransformerPhase_exported", "TwoWindingsTransformerPhase_exported.raw");
+    }
+
+    @Test
+    public void exportDataTest() throws IOException {
+        PsseExporter psseExporter = new PsseExporter();
+
+        assertEquals("Update IIDM to PSS/E ", psseExporter.getComment());
+        assertEquals("PSS/E", psseExporter.getFormat());
+        assertEquals(ImmutableList.of(), psseExporter.getParameters());
     }
 }
