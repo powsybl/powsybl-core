@@ -46,6 +46,12 @@ public class BranchTrippingTest extends AbstractTrippingTest {
 
         assertFalse(line.getTerminal1().isConnected());
         assertFalse(line.getTerminal2().isConnected());
+
+        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.line("NOT_EXISTS").toTask().modify(network, null));
+        assertEquals("Line 'NOT_EXISTS' not found", e1.getMessage());
+
+        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.line("NHV1_NHV2_1", "NOT_EXISTS_VL").toTask().modify(network, null));
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to line 'NHV1_NHV2_1'", e2.getMessage());
     }
 
     @Test
@@ -67,6 +73,11 @@ public class BranchTrippingTest extends AbstractTrippingTest {
 
         assertFalse(transformer.getTerminal1().isConnected());
         assertFalse(transformer.getTerminal2().isConnected());
+
+        Exception e1 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NOT_EXISTS").toTask().modify(network, null));
+        assertEquals("Two windings transformer 'NOT_EXISTS' not found", e1.getMessage());
+        Exception e2 = assertThrows(PowsyblException.class, () -> Contingency.twoWindingsTransformer("NHV2_NLOAD", "NOT_EXISTS_VL").toTask().modify(network, null));
+        assertEquals("VoltageLevel 'NOT_EXISTS_VL' not connected to the two windings transformer 'NHV2_NLOAD'", e2.getMessage());
     }
 
     @Test
