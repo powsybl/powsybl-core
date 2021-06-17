@@ -264,19 +264,19 @@ public final class StateVariablesExport {
                 .ifPresent(t -> writePowerFlow(t, twt.getLeg3().getTerminal().getP(), twt.getLeg3().getTerminal().getQ(), cimNamespace, writer));
         });
 
-        network.getVoltageLevelStream().forEach(vl -> {
-            long t80 = System.currentTimeMillis();
-            SwitchesFlow swflows = new SwitchesFlow(vl);
-            long t81 = System.currentTimeMillis();
-            vl.getSwitches().forEach(sw -> {
-                if (swflows.hasFlow(sw.getId())) {
-                    sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
-                        .ifPresent(t -> writePowerFlow(t, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer));
-                    sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
-                        .ifPresent(t -> writePowerFlow(t, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer));
-                }
+        if (context.exportFlowsForSwitches()) {
+            network.getVoltageLevelStream().forEach(vl -> {
+                SwitchesFlow swflows = new SwitchesFlow(vl);
+                vl.getSwitches().forEach(sw -> {
+                    if (swflows.hasFlow(sw.getId())) {
+                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
+                            .ifPresent(t -> writePowerFlow(t, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer));
+                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
+                            .ifPresent(t -> writePowerFlow(t, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer));
+                    }
+                });
             });
-        });
+        }
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
