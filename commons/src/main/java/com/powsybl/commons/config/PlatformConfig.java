@@ -64,7 +64,7 @@ public class PlatformConfig {
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
-            List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class));
+            List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class, PlatformConfig.class.getClassLoader()));
             if (providers.isEmpty()) {
                 LOGGER.error("Platform configuration provider not found. For tests, consider using TestPlatformConfigProvider in powsybl-config-test. Otherwise, consider using ClassicPlatformConfigProvider from powsybl-config-classic.");
                 throw new PowsyblException("Platform configuration provider not found");

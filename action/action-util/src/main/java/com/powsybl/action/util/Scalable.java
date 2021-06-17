@@ -150,6 +150,30 @@ public interface Scalable {
     double scale(Network n, double asked, ScalingConvention scalingConvention);
 
     /**
+     * Scale the given network using Generator convention by default.
+     * If the object is a load, scaling is done with constant power factor.
+     * @param n network
+     * @param asked value asked to adjust the scalable active power and reactive power if load
+     * @return the actual value of the scalable active power adjustment
+     */
+    default double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scale(n, asked);
+    }
+
+    /**
+     * Scale the given network.
+     * The actual scaling value may be different to the one asked, if
+     * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
+     * @param n network
+     * @param asked value asked to adjust the scalable active power and reactive power if load
+     * @param scalingConvention power convention used for scaling
+     * @return the actual value of the scalable active power adjustment
+     */
+    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention);
+    }
+
+    /**
      * @deprecated gen should be replaced by onGenerator
      */
     @Deprecated

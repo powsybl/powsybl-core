@@ -74,10 +74,19 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
-        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs);
+        test(CgmesConformity1Catalog.smallBusBranch().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringControlAreaNetInterchange));
     }
 
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {
+        test(dataSource, version, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator));
+    }
+
+    private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffsSsh, DifferenceEvaluator knownDiffsIidm) throws IOException, XMLStreamException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
@@ -94,8 +103,8 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
         // Compare the exported SSH with the original one
         try (InputStream expectedssh = Repackager.newInputStream(dataSource, Repackager::ssh);
-                InputStream actualssh = Files.newInputStream(exportedSsh)) {
-            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffs);
+             InputStream actualssh = Files.newInputStream(exportedSsh)) {
+            ExportXmlCompare.compareSSH(expectedssh, actualssh, knownDiffsSsh);
         }
 
         // Zip with new SSH
@@ -118,6 +127,6 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         NetworkXml.writeAndValidate(actual, tmpDir.resolve("actual.xml"));
 
         // Compare
-        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"));
+        ExportXmlCompare.compareNetworks(tmpDir.resolve("expected.xml"), tmpDir.resolve("actual.xml"), knownDiffsIidm);
     }
 }

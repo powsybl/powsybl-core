@@ -21,7 +21,8 @@ public interface VoltagePerReactivePowerControl extends Extension<StaticVarCompe
 
     /**
      * Get the slope of the StaticVarCompensator, that defines how the reactive power output changes
-     * in proportion to the difference between the controlled bus voltage and the controller bus voltage.
+     * in proportion to the difference between the controlled bus target voltage and the controlled bus voltage.
+     * The slope is in kV by MVar.
      */
     double getSlope();
 

@@ -52,7 +52,20 @@ public final class ExportXmlCompare {
         }
     }
 
+    static void compareNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+        try (InputStream expectedIs = Files.newInputStream(expected);
+             InputStream actualIs = Files.newInputStream(actual)) {
+            compareNetworks(expectedIs, actualIs, knownDiffs);
+        }
+    }
+
     static void compareNetworks(InputStream expected, InputStream actual) {
+        compareNetworks(expected, actual, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator));
+    }
+
+    static void compareNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
         Source control = Input.fromStream(expected).build();
         Source test = Input.fromStream(actual).build();
         Diff diff = DiffBuilder
@@ -61,9 +74,7 @@ public final class ExportXmlCompare {
                 .ignoreWhitespace()
                 .ignoreComments()
                 .withAttributeFilter(ExportXmlCompare::isConsideredForNetwork)
-                .withDifferenceEvaluator(DifferenceEvaluators.chain(
-                        DifferenceEvaluators.Default,
-                        ExportXmlCompare::numericDifferenceEvaluator))
+                .withDifferenceEvaluator(knownDiffs)
                 .withComparisonListeners(ExportXmlCompare::debugComparison)
                 .build();
         assertTrue(!diff.hasDifferences());
@@ -225,6 +236,22 @@ public final class ExportXmlCompare {
         return result;
     }
 
+    static ComparisonResult ignoringSimilarPowerFlows(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            if (control.getParentNode() != null
+                && control.getParentNode().getNodeType() == Node.ELEMENT_NODE
+                && (control.getParentNode().getLocalName().equals("SvPowerFlow.p") || control.getParentNode().getLocalName().equals("SvPowerFlow.q"))) {
+                double expected = Double.valueOf(control.getNodeValue());
+                double actual = Double.valueOf(comparison.getTestDetails().getTarget().getNodeValue());
+                if (Math.abs(expected - actual) < 0.2d) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     // Present in small grid
     private static final Set<String> JUNCTIONS_TERMINALS = Stream.of(
             "#_65a95678-1819-43cd-94d2-a03756822725",
@@ -268,6 +295,36 @@ public final class ExportXmlCompare {
         }
     }
 
+    static ComparisonResult ignoringControlAreaNetInterchange(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            if (comparison.getType() == ComparisonType.ELEMENT_NUM_ATTRIBUTES) {
+                Node control = comparison.getControlDetails().getTarget();
+                Node test = comparison.getTestDetails().getTarget();
+                if (control.getLocalName().equals("controlArea")
+                        && control.getAttributes().getLength() - test.getAttributes().getLength() == 1
+                        && control.getAttributes().getNamedItem("netInterchange") != null && test.getAttributes().getNamedItem("netInterchange") == null) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            if (comparison.getType() == ComparisonType.ATTR_NAME_LOOKUP) {
+                Comparison.Detail control = comparison.getControlDetails();
+                if (control.getValue().toString().equals("netInterchange")
+                        && control.getTarget().getLocalName().equals("controlArea")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                Comparison.Detail test = comparison.getTestDetails();
+                if (control.getTarget().getLocalName().equals("netInterchange")
+                        && test.getTarget().getLocalName().equals("netInterchange")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+        }
+        return result;
+    }
+
     static ComparisonResult numericDifferenceEvaluator(Comparison comparison, ComparisonResult result) {
         // If both control and test nodes are text that can be converted to a number
         // check that they represent the same number
@@ -309,9 +366,9 @@ public final class ExportXmlCompare {
                     || name.endsWith("pTolerance")
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
-            // DanglingLine p, q attributes in IIDM Network
+            // DanglingLine p, q, p0, q0 attributes in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q");
+            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0");
         }
         return false;
     }
@@ -321,6 +378,8 @@ public final class ExportXmlCompare {
             return 1e-5;
         } else if (n.getLocalName().equals("p") || n.getLocalName().equals("q")) {
             return 1e-1;
+        } else if (n.getLocalName().equals("p0") || n.getLocalName().equals("q0")) {
+            return 1e-5;
         }
         return 1e-10;
     }

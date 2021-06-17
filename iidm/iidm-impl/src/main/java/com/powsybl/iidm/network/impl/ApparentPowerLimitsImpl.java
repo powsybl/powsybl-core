@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ApparentPowerLimits;
-import com.powsybl.iidm.network.LimitType;
 
 import java.util.TreeMap;
 
@@ -18,10 +17,5 @@ class ApparentPowerLimitsImpl extends AbstractLoadingLimits<ApparentPowerLimitsI
 
     ApparentPowerLimitsImpl(OperationalLimitsOwner owner, double permanentLimit, TreeMap<Integer, TemporaryLimit> temporaryLimits) {
         super(owner, permanentLimit, temporaryLimits);
-    }
-
-    @Override
-    public void remove() {
-        owner.setOperationalLimits(LimitType.APPARENT_POWER, null);
     }
 }

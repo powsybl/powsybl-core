@@ -620,7 +620,7 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?RegulatingControl
         cim:RegulatingControl.enabled ?enabled ;
         cim:RegulatingControl.targetValue ?targetValue ;
@@ -642,7 +642,7 @@ WHERE {
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergyConsumer
         cim:EnergyConsumer.p ?p ;
         cim:EnergyConsumer.q ?q
@@ -658,7 +658,7 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergySource
         cim:EnergySource.activePower ?p ;
         cim:EnergySource.reactivePower ?q
@@ -839,7 +839,7 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-{ GRAPH ?graphSSH  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?StaticVarCompensator
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
@@ -871,8 +871,8 @@ WHERE {
     ?ControlArea
         a cim:ControlArea ;
         cim:IdentifiedObject.name ?name ;
-        entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic ;
-        cim:ControlArea.type ?controlAreaType
+        cim:ControlArea.type ?controlAreaType .
+        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
     FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
         
 }}
@@ -894,13 +894,13 @@ WHERE {
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
 }}
-{ GRAPH ?graphSV {
+OPTIONAL { GRAPH ?graphSV {
     ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
 }}
 # For Current Source Converter

@@ -48,7 +48,9 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
             writer.writeStartElement(getNamespaceUri(), CONTROL_AREA);
             writer.writeAttribute("id", controlArea.getId());
             writer.writeAttribute("name", controlArea.getName());
-            writer.writeAttribute("energyIdentificationCodeEic", controlArea.getEnergyIdentificationCodeEIC());
+            if (controlArea.getEnergyIdentificationCodeEIC() != null) {
+                writer.writeAttribute("energyIdentificationCodeEic", controlArea.getEnergyIdentificationCodeEIC());
+            }
             XmlUtil.writeDouble("netInterchange", controlArea.getNetInterchange(), writer);
             for (Terminal terminal : controlArea.getTerminals()) {
                 TerminalRefXml.writeTerminalRef(terminal, networkContext, getNamespaceUri(), "terminal");
@@ -78,7 +80,7 @@ public class CgmesControlAreasXmlSerializer extends AbstractExtensionXmlSerializ
                         .setId(reader.getAttributeValue(null, "id"))
                         .setName(reader.getAttributeValue(null, "name"))
                         .setEnergyIdentificationCodeEic(reader.getAttributeValue(null, "energyIdentificationCodeEic"))
-                        .setNetInterchange(XmlUtil.readDoubleAttribute(reader, "netInterchange"))
+                        .setNetInterchange(XmlUtil.readOptionalDoubleAttribute(reader, "netInterchange"))
                         .add();
                 readBoundariesAndTerminals(networkContext, reader, cgmesControlArea, extendable);
             } else {

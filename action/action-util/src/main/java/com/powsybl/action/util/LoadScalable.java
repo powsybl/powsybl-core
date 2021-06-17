@@ -95,15 +95,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
     }
 
-
-    /**
-     * {@inheritDoc}
-     *
-     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
-     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
-     */
-    @Override
-    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+    private double scale(Network n, double asked, ScalingConvention scalingConvention, boolean constantPowerFactor) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
 
@@ -122,6 +114,7 @@ class LoadScalable extends AbstractInjectionScalable {
         }
 
         double oldP0 = l.getP0();
+        double oldQ0 = l.getQ0();
         if (oldP0 < minValue || oldP0 > maxValue) {
             LOGGER.error("Error scaling LoadScalable {}: Initial P is not in the range [Pmin, Pmax]", id);
             return 0.;
@@ -143,6 +136,33 @@ class LoadScalable extends AbstractInjectionScalable {
         LOGGER.info("Change active power setpoint of {} from {} to {} ",
                 l.getId(), oldP0, l.getP0());
 
+        if (constantPowerFactor) {
+            l.setQ0(l.getP0() * oldQ0 / oldP0);
+            LOGGER.info("Change reactive power setpoint of {} from {} to {} ",
+                    l.getId(), oldQ0, l.getQ0());
+        }
+
         return done;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
+     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
+     */
+    @Override
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention, false);
+    }
+
+    @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention, true);
+    }
+
+    @Override
+    public double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scaleWithConstantPowerFactor(n, asked, ScalingConvention.GENERATOR);
     }
 }
