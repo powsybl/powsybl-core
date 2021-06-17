@@ -217,9 +217,9 @@ public final class StateVariablesExport {
     private static void writePowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getLoadStream);
         writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getGeneratorStream);
-        writeInjectionsReactiveFlow(network, cimNamespace, writer, context, Network::getShuntCompensatorStream);
-        writeInjectionsReactiveFlow(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
-        writeInjectionsReactiveFlow(network, cimNamespace, writer, context, Network::getBatteryStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getShuntCompensatorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getStaticVarCompensatorStream);
+        writeInjectionsPowerFlows(network, cimNamespace, writer, context, Network::getBatteryStream);
 
         network.getDanglingLineStream().forEach(dl -> {
             // FIXME: the values (p0/q0) are wrong: these values are target and never updated, not calculated flows
@@ -267,14 +267,10 @@ public final class StateVariablesExport {
         getInjectionStream.apply(network).forEach(i -> writePowerFlow(i.getTerminal(), cimNamespace, writer, context));
     }
 
-    private static <I extends Injection<I>> void writeInjectionsReactiveFlow(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
-        getInjectionStream.apply(network).forEach(i -> writeReactiveFlow(i.getTerminal(), cimNamespace, writer, context));
-    }
-
     private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
-            writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), cimNamespace, writer);
+            writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
         } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
             writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
         } else {
@@ -282,15 +278,23 @@ public final class StateVariablesExport {
         }
     }
 
-    private static void writeReactiveFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
-        String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
-        if (cgmesTerminal != null) {
-            writeReactiveFlow(cgmesTerminal, terminal.getQ(), cimNamespace, writer);
-        } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
-        } else {
-            LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
+    private static double getTerminalP(Terminal terminal) {
+        double p = terminal.getP();
+        if (!Double.isNaN(p)) {
+            return p;
         }
+        // P is NaN
+        if (Double.isNaN(terminal.getQ())) {
+            return p;
+        }
+        // P is NaN and Q != NaN
+        if (terminal.getConnectable() instanceof StaticVarCompensator) {
+            return 0.0;
+        }
+        if (terminal.getConnectable() instanceof ShuntCompensator) {
+            return 0.0;
+        }
+        return p;
     }
 
     private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer,
@@ -323,18 +327,6 @@ public final class StateVariablesExport {
         if (Double.isNaN(p) && Double.isNaN(q)) {
             return;
         }
-        writePowerFlowPQ(terminal, p, q, cimNamespace, writer);
-    }
-
-    private static void writeReactiveFlow(String terminal, double q, String cimNamespace, XMLStreamWriter writer) {
-        // Export only if the reactive flow is a number
-        if (Double.isNaN(q)) {
-            return;
-        }
-        writePowerFlowPQ(terminal, 0.0, q, cimNamespace, writer);
-    }
-
-    private static void writePowerFlowPQ(String terminal, double p, double q, String cimNamespace, XMLStreamWriter writer) {
         try {
             writer.writeStartElement(cimNamespace, "SvPowerFlow");
             writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, CgmesExportUtil.getUniqueId());
