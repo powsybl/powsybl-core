@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -62,6 +63,11 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     @Test
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
+    }
+
+    @Test
+    public void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
+        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource(), 4);
     }
 
     private static void addRepackagerFiles(String tso, Repackager repackager) {
