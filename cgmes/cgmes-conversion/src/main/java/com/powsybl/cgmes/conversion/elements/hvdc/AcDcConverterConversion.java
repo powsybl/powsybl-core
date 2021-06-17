@@ -100,10 +100,12 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     }
 
     private static VscRegulation decodeVscRegulation(String qPccControl) {
-        if (qPccControl.endsWith("voltagePcc")) {
-            return VscRegulation.VOLTAGE;
-        } else if (qPccControl.endsWith("reactivePcc")) {
-            return VscRegulation.REACTIVE_POWER;
+        if (qPccControl != null) {
+            if (qPccControl.endsWith("voltagePcc")) {
+                return VscRegulation.VOLTAGE;
+            } else if (qPccControl.endsWith("reactivePcc")) {
+                return VscRegulation.REACTIVE_POWER;
+            }
         }
         return null;
     }

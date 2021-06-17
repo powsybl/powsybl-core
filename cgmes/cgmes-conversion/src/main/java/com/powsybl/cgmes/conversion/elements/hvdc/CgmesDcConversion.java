@@ -23,6 +23,8 @@ import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.triplestore.api.PropertyBag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -256,6 +258,9 @@ public class CgmesDcConversion {
             } else if (cconverter1.asDouble(TARGET_PPCC) == 0 && cconverter2.asDouble(TARGET_PPCC) == 0) {
                 // Both ends are rectifier or inverter
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+            } else {
+                LOG.warn("Undefined converter mode for the HVDC, assumed to be of type \"Side1 Rectifier - Side2 Inverter\"");
+                return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
             }
         } else {
             if (cconverter1.asDouble(TARGET_PPCC) > 0 || cconverter2.asDouble(TARGET_PPCC) < 0) {
@@ -264,15 +269,14 @@ public class CgmesDcConversion {
                 return HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
             }
         }
-        throw new PowsyblException("Unexpected HVDC type: " + converterType);
     }
 
     private static boolean inverter(String operatingMode) {
-        return operatingMode.toLowerCase().endsWith("inverter");
+        return operatingMode != null && operatingMode.toLowerCase().endsWith("inverter");
     }
 
     private static boolean rectifier(String operatingMode) {
-        return operatingMode.toLowerCase().endsWith("rectifier");
+        return operatingMode != null && operatingMode.toLowerCase().endsWith("rectifier");
     }
 
     private double computeR(PropertyBag dcLs) {
@@ -394,4 +398,6 @@ public class CgmesDcConversion {
     private PropertyBag dcLineSegment;
     private double r;
     private double ratedUdc;
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesDcConversion.class);
 }
