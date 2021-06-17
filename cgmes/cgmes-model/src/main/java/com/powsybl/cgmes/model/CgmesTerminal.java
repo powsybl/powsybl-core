@@ -42,7 +42,7 @@ public class CgmesTerminal {
         // two relationships may be different
         // (TODO(Luma): missing reference here)
 
-        this.connected = t.asBoolean("connected", false);
+        this.connected = t.asBoolean("connected", true);
         this.flow = new PowerFlow(t, "p", "q");
     }
 

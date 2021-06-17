@@ -113,30 +113,30 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
             switch (context.getReader().getLocalName()) {
                 case ACTIVE_POWER_LIMITS_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, l::newActivePowerLimits1, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(1, l.newActivePowerLimits1(), context.getReader()));
                     break;
 
                 case APPARENT_POWER_LIMITS_1:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, l::newApparentPowerLimits1, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(1, l.newApparentPowerLimits1(), context.getReader()));
                     break;
 
                 case "currentLimits1":
-                    readCurrentLimits(1, l::newCurrentLimits1, context.getReader());
+                    readCurrentLimits(1, l.newCurrentLimits1(), context.getReader());
                     break;
 
                 case ACTIVE_POWER_LIMITS_2:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, l::newActivePowerLimits2, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readActivePowerLimits(2, l.newActivePowerLimits2(), context.getReader()));
                     break;
 
                 case APPARENT_POWER_LIMITS_2:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, l::newApparentPowerLimits2, context.getReader()));
+                    IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> readApparentPowerLimits(2, l.newApparentPowerLimits2(), context.getReader()));
                     break;
 
                 case "currentLimits2":
-                    readCurrentLimits(2, l::newCurrentLimits2, context.getReader());
+                    readCurrentLimits(2, l.newCurrentLimits2(), context.getReader());
                     break;
 
                 default:
