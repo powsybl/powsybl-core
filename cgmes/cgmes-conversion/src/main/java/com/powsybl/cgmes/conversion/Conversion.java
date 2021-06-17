@@ -252,7 +252,7 @@ public class Conversion {
                 .setId(controlAreaId)
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange"))
+                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
                 .add();
     }
 
