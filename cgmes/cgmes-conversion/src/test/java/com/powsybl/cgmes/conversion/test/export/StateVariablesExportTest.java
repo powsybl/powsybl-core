@@ -85,15 +85,28 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         String loadId = "_0448d86a-c766-11e1-8775-005056c00008";
         Load load = network.getLoad(loadId);
         String cgmesTerminal = getCgmesTerminal(load.getTerminal());
+
+        // Only when P and Q are NaN is not exported
+
+        load.getTerminal().setP(-0.12);
+        load.getTerminal().setQ(-13.03);
         String sv = exportSvAsString(network, 4);
         assertTrue(sv.contains(cgmesTerminal));
 
-        // If P and Q are NaN is not exported
+        load.getTerminal().setP(Double.NaN);
+        load.getTerminal().setQ(-13.03);
+        String sv1 = exportSvAsString(network, 4);
+        assertTrue(sv1.contains(cgmesTerminal));
+
+        load.getTerminal().setP(-0.12);
+        load.getTerminal().setQ(Double.NaN);
+        String sv2 = exportSvAsString(network, 4);
+        assertTrue(sv2.contains(cgmesTerminal));
 
         load.getTerminal().setP(Double.NaN);
         load.getTerminal().setQ(Double.NaN);
-        String sv1 = exportSvAsString(network, 4);
-        assertFalse(sv1.contains(cgmesTerminal));
+        String sv3 = exportSvAsString(network, 4);
+        assertFalse(sv3.contains(cgmesTerminal));
     }
 
     @Test
@@ -103,10 +116,12 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         String shuntCompensatorId = "_04553478-c766-11e1-8775-005056c00008";
         ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
         String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
-        String sv = exportSvAsString(network, 4);
-        assertTrue(sv.contains(cgmesTerminal));
 
         // If Q are NaN is not exported
+
+        shuntCompensator.getTerminal().setQ(-13.03);
+        String sv = exportSvAsString(network, 4);
+        assertTrue(sv.contains(cgmesTerminal));
 
         shuntCompensator.getTerminal().setQ(Double.NaN);
         String sv1 = exportSvAsString(network, 4);
