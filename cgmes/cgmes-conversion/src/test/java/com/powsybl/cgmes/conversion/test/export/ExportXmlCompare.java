@@ -313,6 +313,14 @@ public final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 }
             }
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                Comparison.Detail control = comparison.getControlDetails();
+                Comparison.Detail test = comparison.getTestDetails();
+                if (control.getTarget().getLocalName().equals("netInterchange")
+                        && test.getTarget().getLocalName().equals("netInterchange")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
         }
         return result;
     }
