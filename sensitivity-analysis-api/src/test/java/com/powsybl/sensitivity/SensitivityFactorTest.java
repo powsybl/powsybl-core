@@ -6,6 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.contingency.ContingencyContext;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -21,7 +22,7 @@ public class SensitivityFactorTest {
 
     @Test
     public void testGetters() {
-        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        ContingencyContext context = ContingencyContext.all();
         String functionId = "86";
         String variableId = "1664";
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId, SensitivityVariableType.TRANSFORMER_PHASE, variableId, true, context);

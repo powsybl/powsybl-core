@@ -6,7 +6,7 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFactor;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableType;

@@ -6,7 +6,7 @@
  */
 package com.powsybl.sensitivity.factors;
 
-import com.powsybl.sensitivity.ContingencyContext;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.sensitivity.SensitivityFunctionType;
 import com.powsybl.sensitivity.SensitivityVariableType;
 import org.junit.Assert;
@@ -25,18 +25,18 @@ public class BranchFlowPerInjectionIncreaseTest {
     @Test
     public void checkFailsWhenNullFunction() {
         exception.expect(NullPointerException.class);
-        new BranchFlowPerInjectionIncrease(null, "12", ContingencyContext.createAllContingencyContext());
+        new BranchFlowPerInjectionIncrease(null, "12", ContingencyContext.all());
     }
 
     @Test
     public void checkFailsWhenNullVariable() {
         exception.expect(NullPointerException.class);
-        new BranchFlowPerInjectionIncrease("12", null, ContingencyContext.createAllContingencyContext());
+        new BranchFlowPerInjectionIncrease("12", null, ContingencyContext.all());
     }
 
     @Test
     public void testGetters() {
-        ContingencyContext context = ContingencyContext.createAllContingencyContext();
+        ContingencyContext context = ContingencyContext.all();
         String functionId = "86";
         String variableId = "1664";
         BranchFlowPerInjectionIncrease factor = new BranchFlowPerInjectionIncrease(functionId, variableId, context);
