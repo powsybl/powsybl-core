@@ -56,8 +56,15 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGridBEFlowsForSwitches() throws IOException, XMLStreamException {
+        // Activate export of flows for switches on a small network with few switches,
+        // Writing flows for all switches has impact on performance
+        test(CgmesConformity1Catalog.microGridBaseCaseNL().dataSource(), 2, true);
+    }
+
+    @Test
     public void microGridAssembled() throws IOException, XMLStreamException {
-        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), 4, r -> {
+        test(CgmesConformity1Catalog.microGridBaseCaseAssembled().dataSource(), 4, false, r -> {
             addRepackagerFiles("NL", r);
             addRepackagerFiles("BE", r);
         });
@@ -158,13 +165,17 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     }
 
     private void test(ReadOnlyDataSource dataSource, int svVersion) throws IOException, XMLStreamException {
-        test(dataSource, svVersion, r -> r
+        test(dataSource, svVersion, false);
+    }
+
+    private void test(ReadOnlyDataSource dataSource, int svVersion, boolean exportFlowsForSwitches) throws IOException, XMLStreamException {
+        test(dataSource, svVersion, exportFlowsForSwitches, r -> r
                 .with("test_EQ.xml", Repackager::eq)
                 .with("test_TP.xml", Repackager::tp)
                 .with("test_SSH.xml", Repackager::ssh));
     }
 
-    private void test(ReadOnlyDataSource dataSource, int svVersion, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
+    private void test(ReadOnlyDataSource dataSource, int svVersion, boolean exportFlowsForSwitches, Consumer<Repackager> repackagerConsumer) throws XMLStreamException, IOException {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
@@ -191,6 +202,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             context.getSvModelDescription().setVersion(svVersion);
             context.setExportBoundaryPowerFlows(true);
+            context.setExportFlowsForSwitches(exportFlowsForSwitches);
             StateVariablesExport.write(expected, writer, context);
         }
 
