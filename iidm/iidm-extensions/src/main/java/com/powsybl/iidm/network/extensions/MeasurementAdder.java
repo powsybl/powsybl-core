@@ -6,16 +6,22 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.ExtensionAdder;
-import com.powsybl.iidm.network.Connectable;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface AnalogMeasurementsAdder<C extends Connectable<C>> extends ExtensionAdder<C, AnalogMeasurements<C>> {
+public interface MeasurementAdder {
 
-    @Override
-    default Class<AnalogMeasurements> getExtensionClass() {
-        return AnalogMeasurements.class;
-    }
+    MeasurementAdder setId(String id);
+
+    MeasurementAdder putProperty(String name, Object property);
+
+    MeasurementAdder setType(Measurement.Type type);
+
+    MeasurementAdder setValue(double value);
+
+    MeasurementAdder setSide(Measurement.Side side);
+
+    MeasurementAdder setValid(boolean valid);
+
+    Measurements add();
 }

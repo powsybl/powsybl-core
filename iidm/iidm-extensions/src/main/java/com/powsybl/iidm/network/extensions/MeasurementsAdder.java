@@ -6,24 +6,16 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
-
-import java.util.Collection;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public interface AnalogMeasurements<C extends Connectable<C>> extends Extension<C> {
+public interface MeasurementsAdder<C extends Connectable<C>> extends ExtensionAdder<C, Measurements<C>> {
 
     @Override
-    default String getName() {
-        return "analogs";
+    default Class<Measurements> getExtensionClass() {
+        return Measurements.class;
     }
-
-    Collection<AnalogMeasurement> getAnalogMeasurements();
-
-    AnalogMeasurement getAnalogMeasurement(String id);
-
-    AnalogMeasurementAdder newAnalogMeasurement();
 }

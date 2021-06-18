@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 @AutoService(ExtensionAdderProvider.class)
-public class DiscretesAdderImplProvider<I extends Identifiable<I>> implements ExtensionAdderProvider<I, DiscreteMeasurements<I>, DiscreteMeasurementsAdderImpl<I>> {
+public class DiscreteMeasurementsAdderImplProvider<I extends Identifiable<I>> implements ExtensionAdderProvider<I, DiscreteMeasurements<I>, DiscreteMeasurementsAdderImpl<I>> {
     @Override
     public String getImplementationName() {
         return "Default";

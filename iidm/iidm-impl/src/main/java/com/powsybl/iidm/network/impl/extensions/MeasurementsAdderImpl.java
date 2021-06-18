@@ -8,20 +8,20 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.extensions.AnalogMeasurements;
-import com.powsybl.iidm.network.extensions.AnalogMeasurementsAdder;
+import com.powsybl.iidm.network.extensions.Measurements;
+import com.powsybl.iidm.network.extensions.MeasurementsAdder;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class AnalogMeasurementsAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, AnalogMeasurements<C>> implements AnalogMeasurementsAdder<C> {
+class MeasurementsAdderImpl<C extends Connectable<C>> extends AbstractExtensionAdder<C, Measurements<C>> implements MeasurementsAdder<C> {
 
-    AnalogMeasurementsAdderImpl(C extendable) {
+    MeasurementsAdderImpl(C extendable) {
         super(extendable);
     }
 
     @Override
-    protected AnalogMeasurementsImpl<C> createExtension(C extendable) {
-        return new AnalogMeasurementsImpl<>();
+    protected MeasurementsImpl<C> createExtension(C extendable) {
+        return new MeasurementsImpl<>();
     }
 }
