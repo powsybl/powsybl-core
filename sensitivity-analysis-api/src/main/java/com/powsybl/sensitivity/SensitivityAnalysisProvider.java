@@ -44,6 +44,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param workingStateId network variant ID on which the analysis will be performed
      * @param factorsProvider provider of sensitivity factors to be computed
      * @param contingencies list of contingencies after which sensitivity factors will be computed
+     * @param variableSets list of variableSets (ex-glsk)
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
@@ -52,9 +53,10 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                                      String workingStateId,
                                                      SensitivityFactorsProvider factorsProvider,
                                                      List<Contingency> contingencies,
+                                                     List<SensitivityVariableSet> variableSets,
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager) {
-        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, Reporter.NO_OP);
+        return run(network, workingStateId, factorsProvider, contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
     }
 
     /**
@@ -67,6 +69,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param workingStateId network variant ID on which the analysis will be performed
      * @param factorsProvider provider of sensitivity factors to be computed
      * @param contingencies list of contingencies after which sensitivity factors will be computed
+     * @param variableSets list of variableSets (ex-glsk)
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @param reporter a reporter for functional logs
@@ -76,6 +79,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                                      String workingStateId,
                                                      SensitivityFactorsProvider factorsProvider,
                                                      List<Contingency> contingencies,
+                                                     List<SensitivityVariableSet> variableSets,
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager,
                                                      Reporter reporter) {
