@@ -190,19 +190,19 @@ public class UcteExporter implements Exporter {
                 geographicalName,
                 getStatus(bus),
                 UcteNodeTypeCode.PQ,
-                Float.NaN,
+                Double.NaN,
                 0.0f,
                 0.0f,
                 0.0f,
                 0.0f,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
                 null
         );
         ucteNetwork.addNode(ucteNode);
@@ -222,8 +222,8 @@ public class UcteExporter implements Exporter {
      * @param bus The bus the loads are connected to
      */
     private static void convertLoads(UcteNode ucteNode, Bus bus) {
-        float activeLoad = 0.0f;
-        float reactiveLoad = 0.0f;
+        double activeLoad = 0.0;
+        double reactiveLoad = 0.0;
         for (Load load : bus.getLoads()) {
             activeLoad += load.getP0();
             reactiveLoad += load.getQ0();
@@ -239,13 +239,13 @@ public class UcteExporter implements Exporter {
      * @param bus The bus the generators are connected to
      */
     private static void convertGenerators(UcteNode ucteNode, Bus bus) {
-        float activePowerGeneration = -0.0f;
-        float reactivePowerGeneration = -0.0f;
-        float voltageReference = Float.NaN;
-        float minP = Float.NaN;
-        float maxP = Float.NaN;
-        float minQ = Float.NaN;
-        float maxQ = Float.NaN;
+        double activePowerGeneration = -0.0;
+        double reactivePowerGeneration = -0.0;
+        double voltageReference = Double.NaN;
+        double minP = Double.NaN;
+        double maxP = Double.NaN;
+        double minQ = Double.NaN;
+        double maxQ = Double.NaN;
         UcteNodeTypeCode nodeType = UcteNodeTypeCode.PQ;
         UctePowerPlantType powerPlantType = null;
         for (Generator generator : bus.getGenerators()) {
@@ -258,16 +258,16 @@ public class UcteExporter implements Exporter {
             if (!Double.isNaN(generator.getTargetV())) {
                 // FIXME(mathbagu): what if not all the generators have the same targetV?
                 // Should we use bus.getV() instead?
-                voltageReference = (float) generator.getTargetV();
+                voltageReference = generator.getTargetV();
             }
             if (generator.isVoltageRegulatorOn()) {
                 nodeType = UcteNodeTypeCode.PU;
             }
-            minP = (float) generator.getMinP();
-            maxP = (float) generator.getMaxP();
+            minP = generator.getMinP();
+            maxP = generator.getMaxP();
             // FIXME(mathbagu): how to get minQ and maxQ for an aggregated generator
-            minQ = (float) generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maxQ = (float) generator.getReactiveLimits().getMaxQ(activePowerGeneration);
+            minQ = generator.getReactiveLimits().getMinQ(activePowerGeneration);
+            maxQ = generator.getReactiveLimits().getMaxQ(activePowerGeneration);
 
             // FIXME(mathbagu): what if not all the generators have the same energy source?
             powerPlantType = energySourceToUctePowerPlantType(generator);
@@ -305,19 +305,19 @@ public class UcteExporter implements Exporter {
 
         UcteNodeStatus ucteNodeStatus = getXnodeStatus(danglingLine);
         UcteNode ucteNode = convertXNode(ucteNetwork, xnodeCode, geographicalName, ucteNodeStatus);
-        ucteNode.setActiveLoad((float) danglingLine.getP0());
-        ucteNode.setReactiveLoad((float) danglingLine.getQ0());
+        ucteNode.setActiveLoad(danglingLine.getP0());
+        ucteNode.setReactiveLoad(danglingLine.getQ0());
         double generatorTargetP = danglingLine.getGeneration().getTargetP();
-        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : (float) -generatorTargetP);
+        ucteNode.setActivePowerGeneration(Double.isNaN(generatorTargetP) ? 0 : -generatorTargetP);
         double generatorTargetQ = danglingLine.getGeneration().getTargetQ();
-        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : (float) -generatorTargetQ);
+        ucteNode.setReactivePowerGeneration(Double.isNaN(generatorTargetQ) ? 0 : -generatorTargetQ);
         if (danglingLine.getGeneration().isVoltageRegulationOn()) {
             ucteNode.setTypeCode(UcteNodeTypeCode.PU);
-            ucteNode.setVoltageReference((float) danglingLine.getGeneration().getTargetV());
-            float minP = (float) danglingLine.getGeneration().getMinP();
-            float maxP = (float) danglingLine.getGeneration().getMaxP();
-            float minQ = (float) danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
-            float maxQ = (float) danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
+            ucteNode.setVoltageReference(danglingLine.getGeneration().getTargetV());
+            double minP = danglingLine.getGeneration().getMinP();
+            double maxP = danglingLine.getGeneration().getMaxP();
+            double minQ = danglingLine.getGeneration().getReactiveLimits().getMinQ(danglingLine.getGeneration().getTargetP());
+            double maxQ = danglingLine.getGeneration().getReactiveLimits().getMaxQ(danglingLine.getGeneration().getTargetP());
             if (minP != -DEFAULT_POWER_LIMIT) {
                 ucteNode.setMinimumPermissibleActivePowerGeneration(-minP);
             }
@@ -380,19 +380,19 @@ public class UcteExporter implements Exporter {
                 geographicalName,
                 ucteNodeStatus,
                 UcteNodeTypeCode.PQ,
-                Float.NaN,
+                Double.NaN,
                 0.0f,
                 0.0f,
                 0.0f,
                 0.0f,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
-                Float.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
+                Double.NaN,
                 null
         );
         ucteNetwork.addNode(ucteNode);
@@ -442,9 +442,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine = new UcteLine(
                 lineId,
                 status,
-                (float) line.getR(),
-                (float) line.getX(),
-                (float) line.getB1() + (float) line.getB2(),
+                line.getR(),
+                line.getX(),
+                line.getB1() + line.getB2(),
                 getPermanentLimit(line),
                 elementName);
         ucteNetwork.addLine(ucteLine);
@@ -490,9 +490,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
-                (float) line.getR() * mergedXnode.getRdp(),
-                (float) line.getX() * mergedXnode.getXdp(),
-                (float) line.getB1(),
+                line.getR() * mergedXnode.getRdp(),
+                line.getX() * mergedXnode.getXdp(),
+                line.getB1(),
                 (int) line.getCurrentLimits1().getPermanentLimit(),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
@@ -504,9 +504,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
-                (float) line.getR() * (1.0f - mergedXnode.getRdp()),
-                (float) line.getX() * (1.0f - mergedXnode.getXdp()),
-                (float) line.getB2(),
+                line.getR() * (1.0d - mergedXnode.getRdp()),
+                line.getX() * (1.0d - mergedXnode.getXdp()),
+                line.getB2(),
                 (int) line.getCurrentLimits2().getPermanentLimit(),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
@@ -533,9 +533,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
                 status1,
-                (float) half1.getR(),
-                (float) half1.getX(),
-                (float) (half1.getB1() + half1.getB2()),
+                half1.getR(),
+                half1.getX(),
+                half1.getB1() + half1.getB2(),
                 (int) tieLine.getCurrentLimits1().getPermanentLimit(),
                 elementName1);
         ucteNetwork.addLine(ucteLine1);
@@ -548,9 +548,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine2 = new UcteLine(
                 ucteElementId2,
                 status2,
-                (float) half2.getR(),
-                (float) half2.getX(),
-                (float) (half2.getB1() + half2.getB2()),
+                half2.getR(),
+                half2.getX(),
+                half2.getB1() + half2.getB2(),
                 (int) tieLine.getCurrentLimits2().getPermanentLimit(),
                 elementName2);
         ucteNetwork.addLine(ucteLine2);
@@ -585,9 +585,9 @@ public class UcteExporter implements Exporter {
         UcteLine ucteLine = new UcteLine(
                 elementId,
                 ucteElementStatus,
-                (float) danglingLine.getR(),
-                (float) danglingLine.getX(),
-                (float) danglingLine.getB(),
+                danglingLine.getR(),
+                danglingLine.getX(),
+                danglingLine.getB(),
                 danglingLine.getCurrentLimits() == null ? null : (int) danglingLine.getCurrentLimits().getPermanentLimit(),
                 elementName);
         ucteNetwork.addLine(ucteLine);
@@ -720,7 +720,7 @@ public class UcteExporter implements Exporter {
         UcteElementId elementId = context.getNamingStrategy().getUcteElementId(twoWindingsTransformer);
         UcteElementStatus status = getStatus(twoWindingsTransformer);
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        float nominalPower = Float.NaN;
+        double nominalPower = Double.NaN;
         if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
             nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
         }
@@ -728,15 +728,15 @@ public class UcteExporter implements Exporter {
         UcteTransformer ucteTransformer = new UcteTransformer(
                 elementId,
                 status,
-                (float) twoWindingsTransformer.getR(),
-                (float) twoWindingsTransformer.getX(),
-                (float) twoWindingsTransformer.getB(),
+                twoWindingsTransformer.getR(),
+                twoWindingsTransformer.getX(),
+                twoWindingsTransformer.getB(),
                 getPermanentLimit(twoWindingsTransformer),
                 elementName,
-                (float) twoWindingsTransformer.getRatedU2(),
-                (float) twoWindingsTransformer.getRatedU1(),
+                twoWindingsTransformer.getRatedU2(),
+                twoWindingsTransformer.getRatedU1(),
                 nominalPower,
-                (float) twoWindingsTransformer.getG());
+                twoWindingsTransformer.getG());
         ucteNetwork.addTransformer(ucteTransformer);
 
         convertRegulation(ucteNetwork, elementId, twoWindingsTransformer);
@@ -772,14 +772,14 @@ public class UcteExporter implements Exporter {
     private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.trace("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
 
-        float du = (float) calculatePhaseDu(twoWindingsTransformer);
+        double du = calculatePhaseDu(twoWindingsTransformer);
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
-                Float.NaN);
+                Double.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
-            uctePhaseRegulation.setU((float) twoWindingsTransformer.getRatioTapChanger().getTargetV());
+            uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
         }
         return uctePhaseRegulation;
     }
@@ -796,15 +796,15 @@ public class UcteExporter implements Exporter {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
-            return new UcteAngleRegulation((float) calculateSymmAngleDu(twoWindingsTransformer),
+            return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
                     90,
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
                     twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
-            return new UcteAngleRegulation((float) calculateAsymmAngleDu(twoWindingsTransformer),
-                    (float) calculateAsymmAngleTheta(twoWindingsTransformer),
+            return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
+                    calculateAsymmAngleTheta(twoWindingsTransformer),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
                     twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                     calculateAngleP(twoWindingsTransformer),
@@ -816,8 +816,8 @@ public class UcteExporter implements Exporter {
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return P (MW) of the angle regulation for the two windings transformer
      */
-    private static float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
-        return (float) twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
+    private static double calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
+        return twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
     }
 
     /**

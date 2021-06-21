@@ -45,21 +45,21 @@ public class UcteImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteImporter.class);
 
-    private static final float LINE_MIN_Z = 0.05f;
+    private static final double LINE_MIN_Z = 0.05;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
-    private static float getConductance(UcteTransformer ucteTransfo) {
-        float g = 0;
-        if (!Float.isNaN(ucteTransfo.getConductance())) {
+    private static double getConductance(UcteTransformer ucteTransfo) {
+        double g = 0;
+        if (!Double.isNaN(ucteTransfo.getConductance())) {
             g = ucteTransfo.getConductance();
         }
         return g;
     }
 
-    private static float getSusceptance(UcteElement ucteElement) {
-        float b = 0;
-        if (!Float.isNaN(ucteElement.getSusceptance())) {
+    private static double getSusceptance(UcteElement ucteElement) {
+        double b = 0;
+        if (!Double.isNaN(ucteElement.getSusceptance())) {
             b = ucteElement.getSusceptance();
         }
         return b;
@@ -201,8 +201,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static boolean isValueValid(float value) {
-        return !Float.isNaN(value) && value != 0;
+    private static boolean isValueValid(double value) {
+        return !Double.isNaN(value) && value != 0;
     }
 
     private static void createLoad(UcteNode ucteNode, VoltageLevel voltageLevel, Bus bus) {
@@ -210,11 +210,11 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create load '{}'", loadId);
 
-        float p0 = 0;
+        double p0 = 0;
         if (isValueValid(ucteNode.getActiveLoad())) {
             p0 = ucteNode.getActiveLoad();
         }
-        float q0 = 0;
+        double q0 = 0;
         if (isValueValid(ucteNode.getReactiveLoad())) {
             q0 = ucteNode.getReactiveLoad();
         }
@@ -259,8 +259,8 @@ public class UcteImporter implements Importer {
             }
         }
 
-        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
-        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+        double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
 
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
@@ -296,10 +296,10 @@ public class UcteImporter implements Importer {
             .build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
-        float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
-        float q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
-        float targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
-        float targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
+        double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
+        double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
+        double targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
+        double targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
@@ -526,8 +526,8 @@ public class UcteImporter implements Importer {
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
                 .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
-                .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
-        if (!Float.isNaN(uctePhaseRegulation.getU())) {
+                .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
+        if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
                     .setTargetV(uctePhaseRegulation.getU())
@@ -535,7 +535,7 @@ public class UcteImporter implements Importer {
                     .setRegulationTerminal(transformer.getTerminal1());
         }
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
-            float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
+            double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
             rtca.beginStep()
                     .setRho(rho)
                     .setR(0f)
@@ -558,19 +558,19 @@ public class UcteImporter implements Importer {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
-            float rho;
-            float alpha;
+            double rho;
+            double alpha;
             double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
             double dy = i * ucteAngleRegulation.getDu() / 100f * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
             switch (ucteAngleRegulation.getType()) {
                 case ASYM:
-                    rho = (float) (1 / Math.hypot(dy, 1 + dx));
-                    alpha = (float) Math.toDegrees(Math.atan2(dy, 1 + dx));
+                    rho = 1d / Math.hypot(dy, 1d + dx);
+                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
                     break;
 
                 case SYMM:
-                    rho = 1f;
-                    alpha = (float) Math.toDegrees(2 * Math.atan2(dy, 2f * (1 + dx)));
+                    rho = 1d;
+                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2f * (1d + dx)));
                     break;
 
                 default:
@@ -636,10 +636,10 @@ public class UcteImporter implements Importer {
         LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
-        float p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
-        float q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
-        float targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
-        float targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
+        double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
+        double q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
+        double targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
+        double targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
         // create a small impedance dangling line connected to the YNODE
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
@@ -868,7 +868,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        if (!Float.isNaN(transformer.getNominalPower())) {
+        if (!Double.isNaN(transformer.getNominalPower())) {
             twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
         }
     }

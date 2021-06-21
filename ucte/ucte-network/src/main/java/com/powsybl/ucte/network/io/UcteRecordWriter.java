@@ -28,7 +28,7 @@ class UcteRecordWriter {
 
     private final StringBuilder buffer = new StringBuilder();
 
-    private final DecimalFormat floatNumberFormatter = new DecimalFormat();
+    private final DecimalFormat numberFormatter = new DecimalFormat();
 
     UcteRecordWriter(BufferedWriter writer) {
         this.writer = writer;
@@ -36,11 +36,11 @@ class UcteRecordWriter {
     }
 
     private void initNumberFormatter() {
-        floatNumberFormatter.setGroupingUsed(false);
-        floatNumberFormatter.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
-        floatNumberFormatter.setMinimumIntegerDigits(1);
-        floatNumberFormatter.setMinimumFractionDigits(1);
-        floatNumberFormatter.setMaximumFractionDigits(5);
+        numberFormatter.setGroupingUsed(false);
+        numberFormatter.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.US));
+        numberFormatter.setMinimumIntegerDigits(1);
+        numberFormatter.setMinimumFractionDigits(1);
+        numberFormatter.setMaximumFractionDigits(5);
     }
 
     private void resizeBuffer(int length) {
@@ -82,16 +82,16 @@ class UcteRecordWriter {
         return -IntMath.pow(10, numberOfChars - 1);
     }
 
-    // floats are left aligned, zero padded to fill the field length
-    void writeFloat(float value, int beginIndex, int endIndex) {
-        if (Float.isNaN(value)) {
+    // doubles are left aligned, zero padded to fill the field length
+    void writeDouble(double value, int beginIndex, int endIndex) {
+        if (Double.isNaN(value)) {
             return;
         }
         int fieldLength = endIndex - beginIndex;
         if (value >= maxLimitInt(fieldLength) || value <= minLimitInt(fieldLength)) {
             throw new IllegalArgumentException(String.format("Float value %f does not fit into %d characters", value, fieldLength));
         }
-        String fieldStr = alignAndTruncate(floatNumberFormatter.format(value), fieldLength, Alignment.LEFT);
+        String fieldStr = alignAndTruncate(numberFormatter.format(value), fieldLength, Alignment.LEFT);
         writeString(fieldStr.replace(' ', '0'), beginIndex, endIndex);
     }
 
