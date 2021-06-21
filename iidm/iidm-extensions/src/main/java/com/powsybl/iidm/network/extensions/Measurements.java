@@ -26,4 +26,10 @@ public interface Measurements<C extends Connectable<C>> extends Extension<C> {
     Measurement getMeasurement(String id);
 
     MeasurementAdder newMeasurement();
+
+    default void cleanIfEmpty() {
+        if (getMeasurements().isEmpty()) {
+            getExtendable().removeExtension(Measurements.class);
+        }
+    }
 }

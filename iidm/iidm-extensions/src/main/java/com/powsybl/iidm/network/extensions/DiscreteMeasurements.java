@@ -26,4 +26,10 @@ public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extensi
     DiscreteMeasurement getDiscreteMeasurement(String id);
 
     DiscreteMeasurementAdder newDiscreteMeasurement();
+
+    default void cleanIfEmpty() {
+        if (getDiscreteMeasurements().isEmpty()) {
+            getExtendable().removeExtension(Measurements.class);
+        }
+    }
 }
