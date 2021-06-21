@@ -105,7 +105,8 @@ public class CgmesExportContextTest {
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
-            .setExportBoundaryPowerFlows(true);
+            .setExportBoundaryPowerFlows(true)
+            .setExportFlowsForSwitches(false);
         context.getSvModelDescription()
             .setDescription("test")
             .setVersion(2)
