@@ -334,6 +334,9 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
+    OPTIONAL {
+        ?Switch cim:Switch.retained ?retained
+    }
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?Switch ;
