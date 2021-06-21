@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import java.util.Set;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -31,6 +33,8 @@ public interface Measurement {
     String getId();
 
     Type getType();
+
+    Set<String> getPropertyNames();
 
     Object getProperty(String name);
 

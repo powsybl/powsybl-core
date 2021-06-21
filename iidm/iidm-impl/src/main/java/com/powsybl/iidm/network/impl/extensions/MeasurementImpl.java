@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.impl.extensions;
+
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
 
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -20,14 +20,14 @@ class MeasurementImpl implements Measurement {
     private final MeasurementsImpl<? extends Connectable<?>> measurements;
     private final String id;
     private final Measurement.Type type;
-    private final Properties properties = new Properties();
+    private final Map<String, Object> properties = new HashMap<>();
     private final Measurement.Side side;
 
     private double value;
     private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Properties properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
+    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, Object> properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
         this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;
@@ -49,8 +49,13 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
+    public Set<String> getPropertyNames() {
+        return Collections.unmodifiableSet(properties.keySet());
+    }
+
+    @Override
     public Object getProperty(String name) {
-        return properties.getProperty(name);
+        return properties.get(name);
     }
 
     @Override

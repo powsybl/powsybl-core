@@ -9,10 +9,10 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
 import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValidationUtil.*;
 
@@ -22,7 +22,7 @@ import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValida
 class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
     private final DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements;
-    private final Properties properties = new Properties();
+    private final Map<String, Object> properties = new HashMap<>();
 
     private String id;
     private DiscreteMeasurement.Type type;

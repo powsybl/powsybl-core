@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import java.util.Set;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -34,6 +36,8 @@ public interface DiscreteMeasurement {
     Type getType();
 
     TapChanger getTapChanger();
+
+    Set<String> getPropertyNames();
 
     Object getProperty(String name);
 

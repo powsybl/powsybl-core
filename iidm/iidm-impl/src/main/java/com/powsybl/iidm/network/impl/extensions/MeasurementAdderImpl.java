@@ -10,14 +10,12 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
-import com.powsybl.iidm.network.extensions.Measurements;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
-import java.util.Properties;
 
-import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkId;
-import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkSide;
-import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkValue;
+import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -25,7 +23,7 @@ import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil
 class MeasurementAdderImpl implements MeasurementAdder {
 
     private final MeasurementsImpl<? extends Connectable<?>> measurements;
-    private final Properties properties = new Properties();
+    private final Map<String, Object> properties = new HashMap<>();
 
     private String id;
     private Measurement.Type type;

@@ -10,8 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -22,14 +21,14 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private final String id;
     private final DiscreteMeasurement.Type type;
     private final DiscreteMeasurement.TapChanger tapChanger;
-    private final Properties properties = new Properties();
+    private final Map<String, Object> properties = new HashMap<>();
 
     private String valueAsString;
     private int valueAsInt;
     private boolean valid;
 
     DiscreteMeasurementImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements, String id, DiscreteMeasurement.Type type,
-                            DiscreteMeasurement.TapChanger tapChanger, Properties properties, String valueAsString, int valueAsInt,
+                            DiscreteMeasurement.TapChanger tapChanger, Map<String, Object> properties, String valueAsString, int valueAsInt,
                             boolean valid) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
         this.id = id;
@@ -57,8 +56,13 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     }
 
     @Override
+    public Set<String> getPropertyNames() {
+        return Collections.unmodifiableSet(properties.keySet());
+    }
+
+    @Override
     public Object getProperty(String name) {
-        return properties.getProperty(name);
+        return properties.get(name);
     }
 
     @Override
