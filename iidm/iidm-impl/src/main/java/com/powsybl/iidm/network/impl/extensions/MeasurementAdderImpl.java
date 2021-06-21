@@ -24,7 +24,7 @@ import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil
  */
 class MeasurementAdderImpl implements MeasurementAdder {
 
-    private final MeasurementsImpl measurements;
+    private final MeasurementsImpl<? extends Connectable<?>> measurements;
     private final Properties properties = new Properties();
 
     private String id;
@@ -34,7 +34,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     private boolean valid = true;
     private Measurement.Side side;
 
-    MeasurementAdderImpl(MeasurementsImpl measurements) {
+    MeasurementAdderImpl(MeasurementsImpl<? extends Connectable<?>> measurements) {
         this.measurements = Objects.requireNonNull(measurements);
     }
 
@@ -81,13 +81,13 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
-    public Measurements add() {
+    public Measurements<? extends Connectable<?>> add() {
         checkId(id, measurements);
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }
         checkValue(value);
-        checkSide(side, (Connectable) measurements.getExtendable());
+        checkSide(side, measurements.getExtendable());
         return measurements.add(new MeasurementImpl(measurements, id, type, properties, value, standardDeviation, valid, side));
     }
 }

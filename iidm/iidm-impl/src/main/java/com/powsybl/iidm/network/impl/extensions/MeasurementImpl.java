@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
 
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.Properties;
  */
 class MeasurementImpl implements Measurement {
 
-    private final MeasurementsImpl measurements;
+    private final MeasurementsImpl<? extends Connectable<?>> measurements;
     private final String id;
     private final Measurement.Type type;
     private final Properties properties = new Properties();
@@ -26,7 +27,7 @@ class MeasurementImpl implements Measurement {
     private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(MeasurementsImpl measurements, String id, Measurement.Type type, Properties properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
+    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Properties properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
         this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 
 import java.util.Objects;
@@ -17,7 +18,7 @@ import java.util.Properties;
  */
 class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
-    private final DiscreteMeasurementsImpl discreteMeasurements;
+    private final DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements;
     private final String id;
     private final DiscreteMeasurement.Type type;
     private final DiscreteMeasurement.TapChanger tapChanger;
@@ -27,7 +28,7 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private int valueAsInt;
     private boolean valid;
 
-    DiscreteMeasurementImpl(DiscreteMeasurementsImpl discreteMeasurements, String id, DiscreteMeasurement.Type type,
+    DiscreteMeasurementImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements, String id, DiscreteMeasurement.Type type,
                             DiscreteMeasurement.TapChanger tapChanger, Properties properties, String valueAsString, int valueAsInt,
                             boolean valid) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);

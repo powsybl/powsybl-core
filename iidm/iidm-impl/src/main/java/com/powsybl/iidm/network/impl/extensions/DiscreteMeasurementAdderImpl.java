@@ -21,7 +21,7 @@ import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValida
  */
 class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
-    private final DiscreteMeasurementsImpl discreteMeasurements;
+    private final DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements;
     private final Properties properties = new Properties();
 
     private String id;
@@ -31,7 +31,7 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     private int valueAsInt = -1;
     private boolean valid = true;
 
-    DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl discreteMeasurements) {
+    DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
     }
 
@@ -78,10 +78,10 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
-    public DiscreteMeasurements add() {
+    public DiscreteMeasurements<? extends Identifiable<?>> add() {
         checkId(id, discreteMeasurements);
-        checkType(type, (Identifiable) discreteMeasurements.getExtendable());
-        checkTapChanger(tapChanger, type, (Identifiable) discreteMeasurements.getExtendable());
+        checkType(type, discreteMeasurements.getExtendable());
+        checkTapChanger(tapChanger, type, discreteMeasurements.getExtendable());
         checkValues(valueAsString, valueAsInt);
         return discreteMeasurements.add(new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, valueAsString, valueAsInt, valid));
     }
