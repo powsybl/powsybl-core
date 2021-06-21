@@ -7,16 +7,17 @@
 package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.MeasurementAdder;
 import com.powsybl.iidm.network.extensions.Measurements;
 
 import java.util.Objects;
 import java.util.Properties;
+
+import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkId;
+import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkSide;
+import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil.checkValue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -81,27 +82,12 @@ class MeasurementAdderImpl implements MeasurementAdder {
 
     @Override
     public Measurements add() {
+        checkId(id, measurements);
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }
         checkValue(value);
         checkSide(side, (Connectable) measurements.getExtendable());
         return measurements.add(new MeasurementImpl(measurements, id, type, properties, value, standardDeviation, valid, side));
-    }
-
-    private static void checkValue(double value) {
-        if (Double.isNaN(value)) {
-            throw new PowsyblException("Undefined value for measurement");
-        }
-    }
-
-    private static void checkSide(Measurement.Side side, Connectable c) {
-        if (side == null) {
-            if (c instanceof Branch || c instanceof ThreeWindingsTransformer) {
-                throw new PowsyblException("Inconsistent null side for measurement of branch or three windings transformer");
-            }
-        } else if (c instanceof Injection) {
-            throw new PowsyblException("Inconsistent side for measurement of injection");
-        }
     }
 }
