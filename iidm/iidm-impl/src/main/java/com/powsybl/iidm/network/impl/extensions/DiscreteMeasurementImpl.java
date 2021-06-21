@@ -68,6 +68,12 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     }
 
     @Override
+    public DiscreteMeasurement removeProperty(String name) {
+        properties.remove(name);
+        return this;
+    }
+
+    @Override
     public String getValueAsString() {
         return valueAsString;
     }

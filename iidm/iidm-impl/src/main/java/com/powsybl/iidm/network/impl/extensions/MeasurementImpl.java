@@ -60,6 +60,12 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
+    public Measurement removeProperty(String name) {
+        properties.remove(name);
+        return this;
+    }
+
+    @Override
     public Measurement setValue(double value) {
         if (Double.isNaN(value)) {
             throw new PowsyblException("Undefined value for measurement");

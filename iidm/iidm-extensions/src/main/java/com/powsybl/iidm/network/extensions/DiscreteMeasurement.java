@@ -39,6 +39,8 @@ public interface DiscreteMeasurement {
 
     DiscreteMeasurement putProperty(String name, Object property);
 
+    DiscreteMeasurement removeProperty(String name);
+
     String getValueAsString();
 
     int getValueAsInt();

@@ -36,6 +36,8 @@ public interface Measurement {
 
     Measurement putProperty(String name, Object property);
 
+    Measurement removeProperty(String name);
+
     Measurement setValue(double value);
 
     double getValue();
