@@ -22,7 +22,7 @@ import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValida
 class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
     private final DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements;
-    private final Map<String, Object> properties = new HashMap<>();
+    private final Map<String, String> properties = new HashMap<>();
 
     private String id;
     private DiscreteMeasurement.Type type;
@@ -42,7 +42,7 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
-    public DiscreteMeasurementAdder putProperty(String name, Object value) {
+    public DiscreteMeasurementAdder putProperty(String name, String value) {
         properties.put(Objects.requireNonNull(name), value);
         return this;
     }

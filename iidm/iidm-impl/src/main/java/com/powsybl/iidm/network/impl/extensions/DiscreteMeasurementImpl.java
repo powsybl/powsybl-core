@@ -21,14 +21,14 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private final String id;
     private final DiscreteMeasurement.Type type;
     private final DiscreteMeasurement.TapChanger tapChanger;
-    private final Map<String, Object> properties = new HashMap<>();
+    private final Map<String, String> properties = new HashMap<>();
 
     private String valueAsString;
     private int valueAsInt;
     private boolean valid;
 
     DiscreteMeasurementImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements, String id, DiscreteMeasurement.Type type,
-                            DiscreteMeasurement.TapChanger tapChanger, Map<String, Object> properties, String valueAsString, int valueAsInt,
+                            DiscreteMeasurement.TapChanger tapChanger, Map<String, String> properties, String valueAsString, int valueAsInt,
                             boolean valid) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
         this.id = id;
@@ -61,12 +61,12 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     }
 
     @Override
-    public Object getProperty(String name) {
+    public String getProperty(String name) {
         return properties.get(name);
     }
 
     @Override
-    public DiscreteMeasurement putProperty(String name, Object property) {
+    public DiscreteMeasurement putProperty(String name, String property) {
         properties.put(Objects.requireNonNull(name), property);
         return this;
     }

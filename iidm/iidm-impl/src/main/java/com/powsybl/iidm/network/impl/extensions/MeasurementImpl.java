@@ -20,14 +20,14 @@ class MeasurementImpl implements Measurement {
     private final MeasurementsImpl<? extends Connectable<?>> measurements;
     private final String id;
     private final Measurement.Type type;
-    private final Map<String, Object> properties = new HashMap<>();
+    private final Map<String, String> properties = new HashMap<>();
     private final Measurement.Side side;
 
     private double value;
     private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, Object> properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
+    MeasurementImpl(MeasurementsImpl<? extends Connectable<?>> measurements, String id, Measurement.Type type, Map<String, String> properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
         this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;
@@ -54,12 +54,12 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
-    public Object getProperty(String name) {
+    public String getProperty(String name) {
         return properties.get(name);
     }
 
     @Override
-    public Measurement putProperty(String name, Object property) {
+    public Measurement putProperty(String name, String property) {
         properties.put(Objects.requireNonNull(name), property);
         return this;
     }

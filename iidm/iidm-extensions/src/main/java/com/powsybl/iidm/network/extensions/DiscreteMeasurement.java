@@ -39,9 +39,9 @@ public interface DiscreteMeasurement {
 
     Set<String> getPropertyNames();
 
-    Object getProperty(String name);
+    String getProperty(String name);
 
-    DiscreteMeasurement putProperty(String name, Object property);
+    DiscreteMeasurement putProperty(String name, String property);
 
     DiscreteMeasurement removeProperty(String name);
 

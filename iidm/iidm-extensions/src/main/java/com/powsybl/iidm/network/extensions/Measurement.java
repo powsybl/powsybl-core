@@ -36,9 +36,9 @@ public interface Measurement {
 
     Set<String> getPropertyNames();
 
-    Object getProperty(String name);
+    String getProperty(String name);
 
-    Measurement putProperty(String name, Object property);
+    Measurement putProperty(String name, String property);
 
     Measurement removeProperty(String name);
 

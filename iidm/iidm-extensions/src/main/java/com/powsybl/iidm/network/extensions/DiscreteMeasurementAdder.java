@@ -13,7 +13,7 @@ public interface DiscreteMeasurementAdder {
 
     DiscreteMeasurementAdder setId(String id);
 
-    DiscreteMeasurementAdder putProperty(String name, Object value);
+    DiscreteMeasurementAdder putProperty(String name, String value);
 
     DiscreteMeasurementAdder setType(DiscreteMeasurement.Type type);
 

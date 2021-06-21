@@ -13,7 +13,7 @@ public interface MeasurementAdder {
 
     MeasurementAdder setId(String id);
 
-    MeasurementAdder putProperty(String name, Object property);
+    MeasurementAdder putProperty(String name, String property);
 
     MeasurementAdder setType(Measurement.Type type);
 

@@ -23,7 +23,7 @@ import static com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil
 class MeasurementAdderImpl implements MeasurementAdder {
 
     private final MeasurementsImpl<? extends Connectable<?>> measurements;
-    private final Map<String, Object> properties = new HashMap<>();
+    private final Map<String, String> properties = new HashMap<>();
 
     private String id;
     private Measurement.Type type;
@@ -43,7 +43,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
-    public MeasurementAdder putProperty(String name, Object property) {
+    public MeasurementAdder putProperty(String name, String property) {
         properties.put(name, property);
         return this;
     }
