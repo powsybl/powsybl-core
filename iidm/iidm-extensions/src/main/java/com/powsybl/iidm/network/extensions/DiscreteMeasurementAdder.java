@@ -17,6 +17,8 @@ public interface DiscreteMeasurementAdder {
 
     DiscreteMeasurementAdder setType(DiscreteMeasurement.Type type);
 
+    DiscreteMeasurementAdder setTapChanger(DiscreteMeasurement.TapChanger tapChanger);
+
     DiscreteMeasurementAdder setStringValue(String value);
 
     DiscreteMeasurementAdder setIntValue(int value);

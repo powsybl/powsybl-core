@@ -28,6 +28,7 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
     private String id;
     private DiscreteMeasurement.Type type;
+    private DiscreteMeasurement.TapChanger tapChanger;
     private String valueAsString;
     private int valueAsInt = -1;
     private boolean valid = true;
@@ -55,6 +56,12 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
+    public DiscreteMeasurementAdder setTapChanger(DiscreteMeasurement.TapChanger tapChanger) {
+        this.tapChanger = tapChanger;
+        return this;
+    }
+
+    @Override
     public DiscreteMeasurementAdder setStringValue(String value) {
         this.valueAsString = value;
         return this;
@@ -75,8 +82,9 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     @Override
     public DiscreteMeasurements add() {
         checkType(type, (Identifiable) discreteMeasurements.getExtendable());
+        checkTapChanger(tapChanger, type, (Identifiable) discreteMeasurements.getExtendable());
         checkValues(valueAsString, valueAsInt);
-        return discreteMeasurements.add(new DiscreteMeasurementImpl(discreteMeasurements, id, type, properties, valueAsString, valueAsInt, valid));
+        return discreteMeasurements.add(new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, valueAsString, valueAsInt, valid));
     }
 
     private static void checkType(DiscreteMeasurement.Type type, Identifiable i) {
@@ -86,6 +94,27 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
         }
         if (type == DiscreteMeasurement.Type.TAP_POSITION && !(i instanceof TwoWindingsTransformer || i instanceof ThreeWindingsTransformer)) {
             throw new PowsyblException("TAP_POSITION discrete not linked to a transformer");
+        }
+    }
+
+    private static void checkTapChanger(DiscreteMeasurement.TapChanger tapChanger, DiscreteMeasurement.Type type, Identifiable i) {
+        if (tapChanger == null && type == DiscreteMeasurement.Type.TAP_POSITION) {
+            throw new PowsyblException("The measured tap changer must be specified");
+        }
+        if (tapChanger != null) {
+            if (!(i instanceof TwoWindingsTransformer || i instanceof ThreeWindingsTransformer)) {
+                throw new PowsyblException("A tap changer is specified when the measured equipment is not a tap changer");
+            }
+            if (i instanceof TwoWindingsTransformer
+                    && tapChanger != DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER
+                    && tapChanger != DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER) {
+                throw new PowsyblException("A non existent tap changer place has been specified for a two windings transformer's tap changer");
+            }
+            if (i instanceof ThreeWindingsTransformer
+                    && (tapChanger == DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER
+                    || tapChanger == DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER)) {
+                throw new PowsyblException("Side is not specified for the measured tap changer of a three windings transformer");
+            }
         }
     }
 

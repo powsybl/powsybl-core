@@ -20,16 +20,20 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private final DiscreteMeasurementsImpl discreteMeasurements;
     private final String id;
     private final DiscreteMeasurement.Type type;
+    private final DiscreteMeasurement.TapChanger tapChanger;
     private final Properties properties = new Properties();
 
     private String valueAsString;
     private int valueAsInt;
     private boolean valid;
 
-    DiscreteMeasurementImpl(DiscreteMeasurementsImpl discreteMeasurements, String id, DiscreteMeasurement.Type type, Properties properties, String valueAsString, int valueAsInt, boolean valid) {
+    DiscreteMeasurementImpl(DiscreteMeasurementsImpl discreteMeasurements, String id, DiscreteMeasurement.Type type,
+                            DiscreteMeasurement.TapChanger tapChanger, Properties properties, String valueAsString, int valueAsInt,
+                            boolean valid) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
         this.id = id;
         this.type = type;
+        this.tapChanger = tapChanger;
         this.properties.putAll(properties);
         this.valueAsString = Objects.requireNonNullElseGet(valueAsString, () -> String.valueOf(valueAsInt));
         this.valid = valid;
@@ -44,6 +48,11 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     @Override
     public Type getType() {
         return type;
+    }
+
+    @Override
+    public TapChanger getTapChanger() {
+        return tapChanger;
     }
 
     @Override

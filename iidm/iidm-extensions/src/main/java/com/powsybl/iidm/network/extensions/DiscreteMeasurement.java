@@ -18,9 +18,22 @@ public interface DiscreteMeasurement {
         OTHER
     }
 
+    enum TapChanger {
+        RATIO_TAP_CHANGER,
+        PHASE_TAP_CHANGER,
+        RATIO_TAP_CHANGER_1,
+        PHASE_TAP_CHANGER_1,
+        RATIO_TAP_CHANGER_2,
+        PHASE_TAP_CHANGER_2,
+        RATIO_TAP_CHANGER_3,
+        PHASE_TAP_CHANGER_3
+    }
+
     String getId();
 
     Type getType();
+
+    TapChanger getTapChanger();
 
     Object getProperty(String name);
 
