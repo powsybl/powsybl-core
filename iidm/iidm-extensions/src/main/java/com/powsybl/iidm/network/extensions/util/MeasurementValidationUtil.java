@@ -19,7 +19,7 @@ import com.powsybl.iidm.network.extensions.Measurements;
  */
 public final class MeasurementValidationUtil {
 
-    public static void checkId(String id, Measurements measurements) {
+    public static <C extends Connectable<C>> void checkId(String id, Measurements<C> measurements) {
         if (id != null && measurements.getMeasurement(id) != null) {
             throw new PowsyblException(String.format("There is already a measurement with ID %s", id));
         }
@@ -31,7 +31,7 @@ public final class MeasurementValidationUtil {
         }
     }
 
-    public static void checkSide(Measurement.Side side, Connectable c) {
+    public static <C extends Connectable<C>> void checkSide(Measurement.Side side, Connectable<C> c) {
         if (side == null) {
             if (c instanceof Branch || c instanceof ThreeWindingsTransformer) {
                 throw new PowsyblException("Inconsistent null side for measurement of branch or three windings transformer");

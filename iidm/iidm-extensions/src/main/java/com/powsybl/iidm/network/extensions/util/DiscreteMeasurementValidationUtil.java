@@ -21,13 +21,13 @@ import java.util.Objects;
  */
 public final class DiscreteMeasurementValidationUtil {
 
-    public static void checkId(String id, DiscreteMeasurements discreteMeasurements) {
+    public static <I extends Identifiable<I>> void checkId(String id, DiscreteMeasurements<I> discreteMeasurements) {
         if (id != null && discreteMeasurements.getDiscreteMeasurement(id) != null) {
             throw new PowsyblException(String.format("There is already a discrete measurement with ID %s", id));
         }
     }
 
-    public static void checkType(DiscreteMeasurement.Type type, Identifiable i) {
+    public static <I extends Identifiable<I>> void checkType(DiscreteMeasurement.Type type, Identifiable<I> i) {
         Objects.requireNonNull(type);
         if (type == DiscreteMeasurement.Type.SWITCH_POSITION && !(i instanceof Switch)) {
             throw new PowsyblException("SWITCH_POSITION discrete not linked to a switch");
@@ -37,7 +37,8 @@ public final class DiscreteMeasurementValidationUtil {
         }
     }
 
-    public static void checkTapChanger(DiscreteMeasurement.TapChanger tapChanger, DiscreteMeasurement.Type type, Identifiable i) {
+    public static <I extends Identifiable<I>> void checkTapChanger(DiscreteMeasurement.TapChanger tapChanger,
+                                                                   DiscreteMeasurement.Type type, Identifiable<I> i) {
         if (tapChanger == null && type == DiscreteMeasurement.Type.TAP_POSITION) {
             throw new PowsyblException("The measured tap changer must be specified");
         }
