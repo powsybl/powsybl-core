@@ -7,10 +7,13 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
 import com.powsybl.cgmes.extensions.CgmesIidmMapping;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.xml.XmlUtil;
@@ -18,10 +21,15 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.xml.NetworkXml;
+
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,6 +42,7 @@ import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -69,6 +78,84 @@ public class StateVariablesExportTest extends AbstractConverterTest {
     @Test
     public void smallGridNodeBreaker() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallNodeBreaker().dataSource(), 4);
+    }
+
+    @Test
+    public void miniBusBranchWithSvInjection() throws IOException, XMLStreamException {
+        test(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource(), 4);
+    }
+
+    @Test
+    public void miniBusBranchWithSvInjectionExportPQ() throws IOException, XMLStreamException {
+
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
+        String loadId = "_0448d86a-c766-11e1-8775-005056c00008";
+        Load load = network.getLoad(loadId);
+        String cgmesTerminal = getCgmesTerminal(load.getTerminal());
+
+        // Only when P and Q are NaN is not exported
+
+        load.getTerminal().setP(-0.12);
+        load.getTerminal().setQ(-13.03);
+        String sv = exportSvAsString(network, 4);
+        assertTrue(sv.contains(cgmesTerminal));
+
+        load.getTerminal().setP(Double.NaN);
+        load.getTerminal().setQ(-13.03);
+        String sv1 = exportSvAsString(network, 4);
+        assertTrue(sv1.contains(cgmesTerminal));
+
+        load.getTerminal().setP(-0.12);
+        load.getTerminal().setQ(Double.NaN);
+        String sv2 = exportSvAsString(network, 4);
+        assertTrue(sv2.contains(cgmesTerminal));
+
+        load.getTerminal().setP(Double.NaN);
+        load.getTerminal().setQ(Double.NaN);
+        String sv3 = exportSvAsString(network, 4);
+        assertFalse(sv3.contains(cgmesTerminal));
+    }
+
+    @Test
+    public void miniBusBranchWithSvInjectionExportQ() throws IOException, XMLStreamException {
+
+        Network network = importNetwork(CgmesConformity1ModifiedCatalog.smallBusBranchWithSvInjectio().dataSource());
+        String shuntCompensatorId = "_04553478-c766-11e1-8775-005056c00008";
+        ShuntCompensator shuntCompensator = network.getShuntCompensator(shuntCompensatorId);
+        String cgmesTerminal = getCgmesTerminal(shuntCompensator.getTerminal());
+
+        // If Q are NaN is not exported
+
+        shuntCompensator.getTerminal().setQ(-13.03);
+        String sv = exportSvAsString(network, 4);
+        assertTrue(sv.contains(cgmesTerminal));
+
+        shuntCompensator.getTerminal().setQ(Double.NaN);
+        String sv1 = exportSvAsString(network, 4);
+        assertFalse(sv1.contains(cgmesTerminal));
+    }
+
+    private static Network importNetwork(ReadOnlyDataSource ds) {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SV");
+        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
+        return new CgmesImport().importData(ds, NetworkFactory.findDefault(), properties);
+    }
+
+    private String exportSvAsString(Network network, int svVersion) throws XMLStreamException, IOException {
+        CgmesExportContext context = new CgmesExportContext(network);
+        Path file = fileSystem.getPath("/work/" + network.getId() + ".xml");
+        OutputStream os = Files.newOutputStream(file);
+        XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+        context.getSvModelDescription().setVersion(svVersion);
+        context.setExportBoundaryPowerFlows(true);
+        StateVariablesExport.write(network, writer, context);
+
+        return Files.readString(file);
+    }
+
+    private static String getCgmesTerminal(Terminal terminal) {
+        return ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
     }
 
     private static void addRepackagerFiles(String tso, Repackager repackager) {
