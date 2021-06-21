@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.iidm.network.Identifiable;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -27,5 +25,5 @@ public interface DiscreteMeasurementAdder {
 
     DiscreteMeasurementAdder setValid(boolean valid);
 
-    DiscreteMeasurements<? extends Identifiable<?>> add();
+    DiscreteMeasurement add();
 }

@@ -78,11 +78,13 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
-    public DiscreteMeasurements<? extends Identifiable<?>> add() {
+    public DiscreteMeasurement add() {
         checkId(id, discreteMeasurements);
         checkType(type, discreteMeasurements.getExtendable());
         checkTapChanger(tapChanger, type, discreteMeasurements.getExtendable());
         checkValues(valueAsString, valueAsInt);
-        return discreteMeasurements.add(new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, valueAsString, valueAsInt, valid));
+        DiscreteMeasurementImpl discreteMeasurement = new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, valueAsString, valueAsInt, valid);
+        discreteMeasurements.add(discreteMeasurement);
+        return discreteMeasurement;
     }
 }

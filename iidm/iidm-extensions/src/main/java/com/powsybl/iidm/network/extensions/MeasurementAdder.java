@@ -6,8 +6,6 @@
  */
 package com.powsybl.iidm.network.extensions;
 
-import com.powsybl.iidm.network.Connectable;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -27,5 +25,5 @@ public interface MeasurementAdder {
 
     MeasurementAdder setValid(boolean valid);
 
-    Measurements<? extends Connectable<?>> add();
+    Measurement add();
 }

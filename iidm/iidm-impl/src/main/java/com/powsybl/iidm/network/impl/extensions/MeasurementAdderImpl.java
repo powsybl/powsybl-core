@@ -81,13 +81,15 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
-    public Measurements<? extends Connectable<?>> add() {
+    public Measurement add() {
         checkId(id, measurements);
         if (type == null) {
             throw new PowsyblException("Measurement type can not be null");
         }
         checkValue(value);
         checkSide(side, measurements.getExtendable());
-        return measurements.add(new MeasurementImpl(measurements, id, type, properties, value, standardDeviation, valid, side));
+        MeasurementImpl measurement = new MeasurementImpl(measurements, id, type, properties, value, standardDeviation, valid, side);
+        measurements.add(measurement);
+        return measurement;
     }
 }
