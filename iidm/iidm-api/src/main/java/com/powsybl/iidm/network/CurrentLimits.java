@@ -12,7 +12,7 @@ package com.powsybl.iidm.network;
  *     <li>A permanent limit (A)</li>
  *     <li>
  * Any number of temporary limits.
- * A permanent limit (A) has an acceptable duration (s).
+ * A temporary limit has an acceptable duration (s).
  * The branch can safely stay between the previous limit (could be another temporary limit or the permanent limit) and
  * this limit during the acceptable duration.
  * A NaN temporay limit value means infinite.
