@@ -18,7 +18,7 @@ public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extensi
 
     @Override
     default String getName() {
-        return "discretes";
+        return "discreteMeasurements";
     }
 
     Collection<DiscreteMeasurement> getDiscreteMeasurements();
