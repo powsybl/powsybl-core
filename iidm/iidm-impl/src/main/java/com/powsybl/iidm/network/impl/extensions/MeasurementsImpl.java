@@ -22,11 +22,15 @@ import java.util.List;
  */
 class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtension<C> implements Measurements<C> {
 
-    private final List<Measurement> measurements = new ArrayList<>();
+    private final List<MeasurementImpl> measurements = new ArrayList<>();
 
-    MeasurementsImpl<C> addMeasurement(MeasurementImpl measurement) {
+    MeasurementsImpl<C> add(MeasurementImpl measurement) {
         measurements.add(measurement);
         return this;
+    }
+
+    void remove(MeasurementImpl measurement) {
+        measurements.remove(measurement);
     }
 
     @Override

@@ -29,6 +29,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
     private String id;
     private Measurement.Type type;
     private double value = Double.NaN;
+    private double standardDeviation = Double.NaN;
     private boolean valid = true;
     private Measurement.Side side;
 
@@ -61,6 +62,12 @@ class MeasurementAdderImpl implements MeasurementAdder {
     }
 
     @Override
+    public MeasurementAdder setStandardDeviation(double standardDeviation) {
+        this.standardDeviation = standardDeviation;
+        return this;
+    }
+
+    @Override
     public MeasurementAdder setSide(Measurement.Side side) {
         this.side = side;
         return this;
@@ -79,7 +86,7 @@ class MeasurementAdderImpl implements MeasurementAdder {
         }
         checkValue(value);
         checkSide(side, (Connectable) measurements.getExtendable());
-        return measurements.addMeasurement(new MeasurementImpl(id, type, properties, value, valid, side));
+        return measurements.add(new MeasurementImpl(measurements, id, type, properties, value, standardDeviation, valid, side));
     }
 
     private static void checkValue(double value) {

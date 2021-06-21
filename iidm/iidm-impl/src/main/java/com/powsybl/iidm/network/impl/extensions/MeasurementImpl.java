@@ -5,6 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.iidm.network.impl.extensions;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.extensions.Measurement;
 
 import java.util.Objects;
@@ -15,19 +16,23 @@ import java.util.Properties;
  */
 class MeasurementImpl implements Measurement {
 
+    private final MeasurementsImpl measurements;
     private final String id;
     private final Measurement.Type type;
     private final Properties properties = new Properties();
     private final Measurement.Side side;
 
     private double value;
+    private double standardDeviation;
     private boolean valid;
 
-    MeasurementImpl(String id, Measurement.Type type, Properties properties, double value, boolean valid, Measurement.Side side) {
+    MeasurementImpl(MeasurementsImpl measurements, String id, Measurement.Type type, Properties properties, double value, double standardDeviation, boolean valid, Measurement.Side side) {
+        this.measurements = Objects.requireNonNull(measurements);
         this.id = id;
         this.type = type;
         this.properties.putAll(properties);
         this.value = value;
+        this.standardDeviation = standardDeviation;
         this.valid = valid;
         this.side = side;
     }
@@ -54,8 +59,28 @@ class MeasurementImpl implements Measurement {
     }
 
     @Override
+    public Measurement setValue(double value) {
+        if (Double.isNaN(value)) {
+            throw new PowsyblException("Undefined value for measurement");
+        }
+        this.value = value;
+        return this;
+    }
+
+    @Override
     public double getValue() {
         return value;
+    }
+
+    @Override
+    public Measurement setStandardDeviation(double standardDeviation) {
+        this.standardDeviation = standardDeviation;
+        return this;
+    }
+
+    @Override
+    public double getStandardDeviation() {
+        return standardDeviation;
     }
 
     @Override
@@ -72,5 +97,10 @@ class MeasurementImpl implements Measurement {
     @Override
     public Side getSide() {
         return side;
+    }
+
+    @Override
+    public void remove() {
+        measurements.remove(this);
     }
 }

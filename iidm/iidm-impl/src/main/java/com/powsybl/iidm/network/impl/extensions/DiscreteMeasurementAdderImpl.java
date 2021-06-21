@@ -23,7 +23,7 @@ import java.util.Properties;
  */
 class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
-    private final DiscreteMeasurementsImpl discretes;
+    private final DiscreteMeasurementsImpl discreteMeasurements;
     private final Properties properties = new Properties();
 
     private String id;
@@ -32,8 +32,8 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     private int valueAsInt = -1;
     private boolean valid = true;
 
-    DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl discretes) {
-        this.discretes = Objects.requireNonNull(discretes);
+    DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl discreteMeasurements) {
+        this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
     }
 
     @Override
@@ -74,9 +74,9 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
 
     @Override
     public DiscreteMeasurements add() {
-        checkType(type, (Identifiable) discretes.getExtendable());
+        checkType(type, (Identifiable) discreteMeasurements.getExtendable());
         checkValues(valueAsString, valueAsInt);
-        return discretes.addDiscrete(new DiscreteMeasurementImpl(id, type, properties, valueAsString, valueAsInt, valid));
+        return discreteMeasurements.add(new DiscreteMeasurementImpl(discreteMeasurements, id, type, properties, valueAsString, valueAsInt, valid));
     }
 
     private static void checkType(DiscreteMeasurement.Type type, Identifiable i) {

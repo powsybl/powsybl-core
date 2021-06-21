@@ -17,6 +17,7 @@ import java.util.Properties;
  */
 class DiscreteMeasurementImpl implements DiscreteMeasurement {
 
+    private final DiscreteMeasurementsImpl discreteMeasurements;
     private final String id;
     private final DiscreteMeasurement.Type type;
     private final Properties properties = new Properties();
@@ -25,7 +26,8 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private int valueAsInt;
     private boolean valid;
 
-    DiscreteMeasurementImpl(String id, DiscreteMeasurement.Type type, Properties properties, String valueAsString, int valueAsInt, boolean valid) {
+    DiscreteMeasurementImpl(DiscreteMeasurementsImpl discreteMeasurements, String id, DiscreteMeasurement.Type type, Properties properties, String valueAsString, int valueAsInt, boolean valid) {
+        this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
         this.id = id;
         this.type = type;
         this.properties.putAll(properties);
@@ -92,6 +94,11 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     public DiscreteMeasurement setValid(boolean valid) {
         this.valid = valid;
         return this;
+    }
+
+    @Override
+    public void remove() {
+        discreteMeasurements.remove(this);
     }
 
     private static void checkValues(String valueAsString, int valueAsInt) {

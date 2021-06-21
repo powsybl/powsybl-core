@@ -22,11 +22,15 @@ import java.util.List;
  */
 class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends AbstractExtension<I> implements DiscreteMeasurements<I> {
 
-    private final List<DiscreteMeasurement> discreteMeasurements = new ArrayList<>();
+    private final List<DiscreteMeasurementImpl> discreteMeasurements = new ArrayList<>();
 
-    DiscreteMeasurementsImpl<I> addDiscrete(DiscreteMeasurementImpl discrete) {
-        discreteMeasurements.add(discrete);
+    DiscreteMeasurementsImpl<I> add(DiscreteMeasurementImpl discreteMeasurement) {
+        discreteMeasurements.add(discreteMeasurement);
         return this;
+    }
+
+    void remove(DiscreteMeasurementImpl discreteMeasurement) {
+        discreteMeasurements.remove(discreteMeasurement);
     }
 
     @Override

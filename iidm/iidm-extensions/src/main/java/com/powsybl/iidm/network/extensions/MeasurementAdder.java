@@ -19,6 +19,8 @@ public interface MeasurementAdder {
 
     MeasurementAdder setValue(double value);
 
+    MeasurementAdder setStandardDeviation(double standardDeviation);
+
     MeasurementAdder setSide(Measurement.Side side);
 
     MeasurementAdder setValid(boolean valid);

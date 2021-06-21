@@ -36,11 +36,19 @@ public interface Measurement {
 
     Measurement putProperty(String name, Object property);
 
+    Measurement setValue(double value);
+
     double getValue();
+
+    Measurement setStandardDeviation(double standardDeviation);
+
+    double getStandardDeviation();
 
     boolean isValid();
 
     Measurement setValid(boolean valid);
 
     Side getSide();
+
+    void remove();
 }

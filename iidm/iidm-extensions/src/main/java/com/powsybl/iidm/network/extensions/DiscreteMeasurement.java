@@ -39,4 +39,6 @@ public interface DiscreteMeasurement {
     boolean isValid();
 
     DiscreteMeasurement setValid(boolean valid);
+
+    void remove();
 }
