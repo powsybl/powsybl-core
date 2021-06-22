@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class UcteRecordWriterTest {
 
     @Test
-    public void shouldWriteZeroPaddedPositiveFloat() throws IOException {
+    public void shouldWriteZeroPaddedPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -32,7 +32,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldWriteShrinkedPositiveFloat() throws IOException {
+    public void shouldWriteShrinkedPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -46,7 +46,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldWriteZeroPaddedNegativeFloat() throws IOException {
+    public void shouldWriteZeroPaddedNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -60,7 +60,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldNotUseScientificNotationForSmallFloat() throws IOException {
+    public void shouldNotUseScientificNotationForSmallDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -88,7 +88,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigPositiveFloat() throws IOException {
+    public void shouldFailOnBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -100,7 +100,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnBigNegativeFloat() throws IOException {
+    public void shouldFailOnBigNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -112,7 +112,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldSucceedOnLimitBigPositiveFloat() throws IOException {
+    public void shouldSucceedOnLimitBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -126,7 +126,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigPositiveFloat() throws IOException {
+    public void shouldFailOnLimitBigPositiveDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -138,7 +138,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test
-    public void shouldSucceedOnLimitBigNegativeFloat() throws IOException {
+    public void shouldSucceedOnLimitBigNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
@@ -152,7 +152,7 @@ public class UcteRecordWriterTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void shouldFailOnLimitBigNegativeFloat() throws IOException {
+    public void shouldFailOnLimitBigNegativeDouble() throws IOException {
         StringWriter writer = new StringWriter();
         BufferedWriter bufferedWriter = new BufferedWriter(writer);
         UcteRecordWriter recordWriter = new UcteRecordWriter(bufferedWriter);
