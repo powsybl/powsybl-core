@@ -86,7 +86,7 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                 .setValid(XmlUtil.readBoolAttribute(reader, "valid"));
         String tapChanger = reader.getAttributeValue(null, "tapChanger");
         if (tapChanger != null) {
-            adder.setTapChanger(DiscreteMeasurement.TapChanger.valueOf(reader.getAttributeValue(null, tapChanger)));
+            adder.setTapChanger(DiscreteMeasurement.TapChanger.valueOf(tapChanger));
         }
         String stringValue = reader.getAttributeValue(null, "stringValue");
         if (stringValue != null) {
