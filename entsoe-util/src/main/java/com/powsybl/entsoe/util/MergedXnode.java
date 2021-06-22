@@ -19,13 +19,13 @@ public interface MergedXnode extends Extension<Line> {
         return "mergedXnode";
     }
 
-    float getRdp();
+    double getRdp();
 
-    MergedXnode setRdp(float rdp);
+    MergedXnode setRdp(double rdp);
 
-    float getXdp();
+    double getXdp();
 
-    MergedXnode setXdp(float xdp);
+    MergedXnode setXdp(double xdp);
 
     String getLine1Name();
 
@@ -47,19 +47,19 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ1(double xNodeQ1);
 
-    default float getB1dp() {
+    default double getB1dp() {
         return 0.5f;
     }
 
-    default MergedXnode setB1dp(float b1dp) {
+    default MergedXnode setB1dp(double b1dp) {
         return this;
     }
 
-    default float getG1dp() {
+    default double getG1dp() {
         return 0.5f;
     }
 
-    default MergedXnode setG1dp(float g1dp) {
+    default MergedXnode setG1dp(double g1dp) {
         return this;
     }
 
@@ -83,19 +83,19 @@ public interface MergedXnode extends Extension<Line> {
 
     MergedXnode setXnodeQ2(double xNodeQ2);
 
-    default float getB2dp() {
+    default double getB2dp() {
         return 0.5f;
     }
 
-    default MergedXnode setB2dp(float b2dp) {
+    default MergedXnode setB2dp(double b2dp) {
         return this;
     }
 
-    default float getG2dp() {
+    default double getG2dp() {
         return 0.5f;
     }
 
-    default MergedXnode setG2dp(float g2dp) {
+    default MergedXnode setG2dp(double g2dp) {
         return this;
     }
 
