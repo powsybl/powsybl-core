@@ -106,6 +106,9 @@ public abstract class AbstractMeasurementsTest {
         assertEquals(1, twtQ2.getPropertyNames().size());
         assertEquals("test2", twtQ2.getProperty("source"));
         assertNull(twtQ2.getProperty("other"));
+        twtQ2.putProperty("other", "test5");
+        assertEquals(2, twtQ2.getPropertyNames().size());
+        assertEquals("test5", twtQ2.getProperty("other"));
 
         twtMeasurements.cleanIfEmpty();
         assertNotNull(twt.getExtension(Measurements.class));
