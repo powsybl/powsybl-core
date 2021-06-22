@@ -29,7 +29,7 @@ public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extensi
 
     default void cleanIfEmpty() {
         if (getDiscreteMeasurements().isEmpty()) {
-            getExtendable().removeExtension(Measurements.class);
+            getExtendable().removeExtension(DiscreteMeasurements.class);
         }
     }
 }
