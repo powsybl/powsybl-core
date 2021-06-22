@@ -89,7 +89,7 @@ class UcteRecordWriter {
         }
         int fieldLength = endIndex - beginIndex;
         if (value >= maxLimitInt(fieldLength) || value <= minLimitInt(fieldLength)) {
-            throw new IllegalArgumentException(String.format("Float value %f does not fit into %d characters", value, fieldLength));
+            throw new IllegalArgumentException(String.format("Double value %f does not fit into %d characters", value, fieldLength));
         }
         String fieldStr = alignAndTruncate(numberFormatter.format(value), fieldLength, Alignment.LEFT);
         writeString(fieldStr.replace(' ', '0'), beginIndex, endIndex);
