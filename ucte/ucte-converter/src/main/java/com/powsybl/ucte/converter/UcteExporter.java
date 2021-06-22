@@ -722,7 +722,7 @@ public class UcteExporter implements Exporter {
         String elementName = twoWindingsTransformer.getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         double nominalPower = Double.NaN;
         if (twoWindingsTransformer.hasProperty(NOMINAL_POWER_KEY)) {
-            nominalPower = Float.parseFloat(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
+            nominalPower = Double.parseDouble(twoWindingsTransformer.getProperty(NOMINAL_POWER_KEY, null));
         }
 
         UcteTransformer ucteTransformer = new UcteTransformer(
