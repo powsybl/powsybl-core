@@ -972,8 +972,8 @@ public class UcteImporter implements Importer {
         // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
         double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
-        float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
-        float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
+        double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
+        double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
         TieLine mergeLine = network.newTieLine()
@@ -1027,12 +1027,12 @@ public class UcteImporter implements Importer {
                 .withRdp(rdp).withXdp(xdp)
                 .withLine1Name(dlAtSideOne.getId())
                 .withLine1Fictitious(dlAtSideOne.isFictitious())
-                .withB1dp((float) b1dp)
-                .withG1dp((float) g1dp)
+                .withB1dp(b1dp)
+                .withG1dp(g1dp)
                 .withLine2Name(dlAtSideTwo.getId())
                 .withLine2Fictitious(dlAtSideTwo.isFictitious())
-                .withB2dp((float) b2dp)
-                .withG2dp((float) g2dp)
+                .withB2dp(b2dp)
+                .withG2dp(g2dp)
                 .withCode(xnodeCode)
                 .add();
     }
