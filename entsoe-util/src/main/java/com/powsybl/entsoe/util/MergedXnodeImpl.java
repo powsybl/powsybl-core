@@ -75,9 +75,9 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private double checkDividerPosition(double dp) {
         if (Double.isNaN(dp)) {
-            return 0.5f;
+            return 0.5;
         }
-        if (dp < 0f || dp > 1f) {
+        if (dp < 0 || dp > 1) {
             throw new IllegalArgumentException("Invalid divider position: " + dp);
         }
         return dp;

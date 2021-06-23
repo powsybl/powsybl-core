@@ -48,7 +48,7 @@ public interface MergedXnode extends Extension<Line> {
     MergedXnode setXnodeQ1(double xNodeQ1);
 
     default double getB1dp() {
-        return 0.5f;
+        return 0.5;
     }
 
     default MergedXnode setB1dp(double b1dp) {
@@ -56,7 +56,7 @@ public interface MergedXnode extends Extension<Line> {
     }
 
     default double getG1dp() {
-        return 0.5f;
+        return 0.5;
     }
 
     default MergedXnode setG1dp(double g1dp) {
@@ -84,7 +84,7 @@ public interface MergedXnode extends Extension<Line> {
     MergedXnode setXnodeQ2(double xNodeQ2);
 
     default double getB2dp() {
-        return 0.5f;
+        return 0.5;
     }
 
     default MergedXnode setB2dp(double b2dp) {
@@ -92,7 +92,7 @@ public interface MergedXnode extends Extension<Line> {
     }
 
     default double getG2dp() {
-        return 0.5f;
+        return 0.5;
     }
 
     default MergedXnode setG2dp(double g2dp) {

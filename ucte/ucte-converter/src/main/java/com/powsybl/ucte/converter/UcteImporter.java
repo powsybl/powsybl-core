@@ -309,7 +309,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(nodeCode.toString())
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
-                .setG(0f)
+                .setG(0)
                 .setB(getSusceptance(ucteLine))
                 .setP0(p0)
                 .setQ0(q0)
@@ -431,8 +431,8 @@ public class UcteImporter implements Importer {
                 .setConnectableBus2(nodeCode2.toString())
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
-                .setG1(0f)
-                .setG2(0f)
+                .setG1(0)
+                .setG2(0)
                 .setB1(getSusceptance(ucteLine) / 2)
                 .setB2(getSusceptance(ucteLine) / 2)
                 .setFictitious(isFictitious(ucteLine))
@@ -538,10 +538,10 @@ public class UcteImporter implements Importer {
             double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
             rtca.beginStep()
                     .setRho(rho)
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
                     .endStep();
         }
         rtca.add();
@@ -560,8 +560,8 @@ public class UcteImporter implements Importer {
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double rho;
             double alpha;
-            double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
-            double dy = i * ucteAngleRegulation.getDu() / 100f * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
             switch (ucteAngleRegulation.getType()) {
                 case ASYM:
                     rho = 1d / Math.hypot(dy, 1d + dx);
@@ -570,7 +570,7 @@ public class UcteImporter implements Importer {
 
                 case SYMM:
                     rho = 1d;
-                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2f * (1d + dx)));
+                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
                     break;
 
                 default:
@@ -579,10 +579,10 @@ public class UcteImporter implements Importer {
             ptca.beginStep()
                     .setRho(rho)
                     .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
                     .endStep();
         }
         ptca.add();
@@ -646,10 +646,10 @@ public class UcteImporter implements Importer {
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
-                .setR(0.0f)
+                .setR(0.0)
                 .setX(LINE_MIN_Z)
-                .setG(0f)
-                .setB(0f)
+                .setG(0)
+                .setB(0)
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
