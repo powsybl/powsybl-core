@@ -26,20 +26,18 @@ import java.util.concurrent.TimeUnit;
  * Sensitivity analysis result
  *
  * <p>
- *     Mainly composed of the lists of sensitivity values in N, and optionally in N-1
+ *     Composed of a list of sensitivity values in pre-contingency and post-contingency states.
  * </p>
  *
  * A single sensitivity analysis should return, besides its status and some stats on the
- * analysis itself, all the sensitivity values for each factor (combination of a monitoredBranch and a specific
- * equipment or group of equipments). The HADES2 sensitivity provider used with Powsybl offers the
- * possibility to calculate the sensitivity on a set of contingencies besides the N state.
- * The analysis is launched only once, but the solver itself
- * modifies the matrix for each state of the network to output a full set of results.
- * In the sensitivity API, it has been allowed to provide a list of contingencies as an optional input,
+ * analysis itself, all the sensitivity values for each factor (combination of a monitored equipment or bus and a specific
+ * equipment or group of equipments). The sensitivity provider used offers the possibility to calculate the sensitivity
+ * on a set of contingencies besides the pre-contingency state.
+ * Note that the analysis is launched only once, but the solver itself modifies the matrix for each state of the network
+ * to output a full set of results. In the sensitivity API, it has been allowed to provide a list of contingencies as an input,
  * which then triggers such a sensitivity analysis.
  * The full set of results consists of :
- *  - the list of sensitivity values in N
- *  - the lists of sensitivity values for each N-1 situation
+ *  - the list of sensitivity values in pre-contingency and post-contingency states.
  *  - some metadata (status, stats, logs)
  *
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -63,12 +61,11 @@ public class SensitivityAnalysisResult {
     private Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
 
     /**
-     * Hades2 sensitivity analysis result
-     *
+     * Sensitivity analysis result
      * @param ok true if the analysis succeeded, false otherwise
      * @param metrics map of metrics about the analysis
-     * @param logs analysis logs
-     * @param values result values of the sensitivity analysis in N
+     * @param logs sensitivity analysis logs
+     * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
     public SensitivityAnalysisResult(boolean ok,
                                      Map<String, String> metrics,
@@ -87,7 +84,7 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get the status of the sensitivity analysis
+     * Get the status of the sensitivity analysis.
      *
      * @return true if the analysis is ok, false otherwise
      */
@@ -115,19 +112,19 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a collection of all the sensitivity values in state N.
+     * Get a collection of all the sensitivity values.
      *
-     * @return a collection of all the sensitivity values in state N.
+     * @return a collection of all the sensitivity values.
      */
     public Collection<SensitivityValue> getValues() {
         return Collections.unmodifiableCollection(values);
     }
 
     /**
-     * Get a collection of sensitivity value associated with given contingency ID
+     * Get a collection of sensitivity value associated with given contingency id
      *
      * @param contingencyId the ID of the considered contingency
-     * @return the sensitivity value associated with given contingency ID
+     * @return the sensitivity value associated with given contingency id, use null for pre-contingency sensitivity values.
      */
     public List<SensitivityValue> getValues(String contingencyId) {
         return valuesByContingencyId.getOrDefault(contingencyId, Collections.emptyList());
@@ -136,10 +133,10 @@ public class SensitivityAnalysisResult {
     /**
      * Get the sensitivity value associated with given function and given variable for a specific contingency.
      *
-     * @param contingencyId the ID of the considered contingency
-     * @param functionId sensitivity function ID
-     * @param variableId sensitivity variable ID
-     * @return the sensitivity value associated with given function and given variable for given contingency
+     * @param contingencyId the id of the considered contingency
+     * @param functionId sensitivity function id
+     * @param variableId sensitivity variable id
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency
      */
     public SensitivityValue getValue(String contingencyId, String functionId, String variableId) {
         return valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
