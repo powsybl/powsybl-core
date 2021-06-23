@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -146,6 +147,10 @@ public class SensitivityFactor {
             contingencyContextType = null;
             contingencyId = null;
         }
+    }
+
+    public static List<SensitivityFactor> parseMultipleJson(Path parser) {
+        return JsonUtil.parseJson(parser, SensitivityFactor::parseMultipleJson);
     }
 
     public static List<SensitivityFactor> parseMultipleJson(JsonParser parser) {
