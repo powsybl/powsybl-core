@@ -35,6 +35,9 @@
   }, {
     "id" : "TRANSFO1",
     "type" : "TWO_WINDINGS_TRANSFORMER"
+  }, {
+    "id" : "TWT3",
+    "type" : "THREE_WINDINGS_TRANSFORMER"
   } ],
   "extensions" : {
     "dummy-extension" : { }
