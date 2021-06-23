@@ -71,7 +71,7 @@
         <module>matpower</module>
         <module>psse</module>
         <module>scripting</module>
-        <module>security-analysis-api</module>
+        <module>security-analysis</module>
         <module>sensitivity-analysis-api</module>
         <module>time-series</module>
         <module>tools</module>

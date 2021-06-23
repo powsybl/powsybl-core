@@ -23,6 +23,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
+import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
@@ -440,6 +441,17 @@ public class CgmesConformity1ModifiedConversionTest {
                 NetworkFactory.findDefault(), null);
         DanglingLine line = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
         assertNull(line.getCurrentLimits().getTemporaryLimit(10));
+    }
+
+    @Test
+    public void microBEReactivePowerGen() {
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEReactivePowerGen().dataSource(), NetworkFactory.findDefault(), null);
+        Generator g = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        RemoteReactivePowerControl ext = g.getExtension(RemoteReactivePowerControl.class);
+        assertNotNull(ext);
+        assertEquals(115.5, ext.getTargetQ(), 0.0);
+        assertTrue(ext.isEnabled());
+        assertSame(network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getTerminal2(), ext.getRegulatingTerminal());
     }
 
     @Test

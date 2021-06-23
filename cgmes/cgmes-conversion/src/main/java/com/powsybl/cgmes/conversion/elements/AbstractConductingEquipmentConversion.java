@@ -670,6 +670,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    protected double p0() {
+        return powerFlow().defined() ? powerFlow().p() : 0.0;
+    }
+
+    protected double q0() {
+        return powerFlow().defined() ? powerFlow().q() : 0.0;
+    }
+
     private final TerminalData[] terminals;
     private final PowerFlow steadyStatePowerFlow;
 }
