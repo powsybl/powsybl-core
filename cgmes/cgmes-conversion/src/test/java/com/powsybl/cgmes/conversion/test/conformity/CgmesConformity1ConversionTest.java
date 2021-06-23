@@ -17,10 +17,7 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -265,6 +262,21 @@ public class CgmesConformity1ConversionTest {
             .map(Bus::getId).collect(Collectors.toList());
 
         assertEquals(initialBusIds, afterLoadFlowBusIds);
+    }
+
+    @Test
+    public void miniNodeBreakerOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreakerOnlyEQ().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerOnlyEQ().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerHvdcOnlyEQ() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdcOnlyEQ().dataSource(), null));
     }
 
     private static class TxData {
