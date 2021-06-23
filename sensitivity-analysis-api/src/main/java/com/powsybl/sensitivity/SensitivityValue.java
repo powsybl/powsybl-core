@@ -21,8 +21,9 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Elementary result value of sensitivity analysis.
- * Associates a value to a sensitivity factor.
+ * Elementary result value of a sensitivity analysis, given the sensitivity factor and a contingency id (use null to get
+ * a pre-contingency value). The value is the impact of the variable change on the monitored equipment. The function
+ * reference gives the level of the function in the network pre-contingency state.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see SensitivityFactor
@@ -39,6 +40,13 @@ public class SensitivityValue {
 
     private final double functionReference;
 
+    /**
+     * Constructor
+     * @param factorContext the sensitivity factor {@link com.powsybl.sensitivity.SensitivityFactor}
+     * @param contingencyId the id of the contingency. Use null for pre-contingency state.
+     * @param value the sensitivity value, as a result of the computation.
+     * @param functionReference the value of the sensitivity function in the pre-contingency state.
+     */
     public SensitivityValue(SensitivityFactor factorContext, String contingencyId, double value, double functionReference) {
         this.factorContext = factorContext;
         this.contingencyId = contingencyId;
