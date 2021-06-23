@@ -7,10 +7,17 @@
 package com.powsybl.sensitivity;
 
 /**
+ * Supported function types related to the equipment to monitor. Use:
+ * - BRANCH_ACTIVE_POWER if you want to monitor the active power in MW of a network branch (lines,
+ * two windings transformer, dangling lines, etc.).
+ * - BRANCH_CURRENT if you want to monitor the current in A of a network branch (lines,
+ * two windings transformer, dangling lines, etc.).
+ * - BUS_VOLTAGE if you want to monitor the voltage in KV of a specific network bus.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum SensitivityFunctionType {
     BRANCH_ACTIVE_POWER, // MW
     BRANCH_CURRENT, // A
-    BUS_VOLTAGE // Kv
+    BUS_VOLTAGE // KV
 }

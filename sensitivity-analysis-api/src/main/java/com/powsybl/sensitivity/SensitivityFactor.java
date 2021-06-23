@@ -26,6 +26,12 @@ import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
+ * Sensitivity factor to be computed in the sensitivity analysis.
+ * It regroups in a single object a description of the variable to increase, a description of the function to monitor
+ * and a contingency context. A factor corresponds to the definition of a partial derivative to be extracted from the
+ * network in a given contingency context. Usually we compute the impact of an injection increase on a branch flow or current,
+ * the impact of a shift of a phase tap changer on a branch flow or current or the impact of a voltage target increase on a bus voltage.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SensitivityFactor {
@@ -44,6 +50,17 @@ public class SensitivityFactor {
 
     private final ContingencyContext contingencyContext;
 
+    /**
+     * Constructor
+     * @param functionType see {@link com.powsybl.sensitivity.SensitivityFunctionType}
+     * @param functionId the id of the equipment to monitor (in general the id of a branch). For BUS_VOLTAGE type, see
+     * {@link com.powsybl.iidm.network.IdBasedBusRef}
+     * @param variableType see {@link com.powsybl.sensitivity.SensitivityVariableType}
+     * @param variableId id of the equipment affected by the injection increase, the angle sift, the voltage target
+     *                   increase or the active power set point increase.
+     * @param variableSet boolean to says if the variable is list of weighted variables (GLSK) or not
+     * @param contingencyContext see {@link com.powsybl.contingency.ContingencyContext}
+     */
     public SensitivityFactor(SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
                               String variableId, boolean variableSet, ContingencyContext contingencyContext) {
         this.functionType = Objects.requireNonNull(functionType);
