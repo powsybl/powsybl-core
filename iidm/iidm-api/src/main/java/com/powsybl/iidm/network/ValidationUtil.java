@@ -51,6 +51,10 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated Use {@link #checkActivePowerLimits(Validable, double, double)} instead.
+     */
+    @Deprecated(since = "4.3.0")
     public static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
         checkActivePowerLimits(validable, minP, maxP);
 
