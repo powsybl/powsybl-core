@@ -67,7 +67,7 @@ public class ExporterTest extends AbstractConverterTest {
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, true, Arrays.asList(violation2, violation3, violation4, violation5, violation6), Arrays.asList("action1", "action2"));
 
         List<BranchResult> preContingencyBranchResults = new ArrayList<>();
-        preContingencyBranchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0));
+        preContingencyBranchResults.add(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         List<BusResults> preContingencyBusResults = new ArrayList<>();
         preContingencyBusResults.add(new BusResults("voltageLevelId", "busId", 400, 3.14));
         List<ThreeWindingsTransformerResult> threeWindingsTransformerResults = new ArrayList<>();

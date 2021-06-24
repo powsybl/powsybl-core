@@ -263,7 +263,7 @@ public class DefaultSecurityAnalysis {
 
     private BranchResult createBranchResult(Branch branch) {
         return new BranchResult(branch.getId(), branch.getTerminal1().getP(), branch.getTerminal1().getQ(), branch.getTerminal1().getI(),
-            branch.getTerminal2().getP(), branch.getTerminal2().getQ(), branch.getTerminal2().getI());
+            branch.getTerminal2().getP(), branch.getTerminal2().getQ(), branch.getTerminal2().getI(), 0.0);
     }
 
     private BusResults createBusResult(Bus bus, String voltageLevelId) {

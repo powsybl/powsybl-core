@@ -34,10 +34,12 @@ public class BranchResult {
 
     private final double i2;
 
+    private final double flowTransfer;
+
     @JsonCreator
     public BranchResult(@JsonProperty("branchId") String branchId, @JsonProperty("p1") double p1, @JsonProperty("q1") double q1,
                         @JsonProperty("i1") double i1, @JsonProperty("p2") double p2,
-                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2) {
+                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2, @JsonProperty("flowTransfer") double flowTransfer) {
         this.branchId = Objects.requireNonNull(branchId);
         this.p1 = Objects.requireNonNull(p1);
         this.q1 = Objects.requireNonNull(q1);
@@ -45,6 +47,7 @@ public class BranchResult {
         this.p2 = Objects.requireNonNull(p2);
         this.q2 = Objects.requireNonNull(q2);
         this.i2 = Objects.requireNonNull(i2);
+        this.flowTransfer = Objects.requireNonNull(flowTransfer);
     }
 
     @Override
@@ -96,6 +99,10 @@ public class BranchResult {
 
     public double getQ2() {
         return q2;
+    }
+
+    public double getFlowTransfer() {
+        return flowTransfer;
     }
 
     @Override
