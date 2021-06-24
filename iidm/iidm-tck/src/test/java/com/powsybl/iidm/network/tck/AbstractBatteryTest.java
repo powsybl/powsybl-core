@@ -110,19 +110,8 @@ public abstract class AbstractBatteryTest {
      */
     @Test
     public void invalidPowerBounds() {
-        try {
-            createBattery(INVALID, 0.0, 12.0, 10.0, 20.0);
-            fail("Should throw an exception");
-        } catch (ValidationException e) {
-            assertEquals("Battery 'invalid': invalid active power p < minP: 0.0 < 10.0", e.getMessage());
-        }
-
-        try {
-            createBattery(INVALID, 30.0, 12.0, 10.0, 20.0);
-            fail("Should throw an exception");
-        } catch (ValidationException e) {
-            assertEquals("Battery 'invalid': invalid active power p > maxP: 30.0 > 20.0", e.getMessage());
-        }
+        createBattery("invalid_min", 0.0, 12.0, 10.0, 20.0);
+        createBattery("invalid_max", 30.0, 12.0, 10.0, 20.0);
     }
 
     @Test

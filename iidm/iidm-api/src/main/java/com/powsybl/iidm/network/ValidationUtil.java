@@ -51,17 +51,6 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
-        checkActivePowerLimits(validable, minP, maxP);
-
-        if (p > maxP) {
-            throw new ValidationException(validable, "invalid active power p > maxP: " + p + " > " + maxP);
-        }
-        if (p < minP) {
-            throw new ValidationException(validable, "invalid active power p < minP: " + p + " < " + minP);
-        }
-    }
-
     public static void checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband) {
         if (regulating && Double.isNaN(targetDeadband)) {
             throw new ValidationException(validable, "Undefined value for target deadband of regulating " + validableType);
