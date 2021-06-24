@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.extensions.Measurement;
+import com.powsybl.iidm.network.extensions.util.MeasurementValidationUtil;
 
 import java.util.*;
 
@@ -72,9 +72,7 @@ class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setValue(double value) {
-        if (Double.isNaN(value)) {
-            throw new PowsyblException("Undefined value for measurement");
-        }
+        MeasurementValidationUtil.checkValue(value, valid);
         this.value = value;
         return this;
     }
@@ -102,6 +100,7 @@ class MeasurementImpl implements Measurement {
 
     @Override
     public Measurement setValid(boolean valid) {
+        MeasurementValidationUtil.checkValue(value, valid);
         this.valid = valid;
         return this;
     }
