@@ -26,8 +26,8 @@ public class MyTest {
     public void test() {
         Properties parameters = new Properties();
         parameters.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));
-        Network network = Importers.loadNetwork(Paths.get("/home/ralambotianamio/data/cim/RTE_France_22-March-2021_EQ.xml"),
+        Network network = Importers.loadNetwork(Paths.get("/home/ralambotianamio/data/cim/avril/RTE-FF-DB-12-Apr-2021_EQ.xml"),
                 LocalComputationManager.getDefault(), ImportConfig.load(), parameters);
-        Exporters.export("XIIDM", network, null, Paths.get("/home/ralambotianamio/tmp/cim_March_3.xml"));
+        Exporters.export("XIIDM", network, null, Paths.get("/home/ralambotianamio/tmp/cim_april.xml"));
     }
 }
