@@ -33,7 +33,7 @@
                         <xs:attribute name="id" use="optional" type="m:nonEmptyString"/>
                         <xs:attribute name="type" use="required" type="m:nonEmptyString"/>
                         <xs:attribute name="side" use="optional" type="m:nonEmptyString"/>
-                        <xs:attribute name="value" use="required" type="xs:double"/>
+                        <xs:attribute name="value" use="optional" type="xs:double"/>
                         <xs:attribute name="standardDeviation" use="optional" type="xs:double"/>
                         <xs:attribute name="valid" use="required" type="xs:boolean"/>
                     </xs:complexType>
