@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamWriter;
 public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extends AbstractExtensionXmlSerializer<I, DiscreteMeasurements<I>> {
 
     private static final String DISCRETE_MEASUREMENT = "discreteMeasurement";
+    private static final String VALUE = "value";
 
     public DiscreteMeasurementsXmlSerializer() {
         super("discreteMeasurements", "network", DiscreteMeasurements.class, true,
@@ -48,17 +49,27 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             if (discreteMeasurement.getTapChanger() != null) {
                 writer.writeAttribute("tapChanger", discreteMeasurement.getTapChanger().toString());
             }
-            if (!discreteMeasurement.getValueAsString().equals(String.valueOf(discreteMeasurement.getValueAsInt()))) {
-                writer.writeAttribute("stringValue", discreteMeasurement.getValueAsString());
-            }
-            if (discreteMeasurement.getValueAsInt() != -1) {
-                XmlUtil.writeInt("intValue", discreteMeasurement.getValueAsInt(), writer);
+            writer.writeAttribute("valueType", discreteMeasurement.getValueType().toString());
+            switch (discreteMeasurement.getValueType()) {
+                case BOOLEAN:
+                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsBoolean()));
+                    break;
+                case INT:
+                    writer.writeAttribute(VALUE, String.valueOf(discreteMeasurement.getValueAsInt()));
+                    break;
+                case STRING:
+                    if (discreteMeasurement.getValueAsString() != null) {
+                        writer.writeAttribute(VALUE, discreteMeasurement.getValueAsString());
+                    }
+                    break;
+                default:
+                    throw new PowsyblException("Unsupported serialization for value type: " + discreteMeasurement.getValueType());
             }
             writer.writeAttribute("valid", String.valueOf(discreteMeasurement.isValid()));
             for (String name : discreteMeasurement.getPropertyNames()) {
                 writer.writeEmptyElement(getNamespaceUri(), "property");
                 writer.writeAttribute("name", name);
-                writer.writeAttribute("value", discreteMeasurement.getProperty(name));
+                writer.writeAttribute(VALUE, discreteMeasurement.getProperty(name));
             }
             writer.writeEndElement();
         }
@@ -88,18 +99,24 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
         if (tapChanger != null) {
             adder.setTapChanger(DiscreteMeasurement.TapChanger.valueOf(tapChanger));
         }
-        String stringValue = reader.getAttributeValue(null, "stringValue");
-        if (stringValue != null) {
-            adder.setStringValue(stringValue);
-        }
-        String intValue = reader.getAttributeValue(null, "intValue");
-        if (intValue != null) {
-            adder.setIntValue(Integer.valueOf(intValue));
+        DiscreteMeasurement.ValueType valueType = DiscreteMeasurement.ValueType.valueOf(reader.getAttributeValue(null, "valueType"));
+        switch (valueType) {
+            case BOOLEAN:
+                adder.setValue(XmlUtil.readBoolAttribute(reader, VALUE));
+                break;
+            case INT:
+                adder.setValue(XmlUtil.readIntAttribute(reader, VALUE));
+                break;
+            case STRING:
+                adder.setValue(reader.getAttributeValue(null, VALUE));
+                break;
+            default:
+                throw new PowsyblException("Unsupported value type: " + valueType);
         }
         XmlUtil.readUntilEndElement(DISCRETE_MEASUREMENT, reader, () -> {
             if (reader.getLocalName().equals("property")) {
                 adder.putProperty(reader.getAttributeValue(null, "name"),
-                        reader.getAttributeValue(null, "value"));
+                        reader.getAttributeValue(null, VALUE));
             } else {
                 throw new PowsyblException("Unexpected element: " + reader.getLocalName());
             }

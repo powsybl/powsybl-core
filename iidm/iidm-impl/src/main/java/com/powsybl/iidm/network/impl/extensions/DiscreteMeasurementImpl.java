@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 
 import java.util.*;
 
+import static com.powsybl.iidm.network.extensions.util.DiscreteMeasurementValidationUtil.checkValue;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -23,21 +25,21 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     private final DiscreteMeasurement.TapChanger tapChanger;
     private final Map<String, String> properties = new HashMap<>();
 
-    private String valueAsString;
-    private int valueAsInt;
+    private ValueType valueType;
+    private Object value;
     private boolean valid;
 
     DiscreteMeasurementImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements, String id, DiscreteMeasurement.Type type,
-                            DiscreteMeasurement.TapChanger tapChanger, Map<String, String> properties, String valueAsString, int valueAsInt,
+                            DiscreteMeasurement.TapChanger tapChanger, Map<String, String> properties, ValueType valueType, Object value,
                             boolean valid) {
         this.discreteMeasurements = Objects.requireNonNull(discreteMeasurements);
         this.id = id;
         this.type = type;
         this.tapChanger = tapChanger;
         this.properties.putAll(properties);
-        this.valueAsString = Objects.requireNonNullElseGet(valueAsString, () -> String.valueOf(valueAsInt));
+        this.valueType = Objects.requireNonNull(valueType);
+        this.value = value;
         this.valid = valid;
-        this.valueAsInt = valueAsInt;
     }
 
     @Override
@@ -78,31 +80,54 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     }
 
     @Override
+    public ValueType getValueType() {
+        return valueType;
+    }
+
+    @Override
     public String getValueAsString() {
-        return valueAsString;
+        if (valueType == ValueType.STRING) {
+            return (String) value;
+        }
+        throw new PowsyblException("Value type is not STRING but is: " + valueType.name());
     }
 
     @Override
     public int getValueAsInt() {
-        return valueAsInt;
+        if (valueType == ValueType.INT) {
+            return (int) value;
+        }
+        throw new PowsyblException("Value type is not INT but is: " + valueType.name());
     }
 
     @Override
-    public DiscreteMeasurement setValue(String valueAsString, int valueAsInt) {
-        checkValues(valueAsString, valueAsInt);
-        this.valueAsString = valueAsString;
-        this.valueAsInt = valueAsInt;
-        return null;
+    public boolean getValueAsBoolean() {
+        if (valueType == ValueType.BOOLEAN) {
+            return (boolean) value;
+        }
+        throw new PowsyblException("Value type is not BOOLEAN but is: " + valueType.name());
     }
 
     @Override
     public DiscreteMeasurement setValue(String value) {
-        return setValue(value, -1);
+        checkValue(value, valid);
+        valueType = ValueType.STRING;
+        this.value = value;
+        return this;
     }
 
     @Override
     public DiscreteMeasurement setValue(int value) {
-        return setValue(null, value);
+        valueType = ValueType.INT;
+        this.value = value;
+        return this;
+    }
+
+    @Override
+    public DiscreteMeasurement setValue(boolean value) {
+        valueType = ValueType.BOOLEAN;
+        this.value = value;
+        return this;
     }
 
     @Override
@@ -119,11 +144,5 @@ class DiscreteMeasurementImpl implements DiscreteMeasurement {
     @Override
     public void remove() {
         discreteMeasurements.remove(this);
-    }
-
-    private static void checkValues(String valueAsString, int valueAsInt) {
-        if (valueAsString == null && valueAsInt == -1) {
-            throw new PowsyblException("A string or an integer value must be defined for DiscreteMeasurement");
-        }
     }
 }

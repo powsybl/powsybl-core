@@ -31,6 +31,12 @@ public interface DiscreteMeasurement {
         PHASE_TAP_CHANGER_3
     }
 
+    enum ValueType {
+        BOOLEAN,
+        INT,
+        STRING
+    }
+
     String getId();
 
     Type getType();
@@ -45,15 +51,19 @@ public interface DiscreteMeasurement {
 
     DiscreteMeasurement removeProperty(String name);
 
+    ValueType getValueType();
+
     String getValueAsString();
 
     int getValueAsInt();
 
-    DiscreteMeasurement setValue(String valueAsString, int valueAsInt);
+    boolean getValueAsBoolean();
 
     DiscreteMeasurement setValue(String value);
 
     DiscreteMeasurement setValue(int value);
+
+    DiscreteMeasurement setValue(boolean value);
 
     boolean isValid();
 

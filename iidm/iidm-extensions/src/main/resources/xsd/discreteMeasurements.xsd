@@ -17,6 +17,19 @@
             <xs:minLength value='1'/>
         </xs:restriction>
     </xs:simpleType>
+    <xs:simpleType name="valueType">
+        <xs:union>
+            <xs:simpleType>
+                <xs:restriction base="xs:int"/>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="dm:nonEmptyString"/>
+            </xs:simpleType>
+            <xs:simpleType>
+                <xs:restriction base="xs:boolean"/>
+            </xs:simpleType>
+        </xs:union>
+    </xs:simpleType>
     <xs:element name="discreteMeasurements">
         <xs:complexType>
             <xs:sequence>
@@ -33,8 +46,8 @@
                         <xs:attribute name="id" use="optional" type="dm:nonEmptyString"/>
                         <xs:attribute name="type" use="required" type="dm:nonEmptyString"/>
                         <xs:attribute name="tapChanger" use="optional" type="dm:nonEmptyString"/>
-                        <xs:attribute name="stringValue" use="optional" type="dm:nonEmptyString"/>
-                        <xs:attribute name="intValue" use="optional" type="xs:int"/>
+                        <xs:attribute name="valueType" use="required" type="dm:nonEmptyString"/>
+                        <xs:attribute name="value" use="optional" type="dm:valueType"/>
                         <xs:attribute name="valid" use="required" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>

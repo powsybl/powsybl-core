@@ -27,8 +27,7 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     private String id;
     private DiscreteMeasurement.Type type;
     private DiscreteMeasurement.TapChanger tapChanger;
-    private String valueAsString;
-    private int valueAsInt = -1;
+    private Object value = null;
     private boolean valid = true;
 
     DiscreteMeasurementAdderImpl(DiscreteMeasurementsImpl<? extends Identifiable<?>> discreteMeasurements) {
@@ -60,14 +59,20 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
     }
 
     @Override
-    public DiscreteMeasurementAdder setStringValue(String value) {
-        this.valueAsString = value;
+    public DiscreteMeasurementAdder setValue(String value) {
+        this.value = value;
         return this;
     }
 
     @Override
-    public DiscreteMeasurementAdder setIntValue(int value) {
-        this.valueAsInt = value;
+    public DiscreteMeasurementAdder setValue(boolean value) {
+        this.value = value;
+        return this;
+    }
+
+    @Override
+    public DiscreteMeasurementAdder setValue(int value) {
+        this.value = value;
         return this;
     }
 
@@ -82,8 +87,8 @@ class DiscreteMeasurementAdderImpl implements DiscreteMeasurementAdder {
         checkId(id, discreteMeasurements);
         checkType(type, discreteMeasurements.getExtendable());
         checkTapChanger(tapChanger, type, discreteMeasurements.getExtendable());
-        checkValues(valueAsString, valueAsInt);
-        DiscreteMeasurementImpl discreteMeasurement = new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, valueAsString, valueAsInt, valid);
+        checkValue(value, valid);
+        DiscreteMeasurementImpl discreteMeasurement = new DiscreteMeasurementImpl(discreteMeasurements, id, type, tapChanger, properties, getValueType(value), value, valid);
         discreteMeasurements.add(discreteMeasurement);
         return discreteMeasurement;
     }

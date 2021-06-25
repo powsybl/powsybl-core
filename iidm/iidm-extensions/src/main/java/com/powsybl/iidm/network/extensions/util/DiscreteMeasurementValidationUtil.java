@@ -59,10 +59,23 @@ public final class DiscreteMeasurementValidationUtil {
         }
     }
 
-    public static void checkValues(String valueAsString, int valueAsInt) {
-        if (valueAsString == null && valueAsInt == -1) {
-            throw new PowsyblException("A string or an integer value must be defined for DiscreteMeasurement");
+    public static void checkValue(Object value, boolean valid) {
+        if (value == null && valid) {
+            throw new PowsyblException("A valid discrete measurement can not have an undefined value");
         }
+    }
+
+    public static DiscreteMeasurement.ValueType getValueType(Object value) {
+        if (value == null || value instanceof String) {
+            return DiscreteMeasurement.ValueType.STRING;
+        }
+        if (value instanceof Integer) {
+            return DiscreteMeasurement.ValueType.INT;
+        }
+        if (value instanceof Boolean) {
+            return DiscreteMeasurement.ValueType.BOOLEAN;
+        }
+        throw new PowsyblException("Unsupported value type for discrete measurement: " + value.getClass().getName());
     }
 
     private DiscreteMeasurementValidationUtil() {

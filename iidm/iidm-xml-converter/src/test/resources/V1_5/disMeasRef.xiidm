@@ -201,14 +201,14 @@
     <iidm:hvdcLine id="HVDC2" name="HVDC2" r="1.0" nominalV="400.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="80.0" maxP="300.0" converterStation1="LCC1" converterStation2="LCC2"/>
     <iidm:extension id="S1VL1_BBS_LD1_DISCONNECTOR">
         <dm:discreteMeasurements>
-            <dm:discreteMeasurement id="DIS_MEAS_SW_POS" type="SWITCH_POSITION" stringValue="CLOSED" intValue="1" valid="false">
+            <dm:discreteMeasurement id="DIS_MEAS_SW_POS" type="SWITCH_POSITION" valueType="STRING" value="CLOSED" valid="false">
                 <dm:property name="source" value="test"/>
             </dm:discreteMeasurement>
         </dm:discreteMeasurements>
     </iidm:extension>
     <iidm:extension id="TWT">
         <dm:discreteMeasurements>
-            <dm:discreteMeasurement id="DIS_MEAS_TAP_POS" type="TAP_POSITION" tapChanger="PHASE_TAP_CHANGER" intValue="15" valid="true">
+            <dm:discreteMeasurement id="DIS_MEAS_TAP_POS" type="TAP_POSITION" tapChanger="PHASE_TAP_CHANGER" valueType="INT" value="15" valid="true">
                 <dm:property name="source" value="test2"/>
             </dm:discreteMeasurement>
         </dm:discreteMeasurements>

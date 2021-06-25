@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
+import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.ValueType.*;
 import static org.junit.Assert.*;
 
 /**
@@ -33,17 +34,16 @@ public abstract class AbstractDiscreteMeasurementsTest {
         sw.getExtension(DiscreteMeasurements.class)
                 .newDiscreteMeasurement()
                 .setType(DiscreteMeasurement.Type.SWITCH_POSITION)
-                .setStringValue("CLOSED")
-                .setIntValue(1)
+                .setValue("CLOSED")
                 .setValid(false)
                 .putProperty("source", "test")
                 .putProperty("other", "test3")
                 .add();
         sw.getExtension(DiscreteMeasurements.class)
                 .newDiscreteMeasurement()
-                .setId("FICT")
+                .setId("IS_FICT")
                 .setType(DiscreteMeasurement.Type.OTHER)
-                .setStringValue("ADDITIONAL COMMENT")
+                .setValue(false)
                 .setValid(true)
                 .add();
 
@@ -54,7 +54,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
                 .setId("DIS_MEAS_TAP_POS")
                 .setType(DiscreteMeasurement.Type.TAP_POSITION)
                 .setTapChanger(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER)
-                .setIntValue(15)
+                .setValue(15)
                 .putProperty("source", "test2")
                 .add();
 
@@ -65,24 +65,28 @@ public abstract class AbstractDiscreteMeasurementsTest {
             if (meas.getId() == null) {
                 assertEquals(DiscreteMeasurement.Type.SWITCH_POSITION, meas.getType());
                 assertNull(meas.getTapChanger());
+                assertEquals(STRING, meas.getValueType());
                 assertEquals("CLOSED", meas.getValueAsString());
-                assertEquals(1, meas.getValueAsInt());
                 assertFalse(meas.isValid());
                 assertEquals(2, meas.getPropertyNames().size());
                 assertEquals("test", meas.getProperty("source"));
                 assertEquals("test3", meas.getProperty("other"));
             } else {
-                assertEquals("FICT", meas.getId());
+                assertEquals("IS_FICT", meas.getId());
                 assertEquals(DiscreteMeasurement.Type.OTHER, meas.getType());
                 assertNull(meas.getTapChanger());
-                assertEquals("ADDITIONAL COMMENT", meas.getValueAsString());
-                assertEquals(-1, meas.getValueAsInt());
+                assertEquals(BOOLEAN, meas.getValueType());
+                assertFalse(meas.getValueAsBoolean());
                 assertTrue(meas.isValid());
                 assertTrue(meas.getPropertyNames().isEmpty());
                 assertNull(meas.getProperty("source"));
                 meas.putProperty("source", "test4");
                 assertEquals(1, meas.getPropertyNames().size());
                 assertEquals("test4", meas.getProperty("source"));
+
+                meas.setValue("CHANGED VALUE");
+                assertEquals(STRING, meas.getValueType());
+                assertEquals("CHANGED VALUE", meas.getValueAsString());
             }
         }
 
@@ -96,7 +100,7 @@ public abstract class AbstractDiscreteMeasurementsTest {
         assertNotNull(ptcPos);
         assertEquals(DiscreteMeasurement.Type.TAP_POSITION, ptcPos.getType());
         assertEquals(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, ptcPos.getTapChanger());
-        assertEquals("15", ptcPos.getValueAsString());
+        assertEquals(INT, ptcPos.getValueType());
         assertEquals(15, ptcPos.getValueAsInt());
         assertTrue(ptcPos.isValid());
         assertEquals(1, ptcPos.getPropertyNames().size());

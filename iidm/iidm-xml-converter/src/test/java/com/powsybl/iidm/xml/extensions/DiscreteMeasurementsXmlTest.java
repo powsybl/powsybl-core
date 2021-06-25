@@ -37,8 +37,7 @@ public class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
                 .newDiscreteMeasurement()
                 .setId("DIS_MEAS_SW_POS")
                 .setType(DiscreteMeasurement.Type.SWITCH_POSITION)
-                .setStringValue("CLOSED")
-                .setIntValue(1)
+                .setValue("CLOSED")
                 .setValid(false)
                 .putProperty("source", "test")
                 .add();
@@ -50,7 +49,7 @@ public class DiscreteMeasurementsXmlTest extends AbstractXmlConverterTest {
                 .setId("DIS_MEAS_TAP_POS")
                 .setType(DiscreteMeasurement.Type.TAP_POSITION)
                 .setTapChanger(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER)
-                .setIntValue(15)
+                .setValue(15)
                 .setValid(true)
                 .putProperty("source", "test2")
                 .add();

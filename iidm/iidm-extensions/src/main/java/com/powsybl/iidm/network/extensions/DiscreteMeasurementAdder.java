@@ -19,9 +19,11 @@ public interface DiscreteMeasurementAdder {
 
     DiscreteMeasurementAdder setTapChanger(DiscreteMeasurement.TapChanger tapChanger);
 
-    DiscreteMeasurementAdder setStringValue(String value);
+    DiscreteMeasurementAdder setValue(String value);
 
-    DiscreteMeasurementAdder setIntValue(int value);
+    DiscreteMeasurementAdder setValue(boolean value);
+
+    DiscreteMeasurementAdder setValue(int value);
 
     DiscreteMeasurementAdder setValid(boolean valid);
 
