@@ -72,10 +72,9 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         } else {
             // Map all the observed flows to the 'virtual load'
             // of the dangling line
-            PowerFlow f = powerFlow();
             dl = adder
-                    .setP0(fother.p() + f.p())
-                    .setQ0(fother.q() + f.q())
+                    .setP0(fother.p() + p0())
+                    .setQ0(fother.q() + q0())
                     .add();
         }
         // We do not call addAliasesAndProperties(dl) !
