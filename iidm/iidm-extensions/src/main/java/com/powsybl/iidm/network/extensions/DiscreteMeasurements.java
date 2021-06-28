@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.Identifiable;
 import java.util.Collection;
 
 /**
+ * Measurements with discrete values associated with an equipment (the extended equipment).
+ * See {@link DiscreteMeasurement}.
+ *
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extension<I> {
@@ -27,6 +30,10 @@ public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extensi
 
     DiscreteMeasurementAdder newDiscreteMeasurement();
 
+    /**
+     * Check if there is any discrete measurement associated with the extended equipment.
+     * If not, remove the extension.
+     */
     default void cleanIfEmpty() {
         if (getDiscreteMeasurements().isEmpty()) {
             getExtendable().removeExtension(DiscreteMeasurements.class);

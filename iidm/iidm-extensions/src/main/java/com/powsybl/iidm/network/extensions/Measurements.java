@@ -12,6 +12,9 @@ import com.powsybl.iidm.network.Connectable;
 import java.util.Collection;
 
 /**
+ * Measurements with continuous numeric values associated with an equipment (the extended equipment).
+ * See {@link Measurement}.
+ *
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface Measurements<C extends Connectable<C>> extends Extension<C> {
@@ -27,6 +30,10 @@ public interface Measurements<C extends Connectable<C>> extends Extension<C> {
 
     MeasurementAdder newMeasurement();
 
+    /**
+     * Check if there is any measurement with continuous numeric values associated with the extended equipment.
+     * If not, remove the extension.
+     */
     default void cleanIfEmpty() {
         if (getMeasurements().isEmpty()) {
             getExtendable().removeExtension(Measurements.class);
