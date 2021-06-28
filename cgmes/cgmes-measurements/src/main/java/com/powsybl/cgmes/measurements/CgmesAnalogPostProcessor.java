@@ -17,6 +17,8 @@ import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
+
 import static com.powsybl.iidm.network.extensions.Measurement.Side.THREE;
 import static com.powsybl.iidm.network.extensions.Measurement.Side.TWO;
 import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
@@ -24,22 +26,22 @@ import static com.powsybl.iidm.network.extensions.Measurement.Type.*;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-final class CgmesAnalogPostProcessor {
+public final class CgmesAnalogPostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesAnalogPostProcessor.class);
 
-    static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays) {
+    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
         if (terminalId != null) {
             Identifiable identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
-                createMeas(identifiable, id, terminalId, measurementType);
+                createMeas(identifiable, id, terminalId, measurementType, typesMapping);
                 return;
             }
             LOG.warn("Ignored terminal {} of {} {}: not found", terminalId, measurementType, id);
         }
         Identifiable<?> identifiable = network.getIdentifiable(powerSystemResourceId);
         if (identifiable != null) {
-            createMeas(identifiable, id, terminalId, measurementType);
+            createMeas(identifiable, id, terminalId, measurementType, typesMapping);
             return;
         }
         PropertyBag bay = bays.stream().filter(b -> b.getId("Bay").equals(powerSystemResourceId)).findFirst().orElse(null);
@@ -58,7 +60,7 @@ final class CgmesAnalogPostProcessor {
         }
     }
 
-    private static void createMeas(Identifiable<?> identifiable, String id, String terminalId, String measurementType) {
+    private static void createMeas(Identifiable<?> identifiable, String id, String terminalId, String measurementType, Map<String, String> typesMapping) {
         if (identifiable instanceof Connectable) {
             Connectable<?> c = (Connectable<?>) identifiable;
             Measurements meas = c.getExtension(Measurements.class);
@@ -66,7 +68,7 @@ final class CgmesAnalogPostProcessor {
                 c.newExtension(MeasurementsAdder.class).add();
                 meas = c.getExtension(Measurements.class);
             }
-            Measurement.Type type = getType(measurementType);
+            Measurement.Type type = getType(measurementType, typesMapping);
             Measurement.Side side = null;
             MeasurementAdder adder = meas.newMeasurement()
                     .setValid(false)
@@ -75,7 +77,7 @@ final class CgmesAnalogPostProcessor {
                 side = getSide(terminalId, c);
             }
             if (type != OTHER && side == null && !(c instanceof Injection)) {
-                adder.setType(OTHER); // TODO: why are not OTHER measurements without terminal ID?
+                adder.setType(OTHER); // TODO: this should be deleted, why are "not OTHER" measurements without terminal ID?
             } else {
                 adder.setType(type);
             }
@@ -89,25 +91,15 @@ final class CgmesAnalogPostProcessor {
         }
     }
 
-    private static Measurement.Type getType(String measurementType) {
-        switch (measurementType) {
-            case "ActivePower":
-                return ACTIVE_POWER;
-            case "ApparentPower":
-                return APPARENT_POWER;
-            case "Current":
-                return CURRENT;
-            case "Angle":
-                return ANGLE;
-            case "Frequency":
-                return FREQUENCY;
-            case "ReactivePower":
-                return REACTIVE_POWER;
-            case "Voltage":
-                return VOLTAGE;
-            default:
-                return OTHER;
+    private static Measurement.Type getType(String measurementType, Map<String, String> typesMapping) {
+        if (measurementType.equals("Angle")) {
+            return ANGLE;
         }
+        String iidmType = typesMapping.get(measurementType);
+        if (iidmType != null) {
+            return Measurement.Type.valueOf(iidmType);
+        }
+        return OTHER;
     }
 
     private static Measurement.Side getSide(String terminalId, Connectable<?> c) {

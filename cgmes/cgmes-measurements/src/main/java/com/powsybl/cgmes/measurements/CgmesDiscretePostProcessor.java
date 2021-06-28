@@ -22,11 +22,11 @@ import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.Type.*;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-final class CgmesDiscretePostProcessor {
+public final class CgmesDiscretePostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesDiscretePostProcessor.class);
 
-    static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays) {
+    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays) {
         if (terminalId != null) {
             Identifiable<?> identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
