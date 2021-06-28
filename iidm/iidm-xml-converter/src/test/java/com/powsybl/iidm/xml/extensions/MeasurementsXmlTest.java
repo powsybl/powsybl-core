@@ -53,7 +53,6 @@ public class MeasurementsXmlTest extends AbstractXmlConverterTest {
                 .setValue(-600.07)
                 .setStandardDeviation(10.2)
                 .setValid(true)
-                .putProperty("source", "test2")
                 .add();
         twt.getExtension(Measurements.class)
                 .newMeasurement()
