@@ -522,7 +522,7 @@ public class Conversion {
             // set (voltage, angle) values after all nodes have been created and connected
             for (PropertyBag n : nodes) {
                 NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
-                if (!nc.insideBoundary()) {
+                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
                     nc.setVoltageAngleNodeBreaker();
                 }
             }
