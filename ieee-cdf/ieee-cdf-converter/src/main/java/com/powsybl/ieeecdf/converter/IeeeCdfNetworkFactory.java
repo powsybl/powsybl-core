@@ -6,12 +6,15 @@
  */
 package com.powsybl.ieeecdf.converter;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.ieeecdf.model.IeeeCdfBus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 
 import java.util.Properties;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,8 +24,13 @@ public final class IeeeCdfNetworkFactory {
     private IeeeCdfNetworkFactory() {
     }
 
+    private static Network create(String baseName, NetworkFactory networkFactory, Properties properties,
+                                  ToDoubleFunction<IeeeCdfBus> nominalVoltageProvider) {
+        return new IeeeCdfImporter(nominalVoltageProvider).importData(new ResourceDataSource(baseName, new ResourceSet("/", baseName + ".txt")), networkFactory, properties);
+    }
+
     private static Network create(String baseName, NetworkFactory networkFactory, Properties properties) {
-        return new IeeeCdfImporter().importData(new ResourceDataSource(baseName, new ResourceSet("/", baseName + ".txt")), networkFactory, properties);
+        return create(baseName, networkFactory, properties, IeeeCdfImporter.DEFAULT_NOMINAL_VOLTAGE_PROVIDER);
     }
 
     private static Network create(String baseName, NetworkFactory networkFactory) {
@@ -38,7 +46,19 @@ public final class IeeeCdfNetworkFactory {
     }
 
     public static Network create14(NetworkFactory networkFactory) {
-        return create("ieee14cdf", networkFactory);
+        return create("ieee14cdf", networkFactory, null, ieeeCdfBus -> {
+            if (ieeeCdfBus.getName().endsWith("HV")) {
+                return 135;
+            } else if (ieeeCdfBus.getName().endsWith("TV")) {
+                return 20;
+            } else if (ieeeCdfBus.getName().endsWith("ZV")) {
+                return 14;
+            } else if (ieeeCdfBus.getName().endsWith("LV")) {
+                return 12;
+            } else {
+                throw new PowsyblException("Cannot find base voltage from bus name: '" + ieeeCdfBus.getName() + "'");
+            }
+        });
     }
 
     public static Network create14() {
@@ -74,7 +94,17 @@ public final class IeeeCdfNetworkFactory {
     }
 
     public static Network create118(NetworkFactory networkFactory) {
-        return create("ieee118cdf", networkFactory);
+        return create("ieee118cdf", networkFactory, null, ieeeCdfBus -> {
+            if (ieeeCdfBus.getName().endsWith("V1")) {
+                return 138;
+            } else if (ieeeCdfBus.getName().endsWith("V2")) {
+                return 161;
+            } else if (ieeeCdfBus.getName().endsWith("V3")) {
+                return 345;
+            } else {
+                throw new PowsyblException("Cannot find base voltage from bus name: '" + ieeeCdfBus.getName() + "'");
+            }
+        });
     }
 
     public static Network create118() {

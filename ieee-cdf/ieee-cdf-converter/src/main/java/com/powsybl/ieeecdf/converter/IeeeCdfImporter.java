@@ -8,7 +8,6 @@ package com.powsybl.ieeecdf.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.ieeecdf.model.*;
@@ -29,6 +28,7 @@ import java.io.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -48,6 +48,18 @@ public class IeeeCdfImporter implements Importer {
                                                                                  Boolean.FALSE);
 
     private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
+
+    static final ToDoubleFunction<IeeeCdfBus> DEFAULT_NOMINAL_VOLTAGE_PROVIDER = ieeeCdfBus -> ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+
+    private final ToDoubleFunction<IeeeCdfBus> nominalVoltageProvider;
+
+    public IeeeCdfImporter() {
+        this(DEFAULT_NOMINAL_VOLTAGE_PROVIDER);
+    }
+
+    public IeeeCdfImporter(ToDoubleFunction<IeeeCdfBus> nominalVoltageProvider) {
+        this.nominalVoltageProvider = Objects.requireNonNull(nominalVoltageProvider);
+    }
 
     @Override
     public String getFormat() {
@@ -126,7 +138,7 @@ public class IeeeCdfImporter implements Importer {
         return "B" + busNum;
     }
 
-    private static void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
+    private void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network) {
         for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(ieeeCdfBus.getNumber());
@@ -210,36 +222,15 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
-    private static double getNominalV(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext) {
+    private double getNominalV(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext) {
         if (perUnitContext.isIgnoreBaseVoltage()) {
             return 1;
         }
-        if (ieeeCdfBus.getBaseVoltage() == 0) {
-            // try to find the base voltage in the bus name
-            // HV to be 135 kV, LV to be 20kV and ZV 14 kV and LV to be 12 kV (for example)
-            if (ieeeCdfBus.getName().endsWith("V1")) {
-                return 138;
-            } else if (ieeeCdfBus.getName().endsWith("V2")) {
-                return 161;
-            } else if (ieeeCdfBus.getName().endsWith("V3")) {
-                return 345;
-            } else if (ieeeCdfBus.getName().endsWith("HV")) {
-                return 135;
-            } else if (ieeeCdfBus.getName().endsWith("TV")) {
-                return 20;
-            } else if (ieeeCdfBus.getName().endsWith("ZV")) {
-                return 14;
-            } else if (ieeeCdfBus.getName().endsWith("LV")) {
-                return 12;
-            } else {
-                throw new PowsyblException("Cannot find base voltage from bus name: '" + ieeeCdfBus.getName() + "'");
-            }
-        }
-        return ieeeCdfBus.getBaseVoltage();
+        return nominalVoltageProvider.applyAsDouble(ieeeCdfBus);
     }
 
-    private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
-                                                   String voltageLevelId, Substation substation, Network network) {
+    private VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
+                                            String voltageLevelId, Substation substation, Network network) {
         double nominalV = getNominalV(ieeeCdfBus, perUnitContext);
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
