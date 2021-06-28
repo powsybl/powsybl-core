@@ -41,7 +41,12 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
     public void write(DiscreteMeasurements<I> extension, XmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
         for (DiscreteMeasurement discreteMeasurement : extension.getDiscreteMeasurements()) {
-            writer.writeStartElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
+            boolean hasProperty = !discreteMeasurement.getPropertyNames().isEmpty();
+            if (hasProperty) {
+                writer.writeStartElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
+            } else {
+                writer.writeEmptyElement(getNamespaceUri(), DISCRETE_MEASUREMENT);
+            }
             if (discreteMeasurement.getId() != null) {
                 writer.writeAttribute("id", discreteMeasurement.getId());
             }
@@ -71,7 +76,9 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
                 writer.writeAttribute("name", name);
                 writer.writeAttribute(VALUE, discreteMeasurement.getProperty(name));
             }
-            writer.writeEndElement();
+            if (hasProperty) {
+                writer.writeEndElement();
+            }
         }
     }
 

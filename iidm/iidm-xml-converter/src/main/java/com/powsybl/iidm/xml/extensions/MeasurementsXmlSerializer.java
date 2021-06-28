@@ -41,7 +41,12 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
     public void write(Measurements<C> extension, XmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getWriter();
         for (Measurement measurement : extension.getMeasurements()) {
-            writer.writeStartElement(getNamespaceUri(), MEASUREMENT);
+            boolean hasProperty = !measurement.getPropertyNames().isEmpty();
+            if (hasProperty) {
+                writer.writeStartElement(getNamespaceUri(), MEASUREMENT);
+            } else {
+                writer.writeEmptyElement(getNamespaceUri(), MEASUREMENT);
+            }
             if (measurement.getId() != null) {
                 writer.writeAttribute("id", measurement.getId());
             }
@@ -57,7 +62,9 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                 writer.writeAttribute("name", name);
                 writer.writeAttribute(VALUE, measurement.getProperty(name));
             }
-            writer.writeEndElement();
+            if (hasProperty) {
+                writer.writeEndElement();
+            }
         }
     }
 
