@@ -16,9 +16,9 @@ import java.util.Objects;
  */
 public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXnode {
 
-    private float rdp = Float.NaN; // r divider position 1 -> 2
+    private double rdp = Double.NaN; // r divider position 1 -> 2
 
-    private float xdp = Float.NaN; // x divider position 1 -> 2
+    private double xdp = Double.NaN; // x divider position 1 -> 2
 
     private String line1Name;
 
@@ -28,9 +28,9 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private double xnodeQ1;
 
-    private float b1dp = Float.NaN; // b1 divider position 1 -> 2
+    private double b1dp = Double.NaN; // b1 divider position 1 -> 2
 
-    private float g1dp = Float.NaN; // g1 divider position 1 -> 2
+    private double g1dp = Double.NaN; // g1 divider position 1 -> 2
 
     private String line2Name;
 
@@ -40,13 +40,13 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
 
     private double xnodeQ2;
 
-    private float b2dp = Float.NaN; // b2 divider position 1 -> 2
+    private double b2dp = Double.NaN; // b2 divider position 1 -> 2
 
-    private float g2dp = Float.NaN; // g2 divider position 1 -> 2
+    private double g2dp = Double.NaN; // g2 divider position 1 -> 2
 
     private String code;
 
-    public MergedXnodeImpl(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
+    public MergedXnodeImpl(Line line, double rdp, double xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
                            String line1Name, String line2Name, String code) {
         super(line);
         this.rdp = checkDividerPosition(rdp);
@@ -60,9 +60,9 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
         this.code = Objects.requireNonNull(code);
     }
 
-    public MergedXnodeImpl(Line line, float rdp, float xdp,
-                           String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, float b1dp, float g1dp,
-                           String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, float b2dp, float g2dp,
+    public MergedXnodeImpl(Line line, double rdp, double xdp,
+                           String line1Name, boolean line1Fictitious, double xnodeP1, double xnodeQ1, double b1dp, double g1dp,
+                           String line2Name, boolean line2Fictitious, double xnodeP2, double xnodeQ2, double b2dp, double g2dp,
                            String code) {
         this(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, line1Name, line2Name, code);
         this.line1Fictitious = line1Fictitious;
@@ -73,11 +73,11 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
         this.g2dp = checkDividerPosition(g2dp);
     }
 
-    private float checkDividerPosition(float dp) {
-        if (Float.isNaN(dp)) {
-            return 0.5f;
+    private double checkDividerPosition(double dp) {
+        if (Double.isNaN(dp)) {
+            return 0.5;
         }
-        if (dp < 0f || dp > 1f) {
+        if (dp < 0 || dp > 1) {
             throw new IllegalArgumentException("Invalid divider position: " + dp);
         }
         return dp;
@@ -91,23 +91,23 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     @Override
-    public float getRdp() {
+    public double getRdp() {
         return rdp;
     }
 
     @Override
-    public MergedXnodeImpl setRdp(float rdp) {
+    public MergedXnodeImpl setRdp(double rdp) {
         this.rdp = checkDividerPosition(rdp);
         return this;
     }
 
     @Override
-    public float getXdp() {
+    public double getXdp() {
         return xdp;
     }
 
     @Override
-    public MergedXnodeImpl setXdp(float xdp) {
+    public MergedXnodeImpl setXdp(double xdp) {
         this.xdp = checkDividerPosition(xdp);
         return this;
     }
@@ -157,24 +157,24 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     @Override
-    public MergedXnodeImpl setB1dp(float b1dp) {
+    public MergedXnodeImpl setB1dp(double b1dp) {
         this.b1dp = checkDividerPosition(b1dp);
         return this;
     }
 
     @Override
-    public float getB1dp() {
+    public double getB1dp() {
         return b1dp;
     }
 
     @Override
-    public MergedXnodeImpl setG1dp(float g1dp) {
+    public MergedXnodeImpl setG1dp(double g1dp) {
         this.g1dp = checkDividerPosition(g1dp);
         return this;
     }
 
     @Override
-    public float getG1dp() {
+    public double getG1dp() {
         return g1dp;
     }
 
@@ -223,24 +223,24 @@ public class MergedXnodeImpl extends AbstractExtension<Line> implements MergedXn
     }
 
     @Override
-    public MergedXnodeImpl setB2dp(float b2dp) {
+    public MergedXnodeImpl setB2dp(double b2dp) {
         this.b2dp = checkDividerPosition(b2dp);
         return this;
     }
 
     @Override
-    public float getB2dp() {
+    public double getB2dp() {
         return b2dp;
     }
 
     @Override
-    public MergedXnodeImpl setG2dp(float g2dp) {
+    public MergedXnodeImpl setG2dp(double g2dp) {
         this.g2dp = checkDividerPosition(g2dp);
         return this;
     }
 
     @Override
-    public float getG2dp() {
+    public double getG2dp() {
         return g2dp;
     }
 

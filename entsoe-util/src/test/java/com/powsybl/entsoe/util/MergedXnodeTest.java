@@ -58,17 +58,17 @@ public class MergedXnodeTest {
                 .add();
 
         // extends line
-        line.newExtension(MergedXnodeAdder.class).withRdp(0.5f).withXdp(0.75f)
+        line.newExtension(MergedXnodeAdder.class).withRdp(0.5).withXdp(0.75)
                 .withXnodeP1(1.0).withXnodeQ1(2.0)
                 .withXnodeP2(1.5).withXnodeQ2(2.5)
                 .withLine1Name("")
                 .withLine1Fictitious(true)
-                .withB1dp(3f / 7)
-                .withG1dp(5f / 11)
+                .withB1dp(3 / 7)
+                .withG1dp(5 / 11)
                 .withLine2Name("")
                 .withLine2Fictitious(true)
-                .withB2dp((float) 3.5 / 8)
-                .withG2dp((float) 5.5 / 12)
+                .withB2dp(3.5 / 8)
+                .withG2dp(5.5 / 12)
                 .withCode("XXXXXX11")
                 .add();
 
@@ -86,18 +86,18 @@ public class MergedXnodeTest {
         assertEquals("mergedXnode", xnode.getName());
         assertSame(line, xnode.getExtendable());
 
-        assertEquals(0.5f, xnode.getRdp(), 0f);
-        assertEquals(0.75f, xnode.getXdp(), 0f);
+        assertEquals(0.5, xnode.getRdp(), 0);
+        assertEquals(0.75, xnode.getXdp(), 0);
         assertEquals(1.0, xnode.getXnodeP1(), 0.0);
         assertEquals(2.0, xnode.getXnodeQ1(), 0.0);
         assertEquals(1.5, xnode.getXnodeP2(), 0.0);
         assertEquals(2.5, xnode.getXnodeQ2(), 0.0);
         assertTrue(xnode.isLine1Fictitious());
         assertTrue(xnode.isLine1Fictitious());
-        assertEquals(3f / 7, xnode.getB1dp(), 0f);
-        assertEquals(5f / 11, xnode.getG1dp(), 0f);
-        assertEquals(3.5f / 8, xnode.getB2dp(), 0f);
-        assertEquals(5.5f / 12, xnode.getG2dp(), 0f);
+        assertEquals(3 / 7, xnode.getB1dp(), 0);
+        assertEquals(5 / 11, xnode.getG1dp(), 0);
+        assertEquals(3.5 / 8, xnode.getB2dp(), 0);
+        assertEquals(5.5 / 12, xnode.getG2dp(), 0);
         assertEquals("XXXXXX11", xnode.getCode());
     }
 
@@ -112,12 +112,12 @@ public class MergedXnodeTest {
         } catch (NullPointerException ignored) {
         }
         try {
-            xnode.setRdp(2f);
+            xnode.setRdp(2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setXdp(-3f);
+            xnode.setXdp(-3);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -132,42 +132,42 @@ public class MergedXnodeTest {
         } catch (NullPointerException ignored) {
         }
         try {
-            xnode.setB1dp(2f);
+            xnode.setB1dp(2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setB1dp(-1f);
+            xnode.setB1dp(-1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setG1dp(2f);
+            xnode.setG1dp(2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setG1dp(-1f);
+            xnode.setG1dp(-1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setB2dp(2f);
+            xnode.setB2dp(2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setB2dp(-1f);
+            xnode.setB2dp(-1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setG2dp(2f);
+            xnode.setG2dp(2);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            xnode.setG2dp(-1f);
+            xnode.setG2dp(-1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
@@ -178,8 +178,8 @@ public class MergedXnodeTest {
         Network network = createTestNetwork();
         MergedXnode xnode = network.getLine("L").getExtension(MergedXnode.class);
 
-        xnode.setRdp(0.6f);
-        xnode.setXdp(0.6f);
+        xnode.setRdp(0.6);
+        xnode.setXdp(0.6);
         xnode.setXnodeP1(10.0);
         xnode.setXnodeQ1(11.0);
         xnode.setXnodeP2(20.0);
@@ -189,12 +189,12 @@ public class MergedXnodeTest {
         xnode.setLine2Name("Line2");
         xnode.setLine1Fictitious(false);
         xnode.setLine2Fictitious(false);
-        xnode.setB1dp(12f / 25);
-        xnode.setG1dp(14f / 29);
-        xnode.setB2dp(22f / 35);
-        xnode.setG2dp(24f / 39);
-        assertEquals(0.6f, xnode.getRdp(), 0f);
-        assertEquals(0.6f, xnode.getXdp(), 0f);
+        xnode.setB1dp(12 / 25);
+        xnode.setG1dp(14 / 29);
+        xnode.setB2dp(22 / 35);
+        xnode.setG2dp(24 / 39);
+        assertEquals(0.6, xnode.getRdp(), 0);
+        assertEquals(0.6, xnode.getXdp(), 0);
         assertEquals(10.0, xnode.getXnodeP1(), 0.0);
         assertEquals(11.0, xnode.getXnodeQ1(), 0.0);
         assertEquals(20.0, xnode.getXnodeP2(), 0.0);
@@ -203,10 +203,10 @@ public class MergedXnodeTest {
         assertEquals("Line2", xnode.getLine2Name());
         assertFalse(xnode.isLine1Fictitious());
         assertFalse(xnode.isLine2Fictitious());
-        assertEquals(12f / 25, xnode.getB1dp(), 0f);
-        assertEquals(14f / 29, xnode.getG1dp(), 0f);
-        assertEquals(22f / 35, xnode.getB2dp(), 0f);
-        assertEquals(24f / 39, xnode.getG2dp(), 0f);
+        assertEquals(12 / 25, xnode.getB1dp(), 0);
+        assertEquals(14 / 29, xnode.getG1dp(), 0);
+        assertEquals(22 / 35, xnode.getB2dp(), 0);
+        assertEquals(24 / 39, xnode.getG2dp(), 0);
     }
 
     @Test
@@ -223,27 +223,27 @@ public class MergedXnodeTest {
                 .add();
 
         MergedXnode xnode = line.getExtension(MergedXnode.class);
-        assertEquals(0.5f, xnode.getRdp(), 0f);
-        assertEquals(0.5f, xnode.getXdp(), 0f);
-        assertEquals(0.5f, xnode.getB1dp(), 0f);
-        assertEquals(0.5f, xnode.getG1dp(), 0f);
-        assertEquals(0.5f, xnode.getB2dp(), 0f);
-        assertEquals(0.5f, xnode.getB2dp(), 0f);
+        assertEquals(0.5, xnode.getRdp(), 0);
+        assertEquals(0.5, xnode.getXdp(), 0);
+        assertEquals(0.5, xnode.getB1dp(), 0);
+        assertEquals(0.5, xnode.getG1dp(), 0);
+        assertEquals(0.5, xnode.getB2dp(), 0);
+        assertEquals(0.5, xnode.getB2dp(), 0);
         assertFalse(xnode.isLine1Fictitious());
         assertFalse(xnode.isLine2Fictitious());
 
-        xnode.setRdp(Float.NaN);
-        xnode.setXdp(Float.NaN);
-        xnode.setB1dp(Float.NaN);
-        xnode.setG1dp(Float.NaN);
-        xnode.setB2dp(Float.NaN);
-        xnode.setG2dp(Float.NaN);
-        assertEquals(0.5f, xnode.getRdp(), 0f);
-        assertEquals(0.5f, xnode.getXdp(), 0f);
-        assertEquals(0.5f, xnode.getB1dp(), 0f);
-        assertEquals(0.5f, xnode.getG1dp(), 0f);
-        assertEquals(0.5f, xnode.getB2dp(), 0f);
-        assertEquals(0.5f, xnode.getB2dp(), 0f);
+        xnode.setRdp(Double.NaN);
+        xnode.setXdp(Double.NaN);
+        xnode.setB1dp(Double.NaN);
+        xnode.setG1dp(Double.NaN);
+        xnode.setB2dp(Double.NaN);
+        xnode.setG2dp(Double.NaN);
+        assertEquals(0.5, xnode.getRdp(), 0);
+        assertEquals(0.5, xnode.getXdp(), 0);
+        assertEquals(0.5, xnode.getB1dp(), 0);
+        assertEquals(0.5, xnode.getG1dp(), 0);
+        assertEquals(0.5, xnode.getB2dp(), 0);
+        assertEquals(0.5, xnode.getB2dp(), 0);
     }
 
     @Test
@@ -290,14 +290,14 @@ public class MergedXnodeTest {
             }
         };
 
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withRdp(Float.NaN));
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withXdp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withRdp(Double.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withXdp(Double.NaN));
         assertEquals(mergedXnodeAdder, mergedXnodeAdder.withLine1Fictitious(false));
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB1dp(Float.NaN));
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG1dp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB1dp(Double.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG1dp(Double.NaN));
         assertEquals(mergedXnodeAdder, mergedXnodeAdder.withLine2Fictitious(false));
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB2dp(Float.NaN));
-        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG2dp(Float.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withB2dp(Double.NaN));
+        assertEquals(mergedXnodeAdder, mergedXnodeAdder.withG2dp(Double.NaN));
     }
 
     @Test
@@ -313,22 +313,22 @@ public class MergedXnodeTest {
             }
 
             @Override
-            public float getRdp() {
-                return Float.NaN;
+            public double getRdp() {
+                return Double.NaN;
             }
 
             @Override
-            public MergedXnode setRdp(float rdp) {
+            public MergedXnode setRdp(double rdp) {
                 return this;
             }
 
             @Override
-            public float getXdp() {
-                return Float.NaN;
+            public double getXdp() {
+                return Double.NaN;
             }
 
             @Override
-            public MergedXnode setXdp(float xdp) {
+            public MergedXnode setXdp(double xdp) {
                 return this;
             }
 
@@ -405,16 +405,16 @@ public class MergedXnodeTest {
 
         assertEquals(mergedXnode, mergedXnode.setLine1Fictitious(false));
         assertEquals(false, mergedXnode.isLine1Fictitious());
-        assertEquals(mergedXnode, mergedXnode.setB1dp(Float.NaN));
-        assertEquals(0.5f, mergedXnode.getB1dp(), 0f);
-        assertEquals(mergedXnode, mergedXnode.setG1dp(Float.NaN));
-        assertEquals(0.5f, mergedXnode.getG1dp(), 0f);
+        assertEquals(mergedXnode, mergedXnode.setB1dp(Double.NaN));
+        assertEquals(0.5, mergedXnode.getB1dp(), 0);
+        assertEquals(mergedXnode, mergedXnode.setG1dp(Double.NaN));
+        assertEquals(0.5, mergedXnode.getG1dp(), 0);
 
         assertEquals(mergedXnode, mergedXnode.setLine2Fictitious(false));
         assertEquals(false, mergedXnode.isLine2Fictitious());
-        assertEquals(mergedXnode, mergedXnode.setB2dp(Float.NaN));
-        assertEquals(0.5f, mergedXnode.getB2dp(), 0f);
-        assertEquals(mergedXnode, mergedXnode.setG2dp(Float.NaN));
-        assertEquals(0.5f, mergedXnode.getG2dp(), 0f);
+        assertEquals(mergedXnode, mergedXnode.setB2dp(Double.NaN));
+        assertEquals(0.5, mergedXnode.getB2dp(), 0);
+        assertEquals(mergedXnode, mergedXnode.setG2dp(Double.NaN));
+        assertEquals(0.5, mergedXnode.getG2dp(), 0);
     }
 }

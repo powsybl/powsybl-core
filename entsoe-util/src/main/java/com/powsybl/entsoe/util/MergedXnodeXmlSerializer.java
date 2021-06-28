@@ -29,8 +29,8 @@ public class MergedXnodeXmlSerializer extends AbstractExtensionXmlSerializer<Lin
 
     @Override
     public void write(MergedXnode xnode, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("rdp", xnode.getRdp(), context.getWriter());
-        XmlUtil.writeFloat("xdp", xnode.getXdp(), context.getWriter());
+        XmlUtil.writeDouble("rdp", xnode.getRdp(), context.getWriter());
+        XmlUtil.writeDouble("xdp", xnode.getXdp(), context.getWriter());
         XmlUtil.writeDouble("xnodeP1", xnode.getXnodeP1(), context.getWriter());
         XmlUtil.writeDouble("xnodeQ1", xnode.getXnodeQ1(), context.getWriter());
         XmlUtil.writeDouble("xnodeP2", xnode.getXnodeP2(), context.getWriter());
@@ -40,8 +40,8 @@ public class MergedXnodeXmlSerializer extends AbstractExtensionXmlSerializer<Lin
 
     @Override
     public MergedXnode read(Line line, XmlReaderContext context) {
-        float rdp = XmlUtil.readFloatAttribute(context.getReader(), "rdp");
-        float xdp = XmlUtil.readFloatAttribute(context.getReader(), "xdp");
+        double rdp = XmlUtil.readDoubleAttribute(context.getReader(), "rdp");
+        double xdp = XmlUtil.readDoubleAttribute(context.getReader(), "xdp");
         double xnodeP1 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP1");
         double xnodeQ1 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ1");
         double xnodeP2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP2");
