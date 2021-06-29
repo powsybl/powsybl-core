@@ -44,7 +44,7 @@ class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<TwoWindi
 
     @Override
     public TwoWindingsTransformerToBeEstimated removeTapChanger(TapChanger tapChanger) {
-        tapChangers.add(Objects.requireNonNull(tapChanger));
+        tapChangers.remove(Objects.requireNonNull(tapChanger));
         return this;
     }
 }
