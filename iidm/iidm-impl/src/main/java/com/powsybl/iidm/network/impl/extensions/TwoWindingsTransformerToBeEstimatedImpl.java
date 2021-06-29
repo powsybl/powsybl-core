@@ -27,7 +27,7 @@ class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<TwoWindi
     }
 
     @Override
-    public Set<TapChanger> getTapChangersToBeEstimated() {
+    public Set<TapChanger> getTapChangers() {
         return Collections.unmodifiableSet(tapChangers);
     }
 

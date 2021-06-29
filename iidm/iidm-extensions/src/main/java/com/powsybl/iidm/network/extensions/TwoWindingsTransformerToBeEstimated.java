@@ -23,10 +23,10 @@ public interface TwoWindingsTransformerToBeEstimated extends Extension<TwoWindin
 
     @Override
     default String getName() {
-        return "twoWindingsTransformerTapChangersToBeEstimated";
+        return "twoWindingsTransformerToBeEstimated";
     }
 
-    Set<TapChanger> getTapChangersToBeEstimated();
+    Set<TapChanger> getTapChangers();
 
     boolean tobeEstimated(TapChanger tapChanger);
 
@@ -35,7 +35,7 @@ public interface TwoWindingsTransformerToBeEstimated extends Extension<TwoWindin
     TwoWindingsTransformerToBeEstimated removeTapChanger(TapChanger tapChanger);
 
     default void cleanIfEmpty() {
-        if (getTapChangersToBeEstimated().isEmpty()) {
+        if (getTapChangers().isEmpty()) {
             getExtendable().removeExtension(TwoWindingsTransformerToBeEstimated.class);
         }
     }
