@@ -47,7 +47,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void germanTsosImport() throws Exception {
+    public void germanTsosImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
 
         Network network = new UcteImporter().importData(dataSource, null);
@@ -207,6 +207,28 @@ public class UcteImporterTest {
     public void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeOneClosedLine", new ResourceSet("/", "xnodeOneClosedLine.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertNotNull(network.getDanglingLine("FFFFFF12 XXXXXX11 1"));
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertNotNull(network.getLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getDanglingLine("FFFFFF11 XXXXXX11 1"));
+        assertNotNull(network.getDanglingLine("BEBBBB12 XXXXXX11 1"));
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
+        assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
     }
 }
 
