@@ -192,4 +192,16 @@ public class UcteExporterTest extends AbstractConverterTest {
         testExporter(network, "/invalidVoltageReference.uct");
     }
 
+    @Test
+    public void roundTripOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xnodeOneClosedLine.uct");
+        testExporter(network, "/xnodeOneClosedLine.uct");
+    }
+
+    @Test
+    public void roundTripOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xnodeTwoClosedLine.uct");
+        testExporter(network, "/xnodeTwoClosedLine.uct");
+    }
+
 }
