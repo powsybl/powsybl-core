@@ -12,10 +12,17 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import java.util.Set;
 
 /**
+ * Indicate for a state estimation which tap changers are to be estimated (i.e. their tap positions should be outputs).
+ * If a tap changer is not to be estimated, it should not be changed during a state estimation (i.e its tap position is only an input).
+ *
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWindingsTransformer> {
 
+    /**
+     * A three windings transformer has three legs which can each have a ratio tap changer and/or a phase tap changer
+     * that can be estimated during a state estimation.
+     */
     enum TapChanger {
         RATIO_TAP_CHANGER_1,
         PHASE_TAP_CHANGER_1,
@@ -30,14 +37,31 @@ public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWi
         return "threeWindingsTransformerToBeEstimated";
     }
 
+    /**
+     * Get tap changers that are to be estimated during a state estimation.
+     */
     Set<TapChanger> getTapChangers();
 
+    /**
+     * For a given tap changer, return true if it is to be estimated during a state estimation. Else, return false.
+     */
     boolean toBeEstimated(TapChanger tapChanger);
 
+    /**
+     * Add a given tap changer to be estimated during state estimation.
+     * If this tap changer is already considered to be estimated, do nothing.
+     */
     ThreeWindingsTransformerToBeEstimated addTapChanger(TapChanger tapChanger);
 
+    /**
+     * Remove a given tap changer to the list of tap changers to be estimated during state estimation.
+     * If this tap changer is not considered to be estimated, do nothing.
+     */
     ThreeWindingsTransformerToBeEstimated removeTapChanger(TapChanger tapChanger);
 
+    /**
+     * Remove the extension if no tap changer is specified to be estimated.
+     */
     default void cleanIfEmpty() {
         if (getTapChangers().isEmpty()) {
             getExtendable().removeExtension(ThreeWindingsTransformerToBeEstimated.class);
