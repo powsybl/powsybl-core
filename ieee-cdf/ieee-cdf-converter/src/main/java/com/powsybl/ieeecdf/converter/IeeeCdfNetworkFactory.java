@@ -46,6 +46,7 @@ public final class IeeeCdfNetworkFactory {
     }
 
     public static Network create14(NetworkFactory networkFactory) {
+        // the nominal voltage provider given here follows no convention rules but is an assumption
         return create("ieee14cdf", networkFactory, null, ieeeCdfBus -> {
             if (ieeeCdfBus.getName().endsWith("HV")) {
                 return 135;
@@ -94,6 +95,7 @@ public final class IeeeCdfNetworkFactory {
     }
 
     public static Network create118(NetworkFactory networkFactory) {
+        // the nominal voltage provider given here follows no convention rules but is an assumption
         return create("ieee118cdf", networkFactory, null, ieeeCdfBus -> {
             if (ieeeCdfBus.getName().endsWith("V1")) {
                 return 138;
