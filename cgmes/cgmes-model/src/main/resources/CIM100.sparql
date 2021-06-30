@@ -30,3 +30,63 @@ OPTIONAL { GRAPH ?grapBDTP {
 }}
 }
 
+# query: synchronousMachines
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine ;
+        cim:IdentifiedObject.name ?name ;
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    OPTIONAL {
+        ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
+       }
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:GeneratingUnit.nominalP ?initialP ;
+        cim:IdentifiedObject.name ?nameGeneratingUnit .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?SynchronousMachine
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
+}}
+}
+
+# query: operationalLimits
+SELECT *
+WHERE
+{ GRAPH ?graph {
+    ?OperationalLimit
+        a $OperationalLimitSubclass ;
+        cim:IdentifiedObject.name ?name ;
+        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?value }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?value }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?value }
+    # operational limit sets can be attached to terminals or equipments
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
+    OPTIONAL { GRAPH ?graph2 {
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+    }}
+    ?OperationalLimitType
+        a cim:OperationalLimitType ;
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
+    OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
+}}
+
