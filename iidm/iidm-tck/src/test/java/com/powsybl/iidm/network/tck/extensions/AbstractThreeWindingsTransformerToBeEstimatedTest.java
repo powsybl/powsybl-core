@@ -57,8 +57,8 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
         ext.cleanIfEmpty();
         assertNotNull(twt.getExtension(ThreeWindingsTransformerToBeEstimated.class));
 
-        ext.removeTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER_1);
-        ext.removeTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER_3);
+        ext.removeTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER_1)
+                .removeTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER_3);
         ext.cleanIfEmpty();
         assertNull(twt.getExtension(ThreeWindingsTransformerToBeEstimated.class));
     }
