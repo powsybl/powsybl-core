@@ -86,9 +86,9 @@ class UcteRecordParser {
         return c == null || c == ' ' ? null : Integer.valueOf(Character.toString(c));
     }
 
-    float parseFloat(int beginIndex, int endIndex) {
+    double parseDouble(int beginIndex, int endIndex) {
         String str = parseString(beginIndex, endIndex);
-        return str == null || str.trim().isEmpty() ? Float.NaN : Float.valueOf(str);
+        return str == null || str.trim().isEmpty() ? Double.NaN : Double.valueOf(str);
     }
 
     <E extends Enum<E>> E parseEnumOrdinal(int index, Class<E> clazz) {
