@@ -17,9 +17,18 @@ import static org.junit.Assert.*;
  */
 public class SensitivityVariableSetTest {
 
+    private static final double EPSILON_COMPARISON = 1e-5;
+
     @Test
     public void baseTest() {
-        SensitivityVariableSet set = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4)));
+        WeightedSensitivityVariable wsv = new WeightedSensitivityVariable("v1", 3.4);
+        assertEquals("v1", wsv.getId());
+        assertEquals(3.4, wsv.getWeight(), EPSILON_COMPARISON);
+        assertEquals("WeightedSensitivityVariable(id='v1', weight=3.4)", wsv.toString());
+
+        SensitivityVariableSet set = new SensitivityVariableSet("id", List.of(wsv));
+        assertEquals("id", set.getId());
+        assertSame(wsv, set.getVariables().get(0));
         assertEquals("SensitivityVariableSet(id='id', variables=[WeightedSensitivityVariable(id='v1', weight=3.4)])", set.toString());
     }
 }

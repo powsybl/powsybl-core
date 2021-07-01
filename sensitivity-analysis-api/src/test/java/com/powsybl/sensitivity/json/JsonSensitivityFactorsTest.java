@@ -26,7 +26,7 @@ import java.util.Objects;
  */
 public class JsonSensitivityFactorsTest extends AbstractConverterTest {
 
-    private static List<SensitivityFactor> create() throws IOException {
+    private static List<SensitivityFactor> create() {
         return SensitivityFactorsJsonSerializer.read(new InputStreamReader(JsonSensitivityFactorsTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
     }
 

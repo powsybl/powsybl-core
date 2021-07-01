@@ -7,10 +7,13 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.contingency.ContingencyContext;
-import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -26,12 +29,17 @@ public class SensitivityFactorTest {
         String functionId = "86";
         String variableId = "1664";
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId, SensitivityVariableType.TRANSFORMER_PHASE, variableId, true, context);
-        Assert.assertSame(context, factor.getContingencyContext());
-        Assert.assertEquals(functionId, factor.getFunctionId());
-        Assert.assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
-        Assert.assertEquals(functionId, factor.getFunctionId());
-        Assert.assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
-        Assert.assertEquals(variableId, factor.getVariableId());
-        Assert.assertTrue(factor.isVariableSet());
+        assertSame(context, factor.getContingencyContext());
+        assertEquals(functionId, factor.getFunctionId());
+        assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        assertEquals(functionId, factor.getFunctionId());
+        assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+        assertEquals(variableId, factor.getVariableId());
+        assertTrue(factor.isVariableSet());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER, functionId='86', variableType=TRANSFORMER_PHASE, variableId='1664', variableSet=true, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
+
+        List<SensitivityFactor> factors = SensitivityFactor.createMatrix(SensitivityFunctionType.BRANCH_ACTIVE_POWER, List.of("l12", "l13", "l23"),
+                SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"), false, ContingencyContext.all());
+        assertEquals(3, factors.size());
     }
 }
