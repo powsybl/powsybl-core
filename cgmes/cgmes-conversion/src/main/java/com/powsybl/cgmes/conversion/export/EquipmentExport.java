@@ -47,7 +47,8 @@ public final class EquipmentExport {
             writeSwitches(network, exportedNodes, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
-            writeVoltageLevels(network, cimNamespace, writer);
+            Map<Double, String> baseVoltageIds = writeVoltageLevels(network, cimNamespace, writer);
+            writeBusbarSections(network, baseVoltageIds, cimNamespace, writer);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
@@ -137,7 +138,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static Map<Double, String> writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Map<Double, String> baseVoltageIds = new HashMap<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
@@ -147,6 +148,14 @@ public final class EquipmentExport {
                 BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer);
             }
             VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getSubstation().getId(), baseVoltageIds.get(voltageLevel.getNominalV()), cimNamespace, writer);
+        }
+
+        return baseVoltageIds;
+    }
+
+    private static void writeBusbarSections(Network network, Map<Double, String> baseVoltageIds, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (BusbarSection bus : network.getBusbarSections()) {
+            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), baseVoltageIds.get(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
         }
     }
 
@@ -354,7 +363,7 @@ public final class EquipmentExport {
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
 
             // Cast the danglingLine to an AcLineSegment
-            AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId(), danglingLine.getR(), danglingLine.getX(), danglingLine.getB(), danglingLine.getR(), cimNamespace, writer);
+            AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId(), danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer);
             writeFlowsLimits(danglingLine, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
         }
     }
@@ -521,6 +530,9 @@ public final class EquipmentExport {
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (BusbarSection bus : network.getBusbarSections()) {
+            writeTerminal(bus.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), bus.getId(), connectivityNodeId(exportedNodes, bus.getTerminal()), 1, cimNamespace, writer);
+        }
         for (Load load : network.getLoads()) {
             writeTerminal(load.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), load.getId(), connectivityNodeId(exportedNodes, load.getTerminal()), 1, cimNamespace, writer);
         }
