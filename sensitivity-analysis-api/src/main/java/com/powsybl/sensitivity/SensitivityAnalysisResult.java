@@ -131,7 +131,7 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get a collection of sensitivity value associated with given contingency id
+     * Get a collection of pre-contingency sensitivity value
      *
      * @return pre-contingency sensitivity values.
      */
