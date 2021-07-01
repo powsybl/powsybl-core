@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
  *
  * A single sensitivity analysis should return, besides its status and some stats on the
  * analysis itself, all the sensitivity values for each factor (combination of a monitored equipment or bus and a specific
- * equipment or group of equipments). The sensitivity provider used offers the possibility to calculate the sensitivity
+ * equipment or group of equipments). The chosen sensitivity provider offers the possibility to calculate the sensitivity
  * on a set of contingencies besides the pre-contingency state.
  * Note that the analysis is launched only once, but the solver itself modifies the matrix for each state of the network
  * to output a full set of results. In the sensitivity API, it has been allowed to provide a list of contingencies as an input,
@@ -124,14 +124,23 @@ public class SensitivityAnalysisResult {
      * Get a collection of sensitivity value associated with given contingency id
      *
      * @param contingencyId the ID of the considered contingency
-     * @return the sensitivity value associated with given contingency id, use null for pre-contingency sensitivity values.
+     * @return the sensitivity value associated with a given contingency ID.
      */
     public List<SensitivityValue> getValues(String contingencyId) {
         return valuesByContingencyId.getOrDefault(contingencyId, Collections.emptyList());
     }
 
     /**
-     * Get the sensitivity value associated with given function and given variable for a specific contingency.
+     * Get a collection of sensitivity value associated with given contingency id
+     *
+     * @return pre-contingency sensitivity values.
+     */
+    public List<SensitivityValue> getPreContingencyValues() {
+        return valuesByContingencyId.getOrDefault(null, Collections.emptyList());
+    }
+
+    /**
+     * Get the sensitivity value associated with a given function and a given variable for a specific contingency.
      *
      * @param contingencyId the id of the considered contingency
      * @param functionId sensitivity function id

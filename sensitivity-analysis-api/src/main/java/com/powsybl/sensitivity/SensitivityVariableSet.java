@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Uses to model a group of injection increases.
+ * Models a group of injection increases.
  * A list of weighted variables is used in general to model an injection increase of a group of generators and loads
  * through shift keys, also called GLSK (for Generation and Load shift keys).
  * Note that weights are not normalized.

@@ -93,6 +93,15 @@ public class SensitivityAnalysisResultTest {
     }
 
     @Test
+    public void getPreContingencySensitivityValues() {
+        List<SensitivityValue> values = new ArrayList<>();
+        values.add(new SensitivityValue(factorOk, null, Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorNok, null, Double.NaN, Double.NaN));
+        SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values);
+        assertEquals(values.size(), results.getPreContingencyValues().size());
+    }
+
+    @Test
     public void getSensitivityValuesContingency() {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, "Contingency", Double.NaN, Double.NaN));
