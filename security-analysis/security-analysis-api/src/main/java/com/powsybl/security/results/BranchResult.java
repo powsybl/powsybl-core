@@ -34,6 +34,13 @@ public class BranchResult {
 
     private final double i2;
 
+    /**
+     * Flow transfer from the branch in contingency to the branch with id branchId.
+     * <p>
+     * It is a ratio computed as : <i>dp1 / p1RefPrecontigency</i>, where :
+     * <b>dp1</b> is the delta between active power p1 at pre contingency and post contingency stages on branch with id branchId.
+     * <b>p1RefPrecontingency</b> is the active power p1 at pre contingency stage of the branch in contingency.
+     */
     private final double flowTransfer;
 
     @JsonCreator
