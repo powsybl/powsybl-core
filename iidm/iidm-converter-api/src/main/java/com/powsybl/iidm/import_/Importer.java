@@ -87,7 +87,7 @@ public interface Importer {
      * @return the model
      */
     default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters, Reporter reporter) {
-        throw new UnsupportedOperationException("Not implemented");
+        return importData(dataSource, networkFactory, parameters);
     }
 
     /**
