@@ -26,6 +26,8 @@ public interface DiscreteMeasurements<I extends Identifiable<I>> extends Extensi
 
     Collection<DiscreteMeasurement> getDiscreteMeasurements();
 
+    Collection<DiscreteMeasurement> getDiscreteMeasurements(DiscreteMeasurement.Type type);
+
     DiscreteMeasurement getDiscreteMeasurement(String id);
 
     DiscreteMeasurementAdder newDiscreteMeasurement();
