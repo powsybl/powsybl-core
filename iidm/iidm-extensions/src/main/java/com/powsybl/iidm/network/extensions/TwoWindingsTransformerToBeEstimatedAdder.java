@@ -19,5 +19,7 @@ public interface TwoWindingsTransformerToBeEstimatedAdder extends ExtensionAdder
         return TwoWindingsTransformerToBeEstimated.class;
     }
 
-    TwoWindingsTransformerToBeEstimatedAdder withTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger tapChanger);
+    TwoWindingsTransformerToBeEstimatedAdder withRatioTapChangerStatus(boolean toBeEstimated);
+
+    TwoWindingsTransformerToBeEstimatedAdder withPhaseTapChangerStatus(boolean toBeEstimated);
 }

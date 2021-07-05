@@ -10,14 +10,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -34,20 +33,16 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
 
     @Override
     public void write(TwoWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("tapChangers", extension.getTapChangers().stream().sorted().map(Enum::toString).collect(Collectors.joining(", ")));
+        context.getWriter().writeAttribute("ratioTapChangerStatus", String.valueOf(extension.containsRatioTapChanger()));
+        context.getWriter().writeAttribute("phaseTapChangerStatus", String.valueOf(extension.containsPhaseTapChanger()));
     }
 
     @Override
     public TwoWindingsTransformerToBeEstimated read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
-        TwoWindingsTransformerToBeEstimatedAdder adder = extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class);
-        Arrays.stream(context.getReader().getAttributeValue(null, "tapChangers").split(", "))
-                .forEach(tc -> adder.withTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.valueOf(tc)));
-        adder.add();
+        extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChangerStatus"))
+                .withPhaseTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChangerStatus"))
+                .add();
         return extendable.getExtension(TwoWindingsTransformerToBeEstimated.class);
-    }
-
-    @Override
-    public boolean isSerializable(TwoWindingsTransformerToBeEstimated extension) {
-        return !extension.getTapChangers().isEmpty();
     }
 }
