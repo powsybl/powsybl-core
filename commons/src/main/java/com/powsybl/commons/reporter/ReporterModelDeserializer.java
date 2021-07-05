@@ -56,7 +56,11 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
             if (dicNode != null) {
                 dictionary = codec.readValue(dicNode.traverse(), new TypeReference<HashMap<String, String>>() {
                 });
+            } else {
+                LOGGER.warn("No dictionary found! `dics` root entry is empty");
             }
+        } else {
+            LOGGER.warn("No dictionary found! `dics` root entry is missing");
         }
         return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
     }
