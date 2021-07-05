@@ -6,14 +6,10 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -21,7 +17,12 @@ import java.util.Set;
 class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAdder<ThreeWindingsTransformer, ThreeWindingsTransformerToBeEstimated>
         implements ThreeWindingsTransformerToBeEstimatedAdder {
 
-    private final Set<ThreeWindingsTransformerToBeEstimated.TapChanger> tapChangers = new HashSet<>();
+    private boolean rtc1Status = false;
+    private boolean rtc2Status = false;
+    private boolean rtc3Status = false;
+    private boolean ptc1Status = false;
+    private boolean ptc2Status = false;
+    private boolean ptc3Status = false;
 
     protected ThreeWindingsTransformerToBeEstimatedAdderImpl(ThreeWindingsTransformer extendable) {
         super(extendable);
@@ -29,15 +30,42 @@ class ThreeWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAd
 
     @Override
     protected ThreeWindingsTransformerToBeEstimated createExtension(ThreeWindingsTransformer extendable) {
-        if (tapChangers.contains(null)) {
-            throw new PowsyblException("A null element has been passed to be estimated");
-        }
-        return new ThreeWindingsTransformerToBeEstimatedImpl(tapChangers);
+        return new ThreeWindingsTransformerToBeEstimatedImpl(rtc1Status, rtc2Status, rtc3Status, ptc1Status, ptc2Status, ptc3Status);
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimatedAdder withTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger tapChanger) {
-        tapChangers.add(tapChanger);
+    public ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger1Status(boolean toBeEstimated) {
+        this.rtc1Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger2Status(boolean toBeEstimated) {
+        this.rtc2Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger3Status(boolean toBeEstimated) {
+        this.rtc3Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger1Status(boolean toBeEstimated) {
+        this.ptc1Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger2Status(boolean toBeEstimated) {
+        this.ptc2Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger3Status(boolean toBeEstimated) {
+        this.ptc3Status = toBeEstimated;
         return this;
     }
 }

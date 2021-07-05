@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema version="1.0"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:threettbe="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_to_be_estimated/1_0"
            targetNamespace="http://www.powsybl.org/schema/iidm/ext/three_windings_transformer_to_be_estimated/1_0"
            elementFormDefault="qualified">
-    <xs:simpleType name="TapChanger">
-        <xs:restriction base="xs:string">
-            <xs:minLength value='1'/>
-        </xs:restriction>
-    </xs:simpleType>
     <xs:element name="threeWindingsTransformerToBeEstimated">
         <xs:complexType>
-            <xs:attribute name="tapChangers" use="required" type="threettbe:TapChanger"/>
+            <xs:attribute name="ratioTapChanger1Status" use="required" type="xs:boolean"/>
+            <xs:attribute name="ratioTapChanger2Status" use="required" type="xs:boolean"/>
+            <xs:attribute name="ratioTapChanger3Status" use="required" type="xs:boolean"/>
+            <xs:attribute name="phaseTapChanger1Status" use="required" type="xs:boolean"/>
+            <xs:attribute name="phaseTapChanger2Status" use="required" type="xs:boolean"/>
+            <xs:attribute name="phaseTapChanger3Status" use="required" type="xs:boolean"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

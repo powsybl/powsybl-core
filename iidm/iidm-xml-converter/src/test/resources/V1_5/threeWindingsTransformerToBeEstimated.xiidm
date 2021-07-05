@@ -37,6 +37,6 @@
         </iidm:threeWindingsTransformer>
     </iidm:substation>
     <iidm:extension id="3WT">
-        <threettbe:threeWindingsTransformerToBeEstimated tapChangers="RATIO_TAP_CHANGER_2, RATIO_TAP_CHANGER_3"/>
+        <threettbe:threeWindingsTransformerToBeEstimated ratioTapChanger1Status="false" ratioTapChanger2Status="true" ratioTapChanger3Status="true" phaseTapChanger1Status="false" phaseTapChanger2Status="false" phaseTapChanger3Status="false"/>
     </iidm:extension>
 </iidm:network>
