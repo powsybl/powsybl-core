@@ -38,7 +38,7 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimated read(TwoWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
+    public TwoWindingsTransformerToBeEstimated read(TwoWindingsTransformer extendable, XmlReaderContext context) {
         extendable.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
                 .withRatioTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChangerStatus"))
                 .withPhaseTapChangerStatus(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChangerStatus"))
