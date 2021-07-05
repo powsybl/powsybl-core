@@ -12,12 +12,12 @@ package com.powsybl.ucte.network;
  */
 public class UctePhaseRegulation {
 
-    private float du;
+    private double du;
     private Integer n; // FIXME: should not be null
     private Integer np; // FIXME: should not be null
-    private float u;
+    private double u;
 
-    public UctePhaseRegulation(float du, Integer n, Integer np, float u) {
+    public UctePhaseRegulation(double du, Integer n, Integer np, double u) {
         this.du = du;
         this.n = n;
         this.np = np;
@@ -28,7 +28,7 @@ public class UctePhaseRegulation {
      * Gets δu (%).
      * @return δu (%)
      */
-    public float getDu() {
+    public double getDu() {
         return du;
     }
 
@@ -36,7 +36,7 @@ public class UctePhaseRegulation {
      * Sets δu (%).
      * @param du δu (%)
      */
-    public void setDu(float du) {
+    public void setDu(double du) {
         this.du = du;
     }
 
@@ -84,7 +84,7 @@ public class UctePhaseRegulation {
      * Gets on load tap changer voltage target for node 2 (V2 or UL) (kV) (optional).
      * @return on load tap changer voltage target for node 2
      */
-    public float getU() {
+    public double getU() {
         return u;
     }
 
@@ -92,7 +92,7 @@ public class UctePhaseRegulation {
      * Sets on load tap changer voltage target for node 2 (V2 or UL) (kV) (optional).
      * @param u on load tap changer voltage target for node 2
      */
-    public void setU(float u) {
+    public void setU(double u) {
         this.u = u;
     }
 

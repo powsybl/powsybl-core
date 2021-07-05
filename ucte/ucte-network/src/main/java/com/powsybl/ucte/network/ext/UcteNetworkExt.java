@@ -28,13 +28,13 @@ public class UcteNetworkExt implements UcteNetwork {
 
     private final UcteNetwork network;
 
-    private final float lineMinZ;
+    private final double lineMinZ;
 
     private List<UcteSubstation> substations;
 
     private Map<UcteNodeCode, UcteVoltageLevel> node2voltageLevel;
 
-    public UcteNetworkExt(UcteNetwork network, float lineMinZ) {
+    public UcteNetworkExt(UcteNetwork network, double lineMinZ) {
         this.network = Objects.requireNonNull(network);
         this.lineMinZ = lineMinZ;
     }

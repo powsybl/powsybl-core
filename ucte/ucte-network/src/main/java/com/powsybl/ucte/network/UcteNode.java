@@ -22,7 +22,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteNode.class);
 
-    private static final float DEFAULT_POWER_LIMIT = 9999;
+    private static final double DEFAULT_POWER_LIMIT = 9999;
     private static final double LOW_VOLTAGE_FACTOR = 0.8;
     private static final double HIGH_VOLTAGE_FACTOR = 1.2;
     private static final double LOW_NOMINAL_VOLTAGE = 110;
@@ -31,27 +31,27 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     private String geographicalName;
     private UcteNodeStatus status;
     private UcteNodeTypeCode typeCode;
-    private float voltageReference;
-    private float activeLoad;
-    private float reactiveLoad;
-    private float activePowerGeneration;
-    private float reactivePowerGeneration;
-    private float minimumPermissibleActivePowerGeneration;
-    private float maximumPermissibleActivePowerGeneration;
-    private float minimumPermissibleReactivePowerGeneration;
-    private float maximumPermissibleReactivePowerGeneration;
-    private float staticOfPrimaryControl;
-    private float nominalPowerPrimaryControl;
-    private float threePhaseShortCircuitPower;
-    private float xrRatio;
+    private double voltageReference;
+    private double activeLoad;
+    private double reactiveLoad;
+    private double activePowerGeneration;
+    private double reactivePowerGeneration;
+    private double minimumPermissibleActivePowerGeneration;
+    private double maximumPermissibleActivePowerGeneration;
+    private double minimumPermissibleReactivePowerGeneration;
+    private double maximumPermissibleReactivePowerGeneration;
+    private double staticOfPrimaryControl;
+    private double nominalPowerPrimaryControl;
+    private double threePhaseShortCircuitPower;
+    private double xrRatio;
     private UctePowerPlantType powerPlantType;
 
     public UcteNode(UcteNodeCode code, String geographicalName, UcteNodeStatus status, UcteNodeTypeCode typeCode,
-                    float voltageReference, float activeLoad, float reactiveLoad, float activePowerGeneration,
-                    float reactivePowerGeneration, float minimumPermissibleActivePowerGeneration,
-                    float maximumPermissibleActivePowerGeneration, float minimumPermissibleReactivePowerGeneration,
-                    float maximumPermissibleReactivePowerGeneration, float staticOfPrimaryControl,
-                    float nominalPowerPrimaryControl, float threePhaseShortCircuitPower, float xrRatio,
+                    double voltageReference, double activeLoad, double reactiveLoad, double activePowerGeneration,
+                    double reactivePowerGeneration, double minimumPermissibleActivePowerGeneration,
+                    double maximumPermissibleActivePowerGeneration, double minimumPermissibleReactivePowerGeneration,
+                    double maximumPermissibleReactivePowerGeneration, double staticOfPrimaryControl,
+                    double nominalPowerPrimaryControl, double threePhaseShortCircuitPower, double xrRatio,
                     UctePowerPlantType powerPlantType) {
         this.code = Objects.requireNonNull(code);
         this.geographicalName = geographicalName;
@@ -141,7 +141,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets voltage reference value (0 not allowed) in kV.
      * @return voltage reference value
      */
-    public float getVoltageReference() {
+    public double getVoltageReference() {
         return voltageReference;
     }
 
@@ -149,7 +149,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Sets voltage reference value (0 not allowed) in kV.
      * @param voltageReference voltage reference value
      */
-    public void setVoltageReference(float voltageReference) {
+    public void setVoltageReference(double voltageReference) {
         this.voltageReference = voltageReference;
     }
 
@@ -157,7 +157,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets active load (MW).
      * @return active load (MW)
      */
-    public float getActiveLoad() {
+    public double getActiveLoad() {
         return activeLoad;
     }
 
@@ -165,7 +165,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets active load (MW).
      * @param activeLoad active load (MW)
      */
-    public void setActiveLoad(float activeLoad) {
+    public void setActiveLoad(double activeLoad) {
         this.activeLoad = activeLoad;
     }
 
@@ -173,7 +173,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets reactive load (MVar).
      * @return reactive load (MVar)
      */
-    public float getReactiveLoad() {
+    public double getReactiveLoad() {
         return reactiveLoad;
     }
 
@@ -181,7 +181,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Sets reactive load (MVar).
      * @param reactiveLoad reactive load (MVar)
      */
-    public void setReactiveLoad(float reactiveLoad) {
+    public void setReactiveLoad(double reactiveLoad) {
         this.reactiveLoad = reactiveLoad;
     }
 
@@ -189,7 +189,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets active power generation (MW).
      * @return active power generation (MW)
      */
-    public float getActivePowerGeneration() {
+    public double getActivePowerGeneration() {
         return activePowerGeneration;
     }
 
@@ -197,7 +197,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Sets active power generation (MW).
      * @param activePowerGeneration active power generation (MW)
      */
-    public void setActivePowerGeneration(float activePowerGeneration) {
+    public void setActivePowerGeneration(double activePowerGeneration) {
         this.activePowerGeneration = activePowerGeneration;
     }
 
@@ -205,7 +205,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Gets reactive power generation (MVar).
      * @return reactive power generation (MVar)
      */
-    public float getReactivePowerGeneration() {
+    public double getReactivePowerGeneration() {
         return reactivePowerGeneration;
     }
 
@@ -213,151 +213,151 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
      * Sets reactive power generation (MVar).
      * @param reactivePowerGeneration reactive power generation (MVar)
      */
-    public void setReactivePowerGeneration(float reactivePowerGeneration) {
+    public void setReactivePowerGeneration(double reactivePowerGeneration) {
         this.reactivePowerGeneration = reactivePowerGeneration;
     }
 
     /**
      * Gets minimum permissible active power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return minimum permissible active power generation (MW)
      */
-    public float getMinimumPermissibleActivePowerGeneration() {
+    public double getMinimumPermissibleActivePowerGeneration() {
         return minimumPermissibleActivePowerGeneration;
     }
 
     /**
      * Sets minimum permissible active power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param minimumPermissibleActivePowerGeneration minimum permissible active power generation (MW)
      */
-    public void setMinimumPermissibleActivePowerGeneration(float minimumPermissibleActivePowerGeneration) {
+    public void setMinimumPermissibleActivePowerGeneration(double minimumPermissibleActivePowerGeneration) {
         this.minimumPermissibleActivePowerGeneration = minimumPermissibleActivePowerGeneration;
     }
 
     /**
      * Gets maximum permissible active power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return maximum permissible active power generation (MW)
      */
-    public float getMaximumPermissibleActivePowerGeneration() {
+    public double getMaximumPermissibleActivePowerGeneration() {
         return maximumPermissibleActivePowerGeneration;
     }
 
     /**
      * Sets maximum permissible active power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param maximumPermissibleActivePowerGeneration maximum permissible active power generation (MW)
      */
-    public void setMaximumPermissibleActivePowerGeneration(float maximumPermissibleActivePowerGeneration) {
+    public void setMaximumPermissibleActivePowerGeneration(double maximumPermissibleActivePowerGeneration) {
         this.maximumPermissibleActivePowerGeneration = maximumPermissibleActivePowerGeneration;
     }
 
     /**
      * Gets minimum permissible reactive power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return minimum permissible reactive power generation (MW)
      */
-    public float getMinimumPermissibleReactivePowerGeneration() {
+    public double getMinimumPermissibleReactivePowerGeneration() {
         return minimumPermissibleReactivePowerGeneration;
     }
 
     /**
      * Sets minimum permissible reactive power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param minimumPermissibleReactivePowerGeneration minimum permissible reactive power generation (MW)
      */
-    public void setMinimumPermissibleReactivePowerGeneration(float minimumPermissibleReactivePowerGeneration) {
+    public void setMinimumPermissibleReactivePowerGeneration(double minimumPermissibleReactivePowerGeneration) {
         this.minimumPermissibleReactivePowerGeneration = minimumPermissibleReactivePowerGeneration;
     }
 
     /**
      * Gets maximum permissible reactive power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return maximum permissible reactive power generation (MW)
      */
-    public float getMaximumPermissibleReactivePowerGeneration() {
+    public double getMaximumPermissibleReactivePowerGeneration() {
         return maximumPermissibleReactivePowerGeneration;
     }
 
     /**
      * Sets maximum permissible reactive power generation (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param maximumPermissibleReactivePowerGeneration maximum permissible reactive power generation (MW)
      */
-    public void setMaximumPermissibleReactivePowerGeneration(float maximumPermissibleReactivePowerGeneration) {
+    public void setMaximumPermissibleReactivePowerGeneration(double maximumPermissibleReactivePowerGeneration) {
         this.maximumPermissibleReactivePowerGeneration = maximumPermissibleReactivePowerGeneration;
     }
 
     /**
      * Gets static of primary control (%).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return static of primary control (%)
      */
-    public float getStaticOfPrimaryControl() {
+    public double getStaticOfPrimaryControl() {
         return staticOfPrimaryControl;
     }
 
     /**
      * Sets static of primary control (%).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param staticOfPrimaryControl static of primary control (%)
      */
-    public void setStaticOfPrimaryControl(float staticOfPrimaryControl) {
+    public void setStaticOfPrimaryControl(double staticOfPrimaryControl) {
         this.staticOfPrimaryControl = staticOfPrimaryControl;
     }
 
     /**
      * Gets nominal power for primary control (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return nominal power for primary control (MW)
      */
-    public float getNominalPowerPrimaryControl() {
+    public double getNominalPowerPrimaryControl() {
         return nominalPowerPrimaryControl;
     }
 
     /**
      * Sets nominal power for primary control (MW).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param nominalPowerPrimaryControl nominal power for primary control (MW)
      */
-    public void setNominalPowerPrimaryControl(float nominalPowerPrimaryControl) {
+    public void setNominalPowerPrimaryControl(double nominalPowerPrimaryControl) {
         this.nominalPowerPrimaryControl = nominalPowerPrimaryControl;
     }
 
     /**
      * Gets three phase short circuit power (MVA).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return three phase short circuit power (MVA)
      */
-    public float getThreePhaseShortCircuitPower() {
+    public double getThreePhaseShortCircuitPower() {
         return threePhaseShortCircuitPower;
     }
 
     /**
      * Sets three phase short circuit power (MVA).
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param threePhaseShortCircuitPower three phase short circuit power (MVA)
      */
-    public void setThreePhaseShortCircuitPower(float threePhaseShortCircuitPower) {
+    public void setThreePhaseShortCircuitPower(double threePhaseShortCircuitPower) {
         this.threePhaseShortCircuitPower = threePhaseShortCircuitPower;
     }
 
     /**
      * Gets X/R ratio.
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @return X/R ratio
      */
-    public float getXrRatio() {
+    public double getXrRatio() {
         return xrRatio;
     }
 
     /**
      * Sets X/R ratio.
-     * <p>{@code Float.NaN} means undefined.
+     * <p>{@code Double.NaN} means undefined.
      * @param xrRatio X/R ratio
      */
-    public void setXrRatio(float xrRatio) {
+    public void setXrRatio(double xrRatio) {
         this.xrRatio = xrRatio;
     }
 
@@ -387,14 +387,14 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         //   - or active limits are both defined (min and max), one is non null and there are not equal
         //   - or reactive limits are both defined (min and max), one is non null and there are not equal
         return isRegulatingVoltage()
-                || (!Float.isNaN(activePowerGeneration) && activePowerGeneration != 0)
-                || (!Float.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0)
-                || (!Float.isNaN(minimumPermissibleActivePowerGeneration)
-                    && !Float.isNaN(maximumPermissibleActivePowerGeneration)
+                || (!Double.isNaN(activePowerGeneration) && activePowerGeneration != 0)
+                || (!Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration != 0)
+                || (!Double.isNaN(minimumPermissibleActivePowerGeneration)
+                    && !Double.isNaN(maximumPermissibleActivePowerGeneration)
                     && (minimumPermissibleActivePowerGeneration != 0 || maximumPermissibleActivePowerGeneration != 0)
                     && minimumPermissibleActivePowerGeneration != maximumPermissibleActivePowerGeneration)
-                || (!Float.isNaN(minimumPermissibleReactivePowerGeneration)
-                    && !Float.isNaN(maximumPermissibleReactivePowerGeneration)
+                || (!Double.isNaN(minimumPermissibleReactivePowerGeneration)
+                    && !Double.isNaN(maximumPermissibleReactivePowerGeneration)
                     && (minimumPermissibleReactivePowerGeneration != 0 || maximumPermissibleReactivePowerGeneration != 0)
                     && minimumPermissibleReactivePowerGeneration != maximumPermissibleReactivePowerGeneration);
     }
@@ -406,7 +406,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
     public boolean isRegulatingFrequency() {
         // we consider the node can regulate frequency if active power generation
         // is defined and if the node inject some power in the network
-        return !Float.isNaN(activePowerGeneration) && activePowerGeneration < 0;
+        return !Double.isNaN(activePowerGeneration) && activePowerGeneration < 0;
     }
 
     @Override
@@ -422,7 +422,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // ---- ACTIVE POWER FIXES ----
 
         // active power is undefined
-        if (Float.isNaN(activePowerGeneration)) {
+        if (Double.isNaN(activePowerGeneration)) {
 
             reporter.report(Report.builder()
                 .withKey("activePowerUndefined")
@@ -434,13 +434,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             activePowerGeneration = 0;
         }
         // undefined min reactive power
-        if (Float.isNaN(minimumPermissibleActivePowerGeneration)) {
+        if (Double.isNaN(minimumPermissibleActivePowerGeneration)) {
             LOGGER.info("Node {}: minimum active power is undefined, set value to {}",
                     code, DEFAULT_POWER_LIMIT);
             minimumPermissibleActivePowerGeneration = DEFAULT_POWER_LIMIT;
         }
         // undefined max reactive power
-        if (Float.isNaN(maximumPermissibleActivePowerGeneration)) {
+        if (Double.isNaN(maximumPermissibleActivePowerGeneration)) {
             LOGGER.info("Node {}: maximum active power is undefined, set value to {}",
                     code, -DEFAULT_POWER_LIMIT);
             maximumPermissibleActivePowerGeneration = -DEFAULT_POWER_LIMIT;
@@ -449,7 +449,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (minimumPermissibleActivePowerGeneration < maximumPermissibleActivePowerGeneration) {
             LOGGER.warn("Node {}: active power limits are inverted ({}, {}), swap values",
                     code, minimumPermissibleActivePowerGeneration, maximumPermissibleActivePowerGeneration);
-            float tmp = minimumPermissibleActivePowerGeneration;
+            double tmp = minimumPermissibleActivePowerGeneration;
             minimumPermissibleActivePowerGeneration = maximumPermissibleActivePowerGeneration;
             maximumPermissibleActivePowerGeneration = tmp;
         }
@@ -478,7 +478,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // ---- VOLTAGE FIXES ----
 
         // PV and undefined voltage, switch to PQ
-        if (isRegulatingVoltage() && (Float.isNaN(voltageReference) || voltageReference < 0.0001)) {
+        if (isRegulatingVoltage() && (Double.isNaN(voltageReference) || voltageReference < 0.0001)) {
             reporter.report(Report.builder()
                 .withKey("PvUndefinedVoltage")
                 .withDefaultMessage("Node ${node}: voltage is regulated, but voltage setpoint is null (${voltageReference}), switch type code to PQ")
@@ -506,7 +506,7 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         // ---- REACTIVE POWER FIXES ----
 
         // PQ and undefined reactive power
-        if (!isRegulatingVoltage() && Float.isNaN(reactivePowerGeneration)) {
+        if (!isRegulatingVoltage() && Double.isNaN(reactivePowerGeneration)) {
             reporter.report(Report.builder()
                 .withKey("PqUndefinedReactivePower")
                 .withDefaultMessage("Node ${node}: voltage is not regulated but reactive power is undefined, set value to 0")
@@ -517,13 +517,13 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
             reactivePowerGeneration = 0;
         }
         // undefined min reactive power
-        if (Float.isNaN(minimumPermissibleReactivePowerGeneration)) {
+        if (Double.isNaN(minimumPermissibleReactivePowerGeneration)) {
             LOGGER.info("Node {}: minimum reactive power is undefined, set value to {}",
                     code, DEFAULT_POWER_LIMIT);
             minimumPermissibleReactivePowerGeneration = DEFAULT_POWER_LIMIT;
         }
         // undefined max reactive power
-        if (Float.isNaN(maximumPermissibleReactivePowerGeneration)) {
+        if (Double.isNaN(maximumPermissibleReactivePowerGeneration)) {
             LOGGER.info("Node {}: maximum reactive power is undefined, set value to {}",
                     code, -DEFAULT_POWER_LIMIT);
             maximumPermissibleReactivePowerGeneration = -DEFAULT_POWER_LIMIT;
@@ -532,17 +532,17 @@ public class UcteNode implements UcteRecord, Comparable<UcteNode> {
         if (minimumPermissibleReactivePowerGeneration < maximumPermissibleReactivePowerGeneration) {
             LOGGER.warn("Node {}: reactive power limits are inverted ({}, {}), swap values",
                     code, minimumPermissibleReactivePowerGeneration, maximumPermissibleReactivePowerGeneration);
-            float tmp = minimumPermissibleReactivePowerGeneration;
+            double tmp = minimumPermissibleReactivePowerGeneration;
             minimumPermissibleReactivePowerGeneration = maximumPermissibleReactivePowerGeneration;
             maximumPermissibleReactivePowerGeneration = tmp;
         }
         // reactive power is out of limits
-        if (!Float.isNaN(reactivePowerGeneration) && reactivePowerGeneration < maximumPermissibleReactivePowerGeneration) {
+        if (!Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration < maximumPermissibleReactivePowerGeneration) {
             LOGGER.warn("Node {}: reactive power {} under maximum permissible value {}, shift maximum permissible value",
                     code, reactivePowerGeneration, maximumPermissibleReactivePowerGeneration);
             maximumPermissibleReactivePowerGeneration = reactivePowerGeneration;
         }
-        if (!Float.isNaN(reactivePowerGeneration) && reactivePowerGeneration > minimumPermissibleReactivePowerGeneration) {
+        if (!Double.isNaN(reactivePowerGeneration) && reactivePowerGeneration > minimumPermissibleReactivePowerGeneration) {
             LOGGER.warn("Node {}: reactive power {} above minimum permissible value {}, shift minimum permissible value",
                     code, reactivePowerGeneration, minimumPermissibleReactivePowerGeneration);
             minimumPermissibleReactivePowerGeneration = reactivePowerGeneration;
