@@ -75,8 +75,15 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         reporter.report("novalueReport", "No value report");
         Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+
+        // Testing deserializing with unknown specified dictionary
+        ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(4, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
-    
+
     @Test
     public void jsonDeserializeNoSpecifiedDictionary() throws Exception {
         ObjectMapper mapper = new ObjectMapper();

@@ -12,6 +12,8 @@ import com.fasterxml.jackson.core.ObjectCodec;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,6 +30,8 @@ import java.util.Objects;
  */
 public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReporterModelDeserializer.class);
+
     public static final String DICTIONARY_VALUE_ID = "dictionary";
     public static final String DICTIONARY_DEFAULT_NAME = "default";
 
@@ -42,7 +46,13 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         Map<String, String> dictionary = Collections.emptyMap();
         JsonNode dicsNode = root.get("dics");
         if (dicsNode != null) {
-            JsonNode dicNode = dicsNode.get(getDictionaryName(ctx));
+            String dictionaryName = getDictionaryName(ctx);
+            JsonNode dicNode = dicsNode.get(dictionaryName);
+            if (dicNode == null && dicsNode.fields().next() != null) {
+                Map.Entry<String, JsonNode> firstDictionary = dicsNode.fields().next();
+                dicNode = firstDictionary.getValue();
+                LOGGER.warn("Cannot find `{}` dictionary, taking first entry (`{}`)", dictionaryName, firstDictionary.getKey());
+            }
             if (dicNode != null) {
                 dictionary = codec.readValue(dicNode.traverse(), new TypeReference<HashMap<String, String>>() {
                 });
@@ -64,11 +74,25 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
+    public static ReporterModel read(InputStream jsonIs) {
+        return read(jsonIs, DICTIONARY_DEFAULT_NAME);
+    }
+
     public static ReporterModel read(Path jsonFile, String dictionary) {
         Objects.requireNonNull(jsonFile);
         Objects.requireNonNull(dictionary);
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return getReporterModelObjectMapper(dictionary).readValue(is, ReporterModel.class);
+            return read(is, dictionary);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static ReporterModel read(InputStream jsonIs, String dictionary) {
+        Objects.requireNonNull(jsonIs);
+        Objects.requireNonNull(dictionary);
+        try {
+            return getReporterModelObjectMapper(dictionary).readValue(jsonIs, ReporterModel.class);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
