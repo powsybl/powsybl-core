@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
@@ -31,7 +30,7 @@ public class TwoWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlConve
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
         twt.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
-                .withTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER)
+                .withRatioTapChangerStatus(true)
                 .add();
 
         roundTripXmlTest(network,

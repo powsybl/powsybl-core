@@ -6,14 +6,10 @@
  */
 package com.powsybl.iidm.network.impl.extensions;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimatedAdder;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -21,7 +17,8 @@ import java.util.Set;
 class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAdder<TwoWindingsTransformer, TwoWindingsTransformerToBeEstimated>
         implements TwoWindingsTransformerToBeEstimatedAdder {
 
-    private final Set<TwoWindingsTransformerToBeEstimated.TapChanger> tapChangers = new HashSet<>();
+    private boolean rtcStatus = false;
+    private boolean ptcStatus = false;
 
     protected TwoWindingsTransformerToBeEstimatedAdderImpl(TwoWindingsTransformer extendable) {
         super(extendable);
@@ -29,15 +26,18 @@ class TwoWindingsTransformerToBeEstimatedAdderImpl extends AbstractExtensionAdde
 
     @Override
     protected TwoWindingsTransformerToBeEstimated createExtension(TwoWindingsTransformer extendable) {
-        if (tapChangers.contains(null)) {
-            throw new PowsyblException("A null element has been passed to be estimated");
-        }
-        return new TwoWindingsTransformerToBeEstimatedImpl(tapChangers);
+        return new TwoWindingsTransformerToBeEstimatedImpl(rtcStatus, ptcStatus);
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimatedAdder withTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger tapChanger) {
-        tapChangers.add(tapChanger);
+    public TwoWindingsTransformerToBeEstimatedAdder withRatioTapChangerStatus(boolean toBeEstimated) {
+        this.rtcStatus = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerToBeEstimatedAdder withPhaseTapChangerStatus(boolean toBeEstimated) {
+        this.ptcStatus = toBeEstimated;
         return this;
     }
 }

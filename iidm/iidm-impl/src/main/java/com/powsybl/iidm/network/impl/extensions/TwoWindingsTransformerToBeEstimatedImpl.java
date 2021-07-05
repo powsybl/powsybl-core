@@ -10,41 +10,38 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.extensions.TwoWindingsTransformerToBeEstimated;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<TwoWindingsTransformer> implements TwoWindingsTransformerToBeEstimated {
 
-    private final Set<TapChanger> tapChangers = new HashSet<>();
+    private boolean rtcStatus;
+    private boolean ptcStatus;
 
-    TwoWindingsTransformerToBeEstimatedImpl(Set<TapChanger> tapChangers) {
-        this.tapChangers.addAll(Objects.requireNonNull(tapChangers));
+    TwoWindingsTransformerToBeEstimatedImpl(boolean rtcStatus, boolean ptcStatus) {
+        this.rtcStatus = rtcStatus;
+        this.ptcStatus = ptcStatus;
     }
 
     @Override
-    public Set<TapChanger> getTapChangers() {
-        return Collections.unmodifiableSet(tapChangers);
+    public boolean containsRatioTapChanger() {
+        return rtcStatus;
     }
 
     @Override
-    public boolean tobeEstimated(TapChanger tapChanger) {
-        return tapChangers.contains(tapChanger);
+    public boolean containsPhaseTapChanger() {
+        return ptcStatus;
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimated addTapChanger(TapChanger tapChanger) {
-        tapChangers.add(Objects.requireNonNull(tapChanger));
+    public TwoWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated) {
+        this.rtcStatus = toBeEstimated;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimated removeTapChanger(TapChanger tapChanger) {
-        tapChangers.remove(Objects.requireNonNull(tapChanger));
+    public TwoWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated) {
+        this.ptcStatus = toBeEstimated;
         return this;
     }
 }

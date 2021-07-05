@@ -28,35 +28,21 @@ public abstract class AbstractTwoWindingsTransformerToBeEstimatedTest {
 
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("NHV2_NLOAD");
         twt.newExtension(TwoWindingsTransformerToBeEstimatedAdder.class)
-                .withTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER)
+                .withRatioTapChangerStatus(true)
+                .withPhaseTapChangerStatus(false)
                 .add();
 
         TwoWindingsTransformerToBeEstimated ext = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
         assertNotNull(ext);
-        assertEquals(1, ext.getTapChangers().size());
-        assertTrue(ext.getTapChangers().contains(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER));
-        assertTrue(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER));
-        assertFalse(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER));
+        assertTrue(ext.containsRatioTapChanger());
+        assertFalse(ext.containsPhaseTapChanger());
 
-        ext.addTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER);
-        assertEquals(2, ext.getTapChangers().size());
-        assertTrue(ext.getTapChangers().contains(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER));
-        assertTrue(ext.getTapChangers().contains(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER));
-        assertTrue(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER));
-        assertTrue(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER));
+        ext.setPhaseTapChangerStatus(true);
+        assertTrue(ext.containsRatioTapChanger());
+        assertTrue(ext.containsPhaseTapChanger());
 
-        ext.removeTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER);
-        assertNotNull(ext);
-        assertEquals(1, ext.getTapChangers().size());
-        assertTrue(ext.getTapChangers().contains(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER));
-        assertTrue(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER));
-        assertFalse(ext.tobeEstimated(TwoWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER));
-
-        ext.cleanIfEmpty();
-        assertNotNull(twt.getExtension(TwoWindingsTransformerToBeEstimated.class));
-
-        ext.removeTapChanger(TwoWindingsTransformerToBeEstimated.TapChanger.PHASE_TAP_CHANGER);
-        ext.cleanIfEmpty();
-        assertNull(twt.getExtension(TwoWindingsTransformerToBeEstimated.class));
+        ext.setRatioTapChangerStatus(false);
+        assertFalse(ext.containsRatioTapChanger());
+        assertTrue(ext.containsPhaseTapChanger());
     }
 }
