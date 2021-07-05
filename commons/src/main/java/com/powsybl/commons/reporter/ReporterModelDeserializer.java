@@ -29,6 +29,7 @@ import java.util.Objects;
 public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
 
     public static final String DICTIONARY_VALUE_ID = "dictionary";
+    public static final String DICTIONARY_DEFAULT_NAME = "default";
 
     ReporterModelDeserializer() {
         super(ReporterModel.class);
@@ -41,7 +42,7 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         Map<String, String> dictionary = Collections.emptyMap();
         JsonNode dicsNode = root.get("dics");
         if (dicsNode != null) {
-            JsonNode dicNode = dicsNode.get(getDicName(ctx));
+            JsonNode dicNode = dicsNode.get(getDictionaryName(ctx));
             if (dicNode != null) {
                 dictionary = codec.readValue(dicNode.traverse(), new TypeReference<HashMap<String, String>>() {
                 });
@@ -50,13 +51,17 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
         return ReporterModel.parseJsonNode(root.get("reportTree"), dictionary, codec);
     }
 
-    private String getDicName(DeserializationContext ctx) throws JsonMappingException {
-        Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, null, null);
-        return dicNameInjected instanceof String ? (String) dicNameInjected : "default";
+    private String getDictionaryName(DeserializationContext ctx) {
+        try {
+            Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, null, null);
+            return dicNameInjected instanceof String ? (String) dicNameInjected : DICTIONARY_DEFAULT_NAME;
+        } catch (JsonMappingException e) {
+            return DICTIONARY_DEFAULT_NAME;
+        }
     }
 
     public static ReporterModel read(Path jsonFile) {
-        return read(jsonFile, "default");
+        return read(jsonFile, DICTIONARY_DEFAULT_NAME);
     }
 
     public static ReporterModel read(Path jsonFile, String dictionary) {
