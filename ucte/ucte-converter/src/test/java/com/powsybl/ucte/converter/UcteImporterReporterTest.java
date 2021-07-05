@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
@@ -74,6 +75,17 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         reporter.report("novalueReport", "No value report");
         Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), reporter);
         roundTripTest(reporter, ReporterModelSerializer::write, ReporterModelDeserializer::read, "/frVoltageRegulatingXnodeReport.json");
+    }
+    
+    @Test
+    public void jsonDeserializeNoSpecifiedDictionary() throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new ReporterModelJsonModule());
+        ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(4, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 
     @Test
