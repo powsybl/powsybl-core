@@ -10,14 +10,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.AbstractExtensionXmlSerializer;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -33,20 +32,24 @@ public class ThreeWindingsTransformerToBeEstimatedXmlSerializer extends Abstract
 
     @Override
     public void write(ThreeWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("tapChangers", extension.getTapChangers().stream().sorted().map(Enum::toString).collect(Collectors.joining(", ")));
+        context.getWriter().writeAttribute("ratioTapChanger1Status", String.valueOf(extension.containsRatioTapChanger1()));
+        context.getWriter().writeAttribute("ratioTapChanger2Status", String.valueOf(extension.containsRatioTapChanger2()));
+        context.getWriter().writeAttribute("ratioTapChanger3Status", String.valueOf(extension.containsRatioTapChanger3()));
+        context.getWriter().writeAttribute("phaseTapChanger1Status", String.valueOf(extension.containsPhaseTapChanger1()));
+        context.getWriter().writeAttribute("phaseTapChanger2Status", String.valueOf(extension.containsPhaseTapChanger2()));
+        context.getWriter().writeAttribute("phaseTapChanger3Status", String.valueOf(extension.containsPhaseTapChanger3()));
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated read(ThreeWindingsTransformer extendable, XmlReaderContext context) throws XMLStreamException {
-        ThreeWindingsTransformerToBeEstimatedAdder adder = extendable.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class);
-        Arrays.stream(context.getReader().getAttributeValue(null, "tapChangers").split(", "))
-                .forEach(tc -> adder.withTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.valueOf(tc)));
-        adder.add();
+    public ThreeWindingsTransformerToBeEstimated read(ThreeWindingsTransformer extendable, XmlReaderContext context) {
+        extendable.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
+                .withRatioTapChanger1Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger1Status"))
+                .withRatioTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger2Status"))
+                .withRatioTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "ratioTapChanger3Status"))
+                .withPhaseTapChanger1Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger1Status"))
+                .withPhaseTapChanger2Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger2Status"))
+                .withPhaseTapChanger3Status(XmlUtil.readBoolAttribute(context.getReader(), "phaseTapChanger3Status"))
+                .add();
         return extendable.getExtension(ThreeWindingsTransformerToBeEstimated.class);
-    }
-
-    @Override
-    public boolean isSerializable(ThreeWindingsTransformerToBeEstimated extension) {
-        return !extension.getTapChangers().isEmpty();
     }
 }

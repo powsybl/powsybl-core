@@ -19,5 +19,15 @@ public interface ThreeWindingsTransformerToBeEstimatedAdder extends ExtensionAdd
         return ThreeWindingsTransformerToBeEstimated.class;
     }
 
-    ThreeWindingsTransformerToBeEstimatedAdder withTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger tapChanger);
+    ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger1Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger2Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withRatioTapChanger3Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger1Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger2Status(boolean toBeEstimated);
+
+    ThreeWindingsTransformerToBeEstimatedAdder withPhaseTapChanger3Status(boolean toBeEstimated);
 }

@@ -8,7 +8,6 @@ package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated;
 import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimatedAdder;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.AbstractXmlConverterTest;
@@ -31,8 +30,8 @@ public class ThreeWindingsTransformerToBeEstimatedXmlTest extends AbstractXmlCon
 
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         twt.newExtension(ThreeWindingsTransformerToBeEstimatedAdder.class)
-                .withTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER_2)
-                .withTapChanger(ThreeWindingsTransformerToBeEstimated.TapChanger.RATIO_TAP_CHANGER_3)
+                .withRatioTapChanger2Status(true)
+                .withRatioTapChanger3Status(true)
                 .add();
 
         roundTripTest(network,

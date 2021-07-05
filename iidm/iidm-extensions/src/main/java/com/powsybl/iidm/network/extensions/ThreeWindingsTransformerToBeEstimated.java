@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.extensions;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-import java.util.Set;
-
 /**
  * Indicate for a state estimation which tap changers are to be estimated (i.e. their tap positions should be outputs).
  * If a tap changer is not to be estimated, it should not be changed during a state estimation (i.e its tap position is only an input).
@@ -19,52 +17,74 @@ import java.util.Set;
  */
 public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWindingsTransformer> {
 
-    /**
-     * A three windings transformer has three legs which can each have a ratio tap changer and/or a phase tap changer
-     * that can be estimated during a state estimation.
-     */
-    enum TapChanger {
-        RATIO_TAP_CHANGER_1,
-        PHASE_TAP_CHANGER_1,
-        RATIO_TAP_CHANGER_2,
-        PHASE_TAP_CHANGER_2,
-        RATIO_TAP_CHANGER_3,
-        PHASE_TAP_CHANGER_3
-    }
-
     @Override
     default String getName() {
         return "threeWindingsTransformerToBeEstimated";
     }
 
     /**
-     * Get tap changers that are to be estimated during a state estimation.
+     * Return true if the ratio tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
      */
-    Set<TapChanger> getTapChangers();
+    boolean containsRatioTapChanger1();
 
     /**
-     * For a given tap changer, return true if it is to be estimated during a state estimation. Else, return false.
+     * Return true if the ratio tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
      */
-    boolean toBeEstimated(TapChanger tapChanger);
+    boolean containsRatioTapChanger2();
 
     /**
-     * Add a given tap changer to be estimated during state estimation.
-     * If this tap changer is already considered to be estimated, do nothing.
+     * Return true if the ratio tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
      */
-    ThreeWindingsTransformerToBeEstimated addTapChanger(TapChanger tapChanger);
+    boolean containsRatioTapChanger3();
 
     /**
-     * Remove a given tap changer to the list of tap changers to be estimated during state estimation.
-     * If this tap changer is not considered to be estimated, do nothing.
+     * Return true if the phase tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
      */
-    ThreeWindingsTransformerToBeEstimated removeTapChanger(TapChanger tapChanger);
+    boolean containsPhaseTapChanger1();
 
     /**
-     * Remove the extension if no tap changer is specified to be estimated.
+     * Return true if the phase tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
      */
-    default void cleanIfEmpty() {
-        if (getTapChangers().isEmpty()) {
-            getExtendable().removeExtension(ThreeWindingsTransformerToBeEstimated.class);
-        }
-    }
+    boolean containsPhaseTapChanger2();
+
+    /**
+     * Return true if the phase tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
+     * Else, return false.
+     */
+    boolean containsPhaseTapChanger3();
+
+    /**
+     * Specify if the ratio tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setRatioTapChanger1Status(boolean toBeEstimated);
+
+    /**
+     * Specify if the ratio tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setRatioTapChanger2Status(boolean toBeEstimated);
+
+    /**
+     * Specify if the ratio tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setRatioTapChanger3Status(boolean toBeEstimated);
+
+    /**
+     * Specify if the phase tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger1Status(boolean toBeEstimated);
+
+    /**
+     * Specify if the phase tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger2Status(boolean toBeEstimated);
+
+    /**
+     * Specify if the phase tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
+     */
+    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger3Status(boolean toBeEstimated);
 }
