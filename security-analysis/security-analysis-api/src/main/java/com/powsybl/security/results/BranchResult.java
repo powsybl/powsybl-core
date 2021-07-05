@@ -37,9 +37,12 @@ public class BranchResult {
     /**
      * Flow transfer from the branch in contingency to the branch with id branchId.
      * <p>
-     * It is a ratio computed as : <i>dp1 / p1RefPrecontigency</i>, where :
-     * <b>dp1</b> is the delta between active power p1 at pre contingency and post contingency stages on branch with id branchId.
-     * <b>p1RefPrecontingency</b> is the active power p1 at pre contingency stage of the branch in contingency.
+     * It is a ratio computed as : <i>p1i,N-1 - p1i,N / p1j,N</i>, where :
+     * <b>p1i,N</b> the active power flow on side 1 of the branch branchId at pre contingency stage.
+     * <b>p1i,N-1</b> the active power flow on side 1 of the same branch at post contingency stage.
+     * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
+     * <b>p1j,N-1</b> the active power flow on side 1 of lost branch j at post contingency stage.
+     * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
      */
     private final double flowTransfer;
 
