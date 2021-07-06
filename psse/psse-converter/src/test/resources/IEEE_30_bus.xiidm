@@ -318,8 +318,8 @@
     </iidm:line>
     <iidm:line id="L-6-28-1 " r="2.944656" x="10.436976" g1="0.0" b1="3.7304866850321396E-5" g2="0.0" b2="3.7304866850321396E-5" bus1="B6" connectableBus1="B6" voltageLevelId1="VL6" bus2="B28" connectableBus2="B28" voltageLevelId2="VL28"/>
     <iidm:line id="L-8-28-1 " r="11.081664" x="34.848" g1="0.0" b1="1.2281910009182735E-4" g2="0.0" b2="1.2281910009182735E-4" bus1="B8" connectableBus1="B8" voltageLevelId1="VL8" bus2="B28" connectableBus2="B28" voltageLevelId2="VL28"/>
-    <iidm:line id="L-9-10-1 " r="0.0" x="1.1979" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
-    <iidm:line id="L-9-11-1 " r="0.0" x="0.25168" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11">
+    <iidm:line id="L-9-10-1 " r="0.0" x="0.0363" g1="0.0" b1="-881.5426997245179" g2="0.0" b2="26.71341514316721" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B10" connectableBus2="B10" voltageLevelId2="VL10"/>
+    <iidm:line id="L-9-11-1 " r="0.0" x="0.022879999999999998" g1="0.0" b1="-437.0629370629371" g2="0.0" b2="39.73299427844883" bus1="B9" connectableBus1="B9" voltageLevelId1="VL9" bus2="B11" connectableBus2="B11" voltageLevelId2="VL11">
         <iidm:currentLimits1 permanentLimit="37527.76749732568"/>
         <iidm:currentLimits2 permanentLimit="3411.615227029607"/>
     </iidm:line>
@@ -330,7 +330,7 @@
     </iidm:line>
     <iidm:line id="L-10-21-1 " r="0.378972" x="0.815661" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B10" connectableBus1="B10" voltageLevelId1="VL10" bus2="B21" connectableBus2="B21" voltageLevelId2="VL21"/>
     <iidm:line id="L-10-22-1 " r="0.7917030000000002" x="1.6324109999999998" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B10" connectableBus1="B10" voltageLevelId1="VL10" bus2="B22" connectableBus2="B22" voltageLevelId2="VL22"/>
-    <iidm:line id="L-12-13-1 " r="0.0" x="0.16940000000000002" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13">
+    <iidm:line id="L-12-13-1 " r="0.0" x="0.5082" g1="0.0" b1="1.3118194936376757" g2="0.0" b2="-3.9354584809130264" bus1="B12" connectableBus1="B12" voltageLevelId1="VL12" bus2="B13" connectableBus2="B13" voltageLevelId2="VL13">
         <iidm:currentLimits1 permanentLimit="1137.2050756765357"/>
         <iidm:currentLimits2 permanentLimit="3411.615227029607"/>
     </iidm:line>
