@@ -70,6 +70,8 @@ public class ReporterModelDeserializer extends StdDeserializer<ReporterModel> {
             Object dicNameInjected = ctx.findInjectableValue(DICTIONARY_VALUE_ID, null, null);
             return dicNameInjected instanceof String ? (String) dicNameInjected : DICTIONARY_DEFAULT_NAME;
         } catch (JsonMappingException e) {
+            LOGGER.info("No injectable value found for id `{}` in DeserializationContext, therefore taking `{}` dictionary",
+                DICTIONARY_VALUE_ID, DICTIONARY_DEFAULT_NAME);
             return DICTIONARY_DEFAULT_NAME;
         }
     }
