@@ -11,7 +11,9 @@ import com.powsybl.commons.PowsyblException;
 import java.util.Objects;
 
 /**
- * A class associating a value with a type.
+ * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
+ *
+ * <p>A class associating a value with a type.
  * The value should be an instance of any of the following classes: Integer, Long, Float, Double, Boolean or String.
  * The type is given by a string. Some generic types are provided by public constants of current class.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
