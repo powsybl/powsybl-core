@@ -18,8 +18,11 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
@@ -96,7 +99,35 @@ public class LineConverter extends AbstractConverter {
     }
 
     private String getLineId() {
+        return getLineId(psseLine);
+    }
+
+    private static String getLineId(PsseNonTransformerBranch psseLine) {
         return "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
+    }
+
+    // At the moment we do not consider new lines and antenna lines are exported as open
+    static void updateLines(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getNonTransformerBranches().forEach(psseLine -> {
+            updatePsseModel.addNonTransformerBranches(Collections.singletonList(psseLine));
+            PsseNonTransformerBranch updatePsseLine = updatePsseModel.getNonTransformerBranches().get(updatePsseModel.getNonTransformerBranches().size() - 1);
+
+            String lineId = getLineId(updatePsseLine);
+            Line line = network.getLine(lineId);
+            if (line == null) {
+                updatePsseLine.setSt(0);
+            } else {
+                updatePsseLine.setSt(getStatus(line));
+            }
+        });
+    }
+
+    private static int getStatus(Line line) {
+        if (line.getTerminal1().isConnected() && line.getTerminal2().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private final PsseNonTransformerBranch psseLine;

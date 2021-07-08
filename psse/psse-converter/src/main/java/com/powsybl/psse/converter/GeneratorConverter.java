@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.converter;
 
+import java.util.Collections;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.model.pf.PsseBus;
 import com.powsybl.psse.model.pf.PsseGenerator;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -110,7 +112,53 @@ public class GeneratorConverter extends AbstractConverter {
     }
 
     private static String getGeneratorId(String busId, PsseGenerator psseGenerator) {
-        return busId + "-G" + psseGenerator.getId();
+        return getGeneratorId(busId, psseGenerator.getId());
+    }
+
+    private static String getGeneratorId(String busId, String generatorId) {
+        return busId + "-G" + generatorId;
+    }
+
+    // At the moment we do not consider new generators
+    static void updateGenerators(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getGenerators().forEach(psseGen -> {
+            updatePsseModel.addGenerators(Collections.singletonList(psseGen));
+            PsseGenerator updatePsseGen = updatePsseModel.getGenerators().get(updatePsseModel.getGenerators().size() - 1);
+
+            String genId = getGeneratorId(getBusId(updatePsseGen.getI()), updatePsseGen.getId());
+            Generator gen = network.getGenerator(genId);
+            if (gen == null) {
+                updatePsseGen.setStat(0);
+            } else {
+                updatePsseGen.setStat(getStatus(gen));
+                updatePsseGen.setPg(getP(gen));
+                updatePsseGen.setQg(getQ(gen));
+            }
+        });
+    }
+
+    private static int getStatus(Generator gen) {
+        if (gen.getTerminal().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+
+    private static double getP(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getP())) {
+            return gen.getTargetP();
+        } else {
+            return -gen.getTerminal().getP();
+        }
+    }
+
+    private static double getQ(Generator gen) {
+        if (Double.isNaN(gen.getTerminal().getQ())) {
+            return gen.getTargetQ();
+        } else {
+            return -gen.getTerminal().getQ();
+        }
     }
 
     private final PsseGenerator psseGenerator;
