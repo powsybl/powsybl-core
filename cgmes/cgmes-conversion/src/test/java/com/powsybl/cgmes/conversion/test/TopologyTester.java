@@ -62,15 +62,15 @@ public class TopologyTester {
             }
         });
 
-        LOG.info("    preparing mapping between IIDM busbarSections and mergedBuses ...");
+        LOG.info("    preparing mapping between IIDM busbarSections and busBreaker buses ...");
         Map<String, Set<String>> mbbbss = new HashMap<>();
         Map<String, String> bbs2mb = new HashMap<>();
         network.getVoltageLevels().forEach(vl -> {
             vl.getNodeBreakerView().getBusbarSections().forEach(bbs -> {
-                Bus mb = vl.getBusView().getMergedBus(bbs.getId());
-                if (mb != null) {
-                    mbbbss.computeIfAbsent(mb.getId(), x -> new HashSet<>()).add(bbs.getId());
-                    bbs2mb.put(bbs.getId(), mb.getId());
+                Bus b = bbs.getTerminal().getBusBreakerView().getBus();
+                if (b != null) {
+                    mbbbss.computeIfAbsent(b.getId(), x -> new HashSet<>()).add(bbs.getId());
+                    bbs2mb.put(bbs.getId(), b.getId());
                 }
             });
         });
