@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.model.PowerFlow;
+import com.powsybl.iidm.network.Branch;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -16,8 +17,8 @@ import com.powsybl.cgmes.model.PowerFlow;
 public class BoundaryLine {
 
     BoundaryLine(String id, String name, String modelIidmVoltageLevelId, String modelBus,
-        boolean modelTconnected, int modelNode, String modelTerminalId, String boundaryTerminalId,
-        PowerFlow modelPowerFlow) {
+        boolean modelTconnected, int modelNode, String modelTerminalId, Branch.Side boundarySide,
+        String boundaryTerminalId, PowerFlow modelPowerFlow) {
         this.id = id;
         this.name = name;
         this.modelIidmVoltageLevelId = modelIidmVoltageLevelId;
@@ -25,6 +26,7 @@ public class BoundaryLine {
         this.modelTconnected = modelTconnected;
         this.modelNode = modelNode;
         this.modelTerminalId = modelTerminalId;
+        this.boundarySide = boundarySide;
         this.boundaryTerminalId = boundaryTerminalId;
         this.modelPowerFlow = modelPowerFlow;
         r = 0.0;
@@ -72,6 +74,10 @@ public class BoundaryLine {
         return modelTerminalId;
     }
 
+    Branch.Side getBoundarySide() {
+        return boundarySide;
+    }
+
     String getBoundaryTerminalId() {
         return boundaryTerminalId;
     }
@@ -111,6 +117,7 @@ public class BoundaryLine {
     private final boolean modelTconnected;
     private final int modelNode;
     private final String modelTerminalId;
+    private final Branch.Side boundarySide;
     private final String boundaryTerminalId;
     private double r;
     private double x;
