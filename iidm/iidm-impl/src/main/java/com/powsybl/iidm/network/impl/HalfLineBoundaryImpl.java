@@ -16,44 +16,45 @@ import java.util.Objects;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 class HalfLineBoundaryImpl implements Boundary {
-    // side represents the network side.
-    // side here is Side.ONE for the half line 1 of a tie line.
-    // side is Side.TWO for the half line 2 of a tie line.
 
     private final TieLineImpl.HalfLineImpl parent;
     private final Branch.Side side;
+    private final Branch.Side originalBoundarySide;
 
-    HalfLineBoundaryImpl(TieLineImpl.HalfLineImpl parent, Branch.Side side) {
+    HalfLineBoundaryImpl(TieLineImpl.HalfLineImpl parent, Branch.Side side, Branch.Side originalBoundarySide) {
         this.parent = Objects.requireNonNull(parent);
         this.side = Objects.requireNonNull(side);
+        this.originalBoundarySide = Objects.requireNonNull(originalBoundarySide);
     }
 
+    // side defines the side of the TieLine where we have to get the (S, V) values
+    // otherSide(originalBoundarySide) defines the original side of the half line where the previous values are associated with.
     @Override
     public double getV() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideU(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), otherSide(originalBoundarySide)).otherSideU(parent);
     }
 
     @Override
     public double getAngle() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideA(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), otherSide(originalBoundarySide)).otherSideA(parent);
     }
 
     @Override
     public double getP() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideP(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), otherSide(originalBoundarySide)).otherSideP(parent);
     }
 
     @Override
     public double getQ() {
         Terminal t = getConnectable().getTerminal(side);
         Bus b = t.getBusView().getBus();
-        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), side).otherSideQ(parent);
+        return new SV(t.getP(), t.getQ(), getV(b), getAngle(b), otherSide(originalBoundarySide)).otherSideQ(parent);
     }
 
     @Override
@@ -71,11 +72,24 @@ class HalfLineBoundaryImpl implements Boundary {
         return getConnectable().getTerminal(side).getVoltageLevel();
     }
 
+    @Override
+    public Branch.Side getOriginalBoundarySide() {
+        return originalBoundarySide;
+    }
+
     private static double getV(Bus b) {
         return b == null ? Double.NaN : b.getV();
     }
 
     private static double getAngle(Bus b) {
         return b == null ? Double.NaN : b.getAngle();
+    }
+
+    private static Branch.Side otherSide(Branch.Side side) {
+        if (side == Branch.Side.ONE) {
+            return Branch.Side.TWO;
+        } else {
+            return Branch.Side.ONE;
+        }
     }
 }

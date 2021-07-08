@@ -19,6 +19,8 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
         HalfLineAdder setFictitious(boolean fictitious);
 
+        HalfLineAdder setOriginalBoundarySide(Branch.Side originalBoundarySide);
+
         /**
          * @deprecated Boundary P is now calculated, never set.
          */

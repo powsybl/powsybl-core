@@ -23,6 +23,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         protected boolean fictitious = false;
 
+        protected Branch.Side originalBoundarySide;
+
         protected double r = Double.NaN;
 
         protected double x = Double.NaN;
@@ -54,6 +56,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         @Override
         public HalfLineAdderImpl setFictitious(boolean fictitious) {
             this.fictitious = fictitious;
+            return this;
+        }
+
+        @Override
+        public HalfLineAdderImpl setOriginalBoundarySide(Branch.Side originalBoundarySide) {
+            this.originalBoundarySide = originalBoundarySide;
             return this;
         }
 
@@ -126,7 +134,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         private TieLineImpl.HalfLineImpl build() {
             Branch.Side side = (num == 1) ? Branch.Side.ONE : Branch.Side.TWO;
-            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side);
+            return new TieLineImpl.HalfLineImpl(id, name, fictitious, r, x, g1, b1, g2, b2, side, originalBoundarySide);
         }
 
         @Override
@@ -191,6 +199,14 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
         if (halfLineAdder2 == null) {
             throw new ValidationException(this, "half line 2 is not set");
+        }
+
+        if (halfLineAdder1.originalBoundarySide == null) {
+            throw new ValidationException(this, "originalBoundarySide of half line 1 is not set");
+        }
+
+        if (halfLineAdder2.originalBoundarySide == null) {
+            throw new ValidationException(this, "originalBoundarySide of half line 2 is not set");
         }
 
         TieLineImpl.HalfLineImpl half1 = halfLineAdder1.build();

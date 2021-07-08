@@ -59,6 +59,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         });
 
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> XmlUtil.writeOptionalBoolean("fictitious_" + side, halfLine.isFictitious(), false, context.getWriter()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> context.getWriter().writeAttribute("originalBoundarySide_" + side, boundary.getOriginalBoundarySide().name()));
     }
 
     @Override
@@ -127,6 +128,15 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
             boolean fictitious = XmlUtil.readOptionalBoolAttribute(context.getReader(), "fictitious_" + side, false);
             adder.setFictitious(fictitious);
         });
+
+        if (side == 1) {
+            adder.setOriginalBoundarySide(Branch.Side.TWO);
+        } else {
+            adder.setOriginalBoundarySide(Branch.Side.ONE);
+        }
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> adder.setOriginalBoundarySide(
+            Branch.Side.valueOf(context.getReader().getAttributeValue(null, "originalBoundarySide_" + side))));
+
         adder.add();
     }
 

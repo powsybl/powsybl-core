@@ -1000,6 +1000,7 @@ public class UcteImporter implements Importer {
                 .setG1(dlAtSideOne.getG())
                 .setG2(0.0)
                 .setFictitious(dlAtSideOne.isFictitious())
+                .setOriginalBoundarySide(Branch.Side.TWO)
                 .add()
                 .newHalfLine2()
                 .setId(dlAtSideTwo.getId())
@@ -1010,6 +1011,7 @@ public class UcteImporter implements Importer {
                 .setG1(0.0)
                 .setG2(dlAtSideTwo.getG())
                 .setFictitious(dlAtSideTwo.isFictitious())
+                .setOriginalBoundarySide(Branch.Side.ONE)
                 .add()
                 .setUcteXnodeCode(xnodeCode)
                 .add();

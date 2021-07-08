@@ -10,11 +10,18 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.LinkData;
+import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 
 import java.util.Objects;
 
+import org.apache.commons.math3.complex.Complex;
+
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 class TieLineImpl extends LineImpl implements TieLine {
 
@@ -33,7 +40,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         TieLineImpl parent;
 
-        HalfLineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2, Branch.Side side) {
+        HalfLineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2,
+            double b2, Branch.Side side, Branch.Side originalBoundarySide) {
             this.id = Objects.requireNonNull(id);
             this.name = name;
             this.fictitious = fictitious;
@@ -43,7 +51,7 @@ class TieLineImpl extends LineImpl implements TieLine {
             this.b1 = b1;
             this.g2 = g2;
             this.b2 = b2;
-            this.boundary = new HalfLineBoundaryImpl(this, side);
+            this.boundary = new HalfLineBoundaryImpl(this, side, originalBoundarySide);
         }
 
         TieLineImpl getParent() {
@@ -221,9 +229,11 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getR() {
-        return half1.getR() + half2.getR();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y12().negate().reciprocal().getReal();
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -235,9 +245,11 @@ class TieLineImpl extends LineImpl implements TieLine {
         throw createNotSupportedForTieLines();
     }
 
+    // Half1 and half2 are lines, so the transmission impedance of the equivalent branch is symmetric
     @Override
     public double getX() {
-        return half1.getX() + half2.getX();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y12().negate().reciprocal().getImaginary();
     }
 
     @Override
@@ -247,7 +259,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG1() {
-        return half1.getG1() + half1.getG2();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y11().add(adm.y12()).getReal();
     }
 
     @Override
@@ -257,7 +270,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB1() {
-        return half1.getB1() + half1.getB2();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y11().add(adm.y12()).getImaginary();
     }
 
     @Override
@@ -267,7 +281,8 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getG2() {
-        return half2.getG1() + half2.getG2();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y22().add(adm.y21()).getReal();
     }
 
     @Override
@@ -277,11 +292,43 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     @Override
     public double getB2() {
-        return half2.getB1() + half2.getB2();
+        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        return adm.y22().add(adm.y21()).getImaginary();
     }
 
     @Override
     public LineImpl setB2(double b2) {
         throw createNotSupportedForTieLines();
+    }
+
+    // zero impedance half lines should be supported
+    // half line parameters are defined as they are specified in the initial line or dangling line mapped to it.
+    // getOriginalBoundarySide defines the initial orientation of the line or dangling line before mapping it to the tie line
+    // getOriginalBoundarySide is used to properly calculate the equivalent branch associated with the tie line
+    // after removing the boundary node
+    private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(HalfLineImpl half1,
+        HalfLineImpl half2) {
+
+        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(half1.getR(), half1.getX(), 1.0, 0.0, 1.0, 0.0,
+            new Complex(half1.getG1(), half1.getB1()), new Complex(half1.getG2(), half1.getB2()));
+        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(half2.getR(), half2.getX(), 1.0, 0.0, 1.0, 0.0,
+            new Complex(half2.getG1(), half2.getB1()), new Complex(half2.getG2(), half2.getB2()));
+
+        if (zeroImpedanceLine(adm1)) {
+            return adm2;
+        } else if (zeroImpedanceLine(adm2)) {
+            return adm1;
+        } else {
+            return LinkData.kronChain(adm1, half1.boundary.getOriginalBoundarySide(),
+                adm2, half2.boundary.getOriginalBoundarySide());
+        }
+    }
+
+    private static boolean zeroImpedanceLine(BranchAdmittanceMatrix adm) {
+        if (adm.y12().getReal() == 0.0 && adm.y12().getImaginary() == 0.0) {
+            return true;
+        } else {
+            return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
+        }
     }
 }

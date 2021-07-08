@@ -127,6 +127,7 @@ public class TieLineAdapterTest {
                     .setG2(0.0)
                     .setB1(0.0)
                     .setB2(0.0)
+                    .setOriginalBoundarySide(Branch.Side.TWO)
                     .add()
                 .newHalfLine2()
                     .setId("l2")
@@ -136,6 +137,7 @@ public class TieLineAdapterTest {
                     .setG2(0.0)
                     .setB1(0.0)
                     .setB2(0.0)
+                    .setOriginalBoundarySide(Branch.Side.ONE)
                     .add()
                 .setUcteXnodeCode("XNODE")
                 .add();

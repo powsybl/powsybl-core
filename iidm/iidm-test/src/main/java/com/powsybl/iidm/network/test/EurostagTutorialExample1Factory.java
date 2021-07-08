@@ -212,6 +212,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .setOriginalBoundarySide(Branch.Side.TWO)
                     .add()
                 .newHalfLine2()
                     .setId("XNODE1_NHV2")
@@ -221,6 +222,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .setOriginalBoundarySide(Branch.Side.ONE)
                     .add()
                 .add();
         network.newTieLine()
@@ -238,6 +240,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .setOriginalBoundarySide(Branch.Side.TWO)
                     .add()
                 .newHalfLine2()
                     .setId("XNODE2_NHV2")
@@ -247,6 +250,7 @@ public final class EurostagTutorialExample1Factory {
                     .setG2(0.0)
                     .setB1(386E-6 / 4)
                     .setB2(386E-6 / 4)
+                    .setOriginalBoundarySide(Branch.Side.ONE)
                     .add()
                 .add();
         network.getLine("NHV1_NHV2_1").getTerminal1()
