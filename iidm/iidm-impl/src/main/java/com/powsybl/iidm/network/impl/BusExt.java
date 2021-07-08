@@ -22,6 +22,9 @@ interface BusExt extends Bus {
     @Override
     Stream<TerminalExt> getConnectedTerminalStream();
 
+    @Override
+    TerminalExt getTerminalReference();
+
     void setConnectedComponentNumber(int connectedComponentNumber);
 
     void setSynchronousComponentNumber(int componentNumber);

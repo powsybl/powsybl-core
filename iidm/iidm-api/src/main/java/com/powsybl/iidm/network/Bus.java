@@ -255,4 +255,14 @@ public interface Bus extends Identifiable<Bus> {
         return Stream.empty();
     }
 
+    /**
+     * Get the terminal reference of the bus if it has one.
+     * A terminal reference is a terminal to retrieve voltage, angle or connected and synchronous component numbers.
+     * If there is at least one connected terminal in this bus, we use the first connected terminal as reference.
+     * Otherwise this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
+     * and therefore can be used as reference.
+     */
+    default Terminal getTerminalReference() {
+        return getConnectedTerminalStream().findFirst().orElse(null);
+    }
 }

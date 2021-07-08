@@ -76,7 +76,35 @@ public class BusAdapterTest {
     @Test
     public void testSynchronousComponentSetterGetter() {
         MergingView view = MergingView.create("testSynchronousComponentSetterGetter", "iidm");
-        view.merge(HvdcTestNetwork.createVsc());
+        Network network = HvdcTestNetwork.createVsc();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("disconnected")
+                .add();
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("connected1")
+                .add();
+        vl1.getBusBreakerView()
+                .newSwitch()
+                .setId("sw1")
+                .setBus1("B1")
+                .setBus2("connected1")
+                .setOpen(false)
+                .add();
+        vl1.getBusBreakerView()
+                .newBus()
+                .setId("connected2")
+                .add();
+        vl1.getBusBreakerView()
+                .newSwitch()
+                .setId("sw2")
+                .setBus1("connected2")
+                .setBus2("connected1")
+                .setOpen(false)
+                .add();
+        view.merge(network);
         HvdcLine l = view.getHvdcLine("L");
         assertNotNull(l);
         VscConverterStation cs1 = view.getVscConverterStation("C1");
@@ -95,6 +123,80 @@ public class BusAdapterTest {
         int num1 = bus1.getSynchronousComponent().getNum();
         int num2 = bus2.getSynchronousComponent().getNum();
         assertNotEquals(num1, num2);
+        Bus disconnected = view.getBusBreakerView().getBus("disconnected");
+        assertNull(disconnected.getConnectedComponent());
+        assertNull(disconnected.getSynchronousComponent());
+        assertFalse(disconnected.isInMainConnectedComponent());
+        assertFalse(disconnected.isInMainSynchronousComponent());
+        Bus connected1 = view.getBusBreakerView().getBus("connected1");
+        assertNotNull(connected1.getConnectedComponent());
+        assertNotNull(connected1.getSynchronousComponent());
+        assertSame(connected1.getConnectedComponent(), bus1.getConnectedComponent());
+        assertSame(connected1.getSynchronousComponent(), bus1.getSynchronousComponent());
+        Bus connected2 = view.getBusBreakerView().getBus("connected1");
+        assertNotNull(connected2.getConnectedComponent());
+        assertNotNull(connected2.getSynchronousComponent());
+        assertSame(connected2.getConnectedComponent(), bus1.getConnectedComponent());
+        assertSame(connected2.getSynchronousComponent(), bus1.getSynchronousComponent());
+    }
+
+    @Test
+    public void testTerminalReference() {
+        Network network = NetworkFactory.findDefault().createNetwork("testLoop", "test");
+        Substation s = network.newSubstation()
+            .setId("sub2")
+            .setCountry(Country.FR)
+            .setTso("RTE")
+            .add();
+        VoltageLevel vl = s.newVoltageLevel()
+            .setId("vl")
+            .setName("vl")
+            .setNominalV(440.0)
+            .setHighVoltageLimit(400.0)
+            .setLowVoltageLimit(200.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b1")
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b2")
+            .add();
+        vl.getBusBreakerView()
+            .newBus()
+            .setId("b3")
+            .add();
+        Switch sw1 = vl.getBusBreakerView()
+            .newSwitch()
+            .setId("sw1")
+            .setBus1("b1")
+            .setBus2("b2")
+            .setOpen(true)
+            .add();
+        vl.getBusBreakerView()
+            .newSwitch()
+            .setId("sw2")
+            .setBus1("b2")
+            .setBus2("b3")
+            .setOpen(false)
+            .add();
+        assertNull(vl.getBusBreakerView().getBus("b1").getTerminalReference());
+
+        sw1.setOpen(false);
+        assertNull(vl.getBusBreakerView().getBus("b1").getTerminalReference());
+
+        vl.newLoad()
+            .setId("LOAD")
+            .setConnectableBus("b3")
+            .setBus("b3")
+            .setP0(100.0)
+            .setQ0(1.0)
+            .add();
+        Terminal terminalRef1 = vl.getBusBreakerView().getBus("b1").getTerminalReference();
+        assertNotNull(terminalRef1);
+        assertEquals("LOAD", terminalRef1.getConnectable().getId());
     }
 
     @Test
@@ -414,5 +516,135 @@ public class BusAdapterTest {
         assertTrue(busBreakerView.getSwitches().iterator().hasNext());
         busBreakerView.getSwitches().forEach(b -> assertTrue(b instanceof AbstractAdapter));
         assertEquals(1, busBreakerView.getSwitchCount());
+    }
+
+    @Test
+    public void mainConnectedComponentWithSwitchTest() {
+        // TODO: delete this test when TCK tests merging view
+        Network network = Network.create("test_mcc", "test");
+
+        Substation s1 = network.newSubstation()
+                .setId("A")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("B")
+                .setNominalV(225.0)
+                .setLowVoltageLimit(0.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl1.getNodeBreakerView().newBusbarSection()
+                .setId("C")
+                .setNode(0)
+                .add();
+        vl1.getNodeBreakerView().newSwitch()
+                .setId("D")
+                .setKind(SwitchKind.DISCONNECTOR)
+                .setRetained(false)
+                .setOpen(false)
+                .setNode1(0)
+                .setNode2(1)
+                .add();
+        vl1.getNodeBreakerView().newSwitch()
+                .setId("E")
+                .setKind(SwitchKind.BREAKER)
+                .setRetained(false)
+                .setOpen(false)
+                .setNode1(1)
+                .setNode2(2)
+                .add();
+
+        Substation s2 = network.newSubstation()
+                .setId("F")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+                .setId("G")
+                .setNominalV(225.0)
+                .setLowVoltageLimit(0.0)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("H")
+                .setNode(0)
+                .add();
+        vl2.getNodeBreakerView().newBusbarSection()
+                .setId("I")
+                .setNode(1)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("J")
+                .setKind(SwitchKind.DISCONNECTOR)
+                .setRetained(true)
+                .setOpen(false)
+                .setNode1(0)
+                .setNode2(2)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("K")
+                .setKind(SwitchKind.DISCONNECTOR)
+                .setRetained(true)
+                .setOpen(false)
+                .setNode1(1)
+                .setNode2(3)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("L")
+                .setKind(SwitchKind.BREAKER)
+                .setRetained(true)
+                .setOpen(false)
+                .setNode1(2)
+                .setNode2(3)
+                .add();
+        vl2.getNodeBreakerView().newSwitch()
+                .setId("M")
+                .setKind(SwitchKind.BREAKER)
+                .setRetained(false)
+                .setOpen(false)
+                .setNode1(0)
+                .setNode2(4)
+                .add();
+
+        network.newLine()
+                .setId("N")
+                .setR(0.001)
+                .setX(0.1)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+                .setVoltageLevel1("B")
+                .setNode1(2)
+                .setVoltageLevel2("G")
+                .setNode2(4)
+                .add();
+
+        network.getBusView().getBuses().forEach(b -> {
+            if (b.getVoltageLevel() == vl1) {
+                b.setV(230.0).setAngle(0.5);
+            } else {
+                b.setV(220.0).setAngle(0.7);
+            }
+        });
+
+        MergingView mergingView = MergingView.create("merged", "test");
+        mergingView.merge(network);
+
+        assertEquals(2, mergingView.getBusView().getBusStream().count());
+        for (Bus b : mergingView.getBusView().getBuses()) {
+            assertTrue(b.isInMainConnectedComponent());
+        }
+
+        assertEquals(5, mergingView.getBusBreakerView().getBusStream().count());
+        for (Bus b : mergingView.getBusBreakerView().getBuses()) {
+            assertTrue(b.isInMainConnectedComponent());
+            if (b.getVoltageLevel().getId().equals(vl1.getId())) {
+                assertEquals(230.0, b.getV(), 0.0);
+                assertEquals(0.5, b.getAngle(), 0.0);
+            } else {
+                assertEquals(220.0, b.getV(), 0.0);
+                assertEquals(0.7, b.getAngle(), 0.0);
+            }
+        }
     }
 }
