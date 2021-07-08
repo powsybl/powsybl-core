@@ -242,7 +242,7 @@ public final class NetworkXml {
 
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
+        XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os, options.getCharset());
         writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI());
         writer.writeStartElement(version.getNamespaceURI(), NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI());
@@ -293,6 +293,7 @@ public final class NetworkXml {
             writeExtensions(n, context, options);
             context.getWriter().writeEndElement();
             context.getWriter().writeEndDocument();
+            context.getWriter().flush();
             return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

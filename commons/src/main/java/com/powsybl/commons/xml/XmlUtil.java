@@ -13,6 +13,7 @@ import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.stream.*;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -235,14 +236,17 @@ public final class XmlUtil {
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
-        XMLStreamWriter writer;
-        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        return initializeWriter(indent, indentString, os, StandardCharsets.UTF_8);
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os, Charset charset) throws XMLStreamException {
+        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, charset.name());
         if (indent) {
             IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
             indentingWriter.setIndent(indentString);
             writer = indentingWriter;
         }
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        writer.writeStartDocument(charset.name(), "1.0");
         return writer;
     }
 }

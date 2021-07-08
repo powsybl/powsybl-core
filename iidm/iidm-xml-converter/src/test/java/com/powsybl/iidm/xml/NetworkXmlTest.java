@@ -15,20 +15,23 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
 import static org.junit.Assert.*;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -123,4 +126,19 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         assertNull(busBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1"));
     }
 
+    @Test
+    public void checkWithSpecificEncoding() throws IOException {
+        Network network = NetworkTest1Factory.create();
+        BusbarSection bb = network.getBusbarSection("voltageLevel1BusbarSection1");
+        bb.addExtension(BusbarSectionExt.class, new BusbarSectionExt(bb));
+        ExportOptions export = new ExportOptions();
+        export.setCharset(StandardCharsets.ISO_8859_1);
+        //Re-import in node breaker
+        Network nodeBreakerNetwork = writeAndRead(network, export);
+
+        //Check that busbar and its extension is still here
+        BusbarSection bb2 = nodeBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1");
+        assertEquals(1, bb2.getExtensions().size());
+        assertNotNull(bb2.getExtension(BusbarSectionExt.class));
+    }
 }
