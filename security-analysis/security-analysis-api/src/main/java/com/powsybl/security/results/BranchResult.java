@@ -41,7 +41,6 @@ public class BranchResult {
      * <b>p1i,N</b> the active power flow on side 1 of the branch branchId at pre contingency stage.
      * <b>p1i,N-1</b> the active power flow on side 1 of the same branch at post contingency stage.
      * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
-     * <b>p1j,N-1</b> the active power flow on side 1 of lost branch j at post contingency stage.
      * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
      */
     private final double flowTransfer;
