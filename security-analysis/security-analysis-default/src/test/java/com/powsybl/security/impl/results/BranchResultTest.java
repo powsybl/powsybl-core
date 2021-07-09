@@ -18,7 +18,7 @@ import static junit.framework.TestCase.assertEquals;
 public class BranchResultTest {
     @Test
     public void test() {
-        BranchResult branchResult = new BranchResult("id1", 500, 200, 300, -500, 300, -300);
+        BranchResult branchResult = new BranchResult("id1", 500, 200, 300, -500, 300, -300, 0.0);
         assertEquals("id1", branchResult.getBranchId());
         assertEquals(300.0, branchResult.getI1());
         assertEquals(500.0, branchResult.getP1());
@@ -26,10 +26,11 @@ public class BranchResultTest {
         assertEquals(-300.0, branchResult.getI2());
         assertEquals(-500.0, branchResult.getP2());
         assertEquals(300.0, branchResult.getQ2());
+        assertEquals(0.0, branchResult.getFlowTransfer());
 
         new EqualsTester()
-            .addEqualityGroup(new BranchResult("id2", 400, 200, 300, -500, 300, -300),
-                new BranchResult("id2", 400, 200, 300, -500, 300, -300))
+            .addEqualityGroup(new BranchResult("id2", 400, 200, 300, -500, 300, -300, 0.0),
+                new BranchResult("id2", 400, 200, 300, -500, 300, -300, 0.0))
             .addEqualityGroup(branchResult, branchResult)
             .testEquals();
     }

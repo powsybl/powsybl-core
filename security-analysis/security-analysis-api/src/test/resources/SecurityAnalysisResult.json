@@ -31,7 +31,8 @@
       "i1" : 0.0,
       "p2" : 0.0,
       "q2" : 0.0,
-      "i2" : 0.0
+      "i2" : 0.0,
+      "flowTransfer" : 0.0
     } ],
     "busResults" : [ {
       "voltageLevelId" : "voltageLevelId",

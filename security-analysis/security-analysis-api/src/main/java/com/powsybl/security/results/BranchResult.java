@@ -34,10 +34,21 @@ public class BranchResult {
 
     private final double i2;
 
+    /**
+     * Flow transfer from the branch in contingency to the branch with id branchId.
+     * <p>
+     * It is a ratio computed as : <i>p1i,N-1 - p1i,N / p1j,N</i>, where :
+     * <b>p1i,N</b> the active power flow on side 1 of the branch branchId at pre contingency stage.
+     * <b>p1i,N-1</b> the active power flow on side 1 of the same branch at post contingency stage.
+     * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
+     * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
+     */
+    private final double flowTransfer;
+
     @JsonCreator
     public BranchResult(@JsonProperty("branchId") String branchId, @JsonProperty("p1") double p1, @JsonProperty("q1") double q1,
                         @JsonProperty("i1") double i1, @JsonProperty("p2") double p2,
-                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2) {
+                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2, @JsonProperty("flowTransfer") double flowTransfer) {
         this.branchId = Objects.requireNonNull(branchId);
         this.p1 = Objects.requireNonNull(p1);
         this.q1 = Objects.requireNonNull(q1);
@@ -45,6 +56,7 @@ public class BranchResult {
         this.p2 = Objects.requireNonNull(p2);
         this.q2 = Objects.requireNonNull(q2);
         this.i2 = Objects.requireNonNull(i2);
+        this.flowTransfer = Objects.requireNonNull(flowTransfer);
     }
 
     @Override
@@ -96,6 +108,10 @@ public class BranchResult {
 
     public double getQ2() {
         return q2;
+    }
+
+    public double getFlowTransfer() {
+        return flowTransfer;
     }
 
     @Override
