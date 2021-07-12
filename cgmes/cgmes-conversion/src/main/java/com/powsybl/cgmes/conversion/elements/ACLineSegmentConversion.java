@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 
 import com.powsybl.cgmes.conversion.Context;
@@ -122,6 +123,49 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
                     .setB2(bch / 2);
             identify(adder);
             connect(adder);
+            final Line l = adder.add();
+            addAliasesAndProperties(l);
+            convertedTerminals(l.getTerminal1(), l.getTerminal2());
+        }
+    }
+
+    public void convertSplittedLine(CgmesTerminal t1, CgmesTerminal t2, VoltageLevel vl1, VoltageLevel vl2) {
+        double r = p.asDouble("r");
+        double x = p.asDouble("x");
+        double bch = p.asDouble("bch");
+        double gch = p.asDouble("gch", 0.0);
+        if (!context.nodeBreaker()) {
+            throw new ConversionException("Not in node breaker context");
+        }
+        if (isZeroImpedanceInsideVoltageLevel(r, x, bch, gch)) {
+            // Convert to switch
+            Switch sw;
+            boolean open = !(terminalConnected(1) && terminalConnected(2));
+            VoltageLevel.NodeBreakerView.SwitchAdder adder;
+            adder = vl1.getNodeBreakerView().newSwitch()
+                    .setKind(SwitchKind.BREAKER)
+                    .setRetained(true)
+                    .setFictitious(true);
+            identify(adder);
+            adder.setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
+                    .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true))
+                    .setOpen(open);
+            sw = adder.add();
+            addAliasesAndProperties(sw);
+        } else {
+            final LineAdder adder = context.network().newLine()
+                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                    .setR(r)
+                    .setX(x)
+                    .setG1(gch / 2)
+                    .setG2(gch / 2)
+                    .setB1(bch / 2)
+                    .setB2(bch / 2);
+            identify(adder);
+            adder.setVoltageLevel1(vl1.getId())
+                    .setVoltageLevel2(vl2.getId())
+                    .setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
+                    .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true));
             final Line l = adder.add();
             addAliasesAndProperties(l);
             convertedTerminals(l.getTerminal1(), l.getTerminal2());

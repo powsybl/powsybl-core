@@ -16,10 +16,9 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.joda.time.DateTime;
@@ -188,14 +187,16 @@ public class Conversion {
         // They have to be processed after all lines/switches have been reviewed
         // FIXME(Luma) store delayedBoundaryNodes in context
         Set<String> delayedBoundaryNodes = new HashSet<>();
+        Map<String, PropertyBags> delayedLines = new HashMap<>();
         convertSwitches(context, delayedBoundaryNodes);
-        convertACLineSegmentsToLines(context, delayedBoundaryNodes);
+        convertACLineSegmentsToLines(context, delayedBoundaryNodes, delayedLines);
 
         convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context, delayedBoundaryNodes);
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
+        delayedLines.forEach((lineId, segments) -> convertLine(context, lineId, segments));
 
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
@@ -369,7 +370,7 @@ public class Conversion {
         }
     }
 
-    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
+    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes, Map<String, PropertyBags> delayedLines) {
         Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
@@ -380,11 +381,131 @@ public class Conversion {
             if (c.valid()) {
                 String node = c.boundaryNode();
                 if (node != null && !context.config().convertBoundary()) {
-                    context.boundary().addAcLineSegmentAtNode(line, node);
-                    delayedBoundaryNodes.add(node);
+                    String lineId = line.getId("Line");
+                    delayedLines.computeIfAbsent(lineId, l -> new PropertyBags()).add(line);
                 } else {
                     c.convert();
                 }
+            }
+        }
+        Map<String, PropertyBags> linesCopy = new HashMap<>(delayedLines);
+        linesCopy.forEach((lineId, p) -> {
+            if (p.size() < 3) {
+                p.forEach(line -> {
+                    ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
+                    context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
+                    delayedBoundaryNodes.add(c.boundaryNode());
+                });
+                delayedLines.remove(lineId, p);
+            }
+        });
+    }
+
+    private void convertLine(Context context, String lineId, PropertyBags lineSegments) {
+        double nominalV = 1.0;
+        double lowVoltageLimit = 1.0;
+        double highVoltageLimit = 1.0;
+        for (PropertyBag lineSegment : lineSegments) {
+            CgmesTerminal t = cgmes.terminal(lineSegment.getId("Terminal1"));
+            String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+            if (vlId != null) {
+                VoltageLevel vl = context.network().getVoltageLevel(vlId);
+                nominalV = vl.getNominalV();
+                lowVoltageLimit = vl.getLowVoltageLimit();
+                highVoltageLimit = vl.getHighVoltageLimit();
+                break;
+            }
+            t = cgmes.terminal(lineSegment.getId("Terminal2"));
+            vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+            if (vlId != null) {
+                VoltageLevel vl = context.network().getVoltageLevel(vlId);
+                nominalV = vl.getNominalV();
+                lowVoltageLimit = vl.getLowVoltageLimit();
+                highVoltageLimit = vl.getHighVoltageLimit();
+                break;
+            }
+        }
+        for (PropertyBag lineSegment : lineSegments) {
+            CgmesTerminal t1 = cgmes.terminal(lineSegment.getId("Terminal1"));
+            String node1Id = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
+            String vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
+            if (vl1Id == null) {
+                vl1Id = node1Id + "_VL";
+            }
+
+            CgmesTerminal t2 = cgmes.terminal(lineSegment.getId("Terminal2"));
+            String node2Id = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
+            String vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
+            if (vl2Id == null) {
+                vl2Id = node2Id + "_VL";
+            }
+
+            VoltageLevel vl1 = context.network().getVoltageLevel(vl1Id);
+            VoltageLevel vl2 = context.network().getVoltageLevel(vl2Id);
+            if (vl1 == null) {
+                String iidmSubstationId = context.substationIdMapping().substationIidm(node1Id + "_SS");
+                Substation substation = context.network().getSubstation(iidmSubstationId);
+                if (substation == null) {
+                    substation = context.network().newSubstation()
+                            .setId(iidmSubstationId)
+                            .setName(t1.name())
+                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                            .setCountry(null)
+                            .setGeographicalTags(null)
+                            .add();
+                }
+                String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(vl1Id);
+                vl1 = context.network().getVoltageLevel(iidmVoltageLevelId);
+                if (vl1 == null) {
+                    vl1 = substation.newVoltageLevel()
+                            .setNominalV(nominalV)
+                            .setTopologyKind(
+                                    context.nodeBreaker()
+                                            ? TopologyKind.NODE_BREAKER
+                                            : TopologyKind.BUS_BREAKER)
+                            .setLowVoltageLimit(lowVoltageLimit)
+                            .setHighVoltageLimit(highVoltageLimit)
+                            .setId(iidmVoltageLevelId)
+                            .setName(t1.name())
+                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                            .add();
+                }
+                LOG.error(lineId + " VoltageLevel1 null");
+            }
+            if (vl2 == null) {
+                String iidmSubstationId = context.substationIdMapping().substationIidm(node2Id + "_SS");
+                Substation substation = context.network().getSubstation(iidmSubstationId);
+                if (substation == null) {
+                    substation = context.network().newSubstation()
+                            .setId(iidmSubstationId)
+                            .setName(t2.name())
+                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                            .setCountry(null)
+                            .setGeographicalTags(null)
+                            .add();
+                }
+                String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(vl2Id);
+                vl2 = context.network().getVoltageLevel(iidmVoltageLevelId);
+                if (vl2 == null) {
+                    vl2 = substation.newVoltageLevel()
+                            .setNominalV(nominalV)
+                            .setTopologyKind(
+                                    context.nodeBreaker()
+                                            ? TopologyKind.NODE_BREAKER
+                                            : TopologyKind.BUS_BREAKER)
+                            .setLowVoltageLimit(lowVoltageLimit)
+                            .setHighVoltageLimit(highVoltageLimit)
+                            .setId(iidmVoltageLevelId)
+                            .setName(t2.name())
+                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                            .add();
+                }
+                LOG.error(lineId + " VoltageLevel2 null");
+            }
+            ACLineSegmentConversion c = new ACLineSegmentConversion(lineSegment, context);
+            if (c.valid()) {
+                LOG.error("Convert " + c.id());
+                c.convertSplittedLine(t1, t2, vl1, vl2);
             }
         }
     }
