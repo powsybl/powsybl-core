@@ -20,18 +20,66 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     private boolean observable;
 
+    private float standardDeviationP;
+
+    private float standardDeviationQ;
+
+    private float standardDeviationV;
+
+    private boolean redundantP;
+
+    private boolean redundantQ;
+
+    private boolean redundantV;
+
     public InjectionObservabilityAdderImpl(I extendable) {
         super(extendable);
     }
 
     @Override
     protected InjectionObservability<I> createExtension(I extendable) {
-        return new InjectionObservabilityImpl<>(extendable, observable);
+        return new InjectionObservabilityImpl<>(extendable, observable, standardDeviationP, redundantP, standardDeviationQ, redundantQ, standardDeviationV, redundantV);
     }
 
     @Override
     public InjectionObservabilityAdder<I> withObservable(boolean observable) {
         this.observable = observable;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withStandardDeviationP(float standardDeviationP) {
+        this.standardDeviationP = standardDeviationP;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withRedundantP(boolean redundant) {
+        this.redundantP = redundant;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withStandardDeviationQ(float standardDeviationQ) {
+        this.standardDeviationQ = standardDeviationQ;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withRedundantQ(boolean redundant) {
+        this.redundantQ = redundant;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withStandardDeviationV(float standardDeviationV) {
+        this.standardDeviationV = standardDeviationV;
+        return this;
+    }
+
+    @Override
+    public InjectionObservabilityAdder<I> withRedundantV(boolean redundant) {
+        this.redundantV = redundant;
         return this;
     }
 }

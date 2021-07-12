@@ -34,11 +34,11 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        InjectionObservability <Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true);
+        InjectionObservability<Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true, 0.03f, false, 0.6f, false, 0.1f, false);
         bat.addExtension(InjectionObservability.class, injectionObservability);
 
         Generator generator = network.getGenerator("GEN");
-        generator.addExtension(InjectionObservability .class, new InjectionObservabilityImpl<>(generator, false));
+        generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02f, true, 0.5f, true, 0.0f, true));
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,

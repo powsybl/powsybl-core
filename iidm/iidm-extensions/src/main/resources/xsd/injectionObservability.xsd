@@ -11,9 +11,31 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/injection_observability/1_0"
            elementFormDefault="qualified">
+
     <xs:element name="injectionObservability">
         <xs:complexType>
+            <xs:sequence>
+                <xs:element name="qualityP">
+                    <xs:complexType>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="qualityQ">
+                    <xs:complexType>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="qualityV">
+                    <xs:complexType>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
             <xs:attribute name="observable" use="required" type="xs:boolean"/>
         </xs:complexType>
     </xs:element>
+
 </xs:schema>

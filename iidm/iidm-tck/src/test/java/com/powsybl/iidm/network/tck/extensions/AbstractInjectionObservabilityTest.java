@@ -27,6 +27,12 @@ public abstract class AbstractInjectionObservabilityTest {
         assertNotNull(bat);
         bat.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(true)
+                .withStandardDeviationP(0.02f)
+                .withRedundantP(true)
+                .withStandardDeviationQ(0.5f)
+                .withRedundantQ(true)
+                .withStandardDeviationV(0.0f)
+                .withRedundantV(true)
                 .add();
         InjectionObservability<Battery> injectionObservability = bat.getExtension(InjectionObservability.class);
         assertEquals("injectionObservability", injectionObservability.getName());
@@ -35,5 +41,29 @@ public abstract class AbstractInjectionObservabilityTest {
         assertTrue(injectionObservability.isObservable());
         injectionObservability.setObservable(false);
         assertFalse(injectionObservability.isObservable());
+
+        assertEquals(0.02f, injectionObservability.getStandardDeviationP(), 0f);
+        injectionObservability.setStandardDeviationP(0.03f);
+        assertEquals(0.03f, injectionObservability.getStandardDeviationP(), 0f);
+
+        assertTrue(injectionObservability.isRedundantP());
+        injectionObservability.setRedundantP(false);
+        assertFalse(injectionObservability.isRedundantP());
+
+        assertEquals(0.5f, injectionObservability.getStandardDeviationQ(), 0f);
+        injectionObservability.setStandardDeviationQ(0.6f);
+        assertEquals(0.6f, injectionObservability.getStandardDeviationQ(), 0f);
+
+        assertTrue(injectionObservability.isRedundantQ());
+        injectionObservability.setRedundantQ(false);
+        assertFalse(injectionObservability.isRedundantQ());
+
+        assertEquals(0.0f, injectionObservability.getStandardDeviationV(), 0f);
+        injectionObservability.setStandardDeviationV(0.01f);
+        assertEquals(0.01f, injectionObservability.getStandardDeviationV(), 0f);
+
+        assertTrue(injectionObservability.isRedundantV());
+        injectionObservability.setRedundantV(false);
+        assertFalse(injectionObservability.isRedundantV());
     }
 }

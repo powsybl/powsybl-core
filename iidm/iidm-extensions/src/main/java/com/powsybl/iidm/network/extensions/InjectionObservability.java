@@ -12,14 +12,37 @@ import com.powsybl.iidm.network.Injection;
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public interface InjectionObservability<I extends Injection<I>> extends Extension<I> {
+public interface InjectionObservability<I extends Injection<I>> extends Extension<I>, Observability<I> {
 
     @Override
     default String getName() {
         return "injectionObservability";
     }
 
-    boolean isObservable();
+    /** StandardDeviation for Active Power */
+    float getStandardDeviationP();
 
-    InjectionObservability<I> setObservable(boolean observable);
+    InjectionObservability<I> setStandardDeviationP(float standardDeviationP);
+
+    boolean isRedundantP();
+
+    InjectionObservability<I> setRedundantP(boolean redundant);
+
+    /** StandardDeviation for Reactive Power */
+    float getStandardDeviationQ();
+
+    InjectionObservability<I> setStandardDeviationQ(float standardDeviationQ);
+
+    boolean isRedundantQ();
+
+    InjectionObservability<I> setRedundantQ(boolean redundant);
+
+    /** StandardDeviation for Voltage amplitude */
+    float getStandardDeviationV();
+
+    InjectionObservability<I> setStandardDeviationV(float standardDeviationV);
+
+    boolean isRedundantV();
+
+    InjectionObservability<I> setRedundantV(boolean redundant);
 }
