@@ -29,7 +29,8 @@ import java.util.Objects;
 public class JsonSensitivityAnalysisResultExporterTest extends AbstractConverterTest {
 
     private static SensitivityAnalysisResult create() throws IOException {
-        byte[] inputBytes = IOUtils.toByteArray(JsonSensitivityAnalysisResultExporterTest.class.getResourceAsStream("/resultsExport.json"));
+        InputStream is = Objects.requireNonNull(JsonSensitivityAnalysisResultExporterTest.class.getResourceAsStream("/resultsExport.json"));
+        byte[] inputBytes = IOUtils.toByteArray(is);
         return SensitivityAnalysisResultJsonSerializer.read(new InputStreamReader(new ByteArrayInputStream(inputBytes)));
     }
 

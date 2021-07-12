@@ -6,12 +6,9 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.sensitivity.SensitivityAnalysisResult;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
 import java.util.Objects;
@@ -27,27 +24,21 @@ public final class SensitivityAnalysisResultJsonSerializer {
      * Read sensitivity analysis results in JSON format from reader
      * @param reader The reader to read from
      * @return The sensitivity analysis results created
-     * @throws IOException
      */
-    public static SensitivityAnalysisResult read(Reader reader) throws IOException {
+    public static SensitivityAnalysisResult read(Reader reader) {
         Objects.requireNonNull(reader);
-
-        ObjectReader objectReader = JsonUtil.createObjectMapper().readerFor(SensitivityAnalysisResult.class);
-        return objectReader.readValue(reader);
+        return JsonUtil.parseJson(reader, SensitivityAnalysisResult::parseJson);
     }
 
     /**
      * Write sensitivity analysis results in JSON format to writer
      * @param result The sensitivity analysis results to export
      * @param writer The writer to write to
-     * @throws IOException
      */
-    public static void write(SensitivityAnalysisResult result, Writer writer) throws IOException {
+    public static void write(SensitivityAnalysisResult result, Writer writer) {
         Objects.requireNonNull(result);
         Objects.requireNonNull(writer);
-
-        ObjectWriter objectWriter = JsonUtil.createObjectMapper().writerWithDefaultPrettyPrinter();
-        objectWriter.writeValue(writer, result);
+        SensitivityAnalysisResult.writeJson(writer, result);
     }
 
     private SensitivityAnalysisResultJsonSerializer() {

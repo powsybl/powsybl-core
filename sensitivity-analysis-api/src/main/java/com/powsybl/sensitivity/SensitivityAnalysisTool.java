@@ -150,7 +150,9 @@ public class SensitivityAnalysisTool implements Tool {
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
             contingencies = ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network);
         }
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingencies, params);
+        List<SensitivityVariableSet> variableSets = Collections.emptyList();
+        // FIXME : how to fill variableSets
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingencies, variableSets, params);
 
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");

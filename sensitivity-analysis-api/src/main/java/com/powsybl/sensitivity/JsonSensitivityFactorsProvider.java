@@ -41,11 +41,7 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
      */
     public JsonSensitivityFactorsProvider(final InputStream input) {
         Objects.requireNonNull(input);
-        try {
-            sensitivityFactors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(input, StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        sensitivityFactors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(input, StandardCharsets.UTF_8));
     }
 
     @Override

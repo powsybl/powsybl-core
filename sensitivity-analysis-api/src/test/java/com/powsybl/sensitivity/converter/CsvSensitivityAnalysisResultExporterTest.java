@@ -14,8 +14,8 @@ import com.powsybl.sensitivity.json.SensitivityFactorsJsonSerializer;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.*;
 
@@ -28,19 +28,14 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
 
     private static SensitivityAnalysisResult createSensitivityResult() {
         // read sensitivity factors
-        List<SensitivityFactor> factors = Collections.emptyList();
-        try {
-            factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        InputStream is = Objects.requireNonNull(SensitivityAnalysisResultExportersTest.class.getResourceAsStream("/sensitivityFactorsExample.json"));
+        List<SensitivityFactor> factors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(is));
         List<SensitivityValue> sensitivityValues = new ArrayList<>(Collections.emptyList());
         factors.forEach(factor -> {
-            sensitivityValues.add(new SensitivityValue(factor, 0, 0, 0));
+            sensitivityValues.add(new SensitivityValue(factor, "c1", 0, 0));
         });
-        Map<String, List<SensitivityValue>> sensitivityValuesContingency = Collections.singletonMap("Contingency", sensitivityValues);
         // create result
-        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues, sensitivityValuesContingency);
+        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues);
     }
 
     public void writeCsv(SensitivityAnalysisResult results, Path path) {
@@ -55,6 +50,8 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
 
     @Test
     public void testComment() {
-        assertEquals("Export a sensitivity analysis result in CSV format", SensitivityAnalysisResultExporters.getExporter("CSV").getComment());
+        SensitivityAnalysisResultExporter exporter = Objects.requireNonNull(SensitivityAnalysisResultExporters.getExporter("CSV"));
+        assertEquals("Export a sensitivity analysis result in CSV format", exporter.getComment());
     }
+
 }

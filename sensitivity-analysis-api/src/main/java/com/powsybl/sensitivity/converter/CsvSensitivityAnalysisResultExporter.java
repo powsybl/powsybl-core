@@ -28,11 +28,8 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
 
     private void writeCells(TableFormatter formatter, SensitivityValue sensitivityValue, String state) throws IOException {
         formatter.writeCell(state);
-        formatter.writeCell(sensitivityValue.getFactor().getVariable().getId());
-        formatter.writeCell(sensitivityValue.getFactor().getVariable().getName());
-        formatter.writeCell(sensitivityValue.getFactor().getFunction().getId());
-        formatter.writeCell(sensitivityValue.getFactor().getFunction().getName());
-        formatter.writeCell(sensitivityValue.getVariableReference());
+        formatter.writeCell(sensitivityValue.getFactor().getVariableId());
+        formatter.writeCell(sensitivityValue.getFactor().getFunctionId());
         formatter.writeCell(sensitivityValue.getFunctionReference());
         formatter.writeCell(sensitivityValue.getValue());
     }
@@ -50,17 +47,14 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
     @Override
     public void export(SensitivityAnalysisResult result, Writer writer) {
         TableFormatterFactory factory = new CsvTableFormatterFactory();
-        TableFormatterConfig tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
+        var tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
         try (TableFormatter formatter = factory.create(writer, "", tfc,
                 new Column("Variant"),
                 new Column("VariableId"),
-                new Column("VariableName"),
                 new Column("FunctionId"),
-                new Column("FunctionName"),
-                new Column("VariableRefValue"),
                 new Column("FunctionRefValue"),
                 new Column("SensitivityValue"))) {
-            result.getSensitivityValues().forEach(sensitivityValue -> {
+            result.getValues().forEach(sensitivityValue -> {
                 try {
                     writeCells(formatter, sensitivityValue, "State N");
                 } catch (IOException e) {
@@ -68,7 +62,7 @@ public class CsvSensitivityAnalysisResultExporter implements SensitivityAnalysis
                 }
             });
             if (result.contingenciesArePresent()) {
-                result.getSensitivityValuesContingencies().forEach((contId, sensitivityValues) -> sensitivityValues.forEach(sensitivityValue -> {
+                result.getValuesByContingencyId().forEach((contId, sensitivityValues) -> sensitivityValues.forEach(sensitivityValue -> {
                     try {
                         writeCells(formatter, sensitivityValue, "Contingency " + contId);
                     } catch (IOException e) {

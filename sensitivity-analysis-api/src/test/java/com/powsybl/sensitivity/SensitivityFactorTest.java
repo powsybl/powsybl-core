@@ -6,12 +6,14 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.contingency.ContingencyContext;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
-import static org.junit.Assert.assertSame;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
@@ -22,28 +24,22 @@ public class SensitivityFactorTest {
     public ExpectedException exception = ExpectedException.none();
 
     @Test
-    public void checkNullFunctionThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(null, Mockito.mock(SensitivityVariable.class));
-    }
+    public void testGetters() {
+        ContingencyContext context = ContingencyContext.all();
+        String functionId = "86";
+        String variableId = "1664";
+        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, functionId, SensitivityVariableType.TRANSFORMER_PHASE, variableId, true, context);
+        assertSame(context, factor.getContingencyContext());
+        assertEquals(functionId, factor.getFunctionId());
+        assertEquals(SensitivityFunctionType.BRANCH_ACTIVE_POWER, factor.getFunctionType());
+        assertEquals(functionId, factor.getFunctionId());
+        assertEquals(SensitivityVariableType.TRANSFORMER_PHASE, factor.getVariableType());
+        assertEquals(variableId, factor.getVariableId());
+        assertTrue(factor.isVariableSet());
+        assertEquals("SensitivityFactor(functionType=BRANCH_ACTIVE_POWER, functionId='86', variableType=TRANSFORMER_PHASE, variableId='1664', variableSet=true, contingencyContext=ContingencyContext(contingencyId='', contextType=ALL))", factor.toString());
 
-    @Test
-    public void checkNullVariableThrows() {
-        exception.expect(NullPointerException.class);
-        new SensitivityFactor(Mockito.mock(SensitivityFunction.class), null);
-    }
-
-    @Test
-    public void getFunction() {
-        SensitivityFunction function = Mockito.mock(SensitivityFunction.class);
-        SensitivityFactor factor = new SensitivityFactor(function, Mockito.mock(SensitivityVariable.class));
-        assertSame(function, factor.getFunction());
-    }
-
-    @Test
-    public void getVariable() {
-        SensitivityVariable variable = Mockito.mock(SensitivityVariable.class);
-        SensitivityFactor factor = new SensitivityFactor(Mockito.mock(SensitivityFunction.class), variable);
-        assertSame(variable, factor.getVariable());
+        List<SensitivityFactor> factors = SensitivityFactor.createMatrix(SensitivityFunctionType.BRANCH_ACTIVE_POWER, List.of("l12", "l13", "l23"),
+                SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"), false, ContingencyContext.all());
+        assertEquals(3, factors.size());
     }
 }
