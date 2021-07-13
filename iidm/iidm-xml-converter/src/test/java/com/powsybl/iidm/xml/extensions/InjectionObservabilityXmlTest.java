@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml.extensions;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
@@ -14,19 +15,23 @@ import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.impl.extensions.InjectionObservabilityImpl;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 
 import static com.powsybl.iidm.xml.AbstractXmlConverterTest.getVersionedNetworkPath;
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class InjectionObservabilityXmlTest extends AbstractConverterTest {
+
+    @Rule
+    public final ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void test() throws IOException {
@@ -51,6 +56,21 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(injectionObservability2);
 
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
+        assertEquals(injectionObservability.getStandardDeviationP(), injectionObservability2.getStandardDeviationP(), 0.0f);
+        assertEquals(injectionObservability.getStandardDeviationQ(), injectionObservability2.getStandardDeviationQ(), 0.0f);
+        assertEquals(injectionObservability.getStandardDeviationV(), injectionObservability2.getStandardDeviationV(), 0.0f);
+        assertEquals(injectionObservability.isRedundantP(), injectionObservability2.isRedundantP());
+        assertEquals(injectionObservability.isRedundantQ(), injectionObservability2.isRedundantQ());
+        assertEquals(injectionObservability.isRedundantV(), injectionObservability2.isRedundantV());
+
         assertEquals(injectionObservability.getName(), injectionObservability2.getName());
+    }
+
+    @Test
+    public void invalidTest() {
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("Unexpected element: qualityZ");
+
+        NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/injectionObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION)));
     }
 }

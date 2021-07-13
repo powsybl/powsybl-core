@@ -29,51 +29,54 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
     private static final String QUALITY_Q = "qualityQ";
     private static final String QUALITY_V = "qualityV";
 
+    private static final String STANDARD_DEVIATION = "standardDeviation";
+    private static final String REDUNDANT = "redundant";
+
     public InjectionObservabilityXmlSerializer() {
         super("injectionObservability", "network", InjectionObservability.class, true, "injectionObservability.xsd",
                 "http://www.itesla_project.eu/schema/iidm/ext/injection_observability/1_0", "io");
     }
 
     @Override
-    public void write(InjectionObservability injectionObservability, XmlWriterContext context) throws XMLStreamException {
+    public void write(InjectionObservability<T> injectionObservability, XmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeAttribute("observable", Boolean.toString(injectionObservability.isObservable()));
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_P);
-        XmlUtil.writeFloat("standardDeviation", injectionObservability.getStandardDeviationP(), context.getWriter());
-        context.getWriter().writeAttribute("redundant", Boolean.toString(injectionObservability.isRedundantP()));
+        XmlUtil.writeFloat(STANDARD_DEVIATION, injectionObservability.getStandardDeviationP(), context.getWriter());
+        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantP()));
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_Q);
-        XmlUtil.writeFloat("standardDeviation", injectionObservability.getStandardDeviationQ(), context.getWriter());
-        context.getWriter().writeAttribute("redundant", Boolean.toString(injectionObservability.isRedundantQ()));
+        XmlUtil.writeFloat(STANDARD_DEVIATION, injectionObservability.getStandardDeviationQ(), context.getWriter());
+        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantQ()));
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_V);
-        XmlUtil.writeFloat("standardDeviation", injectionObservability.getStandardDeviationV(), context.getWriter());
-        context.getWriter().writeAttribute("redundant", Boolean.toString(injectionObservability.isRedundantV()));
+        XmlUtil.writeFloat(STANDARD_DEVIATION, injectionObservability.getStandardDeviationV(), context.getWriter());
+        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantV()));
     }
 
     @Override
     public InjectionObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
         boolean observable = XmlUtil.readBoolAttribute(context.getReader(), "observable");
 
-        InjectionObservabilityAdder adder = identifiable.newExtension(InjectionObservabilityAdder.class)
+        InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(observable);
 
         XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case QUALITY_P: {
-                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), "standardDeviation");
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), "redundant");
+                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), STANDARD_DEVIATION);
+                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
                     adder.withStandardDeviationP(standardDeviation)
                             .withRedundantP(redundant);
                     break;
                 }
                 case QUALITY_Q: {
-                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), "standardDeviation");
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), "redundant");
+                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), STANDARD_DEVIATION);
+                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
                     adder.withStandardDeviationQ(standardDeviation)
                             .withRedundantQ(redundant);
                     break;
                 }
                 case QUALITY_V: {
-                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), "standardDeviation");
-                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), "redundant");
+                    var standardDeviation = XmlUtil.readFloatAttribute(context.getReader(), STANDARD_DEVIATION);
+                    var redundant = XmlUtil.readBoolAttribute(context.getReader(), REDUNDANT);
                     adder.withStandardDeviationV(standardDeviation)
                             .withRedundantV(redundant);
                     break;
