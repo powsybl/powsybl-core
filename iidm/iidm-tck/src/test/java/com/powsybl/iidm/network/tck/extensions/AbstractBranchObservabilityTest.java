@@ -83,9 +83,9 @@ public abstract class AbstractBranchObservabilityTest {
         assertEquals(0.00f, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0f);
         branchObservability.setStandardDeviationV(0.01f, Branch.Side.ONE);
         assertEquals(0.01f, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0f);
-        assertEquals(0.02f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
-        branchObservability.setStandardDeviationV(0.03f, Branch.Side.TWO);
-        assertEquals(0.03f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
+        assertEquals(0.2f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
+        branchObservability.setStandardDeviationV(0.3f, Branch.Side.TWO);
+        assertEquals(0.3f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
 
         assertTrue(branchObservability.isRedundantV(Branch.Side.ONE));
         branchObservability.setRedundantV(false, Branch.Side.ONE);
