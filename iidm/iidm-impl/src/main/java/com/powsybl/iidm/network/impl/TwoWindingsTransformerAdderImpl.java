@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -103,13 +103,14 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        ValidationUtil.checkR(this, r);
-        ValidationUtil.checkX(this, x);
-        ValidationUtil.checkG(this, g);
-        ValidationUtil.checkB(this, b);
-        ValidationUtil.checkRatedU1(this, ratedU1);
-        ValidationUtil.checkRatedU2(this, ratedU2);
-        ValidationUtil.checkRatedS(this, ratedS);
+        Validation v = Validation.getDefault();
+        v.checkR(this, r);
+        v.checkX(this, x);
+        v.checkG(this, g);
+        v.checkB(this, b);
+        v.checkRatedU(this, ratedU1, "1");
+        v.checkRatedU(this, ratedU2, "2");
+        v.checkRatedS(this, ratedS);
 
         TwoWindingsTransformerImpl transformer
                 = new TwoWindingsTransformerImpl(getNetwork().getRef(), id, getName(), isFictitious(),

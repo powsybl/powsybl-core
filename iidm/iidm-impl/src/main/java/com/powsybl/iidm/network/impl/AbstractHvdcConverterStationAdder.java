@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -40,6 +40,6 @@ public abstract class AbstractHvdcConverterStationAdder<T extends AbstractHvdcCo
     }
 
     protected void validate() {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        Validation.getDefault().checkLossFactor(this, lossFactor);
     }
 }

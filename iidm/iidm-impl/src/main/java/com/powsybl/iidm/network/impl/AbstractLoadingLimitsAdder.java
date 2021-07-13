@@ -8,22 +8,17 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
 import com.powsybl.iidm.network.LoadingLimitsAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.iidm.network.validation.Validation;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends LoadingLimitsAdder<L, A>> implements LoadingLimitsAdder<L, A> {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractLoadingLimitsAdder.class);
 
     private static final Comparator<Integer> ACCEPTABLE_DURATION_COMPARATOR = (acceptableDuraction1, acceptableDuraction2) -> acceptableDuraction2 - acceptableDuraction1;
 
@@ -77,27 +72,15 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
 
         @Override
         public B endTemporaryLimit() {
-            if (Double.isNaN(value)) {
-                throw new ValidationException(owner, "temporary limit value is not set");
-            }
-            if (value <= 0) {
-                throw new ValidationException(owner, "temporary limit value must be > 0");
-            }
-            if (acceptableDuration == null) {
-                throw new ValidationException(owner, "acceptable duration is not set");
-            }
-            if (acceptableDuration < 0) {
-                throw new ValidationException(owner, "acceptable duration must be >= 0");
-            }
-            checkAndGetUniqueName();
+            Validation v = Validation.getDefault();
+            v.checkTemporaryLimit(owner, value, acceptableDuration);
+            checkAndGetUniqueName(v);
             temporaryLimits.put(acceptableDuration, new AbstractLoadingLimits.TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return (B) AbstractLoadingLimitsAdder.this;
         }
 
-        private void checkAndGetUniqueName() {
-            if (name == null) {
-                throw new ValidationException(owner, "name is not set");
-            }
+        private void checkAndGetUniqueName(Validation v) {
+            v.checkTemporaryLimitName(owner, name);
             if (ensureNameUnicity) {
                 int i = 0;
                 String uniqueName = name;
@@ -144,31 +127,9 @@ abstract class AbstractLoadingLimitsAdder<L extends LoadingLimits, A extends Loa
         return !temporaryLimits.isEmpty();
     }
 
-    private void checkTemporaryLimits() {
-        // check temporary limits are consistents with permanent
-        double previousLimit = Double.NaN;
-        for (LoadingLimits.TemporaryLimit tl : temporaryLimits.values()) { // iterate in ascending order
-            if (tl.getValue() <= permanentLimit) {
-                LOGGER.debug("{}, temporary limit should be greater than permanent limit", owner.getMessageHeader());
-            }
-            if (Double.isNaN(previousLimit)) {
-                previousLimit = tl.getValue();
-            } else if (tl.getValue() <= previousLimit) {
-                LOGGER.debug("{} : temporary limits should be in ascending value order", owner.getMessageHeader());
-            }
-        }
-        // check name unicity
-        temporaryLimits.values().stream()
-                .collect(Collectors.groupingBy(LoadingLimits.TemporaryLimit::getName))
-                .forEach((name, temporaryLimits1) -> {
-                    if (temporaryLimits1.size() > 1) {
-                        throw new ValidationException(owner, temporaryLimits1.size() + "temporary limits have the same name " + name);
-                    }
-                });
-    }
-
     protected void checkLoadingLimits() {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
-        checkTemporaryLimits();
+        Validation v = Validation.getDefault();
+        v.checkPermanentLimit(owner, permanentLimit);
+        v.checkTemporaryLimits(owner, permanentLimit, Collections.unmodifiableMap(temporaryLimits));
     }
 }

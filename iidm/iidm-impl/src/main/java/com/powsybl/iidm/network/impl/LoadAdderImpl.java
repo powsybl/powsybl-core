@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -60,9 +60,10 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     public LoadImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        ValidationUtil.checkLoadType(this, loadType);
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
+        Validation v = Validation.getDefault();
+        v.checkLoadType(this, loadType);
+        v.checkP0(this, p0);
+        v.checkQ0(this, q0);
         LoadImpl load = new LoadImpl(getNetwork().getRef(), id, getName(), isFictitious(), loadType, p0, q0);
         load.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

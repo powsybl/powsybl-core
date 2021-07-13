@@ -10,14 +10,10 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import com.powsybl.iidm.network.validation.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,24 +95,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(parent, "step alpha is not set");
-            }
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
+            Validation.getDefault().checkStep(parent, alpha, rho, r, x, g, b);
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(steps.size(), alpha, rho, r, x, g, b);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
@@ -181,27 +160,18 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     @Override
     public PhaseTapChanger add() {
-        if (tapPosition == null) {
-            throw new ValidationException(parent, "tap position is not set");
-        }
-        if (steps.isEmpty()) {
-            throw new ValidationException(parent, "a phase tap changer shall have at least one step");
-        }
-        int highTapPosition = lowTapPosition + steps.size() - 1;
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + highTapPosition + "]");
-        }
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
-        ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating, targetDeadband);
+        Validation v = Validation.getDefault();
+        v.checkSteps(parent, Collections.unmodifiableList(steps));
+        v.checkTapPosition(parent, lowTapPosition, tapPosition, steps.size() - 1);
+        v.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
+        v.checkTargetDeadband(parent, "phase tap changer", regulating, targetDeadband);
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition == null ? -1 : tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 
         Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+        v.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
         if (parent.hasRatioTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);

@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -51,7 +51,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        Validation.getDefault().checkR(this, r);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -65,7 +65,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setX(double x) {
-        ValidationUtil.checkX(this, x);
+        Validation.getDefault().checkX(this, x);
         double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
@@ -79,7 +79,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setG1(double g1) {
-        ValidationUtil.checkG1(this, g1);
+        Validation.getDefault().checkG1(this, g1);
         double oldValue = this.g1;
         this.g1 = g1;
         notifyUpdate("g1", oldValue, g1);
@@ -93,7 +93,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setB1(double b1) {
-        ValidationUtil.checkB1(this, b1);
+        Validation.getDefault().checkB1(this, b1);
         double oldValue = this.b1;
         this.b1 = b1;
         notifyUpdate("b1", oldValue, b1);
@@ -107,7 +107,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setG2(double g2) {
-        ValidationUtil.checkG2(this, g2);
+        Validation.getDefault().checkG2(this, g2);
         double oldValue = this.g2;
         this.g2 = g2;
         notifyUpdate("g2", oldValue, g2);
@@ -121,7 +121,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl setB2(double b2) {
-        ValidationUtil.checkB2(this, b2);
+        Validation.getDefault().checkB2(this, b2);
         double oldValue = this.b2;
         this.b2 = b2;
         notifyUpdate("b2", oldValue, b2);

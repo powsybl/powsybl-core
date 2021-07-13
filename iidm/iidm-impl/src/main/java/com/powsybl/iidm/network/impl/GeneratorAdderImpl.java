@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -109,14 +109,15 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     public GeneratorImpl add() {
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
-        ValidationUtil.checkEnergySource(this, energySource);
-        ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
-        ValidationUtil.checkRatedS(this, ratedS);
+        Validation v = Validation.getDefault();
+        v.checkEnergySource(this, energySource);
+        v.checkMinP(this, minP);
+        v.checkMaxP(this, maxP);
+        v.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        v.checkActivePowerSetpoint(this, targetP);
+        v.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
+        v.checkActivePowerLimits(this, minP, maxP);
+        v.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetwork().getRef(),
                                     id, getName(), isFictitious(), energySource,

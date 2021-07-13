@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -71,7 +72,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        Validation.getDefault().checkR(this, r);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -85,7 +86,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setX(double x) {
-        ValidationUtil.checkX(this, x);
+        Validation.getDefault().checkX(this, x);
         double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
@@ -99,7 +100,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setG(double g) {
-        ValidationUtil.checkG(this, g);
+        Validation.getDefault().checkG(this, g);
         double oldValue = this.g;
         this.g = g;
         notifyUpdate("g", oldValue, g);
@@ -113,7 +114,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setB(double b) {
-        ValidationUtil.checkB(this, b);
+        Validation.getDefault().checkB(this, b);
         double oldValue = this.b;
         this.b = b;
         notifyUpdate("b", oldValue, b);
@@ -127,7 +128,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setRatedU1(double ratedU1) {
-        ValidationUtil.checkRatedU1(this, ratedU1);
+        Validation.getDefault().checkRatedU(this, ratedU1, "1");
         double oldValue = this.ratedU1;
         this.ratedU1 = ratedU1;
         notifyUpdate("ratedU1", oldValue, ratedU1);
@@ -141,7 +142,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformerImpl setRatedU2(double ratedU2) {
-        ValidationUtil.checkRatedU2(this, ratedU2);
+        Validation.getDefault().checkRatedU(this, ratedU2, "2");
         double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
         notifyUpdate("ratedU2", oldValue, ratedU2);
@@ -155,7 +156,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     @Override
     public TwoWindingsTransformer setRatedS(double ratedS) {
-        ValidationUtil.checkRatedS(this, ratedS);
+        Validation.getDefault().checkRatedS(this, ratedS);
         double oldValue = this.ratedS;
         this.ratedS = ratedS;
         notifyUpdate("ratedS", oldValue, ratedS);

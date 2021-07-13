@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -126,7 +126,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C setRegulating(boolean regulating) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex));
+        Validation.getDefault().checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex));
         boolean oldValue = this.regulating.set(variantIndex, regulating);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
@@ -153,7 +153,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C setTargetDeadband(double targetDeadband) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, this.regulating.get(variantIndex), targetDeadband);
+        Validation.getDefault().checkTargetDeadband(parent, type, this.regulating.get(variantIndex), targetDeadband);
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);

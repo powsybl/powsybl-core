@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.VscConverterStationAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -67,7 +67,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     protected void validate() {
         super.validate();
 
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
+        Validation.getDefault().checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
     }
 
 }

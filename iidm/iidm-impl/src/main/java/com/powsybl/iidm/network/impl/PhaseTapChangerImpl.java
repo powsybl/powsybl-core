@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.*;
@@ -52,12 +53,13 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), getNetwork());
+        Validation v = Validation.getDefault();
+        v.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), getNetwork());
 
         Set<TapChanger> tapChangers = new HashSet<TapChanger>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getPhaseTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+        v.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
 
         return super.setRegulating(regulating);
     }
@@ -69,7 +71,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
+        Validation.getDefault().checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), getRegulationTerminal(), getNetwork());
         RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
@@ -83,7 +85,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
+        Validation.getDefault().checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -93,7 +95,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), regulationTerminal, getNetwork());
+        Validation.getDefault().checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(), regulationTerminal, getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 

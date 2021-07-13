@@ -35,6 +35,7 @@
         <module>iidm-tck</module>
         <module>iidm-test</module>
         <module>iidm-xml-converter</module>
+        <module>iidm-validation</module>
     </modules>
 
 </project>

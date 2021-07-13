@@ -7,8 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -42,7 +42,7 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
 
     @Override
     public LccConverterStation setPowerFactor(float powerFactor) {
-        ValidationUtil.checkPowerFactor(this, powerFactor);
+        Validation.getDefault().checkPowerFactor(this, powerFactor);
         float oldValue = this.powerFactor;
         this.powerFactor = powerFactor;
         notifyUpdate("powerFactor", oldValue, powerFactor);

@@ -10,6 +10,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -75,7 +76,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public GenerationImpl setTargetP(double targetP) {
-            ValidationUtil.checkActivePowerSetpoint(danglingLine, targetP);
+            Validation.getDefault().checkActivePowerSetpoint(danglingLine, targetP);
             int variantIndex = danglingLine.network.get().getVariantIndex();
             double oldValue = this.targetP.set(variantIndex, targetP);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
@@ -90,8 +91,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public GenerationImpl setMaxP(double maxP) {
-            ValidationUtil.checkMaxP(danglingLine, maxP);
-            ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
+            Validation v = Validation.getDefault();
+            v.checkMaxP(danglingLine, maxP);
+            v.checkActivePowerLimits(danglingLine, minP, maxP);
             double oldValue = this.maxP;
             this.maxP = maxP;
             danglingLine.notifyUpdate("maxP", oldValue, maxP);
@@ -105,8 +107,9 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
         @Override
         public GenerationImpl setMinP(double minP) {
-            ValidationUtil.checkMinP(danglingLine, minP);
-            ValidationUtil.checkActivePowerLimits(danglingLine, minP, maxP);
+            Validation v = Validation.getDefault();
+            v.checkMinP(danglingLine, minP);
+            v.checkActivePowerLimits(danglingLine, minP, maxP);
             double oldValue = this.minP;
             this.minP = minP;
             danglingLine.notifyUpdate("minP", oldValue, minP);
@@ -121,7 +124,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
             int variantIndex = danglingLine.network.get().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ);
+            Validation.getDefault().checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV.get(variantIndex), targetQ);
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
             danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
@@ -136,7 +139,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn, targetV.get(variantIndex), targetQ.get(variantIndex));
+            Validation.getDefault().checkVoltageControl(danglingLine, voltageRegulationOn, targetV.get(variantIndex), targetQ.get(variantIndex));
             boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -152,7 +155,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetV(double targetV) {
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV, targetQ.get(variantIndex));
+            Validation.getDefault().checkVoltageControl(danglingLine, voltageRegulationOn.get(variantIndex), targetV, targetQ.get(variantIndex));
             double oldValue = this.targetV.set(variantIndex, targetV);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);
@@ -285,7 +288,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setP0(double p0) {
-        ValidationUtil.checkP0(this, p0);
+        Validation.getDefault().checkP0(this, p0);
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -300,7 +303,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0);
+        Validation.getDefault().checkQ0(this, q0);
         int variantIndex = network.get().getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
@@ -315,7 +318,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        Validation.getDefault().checkR(this, r);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -329,7 +332,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setX(double x) {
-        ValidationUtil.checkX(this, x);
+        Validation.getDefault().checkX(this, x);
         double oldValue = this.x;
         this.x = x;
         notifyUpdate("x", oldValue, x);
@@ -343,7 +346,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setG(double g) {
-        ValidationUtil.checkG(this, g);
+        Validation.getDefault().checkG(this, g);
         double oldValue = this.g;
         this.g = g;
         notifyUpdate("g", oldValue, g);
@@ -357,7 +360,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public DanglingLineImpl setB(double b) {
-        ValidationUtil.checkB(this, b);
+        Validation.getDefault().checkB(this, b);
         double oldValue = this.b;
         this.b = b;
         notifyUpdate("b", oldValue, b);

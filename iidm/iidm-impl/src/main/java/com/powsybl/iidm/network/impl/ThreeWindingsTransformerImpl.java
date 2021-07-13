@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -67,9 +68,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setR(double r) {
-            if (Double.isNaN(r)) {
-                throw new ValidationException(this, "r is invalid");
-            }
+            Validation.getDefault().checkR(this, r);
             double oldValue = this.r;
             this.r = r;
             transformer.notifyUpdate(() -> getLegAttribute() + ".r", oldValue, r);
@@ -81,9 +80,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setX(double x) {
-            if (Double.isNaN(x)) {
-                throw new ValidationException(this, "x is invalid");
-            }
+            Validation.getDefault().checkX(this, x);
             double oldValue = this.x;
             this.x = x;
             transformer.notifyUpdate(() -> getLegAttribute() + ".x", oldValue, x);
@@ -95,9 +92,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setG(double g) {
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is invalid");
-            }
+            Validation.getDefault().checkG(this, g);
             double oldValue = this.g;
             this.g = g;
             transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
@@ -109,9 +104,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setB(double b) {
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is invalid");
-            }
+            Validation.getDefault().checkB(this, b);
             double oldValue = this.b;
             this.b = b;
             transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);
@@ -123,7 +116,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setRatedU(double ratedU) {
-            ValidationUtil.checkRatedU(this, ratedU, "");
+            Validation.getDefault().checkRatedU(this, ratedU, "");
             double oldValue = this.ratedU;
             this.ratedU = ratedU;
             transformer.notifyUpdate(() -> getLegAttribute() + ".ratedU", oldValue, ratedU);
@@ -257,7 +250,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public LegImpl setRatedS(double ratedS) {
-            ValidationUtil.checkRatedS(this, ratedS);
+            Validation.getDefault().checkRatedS(this, ratedS);
             double oldValue = this.ratedS;
             this.ratedS = ratedS;
             transformer.notifyUpdate(() -> getLegAttribute() + ".ratedS", oldValue, ratedS);

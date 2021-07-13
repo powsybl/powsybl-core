@@ -811,4 +811,8 @@ public interface Network extends Container<Network> {
     void addListener(NetworkListener listener);
 
     void removeListener(NetworkListener listener);
+
+    default void checkValidity() {
+        //does nothing
+    }
 }

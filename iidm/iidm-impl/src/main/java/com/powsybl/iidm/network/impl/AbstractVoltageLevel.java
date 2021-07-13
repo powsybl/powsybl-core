@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.List;
 import java.util.Objects;
@@ -64,7 +65,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public VoltageLevelExt setNominalV(double nominalV) {
-        ValidationUtil.checkNominalV(this, nominalV);
+        Validation.getDefault().checkNominalV(this, nominalV);
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
         notifyUpdate("nominalV", oldValue, nominalV);
@@ -78,7 +79,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public VoltageLevel setLowVoltageLimit(double lowVoltageLimit) {
-        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
+        Validation.getDefault().checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         double oldValue = this.lowVoltageLimit;
         this.lowVoltageLimit = lowVoltageLimit;
         notifyUpdate("lowVoltageLimit", oldValue, lowVoltageLimit);
@@ -92,7 +93,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public VoltageLevel setHighVoltageLimit(double highVoltageLimit) {
-        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
+        Validation.getDefault().checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         double oldValue = this.highVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
         notifyUpdate("highVoltageLimit", oldValue, highVoltageLimit);

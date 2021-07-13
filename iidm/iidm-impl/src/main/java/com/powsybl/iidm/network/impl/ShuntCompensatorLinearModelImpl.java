@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.Objects;
 
@@ -49,7 +49,7 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     @Override
     public ShuntCompensatorLinearModel setBPerSection(double bPerSection) {
-        ValidationUtil.checkBPerSection(shuntCompensator, bPerSection);
+        Validation.getDefault().checkBPerSection(shuntCompensator, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         shuntCompensator.notifyUpdate("bPerSection", oldValue, bPerSection);
@@ -92,7 +92,7 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
+        Validation.getDefault().checkSections(shuntCompensator, shuntCompensator.getSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);

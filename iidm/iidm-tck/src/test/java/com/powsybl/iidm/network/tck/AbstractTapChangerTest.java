@@ -337,7 +337,8 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidPhaseTapChangerWithoutSteps() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase tap changer shall have at least one step");
+        thrown.expectMessage("tap changer");
+        thrown.expectMessage("at least one step");
         twt.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
@@ -445,7 +446,8 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidRatioTapChangerWithoutSteps() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("ratio tap changer should have at least one step");
+        thrown.expectMessage("tap changer");
+        thrown.expectMessage("at least one step");
         twt.newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)

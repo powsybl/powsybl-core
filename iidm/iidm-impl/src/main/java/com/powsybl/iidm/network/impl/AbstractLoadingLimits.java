@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LoadingLimits;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -73,7 +73,7 @@ abstract class AbstractLoadingLimits<L extends AbstractLoadingLimits<L>> extends
 
     @Override
     public L setPermanentLimit(double permanentLimit) {
-        ValidationUtil.checkPermanentLimit(owner, permanentLimit);
+        Validation.getDefault().checkPermanentLimit(owner, permanentLimit);
         double oldValue = this.permanentLimit;
         this.permanentLimit = permanentLimit;
         owner.notifyUpdate(getLimitType(), "permanentLimit", oldValue, this.permanentLimit);

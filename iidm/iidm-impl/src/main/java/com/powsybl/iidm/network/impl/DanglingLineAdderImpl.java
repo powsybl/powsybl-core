@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -64,9 +64,10 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         @Override
         public DanglingLineAdder add() {
-            ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            Validation v = Validation.getDefault();
+            v.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
+            v.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
+            v.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
             generationAdder = this;
             return DanglingLineAdderImpl.this;
         }
@@ -160,12 +161,13 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
-        ValidationUtil.checkR(this, r);
-        ValidationUtil.checkX(this, x);
-        ValidationUtil.checkG(this, g);
-        ValidationUtil.checkB(this, b);
+        Validation v = Validation.getDefault();
+        v.checkP0(this, p0);
+        v.checkQ0(this, q0);
+        v.checkR(this, r);
+        v.checkX(this, x);
+        v.checkG(this, g);
+        v.checkB(this, b);
 
         DanglingLineImpl.GenerationImpl generation = null;
         if (generationAdder != null) {

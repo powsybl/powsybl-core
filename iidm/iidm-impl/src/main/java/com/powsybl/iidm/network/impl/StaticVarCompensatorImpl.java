@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -74,7 +74,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setBmin(double bMin) {
-        ValidationUtil.checkBmin(this, bMin);
+        Validation.getDefault().checkBmin(this, bMin);
         double oldValue = this.bMin;
         this.bMin = bMin;
         notifyUpdate("bMin", oldValue, bMin);
@@ -88,7 +88,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setBmax(double bMax) {
-        ValidationUtil.checkBmax(this, bMax);
+        Validation.getDefault().checkBmax(this, bMax);
         double oldValue = this.bMax;
         this.bMax = bMax;
         notifyUpdate("bMax", oldValue, bMax);
@@ -102,7 +102,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode());
+        Validation.getDefault().checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode());
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -117,7 +117,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode());
+        Validation.getDefault().checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode());
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -132,7 +132,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
+        Validation.getDefault().checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         int variantIndex = getNetwork().getVariantIndex();
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(variantIndex,
                 regulationMode.ordinal())];
@@ -148,7 +148,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        Validation.getDefault().checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         return this;
     }

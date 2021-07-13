@@ -16,6 +16,7 @@ import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.iidm.network.validation.Validation;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraph;
@@ -152,9 +153,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (node2 == null) {
                 throw new ValidationException(this, "second connection node is not set");
             }
-            if (kind == null) {
-                throw new ValidationException(this, "kind is not set");
-            }
+            Validation.getDefault().checkSwitchKind(this, kind);
             SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), isFictitious(), kind, open, retained);
             getNetwork().getIndex().checkAndAdd(aSwitch);
             graph.addVertexIfNotPresent(node1);

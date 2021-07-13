@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevelAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -76,9 +76,10 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         String id = checkAndGetUniqueId();
         // TODO : ckeck that there are not another voltage level with same base voltage
 
-        ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
-        ValidationUtil.checkTopologyKind(this, topologyKind);
+        Validation v = Validation.getDefault();
+        v.checkNominalV(this, nominalV);
+        v.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
+        v.checkTopologyKind(this, topologyKind);
 
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {

@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.ShuntCompensatorNonLinearModel;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +51,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
         @Override
         public Section setB(double b) {
-            ValidationUtil.checkB(shuntCompensator, b);
+            Validation.getDefault().checkB(shuntCompensator, b);
             double oldValue = this.b;
             this.b = b;
             shuntCompensator.notifyUpdate(() -> getAttributeName(index, "b"), oldValue, this.b);
@@ -65,7 +65,7 @@ class ShuntCompensatorNonLinearModelImpl implements ShuntCompensatorModelExt, Sh
 
         @Override
         public Section setG(double g) {
-            ValidationUtil.checkG(shuntCompensator, g);
+            Validation.getDefault().checkG(shuntCompensator, g);
             double oldValue = this.g;
             this.g = g;
             shuntCompensator.notifyUpdate(() -> getAttributeName(index, "g"), oldValue, this.g);

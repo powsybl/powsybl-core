@@ -9,8 +9,8 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.Objects;
 
@@ -96,11 +96,12 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
     public HvdcLine add() {
         String id = checkAndGetUniqueId();
         String name = getName();
-        ValidationUtil.checkR(this, r);
-        ValidationUtil.checkConvertersMode(this, convertersMode);
-        ValidationUtil.checkNominalV(this, nominalV);
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
-        ValidationUtil.checkHvdcMaxP(this, maxP);
+        Validation v = Validation.getDefault();
+        v.checkR(this, r);
+        v.checkConvertersMode(this, convertersMode);
+        v.checkNominalV(this, nominalV);
+        v.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        v.checkHvdcMaxP(this, maxP);
         AbstractHvdcConverterStation<?> converterStation1 = getNetwork().getHvdcConverterStation(converterStationId1);
         if (converterStation1 == null) {
             throw new PowsyblException("Side 1 converter station " + converterStationId1 + " not found");

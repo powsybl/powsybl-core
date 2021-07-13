@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.Objects;
 
@@ -87,10 +87,11 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
-        ValidationUtil.checkBmin(this, bMin);
-        ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
+        Validation v = Validation.getDefault();
+        v.checkBmin(this, bMin);
+        v.checkBmax(this, bMax);
+        v.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
+        v.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
                 getNetwork().getRef());

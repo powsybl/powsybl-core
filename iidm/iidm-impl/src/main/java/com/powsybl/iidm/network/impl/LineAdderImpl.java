@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  *
@@ -87,12 +87,13 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        ValidationUtil.checkR(this, r);
-        ValidationUtil.checkX(this, x);
-        ValidationUtil.checkG1(this, g1);
-        ValidationUtil.checkG2(this, g2);
-        ValidationUtil.checkB1(this, b1);
-        ValidationUtil.checkB2(this, b2);
+        Validation v = Validation.getDefault();
+        v.checkR(this, r);
+        v.checkX(this, x);
+        v.checkG1(this, g1);
+        v.checkG2(this, g2);
+        v.checkB1(this, b1);
+        v.checkB2(this, b2);
 
         // check that the line is attachable on both side
         voltageLevel1.attach(terminal1, true);

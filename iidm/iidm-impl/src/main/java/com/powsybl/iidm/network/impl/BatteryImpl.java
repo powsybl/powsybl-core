@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -71,7 +72,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setP0(double p0) {
-        ValidationUtil.checkP0(this, p0);
+        Validation.getDefault().checkP0(this, p0);
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -92,7 +93,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0);
+        Validation.getDefault().checkQ0(this, q0);
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -113,8 +114,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setMinP(double minP) {
-        ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        Validation.getDefault().checkMinP(this, minP);
+        Validation.getDefault().checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.minP;
         this.minP = minP;
         notifyUpdate("minP", oldValue, minP);
@@ -134,8 +135,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setMaxP(double maxP) {
-        ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
+        Validation.getDefault().checkMaxP(this, maxP);
+        Validation.getDefault().checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);

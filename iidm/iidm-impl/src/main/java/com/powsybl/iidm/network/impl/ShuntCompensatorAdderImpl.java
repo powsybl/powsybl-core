@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.validation.Validation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,8 +88,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorAdder add() {
-            ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
-            ValidationUtil.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
+            Validation v = Validation.getDefault();
+            v.checkBPerSection(ShuntCompensatorAdderImpl.this, bPerSection);
+            v.checkMaximumSectionCount(ShuntCompensatorAdderImpl.this, maximumSectionCount);
             modelBuilder = this;
             return ShuntCompensatorAdderImpl.this;
         }
@@ -123,7 +125,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
             @Override
             public ShuntCompensatorNonLinearModelAdder endSection() {
-                ValidationUtil.checkBPerSection(ShuntCompensatorAdderImpl.this, b);
+                Validation.getDefault().checkBPerSection(ShuntCompensatorAdderImpl.this, b);
                 if (Double.isNaN(g))  {
                     if (sectionAdders.isEmpty()) {
                         g = 0;
@@ -211,14 +213,15 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
+        Validation v = Validation.getDefault();
+        v.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        v.checkVoltageControl(this, voltageRegulatorOn, targetV);
+        v.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
 
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
         }
-        ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount());
+        v.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount());
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetwork().getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,

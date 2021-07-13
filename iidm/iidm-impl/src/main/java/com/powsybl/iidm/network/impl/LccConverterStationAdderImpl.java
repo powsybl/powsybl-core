@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -51,8 +51,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     @Override
     protected void validate() {
         super.validate();
-
-        ValidationUtil.checkPowerFactor(this, powerFactor);
+        Validation.getDefault().checkPowerFactor(this, powerFactor);
     }
 
 }

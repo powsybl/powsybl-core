@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.iidm.network.validation.Validation;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
@@ -152,7 +152,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public NetworkImpl setCaseDate(DateTime caseDate) {
-        ValidationUtil.checkCaseDate(this, caseDate);
+        Validation.getDefault().checkCaseDate(this, caseDate);
         this.caseDate = caseDate;
         return this;
     }
@@ -164,7 +164,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public NetworkImpl setForecastDistance(int forecastDistance) {
-        ValidationUtil.checkForecastDistance(this, forecastDistance);
+        Validation.getDefault().checkForecastDistance(this, forecastDistance);
         this.forecastDistance = forecastDistance;
         return this;
     }
@@ -775,8 +775,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         //For bus breaker view, we exclude bus breaker topologies from the cache,
         //because thoses buses are already indexed in the NetworkIndex
         private final BusCache busBreakerViewCache = new BusCache(() -> getVoltageLevelStream()
-            .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
-            .flatMap(vl -> getBusBreakerView().getBusStream()));
+                .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+                .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
@@ -1016,24 +1016,24 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)
-                        .setName(mergedLine.half1.name)
-                        .setR(mergedLine.half1.r)
-                        .setX(mergedLine.half1.x)
-                        .setG1(mergedLine.half1.g1)
-                        .setG2(mergedLine.half1.g2)
-                        .setB1(mergedLine.half1.b1)
-                        .setB2(mergedLine.half1.b2)
-                        .setFictitious(mergedLine.half1.fictitious)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setFictitious(mergedLine.half1.fictitious)
                     .add()
                     .newHalfLine2().setId(mergedLine.half2.id)
-                        .setName(mergedLine.half2.name)
-                        .setR(mergedLine.half2.r)
-                        .setX(mergedLine.half2.x)
-                        .setG1(mergedLine.half2.g1)
-                        .setG2(mergedLine.half2.g2)
-                        .setB1(mergedLine.half2.b1)
-                        .setB2(mergedLine.half2.b2)
-                        .setFictitious(mergedLine.half2.fictitious)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setFictitious(mergedLine.half2.fictitious)
                     .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
@@ -1117,5 +1117,39 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public void removeListener(NetworkListener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public void checkValidity() {
+        Validation v = Validation.getDefault();
+
+        // check injections
+        getBatteryStream().forEach(b -> v.checkBattery((BatteryImpl) b));
+        getDanglingLineStream().forEach(dl -> v.checkDanglingLine((DanglingLineImpl) dl));
+        getGeneratorStream().forEach(g -> v.checkGenerator((GeneratorImpl) g));
+        getLoadStream().forEach(l -> v.checkLoad((LoadImpl) l));
+        getShuntCompensatorStream().forEach(sc -> v.checkShuntCompensator((ShuntCompensatorImpl) sc));
+        getStaticVarCompensatorStream().forEach(svc -> v.checkStaticVarCompensator((StaticVarCompensatorImpl) svc));
+
+        // check switches
+        getSwitchStream().forEach(s -> v.checkSwitch((SwitchImpl) s));
+
+        // check branches & transformers
+        getLineStream().forEach(l -> v.checkLine((LineImpl) l));
+        getThreeWindingsTransformerStream().forEach(twt -> v.checkThreeWindingsTransformer((ThreeWindingsTransformerImpl) twt));
+        getTwoWindingsTransformerStream().forEach(twt -> v.checkTwoWindingsTransformer((TwoWindingsTransformerImpl) twt));
+
+        // check voltage levels
+        getVoltageLevelStream().forEach(vl -> {
+            if (vl.getTopologyKind() == TopologyKind.NODE_BREAKER) {
+                v.checkVoltageLevel((NodeBreakerVoltageLevel) vl);
+            } else if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                v.checkVoltageLevel((BusBreakerVoltageLevel) vl);
+            }
+        });
+
+        // check DC components
+        getHvdcLineStream().forEach(hvdcLine -> v.checkHvdcLine((HvdcLineImpl) hvdcLine));
+        getLccConverterStationStream().forEach(lccConverterStation -> v.checkLccConverterStation((LccConverterStationImpl) lccConverterStation));
     }
 }

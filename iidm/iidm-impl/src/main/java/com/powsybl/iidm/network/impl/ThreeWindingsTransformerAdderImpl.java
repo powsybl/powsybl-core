@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.validation.Validation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +14,6 @@ import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import com.powsybl.iidm.network.Validable;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
 
 /**
  *
@@ -104,20 +104,13 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         protected void checkParams() {
-            if (Double.isNaN(r)) {
-                throw new ValidationException(this, "r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(this, "x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is not set");
-            }
-            ValidationUtil.checkRatedU(this, ratedU, "");
-            ValidationUtil.checkRatedS(this, ratedS);
+            Validation v = Validation.getDefault();
+            v.checkR(this, r);
+            v.checkX(this, x);
+            v.checkG(this, g);
+            v.checkB(this, b);
+            v.checkRatedU(this, ratedU, "");
+            v.checkRatedS(this, ratedS);
         }
 
         protected TerminalExt checkAndGetTerminal() {

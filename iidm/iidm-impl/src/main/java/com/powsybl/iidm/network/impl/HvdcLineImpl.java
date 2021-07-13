@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
@@ -92,7 +92,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
-        ValidationUtil.checkConvertersMode(this, convertersMode);
+        Validation.getDefault().checkConvertersMode(this, convertersMode);
         int variantIndex = getNetwork().getVariantIndex();
         boolean oldValue = this.convertersMode.get(variantIndex);
         this.convertersMode.set(variantIndex, fromEnum(Objects.requireNonNull(convertersMode)));
@@ -108,7 +108,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setR(double r) {
-        ValidationUtil.checkR(this, r);
+        Validation.getDefault().checkR(this, r);
         double oldValue = this.r;
         this.r = r;
         notifyUpdate("r", oldValue, r);
@@ -122,7 +122,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setNominalV(double nominalV) {
-        ValidationUtil.checkNominalV(this, nominalV);
+        Validation.getDefault().checkNominalV(this, nominalV);
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
         notifyUpdate("nominalV", oldValue, nominalV);
@@ -136,7 +136,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setMaxP(double maxP) {
-        ValidationUtil.checkHvdcMaxP(this, maxP);
+        Validation.getDefault().checkHvdcMaxP(this, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
@@ -150,7 +150,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
+        Validation.getDefault().checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);

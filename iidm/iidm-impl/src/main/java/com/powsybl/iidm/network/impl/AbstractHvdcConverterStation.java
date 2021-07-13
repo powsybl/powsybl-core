@@ -9,9 +9,9 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.validation.Validation;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -56,7 +56,7 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
 
     @Override
     public T setLossFactor(float lossFactor) {
-        ValidationUtil.checkLossFactor(this, lossFactor);
+        Validation.getDefault().checkLossFactor(this, lossFactor);
         float oldValue = this.lossFactor;
         this.lossFactor = lossFactor;
         notifyUpdate("lossFactor", oldValue, lossFactor);

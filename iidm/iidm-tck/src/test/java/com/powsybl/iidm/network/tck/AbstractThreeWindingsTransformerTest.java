@@ -20,13 +20,13 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
 
     private static final String ERROR_RATED_U_IS_INVALID = "rated U is invalid";
 
-    private static final String ERROR_B_IS_NOT_SET = "b is not set";
+    private static final String ERROR_B_IS_NOT_SET = "b";
 
-    private static final String ERROR_G_IS_NOT_SET = "g is not set";
+    private static final String ERROR_G_IS_NOT_SET = "g";
 
-    private static final String ERROR_X_IS_NOT_SET = "x is not set";
+    private static final String ERROR_X_IS_NOT_SET = "x";
 
-    private static final String ERROR_R_IS_NOT_SET = "r is not set";
+    private static final String ERROR_R_IS_NOT_SET = "r";
 
     private static final String ERROR_LEG1_IS_NOT_SET = "Leg1 is not set";
 
