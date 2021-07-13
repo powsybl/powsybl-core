@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2019, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:io="http://www.itesla_project.eu/schema/iidm/ext/branch_observability/1_0"
+           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/branch_observability/1_0"
+           elementFormDefault="qualified">
+
+    <xs:element name="branchObservability">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:sequence minOccurs="2" maxOccurs="2">
+                    <xs:element name="qualityP">
+                        <xs:complexType>
+                            <xs:attribute name="side" use="required" type="io:Side"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:sequence>
+                    <xs:element name="qualityQ" minOccurs="2" maxOccurs="2">
+                        <xs:complexType>
+                            <xs:attribute name="side" use="required" type="io:Side"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+                <xs:sequence>
+                    <xs:element name="qualityV" minOccurs="2" maxOccurs="2">
+                        <xs:complexType>
+                            <xs:attribute name="side" use="required" type="io:Side"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        </xs:complexType>
+                    </xs:element>
+                </xs:sequence>
+            </xs:sequence>
+            <xs:attribute name="observable" use="required" type="xs:boolean"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:simpleType name="Side">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ONE"/>
+            <xs:enumeration value="TWO"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
