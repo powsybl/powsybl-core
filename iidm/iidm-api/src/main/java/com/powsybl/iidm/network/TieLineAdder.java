@@ -54,7 +54,15 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder.HalfLineAdder newHalfLine1();
 
+    default TieLineAdder.HalfLineAdder newHalfLine1(TieLine.HalfLine halfLine) {
+        return newHalfLine1();
+    }
+
     TieLineAdder.HalfLineAdder newHalfLine2();
+
+    default HalfLineAdder newHalfLine2(TieLine.HalfLine halfLine) {
+        return newHalfLine2();
+    }
 
     TieLine add();
 

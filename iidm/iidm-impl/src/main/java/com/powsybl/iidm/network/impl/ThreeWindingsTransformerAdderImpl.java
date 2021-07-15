@@ -6,21 +6,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
-
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
-    implements ThreeWindingsTransformerAdder {
+        implements ThreeWindingsTransformerAdder {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ThreeWindingsTransformerAdderImpl.class);
 
@@ -122,10 +117,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                .setNode(node)
-                .setBus(bus)
-                .setConnectableBus(connectableBus)
-                .build();
+                    .setNode(node)
+                    .setBus(bus)
+                    .setConnectableBus(connectableBus)
+                    .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -135,12 +130,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                    + "' not found");
+                        + "' not found");
             }
             if (voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
-                    "voltage level shall belong to the substation '"
-                        + substation.getId() + "'");
+                        "voltage level shall belong to the substation '"
+                                + substation.getId() + "'");
             }
             return voltageLevel;
         }
@@ -181,6 +176,40 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
+    }
+
+    ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, SubstationImpl substation) {
+        this(substation);
+        ratedU0 = twt.getRatedU0();
+
+        legAdder1 = new LegAdderImpl(1);
+        ThreeWindingsTransformer.Leg leg1 = twt.getLeg1();
+        legAdder1.r = leg1.getR();
+        legAdder1.x = leg1.getX();
+        legAdder1.g = leg1.getG();
+        legAdder1.b = leg1.getB();
+        legAdder1.ratedS = leg1.getRatedS();
+        legAdder1.ratedU = leg1.getRatedU();
+
+        legAdder2 = new LegAdderImpl(2);
+        ThreeWindingsTransformer.Leg leg2 = twt.getLeg2();
+        legAdder2.r = leg2.getR();
+        legAdder2.x = leg2.getX();
+        legAdder2.g = leg2.getG();
+        legAdder2.b = leg2.getB();
+        legAdder2.ratedS = leg2.getRatedS();
+        legAdder2.ratedU = leg2.getRatedU();
+
+        legAdder3 = new LegAdderImpl(3);
+        ThreeWindingsTransformer.Leg leg3 = twt.getLeg3();
+        legAdder3.r = leg3.getR();
+        legAdder3.x = leg3.getX();
+        legAdder3.g = leg3.getG();
+        legAdder3.b = leg3.getB();
+        legAdder3.ratedS = leg3.getRatedS();
+        legAdder3.ratedU = leg3.getRatedU();
+
+        setFictitious(twt.isFictitious());
     }
 
     @Override
@@ -271,7 +300,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(getNetwork().getRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
-            ratedU0);
+                ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);

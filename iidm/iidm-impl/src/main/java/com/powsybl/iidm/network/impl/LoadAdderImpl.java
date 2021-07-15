@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements LoadAdder {
@@ -26,6 +26,14 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
 
     LoadAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+    }
+
+    LoadAdderImpl(Load load, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        loadType = load.getLoadType();
+        p0 = load.getP0();
+        q0 = load.getQ0();
+        setFictitious(load.isFictitious());
     }
 
     @Override

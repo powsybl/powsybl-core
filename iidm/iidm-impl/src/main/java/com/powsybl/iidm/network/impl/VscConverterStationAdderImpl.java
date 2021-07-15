@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -23,6 +24,15 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
+    }
+
+    VscConverterStationAdderImpl(VscConverterStation converterStation, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        voltageRegulatorOn = converterStation.isVoltageRegulatorOn();
+        reactivePowerSetpoint = converterStation.getReactivePowerSetpoint();
+        voltageSetpoint = converterStation.getVoltageSetpoint();
+        setLossFactor(converterStation.getLossFactor());
+        setFictitious(converterStation.isFictitious());
     }
 
     @Override

@@ -36,6 +36,17 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         this.vl = Objects.requireNonNull(vl);
     }
 
+    StaticVarCompensatorAdderImpl(StaticVarCompensator staticVarCompensator, VoltageLevelExt vl) {
+        this(vl);
+        bMin = staticVarCompensator.getBmin();
+        bMax = staticVarCompensator.getBmax();
+        voltageSetpoint = staticVarCompensator.getVoltageSetpoint();
+        reactivePowerSetpoint = staticVarCompensator.getReactivePowerSetpoint();
+        regulationMode = staticVarCompensator.getRegulationMode();
+        regulatingTerminal = (TerminalExt) staticVarCompensator.getRegulatingTerminal();
+        setFictitious(staticVarCompensator.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return vl.getNetwork();

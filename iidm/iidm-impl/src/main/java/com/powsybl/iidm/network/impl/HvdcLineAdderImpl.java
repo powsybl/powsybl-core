@@ -40,6 +40,15 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         this.networkRef = Objects.requireNonNull(networkRef);
     }
 
+    HvdcLineAdderImpl(HvdcLine hvdcLine, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        r = hvdcLine.getR();
+        convertersMode = hvdcLine.getConvertersMode();
+        nominalV = hvdcLine.getNominalV();
+        activePowerSetpoint = hvdcLine.getActivePowerSetpoint();
+        maxP = hvdcLine.getMaxP();
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();

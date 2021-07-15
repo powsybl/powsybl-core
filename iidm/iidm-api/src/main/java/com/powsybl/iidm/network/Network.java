@@ -329,6 +329,13 @@ public interface Network extends Container<Network> {
     LineAdder newLine();
 
     /**
+     * Get a builder to create a new AC line. The builder is initialized with all the values of the given AC line.
+     */
+    default LineAdder newLine(Line line) {
+        return newLine();
+    }
+
+    /**
      * Get all AC lines.
      */
     Iterable<Line> getLines();
@@ -717,6 +724,13 @@ public interface Network extends Container<Network> {
      * @return a builder to create a new HVDC line
      */
     HvdcLineAdder newHvdcLine();
+
+    /**
+     * Get a builder to create a new HVDC line. The builder is initialized with all the values of the given HVDC line.
+     */
+    default HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
+        return newHvdcLine();
+    }
 
     /**
      * Get an equipment by its ID or alias

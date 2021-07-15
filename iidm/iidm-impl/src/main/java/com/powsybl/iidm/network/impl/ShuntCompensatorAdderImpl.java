@@ -36,6 +36,32 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         this.voltageLevel = voltageLevel;
     }
 
+    ShuntCompensatorAdderImpl(ShuntCompensator shuntCompensator, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        sectionCount = shuntCompensator.getSectionCount();
+        targetV = shuntCompensator.getTargetV();
+        targetDeadband = shuntCompensator.getTargetDeadband();
+        regulatingTerminal = (TerminalExt) shuntCompensator.getRegulatingTerminal();
+        voltageRegulatorOn = shuntCompensator.isVoltageRegulatorOn();
+        if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
+            ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+            newLinearModel()
+                    .setBPerSection(model.getBPerSection())
+                    .setGPerSection(model.getGPerSection())
+                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                    .add();
+        } else if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+            ShuntCompensatorNonLinearModel model = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
+            ShuntCompensatorNonLinearModelAdder builder = newNonLinearModel();
+            model.getAllSections().forEach(section -> builder.beginSection()
+                    .setB(section.getB())
+                    .setG(section.getG())
+                    .endSection());
+            builder.add();
+        }
+        setFictitious(shuntCompensator.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();

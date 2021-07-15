@@ -16,7 +16,6 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
@@ -171,6 +170,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public GeneratorAdder newGenerator(Generator generator) {
+        return new GeneratorAdderImpl(generator, this);
+    }
+
+    @Override
     public Iterable<Generator> getGenerators() {
         return getConnectables(Generator.class);
     }
@@ -188,6 +192,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public BatteryAdder newBattery() {
         return new BatteryAdderImpl(this);
+    }
+
+    @Override
+    public BatteryAdder newBattery(Battery battery) {
+        return new BatteryAdderImpl(battery, this);
     }
 
     @Override
@@ -211,6 +220,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public LoadAdder newLoad(Load load) {
+        return new LoadAdderImpl(load, this);
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         return getConnectables(Load.class);
     }
@@ -228,6 +242,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public ShuntCompensatorAdder newShuntCompensator() {
         return new ShuntCompensatorAdderImpl(this);
+    }
+
+    @Override
+    public ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
+        return new ShuntCompensatorAdderImpl(shuntCompensator, this);
     }
 
     @Override
@@ -251,6 +270,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
+        return new DanglingLineAdderImpl(danglingLine, this);
+    }
+
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         return getConnectables(DanglingLine.class);
     }
@@ -268,6 +292,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public StaticVarCompensatorAdderImpl newStaticVarCompensator() {
         return new StaticVarCompensatorAdderImpl(this);
+    }
+
+    @Override
+    public StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+        return new StaticVarCompensatorAdderImpl(staticVarCompensator, this);
     }
 
     @Override
@@ -306,6 +335,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
+        return new VscConverterStationAdderImpl(converterStation, this);
+    }
+
+    @Override
     public int getLccConverterStationCount() {
         return getConnectableCount(LccConverterStation.class);
     }
@@ -323,6 +357,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     @Override
     public LccConverterStationAdder newLccConverterStation() {
         return new LccConverterStationAdderImpl(this);
+    }
+
+    @Override
+    public LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
+        return new LccConverterStationAdderImpl(converterStation, this);
     }
 
     @Override

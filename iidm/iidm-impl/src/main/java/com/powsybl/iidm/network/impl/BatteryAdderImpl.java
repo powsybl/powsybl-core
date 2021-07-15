@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -30,6 +31,15 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
+    }
+
+    BatteryAdderImpl(Battery battery, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        p0 = battery.getP0();
+        q0 = battery.getQ0();
+        minP = battery.getMinP();
+        maxP = battery.getMaxP();
+        setFictitious(battery.isFictitious());
     }
 
     /**

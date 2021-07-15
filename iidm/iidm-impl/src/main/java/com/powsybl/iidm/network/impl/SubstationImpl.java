@@ -90,6 +90,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        return new VoltageLevelAdderImpl(voltageLevel, this);
+    }
+
+    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Collections.unmodifiableSet(voltageLevels);
     }
@@ -102,6 +107,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     @Override
     public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
         return new TwoWindingsTransformerAdderImpl(this);
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        return new TwoWindingsTransformerAdderImpl(twt, this);
     }
 
     @Override
@@ -125,6 +135,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     @Override
     public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
         return new ThreeWindingsTransformerAdderImpl(this);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        return new ThreeWindingsTransformerAdderImpl(twt, this);
     }
 
     @Override

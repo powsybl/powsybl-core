@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -96,6 +97,28 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     DanglingLineAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+    }
+
+    DanglingLineAdderImpl(DanglingLine danglingLine, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        p0 = danglingLine.getP0();
+        q0 = danglingLine.getQ0();
+        r = danglingLine.getR();
+        x = danglingLine.getX();
+        g = danglingLine.getG();
+        b = danglingLine.getB();
+        ucteXnodeCode = danglingLine.getUcteXnodeCode();
+        if (danglingLine.getGeneration() != null) {
+            DanglingLine.Generation generation = danglingLine.getGeneration();
+            generationAdder = (GenerationAdderImpl) new GenerationAdderImpl()
+                    .setMaxP(generation.getMaxP())
+                    .setMinP(generation.getMinP())
+                    .setTargetP(generation.getTargetP())
+                    .setTargetQ(generation.getTargetQ())
+                    .setTargetV(generation.getTargetV())
+                    .setVoltageRegulationOn(generation.isVoltageRegulationOn());
+        }
+        setFictitious(danglingLine.isFictitious());
     }
 
     @Override

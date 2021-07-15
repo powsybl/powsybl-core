@@ -21,6 +21,14 @@ public interface PhaseTapChangerHolder {
     PhaseTapChangerAdder newPhaseTapChanger();
 
     /**
+     * Get a builder to create and associate a phase tap changer to the
+     * transformer. The builder is initialized with all the values of the given phase tap changer.
+     */
+    default PhaseTapChangerAdder newPhaseTapChanger(PhaseTapChanger ptc) {
+        return newPhaseTapChanger();
+    }
+
+    /**
      * Get the phase tap changer.
      * <p>Could return <code>null</code> if the transfomer is not associated to
      * a phase tap changer.

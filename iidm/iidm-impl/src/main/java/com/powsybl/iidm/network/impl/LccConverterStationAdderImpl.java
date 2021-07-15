@@ -22,6 +22,13 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
         super(voltageLevel);
     }
 
+    LccConverterStationAdderImpl(LccConverterStation converterStation, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        powerFactor = converterStation.getPowerFactor();
+        setLossFactor(converterStation.getLossFactor());
+        setFictitious(converterStation.isFictitious());
+    }
+
     @Override
     protected String getTypeDescription() {
         return LccConverterStationImpl.TYPE_DESCRIPTION;

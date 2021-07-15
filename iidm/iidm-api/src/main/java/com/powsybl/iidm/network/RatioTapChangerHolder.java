@@ -21,6 +21,14 @@ public interface RatioTapChangerHolder {
     RatioTapChangerAdder newRatioTapChanger();
 
     /**
+     * Get a builder to create and associate a ratio tap changer to the
+     * transformer. The builder is initialized with all the values of the given ratio tap changer.
+     */
+    default RatioTapChangerAdder newRatioTapChanger(RatioTapChanger rtc) {
+        return newRatioTapChanger();
+    }
+
+    /**
      * Get the ratio tap changer.
      * <p>Could return <code>null</code> if the leg is not associated to a ratio
      * tap changer.

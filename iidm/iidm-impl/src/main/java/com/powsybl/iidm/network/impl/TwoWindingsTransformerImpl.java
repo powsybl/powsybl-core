@@ -168,6 +168,11 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
+    public RatioTapChangerAdderImpl newRatioTapChanger(RatioTapChanger rtc) {
+        return new RatioTapChangerAdderImpl(rtc, this);
+    }
+
+    @Override
     public RatioTapChangerImpl getRatioTapChanger() {
         return ratioTapChanger;
     }
@@ -180,6 +185,11 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     @Override
     public PhaseTapChangerAdderImpl newPhaseTapChanger() {
         return new PhaseTapChangerAdderImpl(this);
+    }
+
+    @Override
+    public PhaseTapChangerAdderImpl newPhaseTapChanger(PhaseTapChanger ptc) {
+        return new PhaseTapChangerAdderImpl(ptc, this);
     }
 
     @Override

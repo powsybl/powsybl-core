@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 /**
  *
@@ -39,6 +36,20 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     GeneratorAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = voltageLevel;
+    }
+
+    GeneratorAdderImpl(Generator generator, VoltageLevelExt voltageLevel) {
+        this(voltageLevel);
+        energySource = generator.getEnergySource();
+        minP = generator.getMinP();
+        maxP = generator.getMaxP();
+        regulatingTerminal = (TerminalExt) generator.getRegulatingTerminal();
+        voltageRegulatorOn = generator.isVoltageRegulatorOn();
+        targetP = generator.getTargetP();
+        targetQ = generator.getTargetQ();
+        targetV = generator.getTargetV();
+        ratedS = generator.getRatedS();
+        setFictitious(generator.isFictitious());
     }
 
     @Override

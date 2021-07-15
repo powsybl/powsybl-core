@@ -111,6 +111,13 @@ public interface Substation extends Container<Substation> {
     VoltageLevelAdder newVoltageLevel();
 
     /**
+     * Get a builder to create a new voltage level in the substation. The builder is initialized with all the values of the given voltage level.
+     */
+    default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        return newVoltageLevel();
+    }
+
+    /**
      * Get the voltage levels of the substation.
      */
     Iterable<VoltageLevel> getVoltageLevels();
@@ -124,6 +131,13 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new two windings transformer in the substation.
      */
     TwoWindingsTransformerAdder newTwoWindingsTransformer();
+
+    /**
+     * Get a builder to create a new two windings transformer in the substation. The builder is initialized with all the values of the given two windings transformer.
+     */
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        return newTwoWindingsTransformer();
+    }
 
     /**
      * Get the two windings transformers connected to the substation.
@@ -144,6 +158,13 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new 3 windings transformer in the substation.
      */
     ThreeWindingsTransformerAdder newThreeWindingsTransformer();
+
+    /**
+     * Get a builder to create a new 3 windings transformer in the substation. The builder is initialized with all the values of a the given 3 windings transformer.
+     */
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
+        return newThreeWindingsTransformer();
+    }
 
     /**
      * Get the 3 windings transformers connected to the substation.

@@ -278,6 +278,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public LineAdderImpl newLine(Line line) {
+        return new LineAdderImpl(line, this);
+    }
+
+    @Override
     public Iterable<Line> getLines() {
         return Iterables.concat(index.getAll(LineImpl.class), index.getAll(TieLineImpl.class));
     }
@@ -626,6 +631,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public HvdcLineAdder newHvdcLine() {
         return new HvdcLineAdderImpl(ref);
+    }
+
+    @Override
+    public HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
+        return new HvdcLineAdderImpl(hvdcLine, ref);
     }
 
     @Override

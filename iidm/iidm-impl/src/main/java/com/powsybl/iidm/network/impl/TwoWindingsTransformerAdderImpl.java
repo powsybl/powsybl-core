@@ -37,6 +37,18 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         this.substation = substation;
     }
 
+    TwoWindingsTransformerAdderImpl(TwoWindingsTransformer twt, SubstationImpl substation) {
+        this(substation);
+        r = twt.getR();
+        x = twt.getX();
+        g = twt.getG();
+        b = twt.getB();
+        ratedU1 = twt.getRatedU1();
+        ratedU2 = twt.getRatedU2();
+        ratedS = twt.getRatedS();
+        setFictitious(twt.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return substation.getNetwork();

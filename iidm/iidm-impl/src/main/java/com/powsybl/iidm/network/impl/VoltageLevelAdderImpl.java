@@ -31,6 +31,15 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         this.substation = substation;
     }
 
+    VoltageLevelAdderImpl(VoltageLevel voltageLevel, SubstationImpl substation) {
+        this(substation);
+        nominalV = voltageLevel.getNominalV();
+        lowVoltageLimit = voltageLevel.getLowVoltageLimit();
+        highVoltageLimit = voltageLevel.getHighVoltageLimit();
+        topologyKind = voltageLevel.getTopologyKind();
+        setFictitious(voltageLevel.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return substation.getNetwork();

@@ -39,6 +39,17 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             this.num = num;
         }
 
+        HalfLineAdderImpl(int num, TieLine.HalfLine halfLine) {
+            this(num);
+            fictitious = halfLine.isFictitious();
+            r = halfLine.getR();
+            x = halfLine.getX();
+            g1 = halfLine.getG1();
+            g2 = halfLine.getG2();
+            b1 = halfLine.getB1();
+            b2 = halfLine.getB2();
+        }
+
         @Override
         public HalfLineAdderImpl setId(String id) {
             this.id = id;
@@ -169,8 +180,18 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     }
 
     @Override
+    public HalfLineAdderImpl newHalfLine1(TieLine.HalfLine halfLine) {
+        return new HalfLineAdderImpl(1, halfLine);
+    }
+
+    @Override
     public HalfLineAdderImpl newHalfLine2() {
         return new HalfLineAdderImpl(2);
+    }
+
+    @Override
+    public HalfLineAdderImpl newHalfLine2(TieLine.HalfLine halfLine) {
+        return new HalfLineAdderImpl(2, halfLine);
     }
 
     @Override
