@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.converter;
 
+import com.fasterxml.jackson.databind.InjectableValues;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.ByteStreams;
 import com.powsybl.commons.AbstractConverterTest;
@@ -89,6 +90,13 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new ReporterModelJsonModule());
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
+        assertEquals(1, rm.getReports().size());
+        assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
+        assertEquals(4, rm.getSubReporters().size());
+        assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
+
+        mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
+        rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
         assertEquals(4, rm.getSubReporters().size());
