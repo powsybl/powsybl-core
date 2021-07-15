@@ -51,7 +51,7 @@ public interface LoadFlowProvider extends Versionable, PlatformConfigNamedProvid
      * @return a {@link CompletableFuture} on {@link LoadFlowResult]
      */
     default CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters, Reporter reporter) {
-        throw new UnsupportedOperationException("Not implemented");
+        return run(network, computationManager, workingVariantId, parameters);
     }
 
 }
