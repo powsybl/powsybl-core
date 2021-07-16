@@ -250,6 +250,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel() {
+        return new VoltageLevelAdderImpl(ref);
+    }
+
+    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
                 index.getAll(NodeBreakerVoltageLevel.class));

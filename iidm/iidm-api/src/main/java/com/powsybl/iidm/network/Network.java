@@ -302,6 +302,18 @@ public interface Network extends Container<Network> {
     Substation getSubstation(String id);
 
     /**
+     * Get a builder to create a new voltage level (without substation).
+     */
+    default VoltageLevelAdder newVoltageLevel() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newVoltageLevel();
+    }
+
+    /**
      * Get all substation voltage levels.
      */
     Iterable<VoltageLevel> getVoltageLevels();
