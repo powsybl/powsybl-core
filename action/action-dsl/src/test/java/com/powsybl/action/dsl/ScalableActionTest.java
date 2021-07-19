@@ -72,21 +72,23 @@ public class ScalableActionTest {
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
+        generator2.setRegulatingTerminal(generator2.getTerminal())
+            .setTargetV(24.5)
+            .setVoltageRegulatorOn(true);
         Generator generator3 = vlgen.newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
+        generator3.setRegulatingTerminal(generator3.getTerminal())
+            .setTargetV(24.5)
+            .setVoltageRegulatorOn(true);
     }
 }

@@ -175,9 +175,11 @@ public class IeeeCdfImporter implements Importer {
                 case HOLD_VOLTAGE_WITHIN_VAR_LIMITS:
                 case HOLD_VOLTAGE_AND_ANGLE:
                     Generator generator = newGeneratorAdder(ieeeCdfBus, voltageLevel)
-                            .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
-                            .setVoltageRegulatorOn(true)
-                            .add();
+                        .setTargetQ(0.0)
+                        .add();
+                    generator.setRegulatingTerminal(generator.getTerminal())
+                        .setTargetV(ieeeCdfBus.getDesiredVoltage() * voltageLevel.getNominalV())
+                        .setVoltageRegulatorOn(true);
                     if (ieeeCdfBus.getMinReactivePowerOrVoltageLimit() != 0 || ieeeCdfBus.getMaxReactivePowerOrVoltageLimit() != 0) {
                         generator.newMinMaxReactiveLimits()
                                 .setMinQ(ieeeCdfBus.getMinReactivePowerOrVoltageLimit())

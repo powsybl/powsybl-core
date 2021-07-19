@@ -419,43 +419,46 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setQ0(-50.0)
                 .add();
         ld.getTerminal().setP(5.0).setQ(-50.0);
-        Generator g = vl.newGenerator()
+        Generator g1 = vl.newGenerator()
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
                 .setTargetP(0.490536)
                 .setTargetQ(-16.774788)
                 .add();
-        g.getTerminal().setP(-0.490536).setQ(16.774788);
-        g = vl.newGenerator()
+        g1.setRegulatingTerminal(g1.getTerminal())
+            .setTargetV(115.0)
+            .setVoltageRegulatorOn(true);
+        g1.getTerminal().setP(-0.490536).setQ(16.774788);
+        Generator g2 = vl.newGenerator()
                 .setId("G2")
                 .setConnectableBus("B2")
                 .setBus("B2")
-                .setVoltageRegulatorOn(true)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
                 .setTargetP(15.488468)
                 .setTargetQ(0.613118)
                 .add();
-        g.getTerminal().setP(-15.488468).setQ(-0.613118);
-        g = vl.newGenerator()
+        g2.setRegulatingTerminal(g2.getTerminal())
+            .setTargetV(115.0)
+            .setVoltageRegulatorOn(true);
+        g2.getTerminal().setP(-15.488468).setQ(-0.613118);
+        Generator g5 = vl.newGenerator()
                 .setId("G5")
                 .setConnectableBus("B5")
                 .setBus("B5")
-                .setVoltageRegulatorOn(true)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setTargetV(115.0)
                 .setTargetP(60.486267)
                 .setTargetQ(-110.743699)
                 .add();
-        g.getTerminal().setP(-60.486267).setQ(110.743699);
-        g = vl.newGenerator()
+        g5.setRegulatingTerminal(g5.getTerminal())
+            .setTargetV(115.0)
+            .setVoltageRegulatorOn(true);
+        g5.getTerminal().setP(-60.486267).setQ(110.743699);
+        Generator g32 = vl.newGenerator()
                 .setId("G3.2")
                 .setConnectableBus("B3.2")
                 .setBus("B3.2")
@@ -465,7 +468,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setTargetP(30.0)
                 .setTargetQ(-18.0)
                 .add();
-        g.getTerminal().setP(-30.0).setQ(18.0);
+        g32.getTerminal().setP(-30.0).setQ(18.0);
         vl.newShuntCompensator()
                 .setId("SC3.1")
                 .setConnectableBus("B3.1")

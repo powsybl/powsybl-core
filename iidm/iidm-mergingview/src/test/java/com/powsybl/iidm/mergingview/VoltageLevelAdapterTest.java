@@ -96,17 +96,19 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getBatteryStream().count(), vlActual.getBatteryStream().count());
 
         // Generator
-        vlActual.newGenerator()
-                    .setId("GEN").setVoltageRegulatorOn(true)
+        Generator gen = vlActual.newGenerator()
+                    .setId("GEN")
                     .setConnectableBus("busA")
                     .setBus("busA")
                     .setMaxP(9999.99)
                     .setMinP(-9999.99)
-                    .setTargetV(25.5)
                     .setTargetP(600.05)
                     .setTargetQ(300.5)
                     .setEnsureIdUnicity(true)
                 .add();
+        gen.setRegulatingTerminal(gen.getTerminal())
+            .setTargetV(25.5)
+            .setVoltageRegulatorOn(true);
         vlActual.getGenerators().forEach(g -> {
             assertTrue(g instanceof GeneratorAdapter);
             assertNotNull(g);

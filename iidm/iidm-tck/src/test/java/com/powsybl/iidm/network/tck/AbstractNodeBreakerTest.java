@@ -38,15 +38,17 @@ public abstract class AbstractNodeBreakerTest {
                 .setP0(1)
                 .setQ0(1)
                 .add();
-        vl.newGenerator()
+        Generator g = vl.newGenerator()
                 .setId("G")
                 .setNode(3)
                 .setMaxP(100)
                 .setMinP(50)
                 .setTargetP(100)
-                .setTargetV(400)
-                .setVoltageRegulatorOn(true)
+                .setTargetQ(0.0)
                 .add();
+        g.setRegulatingTerminal(g.getTerminal())
+            .setTargetV(400)
+            .setVoltageRegulatorOn(true);
         vl.getNodeBreakerView().newDisconnector()
                 .setId("D")
                 .setNode1(0)

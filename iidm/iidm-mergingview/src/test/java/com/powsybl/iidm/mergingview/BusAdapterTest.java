@@ -290,16 +290,17 @@ public class BusAdapterTest {
         vl.getBusBreakerView().newBus()
                 .setId("B1")
                 .add();
-        vl.newGenerator()
+        Generator gen = vl.newGenerator()
                 .setId("GEN")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(100.0)
                 .setTargetP(50.0)
                 .setTargetQ(30.0)
                 .setBus("B1")
                 .add();
+        gen.setRegulatingTerminal(gen.getTerminal())
+            .setTargetV(100.0)
+            .setVoltageRegulatorOn(true);
         vl.getBusBreakerView().newBus()
                 .setId("B2")
                 .add();

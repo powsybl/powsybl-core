@@ -132,13 +132,14 @@ public class MatpowerImporter implements Importer {
                     .setEnsureIdUnicity(true)
                     .setConnectableBus(busId)
                     .setBus(isInService(mGen) ? busId : null)
-                    .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
                     .setTargetP(mGen.getRealPowerOutput())
                     .setTargetQ(mGen.getReactivePowerOutput())
-                    .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0)
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
                     .add();
+            generator.setRegulatingTerminal(generator.getTerminal())
+                .setTargetV(mGen.getVoltageMagnitudeSetpoint() * voltageLevel.getNominalV())
+                .setVoltageRegulatorOn(mGen.getVoltageMagnitudeSetpoint() != 0);
 
             if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
                 generator.newReactiveCapabilityCurve()

@@ -62,16 +62,18 @@ public abstract class AbstractSlackTerminalTest {
         vl1.getBusBreakerView().newBus()
             .setId("B1")
             .add();
-        vl1.newGenerator()
+        Generator ge = vl1.newGenerator()
             .setId("GE")
             .setBus("B1")
             .setConnectableBus("B1")
             .setTargetP(100)
+            .setTargetQ(0.0)
             .setMinP(0)
             .setMaxP(110)
-            .setTargetV(380)
-            .setVoltageRegulatorOn(true)
             .add();
+        ge.setRegulatingTerminal(ge.getTerminal())
+            .setTargetV(380)
+            .setVoltageRegulatorOn(true);
 
         network.newLine()
             .setId("LI")

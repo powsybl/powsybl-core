@@ -96,16 +96,17 @@ public final class DanglingLineNetworkFactory {
         voltageLevel.getBusBreakerView().newBus()
                 .setId("BUS")
                 .add();
-        voltageLevel.newGenerator()
+        Generator g = voltageLevel.newGenerator()
                 .setId("G")
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(100.0)
                 .setTargetP(50.0)
                 .setTargetQ(30.0)
                 .setBus("BUS")
                 .add();
+        g.setRegulatingTerminal(g.getTerminal())
+            .setTargetV(100.0)
+            .setVoltageRegulatorOn(true);
         return network;
     }
 

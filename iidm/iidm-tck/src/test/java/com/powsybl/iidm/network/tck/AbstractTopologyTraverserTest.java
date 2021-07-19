@@ -36,15 +36,17 @@ public abstract class AbstractTopologyTraverserTest {
                 .setId("BBS1")
                 .setNode(0)
                 .add();
-        vl1.newGenerator()
+        Generator generator = vl1.newGenerator()
                 .setId("G")
                 .setNode(4)
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
-                .setVoltageRegulatorOn(true)
+                .setTargetQ(0.0)
                 .add();
+        generator.setRegulatingTerminal(generator.getTerminal())
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true);
         vl1.getNodeBreakerView().newInternalConnection()
                 .setNode1(1)
                 .setNode2(4)

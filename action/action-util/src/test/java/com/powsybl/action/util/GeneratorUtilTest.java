@@ -51,6 +51,7 @@ public class GeneratorUtilTest {
 
     @Test
     public void testConnectVoltageRegulatorOnWithAlreadyConnectedGenerators() {
+        g2.setRegulatingTerminal(g2.getTerminal());
         g2.setVoltageRegulatorOn(true);
         GeneratorUtil.connectGenerator(g2);
         assertTrue(g2.getTerminal().isConnected());
@@ -60,6 +61,7 @@ public class GeneratorUtilTest {
     @Test
     public void testConnectVoltageRegulatorOnWithoutAlreadyConnectedGenerators() {
         g3.getTerminal().disconnect();
+        g2.setRegulatingTerminal(g2.getTerminal());
         g2.setVoltageRegulatorOn(true);
         GeneratorUtil.connectGenerator(g2);
         assertTrue(g2.getTerminal().isConnected());

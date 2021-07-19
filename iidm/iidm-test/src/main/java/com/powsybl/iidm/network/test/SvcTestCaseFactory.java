@@ -50,16 +50,18 @@ public final class SvcTestCaseFactory {
         vl1.getBusBreakerView().newBus()
                 .setId("B1")
                 .add();
-        vl1.newGenerator()
+        Generator g1 = vl1.newGenerator()
                 .setId("G1")
                 .setConnectableBus("B1")
                 .setBus("B1")
-                .setVoltageRegulatorOn(true)
                 .setTargetP(100.0)
-                .setTargetV(400.0)
+                .setTargetQ(0.0)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
+        g1.setRegulatingTerminal(g1.getTerminal())
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true);
         Substation s2 = network.newSubstation()
                 .setId("S2")
                 .setCountry(Country.FR)
@@ -79,15 +81,16 @@ public final class SvcTestCaseFactory {
                 .setP0(100.0)
                 .setQ0(50.0)
                 .add();
-        vl2.newStaticVarCompensator()
+        StaticVarCompensator svc2 = vl2.newStaticVarCompensator()
                 .setId("SVC2")
                 .setConnectableBus("B2")
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
                 .add();
+        svc2.setRegulatingTerminal(svc2.getTerminal())
+            .setVoltageSetpoint(390)
+            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         network.newLine()
                 .setId("L1")
                 .setVoltageLevel1("VL1")
@@ -113,16 +116,17 @@ public final class SvcTestCaseFactory {
     public static Network createWithMoreSVCs(NetworkFactory networkFactory) {
         Network network = create(networkFactory);
 
-        network.getVoltageLevel("VL2").newStaticVarCompensator()
+        StaticVarCompensator svc3 = network.getVoltageLevel("VL2").newStaticVarCompensator()
                 .setId("SVC3")
                 .setConnectableBus("B2")
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(390)
-                .setReactivePowerSetpoint(350)
                 .add();
+        svc3.setRegulatingTerminal(svc3.getTerminal())
+            .setVoltageSetpoint(390)
+            .setReactivePowerSetpoint(350)
+            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
 
         return network;
     }

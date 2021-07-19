@@ -81,11 +81,13 @@ public final class NetworkTest1Factory {
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMinP(200.0)
                 .setMaxP(900.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetP(900.0)
-                .setTargetV(380.0)
+                .setTargetQ(0.0)
                 .setNode(5)
                 .add();
+        generator1.setRegulatingTerminal(generator1.getTerminal())
+            .setTargetV(380.0)
+            .setVoltageRegulatorOn(true);
         generator1.newReactiveCapabilityCurve()
                 .beginPoint().setP(200.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
                 .beginPoint().setP(900.0).setMinQ(300.0).setMaxQ(500.0).endPoint()

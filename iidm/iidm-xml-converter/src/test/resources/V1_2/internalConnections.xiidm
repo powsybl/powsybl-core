@@ -8,7 +8,7 @@
                 <iidm:internalConnection node1="0" node2="1"/>
                 <iidm:internalConnection node1="3" node2="4"/>
             </iidm:nodeBreakerTopology>
-            <iidm:generator id="g1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" node="0">
+            <iidm:generator id="g1" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="10.0" targetV="400.0" targetQ="0.0" node="0">
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>

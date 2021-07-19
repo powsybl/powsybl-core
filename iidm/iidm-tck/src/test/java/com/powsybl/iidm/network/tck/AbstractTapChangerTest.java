@@ -120,6 +120,8 @@ public abstract class AbstractTapChangerTest {
         } catch (ValidationException ignored) {
             // ignore
         }
+        phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        phaseTapChanger.setRegulating(true);
         try {
             phaseTapChanger.setTargetDeadband(-1);
             fail();
@@ -182,7 +184,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidRegulatingValuePhase() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation is on and threshold/setpoint value is not set");
+        thrown.expectMessage("2 windings transformer 'twt': invalid value (NaN) for current or active power setpoint");
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal);
     }
@@ -190,7 +192,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidNullRegulatingTerminalPhase() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase regulation is on and regulated terminal is not set");
+        thrown.expectMessage("2 windings transformer 'twt': regulating terminal is not defined or is not part of the network");
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
     }
@@ -206,9 +208,9 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidTargetDeadbandPtc() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of phase tap changer: -1.0");
-        createPhaseTapChangerWith2Steps(1, 0, false,
-                PhaseTapChanger.RegulationMode.FIXED_TAP, 1.0, -1.0, terminal);
+        thrown.expectMessage("2 windings transformer 'twt': invalid value (-1.0) for target deadband");
+        createPhaseTapChangerWith2Steps(1, 0, true,
+                PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, -1.0, terminal);
     }
 
     @Test
@@ -310,11 +312,11 @@ public abstract class AbstractTapChangerTest {
         twt.newPhaseTapChanger()
                 .setTapPosition(tapPosition)
                 .setLowTapPosition(lowTap)
-                .setRegulating(isRegulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(value)
                 .setTargetDeadband(deadband)
                 .setRegulationTerminal(terminal)
+                .setRegulating(isRegulating)
                 .beginStep()
                     .setR(1.0)
                     .setX(2.0)
@@ -355,10 +357,10 @@ public abstract class AbstractTapChangerTest {
                                                 .setLowTapPosition(0)
                                                 .setTapPosition(1)
                                                 .setLoadTapChangingCapabilities(false)
-                                                .setRegulating(true)
-                                                .setTargetDeadband(1.0)
                                                 .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
+                                                .setTargetDeadband(1.0)
+                                                .setRegulating(true)
                                                 .beginStep()
                                                     .setR(39.78473)
                                                     .setX(39.784725)
@@ -405,6 +407,7 @@ public abstract class AbstractTapChangerTest {
         ratioTapChanger.setLoadTapChangingCapabilities(true);
         assertTrue(ratioTapChanger.hasLoadTapChangingCapabilities());
 
+        ratioTapChanger.setRegulating(true);
         try {
             ratioTapChanger.setTargetDeadband(-1);
             fail();
@@ -413,7 +416,6 @@ public abstract class AbstractTapChangerTest {
         }
         try {
             ratioTapChanger.setTargetDeadband(Double.NaN);
-            ratioTapChanger.setRegulating(true);
             fail();
         } catch (ValidationException ignored) {
             // ignore
@@ -466,7 +468,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void undefinedTargetV() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("a target voltage has to be set for a regulating ratio tap changer");
+        thrown.expectMessage("2 windings transformer 'twt': invalid value (NaN) for voltage setpoint");
         createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal);
     }
 
@@ -483,7 +485,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void negativeTargetV() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("bad target voltage");
+        thrown.expectMessage("2 windings transformer 'twt': invalid value (-10.0) for voltage setpoint");
         createRatioTapChangerWith3Steps(0, 1, true, true, -10.0, 1.0, terminal);
     }
 
@@ -500,14 +502,14 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidTargetDeadbandRtc() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0");
+        thrown.expectMessage("2 windings transformer 'twt': invalid value (-1.0) for target deadband");
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, -1.0, terminal);
     }
 
     @Test
     public void nullRegulatingTerminal() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("a regulation terminal has to be set for a regulating ratio tap changer");
+        thrown.expectMessage("2 windings transformer 'twt': regulating terminal is not defined or is not part of the network");
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
     }
 

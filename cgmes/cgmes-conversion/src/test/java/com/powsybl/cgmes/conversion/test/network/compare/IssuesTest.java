@@ -6,7 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.test.network.compare;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
@@ -76,10 +75,10 @@ public class IssuesTest {
             .setMaxP(1)
             .setTargetP(1)
             .setTargetQ(0)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(400)
             .add();
-        assertEquals(g1.getRegulatingTerminal(), g1.getTerminal());
+        g1.setRegulatingTerminal(g1.getTerminal())
+            .setTargetV(400)
+            .setVoltageRegulatorOn(true);
         vl2.getBusBreakerView().newBus()
             .setId("B2")
             .add();

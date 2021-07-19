@@ -52,16 +52,18 @@ public final class ScalableTestNetwork {
                 .setVoltageRegulatorOn(false)
                 .setTargetQ(0.0)
                 .add();
-        vl.newGenerator()
+        Generator g3 = vl.newGenerator()
                 .setId("g3")
                 .setBus("bus1")
                 .setConnectableBus("bus1")
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(1.0)
+                .setTargetQ(0.0)
                 .add();
+        g3.setRegulatingTerminal(g3.getTerminal())
+            .setTargetV(1.0)
+            .setVoltageRegulatorOn(true);
         vl.newLoad()
                 .setId("l1")
                 .setBus("bus1")
@@ -133,16 +135,18 @@ public final class ScalableTestNetwork {
                 .setVoltageRegulatorOn(false)
                 .setTargetQ(0.0)
                 .add();
-        vl.newGenerator()
+        Generator g3 = vl.newGenerator()
                 .setId("g3")
                 .setBus("bus1")
                 .setConnectableBus("bus1")
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(50.0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(1.0)
+                .setTargetQ(0.0)
                 .add();
+        g3.setRegulatingTerminal(g3.getTerminal())
+            .setTargetV(1.0)
+            .setVoltageRegulatorOn(true);
         vl.newLoad()
                 .setId("l1")
                 .setBus("bus1")

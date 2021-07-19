@@ -46,12 +46,14 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
                 .setTargetP(10)
+                .setTargetQ(0.0)
                 .setBus("B")
                 .setConnectableBus("B")
                 .add();
+        g1.setRegulatingTerminal(g1.getTerminal())
+            .setTargetV(380)
+            .setVoltageRegulatorOn(true);
         g1.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(5)
@@ -69,12 +71,14 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMaxP(10)
                 .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
                 .setTargetP(10)
+                .setTargetQ(0.0)
                 .setBus("B")
                 .setConnectableBus("B")
                 .add();
+        g2.setRegulatingTerminal(g2.getTerminal())
+            .setTargetV(380)
+            .setVoltageRegulatorOn(true);
         g2.newMinMaxReactiveLimits()
                 .setMinQ(1)
                 .setMaxQ(10)

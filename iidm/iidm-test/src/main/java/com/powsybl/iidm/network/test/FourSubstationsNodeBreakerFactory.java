@@ -250,12 +250,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(100.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetP(85.3570)
-                .setTargetV(400.0)
                 .setTargetQ(512.081)
                 .setNode(7)
                 .add();
+        generatorHydro1.setRegulatingTerminal(generatorHydro1.getTerminal())
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true);
         generatorHydro1.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
@@ -275,12 +276,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(200.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetP(90)
-                .setTargetV(400.0)
                 .setTargetQ(512.081)
                 .setNode(9)
                 .add();
+        generatorHydro2.setRegulatingTerminal(generatorHydro2.getTerminal())
+            .setTargetV(400.0)
+            .setVoltageRegulatorOn(true);
         generatorHydro2.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
@@ -300,12 +302,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(200.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetP(155.714)
-                .setTargetV(400)
                 .setTargetQ(512.081)
                 .setNode(11)
                 .add();
+        generatorHydro3.setRegulatingTerminal(generatorHydro3.getTerminal())
+            .setTargetV(400)
+            .setVoltageRegulatorOn(true);
         generatorHydro3.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
@@ -489,12 +492,13 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setEnergySource(EnergySource.THERMAL)
                 .setMinP(0.0)
                 .setMaxP(400.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetP(250.9944)
-                .setTargetV(400)
                 .setTargetQ(71.8487)
                 .setNode(6)
                 .add();
+        generatorThermal2.setRegulatingTerminal(generatorThermal2.getTerminal())
+            .setTargetV(400)
+            .setVoltageRegulatorOn(true);
         generatorThermal2.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(0.0)
@@ -592,9 +596,10 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode(4)
                 .setBmin(-5e-2)
                 .setBmax(5e-2)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetpoint(400)
                 .add();
+        svc.setRegulatingTerminal(svc.getTerminal())
+            .setVoltageSetpoint(400)
+            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
         svc.getTerminal().setQ(-12.5415);
 
         busbarSectionS1VL1.getTerminal().getBusView().getBus()
