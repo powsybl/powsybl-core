@@ -40,7 +40,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
 
     @Override
     public void write(BranchObservability<T> branchObservability, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("observable", Boolean.toString(branchObservability.isObservable()));
+        XmlUtil.writeOptionalBoolean("observable", branchObservability.isObservable(), false, context.getWriter());
 
         // qualityP
         // ONE
@@ -81,7 +81,7 @@ public class BranchObservabilityXmlSerializer<T extends Branch<T>> extends Abstr
 
     @Override
     public BranchObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
-        boolean observable = XmlUtil.readBoolAttribute(context.getReader(), "observable");
+        boolean observable = XmlUtil.readOptionalBoolAttribute(context.getReader(), "observable", false);
 
         BranchObservabilityAdder<T> adder = identifiable.newExtension(BranchObservabilityAdder.class)
                 .withObservable(observable);
