@@ -199,7 +199,7 @@ public final class EquipmentExport {
                 default:
                     throw new PowsyblException("Unexpected type of ReactiveLimits on the generator " + generator.getNameOrId());
             }
-            SynchronousMachineEq.write(generator.getId(), generator.getNameOrId(), generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, cimNamespace, writer);
+            SynchronousMachineEq.write(generator.getId(), generator.getNameOrId(), generatingUnit, regulatingControlId, reactiveLimitsId, minQ, maxQ, generator.getRatedS(), cimNamespace, writer);
             String generatingUnitName = "GEN_" + generator.getNameOrId();
             GeneratingUnitEq.write(generatingUnit, generatingUnitName, generator.getEnergySource(), generator.getMinP(), generator.getMaxP(), generator.getTargetP(), cimNamespace, writer);
         }

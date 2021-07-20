@@ -19,7 +19,7 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class SynchronousMachineEq {
 
-    public static void write(String id, String generatorName, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId, double minQ, double maxQ, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String generatorName, String generatingUnit, String regulatingControlId, String reactiveCapabilityCurveId, double minQ, double maxQ, double ratedS, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "SynchronousMachine");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -41,6 +41,11 @@ public final class SynchronousMachineEq {
         writer.writeStartElement(cimNamespace, "SynchronousMachine.maxQ");
         writer.writeCharacters(CgmesExportUtil.format(maxQ));
         writer.writeEndElement();
+        if (!Double.isNaN(ratedS)) {
+            writer.writeStartElement(cimNamespace, "RotatingMachine.ratedS");
+            writer.writeCharacters(CgmesExportUtil.format(ratedS));
+            writer.writeEndElement();
+        }
         writer.writeEndElement();
     }
 
