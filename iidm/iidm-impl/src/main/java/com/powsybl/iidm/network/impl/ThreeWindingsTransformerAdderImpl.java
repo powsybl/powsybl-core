@@ -6,14 +6,15 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
 import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
-import com.powsybl.iidm.network.Validable;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+
+import java.util.Optional;
 
 /**
  *
@@ -137,7 +138,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
                     + "' not found");
             }
-            if (voltageLevel.getSubstation() != substation) {
+            if (substation != null && voltageLevel.getSubstation() != null && voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
                         + substation.getId() + "'");
@@ -169,6 +170,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
     }
 
+    private final Ref<NetworkImpl> networkRef;
     private final SubstationImpl substation;
 
     private LegAdderImpl legAdder1;
@@ -180,12 +182,22 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     private double ratedU0 = Double.NaN;
 
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
+        networkRef = null;
         this.substation = substation;
+    }
+
+    ThreeWindingsTransformerAdderImpl(Ref<NetworkImpl> networkRef) {
+        this.networkRef = networkRef;
+        substation = null;
     }
 
     @Override
     protected NetworkImpl getNetwork() {
-        return substation.getNetwork();
+        return Optional.ofNullable(networkRef)
+                .map(Ref::get)
+                .orElseGet(() -> Optional.ofNullable(substation)
+                        .map(SubstationImpl::getNetwork)
+                        .orElseThrow(() -> new PowsyblException("Three windings transformer has no container")));
     }
 
     @Override
@@ -258,6 +270,13 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
+        if (substation == null) {
+            Substation substationRef = null;
+            substationRef = checkSubstations(substationRef, voltageLevel1.getSubstation());
+            substationRef = checkSubstations(substationRef, voltageLevel2.getSubstation());
+            checkSubstations(substationRef, voltageLevel3.getSubstation());
+        }
+
         // check that the 3 windings transformer is attachable on the 3 sides (only
         // verify)
         voltageLevel1.attach(terminal1, true);
@@ -270,7 +289,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             LOGGER.info("RatedU0 is not set. Fixed to leg1 ratedU: {}", leg1.getRatedU());
         }
 
-        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(getNetwork().getRef(), id, getName(), isFictitious(), leg1, leg2, leg3,
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(), leg1, leg2, leg3,
             ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
@@ -291,5 +310,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         getNetwork().getListeners().notifyCreation(transformer);
 
         return transformer;
+    }
+
+    private Substation checkSubstations(Substation expected, Substation actual) {
+        if (expected != null && actual != null && expected != actual) {
+            throw new ValidationException(this, "voltage levels should belong to the same substation ('" + expected.getId() + "', '" + actual.getId() + "')");
+        }
+        return actual;
     }
 }

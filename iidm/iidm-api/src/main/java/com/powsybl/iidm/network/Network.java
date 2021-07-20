@@ -388,6 +388,15 @@ public interface Network extends Container<Network> {
      */
     TieLineAdder newTieLine();
 
+    default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newTwoWindingsTransformer();
+    }
+
     /**
      * Get all two windings transformers.
      */
@@ -409,6 +418,15 @@ public interface Network extends Container<Network> {
      * @param id the id or an alias of the two windings transformer
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
+
+    default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
+        return newSubstation()
+                .setId("FICTITIOUS_SUBSTATION")
+                .setEnsureIdUnicity(true)
+                .setFictitious(true)
+                .add()
+                .newThreeWindingsTransformer();
+    }
 
     /**
      * Get all 3 windings transformers.

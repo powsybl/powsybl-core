@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -301,6 +302,10 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the substation to which the transformer belongs.
      */
     Substation getSubstation();
+
+    default Optional<Substation> getOptionalSubstation() {
+        return Optional.ofNullable(getSubstation());
+    }
 
     /**
      * Get the leg at the primary side.

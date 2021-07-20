@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
@@ -337,6 +336,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
+        return new TwoWindingsTransformerAdderImpl(ref);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -354,6 +358,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
+        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
@@ -780,8 +789,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         //For bus breaker view, we exclude bus breaker topologies from the cache,
         //because thoses buses are already indexed in the NetworkIndex
         private final BusCache busBreakerViewCache = new BusCache(() -> getVoltageLevelStream()
-            .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
-            .flatMap(vl -> getBusBreakerView().getBusStream()));
+                .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+                .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
@@ -1021,24 +1030,24 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)
-                        .setName(mergedLine.half1.name)
-                        .setR(mergedLine.half1.r)
-                        .setX(mergedLine.half1.x)
-                        .setG1(mergedLine.half1.g1)
-                        .setG2(mergedLine.half1.g2)
-                        .setB1(mergedLine.half1.b1)
-                        .setB2(mergedLine.half1.b2)
-                        .setFictitious(mergedLine.half1.fictitious)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setFictitious(mergedLine.half1.fictitious)
                     .add()
                     .newHalfLine2().setId(mergedLine.half2.id)
-                        .setName(mergedLine.half2.name)
-                        .setR(mergedLine.half2.r)
-                        .setX(mergedLine.half2.x)
-                        .setG1(mergedLine.half2.g1)
-                        .setG2(mergedLine.half2.g2)
-                        .setB1(mergedLine.half2.b1)
-                        .setB2(mergedLine.half2.b2)
-                        .setFictitious(mergedLine.half2.fictitious)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setFictitious(mergedLine.half2.fictitious)
                     .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {
