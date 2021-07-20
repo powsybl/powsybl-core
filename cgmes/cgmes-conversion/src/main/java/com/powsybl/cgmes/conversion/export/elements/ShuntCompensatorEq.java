@@ -25,12 +25,13 @@ public final class ShuntCompensatorEq {
     private static final String EQ_SHUNTCOMPENSATOR_NOMU = "ShuntCompensator.nomU";
 
     private static final String EQ_LINEARSHUNTCOMPENSATOR_BPERSECTION = "LinearShuntCompensator.bPerSection";
+    private static final String EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION = "LinearShuntCompensator.gPerSection";
 
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_SECTIONNUMBER = "NonlinearShuntCompensatorPoint.sectionNumber";
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_B = "NonlinearShuntCompensatorPoint.b";
     private static final String EQ_NONLINEARSHUNTCOMPENSATOR_G = "NonlinearShuntCompensatorPoint.g";
 
-    public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType, double bPerSection, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String shuntCompensatorName, int normalSections, int maximumSections, double nomU, ShuntCompensatorModelType modelType, double bPerSection, double gPerSection, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, shuntCompensatorModelClassName(modelType));
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
@@ -49,6 +50,11 @@ public final class ShuntCompensatorEq {
             writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_BPERSECTION);
             writer.writeCharacters(CgmesExportUtil.format(bPerSection));
             writer.writeEndElement();
+            if (!Double.isNaN(gPerSection)) {
+                writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
+                writer.writeCharacters(CgmesExportUtil.format(gPerSection));
+                writer.writeEndElement();
+            }
         }
         writer.writeEndElement();
     }

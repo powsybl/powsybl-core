@@ -208,10 +208,12 @@ public final class EquipmentExport {
     private static void writeShuntCompensators(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (ShuntCompensator s : network.getShuntCompensators()) {
             double bPerSection = 0.0;
+            double gPerSection = Double.NaN;
             if (s.getModelType().equals(ShuntCompensatorModelType.LINEAR)) {
                 bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
+                gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
             }
-            ShuntCompensatorEq.write(s.getId(), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, cimNamespace, writer);
+            ShuntCompensatorEq.write(s.getId(), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, cimNamespace, writer);
             if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                 double b = 0.0;
                 double g = 0.0;
