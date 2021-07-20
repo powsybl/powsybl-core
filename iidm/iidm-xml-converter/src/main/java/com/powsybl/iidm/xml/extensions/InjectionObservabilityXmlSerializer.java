@@ -39,7 +39,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
 
     @Override
     public void write(InjectionObservability<T> injectionObservability, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("observable", Boolean.toString(injectionObservability.isObservable()));
+        XmlUtil.writeOptionalBoolean("observable", injectionObservability.isObservable(), false, context.getWriter());
         context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_P);
         XmlUtil.writeDouble(STANDARD_DEVIATION, injectionObservability.getStandardDeviationP(), context.getWriter());
         context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantP()));
@@ -53,7 +53,7 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
 
     @Override
     public InjectionObservability<T> read(T identifiable, XmlReaderContext context) throws XMLStreamException {
-        boolean observable = XmlUtil.readBoolAttribute(context.getReader(), "observable");
+        boolean observable = XmlUtil.readOptionalBoolAttribute(context.getReader(), "observable", false);
 
         InjectionObservabilityAdder<T> adder = identifiable.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(observable);

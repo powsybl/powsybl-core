@@ -34,7 +34,7 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="observable" use="required" type="xs:boolean"/>
+            <xs:attribute name="observable" type="xs:boolean"/>
         </xs:complexType>
     </xs:element>
 
