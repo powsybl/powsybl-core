@@ -28,16 +28,16 @@ public abstract class AbstractBranchObservabilityTest {
         assertNotNull(line);
         line.newExtension(BranchObservabilityAdder.class)
                 .withObservable(true)
-                .withStandardDeviationP(0.02f, Branch.Side.ONE)
-                .withStandardDeviationP(0.04f, Branch.Side.TWO)
+                .withStandardDeviationP(0.02d, Branch.Side.ONE)
+                .withStandardDeviationP(0.04d, Branch.Side.TWO)
                 .withRedundantP(true, Branch.Side.ONE)
                 .withRedundantP(false, Branch.Side.TWO)
-                .withStandardDeviationQ(0.5f, Branch.Side.ONE)
-                .withStandardDeviationQ(1.0f, Branch.Side.TWO)
+                .withStandardDeviationQ(0.5d, Branch.Side.ONE)
+                .withStandardDeviationQ(1.0d, Branch.Side.TWO)
                 .withRedundantQ(true, Branch.Side.ONE)
                 .withRedundantQ(false, Branch.Side.TWO)
-                .withStandardDeviationV(0.0f, Branch.Side.ONE)
-                .withStandardDeviationV(0.2f, Branch.Side.TWO)
+                .withStandardDeviationV(0.0d, Branch.Side.ONE)
+                .withStandardDeviationV(0.2d, Branch.Side.TWO)
                 .withRedundantV(true, Branch.Side.ONE)
                 .withRedundantV(false, Branch.Side.TWO)
                 .add();
@@ -50,12 +50,12 @@ public abstract class AbstractBranchObservabilityTest {
         assertFalse(branchObservability.isObservable());
 
         // P
-        assertEquals(0.02f, branchObservability.getStandardDeviationP(Branch.Side.ONE), 0f);
-        branchObservability.setStandardDeviationP(0.03f, Branch.Side.ONE);
-        assertEquals(0.03f, branchObservability.getStandardDeviationP(Branch.Side.ONE), 0f);
-        assertEquals(0.04f, branchObservability.getStandardDeviationP(Branch.Side.TWO), 0f);
-        branchObservability.setStandardDeviationP(0.08f, Branch.Side.TWO);
-        assertEquals(0.08f, branchObservability.getStandardDeviationP(Branch.Side.TWO), 0f);
+        assertEquals(0.02d, branchObservability.getStandardDeviationP(Branch.Side.ONE), 0d);
+        branchObservability.setStandardDeviationP(0.03d, Branch.Side.ONE);
+        assertEquals(0.03d, branchObservability.getStandardDeviationP(Branch.Side.ONE), 0d);
+        assertEquals(0.04d, branchObservability.getStandardDeviationP(Branch.Side.TWO), 0d);
+        branchObservability.setStandardDeviationP(0.08d, Branch.Side.TWO);
+        assertEquals(0.08d, branchObservability.getStandardDeviationP(Branch.Side.TWO), 0d);
 
         assertTrue(branchObservability.isRedundantP(Branch.Side.ONE));
         branchObservability.setRedundantP(false, Branch.Side.ONE);
@@ -65,12 +65,12 @@ public abstract class AbstractBranchObservabilityTest {
         assertTrue(branchObservability.isRedundantP(Branch.Side.TWO));
 
         // Q
-        assertEquals(0.5f, branchObservability.getStandardDeviationQ(Branch.Side.ONE), 0f);
-        branchObservability.setStandardDeviationQ(0.6f, Branch.Side.ONE);
-        assertEquals(0.6f, branchObservability.getStandardDeviationQ(Branch.Side.ONE), 0f);
-        assertEquals(1.0f, branchObservability.getStandardDeviationQ(Branch.Side.TWO), 0f);
-        branchObservability.setStandardDeviationQ(1.01f, Branch.Side.TWO);
-        assertEquals(1.01f, branchObservability.getStandardDeviationQ(Branch.Side.TWO), 0f);
+        assertEquals(0.5d, branchObservability.getStandardDeviationQ(Branch.Side.ONE), 0d);
+        branchObservability.setStandardDeviationQ(0.6d, Branch.Side.ONE);
+        assertEquals(0.6d, branchObservability.getStandardDeviationQ(Branch.Side.ONE), 0d);
+        assertEquals(1.0d, branchObservability.getStandardDeviationQ(Branch.Side.TWO), 0d);
+        branchObservability.setStandardDeviationQ(1.01d, Branch.Side.TWO);
+        assertEquals(1.01d, branchObservability.getStandardDeviationQ(Branch.Side.TWO), 0d);
 
         assertTrue(branchObservability.isRedundantQ(Branch.Side.ONE));
         branchObservability.setRedundantQ(false, Branch.Side.ONE);
@@ -80,12 +80,12 @@ public abstract class AbstractBranchObservabilityTest {
         assertTrue(branchObservability.isRedundantQ(Branch.Side.TWO));
 
         // V
-        assertEquals(0.00f, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0f);
-        branchObservability.setStandardDeviationV(0.01f, Branch.Side.ONE);
-        assertEquals(0.01f, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0f);
-        assertEquals(0.2f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
-        branchObservability.setStandardDeviationV(0.3f, Branch.Side.TWO);
-        assertEquals(0.3f, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0f);
+        assertEquals(0.00d, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0d);
+        branchObservability.setStandardDeviationV(0.01d, Branch.Side.ONE);
+        assertEquals(0.01d, branchObservability.getStandardDeviationV(Branch.Side.ONE), 0d);
+        assertEquals(0.2d, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0d);
+        branchObservability.setStandardDeviationV(0.3d, Branch.Side.TWO);
+        assertEquals(0.3d, branchObservability.getStandardDeviationV(Branch.Side.TWO), 0d);
 
         assertTrue(branchObservability.isRedundantV(Branch.Side.ONE));
         branchObservability.setRedundantV(false, Branch.Side.ONE);

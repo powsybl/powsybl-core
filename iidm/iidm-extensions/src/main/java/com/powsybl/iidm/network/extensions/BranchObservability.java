@@ -20,27 +20,27 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
     }
 
     /** StandardDeviation for Active Power */
-    float getStandardDeviationP(Branch.Side side);
+    double getStandardDeviationP(Branch.Side side);
 
-    BranchObservability<B> setStandardDeviationP(float standardDeviationP, Branch.Side side);
+    BranchObservability<B> setStandardDeviationP(double standardDeviationP, Branch.Side side);
 
     boolean isRedundantP(Branch.Side side);
 
     BranchObservability<B> setRedundantP(boolean redundant, Branch.Side side);
 
     /** StandardDeviation for Reactive Power */
-    float getStandardDeviationQ(Branch.Side side);
+    double getStandardDeviationQ(Branch.Side side);
 
-    BranchObservability<B> setStandardDeviationQ(float standardDeviationQ, Branch.Side side);
+    BranchObservability<B> setStandardDeviationQ(double standardDeviationQ, Branch.Side side);
 
     boolean isRedundantQ(Branch.Side side);
 
     BranchObservability<B> setRedundantQ(boolean redundant, Branch.Side side);
 
     /** StandardDeviation for Voltage amplitude */
-    float getStandardDeviationV(Branch.Side side);
+    double getStandardDeviationV(Branch.Side side);
 
-    BranchObservability<B> setStandardDeviationV(float standardDeviationV, Branch.Side side);
+    BranchObservability<B> setStandardDeviationV(double standardDeviationV, Branch.Side side);
 
     boolean isRedundantV(Branch.Side side);
 

@@ -24,20 +24,20 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     private boolean observable;
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
 
     public BranchObservabilityAdderImpl(B extendable) {
         super(extendable);
-        standardDeviationP.put(Branch.Side.ONE, new Pair<>(Float.NaN, false));
-        standardDeviationP.put(Branch.Side.TWO, new Pair<>(Float.NaN, false));
-        standardDeviationQ.put(Branch.Side.ONE, new Pair<>(Float.NaN, false));
-        standardDeviationQ.put(Branch.Side.TWO, new Pair<>(Float.NaN, false));
-        standardDeviationV.put(Branch.Side.ONE, new Pair<>(Float.NaN, false));
-        standardDeviationV.put(Branch.Side.TWO, new Pair<>(Float.NaN, false));
+        standardDeviationP.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
+        standardDeviationP.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
+        standardDeviationQ.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
+        standardDeviationQ.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
+        standardDeviationV.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
+        standardDeviationV.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
     }
 
     @Override
@@ -58,7 +58,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationP(float standardDeviationP, Branch.Side side) {
+    public BranchObservabilityAdder<B> withStandardDeviationP(double standardDeviationP, Branch.Side side) {
         this.standardDeviationP.get(side).setFirst(standardDeviationP);
         return this;
     }
@@ -70,7 +70,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationQ(float standardDeviationQ, Branch.Side side) {
+    public BranchObservabilityAdder<B> withStandardDeviationQ(double standardDeviationQ, Branch.Side side) {
         this.standardDeviationQ.get(side).setFirst(standardDeviationQ);
         return this;
     }
@@ -82,7 +82,7 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationV(float standardDeviationV, Branch.Side side) {
+    public BranchObservabilityAdder<B> withStandardDeviationV(double standardDeviationV, Branch.Side side) {
         this.standardDeviationV.get(side).setFirst(standardDeviationV);
         return this;
     }

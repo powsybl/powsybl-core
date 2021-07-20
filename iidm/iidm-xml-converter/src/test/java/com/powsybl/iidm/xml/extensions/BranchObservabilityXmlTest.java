@@ -39,12 +39,12 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(line1);
 
         BranchObservability<Line> branchObservability = new BranchObservabilityImpl<>(line1, true,
-                0.03f, false,
-                0.6f, false,
-                0.1f, false,
-                0.04f, true,
-                0.61f, true,
-                0.11f, true);
+                0.03d, false,
+                0.6d, false,
+                0.1d, false,
+                0.04d, true,
+                0.61d, true,
+                0.11d, true);
         line1.addExtension(BranchObservability.class, branchObservability);
 
         Network network2 = roundTripXmlTest(network,
@@ -58,19 +58,19 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(branchObservability2);
 
         assertEquals(branchObservability.isObservable(), branchObservability2.isObservable());
-        assertEquals(branchObservability.getStandardDeviationP(Branch.Side.ONE), branchObservability2.getStandardDeviationP(Branch.Side.ONE), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationP(Branch.Side.ONE), branchObservability2.getStandardDeviationP(Branch.Side.ONE), 0.0d);
         assertEquals(branchObservability.isRedundantP(Branch.Side.ONE), branchObservability2.isRedundantP(Branch.Side.ONE));
-        assertEquals(branchObservability.getStandardDeviationP(Branch.Side.TWO), branchObservability2.getStandardDeviationP(Branch.Side.TWO), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationP(Branch.Side.TWO), branchObservability2.getStandardDeviationP(Branch.Side.TWO), 0.0d);
         assertEquals(branchObservability.isRedundantP(Branch.Side.TWO), branchObservability2.isRedundantP(Branch.Side.TWO));
 
-        assertEquals(branchObservability.getStandardDeviationQ(Branch.Side.ONE), branchObservability2.getStandardDeviationQ(Branch.Side.ONE), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationQ(Branch.Side.ONE), branchObservability2.getStandardDeviationQ(Branch.Side.ONE), 0.0d);
         assertEquals(branchObservability.isRedundantQ(Branch.Side.ONE), branchObservability2.isRedundantQ(Branch.Side.ONE));
-        assertEquals(branchObservability.getStandardDeviationQ(Branch.Side.TWO), branchObservability2.getStandardDeviationQ(Branch.Side.TWO), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationQ(Branch.Side.TWO), branchObservability2.getStandardDeviationQ(Branch.Side.TWO), 0.0d);
         assertEquals(branchObservability.isRedundantQ(Branch.Side.TWO), branchObservability2.isRedundantQ(Branch.Side.TWO));
 
-        assertEquals(branchObservability.getStandardDeviationV(Branch.Side.ONE), branchObservability2.getStandardDeviationV(Branch.Side.ONE), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationV(Branch.Side.ONE), branchObservability2.getStandardDeviationV(Branch.Side.ONE), 0.0d);
         assertEquals(branchObservability.isRedundantV(Branch.Side.ONE), branchObservability2.isRedundantV(Branch.Side.ONE));
-        assertEquals(branchObservability.getStandardDeviationV(Branch.Side.TWO), branchObservability2.getStandardDeviationV(Branch.Side.TWO), 0.0f);
+        assertEquals(branchObservability.getStandardDeviationV(Branch.Side.TWO), branchObservability2.getStandardDeviationV(Branch.Side.TWO), 0.0d);
         assertEquals(branchObservability.isRedundantV(Branch.Side.TWO), branchObservability2.isRedundantV(Branch.Side.TWO));
 
         assertEquals(branchObservability.getName(), branchObservability2.getName());

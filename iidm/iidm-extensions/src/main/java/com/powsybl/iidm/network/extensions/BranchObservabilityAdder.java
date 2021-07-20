@@ -22,15 +22,15 @@ public interface BranchObservabilityAdder<B extends Branch<B>>
 
     BranchObservabilityAdder<B> withObservable(boolean observable);
 
-    BranchObservabilityAdder<B> withStandardDeviationP(float standardDeviationP, Branch.Side side);
+    BranchObservabilityAdder<B> withStandardDeviationP(double standardDeviationP, Branch.Side side);
 
     BranchObservabilityAdder<B> withRedundantP(boolean redundant, Branch.Side side);
 
-    BranchObservabilityAdder<B> withStandardDeviationQ(float standardDeviationQ, Branch.Side side);
+    BranchObservabilityAdder<B> withStandardDeviationQ(double standardDeviationQ, Branch.Side side);
 
     BranchObservabilityAdder<B> withRedundantQ(boolean redundant, Branch.Side side);
 
-    BranchObservabilityAdder<B> withStandardDeviationV(float standardDeviationV, Branch.Side side);
+    BranchObservabilityAdder<B> withStandardDeviationV(double standardDeviationV, Branch.Side side);
 
     BranchObservabilityAdder<B> withRedundantV(boolean redundant, Branch.Side side);
 }

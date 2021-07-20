@@ -20,7 +20,7 @@
                     <xs:element name="qualityP">
                         <xs:complexType>
                             <xs:attribute name="side" use="required" type="io:Side"/>
-                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                             <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>
@@ -29,7 +29,7 @@
                     <xs:element name="qualityQ" minOccurs="2" maxOccurs="2">
                         <xs:complexType>
                             <xs:attribute name="side" use="required" type="io:Side"/>
-                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                             <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>
@@ -38,7 +38,7 @@
                     <xs:element name="qualityV" minOccurs="2" maxOccurs="2">
                         <xs:complexType>
                             <xs:attribute name="side" use="required" type="io:Side"/>
-                            <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                            <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                             <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>

@@ -22,19 +22,19 @@ public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtens
 
     private boolean observable;
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
 
-    private final Map<Branch.Side, Pair<Float, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
+    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
 
     public BranchObservabilityImpl(T component, boolean observable,
-                                   float oneStandardDeviationP, boolean oneRedundantP,
-                                   float twoStandardDeviationP, boolean twoRedundantP,
-                                   float oneStandardDeviationQ, boolean oneRedundantQ,
-                                   float twoStandardDeviationQ, boolean twoRedundantQ,
-                                   float oneStandardDeviationV, boolean oneRedundantV,
-                                   float twoStandardDeviationV, boolean twoRedundantV) {
+                                   double oneStandardDeviationP, boolean oneRedundantP,
+                                   double twoStandardDeviationP, boolean twoRedundantP,
+                                   double oneStandardDeviationQ, boolean oneRedundantQ,
+                                   double twoStandardDeviationQ, boolean twoRedundantQ,
+                                   double oneStandardDeviationV, boolean oneRedundantV,
+                                   double twoStandardDeviationV, boolean twoRedundantV) {
         super(component);
         this.observable = observable;
         this.standardDeviationP.put(Branch.Side.ONE, new Pair<>(oneStandardDeviationP, oneRedundantP));
@@ -58,12 +58,12 @@ public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtens
     }
 
     @Override
-    public float getStandardDeviationP(Branch.Side side) {
+    public double getStandardDeviationP(Branch.Side side) {
         return standardDeviationP.get(side).getFirst();
     }
 
     @Override
-    public BranchObservabilityImpl<T> setStandardDeviationP(float standardDeviationP, Branch.Side side) {
+    public BranchObservabilityImpl<T> setStandardDeviationP(double standardDeviationP, Branch.Side side) {
         this.standardDeviationP.get(side).setFirst(standardDeviationP);
         return this;
     }
@@ -80,12 +80,12 @@ public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtens
     }
 
     @Override
-    public float getStandardDeviationQ(Branch.Side side) {
+    public double getStandardDeviationQ(Branch.Side side) {
         return standardDeviationQ.get(side).getFirst();
     }
 
     @Override
-    public BranchObservabilityImpl<T> setStandardDeviationQ(float standardDeviationQ, Branch.Side side) {
+    public BranchObservabilityImpl<T> setStandardDeviationQ(double standardDeviationQ, Branch.Side side) {
         this.standardDeviationQ.get(side).setFirst(standardDeviationQ);
         return this;
     }
@@ -102,12 +102,12 @@ public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtens
     }
 
     @Override
-    public float getStandardDeviationV(Branch.Side side) {
+    public double getStandardDeviationV(Branch.Side side) {
         return standardDeviationV.get(side).getFirst();
     }
 
     @Override
-    public BranchObservabilityImpl<T> setStandardDeviationV(float standardDeviationV, Branch.Side side) {
+    public BranchObservabilityImpl<T> setStandardDeviationV(double standardDeviationV, Branch.Side side) {
         this.standardDeviationV.get(side).setFirst(standardDeviationV);
         return this;
     }
