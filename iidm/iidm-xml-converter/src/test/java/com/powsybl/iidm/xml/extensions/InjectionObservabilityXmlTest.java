@@ -39,11 +39,11 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        InjectionObservability<Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true, 0.03f, false, 0.6f, false, 0.1f, false);
+        InjectionObservability<Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true, 0.03d, false, 0.6d, false, 0.1d, false);
         bat.addExtension(InjectionObservability.class, injectionObservability);
 
         Generator generator = network.getGenerator("GEN");
-        generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02f, true, 0.5f, true, 0.0f, true));
+        generator.addExtension(InjectionObservability.class, new InjectionObservabilityImpl<>(generator, false, 0.02d, true, 0.5d, true, 0.0d, true));
 
         Network network2 = roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
@@ -56,9 +56,9 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(injectionObservability2);
 
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
-        assertEquals(injectionObservability.getStandardDeviationP(), injectionObservability2.getStandardDeviationP(), 0.0f);
-        assertEquals(injectionObservability.getStandardDeviationQ(), injectionObservability2.getStandardDeviationQ(), 0.0f);
-        assertEquals(injectionObservability.getStandardDeviationV(), injectionObservability2.getStandardDeviationV(), 0.0f);
+        assertEquals(injectionObservability.getStandardDeviationP(), injectionObservability2.getStandardDeviationP(), 0.0d);
+        assertEquals(injectionObservability.getStandardDeviationQ(), injectionObservability2.getStandardDeviationQ(), 0.0d);
+        assertEquals(injectionObservability.getStandardDeviationV(), injectionObservability2.getStandardDeviationV(), 0.0d);
         assertEquals(injectionObservability.isRedundantP(), injectionObservability2.isRedundantP());
         assertEquals(injectionObservability.isRedundantQ(), injectionObservability2.isRedundantQ());
         assertEquals(injectionObservability.isRedundantV(), injectionObservability2.isRedundantV());

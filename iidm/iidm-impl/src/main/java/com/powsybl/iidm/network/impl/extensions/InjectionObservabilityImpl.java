@@ -19,16 +19,16 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
 
     private boolean observable;
 
-    private final Pair<Float, Boolean> standardDeviationP;
+    private final Pair<Double, Boolean> standardDeviationP;
 
-    private final Pair<Float, Boolean> standardDeviationQ;
+    private final Pair<Double, Boolean> standardDeviationQ;
 
-    private final Pair<Float, Boolean> standardDeviationV;
+    private final Pair<Double, Boolean> standardDeviationV;
 
     public InjectionObservabilityImpl(T component, boolean observable,
-                                      float standardDeviationP, boolean redundantP,
-                                      float standardDeviationQ, boolean redundantQ,
-                                      float standardDeviationV, boolean redundantV) {
+                                      double standardDeviationP, boolean redundantP,
+                                      double standardDeviationQ, boolean redundantQ,
+                                      double standardDeviationV, boolean redundantV) {
         super(component);
         this.observable = observable;
         this.standardDeviationP = new Pair<>(standardDeviationP, redundantP);
@@ -47,12 +47,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public float getStandardDeviationP() {
+    public double getStandardDeviationP() {
         return standardDeviationP.getFirst();
     }
 
     @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationP(float standardDeviationP) {
+    public InjectionObservabilityImpl<T> setStandardDeviationP(double standardDeviationP) {
         this.standardDeviationP.setFirst(standardDeviationP);
         return this;
     }
@@ -69,12 +69,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public float getStandardDeviationQ() {
+    public double getStandardDeviationQ() {
         return standardDeviationQ.getFirst();
     }
 
     @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationQ(float standardDeviationQ) {
+    public InjectionObservabilityImpl<T> setStandardDeviationQ(double standardDeviationQ) {
         this.standardDeviationQ.setFirst(standardDeviationQ);
         return this;
     }
@@ -91,12 +91,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public float getStandardDeviationV() {
+    public double getStandardDeviationV() {
         return standardDeviationV.getFirst();
     }
 
     @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationV(float standardDeviationV) {
+    public InjectionObservabilityImpl<T> setStandardDeviationV(double standardDeviationV) {
         this.standardDeviationV.setFirst(standardDeviationV);
         return this;
     }

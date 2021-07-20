@@ -20,11 +20,11 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
 
     private boolean observable;
 
-    private float standardDeviationP;
+    private double standardDeviationP;
 
-    private float standardDeviationQ;
+    private double standardDeviationQ;
 
-    private float standardDeviationV;
+    private double standardDeviationV;
 
     private boolean redundantP;
 
@@ -48,7 +48,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withStandardDeviationP(float standardDeviationP) {
+    public InjectionObservabilityAdder<I> withStandardDeviationP(double standardDeviationP) {
         this.standardDeviationP = standardDeviationP;
         return this;
     }
@@ -60,7 +60,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withStandardDeviationQ(float standardDeviationQ) {
+    public InjectionObservabilityAdder<I> withStandardDeviationQ(double standardDeviationQ) {
         this.standardDeviationQ = standardDeviationQ;
         return this;
     }
@@ -72,7 +72,7 @@ public class InjectionObservabilityAdderImpl<I extends Injection<I>>
     }
 
     @Override
-    public InjectionObservabilityAdder<I> withStandardDeviationV(float standardDeviationV) {
+    public InjectionObservabilityAdder<I> withStandardDeviationV(double standardDeviationV) {
         this.standardDeviationV = standardDeviationV;
         return this;
     }

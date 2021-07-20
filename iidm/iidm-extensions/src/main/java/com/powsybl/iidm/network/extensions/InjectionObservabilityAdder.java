@@ -22,15 +22,15 @@ public interface InjectionObservabilityAdder <I extends Injection<I>>
 
     InjectionObservabilityAdder<I> withObservable(boolean observable);
 
-    InjectionObservabilityAdder<I> withStandardDeviationP(float standardDeviationP);
+    InjectionObservabilityAdder<I> withStandardDeviationP(double standardDeviationP);
 
     InjectionObservabilityAdder<I> withRedundantP(boolean redundant);
 
-    InjectionObservabilityAdder<I> withStandardDeviationQ(float standardDeviationQ);
+    InjectionObservabilityAdder<I> withStandardDeviationQ(double standardDeviationQ);
 
     InjectionObservabilityAdder<I> withRedundantQ(boolean redundant);
 
-    InjectionObservabilityAdder<I> withStandardDeviationV(float standardDeviationV);
+    InjectionObservabilityAdder<I> withStandardDeviationV(double standardDeviationV);
 
     InjectionObservabilityAdder<I> withRedundantV(boolean redundant);
 }

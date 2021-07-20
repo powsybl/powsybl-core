@@ -17,19 +17,19 @@
             <xs:sequence>
                 <xs:element name="qualityP">
                     <xs:complexType>
-                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                         <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="qualityQ">
                     <xs:complexType>
-                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                         <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="qualityV">
                     <xs:complexType>
-                        <xs:attribute name="standardDeviation" use="required" type="xs:float"/>
+                        <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
                         <xs:attribute name="redundant" use="required" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>

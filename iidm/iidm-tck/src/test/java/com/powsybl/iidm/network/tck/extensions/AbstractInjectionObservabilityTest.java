@@ -27,11 +27,11 @@ public abstract class AbstractInjectionObservabilityTest {
         assertNotNull(bat);
         bat.newExtension(InjectionObservabilityAdder.class)
                 .withObservable(true)
-                .withStandardDeviationP(0.02f)
+                .withStandardDeviationP(0.02d)
                 .withRedundantP(true)
-                .withStandardDeviationQ(0.5f)
+                .withStandardDeviationQ(0.5d)
                 .withRedundantQ(true)
-                .withStandardDeviationV(0.0f)
+                .withStandardDeviationV(0.0d)
                 .withRedundantV(true)
                 .add();
         InjectionObservability<Battery> injectionObservability = bat.getExtension(InjectionObservability.class);
@@ -42,25 +42,25 @@ public abstract class AbstractInjectionObservabilityTest {
         injectionObservability.setObservable(false);
         assertFalse(injectionObservability.isObservable());
 
-        assertEquals(0.02f, injectionObservability.getStandardDeviationP(), 0f);
-        injectionObservability.setStandardDeviationP(0.03f);
-        assertEquals(0.03f, injectionObservability.getStandardDeviationP(), 0f);
+        assertEquals(0.02d, injectionObservability.getStandardDeviationP(), 0d);
+        injectionObservability.setStandardDeviationP(0.03d);
+        assertEquals(0.03d, injectionObservability.getStandardDeviationP(), 0d);
 
         assertTrue(injectionObservability.isRedundantP());
         injectionObservability.setRedundantP(false);
         assertFalse(injectionObservability.isRedundantP());
 
-        assertEquals(0.5f, injectionObservability.getStandardDeviationQ(), 0f);
-        injectionObservability.setStandardDeviationQ(0.6f);
-        assertEquals(0.6f, injectionObservability.getStandardDeviationQ(), 0f);
+        assertEquals(0.5d, injectionObservability.getStandardDeviationQ(), 0d);
+        injectionObservability.setStandardDeviationQ(0.6d);
+        assertEquals(0.6d, injectionObservability.getStandardDeviationQ(), 0d);
 
         assertTrue(injectionObservability.isRedundantQ());
         injectionObservability.setRedundantQ(false);
         assertFalse(injectionObservability.isRedundantQ());
 
-        assertEquals(0.0f, injectionObservability.getStandardDeviationV(), 0f);
-        injectionObservability.setStandardDeviationV(0.01f);
-        assertEquals(0.01f, injectionObservability.getStandardDeviationV(), 0f);
+        assertEquals(0.0d, injectionObservability.getStandardDeviationV(), 0d);
+        injectionObservability.setStandardDeviationV(0.01d);
+        assertEquals(0.01d, injectionObservability.getStandardDeviationV(), 0d);
 
         assertTrue(injectionObservability.isRedundantV());
         injectionObservability.setRedundantV(false);
