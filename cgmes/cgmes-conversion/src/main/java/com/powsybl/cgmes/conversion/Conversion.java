@@ -425,82 +425,55 @@ public class Conversion {
                 break;
             }
         }
+        Substation fictitiousSubstation = null;
+        VoltageLevel fictitiousVoltageLevel = null;
         for (PropertyBag lineSegment : lineSegments) {
+
+            String lineName = lineSegment.get("lineName");
             CgmesTerminal t1 = cgmes.terminal(lineSegment.getId("Terminal1"));
-            String node1Id = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
             String vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
+            VoltageLevel vl1 = null;
             if (vl1Id == null) {
-                vl1Id = node1Id + "_VL";
+                Substation substation = fictitiousSubstation;
+                if (substation == null) {
+                    if (fictitiousSubstation == null) {
+                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SB", lineName);
+                    }
+                    substation = fictitiousSubstation;
+                }
+                vl1 = fictitiousVoltageLevel;
+                if (vl1 == null) {
+                    if (fictitiousVoltageLevel == null) {
+                        fictitiousVoltageLevel = newFictitiousVoltageLevel(context, substation, lineId + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
+                    }
+                    vl1 = fictitiousVoltageLevel;
+                }
+                LOG.error(lineId + " VoltageLevel1 null");
+            } else {
+                vl1 = context.network().getVoltageLevel(vl1Id);
             }
 
             CgmesTerminal t2 = cgmes.terminal(lineSegment.getId("Terminal2"));
-            String node2Id = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
             String vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
+            VoltageLevel vl2 = null;
             if (vl2Id == null) {
-                vl2Id = node2Id + "_VL";
-            }
-
-            VoltageLevel vl1 = context.network().getVoltageLevel(vl1Id);
-            VoltageLevel vl2 = context.network().getVoltageLevel(vl2Id);
-            if (vl1 == null) {
-                String iidmSubstationId = context.substationIdMapping().substationIidm(node1Id + "_SS");
-                Substation substation = context.network().getSubstation(iidmSubstationId);
+                Substation substation = fictitiousSubstation;
                 if (substation == null) {
-                    substation = context.network().newSubstation()
-                            .setId(iidmSubstationId)
-                            .setName(t1.name())
-                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                            .setCountry(null)
-                            .setGeographicalTags(null)
-                            .add();
+                    if (fictitiousSubstation == null) {
+                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SB", lineName);
+                    }
+                    substation = fictitiousSubstation;
                 }
-                String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(vl1Id);
-                vl1 = context.network().getVoltageLevel(iidmVoltageLevelId);
-                if (vl1 == null) {
-                    vl1 = substation.newVoltageLevel()
-                            .setNominalV(nominalV)
-                            .setTopologyKind(
-                                    context.nodeBreaker()
-                                            ? TopologyKind.NODE_BREAKER
-                                            : TopologyKind.BUS_BREAKER)
-                            .setLowVoltageLimit(lowVoltageLimit)
-                            .setHighVoltageLimit(highVoltageLimit)
-                            .setId(iidmVoltageLevelId)
-                            .setName(t1.name())
-                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                            .add();
-                }
-                LOG.error(lineId + " VoltageLevel1 null");
-            }
-            if (vl2 == null) {
-                String iidmSubstationId = context.substationIdMapping().substationIidm(node2Id + "_SS");
-                Substation substation = context.network().getSubstation(iidmSubstationId);
-                if (substation == null) {
-                    substation = context.network().newSubstation()
-                            .setId(iidmSubstationId)
-                            .setName(t2.name())
-                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                            .setCountry(null)
-                            .setGeographicalTags(null)
-                            .add();
-                }
-                String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(vl2Id);
-                vl2 = context.network().getVoltageLevel(iidmVoltageLevelId);
+                vl2 = fictitiousVoltageLevel;
                 if (vl2 == null) {
-                    vl2 = substation.newVoltageLevel()
-                            .setNominalV(nominalV)
-                            .setTopologyKind(
-                                    context.nodeBreaker()
-                                            ? TopologyKind.NODE_BREAKER
-                                            : TopologyKind.BUS_BREAKER)
-                            .setLowVoltageLimit(lowVoltageLimit)
-                            .setHighVoltageLimit(highVoltageLimit)
-                            .setId(iidmVoltageLevelId)
-                            .setName(t2.name())
-                            .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                            .add();
+                    if (fictitiousVoltageLevel == null) {
+                        fictitiousVoltageLevel = newFictitiousVoltageLevel(context, substation, lineId + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
+                    }
+                    vl2 = fictitiousVoltageLevel;
                 }
                 LOG.error(lineId + " VoltageLevel2 null");
+            } else {
+                vl2 = context.network().getVoltageLevel(vl2Id);
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(lineSegment, context);
             if (c.valid()) {
@@ -508,6 +481,31 @@ public class Conversion {
                 c.convertSplittedLine(t1, t2, vl1, vl2);
             }
         }
+    }
+
+    private Substation newFictitiousSubstation(Context context, String id, String name) {
+        return context.network().newSubstation()
+                .setId(id)
+                .setName(name)
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                .setCountry(null)
+                .setGeographicalTags(null)
+                .add();
+    }
+
+    private VoltageLevel newFictitiousVoltageLevel(Context context, Substation substation, String id, String name, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+        return substation.newVoltageLevel()
+                .setNominalV(nominalV)
+                .setTopologyKind(
+                        context.nodeBreaker()
+                                ? TopologyKind.NODE_BREAKER
+                                : TopologyKind.BUS_BREAKER)
+                .setLowVoltageLimit(lowVoltageLimit)
+                .setHighVoltageLimit(highVoltageLimit)
+                .setId(id)
+                .setName(name)
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                .add();
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
