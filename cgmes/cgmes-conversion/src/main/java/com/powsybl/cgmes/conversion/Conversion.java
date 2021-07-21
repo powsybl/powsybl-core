@@ -437,7 +437,7 @@ public class Conversion {
                 Substation substation = fictitiousSubstation;
                 if (substation == null) {
                     if (fictitiousSubstation == null) {
-                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SB", lineName);
+                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SS", lineName);
                     }
                     substation = fictitiousSubstation;
                 }
@@ -460,7 +460,7 @@ public class Conversion {
                 Substation substation = fictitiousSubstation;
                 if (substation == null) {
                     if (fictitiousSubstation == null) {
-                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SB", lineName);
+                        fictitiousSubstation = newFictitiousSubstation(context, lineId + "_SS", lineName);
                     }
                     substation = fictitiousSubstation;
                 }
