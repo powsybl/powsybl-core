@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -114,6 +115,7 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new voltage level in the substation. The builder is initialized with all the values of the given voltage level.
      */
     default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
+        Objects.requireNonNull(voltageLevel);
         return newVoltageLevel()
                 .setFictitious(voltageLevel.isFictitious())
                 .setNominalV(voltageLevel.getNominalV())
@@ -141,6 +143,7 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new two windings transformer in the substation. The builder is initialized with all the values of the given two windings transformer.
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
+        Objects.requireNonNull(twt);
         return newTwoWindingsTransformer()
                 .setFictitious(twt.isFictitious())
                 .setR(twt.getR())

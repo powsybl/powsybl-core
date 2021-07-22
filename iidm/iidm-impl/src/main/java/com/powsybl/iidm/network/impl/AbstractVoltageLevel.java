@@ -171,7 +171,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public GeneratorAdder newGenerator(Generator generator) {
-        return new GeneratorAdderImpl(generator, this);
+        return new GeneratorAdderImpl(Objects.requireNonNull(generator), this);
     }
 
     @Override
@@ -196,7 +196,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public BatteryAdder newBattery(Battery battery) {
-        return new BatteryAdderImpl(battery, this);
+        return new BatteryAdderImpl(Objects.requireNonNull(battery), this);
     }
 
     @Override
@@ -221,7 +221,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public LoadAdder newLoad(Load load) {
-        return new LoadAdderImpl(load, this);
+        return new LoadAdderImpl(Objects.requireNonNull(load), this);
     }
 
     @Override
@@ -246,7 +246,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
-        return new ShuntCompensatorAdderImpl(shuntCompensator, this);
+        return new ShuntCompensatorAdderImpl(Objects.requireNonNull(shuntCompensator), this);
     }
 
     @Override
@@ -271,7 +271,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
-        return new DanglingLineAdderImpl(danglingLine, this);
+        return new DanglingLineAdderImpl(Objects.requireNonNull(danglingLine), this);
     }
 
     @Override
@@ -296,7 +296,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
-        return new StaticVarCompensatorAdderImpl(staticVarCompensator, this);
+        return new StaticVarCompensatorAdderImpl(Objects.requireNonNull(staticVarCompensator), this);
     }
 
     @Override
@@ -336,7 +336,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
-        return new VscConverterStationAdderImpl(converterStation, this);
+        return new VscConverterStationAdderImpl(Objects.requireNonNull(converterStation), this);
     }
 
     @Override
@@ -361,7 +361,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
-        return new LccConverterStationAdderImpl(converterStation, this);
+        return new LccConverterStationAdderImpl(Objects.requireNonNull(converterStation), this);
     }
 
     @Override

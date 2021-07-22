@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -258,6 +259,7 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new substation. The builder is initialized with all the values of the given substation.
      */
     default SubstationAdder newSubstation(Substation substation) {
+        Objects.requireNonNull(substation);
         return newSubstation()
                 .setFictitious(substation.isFictitious())
                 .setCountry(substation.getNullableCountry())
@@ -343,6 +345,7 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new AC line. The builder is initialized with all the values of the given AC line.
      */
     default LineAdder newLine(Line line) {
+        Objects.requireNonNull(line);
         return newLine()
                 .setFictitious(line.isFictitious())
                 .setR(line.getR())
@@ -747,6 +750,7 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new HVDC line. The builder is initialized with all the values of the given HVDC line.
      */
     default HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
+        Objects.requireNonNull(hvdcLine);
         return newHvdcLine()
                 .setFictitious(hvdcLine.isFictitious())
                 .setR(hvdcLine.getR())

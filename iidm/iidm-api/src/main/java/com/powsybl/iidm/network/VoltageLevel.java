@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Stream;
@@ -918,6 +919,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new generator. The builder is initialized with all the values of the given generator.
      */
     default GeneratorAdder newGenerator(Generator generator) {
+        Objects.requireNonNull(generator);
         return newGenerator()
                 .setFictitious(generator.isFictitious())
                 .setEnergySource(generator.getEnergySource())
@@ -955,6 +957,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new battery. The builder is initialized with all the values of the given battery.
      */
     default BatteryAdder newBattery(Battery battery) {
+        Objects.requireNonNull(battery);
         return newBattery()
                 .setFictitious(battery.isFictitious())
                 .setP0(battery.getP0())
@@ -987,6 +990,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new load. The builder is initialized with all the values of the given load.
      */
     default LoadAdder newLoad(Load load) {
+        Objects.requireNonNull(load);
         return newLoad()
                 .setFictitious(load.isFictitious())
                 .setLoadType(load.getLoadType())
@@ -1025,6 +1029,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder for a new shunt compensator. The builder is initialized with all the values of the given shunt compensator.
      */
     default ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
+        Objects.requireNonNull(shuntCompensator);
         ShuntCompensatorAdder adder = newShuntCompensator()
                 .setFictitious(shuntCompensator.isFictitious())
                 .setSectionCount(shuntCompensator.getSectionCount())
@@ -1075,6 +1080,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new dangling line. The builder is initialized with all the values of the given dangling line.
      */
     default DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
+        Objects.requireNonNull(danglingLine);
         DanglingLineAdder adder = newDanglingLine()
                 .setFictitious(danglingLine.isFictitious())
                 .setP0(danglingLine.getP0())
@@ -1122,6 +1128,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new static var compensator. The builder is initialized with all the values of the given static var compensator.
      */
     default StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
+        Objects.requireNonNull(staticVarCompensator);
         return newStaticVarCompensator()
                 .setFictitious(staticVarCompensator.isFictitious())
                 .setBmin(staticVarCompensator.getBmin())
@@ -1158,6 +1165,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new VSC converter station connected to this voltage level. The builder is initialized with all the values of the given VSC converter station.
      */
     default VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
+        Objects.requireNonNull(converterStation);
         return newVscConverterStation()
                 .setFictitious(converterStation.isFictitious())
                 .setVoltageRegulatorOn(converterStation.isVoltageRegulatorOn())
@@ -1198,6 +1206,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new LCC converter station connected to this voltage level. The builder is initialized with all the values of the given LCC converter station.
      */
     default LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
+        Objects.requireNonNull(converterStation);
         return newLccConverterStation()
                 .setFictitious(converterStation.isFictitious())
                 .setPowerFactor(converterStation.getPowerFactor())

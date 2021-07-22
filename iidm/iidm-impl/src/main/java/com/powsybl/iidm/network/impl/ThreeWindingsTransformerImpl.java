@@ -136,7 +136,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public RatioTapChangerAdderImpl newRatioTapChanger(RatioTapChanger rtc) {
-            return new RatioTapChangerAdderImpl(rtc, this);
+            return new RatioTapChangerAdderImpl(Objects.requireNonNull(rtc), this);
         }
 
         public RatioTapChangerImpl getRatioTapChanger() {
@@ -149,7 +149,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         @Override
         public PhaseTapChangerAdderImpl newPhaseTapChanger(PhaseTapChanger ptc) {
-            return new PhaseTapChangerAdderImpl(ptc, this);
+            return new PhaseTapChangerAdderImpl(Objects.requireNonNull(ptc), this);
         }
 
         public PhaseTapChangerImpl getPhaseTapChanger() {

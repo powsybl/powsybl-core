@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -181,7 +183,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     @Override
     public HalfLineAdderImpl newHalfLine1(TieLine.HalfLine halfLine) {
-        return new HalfLineAdderImpl(1, halfLine);
+        return new HalfLineAdderImpl(1, Objects.requireNonNull(halfLine));
     }
 
     @Override
@@ -191,7 +193,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
 
     @Override
     public HalfLineAdderImpl newHalfLine2(TieLine.HalfLine halfLine) {
-        return new HalfLineAdderImpl(2, halfLine);
+        return new HalfLineAdderImpl(2, Objects.requireNonNull(halfLine));
     }
 
     @Override

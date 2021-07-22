@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -25,6 +26,7 @@ public interface RatioTapChangerHolder {
      * transformer. The builder is initialized with all the values of the given ratio tap changer.
      */
     default RatioTapChangerAdder newRatioTapChanger(RatioTapChanger rtc) {
+        Objects.requireNonNull(rtc);
         RatioTapChangerAdder adder = newRatioTapChanger()
                 .setLoadTapChangingCapabilities(rtc.hasLoadTapChangingCapabilities())
                 .setLowTapPosition(rtc.getLowTapPosition())

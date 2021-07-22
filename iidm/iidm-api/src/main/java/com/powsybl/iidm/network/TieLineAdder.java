@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -55,6 +57,7 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     TieLineAdder.HalfLineAdder newHalfLine1();
 
     default TieLineAdder.HalfLineAdder newHalfLine1(TieLine.HalfLine halfLine) {
+        Objects.requireNonNull(halfLine);
         return newHalfLine1()
                 .setFictitious(halfLine.isFictitious())
                 .setR(halfLine.getR())
@@ -68,6 +71,7 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     TieLineAdder.HalfLineAdder newHalfLine2();
 
     default HalfLineAdder newHalfLine2(TieLine.HalfLine halfLine) {
+        Objects.requireNonNull(halfLine);
         return newHalfLine2()
                 .setFictitious(halfLine.isFictitious())
                 .setR(halfLine.getR())

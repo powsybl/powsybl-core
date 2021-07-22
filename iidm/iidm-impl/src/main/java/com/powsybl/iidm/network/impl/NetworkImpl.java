@@ -221,7 +221,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public SubstationAdder newSubstation(Substation substation) {
-        return new SubstationAdderImpl(substation, ref);
+        return new SubstationAdderImpl(Objects.requireNonNull(substation), ref);
     }
 
     @Override
@@ -284,7 +284,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public LineAdderImpl newLine(Line line) {
-        return new LineAdderImpl(line, this);
+        return new LineAdderImpl(Objects.requireNonNull(line), this);
     }
 
     @Override
@@ -640,7 +640,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
-        return new HvdcLineAdderImpl(hvdcLine, ref);
+        return new HvdcLineAdderImpl(Objects.requireNonNull(hvdcLine), ref);
     }
 
     @Override
