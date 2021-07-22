@@ -114,7 +114,12 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new voltage level in the substation. The builder is initialized with all the values of the given voltage level.
      */
     default VoltageLevelAdder newVoltageLevel(VoltageLevel voltageLevel) {
-        return newVoltageLevel();
+        return newVoltageLevel()
+                .setFictitious(voltageLevel.isFictitious())
+                .setNominalV(voltageLevel.getNominalV())
+                .setLowVoltageLimit(voltageLevel.getLowVoltageLimit())
+                .setHighVoltageLimit(voltageLevel.getHighVoltageLimit())
+                .setTopologyKind(voltageLevel.getTopologyKind());
     }
 
     /**
@@ -136,7 +141,15 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new two windings transformer in the substation. The builder is initialized with all the values of the given two windings transformer.
      */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer(TwoWindingsTransformer twt) {
-        return newTwoWindingsTransformer();
+        return newTwoWindingsTransformer()
+                .setFictitious(twt.isFictitious())
+                .setR(twt.getR())
+                .setX(twt.getX())
+                .setG(twt.getG())
+                .setB(twt.getB())
+                .setRatedU1(twt.getRatedU1())
+                .setRatedU2(twt.getRatedU2())
+                .setRatedS(twt.getRatedS());
     }
 
     /**
@@ -163,7 +176,10 @@ public interface Substation extends Container<Substation> {
      * Get a builder to create a new 3 windings transformer in the substation. The builder is initialized with all the values of a the given 3 windings transformer.
      */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer(ThreeWindingsTransformer twt) {
-        return newThreeWindingsTransformer();
+        return newThreeWindingsTransformer()
+                .setFictitious(twt.isFictitious())
+                .setRatedU0(twt.getRatedU0());
+        // not possible to set incomplete legs here, user has to implement it on custom implementation
     }
 
     /**

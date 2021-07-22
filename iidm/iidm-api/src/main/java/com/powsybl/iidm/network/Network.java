@@ -332,7 +332,14 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new AC line. The builder is initialized with all the values of the given AC line.
      */
     default LineAdder newLine(Line line) {
-        return newLine();
+        return newLine()
+                .setFictitious(line.isFictitious())
+                .setR(line.getR())
+                .setX(line.getX())
+                .setG1(line.getG1())
+                .setB1(line.getB1())
+                .setG2(line.getG2())
+                .setB2(line.getB2());
     }
 
     /**
@@ -729,7 +736,13 @@ public interface Network extends Container<Network> {
      * Get a builder to create a new HVDC line. The builder is initialized with all the values of the given HVDC line.
      */
     default HvdcLineAdder newHvdcLine(HvdcLine hvdcLine) {
-        return newHvdcLine();
+        return newHvdcLine()
+                .setFictitious(hvdcLine.isFictitious())
+                .setR(hvdcLine.getR())
+                .setConvertersMode(hvdcLine.getConvertersMode())
+                .setNominalV(hvdcLine.getNominalV())
+                .setActivePowerSetpoint(hvdcLine.getActivePowerSetpoint())
+                .setMaxP(hvdcLine.getMaxP());
     }
 
     /**

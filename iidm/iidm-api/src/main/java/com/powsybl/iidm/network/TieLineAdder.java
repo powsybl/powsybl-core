@@ -55,13 +55,27 @@ public interface TieLineAdder extends BranchAdder<TieLineAdder> {
     TieLineAdder.HalfLineAdder newHalfLine1();
 
     default TieLineAdder.HalfLineAdder newHalfLine1(TieLine.HalfLine halfLine) {
-        return newHalfLine1();
+        return newHalfLine1()
+                .setFictitious(halfLine.isFictitious())
+                .setR(halfLine.getR())
+                .setX(halfLine.getX())
+                .setG1(halfLine.getG1())
+                .setB1(halfLine.getB1())
+                .setG2(halfLine.getG2())
+                .setB2(halfLine.getB2());
     }
 
     TieLineAdder.HalfLineAdder newHalfLine2();
 
     default HalfLineAdder newHalfLine2(TieLine.HalfLine halfLine) {
-        return newHalfLine2();
+        return newHalfLine2()
+                .setFictitious(halfLine.isFictitious())
+                .setR(halfLine.getR())
+                .setX(halfLine.getX())
+                .setG1(halfLine.getG1())
+                .setB1(halfLine.getB1())
+                .setG2(halfLine.getG2())
+                .setB2(halfLine.getB2());
     }
 
     TieLine add();

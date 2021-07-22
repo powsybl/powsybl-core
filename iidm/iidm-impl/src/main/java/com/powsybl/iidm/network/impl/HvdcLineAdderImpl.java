@@ -47,6 +47,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         nominalV = hvdcLine.getNominalV();
         activePowerSetpoint = hvdcLine.getActivePowerSetpoint();
         maxP = hvdcLine.getMaxP();
+        setFictitious(hvdcLine.isFictitious());
     }
 
     @Override

@@ -918,7 +918,17 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new generator. The builder is initialized with all the values of the given generator.
      */
     default GeneratorAdder newGenerator(Generator generator) {
-        return newGenerator();
+        return newGenerator()
+                .setFictitious(generator.isFictitious())
+                .setEnergySource(generator.getEnergySource())
+                .setMinP(generator.getMinP())
+                .setMaxP(generator.getMaxP())
+                .setRegulatingTerminal(generator.getRegulatingTerminal())
+                .setVoltageRegulatorOn(generator.isVoltageRegulatorOn())
+                .setTargetP(generator.getTargetP())
+                .setTargetQ(generator.getTargetQ())
+                .setTargetV(generator.getTargetV())
+                .setRatedS(generator.getRatedS());
     }
 
     /**
@@ -945,7 +955,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new battery. The builder is initialized with all the values of the given battery.
      */
     default BatteryAdder newBattery(Battery battery) {
-        return newBattery();
+        return newBattery()
+                .setFictitious(battery.isFictitious())
+                .setP0(battery.getP0())
+                .setQ0(battery.getQ0())
+                .setMinP(battery.getMinP())
+                .setMaxP(battery.getMaxP());
     }
 
     /**
@@ -972,7 +987,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new load. The builder is initialized with all the values of the given load.
      */
     default LoadAdder newLoad(Load load) {
-        return newLoad();
+        return newLoad()
+                .setFictitious(load.isFictitious())
+                .setLoadType(load.getLoadType())
+                .setP0(load.getP0())
+                .setQ0(load.getQ0());
     }
 
     /**
@@ -1006,7 +1025,30 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder for a new shunt compensator. The builder is initialized with all the values of the given shunt compensator.
      */
     default ShuntCompensatorAdder newShuntCompensator(ShuntCompensator shuntCompensator) {
-        return newShuntCompensator();
+        ShuntCompensatorAdder adder = newShuntCompensator()
+                .setFictitious(shuntCompensator.isFictitious())
+                .setSectionCount(shuntCompensator.getSectionCount())
+                .setTargetV(shuntCompensator.getTargetV())
+                .setTargetDeadband(shuntCompensator.getTargetDeadband())
+                .setRegulatingTerminal(shuntCompensator.getRegulatingTerminal())
+                .setVoltageRegulatorOn(shuntCompensator.isVoltageRegulatorOn());
+        if (shuntCompensator.getModelType() == ShuntCompensatorModelType.LINEAR) {
+            ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+            adder.newLinearModel()
+                    .setBPerSection(model.getBPerSection())
+                    .setGPerSection(model.getGPerSection())
+                    .setMaximumSectionCount(shuntCompensator.getMaximumSectionCount())
+                    .add();
+        } else if (shuntCompensator.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
+            ShuntCompensatorNonLinearModel model = shuntCompensator.getModel(ShuntCompensatorNonLinearModel.class);
+            ShuntCompensatorNonLinearModelAdder builder = adder.newNonLinearModel();
+            model.getAllSections().forEach(section -> builder.beginSection()
+                    .setB(section.getB())
+                    .setG(section.getG())
+                    .endSection());
+            builder.add();
+        }
+        return adder;
     }
 
     /**
@@ -1033,7 +1075,27 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new dangling line. The builder is initialized with all the values of the given dangling line.
      */
     default DanglingLineAdder newDanglingLine(DanglingLine danglingLine) {
-        return newDanglingLine();
+        DanglingLineAdder adder = newDanglingLine()
+                .setFictitious(danglingLine.isFictitious())
+                .setP0(danglingLine.getP0())
+                .setQ0(danglingLine.getQ0())
+                .setR(danglingLine.getR())
+                .setX(danglingLine.getX())
+                .setG(danglingLine.getG())
+                .setB(danglingLine.getB())
+                .setUcteXnodeCode(danglingLine.getUcteXnodeCode());
+        if (danglingLine.getGeneration() != null) {
+            DanglingLine.Generation generation = danglingLine.getGeneration();
+            adder.newGeneration()
+                    .setMaxP(generation.getMaxP())
+                    .setMinP(generation.getMinP())
+                    .setTargetP(generation.getTargetP())
+                    .setTargetQ(generation.getTargetQ())
+                    .setTargetV(generation.getTargetV())
+                    .setVoltageRegulationOn(generation.isVoltageRegulationOn())
+                    .add();
+        }
+        return adder;
     }
 
     /**
@@ -1060,7 +1122,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new static var compensator. The builder is initialized with all the values of the given static var compensator.
      */
     default StaticVarCompensatorAdder newStaticVarCompensator(StaticVarCompensator staticVarCompensator) {
-        return newStaticVarCompensator();
+        return newStaticVarCompensator()
+                .setFictitious(staticVarCompensator.isFictitious())
+                .setBmin(staticVarCompensator.getBmin())
+                .setBmax(staticVarCompensator.getBmax())
+                .setVoltageSetpoint(staticVarCompensator.getVoltageSetpoint())
+                .setReactivePowerSetpoint(staticVarCompensator.getReactivePowerSetpoint())
+                .setRegulationMode(staticVarCompensator.getRegulationMode())
+                .setRegulatingTerminal(staticVarCompensator.getRegulatingTerminal());
     }
 
     /**
@@ -1089,7 +1158,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new VSC converter station connected to this voltage level. The builder is initialized with all the values of the given VSC converter station.
      */
     default VscConverterStationAdder newVscConverterStation(VscConverterStation converterStation) {
-        return newVscConverterStation();
+        return newVscConverterStation()
+                .setFictitious(converterStation.isFictitious())
+                .setVoltageRegulatorOn(converterStation.isVoltageRegulatorOn())
+                .setVoltageSetpoint(converterStation.getVoltageSetpoint())
+                .setReactivePowerSetpoint(converterStation.getReactivePowerSetpoint())
+                .setLossFactor(converterStation.getLossFactor());
     }
 
     /**
@@ -1124,7 +1198,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get a builder to create a new LCC converter station connected to this voltage level. The builder is initialized with all the values of the given LCC converter station.
      */
     default LccConverterStationAdder newLccConverterStation(LccConverterStation converterStation) {
-        return newLccConverterStation();
+        return newLccConverterStation()
+                .setFictitious(converterStation.isFictitious())
+                .setPowerFactor(converterStation.getPowerFactor())
+                .setLossFactor(converterStation.getLossFactor());
     }
 
     /**

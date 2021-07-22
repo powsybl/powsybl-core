@@ -42,6 +42,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         b1 = line.getB1();
         g2 = line.getG2();
         b2 = line.getB2();
+        setFictitious(line.isFictitious());
     }
 
     @Override
