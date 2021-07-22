@@ -182,7 +182,6 @@ public interface Substation extends Container<Substation> {
         return newThreeWindingsTransformer()
                 .setFictitious(twt.isFictitious())
                 .setRatedU0(twt.getRatedU0());
-        // not possible to set incomplete legs here, user has to implement it on custom implementation
     }
 
     /**

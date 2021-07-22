@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.LegImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -45,6 +47,16 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         LegAdderImpl(int legNumber) {
             this.legNumber = legNumber;
+        }
+
+        LegAdderImpl(ThreeWindingsTransformer.Leg leg, int legNumber) {
+            this(legNumber);
+            r = leg.getR();
+            x = leg.getX();
+            g = leg.getG();
+            b = leg.getB();
+            ratedS = leg.getRatedS();
+            ratedU = leg.getRatedU();
         }
 
         public LegAdder setVoltageLevel(String voltageLevelId) {
@@ -181,34 +193,6 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     ThreeWindingsTransformerAdderImpl(ThreeWindingsTransformer twt, SubstationImpl substation) {
         this(substation);
         ratedU0 = twt.getRatedU0();
-
-        legAdder1 = new LegAdderImpl(1);
-        ThreeWindingsTransformer.Leg leg1 = twt.getLeg1();
-        legAdder1.r = leg1.getR();
-        legAdder1.x = leg1.getX();
-        legAdder1.g = leg1.getG();
-        legAdder1.b = leg1.getB();
-        legAdder1.ratedS = leg1.getRatedS();
-        legAdder1.ratedU = leg1.getRatedU();
-
-        legAdder2 = new LegAdderImpl(2);
-        ThreeWindingsTransformer.Leg leg2 = twt.getLeg2();
-        legAdder2.r = leg2.getR();
-        legAdder2.x = leg2.getX();
-        legAdder2.g = leg2.getG();
-        legAdder2.b = leg2.getB();
-        legAdder2.ratedS = leg2.getRatedS();
-        legAdder2.ratedU = leg2.getRatedU();
-
-        legAdder3 = new LegAdderImpl(3);
-        ThreeWindingsTransformer.Leg leg3 = twt.getLeg3();
-        legAdder3.r = leg3.getR();
-        legAdder3.x = leg3.getX();
-        legAdder3.g = leg3.getG();
-        legAdder3.b = leg3.getB();
-        legAdder3.ratedS = leg3.getRatedS();
-        legAdder3.ratedU = leg3.getRatedU();
-
         setFictitious(twt.isFictitious());
     }
 
@@ -228,6 +212,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     }
 
     @Override
+    public LegAdder newLeg1(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 1);
+    }
+
+    @Override
     public LegAdder newLeg2() {
         LegAdderImpl legAdder = new LegAdderImpl(2);
         legAdder.g = 0.0;
@@ -236,11 +225,21 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
     }
 
     @Override
+    public LegAdder newLeg2(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 2);
+    }
+
+    @Override
     public LegAdder newLeg3() {
         LegAdderImpl legAdder = new LegAdderImpl(3);
         legAdder.g = 0.0;
         legAdder.b = 0.0;
         return legAdder;
+    }
+
+    @Override
+    public LegAdder newLeg3(ThreeWindingsTransformer.Leg leg) {
+        return new LegAdderImpl(Objects.requireNonNull(leg), 3);
     }
 
     @Override
