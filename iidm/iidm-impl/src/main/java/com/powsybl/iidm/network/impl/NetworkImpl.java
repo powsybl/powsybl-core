@@ -220,6 +220,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public SubstationAdder newSubstation(Substation substation) {
+        return new SubstationAdderImpl(substation, ref);
+    }
+
+    @Override
     public Iterable<Substation> getSubstations() {
         return Collections.unmodifiableCollection(index.getAll(SubstationImpl.class));
     }

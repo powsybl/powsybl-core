@@ -255,6 +255,17 @@ public interface Network extends Container<Network> {
     SubstationAdder newSubstation();
 
     /**
+     * Get a builder to create a new substation. The builder is initialized with all the values of the given substation.
+     */
+    default SubstationAdder newSubstation(Substation substation) {
+        return newSubstation()
+                .setFictitious(substation.isFictitious())
+                .setCountry(substation.getNullableCountry())
+                .setTso(substation.getTso())
+                .setGeographicalTags(substation.getGeographicalTags().toArray(String[]::new));
+    }
+
+    /**
      * Get all substations.
      */
     Iterable<Substation> getSubstations();

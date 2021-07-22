@@ -29,6 +29,14 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
         this.networkRef = networkRef;
     }
 
+    SubstationAdderImpl(Substation substation, Ref<NetworkImpl> networkRef) {
+        this(networkRef);
+        country = substation.getNullableCountry();
+        tso = substation.getTso();
+        tags = substation.getGeographicalTags().toArray(String[]::new);
+        setFictitious(substation.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return networkRef.get();
