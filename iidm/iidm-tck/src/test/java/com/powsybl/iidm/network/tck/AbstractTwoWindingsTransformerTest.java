@@ -86,6 +86,41 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
+    public void testAdderFromExisting() {
+        substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+        substation.newTwoWindingsTransformer(network.getTwoWindingsTransformer("twt"))
+                .setId("twt2")
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .add();
+        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("twt2");
+        assertNotNull(twt);
+        assertEquals(1.0, twt.getR(), 0.0);
+        assertEquals(2.0, twt.getX(), 0.0);
+        assertEquals(3.0, twt.getG(), 0.0);
+        assertEquals(4.0, twt.getB(), 0.0);
+        assertEquals(5.0, twt.getRatedU1(), 0.0);
+        assertEquals(6.0, twt.getRatedU2(), 0.0);
+        assertEquals(7.0, twt.getRatedS(), 0.0);
+    }
+
+    @Test
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");

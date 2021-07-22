@@ -187,6 +187,30 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
     }
 
     @Test
+    public void testAdderFromExisting() {
+        ThreeWindingsTransformer origin = createThreeWindingsTransformer();
+        substation.newThreeWindingsTransformer(origin)
+                .setId("duplicate")
+                .newLeg1(origin.getLeg1()).setVoltageLevel("vl1").setBus("busA").add()
+                .newLeg2(origin.getLeg2()).setVoltageLevel("vl2").setBus("busB").add()
+                .newLeg3(origin.getLeg3()).setVoltageLevel("vl2").setBus("busB").add()
+                .add();
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("duplicate");
+        assertNotNull(twt);
+        assertEquals(origin.getRatedU0(), twt.getRatedU0(), 0.0);
+        int[] index = new int[1];
+        twt.getLegStream().forEach(leg -> {
+            assertEquals(origin.getLegs().get(index[0]).getR(), leg.getR(), 0.0);
+            assertEquals(origin.getLegs().get(index[0]).getX(), leg.getX(), 0.0);
+            assertEquals(origin.getLegs().get(index[0]).getG(), leg.getG(), 0.0);
+            assertEquals(origin.getLegs().get(index[0]).getB(), leg.getB(), 0.0);
+            assertEquals(origin.getLegs().get(index[0]).getRatedS(), leg.getRatedS(), 0.0);
+            assertEquals(origin.getLegs().get(index[0]).getRatedU(), leg.getRatedU(), 0.0);
+            index[0]++;
+        });
+    }
+
+    @Test
     public void leg1SetTwoRegulatingControlsEnabled() {
         ThreeWindingsTransformer transformer = createThreeWindingsTransformer();
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();

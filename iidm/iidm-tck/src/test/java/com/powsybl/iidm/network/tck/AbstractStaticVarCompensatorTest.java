@@ -44,6 +44,22 @@ public abstract class AbstractStaticVarCompensatorTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        network.getVoltageLevel("VL1").newStaticVarCompensator(network.getStaticVarCompensator("SVC2"))
+                .setId("SVC3")
+                .setBus("B1")
+                .add();
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC3");
+        assertNotNull(svc);
+        assertEquals(0.0002, svc.getBmin(), 0.0);
+        assertEquals(0.0008, svc.getBmax(), 0.0);
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertEquals(390, svc.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(svc.getReactivePowerSetpoint()));
+        assertSame(network.getStaticVarCompensator("SVC2").getTerminal(), svc.getRegulatingTerminal());
+    }
+
+    @Test
     public void removeTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         svc.remove();

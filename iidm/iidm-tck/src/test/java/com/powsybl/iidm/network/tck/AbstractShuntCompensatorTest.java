@@ -183,6 +183,34 @@ public abstract class AbstractShuntCompensatorTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        ShuntCompensatorAdder adder = createShuntAdder(SHUNT, "shuntName", 6, terminal, true, 200, 10);
+        adder.newLinearModel()
+                .setBPerSection(5.0)
+                .setGPerSection(4.0)
+                .setMaximumSectionCount(10)
+                .add();
+        adder.add();
+        voltageLevel.newShuntCompensator(network.getShuntCompensator(SHUNT))
+                .setId("DUPLICATE")
+                .setBus("busA")
+                .add();
+        ShuntCompensator shuntCompensator = network.getShuntCompensator("DUPLICATE");
+        assertNotNull(shuntCompensator);
+        assertEquals(6, shuntCompensator.getSectionCount());
+        assertSame(terminal, shuntCompensator.getRegulatingTerminal());
+        assertTrue(shuntCompensator.isVoltageRegulatorOn());
+        assertEquals(200, shuntCompensator.getTargetV(), 0.0);
+        assertEquals(10, shuntCompensator.getTargetDeadband(), 0.0);
+        assertEquals(10, shuntCompensator.getMaximumSectionCount());
+        assertEquals(ShuntCompensatorModelType.LINEAR, shuntCompensator.getModelType());
+        ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+        assertNotNull(model);
+        assertEquals(5.0, model.getBPerSection(), 0.0);
+        assertEquals(4.0, model.getGPerSection(), 0.0);
+    }
+
+    @Test
     public void invalidbPerSection() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("section susceptance is invalid");

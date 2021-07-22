@@ -47,22 +47,7 @@ public abstract class AbstractLineTest {
     @Test
     public void baseAcLineTests() {
         // adder
-        Line acLine = network.newLine()
-                .setId("line")
-                .setName(LINE_NAME)
-                .setR(1.0)
-                .setX(2.0)
-                .setG1(3.0)
-                .setG2(3.5)
-                .setB1(4.0)
-                .setB2(4.5)
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .setBus1("busA")
-                .setBus2("busB")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
-                .add();
+        Line acLine = createLine();
         assertEquals("line", acLine.getId());
         assertEquals(LINE_NAME, acLine.getOptionalName().orElse(null));
         assertEquals(LINE_NAME, acLine.getNameOrId());
@@ -149,6 +134,45 @@ public abstract class AbstractLineTest {
         assertFalse(acLine.checkPermanentLimit2(LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f, LimitType.CURRENT));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        createLine();
+        network.newLine(network.getLine("line"))
+                .setId("line2")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .add();
+        Line line = network.getLine("line2");
+        assertNotNull(line);
+        assertEquals(1.0, line.getR(), 0.0);
+        assertEquals(2.0, line.getX(), 0.0);
+        assertEquals(3.0, line.getG1(), 0.0);
+        assertEquals(3.5, line.getG2(), 0.0);
+        assertEquals(4.0, line.getB1(), 0.0);
+        assertEquals(4.5, line.getB2(), 0.0);
+    }
+
+    private Line createLine() {
+        return network.newLine()
+                .setId("line")
+                .setName(LINE_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(3.5)
+                .setB1(4.0)
+                .setB2(4.5)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
     }
 
     @Test

@@ -13,8 +13,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 public abstract class AbstractVoltageLevelTest {
 
@@ -25,11 +24,12 @@ public abstract class AbstractVoltageLevelTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    private Network network;
     private Substation substation;
 
     @Before
     public void setUp() {
-        Network network = Network.create("test", "test");
+        network = Network.create("test", "test");
         substation = network.newSubstation()
                                 .setCountry(Country.AF)
                                 .setTso("tso")
@@ -62,6 +62,26 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(200.0, voltageLevel.getLowVoltageLimit(), 0.0);
         voltageLevel.setNominalV(500.0);
         assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        substation.newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("bbVL")
+                .setName("bbVL_name")
+                .setNominalV(200.0)
+                .setLowVoltageLimit(100.0)
+                .setHighVoltageLimit(200.0)
+                .add();
+        substation.newVoltageLevel(network.getVoltageLevel("bbVL"))
+                .setId("bbVL2")
+                .add();
+        VoltageLevel voltageLevel = network.getVoltageLevel("bbVL2");
+        assertNotNull(voltageLevel);
+        assertEquals(200.0, voltageLevel.getNominalV(), 0.0);
+        assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
+        assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
     }
 
     @Test
