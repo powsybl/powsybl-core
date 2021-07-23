@@ -28,18 +28,7 @@ public class BatteryAdapterTest {
     @Test
     public void testSetterGetter() {
         double delta = 0.0;
-        final VoltageLevel vlbat = mergingView.getVoltageLevel("vl1");
-        final Battery battery = vlbat.newBattery()
-                                         .setId("BATEST")
-                                         .setName("BATEST")
-                                         .setFictitious(true)
-                                         .setBus("busA")
-                                         .setMaxP(9999.99d)
-                                         .setMinP(-9999.99d)
-                                         .setP0(15.0d)
-                                         .setQ0(-15.0d)
-                                         .setEnsureIdUnicity(true)
-                                     .add();
+        final Battery battery = createBattery();
 
         assertSame(battery, mergingView.getBattery("BATEST"));
         assertEquals(ConnectableType.BATTERY, battery.getType());
@@ -94,5 +83,35 @@ public class BatteryAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(battery::remove);
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        createBattery();
+        mergingView.getVoltageLevel("vl1").newBattery(mergingView.getBattery("BATEST"))
+                .setId("DUPLICATE")
+                .setBus("busA")
+                .add();
+        Battery battery = mergingView.getBattery("DUPLICATE");
+        assertNotNull(battery);
+        assertTrue(battery.isFictitious());
+        assertEquals(9999.99d, battery.getMaxP(), 0.0);
+        assertEquals(-9999.99d, battery.getMinP(), 0.0);
+        assertEquals(15.0d, battery.getP0(), 0.0);
+        assertEquals(-15.0d, battery.getQ0(), 0.0);
+    }
+
+    private Battery createBattery() {
+        return mergingView.getVoltageLevel("vl1").newBattery()
+                .setId("BATEST")
+                .setName("BATEST")
+                .setFictitious(true)
+                .setBus("busA")
+                .setMaxP(9999.99d)
+                .setMinP(-9999.99d)
+                .setP0(15.0d)
+                .setQ0(-15.0d)
+                .setEnsureIdUnicity(true)
+                .add();
     }
 }

@@ -23,22 +23,7 @@ public class RatioTapChangerAdapterTest {
     public void setup() {
         mergingView = MergingView.create("RatioTapChangerAdapterTest", "iidm");
         mergingView.merge(NoEquipmentNetworkFactory.create());
-
-        final Substation substation = mergingView.getSubstation("sub");
-        substation.newTwoWindingsTransformer()
-                .setId("twt")
-                .setName("twt_name")
-                .setR(1.0)
-                .setX(2.0)
-                .setG(3.0)
-                .setB(4.0)
-                .setRatedU1(5.0)
-                .setRatedU2(6.0)
-                .setVoltageLevel1("vl1")
-                .setVoltageLevel2("vl2")
-                .setConnectableBus1("busA")
-                .setConnectableBus2("busB")
-                .add();
+        createTwt("twt");
     }
 
     @Test
@@ -46,36 +31,7 @@ public class RatioTapChangerAdapterTest {
         final TwoWindingsTransformer twt = mergingView.getTwoWindingsTransformer("twt");
 
         // adder
-        final RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
-                .setLowTapPosition(0)
-                .setTapPosition(1)
-                .setLoadTapChangingCapabilities(false)
-                .setRegulating(true)
-                .setTargetDeadband(1.0)
-                .setTargetV(220.0)
-                .setRegulationTerminal(twt.getTerminal1())
-                .beginStep()
-                .setR(39.78473)
-                .setX(39.784725)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(1.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78474)
-                .setX(39.784726)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(1.0)
-                .endStep()
-                .beginStep()
-                .setR(39.78475)
-                .setX(39.784727)
-                .setG(0.0)
-                .setB(0.0)
-                .setRho(1.0)
-                .endStep()
-                .add();
+        final RatioTapChanger ratioTapChanger = createRtc(twt);
         assertTrue(twt instanceof TwoWindingsTransformerAdapter);
         assertTrue(ratioTapChanger instanceof RatioTapChangerAdapter);
 
@@ -127,5 +83,74 @@ public class RatioTapChangerAdapterTest {
 
         ratioTapChanger.remove();
         assertNull(twt.getRatioTapChanger());
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        createTwt("twt2");
+        createRtc(mergingView.getTwoWindingsTransformer("twt"));
+        mergingView.getTwoWindingsTransformer("twt2")
+                .newRatioTapChanger(mergingView.getTwoWindingsTransformer("twt").getRatioTapChanger())
+                .add();
+        RatioTapChanger rtc = mergingView.getTwoWindingsTransformer("twt2").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertEquals(0, rtc.getLowTapPosition());
+        assertEquals(1, rtc.getTapPosition());
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.isRegulating());
+        assertEquals(1.0, rtc.getTargetDeadband(), 0.0);
+        assertEquals(220.0, rtc.getTargetV(), 0.0);
+        assertSame(mergingView.getTwoWindingsTransformer("twt").getTerminal1(), rtc.getRegulationTerminal());
+        assertEquals(3, rtc.getStepCount());
+    }
+
+    private void createTwt(String id) {
+        mergingView.getSubstation("sub").newTwoWindingsTransformer()
+                .setId(id)
+                .setName("twt_name")
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+    }
+
+    private RatioTapChanger createRtc(TwoWindingsTransformer twt) {
+        return twt.newRatioTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(1)
+                .setLoadTapChangingCapabilities(false)
+                .setRegulating(true)
+                .setTargetDeadband(1.0)
+                .setTargetV(220.0)
+                .setRegulationTerminal(twt.getTerminal1())
+                .beginStep()
+                .setR(39.78473)
+                .setX(39.784725)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78474)
+                .setX(39.784726)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .beginStep()
+                .setR(39.78475)
+                .setX(39.784727)
+                .setG(0.0)
+                .setB(0.0)
+                .setRho(1.0)
+                .endStep()
+                .add();
     }
 }

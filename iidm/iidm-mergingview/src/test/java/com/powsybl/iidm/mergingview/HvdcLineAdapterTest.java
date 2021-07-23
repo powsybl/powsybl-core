@@ -96,6 +96,22 @@ public class HvdcLineAdapterTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        mergingView.newHvdcLine(mergingView.getHvdcLine("L"))
+                .setId("duplicate")
+                .setConverterStationId1("C1")
+                .setConverterStationId2("C2")
+                .add();
+        HvdcLine hvdcLine = mergingView.getHvdcLine("duplicate");
+        assertNotNull(hvdcLine);
+        assertEquals(1, hvdcLine.getR(), 0.0);
+        assertEquals(400, hvdcLine.getNominalV(), 0.0);
+        assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
+        assertEquals(300.0, hvdcLine.getMaxP(), 0.0);
+        assertEquals(280, hvdcLine.getActivePowerSetpoint(), 0.0);
+    }
+
+    @Test
     public void testAdderWithoutConverterStationId1() {
         // Test not allowed HvdcLine creation
         thrown.expect(PowsyblException.class);

@@ -47,4 +47,15 @@ public class LccConverterStationAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(lcc::remove);
     }
+
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.getVoltageLevel("VL1").newLccConverterStation(mergingView.getLccConverterStation("C1")).setId("C3")
+                .setBus("B1")
+                .add();
+        LccConverterStation converterStation = mergingView.getLccConverterStation("C3");
+        assertNotNull(converterStation);
+        assertEquals(1.1f, converterStation.getLossFactor(), 0.0);
+        assertEquals(0.5f, converterStation.getPowerFactor(), 0.0);
+    }
 }

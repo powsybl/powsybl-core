@@ -175,6 +175,25 @@ public class LineAdapterTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        mergingView.newLine(mergingView.getLine("NHV1_NHV2_1"))
+                .setId("duplicate")
+                .setVoltageLevel1("VLBAT")
+                .setBus1("NBAT")
+                .setVoltageLevel2("VLGEN")
+                .setBus2("NGEN")
+                .add();
+        Line line = mergingView.getLine("duplicate");
+        assertNotNull(line);
+        assertEquals(3.0, line.getR(), 0.0);
+        assertEquals(33.0, line.getX(), 0.0);
+        assertEquals(0.0, line.getG1(), 0.0);
+        assertEquals(386E-6 / 2, line.getB1(), 0.0);
+        assertEquals(0.0, line.getG2(), 0.0);
+        assertEquals(386E-6 / 2, line.getB2(), 0.0);
+    }
+
+    @Test
     public void checkXnodeValuesUpdateTests() {
         final Network noEquipNetwork = NoEquipmentNetworkFactory.create();
         mergingView.merge(noEquipNetwork);

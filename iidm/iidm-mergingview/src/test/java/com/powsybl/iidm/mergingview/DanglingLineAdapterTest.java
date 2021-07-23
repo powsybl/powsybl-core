@@ -110,6 +110,37 @@ public class DanglingLineAdapterTest {
     }
 
     @Test
+    public void testAdderFromExisting() {
+        mergingView.merge(noEquipNetwork);
+
+        double r = 10.0;
+        double x = 20.0;
+        double g = 30.0;
+        double b = 40.0;
+        double p0 = 50.0;
+        double q0 = 60.0;
+        String id = "danglingId";
+        String name = "danglingName";
+        String busId = "busA";
+        String voltageLevelId = "vl1";
+
+        createDanglingLine(mergingView, voltageLevelId, id, name, r, x, g, b, p0, q0, null, busId);
+        mergingView.getVoltageLevel(voltageLevelId).newDanglingLine(mergingView.getDanglingLine("danglingId"))
+                .setId("DUPLICATE")
+                .setBus("busA")
+                .add();
+        DanglingLine danglingLine = mergingView.getDanglingLine("DUPLICATE");
+        assertNotNull(danglingLine);
+        assertEquals(r, danglingLine.getR(), 0.0);
+        assertEquals(x, danglingLine.getX(), 0.0);
+        assertEquals(g, danglingLine.getG(), 0.0);
+        assertEquals(b, danglingLine.getB(), 0.0);
+        assertEquals(p0, danglingLine.getP0(), 0.0);
+        assertEquals(q0, danglingLine.getQ0(), 0.0);
+        assertNull(danglingLine.getUcteXnodeCode());
+    }
+
+    @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
         double p0 = 1.0;

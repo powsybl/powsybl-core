@@ -77,4 +77,21 @@ public class StaticVarCompensatorAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(svcActual::remove);
     }
+
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.merge(SvcTestCaseFactory.create());
+
+        mergingView.getVoltageLevel("VL2").newStaticVarCompensator(mergingView.getStaticVarCompensator("SVC2"))
+                .setId("duplicate")
+                .setBus("B2")
+                .add();
+        StaticVarCompensator svc = mergingView.getStaticVarCompensator("duplicate");
+        assertNotNull(svc);
+        assertEquals(0.0002, svc.getBmin(), 0.0);
+        assertEquals(0.0008, svc.getBmax(), 0.0);
+        assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
+        assertEquals(390, svc.getVoltageSetpoint(), 0.0);
+        assertTrue(Double.isNaN(svc.getReactivePowerSetpoint()));
+    }
 }

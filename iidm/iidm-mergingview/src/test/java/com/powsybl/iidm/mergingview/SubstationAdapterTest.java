@@ -31,14 +31,7 @@ public class SubstationAdapterTest {
     @Test
     public void baseTests() {
         // adder
-        Substation substation = mergingView.newSubstation()
-                .setId("subAdapted")
-                .setName("subAdapted_name")
-                .setCountry(Country.AD)
-                .setTso("TSO")
-                .setEnsureIdUnicity(false)
-                .setGeographicalTags("geoTag1", "geoTag2")
-                .add();
+        Substation substation = createSubstation();
         assertNotNull(substation);
         assertEquals("subAdapted", substation.getId());
         assertEquals("subAdapted_name", substation.getOptionalName().orElse(null));
@@ -154,5 +147,30 @@ public class SubstationAdapterTest {
                 .add();
         assertSame(t3wt, substation.getThreeWindingsTransformers().iterator().next());
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        createSubstation();
+        mergingView.newSubstation(mergingView.getSubstation("subAdapted")).setId("duplicate").add();
+
+        Substation substation = mergingView.getSubstation("duplicate");
+        assertNotNull(substation);
+        assertEquals(Country.AD, substation.getNullableCountry());
+        assertEquals("TSO", substation.getTso());
+        assertEquals(2, substation.getGeographicalTags().size());
+        assertTrue(substation.getGeographicalTags().contains("geoTag1"));
+        assertTrue(substation.getGeographicalTags().contains("geoTag2"));
+    }
+
+    private Substation createSubstation() {
+        return mergingView.newSubstation()
+                .setId("subAdapted")
+                .setName("subAdapted_name")
+                .setCountry(Country.AD)
+                .setTso("TSO")
+                .setEnsureIdUnicity(false)
+                .setGeographicalTags("geoTag1", "geoTag2")
+                .add();
     }
 }

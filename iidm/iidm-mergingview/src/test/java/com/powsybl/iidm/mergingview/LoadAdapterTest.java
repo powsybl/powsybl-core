@@ -17,18 +17,19 @@ import static org.junit.Assert.*;
  * @author Thomas Adam <tadam at silicom.fr>
  */
 public class LoadAdapterTest {
+
     private MergingView mergingView;
+    private Network networkRef;
 
     @Before
     public void setup() {
         mergingView = MergingView.create("LoadAdapterTest", "iidm");
+        networkRef = FictitiousSwitchFactory.create();
+        mergingView.merge(networkRef);
     }
 
     @Test
     public void testSetterGetter() {
-        Network networkRef = FictitiousSwitchFactory.create();
-        mergingView.merge(networkRef);
-
         final Load loadExpected = networkRef.getLoad("CE");
         final Load loadActual = mergingView.getLoad("CE");
         assertNotNull(loadActual);
@@ -57,5 +58,18 @@ public class LoadAdapterTest {
 
         // Not implemented yet !
         TestUtil.notImplemented(loadActual::remove);
+    }
+
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.getVoltageLevel("N").newLoad(mergingView.getLoad("CE"))
+                .setId("duplicate")
+                .setNode(11)
+                .add();
+        Load load = mergingView.getLoad("duplicate");
+        assertNotNull(load);
+        assertEquals(LoadType.UNDEFINED, load.getLoadType());
+        assertEquals(-72.18689, load.getP0(), 0.0);
+        assertEquals(50.168945, load.getQ0(), 0.0);
     }
 }

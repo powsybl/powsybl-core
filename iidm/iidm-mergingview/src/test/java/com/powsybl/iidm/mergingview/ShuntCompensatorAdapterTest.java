@@ -85,7 +85,7 @@ public class ShuntCompensatorAdapterTest {
 
     @Test
     public void testCreateLinear() {
-        createNetwork();
+        mergingView.merge(EurostagTutorialExample1Factory.create());
 
         // Linear shunt
         ShuntCompensatorAdder adder = mergingView.getVoltageLevel("VLLOAD")
@@ -119,7 +119,7 @@ public class ShuntCompensatorAdapterTest {
 
     @Test
     public void testCreateNonLinear() {
-        createNetwork();
+        mergingView.merge(EurostagTutorialExample1Factory.create());
 
         // Non linear shunt
         ShuntCompensatorAdder adder = mergingView.getVoltageLevel("VLLOAD")
@@ -146,10 +146,23 @@ public class ShuntCompensatorAdapterTest {
         assertEquals(2, model.getAllSections().size());
     }
 
-    private void createNetwork() {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.getLoad("LOAD").remove();
-        mergingView.merge(network);
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.merge(HvdcTestNetwork.createLcc());
+
+        mergingView.getVoltageLevel("VL1").newShuntCompensator(mergingView.getShuntCompensator("C1_Filter1"))
+                .setId("DUPLICATE")
+                .setBus("B1")
+                .add();
+        ShuntCompensator shuntCompensator = mergingView.getShuntCompensator("DUPLICATE");
+        assertNotNull(shuntCompensator);
+        assertEquals(1, shuntCompensator.getSectionCount());
+        assertEquals(1, shuntCompensator.getMaximumSectionCount());
+        assertEquals(ShuntCompensatorModelType.LINEAR, shuntCompensator.getModelType());
+        ShuntCompensatorLinearModel model = shuntCompensator.getModel(ShuntCompensatorLinearModel.class);
+        assertNotNull(model);
+        assertEquals(1e-5, model.getBPerSection(), 0.0);
+        assertTrue(Double.isNaN(model.getGPerSection()));
     }
 }
-    //pour les méthodes setComponentNumber de BusExt je peux les remonter dans Bus
+
