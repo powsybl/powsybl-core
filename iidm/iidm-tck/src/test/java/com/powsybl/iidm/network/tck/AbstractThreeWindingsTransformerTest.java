@@ -7,11 +7,11 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.Test;
 
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL;
 import static org.junit.Assert.*;
 
 public abstract class AbstractThreeWindingsTransformerTest extends AbstractTransformerTest {
@@ -207,6 +207,56 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             assertEquals(origin.getLegs().get(index[0]).getRatedS(), leg.getRatedS(), 0.0);
             assertEquals(origin.getLegs().get(index[0]).getRatedU(), leg.getRatedU(), 0.0);
             index[0]++;
+        });
+
+        createRatioTapChanger(origin.getLeg1(), origin.getTerminal(ThreeWindingsTransformer.Side.ONE));
+        twt.getLeg1().newRatioTapChanger(origin.getLeg1().getRatioTapChanger()).add();
+        RatioTapChanger rtc = twt.getLeg1().getRatioTapChanger();
+        assertNotNull(rtc);
+        assertEquals(0, rtc.getLowTapPosition());
+        assertEquals(0, rtc.getTapPosition());
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertFalse(rtc.isRegulating());
+        assertEquals(200.0, rtc.getTargetV(), 0.0);
+        assertEquals(0.5, rtc.getTargetDeadband(), 0.0);
+        assertSame(origin.getTerminal(ThreeWindingsTransformer.Side.ONE), rtc.getRegulationTerminal());
+        assertEquals(3, rtc.getAllSteps().size());
+        double[] r = new double[1];
+        r[0] = 39.78473;
+        double[] x = new double[1];
+        x[0] = 39.784725;
+        rtc.getAllSteps().forEach((i, step) -> {
+            assertEquals(r[0], step.getR(), 1e-7);
+            assertEquals(x[0], step.getX(), 1e-8);
+            assertEquals(0.0, step.getG(), 0.0);
+            assertEquals(0.0, step.getB(), 0.0);
+            assertEquals(1.0, step.getRho(), 0.0);
+            r[0] += 1e-5;
+            x[0] += 1e-6;
+        });
+
+        createPhaseTapChanger(origin.getLeg2(), origin.getTerminal(ThreeWindingsTransformer.Side.TWO));
+        twt.getLeg2().newPhaseTapChanger(origin.getLeg2().getPhaseTapChanger()).add();
+        PhaseTapChanger ptc = twt.getLeg2().getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(0, ptc.getLowTapPosition());
+        assertEquals(0, ptc.getTapPosition());
+        assertEquals(ACTIVE_POWER_CONTROL, ptc.getRegulationMode());
+        assertFalse(ptc.isRegulating());
+        assertEquals(200.0, ptc.getRegulationValue(), 0.0);
+        assertEquals(0.5, ptc.getTargetDeadband(), 0.0);
+        assertSame(origin.getTerminal(ThreeWindingsTransformer.Side.TWO), ptc.getRegulationTerminal());
+        assertEquals(3, ptc.getAllSteps().size());
+        r[0] = 39.78473;
+        x[0] = 39.784725;
+        ptc.getAllSteps().forEach((i, step) -> {
+            assertEquals(r[0], step.getR(), 1e-7);
+            assertEquals(x[0], step.getX(), 1e-8);
+            assertEquals(0.0, step.getG(), 0.0);
+            assertEquals(0.0, step.getB(), 0.0);
+            assertEquals(1.0, step.getRho(), 0.0);
+            r[0] += 1e-5;
+            x[0] += 1e-6;
         });
     }
 
@@ -715,7 +765,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setTapPosition(0)
             .setRegulating(regulating)
             .setRegulationTerminal(terminal)
-            .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
+            .setRegulationMode(ACTIVE_POWER_CONTROL)
             .setTargetDeadband(0.5)
             .beginStep()
                 .setR(39.78473)
@@ -751,7 +801,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             .setTapPosition(0)
             .setRegulating(false)
             .setRegulationTerminal(terminal)
-            .setRegulationMode(RegulationMode.ACTIVE_POWER_CONTROL)
+            .setRegulationMode(ACTIVE_POWER_CONTROL)
             .setTargetDeadband(0.5)
             .beginStep()
                 .setR(r)

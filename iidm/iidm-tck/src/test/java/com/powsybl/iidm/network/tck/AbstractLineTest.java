@@ -325,34 +325,7 @@ public abstract class AbstractLineTest {
         double hl2b2 = 145.0;
 
         // adder
-        TieLineAdder adder = network.newTieLine().setId("testTie")
-                .setName("testNameTie")
-                .setVoltageLevel1("vl1")
-                .setBus1("busA")
-                .setConnectableBus1("busA")
-                .setVoltageLevel2("vl2")
-                .setBus2("busB")
-                .setConnectableBus2("busB")
-                .setUcteXnodeCode("ucte")
-                .newHalfLine1()
-                .setId("hl1")
-                .setName(HALF1_NAME)
-                .setR(r)
-                .setX(x)
-                .setB1(hl1b1)
-                .setB2(hl1b2)
-                .setG1(hl1g1)
-                .setG2(hl1g2)
-                .add()
-                .newHalfLine2()
-                .setId("hl2")
-                .setR(r2)
-                .setX(x2)
-                .setB1(hl2b1)
-                .setB2(hl2b2)
-                .setG1(hl2g1)
-                .setG2(hl2g2)
-                .add();
+        TieLineAdder adder = createTieLineAdder();
         TieLine tieLine = adder.add();
         assertTrue(tieLine.isTieLine());
         assertEquals(ConnectableType.LINE, tieLine.getType());
@@ -454,6 +427,104 @@ public abstract class AbstractLineTest {
         TieLine tieLine2 = adder.setId("testTie2").add();
         assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
         assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
+    }
+
+    @Test
+    public void testTieLineAdderFromExisting() {
+        double r = 10.0;
+        double r2 = 1.0;
+        double x = 20.0;
+        double x2 = 2.0;
+        double hl1g1 = 30.0;
+        double hl1g2 = 35.0;
+        double hl1b1 = 40.0;
+        double hl1b2 = 45.0;
+        double hl2g1 = 130.0;
+        double hl2g2 = 135.0;
+        double hl2b1 = 140.0;
+        double hl2b2 = 145.0;
+
+        createTieLineAdder().add();
+        network.newTieLine((TieLine) network.getLine("testTie"))
+                .newHalfLine1(((TieLine) network.getLine("testTie")).getHalf1()).setId("duplicate1").add()
+                .newHalfLine2(((TieLine) network.getLine("testTie")).getHalf2()).setId("duplicate2").add()
+                .setId("duplicate")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .add();
+
+        TieLine tieLine = (TieLine) network.getLine("duplicate");
+        assertNotNull(tieLine);
+        assertEquals("ucte", tieLine.getUcteXnodeCode());
+        assertEquals(r + r2, tieLine.getR(), 0.0);
+        assertEquals(x + x2, tieLine.getX(), 0.0);
+        assertEquals(hl1g1 + hl1g2, tieLine.getG1(), 0.0);
+        assertEquals(hl2g1 + hl2g2, tieLine.getG2(), 0.0);
+        assertEquals(hl1b1 + hl1b2, tieLine.getB1(), 0.0);
+        assertEquals(hl2b1 + hl2b2, tieLine.getB2(), 0.0);
+        TieLine.HalfLine half1 = tieLine.getHalf1();
+        assertNotNull(half1);
+        assertEquals(r, half1.getR(), 0.0);
+        assertEquals(x, half1.getX(), 0.0);
+        assertEquals(hl1g1, half1.getG1(), 0.0);
+        assertEquals(hl1b1, half1.getB1(), 0.0);
+        assertEquals(hl1g2, half1.getG2(), 0.0);
+        assertEquals(hl1b2, half1.getB2(), 0.0);
+        TieLine.HalfLine half2 = tieLine.getHalf2();
+        assertNotNull(half2);
+        assertEquals(r2, half2.getR(), 0.0);
+        assertEquals(x2, half2.getX(), 0.0);
+        assertEquals(hl2g1, half2.getG1(), 0.0);
+        assertEquals(hl2b1, half2.getB1(), 0.0);
+        assertEquals(hl2g2, half2.getG2(), 0.0);
+        assertEquals(hl2b2, half2.getB2(), 0.0);
+    }
+
+    private TieLineAdder createTieLineAdder() {
+        double r = 10.0;
+        double r2 = 1.0;
+        double x = 20.0;
+        double x2 = 2.0;
+        double hl1g1 = 30.0;
+        double hl1g2 = 35.0;
+        double hl1b1 = 40.0;
+        double hl1b2 = 45.0;
+        double hl2g1 = 130.0;
+        double hl2g2 = 135.0;
+        double hl2b1 = 140.0;
+        double hl2b2 = 145.0;
+
+        // adder
+        return network.newTieLine().setId("testTie")
+                .setName("testNameTie")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setUcteXnodeCode("ucte")
+                .newHalfLine1()
+                .setId("hl1")
+                .setName(HALF1_NAME)
+                .setR(r)
+                .setX(x)
+                .setB1(hl1b1)
+                .setB2(hl1b2)
+                .setG1(hl1g1)
+                .setG2(hl1g2)
+                .add()
+                .newHalfLine2()
+                .setId("hl2")
+                .setR(r2)
+                .setX(x2)
+                .setB1(hl2b1)
+                .setB2(hl2b2)
+                .setG1(hl2g1)
+                .setG2(hl2g2)
+                .add();
     }
 
     @Test
