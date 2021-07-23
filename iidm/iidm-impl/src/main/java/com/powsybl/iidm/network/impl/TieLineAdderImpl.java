@@ -160,6 +160,12 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         this.network = network;
     }
 
+    TieLineAdderImpl(TieLine tieLine, NetworkImpl network) {
+        this(network);
+        ucteXnodeCode = tieLine.getUcteXnodeCode();
+        setFictitious(tieLine.isFictitious());
+    }
+
     @Override
     protected NetworkImpl getNetwork() {
         return network;

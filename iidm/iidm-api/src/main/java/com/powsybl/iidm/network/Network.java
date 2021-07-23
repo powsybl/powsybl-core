@@ -404,6 +404,13 @@ public interface Network extends Container<Network> {
      */
     TieLineAdder newTieLine();
 
+    default TieLineAdder newTieLine(TieLine tieLine) {
+        Objects.requireNonNull(tieLine);
+        return newTieLine()
+                .setFictitious(tieLine.isFictitious())
+                .setUcteXnodeCode(tieLine.getUcteXnodeCode());
+    }
+
     /**
      * Get all two windings transformers.
      */

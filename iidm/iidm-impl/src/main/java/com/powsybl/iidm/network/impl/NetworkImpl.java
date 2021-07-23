@@ -342,6 +342,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public TieLineAdderImpl newTieLine(TieLine tieLine) {
+        return new TieLineAdderImpl(Objects.requireNonNull(tieLine), this);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
