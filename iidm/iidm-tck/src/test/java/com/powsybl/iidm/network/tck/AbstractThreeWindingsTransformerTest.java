@@ -209,6 +209,11 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             index[0]++;
         });
 
+        testRatioTapChangerFromExisting(origin, twt);
+        testPhaseTapChangerFromExisting(origin, twt);
+    }
+
+    private void testRatioTapChangerFromExisting(ThreeWindingsTransformer origin, ThreeWindingsTransformer twt) {
         createRatioTapChanger(origin.getLeg1(), origin.getTerminal(ThreeWindingsTransformer.Side.ONE));
         twt.getLeg1().newRatioTapChanger(origin.getLeg1().getRatioTapChanger()).add();
         RatioTapChanger rtc = twt.getLeg1().getRatioTapChanger();
@@ -234,7 +239,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
             r[0] += 1e-5;
             x[0] += 1e-6;
         });
+    }
 
+    private void testPhaseTapChangerFromExisting(ThreeWindingsTransformer origin, ThreeWindingsTransformer twt) {
         createPhaseTapChanger(origin.getLeg2(), origin.getTerminal(ThreeWindingsTransformer.Side.TWO));
         twt.getLeg2().newPhaseTapChanger(origin.getLeg2().getPhaseTapChanger()).add();
         PhaseTapChanger ptc = twt.getLeg2().getPhaseTapChanger();
@@ -247,7 +254,9 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(0.5, ptc.getTargetDeadband(), 0.0);
         assertSame(origin.getTerminal(ThreeWindingsTransformer.Side.TWO), ptc.getRegulationTerminal());
         assertEquals(3, ptc.getAllSteps().size());
+        double[] r = new double[1];
         r[0] = 39.78473;
+        double[] x = new double[1];
         x[0] = 39.784725;
         ptc.getAllSteps().forEach((i, step) -> {
             assertEquals(r[0], step.getR(), 1e-7);
