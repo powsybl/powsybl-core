@@ -459,6 +459,7 @@ public final class EquipmentExport {
                 OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, writer);
                 String operationalLimitSetId = CgmesExportUtil.getUniqueId();
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer);
+                //TODO: Create unique ID when network is not generated from CGMES import
                 LoadingLimitEq.write(temporaryLimit.getName(), limits.getClass(), "CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
             }
         }
