@@ -51,7 +51,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerImpl setRegulating(boolean regulating) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, getTargetV(), getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities,
+            regulationTerminal, getTargetV(), targetDeadband.get(network.get().getVariantIndex()), getNetwork());
 
         Set<TapChanger> tapChangers = new HashSet<TapChanger>();
         tapChangers.addAll(parent.getAllTapChangers());
@@ -68,7 +69,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerImpl setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal, getTargetV(), getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
+            regulationTerminal, getTargetV(), targetDeadband.get(network.get().getVariantIndex()), getNetwork());
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
         notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
@@ -82,8 +84,9 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal, targetV, getNetwork());
         int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
+            regulationTerminal, targetV, targetDeadband.get(variantIndex), getNetwork());
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate(() -> getTapChangerAttribute() + ".targetV", variantId, oldValue, targetV);
@@ -91,8 +94,16 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
+    public RatioTapChangerImpl setTargetDeadband(double targetDeadband) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
+            regulationTerminal, getTargetV(), targetDeadband, getNetwork());
+        return super.setTargetDeadband(targetDeadband);
+    }
+
+    @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities, regulationTerminal, getTargetV(), getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
+            regulationTerminal, getTargetV(), targetDeadband.get(network.get().getVariantIndex()), getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 

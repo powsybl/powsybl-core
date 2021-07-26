@@ -12,6 +12,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -34,6 +36,12 @@ public final class ValidationUtil {
     public static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
         if (Double.isNaN(activePowerSetpoint)) {
             throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
+        }
+    }
+
+    public static void checkReactivePowerSetpoint(Validable validable, double reactivePowerSetpoint) {
+        if (Double.isNaN(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
         }
     }
 
@@ -66,32 +74,22 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated
+     * Use
+     * {@link #checkRatioTapChangerRegulation(Validable, boolean, Terminal, double, double, Network)} or
+     * {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} or
+     * {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} or
+     * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} or
+     * {@link #checkRegulatingCurrentOrActivePowerControl(Validable, Terminal, double, double, boolean, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
     public static void checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband) {
         if (regulating && Double.isNaN(targetDeadband)) {
             throw new ValidationException(validable, "Undefined value for target deadband of regulating " + validableType);
         }
         if (targetDeadband < 0) {
             throw new ValidationException(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0");
-        }
-    }
-
-    public static boolean checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint) {
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(validable, "voltage regulator status is not set");
-        }
-        boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
-        if (bVoltageRegulatorOn) {
-            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
-            }
-            return false;
-        }
-        return true;
-    }
-
-    public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
-        if (checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint) && Double.isNaN(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
         }
     }
 
@@ -127,6 +125,20 @@ public final class ValidationUtil {
         }
     }
 
+    /**
+     * @deprecated
+     * Use
+     * {@link #checkRatioTapChangerRegulation(Validable, boolean, Terminal, double, double, Network)} or
+     * {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} or
+     * {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} or
+     * {@link #checkGeneratorRegulatingVoltageControl(Validable, Terminal, double, boolean, double, Network)} or
+     * {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network)} or
+     * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network)} or
+     * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} or
+     * {@link #checkRegulatingReactivePowerControl(Validable, Terminal, double, boolean, Network)} or
+     * {@link #checkRegulatingCurrentOrActivePowerControl(Validable, Terminal, double, double, boolean, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
     public static void checkRegulatingTerminal(Validable validable, Terminal regulatingTerminal, Network network) {
         if (regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() != network) {
             throw new ValidationException(validable, "regulating terminal is not part of the network");
@@ -291,6 +303,132 @@ public final class ValidationUtil {
         checkRatedU(validable, ratedU2, "2");
     }
 
+    public static void checkBmin(Validable validable, double bMin) {
+        if (Double.isNaN(bMin)) {
+            throw new ValidationException(validable, "bmin is invalid");
+        }
+    }
+
+    public static void checkBmax(Validable validable, double bMax) {
+        if (Double.isNaN(bMax)) {
+            throw new ValidationException(validable, "bmax is invalid");
+        }
+    }
+
+    private static void throwExceptionOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message) {
+        if (loadTapChangingCapabilities) {
+            throw new ValidationException(validable, message);
+        } else {
+            LOGGER.warn(message);
+        }
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+        Terminal regulationTerminal, double targetV, Network network) {
+        if (regulating) {
+            if (Double.isNaN(targetV)) {
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a target voltage has to be set for a regulating ratio tap changer");
+            }
+            if (targetV <= 0) {
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "bad target voltage " + targetV);
+            }
+            if (regulationTerminal == null) {
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer");
+            }
+            if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
+                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "regulation terminal is not part of the network");
+            }
+        }
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkRatioTapChangerRegulation(Validable, boolean, Terminal, double, double, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
+        Terminal regulationTerminal, double targetV, Network network) {
+        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, network);
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
+        double regulationValue, boolean regulating, Terminal regulationTerminal,
+        Network network) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "phase regulation mode is not set");
+        }
+        if (regulating) {
+            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
+                throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
+            }
+            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
+                throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
+            }
+            if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+                throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+            }
+        }
+        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
+            throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+        }
+    }
+
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
+        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
+        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, targetDeadband, network);
+    }
+
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
+        if (!loadTapChangingCapabilities) {
+            return;
+        }
+        ValidationUtil.checkRegulatingVoltageControl(validable, regulationTerminal, targetV, targetDeadband, regulating, network);
+    }
+
+    public static void checkPhaseTapChangerRegulation(Validable validable, boolean regulating,
+        PhaseTapChanger.RegulationMode regulationMode, Terminal regulationTerminal, double regulationValue,
+        double targetDeadband, Network network) {
+        if (regulationMode == null) {
+            throw new ValidationException(validable, "phase regulation mode is not set");
+        }
+        if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
+            throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        }
+        checkRegulatingCurrentOrActivePowerControl(validable, regulationTerminal, regulationValue, targetDeadband,
+            regulating, network);
+    }
+
+    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
+        Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
+        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
+            throw new ValidationException(validable, "Only one regulating control enabled is allowed");
+        }
+    }
+
+    public static void checkGeneratorRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, boolean voltageRegulatorOn, double targetQ, Network network) {
+        if (!voltageRegulatorOn) {
+            checkReactivePowerSetpoint(validable, targetQ);
+        }
+        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network);
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network)}
+     */
+    @Deprecated(since = "4.4.0")
     public static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "Regulation mode is invalid");
@@ -318,76 +456,157 @@ public final class ValidationUtil {
 
     }
 
-    public static void checkBmin(Validable validable, double bMin) {
-        if (Double.isNaN(bMin)) {
-            throw new ValidationException(validable, "bmin is invalid");
-        }
-    }
-
-    public static void checkBmax(Validable validable, double bMax) {
-        if (Double.isNaN(bMax)) {
-            throw new ValidationException(validable, "bmax is invalid");
-        }
-    }
-
-    private static void throwExceptionOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message) {
-        if (loadTapChangingCapabilities) {
-            throw new ValidationException(validable, message);
-        } else {
-            LOGGER.warn(message);
-        }
-    }
-
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                      Terminal regulationTerminal, double targetV, Network network) {
-        if (regulating) {
-            if (Double.isNaN(targetV)) {
-                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a target voltage has to be set for a regulating ratio tap changer");
-            }
-            if (targetV <= 0) {
-                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "bad target voltage " + targetV);
-            }
-            if (regulationTerminal == null) {
-                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "a regulation terminal has to be set for a regulating ratio tap changer");
-            }
-            if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
-                throwExceptionOrWarningForRtc(validable, loadTapChangingCapabilities, "regulation terminal is not part of the network");
-            }
-        }
-    }
-
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
-                                                      Terminal regulationTerminal, double targetV, Network network) {
-        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, network);
-    }
-
-    public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                                      Network network) {
+    public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
+        double reactivePowerSetpoint, RegulationMode regulationMode, Network network) {
         if (regulationMode == null) {
-            throw new ValidationException(validable, "phase regulation mode is not set");
+            throw new ValidationException(validable, "Regulation mode is invalid");
         }
-        if (regulating) {
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
-                throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
-            }
-            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
-                throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
-            }
-            if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-                throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
-            }
-        }
-        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
-            throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+        if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE) {
+            ValidationUtil.checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, true, network);
+        } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
+            ValidationUtil.checkRegulatingReactivePowerControl(validable, regulatingTerminal, reactivePowerSetpoint, true, network);
         }
     }
 
-    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                               Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
-        if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
-            throw new ValidationException(validable, "Only one regulating control enabled is allowed");
+    public static void checkRegulatingVoltageControl(Validable validable, double voltageSetpoint, boolean voltageRegulatorOn) {
+        if (!voltageRegulatorOn) {
+            return;
         }
+        if (!validVoltageSetpoint(voltageSetpoint)) {
+            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
+        }
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
+        if (checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint) && Double.isNaN(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
+        }
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static boolean checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint) {
+        if (voltageRegulatorOn == null) {
+            throw new ValidationException(validable, "voltage regulator status is not set");
+        }
+        boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
+        if (bVoltageRegulatorOn) {
+            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
+                throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
+            }
+            return false;
+        }
+        return true;
+    }
+
+    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, boolean voltageRegulatorOn, Network network) {
+        if (!voltageRegulatorOn) {
+            return;
+        }
+        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+        }
+        if (!validVoltageSetpoint(voltageSetpoint)) {
+            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
+        }
+    }
+
+    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, double targetDeadband, boolean voltageRegulatorOn, Network network) {
+        if (!voltageRegulatorOn) {
+            return;
+        }
+        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+        }
+        if (!validVoltageSetpoint(voltageSetpoint)) {
+            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
+        }
+        if (!validDeadband(targetDeadband)) {
+            throw createInvalidValueException(validable, targetDeadband, "target deadband");
+        }
+    }
+
+    public static void checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
+        double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn) {
+        if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
+        }
+        checkRegulatingVoltageControl(validable, voltageSetpoint, voltageRegulatorOn);
+    }
+
+    public static void checkRegulatingReactivePowerControl(Validable validable, Terminal regulatingTerminal,
+        double reactivePowerSetpoint, boolean reactivePowerRegulatorOn, Network network) {
+        if (!reactivePowerRegulatorOn) {
+            return;
+        }
+        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+        }
+        if (!validReactivePowerSetpoint(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
+        }
+    }
+
+    public static void checkRegulatingCurrentOrActivePowerControl(Validable validable, Terminal regulatingTerminal,
+        double valueSetpoint, double targetDeadband, boolean regulatorOn, Network network) {
+        if (!regulatorOn) {
+            return;
+        }
+        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+        }
+        if (!validCurrentOrActivePowerSetpoint(valueSetpoint)) {
+            throw createInvalidValueException(validable, valueSetpoint, "current or active power setpoint");
+        }
+        if (!validDeadband(targetDeadband)) {
+            throw createInvalidValueException(validable, targetDeadband, "target deadband");
+        }
+    }
+
+    public static boolean validRegulatingVoltageControl(Terminal regulatingTerminal, double voltageSetpoint, Network network) {
+        return validRegulatingTerminal(regulatingTerminal, network) && validVoltageSetpoint(voltageSetpoint);
+    }
+
+    public static boolean validRegulatingVoltageControl(Terminal regulatingTerminal, double voltageSetpoint, double targetDeadband, Network network) {
+        return validRegulatingTerminal(regulatingTerminal, network) && validVoltageSetpoint(voltageSetpoint) && validDeadband(targetDeadband);
+    }
+
+    public static boolean validRegulatingReactivePowerControl(Terminal regulatingTerminal, double reactivePowerSetpoint, Network network) {
+        return validRegulatingTerminal(regulatingTerminal, network) && validReactivePowerSetpoint(reactivePowerSetpoint);
+    }
+
+    public static boolean validRegulatingCurrentOrActivePowerControl(Terminal regulatingTerminal, double valueSetpoint, double targetDeadband, Network network) {
+        return validRegulatingTerminal(regulatingTerminal, network) && validCurrentOrActivePowerSetpoint(valueSetpoint) && validDeadband(targetDeadband);
+    }
+
+    private static boolean validRegulatingTerminal(Terminal regulatingTerminal, Network network) {
+        return regulatingTerminal != null && regulatingTerminal.getVoltageLevel().getNetwork() == network;
+    }
+
+    private static boolean validVoltageSetpoint(double voltageSetpoint) {
+        return !Double.isNaN(voltageSetpoint) && voltageSetpoint > 0;
+    }
+
+    private static boolean validReactivePowerSetpoint(double reactivePowerSetpoint) {
+        return !Double.isNaN(reactivePowerSetpoint);
+    }
+
+    private static boolean validCurrentOrActivePowerSetpoint(double valueSetpoint) {
+        return !Double.isNaN(valueSetpoint);
+    }
+
+    private static boolean validDeadband(double deadband) {
+        return !Double.isNaN(deadband) && deadband >= 0;
     }
 
     public static void checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode) {

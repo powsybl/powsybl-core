@@ -122,6 +122,10 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.clear();
     }
 
+    Terminal getRegulatingTerminal(String cgmesTerminalId) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminalId)).orElse(null);
+    }
+
     Terminal findRegulatingTerminal(String cgmesTerminalId) {
         return findRegulatingTerminal(cgmesTerminalId, false);
     }

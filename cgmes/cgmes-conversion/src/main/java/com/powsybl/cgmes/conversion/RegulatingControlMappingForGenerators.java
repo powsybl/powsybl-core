@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.CoordinatedReactiveControlAdder;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -90,24 +91,19 @@ public class RegulatingControlMappingForGenerators {
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRegulatingControlVoltage(String controlId,
-                                                RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
+    private boolean setRegulatingControlVoltage(String controlId, RegulatingControl control, double qPercent,
+        boolean eqControlEnabled, Generator gen) {
 
-        // Take default terminal if it has not been defined in CGMES file (it is never null)
-        Terminal terminal = parent.getRegulatingTerminal(gen, control.cgmesTerminal);
+        // Take the terminal defined in CGMES file (can be null)
+        // Take the targetV (can be NaN)
+        Terminal terminal = parent.getRegulatingTerminal(control.cgmesTerminal);
+        double targetV = control.targetValue;
 
-        double targetV;
-        if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
-            targetV = terminal.getVoltageLevel().getNominalV();
-            terminal = gen.getTerminal();
-            context.fixed(controlId, "Invalid value for regulating target value. Regulation considered as local.", control.targetValue, targetV);
-        } else {
-            targetV = control.targetValue;
-        }
-
+        boolean valid = ValidationUtil.validRegulatingVoltageControl(terminal, targetV, gen.getNetwork());
         boolean voltageRegulatorOn = false;
         // Regulating control is enabled AND this equipment participates in regulating control
-        if (control.enabled && eqControlEnabled) {
+        // Control attributes must be valid
+        if (control.enabled && eqControlEnabled && valid) {
             voltageRegulatorOn = true;
         }
 
@@ -123,29 +119,23 @@ public class RegulatingControlMappingForGenerators {
         }
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
-        return true;
+        return valid;
     }
 
     private boolean setRegulatingControlReactivePower(String controlId, RegulatingControl control, double qPercent, boolean eqControlEnabled, Generator gen) {
-        // Ignore control if the terminal is not mapped.
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal, true);
-        if (terminal == null) {
-            context.ignored(controlId, String.format("Regulation terminal %s is not mapped or mapped to a switch", control.cgmesTerminal));
-            return false;
-        }
+        Terminal terminal = parent.getRegulatingTerminal(control.cgmesTerminal);
+        double targetQ = control.targetValue;
 
-        double targetQ;
-        if (Double.isNaN(control.targetValue)) {
-            context.fixed(controlId, "Invalid value for regulating target value. Real flows are considered targets.");
-            return false;
-        } else {
-            targetQ = control.targetValue;
+        boolean valid = ValidationUtil.validRegulatingReactivePowerControl(terminal, targetQ, gen.getNetwork());
+        boolean controlReactiveRegulatorOn = false;
+        if (control.enabled && eqControlEnabled && valid) {
+            controlReactiveRegulatorOn = true;
         }
 
         gen.newExtension(RemoteReactivePowerControlAdder.class)
                 .withTargetQ(targetQ)
                 .withRegulatingTerminal(terminal)
-                .withEnabled(control.enabled && eqControlEnabled)
+                .withEnabled(controlReactiveRegulatorOn)
                 .add();
 
         // add qPercent as an extension
@@ -157,7 +147,7 @@ public class RegulatingControlMappingForGenerators {
 
         gen.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", controlId);
 
-        return true;
+        return valid;
     }
 
     private static class CgmesRegulatingControlForGenerator {

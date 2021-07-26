@@ -180,28 +180,24 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
-                                                   RatioTapChanger rtc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
-            return false;
-        }
+        RatioTapChanger rtc, Context context) {
 
-        // We always keep the targetValue
-        // It targetValue is not valid, emit a warning and deactivate regulating control
-        boolean validTargetValue = control.targetValue > 0;
-        if (!validTargetValue) {
-            context.invalid(rtcId,
-                "Regulating control has a bad target voltage " + control.targetValue);
-        }
+        Terminal terminal = parent.getRegulatingTerminal(control.cgmesTerminal);
+        double targetV = control.targetValue;
+        double targetDeadband = control.targetDeadband;
 
-        // Order is important
+        boolean valid = ValidationUtil.validRegulatingVoltageControl(terminal, targetV, targetDeadband, context.network());
+
+        boolean voltageRegulatorOn = false;
+        if (regulating && valid) {
+            voltageRegulatorOn = true;
+        }
         rtc.setRegulationTerminal(terminal)
-                .setTargetV(control.targetValue)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulating(regulating && validTargetValue);
+            .setTargetV(targetV)
+            .setTargetDeadband(targetDeadband)
+            .setRegulating(voltageRegulatorOn);
 
-        return true;
+        return valid;
     }
 
     private void setPhaseTapChangerControl(boolean regulating, CgmesRegulatingControlPhase rc,
@@ -236,27 +232,31 @@ public class RegulatingControlMappingForTransformers {
     }
 
     private boolean setPtcRegulatingControl(boolean regulating, PhaseTapChanger.RegulationMode regulationMode,
-                                            RegulatingControl control, PhaseTapChanger ptc, Context context) {
-        Terminal terminal = parent.findRegulatingTerminal(control.cgmesTerminal);
-        if (terminal == null) {
-            context.missing(String.format(RegulatingControlMapping.MISSING_IIDM_TERMINAL, control.cgmesTerminal));
-            return false;
+        RegulatingControl control, PhaseTapChanger ptc, Context context) {
+
+        Terminal terminal = parent.getRegulatingTerminal(control.cgmesTerminal);
+        double targetValue = control.targetValue;
+        double targetDeadband = control.targetDeadband;
+
+        boolean valid = ValidationUtil.validRegulatingCurrentOrActivePowerControl(terminal, targetValue, targetDeadband, context.network());
+
+        boolean regulatingOn = false;
+        if (regulating && valid) {
+            regulatingOn = true;
+        }
+        if (regulatingOn && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
+            context.fixed("RegulationMode",
+                "Regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
+            regulatingOn = false;
         }
 
-        boolean fixedRegulating = regulating;
-        if (regulating && regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
-            context.fixed("RegulationMode", "Regulating is set to true whereas regulationMode is set to FIXED_TAP: regulating fixed to false");
-            fixedRegulating = false;
-        }
-
-        // Order is important
         ptc.setRegulationTerminal(terminal)
-                .setRegulationValue(control.targetValue)
-                .setTargetDeadband(control.targetDeadband)
-                .setRegulationMode(regulationMode)
-                .setRegulating(fixedRegulating);
+            .setRegulationValue(targetValue)
+            .setTargetDeadband(targetDeadband)
+            .setRegulationMode(regulationMode)
+            .setRegulating(regulatingOn);
 
-        return true;
+        return valid;
     }
 
     private PhaseTapChanger.RegulationMode getPtcRegulatingMode(boolean ltcFlag,

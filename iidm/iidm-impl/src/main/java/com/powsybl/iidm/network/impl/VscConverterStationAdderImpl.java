@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.ValidationUtil;
  */
 class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<VscConverterStationAdderImpl> implements VscConverterStationAdder {
 
-    private Boolean voltageRegulatorOn;
+    private boolean voltageRegulatorOn = false;
 
     private double reactivePowerSetpoint = Double.NaN;
 
@@ -67,7 +67,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     protected void validate() {
         super.validate();
 
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
+        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn);
     }
 
 }

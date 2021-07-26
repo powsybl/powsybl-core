@@ -27,7 +27,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
 
     private TerminalExt regulatingTerminal;
 
-    private Boolean voltageRegulatorOn;
+    private boolean voltageRegulatorOn = false;
 
     private double targetP = Double.NaN;
 
@@ -112,16 +112,15 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ);
+        ValidationUtil.checkGeneratorRegulatingVoltageControl(this, regulatingTerminal, targetV, voltageRegulatorOn, targetQ, getNetwork());
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
                 = new GeneratorImpl(getNetwork().getRef(),
                                     id, getName(), isFictitious(), energySource,
                                     minP, maxP,
-                                    voltageRegulatorOn, regulatingTerminal != null ? regulatingTerminal : terminal,
+                                    voltageRegulatorOn, regulatingTerminal,
                                     targetP, targetQ, targetV,
                                     ratedS);
         generator.addTerminal(terminal);

@@ -28,7 +28,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     private double reactivePowerSetpoint = Double.NaN;
 
-    private StaticVarCompensator.RegulationMode regulationMode;
+    private StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.OFF;
 
     private TerminalExt regulatingTerminal;
 
@@ -89,11 +89,10 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
-        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
-                regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
-                getNetwork().getRef());
+        ValidationUtil.checkSvcRegulatingControl(this, regulatingTerminal, voltageSetpoint,
+            reactivePowerSetpoint, regulationMode, getNetwork());
+        StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax,
+            voltageSetpoint, reactivePowerSetpoint, regulationMode, regulatingTerminal, getNetwork().getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(svc);

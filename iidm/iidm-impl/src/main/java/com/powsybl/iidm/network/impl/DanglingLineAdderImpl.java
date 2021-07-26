@@ -23,7 +23,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         private double maxP = Double.NaN;
         private double targetP = Double.NaN;
         private double targetQ = Double.NaN;
-        private boolean voltageRegulationOn;
+        private boolean voltageRegulationOn = false;
         private double targetV = Double.NaN;
 
         @Override
@@ -66,7 +66,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
             ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(DanglingLineAdderImpl.this, targetV, targetQ, voltageRegulationOn);
             generationAdder = this;
             return DanglingLineAdderImpl.this;
         }

@@ -60,7 +60,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex));
+        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), voltageRegulatorOn);
         boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
         this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -76,7 +76,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex));
+        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint, reactivePowerSetpoint.get(variantIndex), voltageRegulatorOn.get(variantIndex));
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
@@ -91,7 +91,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint);
+        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint.get(variantIndex), reactivePowerSetpoint, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);

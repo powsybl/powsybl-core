@@ -193,8 +193,9 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
-        ValidationUtil.checkTargetDeadband(parent, "phase tap changer", regulating, targetDeadband);
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulating, regulationMode, regulationTerminal,
+            regulationValue, targetDeadband, getNetwork());
+
         PhaseTapChangerImpl tapChanger
                 = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
 

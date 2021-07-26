@@ -33,7 +33,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected boolean hasSubElements(StaticVarCompensator svc) {
-        return !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
+        return svc.getRegulatingTerminal() != null && !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
     }
 
     @Override
@@ -56,7 +56,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
-        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(svc.getRegulatingTerminal() != null && !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
                 ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
                 IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
     }
@@ -68,6 +68,22 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    protected void readElement(String id, StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
+        StaticVarCompensator.RegulationMode regulationMode = readRootElementAttributesStaticVarCompensator(adder, context);
+        StaticVarCompensator svc = adder.add();
+        readPQ(null, svc.getTerminal(), context.getReader());
+        readSubElementsStaticVarCompensator(svc, context);
+        if (regulationMode != StaticVarCompensator.RegulationMode.OFF && svc.getRegulatingTerminal() == null) {
+            svc.setRegulatingTerminal(svc.getTerminal());
+        }
+        svc.setRegulationMode(regulationMode);
+    }
+
+    private static StaticVarCompensator.RegulationMode readRootElementAttributesStaticVarCompensator(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
 
@@ -85,15 +101,12 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
                 .setBmax(bMax)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setRegulationMode(regulationMode);
+                .setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
         readNodeOrBus(adder, context);
-        StaticVarCompensator svc = adder.add();
-        readPQ(null, svc.getTerminal(), context.getReader());
-        return svc;
+        return regulationMode;
     }
 
-    @Override
-    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
+    private void readSubElementsStaticVarCompensator(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);

@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.Validable;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControl;
 import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 
@@ -34,18 +36,24 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     @Override
     public RemoteReactivePowerControlAdder withTargetQ(double targetQ) {
+        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
+            targetQ, enabled, super.extendable.getNetwork());
         this.targetQ = targetQ;
         return this;
     }
 
     @Override
     public RemoteReactivePowerControlAdder withRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
+            targetQ, enabled, super.extendable.getNetwork());
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }
 
     @Override
     public RemoteReactivePowerControlAdder withEnabled(boolean enabled) {
+        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
+            targetQ, enabled, super.extendable.getNetwork());
         this.enabled = enabled;
         return this;
     }

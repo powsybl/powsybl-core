@@ -211,9 +211,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV);
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband);
+        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV, targetDeadband,
+            voltageRegulatorOn, getNetwork());
 
         if (modelBuilder == null) {
             throw new ValidationException(this, "the shunt compensator model has not been defined");
@@ -222,8 +221,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(getNetwork().getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
-                regulatingTerminal == null ? terminal : regulatingTerminal,
-                voltageRegulatorOn, targetV, targetDeadband);
+                regulatingTerminal, voltageRegulatorOn, targetV, targetDeadband);
 
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

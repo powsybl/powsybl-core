@@ -182,8 +182,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, getNetwork());
-        ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband);
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities,
+            regulationTerminal, targetV, targetDeadband, getNetwork());
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);

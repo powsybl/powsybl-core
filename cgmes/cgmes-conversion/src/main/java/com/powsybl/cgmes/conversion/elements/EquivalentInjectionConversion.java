@@ -100,14 +100,20 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         Regulation regulation = getRegulation();
         GeneratorAdder adder = voltageLevel().newGenerator();
         setMinPMaxP(adder, minP, maxP);
-        adder.setVoltageRegulatorOn(regulation.status)
-                .setTargetP(regulation.targetP)
+        adder.setTargetP(regulation.targetP)
                 .setTargetQ(regulation.targetQ)
-                .setTargetV(regulation.targetV)
                 .setEnergySource(energySource);
         identify(adder);
         connect(adder);
         Generator g = adder.add();
+        boolean valid = ValidationUtil.validRegulatingVoltageControl(g.getTerminal(), regulation.targetV, g.getNetwork());
+        boolean voltageRegulatorOn = false;
+        if (regulation.status && valid) {
+            voltageRegulatorOn = true;
+        }
+        g.setRegulatingTerminal(g.getTerminal())
+            .setTargetV(regulation.targetV)
+            .setVoltageRegulatorOn(voltageRegulatorOn);
         addAliasesAndProperties(g);
         convertedTerminals(g.getTerminal());
         convertReactiveLimits(g);
@@ -128,17 +134,7 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         if (!p.containsKey("regulationStatus") || !p.containsKey(REGULATION_TARGET)) {
             context.missing(String.format("Missing regulationStatus or regulationTarget for EquivalentInjection %s. Voltage regulation is considered as off.", id));
         }
-
-        regulation.status = regulation.status && terminalConnected();
-        regulation.targetV = Double.NaN;
-        if (regulation.status) {
-            regulation.targetV = p.asDouble(REGULATION_TARGET);
-            if (regulation.targetV == 0) {
-                fixed(REGULATION_TARGET, "Target voltage value can not be zero", regulation.targetV,
-                        voltageLevel().getNominalV());
-                regulation.targetV = voltageLevel().getNominalV();
-            }
-        }
+        regulation.targetV = p.asDouble(REGULATION_TARGET);
 
         PowerFlow f = powerFlow();
         regulation.targetP = 0;
