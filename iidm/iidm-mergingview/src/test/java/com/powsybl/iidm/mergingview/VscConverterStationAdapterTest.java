@@ -74,4 +74,19 @@ public class VscConverterStationAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(cs1::remove);
     }
+
+    @Test
+    public void testAdderFromExisting() {
+        mergingView.getVoltageLevel("VL1").newVscConverterStation(mergingView.getVscConverterStation("C1"))
+                .setId("DUPLICATE")
+                .setBus("B1")
+                .add();
+
+        VscConverterStation converterStation = mergingView.getVscConverterStation("DUPLICATE");
+        assertNotNull(converterStation);
+        assertEquals(1.1f, converterStation.getLossFactor(), 0.0);
+        assertEquals(405.0, converterStation.getVoltageSetpoint(), 0.0);
+        assertTrue(converterStation.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(converterStation.getReactivePowerSetpoint()));
+    }
 }
