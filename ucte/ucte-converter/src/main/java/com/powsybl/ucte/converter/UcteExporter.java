@@ -29,7 +29,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Properties;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -48,6 +51,8 @@ public class UcteExporter implements Exporter {
     public static final String NAMING_STRATEGY = "ucte.export.naming-strategy";
 
     private static final Parameter NAMING_STRATEGY_PARAMETER = new Parameter(NAMING_STRATEGY, ParameterType.STRING, "Default naming strategy for UCTE codes conversion", "Default");
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(NAMING_STRATEGY_PARAMETER);
 
     private static final Supplier<List<NamingStrategy>> NAMING_STRATEGY_SUPPLIERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(NamingStrategy.class).getServices());
@@ -89,6 +94,11 @@ public class UcteExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return STATIC_PARAMETERS;
     }
 
     private static boolean isYNode(Bus bus) {
