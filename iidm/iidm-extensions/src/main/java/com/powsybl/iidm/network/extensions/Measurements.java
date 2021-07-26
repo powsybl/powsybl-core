@@ -26,6 +26,8 @@ public interface Measurements<C extends Connectable<C>> extends Extension<C> {
 
     Collection<Measurement> getMeasurements();
 
+    Collection<Measurement> getMeasurements(Measurement.Type type);
+
     Measurement getMeasurement(String id);
 
     MeasurementAdder newMeasurement();

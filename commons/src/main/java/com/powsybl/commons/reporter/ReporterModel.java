@@ -19,7 +19,9 @@ import java.nio.file.Path;
 import java.util.*;
 
 /**
- * An in-memory implementation of {@link Reporter}.
+ * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
+ *
+ * <p>An in-memory implementation of {@link Reporter}.
  *
  * <p>Being an implementation of {@link Reporter}, instances of <code>ReporterModel</code> are not thread-safe.
  * A reporterModel is not meant to be shared with other threads nor to be saved as a class parameter, but should instead
