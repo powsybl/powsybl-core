@@ -36,22 +36,25 @@ public class SlackTerminalXmlSerializer extends AbstractVersionableNetworkExtens
         super("slackTerminal", SlackTerminal.class, false, "slt",
                 ImmutableMap.of(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"),
                         IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.1"),
-                        IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2")),
+                        IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.2"),
+                        IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.3")),
                 ImmutableMap.of("1.0", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_0",
                         "1.1", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_1",
-                        "1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2"));
+                        "1.2", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2",
+                        "1.3", "http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3"));
     }
 
     @Override
     public InputStream getXsdAsStream() {
-        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd");
+        return getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd");
     }
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
         return ImmutableList.of(getClass().getResourceAsStream("/xsd/slackTerminal_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/slackTerminal_V1_1.xsd"),
-                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"));
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_2.xsd"),
+                getClass().getResourceAsStream("/xsd/slackTerminal_V1_3.xsd"));
     }
 
     @Override
