@@ -20,6 +20,9 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
 public final class ValidationUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ValidationUtil.class);
+    private static final String REACTIVE_POWER_SETPOINT = "reactive power setpoint";
+    private static final String VOLTAGE_SETPOINT = "voltage setpoint";
+    private static final String REGULATING_TERMINAL_NOT_DEFINED = "regulating terminal is not defined or is not part of the network";
 
     private ValidationUtil() {
     }
@@ -41,7 +44,7 @@ public final class ValidationUtil {
 
     public static void checkReactivePowerSetpoint(Validable validable, double reactivePowerSetpoint) {
         if (Double.isNaN(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT);
         }
     }
 
@@ -436,13 +439,13 @@ public final class ValidationUtil {
         switch (regulationMode) {
             case VOLTAGE:
                 if (Double.isNaN(voltageSetpoint)) {
-                    throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
+                    throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT);
                 }
                 break;
 
             case REACTIVE_POWER:
                 if (Double.isNaN(reactivePowerSetpoint)) {
-                    throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
+                    throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT);
                 }
                 break;
 
@@ -473,7 +476,7 @@ public final class ValidationUtil {
             return;
         }
         if (!validVoltageSetpoint(voltageSetpoint)) {
-            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
+            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
         }
     }
 
@@ -484,7 +487,7 @@ public final class ValidationUtil {
     @Deprecated(since = "4.4.0")
     public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
         if (checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint) && Double.isNaN(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off");
         }
     }
 
@@ -500,7 +503,7 @@ public final class ValidationUtil {
         boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
         if (bVoltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on");
+                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
             }
             return false;
         }
@@ -513,10 +516,10 @@ public final class ValidationUtil {
             return;
         }
         if (!validRegulatingTerminal(regulatingTerminal, network)) {
-            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validVoltageSetpoint(voltageSetpoint)) {
-            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
+            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT);
         }
     }
 
@@ -526,10 +529,10 @@ public final class ValidationUtil {
             return;
         }
         if (!validRegulatingTerminal(regulatingTerminal, network)) {
-            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validVoltageSetpoint(voltageSetpoint)) {
-            throw createInvalidValueException(validable, voltageSetpoint, "voltage setpoint");
+            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT);
         }
         if (!validDeadband(targetDeadband)) {
             throw createInvalidValueException(validable, targetDeadband, "target deadband");
@@ -539,7 +542,7 @@ public final class ValidationUtil {
     public static void checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
         double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn) {
         if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off");
         }
         checkRegulatingVoltageControl(validable, voltageSetpoint, voltageRegulatorOn);
     }
@@ -550,10 +553,10 @@ public final class ValidationUtil {
             return;
         }
         if (!validRegulatingTerminal(regulatingTerminal, network)) {
-            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, "reactive power setpoint");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT);
         }
     }
 
@@ -563,7 +566,7 @@ public final class ValidationUtil {
             return;
         }
         if (!validRegulatingTerminal(regulatingTerminal, network)) {
-            throw new ValidationException(validable, "regulating terminal is not defined or is not part of the network");
+            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validCurrentOrActivePowerSetpoint(valueSetpoint)) {
             throw createInvalidValueException(validable, valueSetpoint, "current or active power setpoint");

@@ -171,7 +171,7 @@ public class RegulatingControlMappingForTransformers {
 
         boolean okSet = false;
         if (isControlModeVoltage(control.mode, rc.tculControlMode)) {
-            okSet = setRtcRegulatingControlVoltage(rc.id, regulating, control, rtc, context);
+            okSet = setRtcRegulatingControlVoltage(regulating, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
                 "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
@@ -179,7 +179,7 @@ public class RegulatingControlMappingForTransformers {
         control.setCorrectlySet(okSet);
     }
 
-    private boolean setRtcRegulatingControlVoltage(String rtcId, boolean regulating, RegulatingControl control,
+    private boolean setRtcRegulatingControlVoltage(boolean regulating, RegulatingControl control,
         RatioTapChanger rtc, Context context) {
 
         Terminal terminal = parent.getRegulatingTerminal(control.cgmesTerminal);
