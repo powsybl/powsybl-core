@@ -57,7 +57,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
 
     @Override
     public InjectionObservability<T> setQualityP(double standardDeviation, Boolean redundant) {
-        this.qualityP = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        if (qualityP == null) {
+            qualityP = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityP.setStandardDeviation(standardDeviation);
+            qualityP.setRedundant(redundant);
+        }
         return this;
     }
 
@@ -68,7 +73,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
 
     @Override
     public InjectionObservability<T> setQualityQ(double standardDeviation, Boolean redundant) {
-        this.qualityQ = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        if (qualityQ == null) {
+            qualityQ = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityQ.setStandardDeviation(standardDeviation);
+            qualityQ.setRedundant(redundant);
+        }
         return this;
     }
 
@@ -79,7 +89,12 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
 
     @Override
     public InjectionObservability<T> setQualityV(double standardDeviation, Boolean redundant) {
-        this.qualityV = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        if (qualityV == null) {
+            qualityV = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityV.setStandardDeviation(standardDeviation);
+            qualityV.setRedundant(redundant);
+        }
         return this;
     }
 }
