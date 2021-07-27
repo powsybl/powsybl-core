@@ -16,30 +16,21 @@
     <xs:element name="branchObservability">
         <xs:complexType>
             <xs:sequence>
-                <xs:sequence minOccurs="2" maxOccurs="2">
+                <xs:sequence minOccurs="0" maxOccurs="2">
                     <xs:element name="qualityP">
                         <xs:complexType>
                             <xs:attribute name="side" use="required" type="io:Side"/>
                             <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                            <xs:attribute name="redundant" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>
                 </xs:sequence>
                 <xs:sequence>
-                    <xs:element name="qualityQ" minOccurs="2" maxOccurs="2">
+                    <xs:element name="qualityQ" minOccurs="0" maxOccurs="2">
                         <xs:complexType>
                             <xs:attribute name="side" use="required" type="io:Side"/>
                             <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
-                        </xs:complexType>
-                    </xs:element>
-                </xs:sequence>
-                <xs:sequence>
-                    <xs:element name="qualityV" minOccurs="2" maxOccurs="2">
-                        <xs:complexType>
-                            <xs:attribute name="side" use="required" type="io:Side"/>
-                            <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                            <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                            <xs:attribute name="redundant" type="xs:boolean"/>
                         </xs:complexType>
                     </xs:element>
                 </xs:sequence>

@@ -34,19 +34,15 @@
             <bo:qualityP side="ONE" standardDeviation="0.1" redundant="true"/>
             <bo:qualityP side="TWO" standardDeviation="0.2" redundant="true"/>
             <bo:qualityQ side="ONE" standardDeviation="0.3" redundant="true"/>
-            <bo:qualityQ side="TWO" standardDeviation="0.4" redundant="false"/>
-            <bo:qualityV side="ONE" standardDeviation="0.5" redundant="false"/>
-            <bo:qualityV side="TWO" standardDeviation="0.6" redundant="false"/>
+            <bo:qualityQ side="TWO" standardDeviation="0.4"/>
         </bo:branchObservability>
     </iidm:extension>
     <iidm:extension id="NHV1_NHV2_1">
         <bo:branchObservability observable="true">
-            <bo:qualityP side="ONE" standardDeviation="0.03" redundant="false"/>
-            <bo:qualityP side="TWO" standardDeviation="0.6" redundant="false"/>
-            <bo:qualityQ side="ONE" standardDeviation="0.1" redundant="false"/>
+            <bo:qualityP side="ONE" standardDeviation="0.03"/>
+            <bo:qualityP side="TWO" standardDeviation="0.6"/>
+            <bo:qualityQ side="ONE" standardDeviation="0.1"/>
             <bo:qualityQ side="TWO" standardDeviation="0.04" redundant="true"/>
-            <bo:qualityV side="ONE" standardDeviation="0.61" redundant="true"/>
-            <bo:qualityV side="TWO" standardDeviation="0.11" redundant="true"/>
         </bo:branchObservability>
     </iidm:extension>
 </iidm:network>

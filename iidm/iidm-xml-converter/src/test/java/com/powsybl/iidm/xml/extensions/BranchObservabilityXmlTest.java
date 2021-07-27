@@ -42,9 +42,7 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
                 0.03d, false,
                 0.6d, false,
                 0.1d, false,
-                0.04d, true,
-                0.61d, true,
-                0.11d, true);
+                0.04d, true);
         line1.addExtension(BranchObservability.class, line1BranchObservability);
 
         Line line2 = network.getLine("NHV1_NHV2_2");
@@ -54,9 +52,7 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
                 0.1d, true,
                 0.2d, true,
                 0.3d, true,
-                0.4d, false,
-                0.5d, false,
-                0.6d, false);
+                0.4d, false);
         line2.addExtension(BranchObservability.class, line2BranchObservability);
 
         Network network2 = roundTripXmlTest(network,
@@ -70,20 +66,15 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(line1BranchObservability2);
 
         assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
-        assertEquals(line1BranchObservability.getStandardDeviationP(Branch.Side.ONE), line1BranchObservability2.getStandardDeviationP(Branch.Side.ONE), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantP(Branch.Side.ONE), line1BranchObservability2.isRedundantP(Branch.Side.ONE));
-        assertEquals(line1BranchObservability.getStandardDeviationP(Branch.Side.TWO), line1BranchObservability2.getStandardDeviationP(Branch.Side.TWO), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantP(Branch.Side.TWO), line1BranchObservability2.isRedundantP(Branch.Side.TWO));
+        assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
+        assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
+        assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
+        assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
 
-        assertEquals(line1BranchObservability.getStandardDeviationQ(Branch.Side.ONE), line1BranchObservability2.getStandardDeviationQ(Branch.Side.ONE), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantQ(Branch.Side.ONE), line1BranchObservability2.isRedundantQ(Branch.Side.ONE));
-        assertEquals(line1BranchObservability.getStandardDeviationQ(Branch.Side.TWO), line1BranchObservability2.getStandardDeviationQ(Branch.Side.TWO), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantQ(Branch.Side.TWO), line1BranchObservability2.isRedundantQ(Branch.Side.TWO));
-
-        assertEquals(line1BranchObservability.getStandardDeviationV(Branch.Side.ONE), line1BranchObservability2.getStandardDeviationV(Branch.Side.ONE), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantV(Branch.Side.ONE), line1BranchObservability2.isRedundantV(Branch.Side.ONE));
-        assertEquals(line1BranchObservability.getStandardDeviationV(Branch.Side.TWO), line1BranchObservability2.getStandardDeviationV(Branch.Side.TWO), 0.0d);
-        assertEquals(line1BranchObservability.isRedundantV(Branch.Side.TWO), line1BranchObservability2.isRedundantV(Branch.Side.TWO));
+        assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
+        assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
+        assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
+        assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
 
         assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
 
@@ -97,7 +88,7 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
     @Test
     public void invalidTest() {
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Unexpected element: qualityZ");
+        thrown.expectMessage("Unexpected element: qualityV");
 
         NetworkXml.read(getClass().getResourceAsStream(getVersionedNetworkPath("/branchObservabilityRoundTripRefInvalid.xml", CURRENT_IIDM_XML_VERSION)));
     }

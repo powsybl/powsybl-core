@@ -10,10 +10,6 @@ import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
 import com.powsybl.iidm.network.extensions.BranchObservabilityAdder;
-import org.jgrapht.alg.util.Pair;
-
-import java.util.EnumMap;
-import java.util.Map;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -24,31 +20,42 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
 
     private boolean observable;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
+    private Double standardDeviationP1 = null;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
+    private Double standardDeviationP2 = null;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
+    private Double standardDeviationQ1 = null;
+
+    private Double standardDeviationQ2 = null;
+
+    private Boolean redundantP1 = null;
+
+    private Boolean redundantP2 = null;
+
+    private Boolean redundantQ1 = null;
+
+    private Boolean redundantQ2 = null;
 
     public BranchObservabilityAdderImpl(B extendable) {
         super(extendable);
-        standardDeviationP.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
-        standardDeviationP.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
-        standardDeviationQ.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
-        standardDeviationQ.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
-        standardDeviationV.put(Branch.Side.ONE, new Pair<>(Double.NaN, false));
-        standardDeviationV.put(Branch.Side.TWO, new Pair<>(Double.NaN, false));
     }
 
     @Override
     protected BranchObservability<B> createExtension(B extendable) {
-        return new BranchObservabilityImpl<>(extendable, observable,
-                standardDeviationP.get(Branch.Side.ONE).getFirst(), standardDeviationP.get(Branch.Side.ONE).getSecond(),
-                standardDeviationP.get(Branch.Side.TWO).getFirst(), standardDeviationP.get(Branch.Side.TWO).getSecond(),
-                standardDeviationQ.get(Branch.Side.ONE).getFirst(), standardDeviationQ.get(Branch.Side.ONE).getSecond(),
-                standardDeviationQ.get(Branch.Side.TWO).getFirst(), standardDeviationQ.get(Branch.Side.TWO).getSecond(),
-                standardDeviationV.get(Branch.Side.ONE).getFirst(), standardDeviationV.get(Branch.Side.ONE).getSecond(),
-                standardDeviationV.get(Branch.Side.TWO).getFirst(), standardDeviationV.get(Branch.Side.TWO).getSecond());
+        BranchObservabilityImpl<B> extension = new BranchObservabilityImpl<>(extendable, observable);
+        if (standardDeviationP1 != null) {
+            extension.setQualityP1(standardDeviationP1, redundantP1);
+        }
+        if (standardDeviationP2 != null) {
+            extension.setQualityP2(standardDeviationP2, redundantP2);
+        }
+        if (standardDeviationQ1 != null) {
+            extension.setQualityQ1(standardDeviationQ1, redundantQ1);
+        }
+        if (standardDeviationQ2 != null) {
+            extension.setQualityQ2(standardDeviationQ2, redundantQ2);
+        }
+        return extension;
     }
 
     @Override
@@ -58,38 +65,50 @@ public class BranchObservabilityAdderImpl<B extends Branch<B>>
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationP(double standardDeviationP, Branch.Side side) {
-        this.standardDeviationP.get(side).setFirst(standardDeviationP);
+    public BranchObservabilityAdder<B> withStandardDeviationP1(double standardDeviationP1) {
+        this.standardDeviationP1 = standardDeviationP1;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantP(boolean redundant, Branch.Side side) {
-        this.standardDeviationP.get(side).setSecond(redundant);
+    public BranchObservabilityAdder<B> withStandardDeviationP2(double standardDeviationP2) {
+        this.standardDeviationP2 = standardDeviationP2;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationQ(double standardDeviationQ, Branch.Side side) {
-        this.standardDeviationQ.get(side).setFirst(standardDeviationQ);
+    public BranchObservabilityAdder<B> withRedundantP1(boolean redundantP1) {
+        this.redundantP1 = redundantP1;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantQ(boolean redundant, Branch.Side side) {
-        this.standardDeviationQ.get(side).setSecond(redundant);
+    public BranchObservabilityAdder<B> withRedundantP2(boolean redundantP2) {
+        this.redundantP2 = redundantP2;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withStandardDeviationV(double standardDeviationV, Branch.Side side) {
-        this.standardDeviationV.get(side).setFirst(standardDeviationV);
+    public BranchObservabilityAdder<B> withStandardDeviationQ1(double standardDeviationQ1) {
+        this.standardDeviationQ1 = standardDeviationQ1;
         return this;
     }
 
     @Override
-    public BranchObservabilityAdder<B> withRedundantV(boolean redundant, Branch.Side side) {
-        this.standardDeviationV.get(side).setSecond(redundant);
+    public BranchObservabilityAdder<B> withStandardDeviationQ2(double standardDeviationQ2) {
+        this.standardDeviationQ2 = standardDeviationQ2;
+        return this;
+    }
+
+    @Override
+    public BranchObservabilityAdder<B> withRedundantQ1(boolean redundantQ1) {
+        this.redundantQ1 = redundantQ1;
+        return this;
+    }
+
+    @Override
+    public BranchObservabilityAdder<B> withRedundantQ2(boolean redundantQ2) {
+        this.redundantQ2 = redundantQ2;
         return this;
     }
 }

@@ -9,42 +9,39 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.extensions.BranchObservability;
-import org.jgrapht.alg.util.Pair;
-
-import java.util.EnumMap;
-import java.util.Map;
+import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
-public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtension<T>
-        implements BranchObservability<T> {
+public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtension<B>
+        implements BranchObservability<B> {
 
     private boolean observable;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationP = new EnumMap<>(Branch.Side.class);
+    private ObservabilityQuality<B> qualityP1;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationQ = new EnumMap<>(Branch.Side.class);
+    private ObservabilityQuality<B> qualityP2;
 
-    private final Map<Branch.Side, Pair<Double, Boolean>> standardDeviationV = new EnumMap<>(Branch.Side.class);
+    private ObservabilityQuality<B> qualityQ1;
 
-    public BranchObservabilityImpl(T component, boolean observable,
-                                   double oneStandardDeviationP, boolean oneRedundantP,
-                                   double twoStandardDeviationP, boolean twoRedundantP,
-                                   double oneStandardDeviationQ, boolean oneRedundantQ,
-                                   double twoStandardDeviationQ, boolean twoRedundantQ,
-                                   double oneStandardDeviationV, boolean oneRedundantV,
-                                   double twoStandardDeviationV, boolean twoRedundantV) {
+    private ObservabilityQuality<B> qualityQ2;
+
+    public BranchObservabilityImpl(B component, boolean observable) {
         super(component);
         this.observable = observable;
-        this.standardDeviationP.put(Branch.Side.ONE, new Pair<>(oneStandardDeviationP, oneRedundantP));
-        this.standardDeviationP.put(Branch.Side.TWO, new Pair<>(twoStandardDeviationP, twoRedundantP));
+    }
 
-        this.standardDeviationQ.put(Branch.Side.ONE, new Pair<>(oneStandardDeviationQ, oneRedundantQ));
-        this.standardDeviationQ.put(Branch.Side.TWO, new Pair<>(twoStandardDeviationQ, twoRedundantQ));
-
-        this.standardDeviationV.put(Branch.Side.ONE, new Pair<>(oneStandardDeviationV, oneRedundantV));
-        this.standardDeviationV.put(Branch.Side.TWO, new Pair<>(twoStandardDeviationV, twoRedundantV));
+    public BranchObservabilityImpl(B component, boolean observable,
+                                   double standardDeviationP1, Boolean redundantP1,
+                                   double standardDeviationP2, Boolean redundantP2,
+                                   double standardDeviationQ1, Boolean redundantQ1,
+                                   double standardDeviationQ2, Boolean redundantQ2) {
+        this(component, observable);
+        this.qualityP1 = new ObservabilityQualityImpl<>(standardDeviationP1, redundantP1);
+        this.qualityP2 = new ObservabilityQualityImpl<>(standardDeviationP2, redundantP2);
+        this.qualityQ1 = new ObservabilityQualityImpl<>(standardDeviationQ1, redundantQ1);
+        this.qualityQ2 = new ObservabilityQualityImpl<>(standardDeviationQ2, redundantQ2);
     }
 
     public boolean isObservable() {
@@ -52,74 +49,72 @@ public class BranchObservabilityImpl<T extends Branch<T>> extends AbstractExtens
     }
 
     @Override
-    public BranchObservability<T> setObservable(boolean observable) {
+    public BranchObservability<B> setObservable(boolean observable) {
         this.observable = observable;
         return this;
     }
 
     @Override
-    public double getStandardDeviationP(Branch.Side side) {
-        return standardDeviationP.get(side).getFirst();
+    public ObservabilityQuality<B> getQualityP1() {
+        return qualityP1;
     }
 
     @Override
-    public BranchObservabilityImpl<T> setStandardDeviationP(double standardDeviationP, Branch.Side side) {
-        this.standardDeviationP.get(side).setFirst(standardDeviationP);
+    public BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant) {
+        if (qualityP1 == null) {
+            qualityP1 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityP1.setStandardDeviation(standardDeviation);
+            qualityP1.setRedundant(redundant);
+        }
         return this;
     }
 
     @Override
-    public boolean isRedundantP(Branch.Side side) {
-        return standardDeviationP.get(side).getSecond();
+    public ObservabilityQuality<B> getQualityP2() {
+        return qualityP2;
     }
 
     @Override
-    public BranchObservability<T> setRedundantP(boolean redundant, Branch.Side side) {
-        this.standardDeviationP.get(side).setSecond(redundant);
+    public BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant) {
+        if (qualityP2 == null) {
+            qualityP2 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityP2.setStandardDeviation(standardDeviation);
+            qualityP2.setRedundant(redundant);
+        }
         return this;
     }
 
     @Override
-    public double getStandardDeviationQ(Branch.Side side) {
-        return standardDeviationQ.get(side).getFirst();
+    public ObservabilityQuality<B> getQualityQ1() {
+        return qualityQ1;
     }
 
     @Override
-    public BranchObservabilityImpl<T> setStandardDeviationQ(double standardDeviationQ, Branch.Side side) {
-        this.standardDeviationQ.get(side).setFirst(standardDeviationQ);
+    public BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant) {
+        if (qualityQ1 == null) {
+            qualityQ1 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityQ1.setStandardDeviation(standardDeviation);
+            qualityQ1.setRedundant(redundant);
+        }
         return this;
     }
 
     @Override
-    public boolean isRedundantQ(Branch.Side side) {
-        return standardDeviationQ.get(side).getSecond();
+    public ObservabilityQuality<B> getQualityQ2() {
+        return qualityQ2;
     }
 
     @Override
-    public BranchObservability<T> setRedundantQ(boolean redundant, Branch.Side side) {
-        this.standardDeviationQ.get(side).setSecond(redundant);
-        return this;
-    }
-
-    @Override
-    public double getStandardDeviationV(Branch.Side side) {
-        return standardDeviationV.get(side).getFirst();
-    }
-
-    @Override
-    public BranchObservabilityImpl<T> setStandardDeviationV(double standardDeviationV, Branch.Side side) {
-        this.standardDeviationV.get(side).setFirst(standardDeviationV);
-        return this;
-    }
-
-    @Override
-    public boolean isRedundantV(Branch.Side side) {
-        return this.standardDeviationV.get(side).getSecond();
-    }
-
-    @Override
-    public BranchObservability<T> setRedundantV(boolean redundant, Branch.Side side) {
-        this.standardDeviationV.get(side).setSecond(redundant);
+    public BranchObservability<B> setQualityQ2(double standardDeviation, Boolean redundant) {
+        if (qualityQ2 == null) {
+            qualityQ2 = new ObservabilityQualityImpl<>(standardDeviation, redundant);
+        } else {
+            qualityQ2.setStandardDeviation(standardDeviation);
+            qualityQ2.setRedundant(redundant);
+        }
         return this;
     }
 }

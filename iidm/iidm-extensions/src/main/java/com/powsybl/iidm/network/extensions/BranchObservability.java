@@ -19,30 +19,35 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
         return "branchObservability";
     }
 
-    /** StandardDeviation for Active Power */
-    double getStandardDeviationP(Branch.Side side);
+    /**
+     * Optional standard deviation for Active Power of Branch.Side.ONE
+     * @return nullable
+     */
+    ObservabilityQuality<B> getQualityP1();
 
-    BranchObservability<B> setStandardDeviationP(double standardDeviationP, Branch.Side side);
+    BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant);
 
-    boolean isRedundantP(Branch.Side side);
+    /**
+     * Optional standard deviation for Active Power of Branch.Side.TWO
+     * @return nullable
+     */
+    ObservabilityQuality<B> getQualityP2();
 
-    BranchObservability<B> setRedundantP(boolean redundant, Branch.Side side);
+    BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant);
 
-    /** StandardDeviation for Reactive Power */
-    double getStandardDeviationQ(Branch.Side side);
+    /**
+     * StandardDeviation for Reactive Power of Branch.Side.ONE
+     * @return nullable
+     */
+    ObservabilityQuality<B> getQualityQ1();
 
-    BranchObservability<B> setStandardDeviationQ(double standardDeviationQ, Branch.Side side);
+    BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant);
 
-    boolean isRedundantQ(Branch.Side side);
+    /**
+     * StandardDeviation for Reactive Power of Branch.Side.TWO
+     * @return nullable
+     */
+    ObservabilityQuality<B> getQualityQ2();
 
-    BranchObservability<B> setRedundantQ(boolean redundant, Branch.Side side);
-
-    /** StandardDeviation for Voltage amplitude */
-    double getStandardDeviationV(Branch.Side side);
-
-    BranchObservability<B> setStandardDeviationV(double standardDeviationV, Branch.Side side);
-
-    boolean isRedundantV(Branch.Side side);
-
-    BranchObservability<B> setRedundantV(boolean redundant, Branch.Side side);
+    BranchObservability<B> setQualityQ2(double standardDeviation, Boolean redundant);
 }
