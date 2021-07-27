@@ -15,22 +15,22 @@
     <xs:element name="injectionObservability">
         <xs:complexType>
             <xs:sequence>
-                <xs:element name="qualityP">
+                <xs:element name="qualityP" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        <xs:attribute name="redundant" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="qualityQ">
+                <xs:element name="qualityQ" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        <xs:attribute name="redundant" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="qualityV">
+                <xs:element name="qualityV" minOccurs="0" maxOccurs="1">
                     <xs:complexType>
                         <xs:attribute name="standardDeviation" use="required" type="xs:double"/>
-                        <xs:attribute name="redundant" use="required" type="xs:boolean"/>
+                        <xs:attribute name="redundant" type="xs:boolean"/>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>

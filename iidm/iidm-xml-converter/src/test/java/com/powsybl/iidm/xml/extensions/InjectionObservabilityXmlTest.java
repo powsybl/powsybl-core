@@ -39,7 +39,10 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         Battery bat = network.getBattery("BAT");
         assertNotNull(bat);
 
-        InjectionObservability<Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true, 0.03d, false, 0.6d, false, 0.1d, false);
+        InjectionObservability<Battery> injectionObservability = new InjectionObservabilityImpl<>(bat, true);
+        injectionObservability.setQualityP(0.03d, false);
+        injectionObservability.setQualityQ(0.6d, false);
+
         bat.addExtension(InjectionObservability.class, injectionObservability);
 
         Generator generator = network.getGenerator("GEN");
@@ -56,12 +59,11 @@ public class InjectionObservabilityXmlTest extends AbstractConverterTest {
         assertNotNull(injectionObservability2);
 
         assertEquals(injectionObservability.isObservable(), injectionObservability2.isObservable());
-        assertEquals(injectionObservability.getStandardDeviationP(), injectionObservability2.getStandardDeviationP(), 0.0d);
-        assertEquals(injectionObservability.getStandardDeviationQ(), injectionObservability2.getStandardDeviationQ(), 0.0d);
-        assertEquals(injectionObservability.getStandardDeviationV(), injectionObservability2.getStandardDeviationV(), 0.0d);
-        assertEquals(injectionObservability.isRedundantP(), injectionObservability2.isRedundantP());
-        assertEquals(injectionObservability.isRedundantQ(), injectionObservability2.isRedundantQ());
-        assertEquals(injectionObservability.isRedundantV(), injectionObservability2.isRedundantV());
+        assertEquals(injectionObservability.getQualityP().getStandardDeviation(), injectionObservability2.getQualityP().getStandardDeviation(), 0.0d);
+        assertEquals(injectionObservability.getQualityQ().getStandardDeviation(), injectionObservability2.getQualityQ().getStandardDeviation(), 0.0d);
+        assertEquals(injectionObservability.getQualityP().isRedundant(), injectionObservability2.getQualityP().isRedundant());
+        assertEquals(injectionObservability.getQualityQ().isRedundant(), injectionObservability2.getQualityQ().isRedundant());
+        assertEquals(injectionObservability.getQualityV(), injectionObservability2.getQualityV());
 
         assertEquals(injectionObservability.getName(), injectionObservability2.getName());
     }

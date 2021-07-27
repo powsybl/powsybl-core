@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl.extensions;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
-import org.jgrapht.alg.util.Pair;
+import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -19,21 +19,25 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
 
     private boolean observable;
 
-    private final Pair<Double, Boolean> standardDeviationP;
+    private ObservabilityQuality<T> qualityP;
 
-    private final Pair<Double, Boolean> standardDeviationQ;
+    private ObservabilityQuality<T> qualityQ;
 
-    private final Pair<Double, Boolean> standardDeviationV;
+    private ObservabilityQuality<T> qualityV;
 
-    public InjectionObservabilityImpl(T component, boolean observable,
-                                      double standardDeviationP, boolean redundantP,
-                                      double standardDeviationQ, boolean redundantQ,
-                                      double standardDeviationV, boolean redundantV) {
+    public InjectionObservabilityImpl(T component, boolean observable) {
         super(component);
         this.observable = observable;
-        this.standardDeviationP = new Pair<>(standardDeviationP, redundantP);
-        this.standardDeviationQ = new Pair<>(standardDeviationQ, redundantQ);
-        this.standardDeviationV = new Pair<>(standardDeviationV, redundantV);
+    }
+
+    public InjectionObservabilityImpl(T component, boolean observable,
+                                      double standardDeviationP, Boolean redundantP,
+                                      double standardDeviationQ, Boolean redundantQ,
+                                      double standardDeviationV, Boolean redundantV) {
+        this(component, observable);
+        this.qualityP = new ObservabilityQualityImpl<>(standardDeviationP, redundantP);
+        this.qualityQ = new ObservabilityQualityImpl<>(standardDeviationQ, redundantQ);
+        this.qualityV = new ObservabilityQualityImpl<>(standardDeviationV, redundantV);
     }
 
     public boolean isObservable() {
@@ -47,68 +51,35 @@ public class InjectionObservabilityImpl<T extends Injection<T>> extends Abstract
     }
 
     @Override
-    public double getStandardDeviationP() {
-        return standardDeviationP.getFirst();
+    public ObservabilityQuality<T> getQualityP() {
+        return qualityP;
     }
 
     @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationP(double standardDeviationP) {
-        this.standardDeviationP.setFirst(standardDeviationP);
+    public InjectionObservability<T> setQualityP(double standardDeviation, Boolean redundant) {
+        this.qualityP = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         return this;
     }
 
     @Override
-    public boolean isRedundantP() {
-        return standardDeviationP.getSecond();
+    public ObservabilityQuality<T> getQualityQ() {
+        return qualityQ;
     }
 
     @Override
-    public InjectionObservability<T> setRedundantP(boolean redundant) {
-        this.standardDeviationP.setSecond(redundant);
+    public InjectionObservability<T> setQualityQ(double standardDeviation, Boolean redundant) {
+        this.qualityQ = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         return this;
     }
 
     @Override
-    public double getStandardDeviationQ() {
-        return standardDeviationQ.getFirst();
+    public ObservabilityQuality<T> getQualityV() {
+        return qualityV;
     }
 
     @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationQ(double standardDeviationQ) {
-        this.standardDeviationQ.setFirst(standardDeviationQ);
-        return this;
-    }
-
-    @Override
-    public boolean isRedundantQ() {
-        return standardDeviationQ.getSecond();
-    }
-
-    @Override
-    public InjectionObservability<T> setRedundantQ(boolean redundant) {
-        this.standardDeviationQ.setSecond(redundant);
-        return this;
-    }
-
-    @Override
-    public double getStandardDeviationV() {
-        return standardDeviationV.getFirst();
-    }
-
-    @Override
-    public InjectionObservabilityImpl<T> setStandardDeviationV(double standardDeviationV) {
-        this.standardDeviationV.setFirst(standardDeviationV);
-        return this;
-    }
-
-    @Override
-    public boolean isRedundantV() {
-        return this.standardDeviationV.getSecond();
-    }
-
-    @Override
-    public InjectionObservability<T> setRedundantV(boolean redundant) {
-        this.standardDeviationV.setSecond(redundant);
+    public InjectionObservability<T> setQualityV(double standardDeviation, Boolean redundant) {
+        this.qualityV = new ObservabilityQualityImpl<>(standardDeviation, redundant);
         return this;
     }
 }

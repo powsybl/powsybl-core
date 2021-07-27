@@ -16,8 +16,10 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.extensions.InjectionObservability;
 import com.powsybl.iidm.network.extensions.InjectionObservabilityAdder;
+import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
@@ -40,15 +42,17 @@ public class InjectionObservabilityXmlSerializer<T extends Injection<T>> extends
     @Override
     public void write(InjectionObservability<T> injectionObservability, XmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeOptionalBoolean("observable", injectionObservability.isObservable(), false, context.getWriter());
-        context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_P);
-        XmlUtil.writeDouble(STANDARD_DEVIATION, injectionObservability.getStandardDeviationP(), context.getWriter());
-        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantP()));
-        context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_Q);
-        XmlUtil.writeDouble(STANDARD_DEVIATION, injectionObservability.getStandardDeviationQ(), context.getWriter());
-        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantQ()));
-        context.getWriter().writeEmptyElement(getNamespaceUri(), QUALITY_V);
-        XmlUtil.writeDouble(STANDARD_DEVIATION, injectionObservability.getStandardDeviationV(), context.getWriter());
-        context.getWriter().writeAttribute(REDUNDANT, Boolean.toString(injectionObservability.isRedundantV()));
+        writeOptionalQuality(QUALITY_P, injectionObservability.getQualityP(), context.getWriter());
+        writeOptionalQuality(QUALITY_Q, injectionObservability.getQualityQ(), context.getWriter());
+        writeOptionalQuality(QUALITY_V, injectionObservability.getQualityV(), context.getWriter());
+    }
+
+    private void writeOptionalQuality(String elementName, ObservabilityQuality<T> quality, XMLStreamWriter writer) throws XMLStreamException {
+        if (quality != null) {
+            writer.writeEmptyElement(getNamespaceUri(), elementName);
+            XmlUtil.writeDouble(STANDARD_DEVIATION, quality.getStandardDeviation(), writer);
+            XmlUtil.writeOptionalBoolean(REDUNDANT, quality.isRedundant(), false, writer);
+        }
     }
 
     @Override

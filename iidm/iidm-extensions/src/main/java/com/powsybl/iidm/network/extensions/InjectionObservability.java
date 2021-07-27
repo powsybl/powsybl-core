@@ -19,30 +19,27 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
         return "injectionObservability";
     }
 
-    /** StandardDeviation for Active Power */
-    double getStandardDeviationP();
+    /**
+     * Optional standard deviation for Active Power
+     * @return nullable
+     */
+    ObservabilityQuality<I> getQualityP();
 
-    InjectionObservability<I> setStandardDeviationP(double standardDeviationP);
+    InjectionObservability<I> setQualityP(double standardDeviation, Boolean redundant);
 
-    boolean isRedundantP();
+    /**
+     * StandardDeviation for Reactive Power
+     * @return nullable
+     */
+    ObservabilityQuality<I> getQualityQ();
 
-    InjectionObservability<I> setRedundantP(boolean redundant);
+    InjectionObservability<I> setQualityQ(double standardDeviation, Boolean redundant);
 
-    /** StandardDeviation for Reactive Power */
-    double getStandardDeviationQ();
+    /**
+     * StandardDeviation for Voltage amplitude
+     * @return nullable
+     */
+    ObservabilityQuality<I> getQualityV();
 
-    InjectionObservability<I> setStandardDeviationQ(double standardDeviationQ);
-
-    boolean isRedundantQ();
-
-    InjectionObservability<I> setRedundantQ(boolean redundant);
-
-    /** StandardDeviation for Voltage amplitude */
-    double getStandardDeviationV();
-
-    InjectionObservability<I> setStandardDeviationV(double standardDeviationV);
-
-    boolean isRedundantV();
-
-    InjectionObservability<I> setRedundantV(boolean redundant);
+    InjectionObservability<I> setQualityV(double standardDeviation, Boolean redundant);
 }
