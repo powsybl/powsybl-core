@@ -27,5 +27,5 @@ public interface ObservabilityQuality<T> {
      */
     Boolean isRedundant();
 
-    ObservabilityQuality<T> setRedundant(boolean redundant);
+    ObservabilityQuality<T> setRedundant(Boolean redundant);
 }

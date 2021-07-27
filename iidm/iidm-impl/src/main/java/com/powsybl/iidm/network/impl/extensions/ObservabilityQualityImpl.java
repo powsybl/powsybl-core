@@ -39,7 +39,7 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
     }
 
     @Override
-    public ObservabilityQuality<T> setRedundant(boolean redundant) {
+    public ObservabilityQuality<T> setRedundant(Boolean redundant) {
         this.redundant = redundant;
         return this;
     }
