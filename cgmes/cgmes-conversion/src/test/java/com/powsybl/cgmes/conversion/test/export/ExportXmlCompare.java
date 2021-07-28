@@ -59,6 +59,13 @@ public final class ExportXmlCompare {
         }
     }
 
+    static void compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+        try (InputStream expectedIs = Files.newInputStream(expected);
+             InputStream actualIs = Files.newInputStream(actual)) {
+            compareEQNetworks(expectedIs, actualIs, knownDiffs);
+        }
+    }
+
     static void compareNetworks(InputStream expected, InputStream actual) {
         compareNetworks(expected, actual, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
@@ -80,8 +87,44 @@ public final class ExportXmlCompare {
         assertTrue(!diff.hasDifferences());
     }
 
+    static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+        Source control = Input.fromStream(expected).build();
+        Source test = Input.fromStream(actual).build();
+        Diff diff = DiffBuilder
+                .compare(control)
+                .withTest(test)
+                .ignoreWhitespace()
+                .ignoreComments()
+                .withAttributeFilter(ExportXmlCompare::isConsideredForEQNetwork)
+                .withNodeFilter(ExportXmlCompare::isConsideredEQNode)
+                .withDifferenceEvaluator(knownDiffs)
+                .withComparisonListeners(ExportXmlCompare::debugComparison)
+                .build();
+        assertTrue(!diff.hasDifferences());
+    }
+
     static boolean isConsideredForNetwork(Attr attr) {
         return !(attr.getLocalName().equals("forecastDistance"));
+    }
+
+    private static boolean isConsideredForEQNetwork(Attr attr) {
+        String elementName = attr.getOwnerElement().getLocalName();
+        boolean ignored = false;
+        if (elementName != null) {
+            ignored = elementName.equals("danglingLine");
+            if (elementName.startsWith("network")) {
+                ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance");
+            }
+        }
+        return !ignored;
+    }
+
+    private static boolean isConsideredEQNode(Node n) {
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+            String name = n.getLocalName();
+            return !name.startsWith("danglingLine") && !name.startsWith("internalConnection");
+        }
+        return false;
     }
 
     static interface DifferenceBuilder {
@@ -218,6 +261,27 @@ public final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 }
             }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringNonEQ(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control != null && control.getLocalName().equals("geographicalTags")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("targetQ")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+                if (control.getLocalName().equals("network") || control.getLocalName().equals("shunt")
+                        || control.getLocalName().equals("generator")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            return result;
         }
         return result;
     }
@@ -368,7 +432,9 @@ public final class ExportXmlCompare {
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             // DanglingLine p, q, p0, q0 attributes in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0");
+            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
+                    || name.equals("r")  || name.equals("x")  || name.equals("b")  || name.equals("g")
+                    || name.equals("rho");
         }
         return false;
     }
@@ -379,6 +445,10 @@ public final class ExportXmlCompare {
         } else if (n.getLocalName().equals("p") || n.getLocalName().equals("q")) {
             return 1e-1;
         } else if (n.getLocalName().equals("p0") || n.getLocalName().equals("q0")) {
+            return 1e-5;
+        } else if (n.getLocalName().equals("r")  || n.getLocalName().equals("x")
+                || n.getLocalName().equals("b")  || n.getLocalName().equals("g")
+                || n.getLocalName().equals("rho")) {
             return 1e-5;
         }
         return 1e-10;
