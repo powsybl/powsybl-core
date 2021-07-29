@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.TraverseResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -603,7 +604,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         BusbarSection getBusbarSection(String id);
 
         interface Traverser {
-            boolean traverse(int node1, Switch sw, int node2);
+            TraverseResult traverse(int node1, Switch sw, int node2);
         }
 
         /**

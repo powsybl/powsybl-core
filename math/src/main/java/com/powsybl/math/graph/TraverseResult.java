@@ -11,6 +11,7 @@ package com.powsybl.math.graph;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum TraverseResult {
-    CONTINUE,
-    TERMINATE
+    CONTINUE,   // Traversing should continue
+    TERMINATE,  // Traversing should terminate on current path
+    BREAK       // Traversing should break, i.e., terminate on all paths
 }
