@@ -20,10 +20,7 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.iidm.xml.XMLImporter;
@@ -33,11 +30,9 @@ import org.xmlunit.diff.DifferenceEvaluators;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -71,7 +66,6 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Network expected = prepareNetwork(network);
         Network actual = prepareNetwork(new CgmesImport().importData(new FileDataSource(tmpDir, "exportedEq"), NetworkFactory.findDefault(), new Properties()));
 
-        tmpDir = Paths.get("c:/tmp");
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
