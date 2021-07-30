@@ -374,6 +374,15 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Stream<Switch> getSwitchStream(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Iterable<Switch> getSwitches(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
         @Override
         public Stream<InternalConnection> getInternalConnectionStream(int node) {
             throw createNotSupportedBusBreakerTopologyException();

@@ -11,6 +11,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -181,6 +182,23 @@ public interface UndirectedGraph<V, E> {
     int getEdgeVertex1(int e);
 
     /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge objects
+     */
+    Iterable<E> getEdgeObjects(int v);
+
+    /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge objects
+     */
+    Stream<E> getEdgeObjectStream(int v);
+
     /**
      * Return the indices of the edges connected to the specified vertex.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.

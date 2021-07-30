@@ -522,6 +522,20 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        Stream<Switch> getSwitchStream(int node);
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        Iterable<Switch> getSwitches(int node);
+
+        /**
          * Get the internal connections connected to the {@code node}.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
