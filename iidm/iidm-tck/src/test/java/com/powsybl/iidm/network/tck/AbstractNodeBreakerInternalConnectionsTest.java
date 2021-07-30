@@ -13,9 +13,7 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.junit.Test;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
@@ -44,6 +42,18 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
             assertEquals(expecteds1[i], internalConnections.get(i).getNode1());
             assertEquals(expecteds2[i], internalConnections.get(i).getNode2());
         }
+
+        Iterator<Integer> nodeIterator7 = vl.getNodeBreakerView().getNodesInternalConnectedTo(7).iterator();
+        assertEquals(0, (int) nodeIterator7.next());
+        assertFalse(nodeIterator7.hasNext());
+
+        Iterator<Integer> nodeIterator2 = vl.getNodeBreakerView().getNodesInternalConnectedTo(2).iterator();
+        assertEquals(5, (int) nodeIterator2.next());
+        assertEquals(9, (int) nodeIterator2.next());
+        assertFalse(nodeIterator2.hasNext());
+
+        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeStreamInternalConnectedTo(3).boxed().collect(Collectors.toList());
+        assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
 
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
         // If we stop traversal at terminals
