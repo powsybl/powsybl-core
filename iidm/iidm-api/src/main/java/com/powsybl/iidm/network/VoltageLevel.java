@@ -15,6 +15,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -536,18 +537,18 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Iterable<Switch> getSwitches(int node);
 
         /**
-         * Get the internal connections connected to the {@code node}.
+         * Get the indices of the nodes connected with an internal connections to the {@code node}.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
-        Stream<InternalConnection> getInternalConnectionStream(int node);
+        IntStream getNodeStreamInternalConnectedTo(int node);
 
         /**
          * Get the internal connections connected to the {@code node}.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
-        Iterable<InternalConnection> getInternalConnections(int node);
+        Iterable<Integer> getNodesInternalConnectedTo(int node);
 
         /**
          * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.

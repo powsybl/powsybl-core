@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -384,12 +385,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<InternalConnection> getInternalConnectionStream(int node) {
+        public IntStream getNodeStreamInternalConnectedTo(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
         @Override
-        public Iterable<InternalConnection> getInternalConnections(int node) {
+        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 

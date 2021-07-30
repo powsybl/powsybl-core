@@ -13,6 +13,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -184,13 +185,13 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public Stream<InternalConnection> getInternalConnectionStream(int node) {
-            return getDelegate().getInternalConnectionStream(node);
+        public IntStream getNodeStreamInternalConnectedTo(int node) {
+            return getDelegate().getNodeStreamInternalConnectedTo(node);
         }
 
         @Override
-        public Iterable<InternalConnection> getInternalConnections(int node) {
-            return getDelegate().getInternalConnections(node);
+        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
+            return getDelegate().getNodesInternalConnectedTo(node);
         }
 
         @Override

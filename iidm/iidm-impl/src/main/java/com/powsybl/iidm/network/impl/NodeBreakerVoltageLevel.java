@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -605,24 +606,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Stream<InternalConnection> getInternalConnectionStream(int node) {
+        public IntStream getNodeStreamInternalConnectedTo(int node) {
             return graph.getEdgeStream(node).filter(e -> graph.getEdgeObject(e) == null)
-                .mapToObj(e -> new InternalConnection() {
-                    @Override
-                    public int getNode1() {
-                        return graph.getEdgeVertex1(e);
-                    }
-
-                    @Override
-                    public int getNode2() {
-                        return graph.getEdgeVertex2(e);
-                    }
+                .map(e -> {
+                    int vertex1 = graph.getEdgeVertex1(e);
+                    return vertex1 != node ? vertex1 : graph.getEdgeVertex2(e);
                 });
         }
 
         @Override
-        public Iterable<InternalConnection> getInternalConnections(int node) {
-            return getInternalConnectionStream().collect(Collectors.toList());
+        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
+            return getNodeStreamInternalConnectedTo(node).boxed().collect(Collectors.toList());
         }
 
         @Override
