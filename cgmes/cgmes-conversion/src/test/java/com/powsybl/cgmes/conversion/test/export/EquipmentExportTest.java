@@ -69,6 +69,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         // Export original and only EQ
         ExportOptions exportOptions = new ExportOptions();
         exportOptions.setExtensions(Collections.emptySet());
+        exportOptions.setSorted(true);
         NetworkXml.writeAndValidate(expected, exportOptions, tmpDir.resolve("expected.xml"));
         NetworkXml.writeAndValidate(actual, exportOptions, tmpDir.resolve("actual.xml"));
 
