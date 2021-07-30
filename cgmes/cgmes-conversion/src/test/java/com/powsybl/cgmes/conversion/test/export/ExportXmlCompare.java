@@ -113,18 +113,58 @@ public final class ExportXmlCompare {
         if (elementName != null) {
             ignored = elementName.equals("danglingLine");
             if (elementName.startsWith("network")) {
-                ignored = attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance");
+                ignored |= attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
+            } else if (elementName.startsWith("voltageLevel")) {
+                ignored |= attr.getLocalName().equals("topologyKind");
+            } else if (elementName.startsWith("hvdcLine")) {
+                ignored |= attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
+            } else {
+                ignored |= attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
             }
         }
         return !ignored;
     }
 
+    // Present in small grid HVDC
+    private static final Set<String> DANGLINGLINE_SUBSTATIONS = Stream.of(
+            "68-116_SUBSTATION",
+            "71-73_SUBSTATION",
+            "12-117_SUBSTATION")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> DANGLINGLINE_VOLTAGELEVELS = Stream.of(
+            "68-116_VL",
+            "71-73_VL",
+            "12-117_VL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> DANGLINGLINE_LINES = Stream.of(
+                    "68-116",
+                    "71-73",
+                    "12-117")
+            .collect(Collectors.toCollection(HashSet::new));
+
     private static boolean isConsideredEQNode(Node n) {
         if (n.getNodeType() == Node.ELEMENT_NODE) {
             String name = n.getLocalName();
-            return !name.startsWith("danglingLine") && !name.startsWith("internalConnection");
+            return !name.startsWith("danglingLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
+                    && !name.contains("property") && !isDanglingLineConversion(n) && !isNodeBreakerProperty(n);
         }
         return false;
+    }
+
+    private static boolean isNodeBreakerProperty(Node n) {
+        if (n.getAttributes().getNamedItem("name") != null && n.getAttributes().getNamedItem("name").getTextContent() != null) {
+            return n.getAttributes().getNamedItem("name").getTextContent().equals("CGMESModelDetail");
+        }
+        return false;
+    }
+
+    private static boolean isDanglingLineConversion(Node n) {
+        String name = n.getLocalName();
+        return (name.startsWith("substation") && DANGLINGLINE_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && DANGLINGLINE_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("line") && DANGLINGLINE_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()));
     }
 
     static interface DifferenceBuilder {
@@ -434,7 +474,8 @@ public final class ExportXmlCompare {
             String name = n.getLocalName();
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
                     || name.equals("r")  || name.equals("x")  || name.equals("b")  || name.equals("g")
-                    || name.equals("rho");
+                    || name.equals("b1")  || name.equals("b2") || name.equals("g1")  || name.equals("g2")
+                    || name.equals("rho") || name.equals("bPerSection");
         }
         return false;
     }
@@ -448,7 +489,9 @@ public final class ExportXmlCompare {
             return 1e-5;
         } else if (n.getLocalName().equals("r")  || n.getLocalName().equals("x")
                 || n.getLocalName().equals("b")  || n.getLocalName().equals("g")
-                || n.getLocalName().equals("rho")) {
+                || n.getLocalName().equals("b1")  || n.getLocalName().equals("b2")
+                || n.getLocalName().equals("g1")  || n.getLocalName().equals("g2")
+                || n.getLocalName().equals("rho")  || n.getLocalName().equals("bPerSection")) {
             return 1e-5;
         }
         return 1e-10;
