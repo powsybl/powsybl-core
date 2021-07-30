@@ -13,6 +13,7 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.junit.Test;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -220,21 +221,15 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n) || topo.getTerminal(n) == null) {
-                continue;
+        int[] nodes = Arrays.stream(topo.getNodes()).filter(n -> topo.getTerminal(n) != null).toArray();
+
+        topo.traverse(nodes, (n1, sw, n2) -> {
+            if (sw == null) {
+                cs.add(n1, n2);
             }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
-                if (sw == null) {
-                    cs.add(n1, n2);
-                }
-                return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
-            });
-        }
+            return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
+        });
+
         return cs;
     }
 
