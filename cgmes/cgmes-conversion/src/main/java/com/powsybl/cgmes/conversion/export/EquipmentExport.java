@@ -126,7 +126,11 @@ public final class EquipmentExport {
         Map<String, String> geographicalRegionIds = new HashMap<>();
         Set<String> geographicalTags = new HashSet<>();
         for (Substation substation : network.getSubstations()) {
-            String geoName = substation.getCountry().isPresent() ? substation.getCountry().get().toString() : network.getNameOrId();
+            String geoName = network.getNameOrId();
+            Optional<Country> country = substation.getCountry();
+            if (country.isPresent()) {
+                geoName = country.get().toString();
+            }
             if (!geographicalRegionIds.containsKey(geoName)) {
                 String subGeographicalRegionId = CgmesExportUtil.getUniqueId();
                 String geographicalRegionId = CgmesExportUtil.getUniqueId();
