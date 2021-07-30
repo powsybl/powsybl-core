@@ -181,6 +181,25 @@ public interface UndirectedGraph<V, E> {
     int getEdgeVertex1(int e);
 
     /**
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge indices
+     */
+    Iterable<Integer> getEdges(int v);
+
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge indices
+     */
+    IntStream getEdgeStream(int v);
+
+    /**
      * Return the index of the second vertex that the specified edge is connected to.
      * This method throws a {@link com.powsybl.commons.PowsyblException} if the edge doesn't exist.
      *

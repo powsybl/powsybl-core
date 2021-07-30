@@ -595,6 +595,27 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Stream<InternalConnection> getInternalConnectionStream(int node) {
+            return graph.getEdgeStream(node).filter(e -> graph.getEdgeObject(e) == null)
+                .mapToObj(e -> new InternalConnection() {
+                    @Override
+                    public int getNode1() {
+                        return graph.getEdgeVertex1(e);
+                    }
+
+                    @Override
+                    public int getNode2() {
+                        return graph.getEdgeVertex2(e);
+                    }
+                });
+        }
+
+        @Override
+        public Iterable<InternalConnection> getInternalConnections(int node) {
+            return getInternalConnectionStream().collect(Collectors.toList());
+        }
+
+        @Override
         public Optional<Terminal> getOptionalTerminal(int node) {
             if (graph.vertexExists(node)) {
                 return Optional.ofNullable(graph.getVertexObject(node));

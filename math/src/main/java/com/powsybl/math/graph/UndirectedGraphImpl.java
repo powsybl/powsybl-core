@@ -308,6 +308,19 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public Iterable<Integer> getEdges(int v) {
+        return getEdgeStream(v).boxed().collect(Collectors.toList());
+    }
+
+    @Override
+    public IntStream getEdgeStream(int v) {
+        checkVertex(v);
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        return IntStream.range(0, adjacentEdges.size()).map(adjacentEdges::getQuick);
+    }
+
+    @Override
     public int getEdgeVertex2(int e) {
         checkEdge(e);
         return edges.get(e).getV2();

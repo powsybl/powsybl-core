@@ -174,6 +174,16 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
+        public Stream<InternalConnection> getInternalConnectionStream(int node) {
+            return getDelegate().getInternalConnectionStream(node);
+        }
+
+        @Override
+        public Iterable<InternalConnection> getInternalConnections(int node) {
+            return getDelegate().getInternalConnections(node);
+        }
+
+        @Override
         public Optional<Terminal> getOptionalTerminal(int node) {
             return Optional.ofNullable(getTerminal(node));
         }
