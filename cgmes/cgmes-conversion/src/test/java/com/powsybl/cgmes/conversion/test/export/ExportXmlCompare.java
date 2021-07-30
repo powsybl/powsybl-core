@@ -126,22 +126,33 @@ public final class ExportXmlCompare {
     }
 
     // Present in small grid HVDC
-    private static final Set<String> DANGLINGLINE_SUBSTATIONS = Stream.of(
+    private static final Set<String> SMALLGRID_SUBSTATIONS = Stream.of(
             "68-116_SUBSTATION",
             "71-73_SUBSTATION",
             "12-117_SUBSTATION")
             .collect(Collectors.toCollection(HashSet::new));
 
-    private static final Set<String> DANGLINGLINE_VOLTAGELEVELS = Stream.of(
+    private static final Set<String> SMALLGRID_VOLTAGELEVELS = Stream.of(
             "68-116_VL",
             "71-73_VL",
             "12-117_VL")
             .collect(Collectors.toCollection(HashSet::new));
 
-    private static final Set<String> DANGLINGLINE_LINES = Stream.of(
-                    "68-116",
-                    "71-73",
-                    "12-117")
+    private static final Set<String> SMALLGRID_LINES = Stream.of(
+            "68-116",
+            "71-73",
+            "12-117")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    // Present in mini grid
+    private static final Set<String> MINIGRID_SUBSTATIONS = Stream.of(
+            "XQ2-N5_SUBSTATION",
+            "XQ1-N1_SUBSTATION")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> MINIGRID_VOLTAGELEVELS = Stream.of(
+            "XQ2-N5_VL",
+            "XQ1-N1_VL")
             .collect(Collectors.toCollection(HashSet::new));
 
     private static boolean isConsideredEQNode(Node n) {
@@ -162,9 +173,11 @@ public final class ExportXmlCompare {
 
     private static boolean isDanglingLineConversion(Node n) {
         String name = n.getLocalName();
-        return (name.startsWith("substation") && DANGLINGLINE_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("voltageLevel") && DANGLINGLINE_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
-                || (name.startsWith("line") && DANGLINGLINE_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()));
+        return (name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("line") && SMALLGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent())
+                || name.startsWith("substation") && MINIGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && MINIGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()));
     }
 
     static interface DifferenceBuilder {

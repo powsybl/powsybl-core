@@ -49,6 +49,13 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void miniGrid() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        test(new CgmesImport().importData(CgmesConformity1Catalog.miniNodeBreaker().dataSource(), NetworkFactory.findDefault(), properties));
+    }
+
+    @Test
     public void nordic32() throws IOException, XMLStreamException {
         test(new XMLImporter().importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
     }
