@@ -172,7 +172,7 @@ public final class EquipmentExport {
                 generatingUnit = CgmesExportUtil.getUniqueId();
             }
             String regulatingControlId = null;
-            if (!generator.getRegulatingTerminal().equals(generator.getTerminal())) {
+            if (generator.getRegulatingTerminal() != null) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 String regulatingControlName = "RC_" + generator.getNameOrId();
                 RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, generator.getRegulatingTerminal()), cimNamespace, writer);

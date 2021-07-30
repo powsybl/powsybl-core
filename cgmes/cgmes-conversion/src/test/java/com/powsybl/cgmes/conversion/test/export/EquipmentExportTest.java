@@ -99,14 +99,11 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 shuntCompensator.setTargetV(Double.NaN);
                 shuntCompensator.setTargetDeadband(Double.NaN);
                 shuntCompensator.getTerminal().setQ(0.0);
-                shuntCompensator.setProperty("CGMES.RegulatingControl", "_shuntControl_");
             } else if (identifiable instanceof Generator) {
                 Generator generator = (Generator) identifiable;
                 generator.setVoltageRegulatorOn(false);
                 generator.setTargetV(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
-                generator.setProperty("CGMES.normalPF", "0.0");
-                generator.setProperty("CGMES.RegulatingControl", "_genControl_");
             } else if (identifiable instanceof VscConverterStation) {
                 VscConverterStation converter = (VscConverterStation) identifiable;
                 converter.setVoltageRegulatorOn(false);
