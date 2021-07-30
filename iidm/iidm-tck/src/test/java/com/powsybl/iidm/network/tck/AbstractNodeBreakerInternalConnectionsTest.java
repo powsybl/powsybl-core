@@ -239,24 +239,16 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
     }
 
     private InternalConnections findInternalConnections(VoltageLevel vl) {
-        InternalConnections cs = new InternalConnections();
-
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n)) {
-                continue;
+
+        InternalConnections cs = new InternalConnections();
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (sw == null) {
+                cs.add(n1, n2);
             }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
-                if (sw == null) {
-                    cs.add(n1, n2);
-                }
-                return TraverseResult.CONTINUE;
-            });
-        }
+            return TraverseResult.CONTINUE;
+        });
+
         return cs;
     }
 }
