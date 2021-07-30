@@ -172,7 +172,7 @@ public final class EquipmentExport {
                 generatingUnit = CgmesExportUtil.getUniqueId();
             }
             String regulatingControlId = null;
-            if (generator.getRegulatingTerminal() != null) {
+            if (!Objects.equals(generator, generator.getRegulatingTerminal().getConnectable())) {
                 regulatingControlId = CgmesExportUtil.getUniqueId();
                 String regulatingControlName = "RC_" + generator.getNameOrId();
                 RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, generator.getRegulatingTerminal()), cimNamespace, writer);
@@ -365,7 +365,7 @@ public final class EquipmentExport {
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
 
             // Cast the danglingLine to an AcLineSegment
-            AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId(), danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer);
+            AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId() + "_DL", danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer);
             writeFlowsLimits(danglingLine, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
         }
     }

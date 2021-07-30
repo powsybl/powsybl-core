@@ -56,6 +56,13 @@ public class EquipmentExportTest extends AbstractConverterTest {
     }
 
     @Test
+    public void microGrid() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        test(new CgmesImport().importData(CgmesConformity1Catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), properties));
+    }
+
+    @Test
     public void nordic32() throws IOException, XMLStreamException {
         test(new XMLImporter().importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
     }
@@ -111,6 +118,10 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 generator.setVoltageRegulatorOn(false);
                 generator.setTargetV(Double.NaN);
                 generator.getTerminal().setP(0.0).setQ(0.0);
+            } else if (identifiable instanceof StaticVarCompensator) {
+                StaticVarCompensator staticVarCompensator = (StaticVarCompensator) identifiable;
+                staticVarCompensator.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+                staticVarCompensator.getTerminal().setP(0.0).setQ(0.0);
             } else if (identifiable instanceof VscConverterStation) {
                 VscConverterStation converter = (VscConverterStation) identifiable;
                 converter.setVoltageRegulatorOn(false);
