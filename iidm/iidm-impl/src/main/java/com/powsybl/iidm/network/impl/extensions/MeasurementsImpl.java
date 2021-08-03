@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -36,6 +37,11 @@ class MeasurementsImpl<C extends Connectable<C>> extends AbstractExtension<C> im
     @Override
     public Collection<Measurement> getMeasurements() {
         return Collections.unmodifiableList(measurements);
+    }
+
+    @Override
+    public Collection<Measurement> getMeasurements(Measurement.Type type) {
+        return measurements.stream().filter(m -> m.getType() == type).collect(Collectors.toList());
     }
 
     @Override
