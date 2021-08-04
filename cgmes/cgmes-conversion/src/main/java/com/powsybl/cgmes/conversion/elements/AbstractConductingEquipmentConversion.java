@@ -18,6 +18,7 @@ import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.util.DanglingLineData;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -272,6 +273,17 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 setDanglingLineModelSideFlow(dl, boundaryNode);
             }
+        }
+    }
+
+    public static void calculateVoltageAndAngleInBoundaryBus(Network network, DanglingLine dl) {
+        DanglingLineData danglingLineData = new DanglingLineData(dl);
+        double starBusV = danglingLineData.getBoundaryBusU();
+        double starBusTheta = Math.toDegrees(danglingLineData.getBoundaryBusTheta());
+
+        if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
+            dl.setProperty("v", Double.toString(starBusV));
+            dl.setProperty("angle", Double.toString(starBusTheta));
         }
     }
 

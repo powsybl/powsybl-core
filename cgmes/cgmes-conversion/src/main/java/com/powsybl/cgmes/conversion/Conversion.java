@@ -241,6 +241,10 @@ public class Conversion {
         network.getThreeWindingsTransformers()
             .forEach(twt -> ThreeWindingsTransformerConversion.calculateVoltageAndAngleInStarBus(network, twt));
 
+        // Voltage and angle in boundary buses
+        network.getDanglingLines()
+            .forEach(dl -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(network, dl));
+
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
             network.newExtension(CgmesConversionContextExtensionAdder.class).withContext(context).add();

@@ -51,6 +51,9 @@ public class DanglingLineData {
 
         boundaryBusU = Double.NaN;
         boundaryBusTheta = Double.NaN;
+        if (!valid(u1, theta1)) {
+            return;
+        }
 
         Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
 
@@ -89,6 +92,13 @@ public class DanglingLineData {
         return danglingLine.getTerminal().isConnected()
             ? Math.toRadians(danglingLine.getTerminal().getBusView().getBus().getAngle())
             : Double.NaN;
+    }
+
+    private static boolean valid(double v, double theta) {
+        if (Double.isNaN(v) || v <= 0.0) {
+            return false;
+        }
+        return !Double.isNaN(theta);
     }
 
     public String getId() {
