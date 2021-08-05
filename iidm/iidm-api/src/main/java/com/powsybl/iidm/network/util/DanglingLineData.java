@@ -35,14 +35,18 @@ public class DanglingLineData {
     double boundaryBusTheta;
 
     public DanglingLineData(DanglingLine danglingLine) {
+        this(danglingLine, true);
+    }
+
+    public DanglingLineData(DanglingLine danglingLine, boolean splitShuntAdmittance) {
 
         id = danglingLine.getId();
         r = danglingLine.getR();
         x = danglingLine.getX();
-        g1 = danglingLine.getG() / 2.0;
-        b1 = danglingLine.getB() / 2.0;
-        g2 = danglingLine.getG() / 2.0;
-        b2 = danglingLine.getB() / 2.0;
+        g1 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : danglingLine.getG();
+        b1 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : danglingLine.getB();
+        g2 = splitShuntAdmittance ? danglingLine.getG() * 0.5 : 0.0;
+        b2 = splitShuntAdmittance ? danglingLine.getB() * 0.5 : 0.0;
         p0 = danglingLine.getP0();
         q0 = danglingLine.getQ0();
 

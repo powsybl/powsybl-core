@@ -277,13 +277,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public static void calculateVoltageAndAngleInBoundaryBus(Network network, DanglingLine dl) {
-        DanglingLineData danglingLineData = new DanglingLineData(dl);
-        double starBusV = danglingLineData.getBoundaryBusU();
-        double starBusTheta = Math.toDegrees(danglingLineData.getBoundaryBusTheta());
+        DanglingLineData danglingLineData = new DanglingLineData(dl, false);
+        double v = danglingLineData.getBoundaryBusU();
+        double angle = Math.toDegrees(danglingLineData.getBoundaryBusTheta());
 
-        if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
-            dl.setProperty("v", Double.toString(starBusV));
-            dl.setProperty("angle", Double.toString(starBusTheta));
+        v = dl.getBoundary().getV();
+        angle = dl.getBoundary().getAngle();
+
+        if (!Double.isNaN(v) && !Double.isNaN(angle)) {
+            dl.setProperty("v", Double.toString(v));
+            dl.setProperty("angle", Double.toString(angle));
         }
     }
 
