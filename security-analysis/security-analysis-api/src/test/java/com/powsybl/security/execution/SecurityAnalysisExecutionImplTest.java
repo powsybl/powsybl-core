@@ -13,6 +13,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
+import com.powsybl.security.monitor.StateMonitor;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -21,7 +22,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -73,7 +74,7 @@ public class SecurityAnalysisExecutionImplTest {
     @AutoService(SecurityAnalysisProvider.class)
     public static class SecurityAnalysisProviderMock implements SecurityAnalysisProvider {
         @Override
-        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors) {
+        public CompletableFuture<SecurityAnalysisReport> run(Network network, String workingVariantId, LimitViolationDetector detector, LimitViolationFilter filter, ComputationManager computationManager, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider, List<SecurityAnalysisInterceptor> interceptors, List<StateMonitor> monitors) {
             assertSame(SecurityAnalysisExecutionImplTest.network, network);
             assertSame(SecurityAnalysisExecutionImplTest.input.getNetworkVariant().getVariantId(), workingVariantId);
             assertSame(SecurityAnalysisExecutionImplTest.detector, detector);
@@ -82,6 +83,7 @@ public class SecurityAnalysisExecutionImplTest {
             assertSame(SecurityAnalysisExecutionImplTest.parameters, parameters);
             assertSame(SecurityAnalysisExecutionImplTest.contingencies, contingenciesProvider);
             assertTrue(interceptors.isEmpty());
+            assertTrue(monitors.isEmpty());
             throw new PowsyblException("run");
         }
 

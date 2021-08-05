@@ -119,7 +119,7 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
      * @param monitors stateMonitor that defines the branch bus and threeWindingsTransformer about which informations will be written after security analysis
      * @return a {@link CompletableFuture} on {@link SecurityAnalysisResult} that gathers security factor values
      */
-    default CompletableFuture<SecurityAnalysisReport> run(Network network,
+    CompletableFuture<SecurityAnalysisReport> run(Network network,
                                                           String workingVariantId,
                                                           LimitViolationDetector detector,
                                                           LimitViolationFilter filter,
@@ -127,7 +127,5 @@ public interface SecurityAnalysisProvider extends Versionable, PlatformConfigNam
                                                           SecurityAnalysisParameters parameters,
                                                           ContingenciesProvider contingenciesProvider,
                                                           List<SecurityAnalysisInterceptor> interceptors,
-                                                          List<StateMonitor> monitors) {
-        return run(network, workingVariantId, detector, filter, computationManager, parameters, contingenciesProvider, interceptors);
-    }
+                                                          List<StateMonitor> monitors);
 }
