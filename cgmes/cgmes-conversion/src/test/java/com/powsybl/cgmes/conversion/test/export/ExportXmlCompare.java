@@ -368,7 +368,23 @@ public final class ExportXmlCompare {
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             // DanglingLine p, q, p0, q0 attributes in IIDM Network
             String name = n.getLocalName();
-            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0");
+            return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
+                || isAttrValueOfNumericProperty((Attr) n);
+        }
+        return false;
+    }
+
+    private static boolean isAttrValueOfNumericProperty(Attr attr) {
+        // Check if we are inside a property element and if the name of property is voltage or angle
+        if (attr.getLocalName().equals("value")) {
+            Node p = attr.getOwnerElement();
+            if (p.getNodeType() == Node.ELEMENT_NODE && p.getLocalName().equals("property")) {
+                Node npname = p.getAttributes().getNamedItem("name");
+                if (npname != null) {
+                    String pname = npname.getTextContent();
+                    return pname.equals("v") || pname.equals("angle");
+                }
+            }
         }
         return false;
     }

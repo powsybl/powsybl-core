@@ -161,6 +161,11 @@ public final class NetworkChanges {
             b.setAngle(b.getAngle() + 0.1);
             b.setV(b.getV() + 1);
         });
+        // After modifications in state variables we have to recalculate values stored in properties
+        network.getDanglingLines().forEach(dl -> {
+            dl.setProperty("v", Double.toString(dl.getBoundary().getV()));
+            dl.setProperty("angle", Double.toString(dl.getBoundary().getAngle()));
+        });
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(NetworkChanges.class);
