@@ -556,7 +556,7 @@ public class UcteImporter implements Importer {
                 .setLowTapPosition(lowerTap)
                 .setTapPosition(ucteAngleRegulation.getNp())
                 .setRegulationValue(ucteAngleRegulation.getP())
-                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+                .setRegulationMode(Double.isNaN(ucteAngleRegulation.getP()) ? PhaseTapChanger.RegulationMode.FIXED_TAP : PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
 
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
             double rho;
