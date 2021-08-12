@@ -245,5 +245,13 @@ public class UcteImporterTest {
         ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
         assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
     }
+
+    @Test
+    public void checkPhaseShifterRegulationMode() {
+        ResourceDataSource dataSource = new ResourceDataSource("phaseShifterActivePowerOn", new ResourceSet("/", "phaseShifterActivePowerOn.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertTrue(network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        assertTrue(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+    }
 }
 
