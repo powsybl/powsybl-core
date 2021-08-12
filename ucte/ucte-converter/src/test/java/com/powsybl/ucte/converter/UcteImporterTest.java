@@ -250,8 +250,8 @@ public class UcteImporterTest {
     public void checkPhaseShifterRegulationMode() {
         ResourceDataSource dataSource = new ResourceDataSource("phaseShifterActivePowerOn", new ResourceSet("/", "phaseShifterActivePowerOn.uct"));
         Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
-        assertTrue(network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
-        assertTrue(network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationMode() == PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL);
+        assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getRegulationMode());
+        assertSame(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getRegulationMode());
     }
 }
 
