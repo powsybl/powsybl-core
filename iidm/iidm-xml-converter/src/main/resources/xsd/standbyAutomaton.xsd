@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/standby_automaton/1_0"
+           elementFormDefault="qualified">
+    <xs:element name="standbyAutomaton">
+        <xs:complexType>
+            <xs:attribute name="b0" use="required" type="xs:double"/>
+            <xs:attribute name="standby" use="required" type="xs:boolean"/>
+            <xs:attribute name="lowVoltageSetPoint" use="required" type="xs:double"/>
+            <xs:attribute name="highVoltageSetPoint" use="required" type="xs:double"/>
+            <xs:attribute name="lowVoltageThreshold" use="required" type="xs:double"/>
+            <xs:attribute name="highVoltageThreshold" use="required" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
