@@ -55,12 +55,12 @@ public class StandbyAutomatonXmlSerializer implements ExtensionXmlSerializer<Sta
 
     @Override
     public void write(StandbyAutomaton standbyAutomaton, XmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("b0", standbyAutomaton.getB0(), context.getExtensionsWriter());
-        context.getExtensionsWriter().writeAttribute("standby", Boolean.toString(standbyAutomaton.isStandby()));
-        XmlUtil.writeDouble("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetPoint(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetPoint(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold(), context.getExtensionsWriter());
-        XmlUtil.writeDouble("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold(), context.getExtensionsWriter());
+        XmlUtil.writeDouble("b0", standbyAutomaton.getB0(), context.getWriter());
+        context.getWriter().writeAttribute("standby", Boolean.toString(standbyAutomaton.isStandby()));
+        XmlUtil.writeDouble("lowVoltageSetPoint", standbyAutomaton.getLowVoltageSetPoint(), context.getWriter());
+        XmlUtil.writeDouble("highVoltageSetPoint", standbyAutomaton.getHighVoltageSetPoint(), context.getWriter());
+        XmlUtil.writeDouble("lowVoltageThreshold", standbyAutomaton.getLowVoltageThreshold(), context.getWriter());
+        XmlUtil.writeDouble("highVoltageThreshold", standbyAutomaton.getHighVoltageThreshold(), context.getWriter());
     }
 
     @Override
