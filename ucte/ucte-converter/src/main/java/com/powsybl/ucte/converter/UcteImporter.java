@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
@@ -45,21 +46,21 @@ public class UcteImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteImporter.class);
 
-    private static final float LINE_MIN_Z = 0.05f;
+    private static final double LINE_MIN_Z = 0.05;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
-    private static float getConductance(UcteTransformer ucteTransfo) {
-        float g = 0;
-        if (!Float.isNaN(ucteTransfo.getConductance())) {
+    private static double getConductance(UcteTransformer ucteTransfo) {
+        double g = 0;
+        if (!Double.isNaN(ucteTransfo.getConductance())) {
             g = ucteTransfo.getConductance();
         }
         return g;
     }
 
-    private static float getSusceptance(UcteElement ucteElement) {
-        float b = 0;
-        if (!Float.isNaN(ucteElement.getSusceptance())) {
+    private static double getSusceptance(UcteElement ucteElement) {
+        double b = 0;
+        if (!Double.isNaN(ucteElement.getSusceptance())) {
             b = ucteElement.getSusceptance();
         }
         return b;
@@ -201,8 +202,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static boolean isValueValid(float value) {
-        return !Float.isNaN(value) && value != 0;
+    private static boolean isValueValid(double value) {
+        return !Double.isNaN(value) && value != 0;
     }
 
     private static void createLoad(UcteNode ucteNode, VoltageLevel voltageLevel, Bus bus) {
@@ -210,11 +211,11 @@ public class UcteImporter implements Importer {
 
         LOGGER.trace("Create load '{}'", loadId);
 
-        float p0 = 0;
+        double p0 = 0;
         if (isValueValid(ucteNode.getActiveLoad())) {
             p0 = ucteNode.getActiveLoad();
         }
-        float q0 = 0;
+        double q0 = 0;
         if (isValueValid(ucteNode.getReactiveLoad())) {
             q0 = ucteNode.getReactiveLoad();
         }
@@ -259,8 +260,8 @@ public class UcteImporter implements Importer {
             }
         }
 
-        float generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
-        float generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
+        double generatorP = isValueValid(ucteNode.getActivePowerGeneration()) ? -ucteNode.getActivePowerGeneration() : 0;
+        double generatorQ = isValueValid(ucteNode.getReactivePowerGeneration()) ? -ucteNode.getReactivePowerGeneration() : 0;
 
         Generator generator = voltageLevel.newGenerator()
                 .setId(generatorId)
@@ -296,10 +297,10 @@ public class UcteImporter implements Importer {
             .build());
         LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
-        float p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
-        float q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
-        float targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
-        float targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
+        double p0 = isValueValid(xnode.getActiveLoad()) ? xnode.getActiveLoad() : 0;
+        double q0 = isValueValid(xnode.getReactiveLoad()) ? xnode.getReactiveLoad() : 0;
+        double targetP = isValueValid(xnode.getActivePowerGeneration()) ? xnode.getActivePowerGeneration() : 0;
+        double targetQ = isValueValid(xnode.getReactivePowerGeneration()) ? xnode.getReactivePowerGeneration() : 0;
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
         DanglingLine dl = voltageLevel.newDanglingLine()
@@ -309,7 +310,7 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(nodeCode.toString())
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
-                .setG(0f)
+                .setG(0)
                 .setB(getSusceptance(ucteLine))
                 .setP0(p0)
                 .setQ0(q0)
@@ -431,8 +432,8 @@ public class UcteImporter implements Importer {
                 .setConnectableBus2(nodeCode2.toString())
                 .setR(ucteLine.getResistance())
                 .setX(ucteLine.getReactance())
-                .setG1(0f)
-                .setG2(0f)
+                .setG1(0)
+                .setG2(0)
                 .setB1(getSusceptance(ucteLine) / 2)
                 .setB2(getSusceptance(ucteLine) / 2)
                 .setFictitious(isFictitious(ucteLine))
@@ -526,8 +527,8 @@ public class UcteImporter implements Importer {
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
                 .setLowTapPosition(lowerTap)
                 .setTapPosition(uctePhaseRegulation.getNp())
-                .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
-        if (!Float.isNaN(uctePhaseRegulation.getU())) {
+                .setLoadTapChangingCapabilities(!Double.isNaN(uctePhaseRegulation.getU()));
+        if (!Double.isNaN(uctePhaseRegulation.getU())) {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
                     .setTargetV(uctePhaseRegulation.getU())
@@ -535,13 +536,13 @@ public class UcteImporter implements Importer {
                     .setRegulationTerminal(transformer.getTerminal1());
         }
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
-            float rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
+            double rho = 1 / (1 + i * uctePhaseRegulation.getDu() / 100);
             rtca.beginStep()
                     .setRho(rho)
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
                     .endStep();
         }
         rtca.add();
@@ -558,19 +559,19 @@ public class UcteImporter implements Importer {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
 
         for (int i = lowerTap; i <= Math.abs(lowerTap); i++) {
-            float rho;
-            float alpha;
-            double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
-            double dy = i * ucteAngleRegulation.getDu() / 100f * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double rho;
+            double alpha;
+            double dx = i * ucteAngleRegulation.getDu() / 100 * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
+            double dy = i * ucteAngleRegulation.getDu() / 100 * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
             switch (ucteAngleRegulation.getType()) {
                 case ASYM:
-                    rho = (float) (1 / Math.hypot(dy, 1 + dx));
-                    alpha = (float) Math.toDegrees(Math.atan2(dy, 1 + dx));
+                    rho = 1d / Math.hypot(dy, 1d + dx);
+                    alpha = Math.toDegrees(Math.atan2(dy, 1 + dx));
                     break;
 
                 case SYMM:
-                    rho = 1f;
-                    alpha = (float) Math.toDegrees(2 * Math.atan2(dy, 2f * (1 + dx)));
+                    rho = 1d;
+                    alpha = Math.toDegrees(2 * Math.atan2(dy, 2 * (1d + dx)));
                     break;
 
                 default:
@@ -579,10 +580,10 @@ public class UcteImporter implements Importer {
             ptca.beginStep()
                     .setRho(rho)
                     .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setR(0)
+                    .setX(0)
+                    .setG(0)
+                    .setB(0)
                     .endStep();
         }
         ptca.add();
@@ -636,20 +637,20 @@ public class UcteImporter implements Importer {
         LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
-        float p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
-        float q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
-        float targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
-        float targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
+        double p0 = isValueValid(ucteXnode.getActiveLoad()) ? ucteXnode.getActiveLoad() : 0;
+        double q0 = isValueValid(ucteXnode.getReactiveLoad()) ? ucteXnode.getReactiveLoad() : 0;
+        double targetP = isValueValid(ucteXnode.getActivePowerGeneration()) ? ucteXnode.getActivePowerGeneration() : 0;
+        double targetQ = isValueValid(ucteXnode.getReactivePowerGeneration()) ? ucteXnode.getReactivePowerGeneration() : 0;
 
         // create a small impedance dangling line connected to the YNODE
         DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
-                .setR(0.0f)
+                .setR(0.0)
                 .setX(LINE_MIN_Z)
-                .setG(0f)
-                .setB(0f)
+                .setG(0)
+                .setB(0)
                 .setP0(p0)
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
@@ -799,28 +800,34 @@ public class UcteImporter implements Importer {
     }
 
     private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
-        DanglingLine dl2 = null;
         Xnode xnodExtension = dl1.getExtension(Xnode.class);
         if (xnodExtension == null) {
             throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
         }
         String otherXnodeCode = xnodExtension.getCode();
-        Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
-        DanglingLine first = it.next();
-        if (it.hasNext()) {
-            DanglingLine second = it.next();
-            if (dl1 == first) {
-                dl2 = second;
-            } else if (dl1 == second) {
-                dl2 = first;
-            } else {
-                throw new AssertionError("Inconsistent XNODE index");
+        List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
+                .stream().filter(dl -> dl != dl1)
+                .collect(Collectors.toList());
+        if (matchingDanglingLines.isEmpty()) {
+            return null;
+        } else if (matchingDanglingLines.size() == 1) {
+            return matchingDanglingLines.get(0);
+        } else {
+            if (!dl1.getTerminal().isConnected()) {
+                return null;
             }
-            if (it.hasNext()) {
-                throw new UcteException("More that 2 dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
+            List<DanglingLine> connectedMatchingDanglingLines = matchingDanglingLines.stream()
+                    .filter(dl -> dl.getTerminal().isConnected())
+                    .collect(Collectors.toList());
+            if (connectedMatchingDanglingLines.isEmpty()) {
+                return null;
+            }
+            if (connectedMatchingDanglingLines.size() == 1) {
+                return connectedMatchingDanglingLines.get(0);
+            } else {
+                throw new UcteException("More that 2 connected dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
             }
         }
-        return dl2;
     }
 
     private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
@@ -868,7 +875,7 @@ public class UcteImporter implements Importer {
     }
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        if (!Float.isNaN(transformer.getNominalPower())) {
+        if (!Double.isNaN(transformer.getNominalPower())) {
             twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
         }
     }
@@ -972,8 +979,8 @@ public class UcteImporter implements Importer {
         // R1 = 0 and R2 = 0 (resp. X1 = 0 and X2 = 0) are recovered when splitting the mergedXnode anyway.
         double sumR = dlAtSideOne.getR() + dlAtSideTwo.getR();
         double sumX = dlAtSideOne.getX() + dlAtSideTwo.getX();
-        float rdp = (sumR == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getR() / sumR);
-        float xdp = (sumX == 0.) ? (float) 0.5 : (float) (dlAtSideOne.getX() / sumX);
+        double rdp = (sumR == 0.) ? 0.5 : dlAtSideOne.getR() / sumR;
+        double xdp = (sumX == 0.) ? 0.5 : dlAtSideOne.getX() / sumX;
         String xnodeCode = dlAtSideOne.getExtension(Xnode.class).getCode();
 
         TieLine mergeLine = network.newTieLine()
@@ -1027,12 +1034,12 @@ public class UcteImporter implements Importer {
                 .withRdp(rdp).withXdp(xdp)
                 .withLine1Name(dlAtSideOne.getId())
                 .withLine1Fictitious(dlAtSideOne.isFictitious())
-                .withB1dp((float) b1dp)
-                .withG1dp((float) g1dp)
+                .withB1dp(b1dp)
+                .withG1dp(g1dp)
                 .withLine2Name(dlAtSideTwo.getId())
                 .withLine2Fictitious(dlAtSideTwo.isFictitious())
-                .withB2dp((float) b2dp)
-                .withG2dp((float) g2dp)
+                .withB2dp(b2dp)
+                .withG2dp(g2dp)
                 .withCode(xnodeCode)
                 .add();
     }

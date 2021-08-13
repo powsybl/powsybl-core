@@ -83,6 +83,6 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                                      SensitivityAnalysisParameters parameters,
                                                      ComputationManager computationManager,
                                                      Reporter reporter) {
-        throw new UnsupportedOperationException("Not implemented");
+        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager);
     }
 }

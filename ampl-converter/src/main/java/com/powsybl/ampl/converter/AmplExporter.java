@@ -19,6 +19,7 @@ import com.powsybl.iidm.parameters.ParameterType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -43,6 +44,9 @@ public class AmplExporter implements Exporter {
     private static final Parameter TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER = new Parameter(TWT_SPLIT_SHUNT_ADMITTANCE, ParameterType.BOOLEAN, "Export twt split shunt admittance", Boolean.FALSE)
         .addAdditionalNames("iidm.export.ampl.specific-compatibility")
         .addAdditionalNames("iidm.export.ampl.specificCompatibility");
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(EXPORT_SCOPE_PARAMETER, EXPORT_XNODES_PARAMETER, EXPORT_ACTION_TYPE_PARAMETER,
+            EXPORT_RATIOTAPCHANGER_VT_PARAMETER, TWT_SPLIT_SHUNT_ADMITTANCE_PARAMETER);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -81,5 +85,10 @@ public class AmplExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return STATIC_PARAMETERS;
     }
 }

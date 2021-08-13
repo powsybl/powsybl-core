@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -31,7 +30,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -42,8 +40,9 @@ import java.util.Properties;
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
+    @Override
     public List<Parameter> getParameters() {
-        return Collections.unmodifiableList(STATIC_PARAMETERS);
+        return STATIC_PARAMETERS;
     }
 
     @Override
@@ -72,7 +71,8 @@ public class CgmesExport implements Exporter {
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
         CgmesExportContext context = new CgmesExportContext(network)
-                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER));
+                .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
+                .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
         try (OutputStream osv = ds.newOutputStream(filenameSv, false);
                 OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
             XMLStreamWriter writer;
@@ -112,6 +112,7 @@ public class CgmesExport implements Exporter {
     public static final String USING_ONLY_NETWORK = "iidm.export.cgmes.using-only-network";
     public static final String BASE_NAME = "iidm.export.cgmes.base-name";
     public static final String EXPORT_BOUNDARY_POWER_FLOWS = "iidm.export.cgmes.export-boundary-power-flows";
+    public static final String EXPORT_POWER_FLOWS_FOR_SWITCHES = "iidm.export.cgmes.export-power-flows-for-switches";
 
     private static final Parameter USING_ONLY_NETWORK_PARAMETER = new Parameter(
             USING_ONLY_NETWORK,
@@ -128,9 +129,15 @@ public class CgmesExport implements Exporter {
             ParameterType.BOOLEAN,
             "Export boundaries' power flows",
             Boolean.TRUE);
+    private static final Parameter EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER = new Parameter(
+            EXPORT_POWER_FLOWS_FOR_SWITCHES,
+            ParameterType.BOOLEAN,
+            "Export power flows for switches",
+            Boolean.FALSE);
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
             USING_ONLY_NETWORK_PARAMETER,
             BASE_NAME_PARAMETER,
-            EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER);
+            EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
+            EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER);
 }

@@ -32,6 +32,7 @@ public class CgmesExportContext {
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
     private boolean exportBoundaryPowerFlows = true;
+    private boolean exportFlowsForSwitches = false;
 
     private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();
@@ -223,6 +224,15 @@ public class CgmesExportContext {
 
     public CgmesExportContext setExportBoundaryPowerFlows(boolean exportBoundaryPowerFlows) {
         this.exportBoundaryPowerFlows = exportBoundaryPowerFlows;
+        return this;
+    }
+
+    public boolean exportFlowsForSwitches() {
+        return exportFlowsForSwitches;
+    }
+
+    public CgmesExportContext setExportFlowsForSwitches(boolean exportFlowsForSwitches) {
+        this.exportFlowsForSwitches = exportFlowsForSwitches;
         return this;
     }
 

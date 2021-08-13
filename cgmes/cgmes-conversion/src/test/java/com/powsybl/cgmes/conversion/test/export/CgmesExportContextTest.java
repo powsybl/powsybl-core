@@ -35,14 +35,19 @@ import java.util.Properties;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
 import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class CgmesExportContextTest {
+
+    @Test
+    public void testExporter() {
+        var exporter = new CgmesExport();
+        assertEquals("ENTSO-E CGMES version 2.4.15", exporter.getComment());
+        assertEquals(4, exporter.getParameters().size());
+    }
 
     @Test
     public void networkConstructor() {
@@ -105,7 +110,8 @@ public class CgmesExportContextTest {
             .setCimVersion(14)
             .setTopologyKind(CgmesTopologyKind.NODE_BREAKER)
             .setScenarioTime(DateTime.parse("2020-09-22T17:21:11.381+02:00"))
-            .setExportBoundaryPowerFlows(true);
+            .setExportBoundaryPowerFlows(true)
+            .setExportFlowsForSwitches(false);
         context.getSvModelDescription()
             .setDescription("test")
             .setVersion(2)
