@@ -9,11 +9,8 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -50,7 +47,8 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         // If we stop traversal at terminals
         // some internal connections are expected to be missing
         InternalConnections expectedMissing = new InternalConnections();
-        expectedMissing.add(5, 2);
+        expectedMissing.add(6, 3);
+        expectedMissing.add(9, 2);
         expectedMissing.add(4, 3);
         // Compute all missing connections
         Set<String> actualMissing = all.stream()
@@ -221,13 +219,15 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = Arrays.stream(topo.getNodes()).filter(n -> topo.getTerminal(n) != null).toArray();
-
-        topo.traverse(nodes, (n1, sw, n2) -> {
-            if (sw == null) {
-                cs.add(n1, n2);
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (topo.getTerminal(n2) == null) {
+                if (sw == null) {
+                    cs.add(n1, n2);
+                }
+                return TraverseResult.CONTINUE;
+            } else {
+                return TraverseResult.TERMINATE;
             }
-            return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
         });
 
         return cs;
