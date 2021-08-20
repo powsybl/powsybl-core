@@ -125,18 +125,71 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     public void testOptionalSubstation() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2021-08-20T12:02:48.504+02:00"));
+        String vlId = "ADDITIONAL_VL";
         VoltageLevel vl = network.newVoltageLevel()
-                .setId("ADDITIONAL")
+                .setId(vlId)
                 .setNominalV(200)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .setHighVoltageLimit(280)
                 .setLowVoltageLimit(160)
                 .add();
-        vl.getBusBreakerView().newBus().setId("TEST").add();
+        String bus1Id = "ADDITIONAL_BUS1";
+        String bus2Id = "ADDITIONAL_BUS2";
+        String bus3Id = "ADDITIONAL_BUS3";
+        vl.getBusBreakerView().newBus().setId(bus1Id).add();
+        vl.getBusBreakerView().newBus().setId(bus2Id).add();
+        vl.getBusBreakerView().newBus().setId(bus3Id).add();
+        network.newTwoWindingsTransformer()
+                .setId("ADDITIONAL_T2WT")
+                .setVoltageLevel1(vlId)
+                .setBus1(bus1Id)
+                .setRatedU1(220.0)
+                .setVoltageLevel2(vlId)
+                .setBus2(bus2Id)
+                .setRatedU2(158.0)
+                .setR(0.21)
+                .setX(Math.sqrt(18 * 18 - 0.21 * 0.21))
+                .setG(0.0)
+                .setB(0.0)
+                .add();
+        network.newThreeWindingsTransformer()
+                .setId("ADDITIONAL_T3WT")
+                .setRatedU0(132.0)
+                .newLeg1()
+                .setR(17.424)
+                .setX(1.7424)
+                .setG(0.00573921028466483)
+                .setB(0.000573921028466483)
+                .setRatedU(132.0)
+                .setVoltageLevel(vlId)
+                .setBus(bus1Id)
+                .add()
+                .newLeg2()
+                .setR(1.089)
+                .setX(0.1089)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(33.0)
+                .setVoltageLevel(vlId)
+                .setBus(bus2Id)
+                .add()
+                .newLeg3()
+                .setR(0.121)
+                .setX(0.0121)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(11.0)
+                .setVoltageLevel(vlId)
+                .setBus(bus3Id)
+                .add()
+                .add();
 
-        roundTripTest(network,
+        roundTripXmlTest(network,
                 NetworkXml::writeAndValidate,
-                NetworkXml::read,
+                NetworkXml::validateAndRead,
                 getVersionedNetworkPath("eurostag-tutorial-example1-opt-sub.xml", CURRENT_IIDM_XML_VERSION));
+
+        // backward compatibility
+        roundTripVersionedXmlFromMinToCurrentVersionTest("eurostag-tutorial-example1-opt-sub.xml", IidmXmlVersion.V_1_6);
     }
 }
