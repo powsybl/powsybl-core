@@ -12,9 +12,7 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -123,4 +121,22 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
         assertNull(busBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1"));
     }
 
+    @Test
+    public void testOptionalSubstation() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2021-08-20T12:02:48.504+02:00"));
+        VoltageLevel vl = network.newVoltageLevel()
+                .setId("ADDITIONAL")
+                .setNominalV(200)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setHighVoltageLimit(280)
+                .setLowVoltageLimit(160)
+                .add();
+        vl.getBusBreakerView().newBus().setId("TEST").add();
+
+        roundTripTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                getVersionedNetworkPath("eurostag-tutorial-example1-opt-sub.xml", CURRENT_IIDM_XML_VERSION));
+    }
 }

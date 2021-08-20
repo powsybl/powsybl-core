@@ -264,6 +264,13 @@ public final class NetworkXml {
         AliasesXml.write(n, NETWORK_ROOT_ELEMENT_NAME, context);
         PropertiesXml.write(n, context);
 
+        for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
+            if (voltageLevel.getOptionalSubstation().isEmpty()) {
+                IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                        IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                VoltageLevelXml.INSTANCE.write(voltageLevel, null, context);
+            }
+        }
         for (Substation s : IidmXmlUtil.sorted(n.getSubstations(), context.getOptions())) {
             SubstationXml.INSTANCE.write(s, null, context);
         }
@@ -383,6 +390,12 @@ public final class NetworkXml {
 
                     case PropertiesXml.PROPERTY:
                         PropertiesXml.read(network, context);
+                        break;
+
+                    case VoltageLevelXml.ROOT_ELEMENT_NAME:
+                        IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
+                                IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                        VoltageLevelXml.INSTANCE.read(network, context);
                         break;
 
                     case SubstationXml.ROOT_ELEMENT_NAME:
