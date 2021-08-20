@@ -388,7 +388,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void traverse(int v, Traverser traverser, boolean[] encountered) {
+    public boolean traverse(int v, Traverser traverser, boolean[] encountered) {
         checkVertex(v);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(encountered);
@@ -400,21 +400,35 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         TIntArrayList[] adjacencyList = getAdjacencyList();
         TIntArrayList adjacentEdges = adjacencyList[v];
         encountered[v] = true;
+        boolean keepGoing = true;
         for (int i = 0; i < adjacentEdges.size(); i++) {
             int e = adjacentEdges.getQuick(i);
             Edge<E> edge = edges.get(e);
             int v1 = edge.getV1();
             int v2 = edge.getV2();
             if (!encountered[v1]) {
-                if (traverser.traverse(v2, e, v1) == TraverseResult.CONTINUE) {
+                TraverseResult traverserResult = traverser.traverse(v2, e, v1);
+                if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v1] = true;
-                    traverse(v1, traverser, encountered);
+                    keepGoing = traverse(v1, traverser, encountered);
+                } else if (traverserResult == TraverseResult.BREAK) {
+                    keepGoing = false;
                 }
-            } else if (!encountered[v2] && traverser.traverse(v1, e, v2) == TraverseResult.CONTINUE) {
-                encountered[v2] = true;
-                traverse(v2, traverser, encountered);
+            } else if (!encountered[v2]) {
+                TraverseResult traverserResult = traverser.traverse(v1, e, v2);
+                if (traverserResult == TraverseResult.CONTINUE) {
+                    encountered[v2] = true;
+                    keepGoing = traverse(v2, traverser, encountered);
+                } else if (traverserResult == TraverseResult.BREAK) {
+                    keepGoing = false;
+                }
+            }
+            if (!keepGoing) {
+                break;
             }
         }
+
+        return keepGoing;
     }
 
     @Override
