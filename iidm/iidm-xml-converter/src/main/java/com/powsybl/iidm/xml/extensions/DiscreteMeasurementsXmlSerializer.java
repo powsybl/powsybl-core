@@ -107,18 +107,20 @@ public class DiscreteMeasurementsXmlSerializer<I extends Identifiable<I>> extend
             adder.setTapChanger(DiscreteMeasurement.TapChanger.valueOf(tapChanger));
         }
         DiscreteMeasurement.ValueType valueType = DiscreteMeasurement.ValueType.valueOf(reader.getAttributeValue(null, "valueType"));
-        switch (valueType) {
-            case BOOLEAN:
-                adder.setValue(XmlUtil.readBoolAttribute(reader, VALUE));
-                break;
-            case INT:
-                adder.setValue(XmlUtil.readIntAttribute(reader, VALUE));
-                break;
-            case STRING:
-                adder.setValue(reader.getAttributeValue(null, VALUE));
-                break;
-            default:
-                throw new PowsyblException("Unsupported value type: " + valueType);
+        if (reader.getAttributeValue(null, VALUE) != null) {
+            switch (valueType) {
+                case BOOLEAN:
+                    adder.setValue(XmlUtil.readBoolAttribute(reader, VALUE));
+                    break;
+                case INT:
+                    adder.setValue(XmlUtil.readIntAttribute(reader, VALUE));
+                    break;
+                case STRING:
+                    adder.setValue(reader.getAttributeValue(null, VALUE));
+                    break;
+                default:
+                    throw new PowsyblException("Unsupported value type: " + valueType);
+            }
         }
         XmlUtil.readUntilEndElement(DISCRETE_MEASUREMENT, reader, () -> {
             if (reader.getLocalName().equals("property")) {
