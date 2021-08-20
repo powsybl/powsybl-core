@@ -316,6 +316,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         if (expected != null && actual != null && expected != actual) {
             throw new ValidationException(this, "voltage levels should belong to the same substation ('" + expected.getId() + "', '" + actual.getId() + "')");
         }
+        if (expected != null) {
+            return expected;
+        }
         return actual;
     }
 }

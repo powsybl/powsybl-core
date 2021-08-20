@@ -7,10 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Optional;
@@ -113,8 +110,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
                     || (voltageLevel2.getSubstation() != null && voltageLevel2.getSubstation() != substation)) {
                 throw new ValidationException(this,
                         "the 2 windings of the transformer shall belong to the substation '"
-                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().getId() + "', '"
-                                + voltageLevel2.getSubstation().getId() + "')");
+                                + substation.getId() + "' ('" + voltageLevel1.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getOptionalSubstation().map(Substation::getId).orElse("null") + "')");
             }
         } else if (voltageLevel1.getSubstation() != null && voltageLevel2.getSubstation() != null
                 && voltageLevel1.getSubstation() != voltageLevel2.getSubstation()) {
