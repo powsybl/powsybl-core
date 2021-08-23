@@ -270,11 +270,18 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             throw new ValidationException(this, "Leg3 is not set");
         }
 
-        if (substation == null) {
-            Substation substationRef = null;
-            substationRef = checkSubstations(substationRef, voltageLevel1.getSubstation());
-            substationRef = checkSubstations(substationRef, voltageLevel2.getSubstation());
-            checkSubstations(substationRef, voltageLevel3.getSubstation());
+        if (substation != null) {
+            if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation || voltageLevel3.getSubstation() != substation) {
+                throw new ValidationException(this,
+                        "the 3 windings of the transformer shall belong to the substation '"
+                                + substation.getId() + "' ('" + voltageLevel1.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel3.getOptionalSubstation().map(Substation::getId).orElse("null") + "')");
+            }
+        } else if (voltageLevel1.getSubstation() != null || voltageLevel2.getSubstation() != null || voltageLevel3.getSubstation() != null) {
+            throw new ValidationException(this,
+                    "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");
         }
 
         // check that the 3 windings transformer is attachable on the 3 sides (only
@@ -310,15 +317,5 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         getNetwork().getListeners().notifyCreation(transformer);
 
         return transformer;
-    }
-
-    private Substation checkSubstations(Substation expected, Substation actual) {
-        if (expected != null && actual != null && expected != actual) {
-            throw new ValidationException(this, "voltage levels should belong to the same substation ('" + expected.getId() + "', '" + actual.getId() + "')");
-        }
-        if (expected != null) {
-            return expected;
-        }
-        return actual;
     }
 }

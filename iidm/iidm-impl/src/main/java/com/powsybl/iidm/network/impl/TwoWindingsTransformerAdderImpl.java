@@ -106,19 +106,16 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (substation != null) {
-            if ((voltageLevel1.getSubstation() != null && voltageLevel1.getSubstation() != substation)
-                    || (voltageLevel2.getSubstation() != null && voltageLevel2.getSubstation() != substation)) {
+            if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation) {
                 throw new ValidationException(this,
                         "the 2 windings of the transformer shall belong to the substation '"
                                 + substation.getId() + "' ('" + voltageLevel1.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
                                 + voltageLevel2.getOptionalSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getSubstation() != null && voltageLevel2.getSubstation() != null
-                && voltageLevel1.getSubstation() != voltageLevel2.getSubstation()) {
+        } else if (voltageLevel1.getSubstation() != null && voltageLevel2.getSubstation() != null) {
             throw new ValidationException(this,
-                    "the 2 windings of the transformer shall belong to the same substation ('"
-                            + voltageLevel1.getSubstation().getId() + "', '"
-                            + voltageLevel2.getSubstation().getId() + "')");
+                    "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
+                            + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
