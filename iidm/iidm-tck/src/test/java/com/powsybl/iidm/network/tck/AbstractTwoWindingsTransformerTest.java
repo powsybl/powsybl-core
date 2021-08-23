@@ -86,6 +86,35 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
+    public void invalidContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
+        network.newVoltageLevel()
+                .setId("no_substation")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(200.0)
+                .setLowVoltageLimit(180.0)
+                .setHighVoltageLimit(220.0)
+                .add()
+                .getBusBreakerView().newBus().setId("no_substation_bus").add();
+        substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("no_substation")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("no_substation_bus")
+                .setConnectableBus2("busB")
+                .add();
+    }
+
+    @Test
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
