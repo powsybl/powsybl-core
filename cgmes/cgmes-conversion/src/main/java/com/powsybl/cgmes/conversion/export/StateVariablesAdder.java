@@ -107,11 +107,8 @@ public class StateVariablesAdder {
             DanglingLine dl = network.getDanglingLine(line);
             Bus b = dl.getTerminal().getBusBreakerView().getBus();
             if (b != null) {
-                // calculate complex voltage value: abs for VOLTAGE, degrees for ANGLE
-                Complex v2 = complexVoltage(dl.getR(), dl.getX(), dl.getG(), dl.getB(), b.getV(), b.getAngle(),
-                    dl.getTerminal().getP(), dl.getTerminal().getQ());
-                p.put(CgmesNames.ANGLE, fs(Math.toDegrees(v2.getArgument())));
-                p.put(CgmesNames.VOLTAGE, fs(v2.abs()));
+                p.put(CgmesNames.ANGLE, fs(dl.getBoundary().getAngle()));
+                p.put(CgmesNames.VOLTAGE, fs(dl.getBoundary().getV()));
                 p.put(CgmesNames.TOPOLOGICAL_NODE, bnode);
             } else {
                 p.put(CgmesNames.ANGLE, fs(0.0));
