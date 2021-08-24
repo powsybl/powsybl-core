@@ -86,7 +86,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
     }
 
     @Test
-    public void invalidContainer() {
+    public void invalidSubstationContainer() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
         network.newVoltageLevel()
@@ -110,6 +110,27 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 .setVoltageLevel1("no_substation")
                 .setVoltageLevel2("vl2")
                 .setConnectableBus1("no_substation_bus")
+                .setConnectableBus2("busB")
+                .add();
+    }
+
+    @Test
+    public void missingSubstationContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations");
+        network.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
                 .setConnectableBus2("busB")
                 .add();
     }
