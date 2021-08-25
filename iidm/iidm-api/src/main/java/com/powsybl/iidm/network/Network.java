@@ -303,6 +303,7 @@ public interface Network extends Container<Network> {
 
     /**
      * Get a builder to create a new voltage level (without substation).
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
      */
     default VoltageLevelAdder newVoltageLevel() {
         return newSubstation()
@@ -388,6 +389,12 @@ public interface Network extends Container<Network> {
      */
     TieLineAdder newTieLine();
 
+    /**
+     * Get a builder to create a two windings transformer.
+     * Only use if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newTwoWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
     default TwoWindingsTransformerAdder newTwoWindingsTransformer() {
         return newSubstation()
                 .setId("FICTITIOUS_SUBSTATION")
@@ -419,6 +426,12 @@ public interface Network extends Container<Network> {
      */
     TwoWindingsTransformer getTwoWindingsTransformer(String id);
 
+    /**
+     * Get a builder to create a three windings transformer.
+     * Only use this builder if at least one of the transformer's ends does not belong to any substation.
+     * Else use {@link Substation#newThreeWindingsTransformer()}.
+     * Note: if this method is not implemented, it will create an intermediary fictitious {@link Substation}.
+     */
     default ThreeWindingsTransformerAdder newThreeWindingsTransformer() {
         return newSubstation()
                 .setId("FICTITIOUS_SUBSTATION")
