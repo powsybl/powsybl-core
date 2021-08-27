@@ -20,7 +20,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
     }
 
     /**
-     * Optional standard deviation for Active Power of Branch.Side.ONE
+     * Optional standard deviation for active power at side ONE of the branch (in MW).
      * @return nullable
      */
     ObservabilityQuality<B> getQualityP1();
@@ -28,7 +28,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
     BranchObservability<B> setQualityP1(double standardDeviation, Boolean redundant);
 
     /**
-     * Optional standard deviation for Active Power of Branch.Side.TWO
+     * Optional standard deviation for active power at side TWO of the branch (in MW).
      * @return nullable
      */
     ObservabilityQuality<B> getQualityP2();
@@ -36,7 +36,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
     BranchObservability<B> setQualityP2(double standardDeviation, Boolean redundant);
 
     /**
-     * StandardDeviation for Reactive Power of Branch.Side.ONE
+     * StandardDeviation for reactive power at side ONE of the branch (in MVar).
      * @return nullable
      */
     ObservabilityQuality<B> getQualityQ1();
@@ -44,7 +44,7 @@ public interface BranchObservability<B extends Branch<B>> extends Extension<B>, 
     BranchObservability<B> setQualityQ1(double standardDeviation, Boolean redundant);
 
     /**
-     * StandardDeviation for Reactive Power of Branch.Side.TWO
+     * StandardDeviation for reactive power at side TWO of the branch (in MVar).
      * @return nullable
      */
     ObservabilityQuality<B> getQualityQ2();
