@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
 import com.powsybl.cgmes.conversion.export.StateVariablesExport;
@@ -31,7 +30,6 @@ import javax.xml.stream.XMLStreamWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -42,8 +40,9 @@ import java.util.Properties;
 @AutoService(Exporter.class)
 public class CgmesExport implements Exporter {
 
+    @Override
     public List<Parameter> getParameters() {
-        return Collections.unmodifiableList(STATIC_PARAMETERS);
+        return STATIC_PARAMETERS;
     }
 
     @Override
@@ -136,7 +135,7 @@ public class CgmesExport implements Exporter {
             "Export power flows for switches",
             Boolean.FALSE);
 
-    private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(
             USING_ONLY_NETWORK_PARAMETER,
             BASE_NAME_PARAMETER,
             EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER,
