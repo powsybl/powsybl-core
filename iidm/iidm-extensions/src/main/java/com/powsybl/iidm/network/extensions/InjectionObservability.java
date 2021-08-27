@@ -20,7 +20,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
     }
 
     /**
-     * Optional standard deviation for Active Power
+     * Optional standard deviation for active power in MW.
      * @return nullable
      */
     ObservabilityQuality<I> getQualityP();
@@ -28,7 +28,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
     InjectionObservability<I> setQualityP(double standardDeviation, Boolean redundant);
 
     /**
-     * StandardDeviation for Reactive Power
+     * StandardDeviation for reactive power in MVar.
      * @return nullable
      */
     ObservabilityQuality<I> getQualityQ();
@@ -36,7 +36,7 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
     InjectionObservability<I> setQualityQ(double standardDeviation, Boolean redundant);
 
     /**
-     * StandardDeviation for Voltage amplitude
+     * StandardDeviation for voltage amplitude en kV.
      * @return nullable
      */
     ObservabilityQuality<I> getQualityV();
