@@ -744,7 +744,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         private com.powsybl.math.graph.Traverser adapt(Traverser t) {
-            return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2) ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
+            return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2);
         }
 
         @Override
