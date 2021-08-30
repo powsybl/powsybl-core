@@ -134,6 +134,13 @@ public class LineAdapterTest {
         verify(visitor, times(2)).visitLine(any(Line.class), any(Branch.Side.class));
 
         // Not implemented yet !
+        Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
+                .newBus()
+                .setId("NGEN2")
+                .add();
+        TestUtil.notImplemented(() -> lineAdapted.move1(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.move2(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.move(mergingView.getBusBreakerView().getBus("NBAT"), true, ngen2, false));
         TestUtil.notImplemented(lineAdapted::remove);
     }
 
