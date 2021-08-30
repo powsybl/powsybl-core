@@ -41,21 +41,9 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
                             "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
                     getId()));
         }
-        Network network = getNetwork();
-        LineAdder adder = network.newLine()
-                .setId(getId())
-                .setR(getR())
-                .setX(getX())
-                .setG1(getG1())
-                .setB1(getB1())
-                .setG2(getG2())
-                .setB2(getB2())
-                .setFictitious(isFictitious())
-                .setName(getOptionalName().orElse(null))
+        LineAdder adder = initializeAdderToMove(voltageLevel1, voltageLevel2)
                 .setNode1(node1)
-                .setVoltageLevel1(voltageLevel1.getId())
-                .setNode2(node2)
-                .setVoltageLevel2(voltageLevel2.getId());
+                .setNode2(node2);
         remove();
         return adder.add();
     }
@@ -81,8 +69,17 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
                             "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
         }
-        Network network = getNetwork();
-        LineAdder adder = network.newLine()
+        LineAdder adder = initializeAdderToMove(voltageLevel1, voltageLevel2)
+                .setConnectableBus1(bus1.getId())
+                .setBus1(connected1 ? bus1.getId() : null)
+                .setConnectableBus2(bus2.getId())
+                .setBus2(connected2 ? bus2.getId() : null);
+        remove();
+        return adder.add();
+    }
+
+    private LineAdder initializeAdderToMove(VoltageLevel voltageLevel1, VoltageLevel voltageLevel2) {
+        return getNetwork().newLine()
                 .setId(getId())
                 .setR(getR())
                 .setX(getX())
@@ -92,13 +89,7 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
                 .setB2(getB2())
                 .setFictitious(isFictitious())
                 .setName(getOptionalName().orElse(null))
-                .setConnectableBus1(bus1.getId())
-                .setBus1(connected1 ? bus1.getId() : null)
                 .setVoltageLevel1(voltageLevel1.getId())
-                .setConnectableBus2(bus2.getId())
-                .setBus2(connected2 ? bus2.getId() : null)
                 .setVoltageLevel2(voltageLevel2.getId());
-        remove();
-        return adder.add();
     }
 }
