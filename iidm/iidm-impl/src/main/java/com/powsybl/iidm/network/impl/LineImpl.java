@@ -149,11 +149,13 @@ class LineImpl extends AbstractBranch<Line> implements Line {
                     " move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)", id));
         }
         TerminalExt oldTerminal = terminals.get(side - 1);
+        int oldNode = oldTerminal.getNodeBreakerView().getNode();
+        String oldVoltageLevelId = oldTerminal.getVoltageLevel().getId();
         move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node)
                 .build(), (VoltageLevelExt) voltageLevel);
         notifyUpdate("terminal" + side, String.format("node %d, Voltage level %s",
-                oldTerminal.getNodeBreakerView().getNode(), oldTerminal.getVoltageLevel().getId()),
+                oldNode, oldVoltageLevelId),
                 String.format("node %d, Voltage level %s", node, voltageLevel.getId()));
     }
 
@@ -184,12 +186,14 @@ class LineImpl extends AbstractBranch<Line> implements Line {
                     " move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)", id));
         }
         TerminalExt oldTerminal = terminals.get(side - 1);
+        String oldBusId = oldTerminal.getBusBreakerView().getConnectableBus().getId();
+        boolean oldConnected = oldTerminal.getBusBreakerView().getBus() != null;
         move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build(), voltageLevelExt);
         notifyUpdate("terminal" + side, String.format("bus %s, %s",
-                oldTerminal.getBusBreakerView().getConnectableBus().getId(), oldTerminal.getBusBreakerView().getBus() != null ? "connected" : "disconnected"),
+                oldBusId, oldConnected ? "connected" : "disconnected"),
                 String.format("bus %s, %s", bus.getId(), connected ? "connected" : "disconnected"));
     }
 
