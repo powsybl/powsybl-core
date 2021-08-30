@@ -152,6 +152,44 @@ public abstract class AbstractLineTest {
     }
 
     @Test
+    public void testMove1() {
+        Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Bus busC = voltageLevelA.getBusBreakerView().newBus()
+                .setId("busC")
+                .add();
+        line.move1(busC, true);
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
+    }
+
+    @Test
+    public void testMove2() {
+        Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Bus busC = voltageLevelB.getBusBreakerView().newBus()
+                .setId("busC")
+                .add();
+        line.move2(busC, true);
+        assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
+    }
+
+    @Test
+    public void testMove() {
+        Line line = createLineBetweenVoltageAB("line", LINE_NAME, 1.0, 2.0, 3.0, 3.5, 4.0, 4.5);
+        Bus busC = voltageLevelA.getBusBreakerView().newBus()
+                .setId("busC")
+                .add();
+        Bus busD = voltageLevelB.getBusBreakerView().newBus()
+                .setId("busD")
+                .add();
+        line.move(busC, true, busD, false);
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
+        assertSame(busD, line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertNull(line.getTerminal2().getBusBreakerView().getBus());
+    }
+
+    @Test
     public void testChangesNotification() {
         // Changes listener
         NetworkListener exceptionListener = mock(DefaultNetworkListener.class);
@@ -573,9 +611,9 @@ public abstract class AbstractLineTest {
         assertEquals(count - 1L, network.getLineCount());
     }
 
-    private void createLineBetweenVoltageAB(String id, String name, double r, double x,
+    private Line createLineBetweenVoltageAB(String id, String name, double r, double x,
                                             double g1, double g2, double b1, double b2) {
-        network.newLine()
+        return network.newLine()
                 .setId(id)
                 .setName(name)
                 .setR(r)
