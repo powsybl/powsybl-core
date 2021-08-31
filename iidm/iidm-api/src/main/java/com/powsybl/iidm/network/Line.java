@@ -24,14 +24,32 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
 
     boolean isTieLine();
 
+    /**
+     * Move the line's end on side ONE to the given node of the given voltage level.
+     * If the given voltage level's topology is not NODE-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not NODE-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move1(int node, VoltageLevel voltageLevel) {
         return move(node, voltageLevel, getTerminal2().getNodeBreakerView().getNode(), getTerminal2().getVoltageLevel());
     }
 
+    /**
+     * Move the line's end on side TWO to the given node of the given voltage level.
+     * If the given voltage level's topology is not NODE-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not NODE-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move2(int node, VoltageLevel voltageLevel) {
         return move(getTerminal1().getNodeBreakerView().getNode(), getTerminal1().getVoltageLevel(), node, voltageLevel);
     }
 
+    /**
+     * Move the line's ends to the given nodes of the given voltage levels.
+     * If the given voltage levels' topology is not NODE-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not NODE-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move(int node1, VoltageLevel voltageLevel1, int node2, VoltageLevel voltageLevel2) {
         if (voltageLevel1.getTopologyKind() != TopologyKind.NODE_BREAKER
                 || voltageLevel2.getTopologyKind() != TopologyKind.NODE_BREAKER
@@ -47,24 +65,41 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
         return adder.add();
     }
 
+    /**
+     * Move the line's end on side ONE to the given connectable bus with the given connection status.
+     * If the given voltage level's topology is not BUS-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not BUS-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move1(Bus bus, boolean connected) {
         return move(bus, connected, getTerminal2().getBusBreakerView().getConnectableBus(),
                 getTerminal2().getBusBreakerView().getBus() != null);
     }
 
+    /**
+     * Move the line's end on side TWO to the given connectable bus with the given connection status.
+     * If the given voltage level's topology is not BUS-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not BUS-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move2(Bus bus, boolean connected) {
         return move(getTerminal1().getBusBreakerView().getConnectableBus(),
                 getTerminal1().getBusBreakerView().getBus() != null,
                 bus, connected);
     }
 
+    /**
+     * Move the line's ends to the given connectable buses with the given connection status.
+     * If the given voltage levels' topology is not BUS-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not BUS-BREAKER,
+     * a runtime exception is also thrown.
+     */
     default Line move(Bus bus1, boolean connected1, Bus bus2, boolean connected2) {
         VoltageLevel voltageLevel1 = bus1.getVoltageLevel();
         VoltageLevel voltageLevel2 = bus2.getVoltageLevel();
         if (voltageLevel2.getTopologyKind() != TopologyKind.BUS_BREAKER
                 || voltageLevel1.getTopologyKind() != TopologyKind.BUS_BREAKER
-                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER
-                || getTerminal2().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
                             "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
         }
