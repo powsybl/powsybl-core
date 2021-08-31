@@ -7,10 +7,22 @@
 package com.powsybl.math.graph;
 
 /**
+ * Result of graph traversal step, used to decide whether to pursue or not current traversal.
+ * <ul>
+ *     <li>{@link #CONTINUE} indicates that the traversal should go on,</li>
+ *     <li>{@link #TERMINATE} indicates that the current traversal path should stop,</li>
+ *     <li>{@link #BREAK} indicates that all the traversal paths should stop.</li>
+ * </ul>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum TraverseResult {
+    /** Indicates that traversal should continue */
     CONTINUE,
-    TERMINATE
+
+    /** Indicates that traversal should terminate on current path */
+    TERMINATE,
+
+    /** Indicates that traversal should break, i.e., terminate on all paths */
+    BREAK
 }

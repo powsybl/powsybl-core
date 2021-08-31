@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.math.graph.TraverseResult;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -49,7 +50,7 @@ public final class NodeBreakerTopology {
             topo.traverse(n, (n1, sw, n2) -> {
                 encountered.add(n2);
                 encounteredSwitches.add(sw);
-                return topo.getTerminal(n2) == null;
+                return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
             });
         }
 
