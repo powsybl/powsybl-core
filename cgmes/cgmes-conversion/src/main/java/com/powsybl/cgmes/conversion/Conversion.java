@@ -381,22 +381,29 @@ public class Conversion {
             if (c.valid()) {
                 String node = c.boundaryNode();
                 if (node != null && !context.config().convertBoundary()) {
-                    String lineId = line.getId("Line");
-                    delayedLines.computeIfAbsent(lineId, l -> new PropertyBags()).add(line);
+                    String lineContainerId = line.getId("Line");
+                    if (lineContainerId != null) {
+                        delayedLines.computeIfAbsent(lineContainerId, l -> new PropertyBags()).add(line);
+                    } else {
+                        context.boundary().addAcLineSegmentAtNode(line, node);
+                        delayedBoundaryNodes.add(node);
+                    }
                 } else {
                     c.convert();
                 }
             }
         }
         Map<String, PropertyBags> linesCopy = new HashMap<>(delayedLines);
-        linesCopy.forEach((lineId, p) -> {
-            if (p.size() < 3) {
+        linesCopy.forEach((lineContainerId, p) -> {
+            boolean onlyOneLineAtBoundary = p.size() == 1;
+            boolean twoLinesAtBoundary = p.size() == 1;
+            if (onlyOneLineAtBoundary || twoLinesAtBoundary) {
                 p.forEach(line -> {
                     ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
                     context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
                     delayedBoundaryNodes.add(c.boundaryNode());
                 });
-                delayedLines.remove(lineId, p);
+                delayedLines.remove(lineContainerId, p);
             }
         });
     }
