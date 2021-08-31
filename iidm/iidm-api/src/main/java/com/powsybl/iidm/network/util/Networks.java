@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 
 import javax.script.*;
@@ -394,13 +395,13 @@ public final class Networks {
 
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
-                return false;
+                return TraverseResult.TERMINATE;
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
                 equivalentTerminal[0] = t;
             }
-            return t == null;
+            return t == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
         };
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
