@@ -78,7 +78,7 @@ public class MeasurementsXmlSerializer<C extends Connectable<C>> extends Abstrac
                 MeasurementAdder adder = measurements.newMeasurement()
                         .setId(reader.getAttributeValue(null, "id"))
                         .setType(Measurement.Type.valueOf(reader.getAttributeValue(null, "type")))
-                        .setValue(XmlUtil.readDoubleAttribute(reader, VALUE))
+                        .setValue(XmlUtil.readOptionalDoubleAttribute(reader, VALUE))
                         .setStandardDeviation(XmlUtil.readOptionalDoubleAttribute(reader, "standardDeviation"))
                         .setValid(XmlUtil.readBoolAttribute(reader, "valid"));
                 String side = reader.getAttributeValue(null, "side");
