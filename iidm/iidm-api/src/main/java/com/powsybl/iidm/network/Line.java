@@ -35,8 +35,7 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
     default Line move(int node1, VoltageLevel voltageLevel1, int node2, VoltageLevel voltageLevel2) {
         if (voltageLevel1.getTopologyKind() != TopologyKind.NODE_BREAKER
                 || voltageLevel2.getTopologyKind() != TopologyKind.NODE_BREAKER
-                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER
-                || getTerminal2().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
                             "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
                     getId()));
