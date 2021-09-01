@@ -101,6 +101,8 @@ class SparseMatrix extends AbstractMatrix {
      */
     private final TDoubleArrayListHack values;
 
+    private double rgrowthThreshold = SparseLUDecomposition.DEFAULT_RGROWTH_THRESHOLD;
+
     private int currentColumn = -1; // just for matrix filling
 
     /**
@@ -160,6 +162,14 @@ class SparseMatrix extends AbstractMatrix {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
+    }
+
+    public double getRgrowthThreshold() {
+        return rgrowthThreshold;
+    }
+
+    void setRgrowthThreshold(double rgrowthThreshold) {
+        this.rgrowthThreshold = rgrowthThreshold;
     }
 
     /**
@@ -302,8 +312,10 @@ class SparseMatrix extends AbstractMatrix {
             throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
         }
         SparseMatrix o = (SparseMatrix) other;
-        return times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
-                     o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
     }
 
     @Override
