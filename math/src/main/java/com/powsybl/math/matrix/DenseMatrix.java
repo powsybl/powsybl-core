@@ -135,6 +135,26 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return j * rowCount + i;
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        int i = index % rowCount;
+        int j = index / rowCount;
+        set(i, j, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        int i = index % rowCount;
+        int j = index / rowCount;
+        add(i, j, value);
+    }
+
+    @Override
     public void reset() {
         for (int k = 0; k < rowCount * columnCount; k++) {
             buffer.putDouble(k * Double.BYTES, 0);

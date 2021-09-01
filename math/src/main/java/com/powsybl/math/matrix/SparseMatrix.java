@@ -285,6 +285,30 @@ class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return values.size() - 1;
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= values.size()) {
+            throw new IllegalArgumentException("Element index out of bound [0, " + (values.size() - 1) + "]");
+        }
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
+        values.set(index, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
+        values.setQuick(index, values.getQuick(index) + value);
+    }
+
+    @Override
     public void reset() {
         values.fill(0d);
     }
