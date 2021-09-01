@@ -164,7 +164,7 @@ class SparseMatrix extends AbstractMatrix {
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
     }
 
-    public double getRgrowthThreshold() {
+    double getRgrowthThreshold() {
         return rgrowthThreshold;
     }
 
