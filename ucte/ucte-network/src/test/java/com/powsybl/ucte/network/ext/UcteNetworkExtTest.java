@@ -18,7 +18,7 @@ public class UcteNetworkExtTest extends UcteNetworkImplTest {
 
     @Test
     public void test() {
-        UcteNetworkExt network = (UcteNetworkExt) UcteNetworkFactory.createNetwork(() -> new UcteNetworkExt(new UcteNetworkImpl(), 0.01f));
+        UcteNetworkExt network = (UcteNetworkExt) UcteNetworkFactory.createNetwork(() -> new UcteNetworkExt(new UcteNetworkImpl(), 0.01));
         testNetwork(network);
     }
 

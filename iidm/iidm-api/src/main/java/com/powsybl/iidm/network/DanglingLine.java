@@ -276,10 +276,6 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
      */
     String getUcteXnodeCode();
 
-    CurrentLimits getCurrentLimits();
-
-    CurrentLimitsAdder newCurrentLimits();
-
     default Boundary getBoundary() {
         return new DanglingLineBoundaryImpl(this);
     }

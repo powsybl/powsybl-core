@@ -331,27 +331,27 @@ class MergedLine implements TieLine {
 
     @Override
     public boolean isOverloaded(final float limitReduction) {
-        return checkPermanentLimit1(limitReduction) || checkPermanentLimit2(limitReduction);
+        return checkPermanentLimit1(limitReduction, LimitType.CURRENT) || checkPermanentLimit2(limitReduction, LimitType.CURRENT);
     }
 
     @Override
     public int getOverloadDuration() {
-        Branch.Overload o1 = checkTemporaryLimits1();
-        Branch.Overload o2 = checkTemporaryLimits2();
+        Branch.Overload o1 = checkTemporaryLimits1(LimitType.CURRENT);
+        Branch.Overload o2 = checkTemporaryLimits2(LimitType.CURRENT);
         int duration1 = o1 != null ? o1.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         int duration2 = o2 != null ? o2.getTemporaryLimit().getAcceptableDuration() : Integer.MAX_VALUE;
         return Math.min(duration1, duration2);
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side, final float limitReduction) {
+    public boolean checkPermanentLimit(final Side side, final float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
-                return checkPermanentLimit1(limitReduction);
+                return checkPermanentLimit1(limitReduction, type);
 
             case TWO:
-                return checkPermanentLimit2(limitReduction);
+                return checkPermanentLimit2(limitReduction, type);
 
             default:
                 throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
@@ -359,39 +359,39 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public boolean checkPermanentLimit(final Side side) {
-        return checkPermanentLimit(side, 1f);
+    public boolean checkPermanentLimit(final Side side, LimitType type) {
+        return checkPermanentLimit(side, 1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit1(final float limitReduction) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getTerminal1().getI());
+    public boolean checkPermanentLimit1(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public boolean checkPermanentLimit1() {
-        return checkPermanentLimit1(1f);
+    public boolean checkPermanentLimit1(LimitType type) {
+        return checkPermanentLimit1(1f, type);
     }
 
     @Override
-    public boolean checkPermanentLimit2(final float limitReduction) {
-        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getTerminal2().getI());
+    public boolean checkPermanentLimit2(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public boolean checkPermanentLimit2() {
-        return checkPermanentLimit2(1f);
+    public boolean checkPermanentLimit2(LimitType type) {
+        return checkPermanentLimit2(1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side, final float limitReduction) {
+    public Overload checkTemporaryLimits(final Side side, final float limitReduction, LimitType type) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
-                return checkTemporaryLimits1(limitReduction);
+                return checkTemporaryLimits1(limitReduction, type);
 
             case TWO:
-                return checkTemporaryLimits2(limitReduction);
+                return checkTemporaryLimits2(limitReduction, type);
 
             default:
                 throw new AssertionError(UNEXPECTED_SIDE_VALUE + side);
@@ -399,28 +399,28 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public Overload checkTemporaryLimits(final Side side) {
-        return checkTemporaryLimits(side, 1f);
+    public Overload checkTemporaryLimits(final Side side, LimitType type) {
+        return checkTemporaryLimits(side, 1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1(final float limitReduction) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getTerminal1().getI());
+    public Overload checkTemporaryLimits1(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getValueForLimit(getTerminal1(), type), type);
     }
 
     @Override
-    public Overload checkTemporaryLimits1() {
-        return checkTemporaryLimits1(1f);
+    public Overload checkTemporaryLimits1(LimitType type) {
+        return checkTemporaryLimits1(1f, type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2(final float limitReduction) {
-        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getTerminal2().getI());
+    public Overload checkTemporaryLimits2(final float limitReduction, LimitType type) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getValueForLimit(getTerminal2(), type), type);
     }
 
     @Override
-    public Overload checkTemporaryLimits2() {
-        return checkTemporaryLimits2(1f);
+    public Overload checkTemporaryLimits2(LimitType type) {
+        return checkTemporaryLimits2(1f, type);
     }
 
     @Override
@@ -555,6 +555,20 @@ class MergedLine implements TieLine {
                 return half2;
             default:
                 throw new AssertionError("Unknown branch side " + side);
+        }
+    }
+
+    public double getValueForLimit(Terminal t, LimitType type) {
+        switch (type) {
+            case ACTIVE_POWER:
+                return t.getP();
+            case APPARENT_POWER:
+                return Math.sqrt(t.getP() * t.getP() + t.getQ() * t.getQ());
+            case CURRENT:
+                return t.getI();
+            case VOLTAGE:
+            default:
+                throw new UnsupportedOperationException(String.format("Getting %s limits is not supported.", type.name()));
         }
     }
 }

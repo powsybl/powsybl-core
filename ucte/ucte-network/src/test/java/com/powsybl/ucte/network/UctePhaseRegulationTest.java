@@ -18,11 +18,11 @@ public class UctePhaseRegulationTest {
 
     @Test
     public void test() {
-        UctePhaseRegulation phaseRegulation = new UctePhaseRegulation(1.0f, 2, 3, 4.0f);
+        UctePhaseRegulation phaseRegulation = new UctePhaseRegulation(1.0, 2, 3, 4.0);
 
-        assertEquals(1.0f, phaseRegulation.getDu(), 0.0f);
-        phaseRegulation.setDu(1.1f);
-        assertEquals(1.1f, phaseRegulation.getDu(), 0.0f);
+        assertEquals(1.0, phaseRegulation.getDu(), 0.0);
+        phaseRegulation.setDu(1.1);
+        assertEquals(1.1, phaseRegulation.getDu(), 0.0);
 
         assertEquals(Integer.valueOf(2), phaseRegulation.getN());
         phaseRegulation.setN(-2);
@@ -36,8 +36,8 @@ public class UctePhaseRegulationTest {
         phaseRegulation.setNp(null);
         assertNull(phaseRegulation.getNp());
 
-        assertEquals(4.0f, phaseRegulation.getU(), 0.0f);
-        phaseRegulation.setU(4.1f);
-        assertEquals(4.1f, phaseRegulation.getU(), 0.0f);
+        assertEquals(4.0, phaseRegulation.getU(), 0.0);
+        phaseRegulation.setU(4.1);
+        assertEquals(4.1, phaseRegulation.getU(), 0.0);
     }
 }

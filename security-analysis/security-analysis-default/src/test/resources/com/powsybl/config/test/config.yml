@@ -1,0 +1,2 @@
+security-analysis:
+  default-impl-name: "DefaultSecurityAnalysis"

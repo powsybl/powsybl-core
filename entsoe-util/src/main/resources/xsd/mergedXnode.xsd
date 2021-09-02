@@ -5,8 +5,8 @@
            elementFormDefault="qualified">
     <xs:element name="mergedXnode">
         <xs:complexType>
-            <xs:attribute name="rdp" use="required" type="xs:float"/>
-            <xs:attribute name="xdp" use="required" type="xs:float"/>
+            <xs:attribute name="rdp" use="required" type="xs:double"/>
+            <xs:attribute name="xdp" use="required" type="xs:double"/>
             <xs:attribute name="xnodeP1" type="xs:double"/>
             <xs:attribute name="xnodeQ1" type="xs:double"/>
             <xs:attribute name="xnodeP2" type="xs:double"/>
