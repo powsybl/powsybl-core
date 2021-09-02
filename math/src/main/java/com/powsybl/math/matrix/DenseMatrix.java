@@ -140,8 +140,15 @@ public class DenseMatrix extends AbstractMatrix {
         return j * rowCount + i;
     }
 
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= rowCount * columnCount) {
+            throw new IllegalArgumentException("Element index out of bound [0, " + (rowCount * columnCount - 1) + "]");
+        }
+    }
+
     @Override
     public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
         int i = index % rowCount;
         int j = index / rowCount;
         set(i, j, value);
@@ -149,6 +156,7 @@ public class DenseMatrix extends AbstractMatrix {
 
     @Override
     public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
         int i = index % rowCount;
         int j = index / rowCount;
         add(i, j, value);
