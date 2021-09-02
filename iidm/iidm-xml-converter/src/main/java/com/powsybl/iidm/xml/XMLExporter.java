@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
@@ -55,9 +56,39 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
  *         <td>true or false</td>
  *     </tr>
  *     <tr>
+ *         <td>iidm.export.xml.anonymised</td>
+ *         <td>if true then exported network is anonymous</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.iidm-version-incompatibility-behavior</td>
+ *         <td>behavior when there is an IIDM version incompatibility</td>
+ *         <td>THROW_EXCEPTION or LOG_ERROR</td>
+ *     </tr>
+ *     <tr>
  *         <td>iidm.export.xml.topology-level</td>
  *         <td>the detail level used in the export of voltage levels</td>
  *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.throw-exception-if-extension-not-found</td>
+ *         <td>if true throw exception when extension not found</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.extensions</td>
+ *         <td>list of exported extensions</td>
+ *         <td>comma-separated string</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.sorted</td>
+ *         <td>sort export output file</td>
+ *         <td>true or false</td>
+ *     </tr>
+ *     <tr>
+ *         <td>iidm.export.xml.version</td>
+ *         <td>version in which files will be generated</td>
+ *         <td>1.5 or 1.4 etc</td>
  *     </tr>
  * </table>
  *
@@ -91,6 +122,9 @@ public class XMLExporter implements Exporter {
     private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of exported extensions", null);
     private static final Parameter SORTED_PARAMETER = new Parameter(SORTED, ParameterType.BOOLEAN, "Sort export output file", Boolean.FALSE);
     private static final Parameter VERSION_PARAMETER = new Parameter(VERSION, ParameterType.STRING, "IIDM-XML version in which files will be generated", IidmXmlConstants.CURRENT_IIDM_XML_VERSION.toString("."));
+
+    private static final List<Parameter> STATIC_PARAMETERS = List.of(INDENT_PARAMETER, WITH_BRANCH_STATE_VARIABLES_PARAMETER, ONLY_MAIN_CC_PARAMETER, ANONYMISED_PARAMETER, IIDM_VERSION_INCOMPATIBILITY_BEHAVIOR_PARAMETER, TOPOLOGY_LEVEL_PARAMETER, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, EXTENSIONS_LIST_PARAMETER, SORTED_PARAMETER, VERSION_PARAMETER);
+
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
@@ -124,6 +158,11 @@ public class XMLExporter implements Exporter {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public List<Parameter> getParameters() {
+        return STATIC_PARAMETERS;
     }
 
     private void addExtensionsVersions(Properties parameters, ExportOptions options) {
