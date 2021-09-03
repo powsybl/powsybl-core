@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Boundary;
 
 import java.util.Objects;
 
