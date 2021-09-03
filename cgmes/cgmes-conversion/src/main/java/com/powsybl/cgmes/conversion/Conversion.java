@@ -237,13 +237,9 @@ public class Conversion {
             postProcessor.process(network, cgmes.tripleStore());
         }
 
-        // Voltage and angle in starBus as properties
-        network.getThreeWindingsTransformers()
-            .forEach(twt -> ThreeWindingsTransformerConversion.calculateVoltageAndAngleInStarBus(network, twt));
-
-        // Voltage and angle in boundary buses
-        network.getDanglingLines()
-            .forEach(dl -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(network, dl));
+        // Complete Voltages and angles in starBus as properties
+        // Complete Voltages and angles in boundary buses
+        completeVoltagesAndAngles(network);
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
@@ -251,6 +247,17 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private static void completeVoltagesAndAngles(Network network) {
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers()
+            .forEach(twt -> ThreeWindingsTransformerConversion.calculateVoltageAndAngleInStarBus(network, twt));
+
+        // Voltage and angle in boundary buses
+        network.getDanglingLines()
+            .forEach(dl -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(network, dl));
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
