@@ -4,25 +4,23 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
-import com.powsybl.iidm.network.util.DanglingLineData;
-import com.powsybl.iidm.network.util.SV;
 
 import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class DanglingLineBoundaryImpl implements Boundary {
+public class DanglingLineBoundaryImpl implements Boundary {
     // for SV use: side represents the network side, that is always
     // Side.ONE for a dangling line.
 
     private final DanglingLine parent;
 
-    DanglingLineBoundaryImpl(DanglingLine parent) {
+    public DanglingLineBoundaryImpl(DanglingLine parent) {
         this.parent = Objects.requireNonNull(parent);
     }
 
