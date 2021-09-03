@@ -36,6 +36,10 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
         throw new UnsupportedOperationException();
     }
 
+    default ShuntCompensatorAdder useLocalRegulation(boolean use) {
+        throw new UnsupportedOperationException();
+    }
+
     default ShuntCompensatorAdder setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw new UnsupportedOperationException();
     }

@@ -190,11 +190,11 @@ public final class CgmesConformity1NetworkCatalog {
                     .setGPerSection(7.0e-6)
                     .setMaximumSectionCount(1)
                     .add()
+                .useLocalRegulation(true)
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
-        shBrussels380.setRegulatingTerminal(shBrussels380.getTerminal())
-            .setTargetV(380.0)
-            .setTargetDeadband(0.5)
-            .setVoltageRegulatorOn(false);
         shBrussels380.getTerminal().setQ(-59.058144);
         DanglingLine be3 = vlBrussels380.newDanglingLine()
                 .setId("_78736387-5f60-4832-b3fe-d50daf81b0a6")
@@ -309,11 +309,11 @@ public final class CgmesConformity1NetworkCatalog {
                     .setMaxP(200)
                     .setTargetP(-p)
                     .setTargetQ(-q)
+                    .useLocalRegulation(true)
+                    .setTargetV(21.987)
+                    .setVoltageRegulatorOn(true)
                     .setRatedS(300)
                     .add();
-            genBrussels21.setRegulatingTerminal(genBrussels21.getTerminal())
-                .setTargetV(21.987)
-                .setVoltageRegulatorOn(true);
             genBrussels21.newMinMaxReactiveLimits()
                     .setMinQ(-200)
                     .setMaxQ(200)
@@ -925,17 +925,17 @@ public final class CgmesConformity1NetworkCatalog {
                 .setAngle(-17.412200);
 
         VoltageLevel vlAnvers220 = network.getVoltageLevel("_d0486169-2205-40b2-895e-b672ecb9e5fc");
-        StaticVarCompensator svc = vlAnvers220.newStaticVarCompensator()
+        vlAnvers220.newStaticVarCompensator()
                 .setId("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
                 .setName("SVC-1230797516")
                 .setBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
                 .setConnectableBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
                 .setBmax(1 / 5062.5)
                 .setBmin(1 / (-5062.5))
+                .useLocalRegulation(true)
+                .setVoltageSetpoint(229.5)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .add();
-        svc.setRegulatingTerminal(svc.getTerminal())
-            .setVoltageSetpoint(229.5)
-            .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
 
         double p = -118.0;
         double q = -18.720301;

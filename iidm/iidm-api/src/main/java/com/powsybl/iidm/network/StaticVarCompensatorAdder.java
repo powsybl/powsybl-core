@@ -45,5 +45,9 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    default StaticVarCompensatorAdder useLocalRegulation(boolean use) {
+        throw new UnsupportedOperationException("Not yet implemented");
+    }
+
     StaticVarCompensator add();
 }

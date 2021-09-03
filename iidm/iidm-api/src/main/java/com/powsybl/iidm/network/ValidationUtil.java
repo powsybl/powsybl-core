@@ -421,10 +421,16 @@ public final class ValidationUtil {
 
     public static void checkGeneratorRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
         double voltageSetpoint, boolean voltageRegulatorOn, double targetQ, Network network) {
+        checkGeneratorRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, targetQ, network, true);
+    }
+
+    public static void checkGeneratorRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, boolean voltageRegulatorOn, double targetQ, Network network,
+        boolean validateRegulatingTerminal) {
         if (!voltageRegulatorOn) {
             checkReactivePowerSetpoint(validable, targetQ);
         }
-        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network);
+        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, validateRegulatingTerminal);
     }
 
     /**
@@ -461,11 +467,16 @@ public final class ValidationUtil {
 
     public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
         double reactivePowerSetpoint, RegulationMode regulationMode, Network network) {
+        checkSvcRegulatingControl(validable, regulatingTerminal, voltageSetpoint, reactivePowerSetpoint, regulationMode, network, true);
+    }
+
+    public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
+        double reactivePowerSetpoint, RegulationMode regulationMode, Network network, boolean validateRegulatingTerminal) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "Regulation mode is invalid");
         }
         if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE) {
-            ValidationUtil.checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, true, network);
+            ValidationUtil.checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, true, network, validateRegulatingTerminal);
         } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
             ValidationUtil.checkRegulatingReactivePowerControl(validable, regulatingTerminal, reactivePowerSetpoint, true, network);
         }
@@ -512,10 +523,15 @@ public final class ValidationUtil {
 
     public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
         double voltageSetpoint, boolean voltageRegulatorOn, Network network) {
+        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, true);
+    }
+
+    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, boolean voltageRegulatorOn, Network network, boolean validateRegulatingTerminal) {
         if (!voltageRegulatorOn) {
             return;
         }
-        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+        if (validateRegulatingTerminal && !validRegulatingTerminal(regulatingTerminal, network)) {
             throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validVoltageSetpoint(voltageSetpoint)) {
@@ -525,10 +541,16 @@ public final class ValidationUtil {
 
     public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
         double voltageSetpoint, double targetDeadband, boolean voltageRegulatorOn, Network network) {
+        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, targetDeadband, voltageRegulatorOn, network, true);
+    }
+
+    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, double targetDeadband, boolean voltageRegulatorOn, Network network,
+        boolean validateRegulatingTerminal) {
         if (!voltageRegulatorOn) {
             return;
         }
-        if (!validRegulatingTerminal(regulatingTerminal, network)) {
+        if (validateRegulatingTerminal && !validRegulatingTerminal(regulatingTerminal, network)) {
             throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
         }
         if (!validVoltageSetpoint(voltageSetpoint)) {

@@ -36,6 +36,12 @@ public class GeneratorAdderAdapter extends AbstractInjectionAdderAdapter<Generat
         return this;
     }
 
+    @Override
+    public GeneratorAdder useLocalRegulation(boolean use) {
+        getDelegate().useLocalRegulation(use);
+        return this;
+    }
+
     // -------------------------------
     // Simple delegated methods ------
     // -------------------------------
