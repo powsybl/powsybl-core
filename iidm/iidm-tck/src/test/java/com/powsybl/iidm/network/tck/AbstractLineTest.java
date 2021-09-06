@@ -173,9 +173,13 @@ public abstract class AbstractLineTest {
                     " move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)"));
         }
 
-        line.move1(busC, true);
+        assertNotNull(line.move1(busC, true));
         assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
+
+        assertNotNull(line.move(network.getBusBreakerView().getBus("busA"), false, Branch.Side.ONE));
+        assertSame(network.getBusBreakerView().getBus("busA"), line.getTerminal1().getBusBreakerView().getConnectableBus());
+        assertNull(line.getTerminal1().getBusBreakerView().getBus());
     }
 
     @Test
@@ -199,8 +203,12 @@ public abstract class AbstractLineTest {
                     "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)"));
         }
 
-        line.move1(6, fictitiousSwitchNetwork.getVoltageLevel("C"));
+        assertNotNull(line.move1(6, fictitiousSwitchNetwork.getVoltageLevel("C")));
         assertEquals(6, line.getTerminal1().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
+
+        assertNotNull(line.move(4, fictitiousSwitchNetwork.getVoltageLevel("C"), Branch.Side.ONE));
+        assertEquals(4, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
     }
 
@@ -210,17 +218,23 @@ public abstract class AbstractLineTest {
         Bus busC = voltageLevelB.getBusBreakerView().newBus()
                 .setId("busC")
                 .add();
-        line.move2(busC, true);
+        assertNotNull(line.move2(busC, true));
         assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
+        assertNotNull(line.move(network.getBusBreakerView().getBus("busB"), false, Branch.Side.TWO));
+        assertSame(network.getBusBreakerView().getBus("busB"), line.getTerminal2().getBusBreakerView().getConnectableBus());
+        assertNull(line.getTerminal2().getBusBreakerView().getBus());
     }
 
     @Test
     public void testMove2Nb() {
         Network fictitiousSwitchNetwork = FictitiousSwitchFactory.create();
         Line line = fictitiousSwitchNetwork.getLine("CJ");
-        line.move2(6, fictitiousSwitchNetwork.getVoltageLevel("N"));
+        assertNotNull(line.move2(6, fictitiousSwitchNetwork.getVoltageLevel("N")));
         assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
+        assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
+        assertNotNull(line.move(5, fictitiousSwitchNetwork.getVoltageLevel("N"), Branch.Side.TWO));
+        assertEquals(5, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
     }
 
