@@ -133,52 +133,28 @@ public class LineAdapterTest {
         mergingView.getVoltageLevel("VLGEN").visitEquipments(visitor);
         verify(visitor, times(2)).visitLine(any(Line.class), any(Branch.Side.class));
 
-        // Move
+        // Not implemented yet !
+
+        //Move
         VoltageLevel vlNb = mergingView.getSubstation("P1")
                 .newVoltageLevel()
                 .setId("VLNB")
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        try {
-            lineAdapted.move1(0, vlNb);
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
-                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
-        }
-        try {
-            lineAdapted.move(0, vlNb, Branch.Side.ONE);
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
-                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
-        }
-        try {
-            lineAdapted.move2(0, vlNb);
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
-                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
-        }
-        try {
-            lineAdapted.move(0, vlNb, Branch.Side.TWO);
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
-                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
-        }
-        try {
-            lineAdapted.move(0, vlNb, 1, vlNb);
-        } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
-                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
-        }
-
-        // Not implemented yet !
+        TestUtil.notImplemented(() -> lineAdapted.move1(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.move2(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.ONE));
+        TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.TWO));
         Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
                 .newBus()
                 .setId("NGEN2")
                 .add();
         TestUtil.notImplemented(() -> lineAdapted.move1(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.ONE));
         TestUtil.notImplemented(() -> lineAdapted.move2(ngen2, true));
-        TestUtil.notImplemented(() -> lineAdapted.move(mergingView.getBusBreakerView().getBus("NBAT"), true, ngen2, false));
+        TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.TWO));
+
         TestUtil.notImplemented(lineAdapted::remove);
     }
 

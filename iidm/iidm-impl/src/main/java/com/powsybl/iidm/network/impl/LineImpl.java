@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -149,27 +150,17 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     }
 
     private void move(int node, VoltageLevel voltageLevel, int side) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER
-                || getTerminals().stream().anyMatch(t -> t.getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER)) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(Bus, boolean)," +
-                    " move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)", id));
+                    " move2(Bus, boolean) or move(Bus, boolean, Side)", id));
         }
         TerminalExt oldTerminal = terminals.get(side - 1);
-        int oldNode = oldTerminal.getNodeBreakerView().getNode();
-        String oldVoltageLevelId = oldTerminal.getVoltageLevel().getId();
+        String oldConnectionInfo = getConnectionInfo(oldTerminal);
         move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node)
                 .build(), (VoltageLevelExt) voltageLevel);
-        notifyUpdate("terminal" + side, String.format("node %d, Voltage level %s",
-                oldNode, oldVoltageLevelId),
+        notifyUpdate("terminal" + side, oldConnectionInfo,
                 String.format("node %d, Voltage level %s", node, voltageLevel.getId()));
-    }
-
-    @Override
-    public LineImpl move(int node1, VoltageLevel voltageLevel1, int node2, VoltageLevel voltageLevel2) {
-        move1(node1, voltageLevel1);
-        move2(node2, voltageLevel2);
-        return this;
     }
 
     @Override
@@ -191,29 +182,19 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     }
 
     private void move(Bus bus, boolean connected, int side) {
-        VoltageLevelExt voltageLevelExt = (VoltageLevelExt) bus.getVoltageLevel();
-        if (voltageLevelExt.getTopologyKind() != TopologyKind.BUS_BREAKER
-                || getTerminals().stream().anyMatch(t -> t.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER)) {
-            throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(Bus, boolean)," +
-                    " move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)", id));
+        if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(int, VoltageLevel)," +
+                    " move2(int, VoltageLevel) or move(int, VoltageLevel, Side)", id));
         }
+        VoltageLevelExt voltageLevelExt = (VoltageLevelExt) bus.getVoltageLevel();
         TerminalExt oldTerminal = terminals.get(side - 1);
-        String oldBusId = oldTerminal.getBusBreakerView().getConnectableBus().getId();
-        boolean oldConnected = oldTerminal.getBusBreakerView().getBus() != null;
+        String oldConnectionInfo = getConnectionInfo(oldTerminal);
         move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build(), voltageLevelExt);
-        notifyUpdate("terminal" + side, String.format("bus %s, %s",
-                oldBusId, oldConnected ? "connected" : "disconnected"),
+        notifyUpdate("terminal" + side, oldConnectionInfo,
                 String.format("bus %s, %s", bus.getId(), connected ? "connected" : "disconnected"));
-    }
-
-    @Override
-    public LineImpl move(Bus bus1, boolean connected1, Bus bus2, boolean connected2) {
-        move1(bus1, connected1);
-        move2(bus2, connected2);
-        return this;
     }
 
     private void move(int side, TerminalExt oldTerminal, TerminalExt terminal, VoltageLevelExt voltageLevelExt) {
@@ -222,6 +203,27 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         terminals.set(side - 1, terminal);
         terminal.setConnectable(this);
         voltageLevelExt.attach(terminal, false);
+    }
+
+    private static String getConnectionInfo(Terminal terminal) {
+        int node = -1;
+        String voltageLevelId = null;
+        String busId = null;
+        boolean connected = false;
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            node = terminal.getNodeBreakerView().getNode();
+            voltageLevelId = terminal.getVoltageLevel().getId();
+        } else if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            busId = terminal.getBusBreakerView().getConnectableBus().getId();
+            connected = terminal.getBusBreakerView().getBus() != null;
+        }
+        if (node == -1) {
+            if (busId == null) {
+                throw new PowsyblException("Node and bus of terminal not set. Should not happen");
+            }
+            return "bus " + busId + ", " + (connected ? "connected" : "disconnected");
+        }
+        return "node " + node + ", Voltage level " + voltageLevelId;
     }
 
     @Override
