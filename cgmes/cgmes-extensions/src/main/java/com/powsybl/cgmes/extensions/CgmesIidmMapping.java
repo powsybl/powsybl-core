@@ -28,15 +28,29 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     String getTopologicalNode(String equipmentId, int side);
 
-    boolean isMapped(String busId);
+    boolean isTopologicalNodeMapped(String busId);
 
-    boolean isEmpty();
+    boolean isTopologicalNodeEmpty();
 
-    CgmesIidmMapping put(String equipmentId, int side, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String equipmentId, int side, String topologicalNodeId);
 
-    CgmesIidmMapping put(String busId, String topologicalNodeId);
+    CgmesIidmMapping putTopologicalNode(String busId, String topologicalNodeId);
 
     Map<String, Set<String>> topologicalNodesByBusViewBusMap();
 
     Set<String> getUnmappedTopologicalNodes();
+
+    Map<Double, String> getBaseVoltages();
+
+    String getBaseVoltage(double nominalVoltage);
+
+    boolean isBaseVoltageMapped(double nominalVoltage);
+
+    boolean isBaseVoltageEmpty();
+
+    CgmesIidmMapping putBaseVoltage(double nominalVoltage, String baseVoltage);
+
+    CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltage);
+
+    Set<String> getUnmappedBaseVoltages();
 }

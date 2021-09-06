@@ -18,6 +18,8 @@ public interface CgmesIidmMappingAdder extends ExtensionAdder<Network, CgmesIidm
 
     CgmesIidmMappingAdder addTopologicalNode(String topologicalNode);
 
+    CgmesIidmMappingAdder addBaseVoltage(String baseVoltage);
+
     @Override
     default Class<CgmesIidmMapping> getExtensionClass() {
         return CgmesIidmMapping.class;

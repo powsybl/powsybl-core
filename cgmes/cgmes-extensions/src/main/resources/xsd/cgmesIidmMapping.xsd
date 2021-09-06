@@ -14,12 +14,18 @@
         <xs:attribute name="side" use="required" type="xs:int"/>
         <xs:attribute name="topologicalNodeIds" use="required" type="ci:nonEmptyString"/>
     </xs:complexType>
+    <xs:complexType name="Base">
+        <xs:attribute name="nominalVoltage" use="required" type="xs:double"/>
+        <xs:attribute name="baseVoltage" use="required" type="ci:nonEmptyString"/>
+    </xs:complexType>
     <xs:element name="cgmesIidmMapping">
         <xs:complexType>
             <xs:sequence>
                 <xs:element name="link" type="ci:Link" minOccurs="1" maxOccurs="unbounded"/>
+                <xs:element name="base" type="ci:Base" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute name="unmappedTopologicalNodeIds" use="optional" type="xs:string"/>
+            <xs:attribute name="unmappedBaseVoltageIds" use="optional" type="xs:string"/>
         </xs:complexType>
     </xs:element>
 </xs:schema>

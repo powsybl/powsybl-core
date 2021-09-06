@@ -39,15 +39,28 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
     public void write(CgmesIidmMapping extension, XmlWriterContext context) throws XMLStreamException {
         NetworkXmlWriterContext networkContext = (NetworkXmlWriterContext) context;
         if (!extension.getUnmappedTopologicalNodes().isEmpty()) {
-            context.getWriter().writeAttribute("unmappedTopologicalNodeIds", String.join(","));
+            context.getWriter().writeAttribute("unmappedTopologicalNodeIds", String.join(",", extension.getUnmappedTopologicalNodes()));
+        }
+        if (!extension.getUnmappedBaseVoltages().isEmpty()) {
+            context.getWriter().writeAttribute("unmappedBaseVoltageIds", String.join(",", extension.getUnmappedBaseVoltages()));
         }
         extension.getExtendable().getBusView().getBusStream()
-                .filter(b -> extension.isMapped(b.getId()))
+                .filter(b -> extension.isTopologicalNodeMapped(b.getId()))
                 .forEach(b -> {
                     try {
                         context.getWriter().writeEmptyElement(getNamespaceUri(), "link");
                         writeBusIdentification(b, networkContext);
                         context.getWriter().writeAttribute("topologicalNodeIds", String.join(",", extension.getTopologicalNodes(b.getId())));
+                    } catch (XMLStreamException e) {
+                        throw new UncheckedXmlStreamException(e);
+                    }
+                });
+        extension.getBaseVoltages()
+                .forEach((nominalV, baseVoltage) -> {
+                    try {
+                        context.getWriter().writeEmptyElement(getNamespaceUri(), "base");
+                        context.getWriter().writeAttribute("nominalVoltage", Double.toString(nominalV));
+                        context.getWriter().writeAttribute("baseVoltage", baseVoltage);
                     } catch (XMLStreamException e) {
                         throw new UncheckedXmlStreamException(e);
                     }
@@ -64,13 +77,30 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
                 mappingAdder.addTopologicalNode(unmappedTopologicalNodeId);
             }
         }
+        String unmappedBaseVoltageIdsStr = context.getReader().getAttributeValue(null, "unmappedBaseVoltageIds");
+        if (unmappedBaseVoltageIdsStr != null) {
+            for (String unmappedBaseVoltageId : unmappedBaseVoltageIdsStr.split(",")) {
+                mappingAdder.addBaseVoltage(unmappedBaseVoltageId);
+            }
+        }
         mappingAdder.add();
         CgmesIidmMapping mapping = extendable.getExtension(CgmesIidmMapping.class);
         XmlUtil.readUntilEndElement("cgmesIidmMapping", context.getReader(), () -> {
-            String busId = readBusIdentification(extendable, networkContext);
-            String[] topologicalNodeIds = context.getReader().getAttributeValue(null, "topologicalNodeIds").split(",");
-            for (String topologicalNodeId : topologicalNodeIds) {
-                mapping.put(busId, topologicalNodeId);
+            switch (context.getReader().getLocalName()) {
+                case "link":
+                    String busId = readBusIdentification(extendable, networkContext);
+                    String[] topologicalNodeIds = context.getReader().getAttributeValue(null, "topologicalNodeIds").split(",");
+                    for (String topologicalNodeId : topologicalNodeIds) {
+                        mapping.putTopologicalNode(busId, topologicalNodeId);
+                    }
+                    break;
+                case "base":
+                    double nominalV = Double.parseDouble(context.getReader().getAttributeValue(null, "nominalVoltage"));
+                    String baseVoltage = context.getReader().getAttributeValue(null, "baseVoltage");
+                    mapping.addBaseVoltage(nominalV, baseVoltage);
+                    break;
+                default:
+                    throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <cgmesIidmMapping>");
             }
         });
         return mapping;
@@ -84,7 +114,7 @@ public class CgmesIidmMappingXmlSerializer extends AbstractExtensionXmlSerialize
      */
     @Override
     public boolean isSerializable(CgmesIidmMapping cgmesIidmMapping) {
-        return !cgmesIidmMapping.isEmpty();
+        return !cgmesIidmMapping.isTopologicalNodeEmpty();
     }
 
     private static void writeBusIdentification(Bus b, NetworkXmlWriterContext context) throws XMLStreamException {

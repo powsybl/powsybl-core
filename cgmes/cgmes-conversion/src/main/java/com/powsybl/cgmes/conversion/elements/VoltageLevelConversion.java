@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.extensions.CgmesIidmMapping;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -64,15 +65,19 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
                     .setHighVoltageLimit(highVoltageLimit);
             identify(adder);
             VoltageLevel vl = adder.add();
-            addAliases(vl);
+            addAliases(vl, baseVoltage);
         }
     }
 
-    private void addAliases(VoltageLevel vl) {
+    private void addAliases(VoltageLevel vl, String baseVoltage) {
         int index = 0;
         for (String mergedVl : context.substationIdMapping().mergedVoltageLevels(vl.getId())) {
             index++;
             vl.addAlias(mergedVl, "MergedVoltageLevel" + index, context.config().isEnsureIdAliasUnicity());
+        }
+        if (context.nodeBreaker() && context.config().createCgmesExportMapping()) {
+            CgmesIidmMapping mapping = context.network().getExtension(CgmesIidmMapping.class);
+            mapping.putBaseVoltage(vl.getNominalV(), baseVoltage);
         }
     }
 

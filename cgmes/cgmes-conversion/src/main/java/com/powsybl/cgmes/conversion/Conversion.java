@@ -149,6 +149,7 @@ public class Conversion {
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
             cgmes.topologicalNodes().forEach(tn -> mappingAdder.addTopologicalNode(tn.getId("TopologicalNode")));
+            cgmes.baseVoltages().forEach(tn -> mappingAdder.addBaseVoltage(tn.getId("BaseVoltage")));
             mappingAdder.add();
         }
 
