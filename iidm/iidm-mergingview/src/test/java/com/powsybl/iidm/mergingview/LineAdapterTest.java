@@ -143,12 +143,14 @@ public class LineAdapterTest {
         try {
             lineAdapted.move1(0, vlNb);
         } catch (RuntimeException e) {
-            // do nothing
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
+                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
         }
         try {
             lineAdapted.move2(0, vlNb);
         } catch (RuntimeException e) {
-            // do nothing
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
+                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
         }
         try {
             lineAdapted.move(0, vlNb, 1, vlNb);

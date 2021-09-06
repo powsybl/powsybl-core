@@ -33,12 +33,13 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move1(int node, VoltageLevel voltageLevel) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
                             "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
                     getId()));
         }
-        return move(node, voltageLevel, getTerminal2().getNodeBreakerView().getNode(), getTerminal2().getVoltageLevel());
+        return move(node, voltageLevel, getTerminal2().getNodeBreakerView().getNode(), getTerminal2().getVoltageLevel(), true);
     }
 
     /**
@@ -50,12 +51,13 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move2(int node, VoltageLevel voltageLevel) {
-        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
                             "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
                     getId()));
         }
-        return move(getTerminal1().getNodeBreakerView().getNode(), getTerminal1().getVoltageLevel(), node, voltageLevel);
+        return move(getTerminal1().getNodeBreakerView().getNode(), getTerminal1().getVoltageLevel(), node, voltageLevel, true);
     }
 
     /**
@@ -85,12 +87,18 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move(int node1, VoltageLevel voltageLevel1, int node2, VoltageLevel voltageLevel2) {
-        if (voltageLevel1.getTopologyKind() != TopologyKind.NODE_BREAKER
-                || voltageLevel2.getTopologyKind() != TopologyKind.NODE_BREAKER
-                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
-            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
-                            "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
-                    getId()));
+        return move(node1, voltageLevel1, node2, voltageLevel2, false);
+    }
+
+    private Line move(int node1, VoltageLevel voltageLevel1, int node2, VoltageLevel voltageLevel2, boolean checked) {
+        if (!checked) {
+            if (voltageLevel1.getTopologyKind() != TopologyKind.NODE_BREAKER
+                    || voltageLevel2.getTopologyKind() != TopologyKind.NODE_BREAKER
+                    || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
+                                "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
+                        getId()));
+            }
         }
         LineAdder adder = initializeAdderToMove(voltageLevel1, voltageLevel2)
                 .setNode1(node1)
@@ -108,8 +116,14 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move1(Bus bus, boolean connected) {
+        VoltageLevel voltageLevel = bus.getVoltageLevel();
+        if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
+                    "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
+        }
         return move(bus, connected, getTerminal2().getBusBreakerView().getConnectableBus(),
-                getTerminal2().getBusBreakerView().getBus() != null);
+                getTerminal2().getBusBreakerView().getBus() != null, true);
     }
 
     /**
@@ -121,9 +135,15 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move2(Bus bus, boolean connected) {
+        VoltageLevel voltageLevel = bus.getVoltageLevel();
+        if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER
+                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
+                    "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
+        }
         return move(getTerminal1().getBusBreakerView().getConnectableBus(),
                 getTerminal1().getBusBreakerView().getBus() != null,
-                bus, connected);
+                bus, connected, true);
     }
 
     /**
@@ -153,13 +173,19 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move(Bus bus1, boolean connected1, Bus bus2, boolean connected2) {
+        return move(bus1, connected1, bus2, connected2, false);
+    }
+
+    private Line move(Bus bus1, boolean connected1, Bus bus2, boolean connected2, boolean checked) {
         VoltageLevel voltageLevel1 = bus1.getVoltageLevel();
         VoltageLevel voltageLevel2 = bus2.getVoltageLevel();
-        if (voltageLevel2.getTopologyKind() != TopologyKind.BUS_BREAKER
-                || voltageLevel1.getTopologyKind() != TopologyKind.BUS_BREAKER
-                || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
-            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
-                            "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
+        if (!checked) {
+            if (voltageLevel2.getTopologyKind() != TopologyKind.BUS_BREAKER
+                    || voltageLevel1.getTopologyKind() != TopologyKind.BUS_BREAKER
+                    || getTerminal1().getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+                throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
+                        "move2(int, VoltageLevel) or move(int, VoltageLevel, int, VoltageLevel", getId()));
+            }
         }
         LineAdder adder = initializeAdderToMove(voltageLevel1, voltageLevel2)
                 .setConnectableBus1(bus1.getId())
