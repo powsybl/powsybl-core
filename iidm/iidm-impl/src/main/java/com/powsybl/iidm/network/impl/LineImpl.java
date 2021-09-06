@@ -10,6 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -145,11 +147,13 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl move(int node, VoltageLevel voltageLevel, Side side) {
+        Objects.requireNonNull(side);
         move(node, voltageLevel, side == Side.ONE ? 1 : 2);
         return this;
     }
 
     private void move(int node, VoltageLevel voltageLevel, int side) {
+        Objects.requireNonNull(voltageLevel);
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(Bus, boolean)," +
                     " move2(Bus, boolean) or move(Bus, boolean, Side)", id));
@@ -177,11 +181,13 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     @Override
     public LineImpl move(Bus bus, boolean connected, Side side) {
+        Objects.requireNonNull(side);
         move(bus, connected, side == Side.ONE ? 1 : 2);
         return this;
     }
 
     private void move(Bus bus, boolean connected, int side) {
+        Objects.requireNonNull(bus);
         if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
             throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(int, VoltageLevel)," +
                     " move2(int, VoltageLevel) or move(int, VoltageLevel, Side)", id));

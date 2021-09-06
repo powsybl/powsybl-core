@@ -8,6 +8,8 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.util.Objects;
+
 /**
  * An AC line.
  * <p>
@@ -57,6 +59,8 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move(int node, VoltageLevel voltageLevel, Side side) {
+        Objects.requireNonNull(side);
+        Objects.requireNonNull(voltageLevel);
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
                             "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side).",
@@ -109,6 +113,8 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move(Bus bus, boolean connected, Side side) {
+        Objects.requireNonNull(side);
+        Objects.requireNonNull(bus);
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         if (voltageLevel.getTopologyKind() != TopologyKind.BUS_BREAKER) {
             throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. Use move1(int, VoltageLevel), " +
