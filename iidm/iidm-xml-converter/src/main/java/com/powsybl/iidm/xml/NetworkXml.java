@@ -274,7 +274,7 @@ public final class NetworkXml {
 
     private static void writeVoltageLevels(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel voltageLevel : IidmXmlUtil.sorted(n.getVoltageLevels(), context.getOptions())) {
-            if (voltageLevel.getOptionalSubstation().isEmpty()) {
+            if (voltageLevel.getSubstation().isEmpty()) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, VoltageLevelXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 VoltageLevelXml.INSTANCE.write(voltageLevel, n, context);

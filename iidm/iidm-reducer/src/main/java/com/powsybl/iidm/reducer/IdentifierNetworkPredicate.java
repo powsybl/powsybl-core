@@ -53,6 +53,6 @@ public class IdentifierNetworkPredicate implements NetworkPredicate {
     @Override
     public boolean test(VoltageLevel voltageLevel) {
         Objects.requireNonNull(voltageLevel);
-        return ids.contains(voltageLevel.getId()) || voltageLevel.getOptionalSubstation().map(sub -> ids.contains(sub.getId())).orElse(false);
+        return ids.contains(voltageLevel.getId()) || voltageLevel.getSubstation().map(sub -> ids.contains(sub.getId())).orElse(false);
     }
 }

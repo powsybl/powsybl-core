@@ -138,7 +138,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
                     + "' not found");
             }
-            if (substation != null && voltageLevel.getOptionalSubstation().map(s -> s != substation).orElse(false)) {
+            if (substation != null && voltageLevel.getSubstation().map(s -> s != substation).orElse(false)) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
                         + substation.getId() + "'");
@@ -271,14 +271,14 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         }
 
         if (substation != null) {
-            if (voltageLevel1.getOptionalSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getOptionalSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getOptionalSubstation().map(s -> s != substation).orElse(true)) {
+            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel3.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
                         "the 3 windings of the transformer shall belong to the substation '"
-                                + substation.getId() + "' ('" + voltageLevel1.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel2.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel3.getOptionalSubstation().map(Substation::getId).orElse("null") + "')");
+                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel3.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getOptionalSubstation().isPresent() && voltageLevel2.getOptionalSubstation().isPresent() && voltageLevel3.getOptionalSubstation().isPresent()) {
+        } else if (voltageLevel1.getSubstation().isPresent() && voltageLevel2.getSubstation().isPresent() && voltageLevel3.getSubstation().isPresent()) {
             throw new ValidationException(this,
                     "the 3 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "', '" + voltageLevel3.getId() + "')");

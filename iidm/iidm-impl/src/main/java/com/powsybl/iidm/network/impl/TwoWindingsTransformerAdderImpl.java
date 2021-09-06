@@ -106,13 +106,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (substation != null) {
-            if (voltageLevel1.getOptionalSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getOptionalSubstation().map(s -> s != substation).orElse(true)) {
+            if (voltageLevel1.getSubstation().map(s -> s != substation).orElse(true) || voltageLevel2.getSubstation().map(s -> s != substation).orElse(true)) {
                 throw new ValidationException(this,
                         "the 2 windings of the transformer shall belong to the substation '"
-                                + substation.getId() + "' ('" + voltageLevel1.getOptionalSubstation().map(Substation::getId).orElse("null") + "', '"
-                                + voltageLevel2.getOptionalSubstation().map(Substation::getId).orElse("null") + "')");
+                                + substation.getId() + "' ('" + voltageLevel1.getSubstation().map(Substation::getId).orElse("null") + "', '"
+                                + voltageLevel2.getSubstation().map(Substation::getId).orElse("null") + "')");
             }
-        } else if (voltageLevel1.getOptionalSubstation().isPresent() && voltageLevel2.getOptionalSubstation().isPresent()) {
+        } else if (voltageLevel1.getSubstation().isPresent() && voltageLevel2.getSubstation().isPresent()) {
             throw new ValidationException(this,
                     "the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations ('"
                             + voltageLevel1.getId() + "', '" + voltageLevel2.getId() + "')");
@@ -130,7 +130,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
         TwoWindingsTransformerImpl transformer
                 = new TwoWindingsTransformerImpl(substation != null ? substation.getNetwork().getRef() : networkRef, id, getName(), isFictitious(),
-                (SubstationImpl) voltageLevel1.getOptionalSubstation().orElse(null),
+                (SubstationImpl) voltageLevel1.getSubstation().orElse(null),
                 r, x, g, b,
                 ratedU1, ratedU2, ratedS);
         terminal1.setNum(1);

@@ -986,8 +986,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.q1 = t1.getQ();
             l.p2 = t2.getP();
             l.q2 = t2.getQ();
-            l.country1 = vl1.getOptionalSubstation().flatMap(Substation::getCountry).orElse(null);
-            l.country2 = vl2.getOptionalSubstation().flatMap(Substation::getCountry).orElse(null);
+            l.country1 = vl1.getSubstation().flatMap(Substation::getCountry).orElse(null);
+            l.country2 = vl2.getSubstation().flatMap(Substation::getCountry).orElse(null);
             mergeProperties(dl1, dl2, l.properties);
             lines.add(l);
 

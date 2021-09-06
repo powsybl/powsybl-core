@@ -92,7 +92,7 @@ public class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChangerAdjustedRatio);
 
-        TwoWindingsTransformerAdder adder = voltageLevel2.getOptionalSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
+        TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
             .setId(id)
             .setEnsureIdUnicity(true)
             .setConnectableBus1(bus1Id)
@@ -173,7 +173,7 @@ public class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger1);
 
-        ThreeWindingsTransformerAdder adder = voltageLevel1.getOptionalSubstation().map(Substation::newThreeWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newThreeWindingsTransformer())
+        ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation().map(Substation::newThreeWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newThreeWindingsTransformer())
             .setRatedU0(v0)
             .setEnsureIdUnicity(true)
             .setId(id)

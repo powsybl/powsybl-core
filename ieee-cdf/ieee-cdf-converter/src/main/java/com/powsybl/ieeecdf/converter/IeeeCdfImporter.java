@@ -327,7 +327,7 @@ public class IeeeCdfImporter implements Importer {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
-        return voltageLevel2.getOptionalSubstation().map(Substation::newTwoWindingsTransformer)
+        return voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer)
                 .orElseGet(network::newTwoWindingsTransformer)
                 .setId(id)
                 .setBus1(bus1Id)

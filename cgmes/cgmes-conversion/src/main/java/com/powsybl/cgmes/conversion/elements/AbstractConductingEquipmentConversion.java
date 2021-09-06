@@ -399,7 +399,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     protected Optional<Substation> substation() {
-        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getOptionalSubstation() : Optional.empty();
+        return (terminals[0].voltageLevel != null) ? terminals[0].voltageLevel.getSubstation() : Optional.empty();
     }
 
     private PowerFlow stateVariablesPowerFlow() {

@@ -50,7 +50,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Optional<Substation> getOptionalSubstation() {
+    public Optional<Substation> getSubstation() {
         return Optional.ofNullable(substation);
     }
 
@@ -403,7 +403,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         removeTopology();
 
         // Remove this voltage level from the network
-        getOptionalSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
+        getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
         getNetwork().getIndex().remove(this);
 
         getNetwork().getListeners().notifyRemoval(this);

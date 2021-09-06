@@ -258,7 +258,7 @@ public class Comparison {
     }
 
     private void compareVoltageLevels(VoltageLevel expected, VoltageLevel actual) {
-        equivalent("Substation", expected.getOptionalSubstation().orElse(null), actual.getOptionalSubstation().orElse(null));
+        equivalent("Substation", expected.getSubstation().orElse(null), actual.getSubstation().orElse(null));
         compare("nominalV", expected.getNominalV(), actual.getNominalV());
         if (config.checkVoltageLevelLimits) {
             compare("lowVoltageLimit",

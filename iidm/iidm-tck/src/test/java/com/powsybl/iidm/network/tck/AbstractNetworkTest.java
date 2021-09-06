@@ -76,7 +76,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel1);
         assertEquals(VOLTAGE_LEVEL1, voltageLevel1.getId());
         assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
-        assertSame(substation1, voltageLevel1.getOptionalSubstation().orElse(null));
+        assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.NODE_BREAKER, voltageLevel1.getTopologyKind());
 
         NodeBreakerView topology1 = voltageLevel1.getNodeBreakerView();
@@ -239,7 +239,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel1);
         assertEquals(VLGEN, voltageLevel1.getId());
         assertEquals(400.0, voltageLevel1.getNominalV(), 0.0);
-        assertSame(substation1, voltageLevel1.getOptionalSubstation().orElse(null));
+        assertSame(substation1, voltageLevel1.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel1.getTopologyKind());
 
         Bus bus1 = voltageLevel1.getBusBreakerView().getBus("NGEN");
@@ -270,7 +270,7 @@ public abstract class AbstractNetworkTest {
         assertNotNull(voltageLevel2);
         assertEquals(VLBAT, voltageLevel2.getId());
         assertEquals(400.0, voltageLevel2.getNominalV(), 0.0);
-        assertSame(substation2, voltageLevel2.getOptionalSubstation().orElse(null));
+        assertSame(substation2, voltageLevel2.getSubstation().orElse(null));
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel2.getTopologyKind());
 
         Bus bus2 = voltageLevel2.getBusBreakerView().getBus("NBAT");

@@ -54,7 +54,7 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
         assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
         assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
-        assertSame(substation, voltageLevel.getOptionalSubstation().orElse(null));
+        assertSame(substation, voltageLevel.getSubstation().orElse(null));
 
         // setter getter
         voltageLevel.setHighVoltageLimit(300.0);
@@ -81,7 +81,7 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
         assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
         assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
-        assertTrue(voltageLevel.getOptionalSubstation().isEmpty());
+        assertTrue(voltageLevel.getSubstation().isEmpty());
 
         assertTrue(Iterables.isEmpty(voltageLevel.getConnectables()));
         voltageLevel.getBusBreakerView().newBus().setId("bbVL_1").add();

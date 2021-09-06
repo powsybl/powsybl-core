@@ -59,8 +59,8 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
-    public Optional<Substation> getOptionalSubstation() {
-        return getDelegate().getOptionalSubstation().map(s -> getIndex().getSubstation(s));
+    public Optional<Substation> getSubstation() {
+        return getDelegate().getSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     @Override

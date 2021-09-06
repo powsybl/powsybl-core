@@ -78,7 +78,7 @@ public class GraphvizConnectivity {
                     .attr(GraphVizAttribute.fillcolor, colors[b.getConnectedComponent().getNum()])
                     .attr(GraphVizAttribute.tooltip, tooltip);
             if (countryCluster) {
-                b.getVoltageLevel().getOptionalSubstation().flatMap(Substation::getCountry)
+                b.getVoltageLevel().getSubstation().flatMap(Substation::getCountry)
                         .ifPresent(country -> graph.cluster(scope, country)
                         .label(country.name())
                         .attr(GraphVizAttribute.style, "rounded")

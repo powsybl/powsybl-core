@@ -45,7 +45,7 @@ public class JoinVoltageLevelTest {
 
         Switch sw = n.getSwitch("_5e9f0079-647e-46da-b0ee-f5f24e127602");
         VoltageLevel voltageLevel = sw.getVoltageLevel();
-        Substation substation = voltageLevel.getOptionalSubstation().orElse(null);
+        Substation substation = voltageLevel.getSubstation().orElse(null);
 
         boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
         assertTrue(ok);
@@ -66,7 +66,7 @@ public class JoinVoltageLevelTest {
         assertTrue(isOpen);
 
         VoltageLevel voltageLevel = sw.getVoltageLevel();
-        Substation substation = voltageLevel.getOptionalSubstation().orElse(null);
+        Substation substation = voltageLevel.getSubstation().orElse(null);
 
         boolean ok = compareVoltageLevelSubstation("_d6056127-34f1-43a9-b029-23fddb913bd5", "_a43d15db-44a6-4fda-a525-2402ff43226f", substation.getId(), voltageLevel.getId());
         assertTrue(ok);
