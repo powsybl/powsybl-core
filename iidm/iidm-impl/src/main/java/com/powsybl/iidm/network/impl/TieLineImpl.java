@@ -232,7 +232,8 @@ class TieLineImpl extends LineImpl implements TieLine {
     @Override
     public double getR() {
         LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y12().negate().reciprocal().getReal();
+        // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
+        return adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
     private ValidationException createNotSupportedForTieLines() {
@@ -248,7 +249,8 @@ class TieLineImpl extends LineImpl implements TieLine {
     @Override
     public double getX() {
         LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
-        return adm.y12().negate().reciprocal().getImaginary();
+        // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
+        return adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
     @Override
