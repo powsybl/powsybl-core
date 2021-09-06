@@ -297,7 +297,7 @@ public final class NetworkXml {
             }
         }
         for (ThreeWindingsTransformer twt : IidmXmlUtil.sorted(n.getThreeWindingsTransformers(), context.getOptions())) {
-            if (twt.getOptionalSubstation().isEmpty() && filter.test(twt)) {
+            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 ThreeWindingsTransformerXml.INSTANCE.write(twt, n, context);

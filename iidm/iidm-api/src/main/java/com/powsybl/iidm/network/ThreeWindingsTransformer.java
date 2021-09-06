@@ -298,16 +298,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      */
     Side getSide(Terminal terminal);
 
-    /**
-     * Get the substation to which the transformer belongs.
-     */
-    default Substation getSubstation() {
-        throw new UnsupportedOperationException();
-    }
-
-    default Optional<Substation> getOptionalSubstation() {
-        return Optional.ofNullable(getSubstation());
-    }
+    Optional<Substation> getSubstation();
 
     /**
      * Get the leg at the primary side.

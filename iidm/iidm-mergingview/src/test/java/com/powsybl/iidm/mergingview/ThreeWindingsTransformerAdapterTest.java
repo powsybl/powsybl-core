@@ -35,7 +35,7 @@ public class ThreeWindingsTransformerAdapterTest {
         assertTrue(twt instanceof ThreeWindingsTransformerAdapter);
         assertSame(mergingView, twt.getNetwork());
 
-        assertTrue(twt.getOptionalSubstation().isPresent());
+        assertTrue(twt.getSubstation().isPresent());
         assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, twt.getType());
 
         assertEquals(twt.getLeg1().getTerminal(), twt.getTerminal(Side.ONE));
