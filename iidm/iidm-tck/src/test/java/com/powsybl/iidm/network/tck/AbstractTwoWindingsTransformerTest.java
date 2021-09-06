@@ -47,7 +47,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(6.0, twoWindingsTransformer.getRatedU2(), 0.0);
         assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
-        assertSame(substation, twoWindingsTransformer.getSubstation());
+        assertSame(substation, twoWindingsTransformer.getOptionalSubstation().orElse(null));
 
         // setter getter
         double r = 0.5;

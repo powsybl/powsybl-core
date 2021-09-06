@@ -8,6 +8,8 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -38,8 +40,8 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public Substation getSubstation() {
-        return getIndex().getSubstation(getDelegate().getSubstation());
+    public Optional<Substation> getOptionalSubstation() {
+        return getDelegate().getOptionalSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     // -------------------------------

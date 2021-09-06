@@ -144,7 +144,9 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     /**
      * Get the substation to which the transformer belongs.
      */
-    Substation getSubstation();
+    default Substation getSubstation() {
+        throw new UnsupportedOperationException();
+    }
 
     default Optional<Substation> getOptionalSubstation() {
         return Optional.ofNullable(getSubstation());
