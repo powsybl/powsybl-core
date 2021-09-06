@@ -33,6 +33,11 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move1(int node, VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
+                            "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
+                    getId()));
+        }
         return move(node, voltageLevel, getTerminal2().getNodeBreakerView().getNode(), getTerminal2().getVoltageLevel());
     }
 
@@ -45,7 +50,30 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
      * The implemented method should return the same {@link Line} object with different terminals.
      */
     default Line move2(int node, VoltageLevel voltageLevel) {
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new PowsyblException(String.format("Inconsistent topology for terminals of Line %s. " +
+                            "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean).",
+                    getId()));
+        }
         return move(getTerminal1().getNodeBreakerView().getNode(), getTerminal1().getVoltageLevel(), node, voltageLevel);
+    }
+
+    /**
+     * Move the line's end on the given side to the given node of the given voltage level.
+     * If the given voltage level's topology is not NODE-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not NODE-BREAKER,
+     * a runtime exception is also thrown.
+     * Please note that the default implementation returns a new {@link Line} object (copying the line with different end points).
+     * The implemented method should return the same {@link Line} object with different terminals.
+     */
+    default Line move(int node, VoltageLevel voltageLevel, Side side) {
+        if (side == Side.ONE) {
+            return move1(node, voltageLevel);
+        }
+        if (side == Side.TWO) {
+            return move2(node, voltageLevel);
+        }
+        throw new AssertionError();
     }
 
     /**
@@ -96,6 +124,24 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
         return move(getTerminal1().getBusBreakerView().getConnectableBus(),
                 getTerminal1().getBusBreakerView().getBus() != null,
                 bus, connected);
+    }
+
+    /**
+     * Move the line's end on the given side to the given connectable bus with the given connection status.
+     * If the given bus' voltage level's topology is not BUS-BREAKER, a runtime exception is thrown.
+     * If the topology of the voltage levels previously at the ends of the line is not BUS-BREAKER,
+     * a runtime exception is also thrown.
+     * Please note that the default implementation returns a new {@link Line} object (copying the line with different end points).
+     * The implemented method should return the same {@link Line} object with different terminals.
+     */
+    default Line move(Bus bus, boolean connected, Side side) {
+        if (side == Side.ONE) {
+            return move1(bus, connected);
+        }
+        if (side == Side.TWO) {
+            return move2(bus, connected);
+        }
+        throw new AssertionError();
     }
 
     /**

@@ -142,6 +142,12 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         return this;
     }
 
+    @Override
+    public LineImpl move(int node, VoltageLevel voltageLevel, Side side) {
+        move(node, voltageLevel, side == Side.ONE ? 1 : 2);
+        return this;
+    }
+
     private void move(int node, VoltageLevel voltageLevel, int side) {
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER
                 || getTerminals().stream().anyMatch(t -> t.getVoltageLevel().getTopologyKind() != TopologyKind.NODE_BREAKER)) {
@@ -175,6 +181,12 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     @Override
     public LineImpl move2(Bus bus, boolean connected) {
         move(bus, connected, 2);
+        return this;
+    }
+
+    @Override
+    public LineImpl move(Bus bus, boolean connected, Side side) {
+        move(bus, connected, side == Side.ONE ? 1 : 2);
         return this;
     }
 
