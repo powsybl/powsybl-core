@@ -147,11 +147,11 @@ public class LineAdapterTest {
         TestUtil.notImplemented(() -> lineAdapted.move2(0, vlNb));
         TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.ONE));
         TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.TWO));
+        Bus mockBus = Mockito.mock(Bus.class);
+        VoltageLevel mockVl = Mockito.mock(VoltageLevel.class);
+        Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVl);
+        Mockito.when(mockVl.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
         try {
-            Bus mockBus = Mockito.mock(Bus.class);
-            VoltageLevel mockVl = Mockito.mock(VoltageLevel.class);
-            Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVl);
-            Mockito.when(mockVl.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
             lineAdapted.move1(mockBus, false);
             fail();
         } catch (RuntimeException e) {
@@ -166,8 +166,9 @@ public class LineAdapterTest {
         TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.ONE));
         TestUtil.notImplemented(() -> lineAdapted.move2(ngen2, true));
         TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.TWO));
+        VoltageLevel vlgen = mergingView.getVoltageLevel("VLGEN");
         try {
-            lineAdapted.move1(0, mergingView.getVoltageLevel("VLGEN"));
+            lineAdapted.move1(0, vlgen);
             fail();
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1. " +
