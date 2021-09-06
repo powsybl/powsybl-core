@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -36,6 +37,11 @@ class DiscreteMeasurementsImpl<I extends Identifiable<I>> extends AbstractExtens
     @Override
     public Collection<DiscreteMeasurement> getDiscreteMeasurements() {
         return Collections.unmodifiableList(discreteMeasurements);
+    }
+
+    @Override
+    public Collection<DiscreteMeasurement> getDiscreteMeasurements(DiscreteMeasurement.Type type) {
+        return discreteMeasurements.stream().filter(dm -> dm.getType() == type).collect(Collectors.toList());
     }
 
     @Override
