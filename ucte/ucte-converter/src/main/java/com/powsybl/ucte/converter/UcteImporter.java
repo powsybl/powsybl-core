@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
@@ -799,28 +800,34 @@ public class UcteImporter implements Importer {
     }
 
     private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
-        DanglingLine dl2 = null;
         Xnode xnodExtension = dl1.getExtension(Xnode.class);
         if (xnodExtension == null) {
             throw new UcteException("Dangling line " + dl1.getNameOrId() + " doesn't have the Xnode extension");
         }
         String otherXnodeCode = xnodExtension.getCode();
-        Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
-        DanglingLine first = it.next();
-        if (it.hasNext()) {
-            DanglingLine second = it.next();
-            if (dl1 == first) {
-                dl2 = second;
-            } else if (dl1 == second) {
-                dl2 = first;
-            } else {
-                throw new AssertionError("Inconsistent XNODE index");
+        List<DanglingLine> matchingDanglingLines = danglingLinesByXnodeCode.get(otherXnodeCode)
+                .stream().filter(dl -> dl != dl1)
+                .collect(Collectors.toList());
+        if (matchingDanglingLines.isEmpty()) {
+            return null;
+        } else if (matchingDanglingLines.size() == 1) {
+            return matchingDanglingLines.get(0);
+        } else {
+            if (!dl1.getTerminal().isConnected()) {
+                return null;
             }
-            if (it.hasNext()) {
-                throw new UcteException("More that 2 dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
+            List<DanglingLine> connectedMatchingDanglingLines = matchingDanglingLines.stream()
+                    .filter(dl -> dl.getTerminal().isConnected())
+                    .collect(Collectors.toList());
+            if (connectedMatchingDanglingLines.isEmpty()) {
+                return null;
+            }
+            if (connectedMatchingDanglingLines.size() == 1) {
+                return connectedMatchingDanglingLines.get(0);
+            } else {
+                throw new UcteException("More that 2 connected dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
             }
         }
-        return dl2;
     }
 
     private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {

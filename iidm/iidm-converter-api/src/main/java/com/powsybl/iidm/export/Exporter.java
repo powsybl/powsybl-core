@@ -8,6 +8,10 @@ package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+
+import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -33,6 +37,14 @@ public interface Exporter {
      * Get some information about this exporter.
      */
     String getComment();
+
+    /**
+     * Get a description of export parameters
+     * @return
+     */
+    default List<Parameter> getParameters() {
+        return Collections.emptyList();
+    }
 
     /**
      * Export a model.

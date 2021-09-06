@@ -21,7 +21,7 @@ import java.util.UUID;
  */
 class SparseLUDecomposition implements LUDecomposition {
 
-    private static final double RGROWTH_THRESHOLD = 1e-10;
+    static final double DEFAULT_RGROWTH_THRESHOLD = 1e-10;
 
     private final SparseMatrix matrix;
 
@@ -71,7 +71,7 @@ class SparseLUDecomposition implements LUDecomposition {
     @Override
     public void update() {
         checkMatrixStructure();
-        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), RGROWTH_THRESHOLD);
+        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues(), matrix.getRgrowthThreshold());
     }
 
     @Override

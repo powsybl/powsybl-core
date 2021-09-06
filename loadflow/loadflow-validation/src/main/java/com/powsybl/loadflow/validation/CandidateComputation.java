@@ -29,7 +29,7 @@ public interface CandidateComputation {
     String getName();
 
     /**
-     * A computation carried out on the {@param network}.
+     * A computation carried out on the {@code network}.
      */
     void run(Network network, ComputationManager computationManager);
 

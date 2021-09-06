@@ -10,7 +10,9 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
+ * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
+ *
+ * <p>A <code>Reporter</code> allows building up functional reports with a hierarchy reflecting task/subtasks of processes.
  * The enclosed reports are based on {@link Report} class.
  *
  * <p>A <code>Reporter</code> can create sub-reporters to separate from current reports the reports from that task.
