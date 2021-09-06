@@ -207,8 +207,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     private void move(int side, TerminalExt oldTerminal, TerminalExt terminal, VoltageLevelExt voltageLevelExt) {
         VoltageLevelExt oldVoltageLevelExt = oldTerminal.getVoltageLevel();
         oldVoltageLevelExt.detach(oldTerminal);
-        terminals.remove(side - 1);
-        terminals.add(side - 1, terminal);
+        terminals.set(side - 1, terminal);
         terminal.setConnectable(this);
         voltageLevelExt.attach(terminal, false);
     }
