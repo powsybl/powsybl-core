@@ -48,7 +48,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals("twt", transformer.getId());
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
         assertEquals(TWT_NAME, transformer.getNameOrId());
-        assertEquals(substation, transformer.getSubstation());
+        assertEquals(substation, transformer.getOptionalSubstation().orElse(null));
         assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
