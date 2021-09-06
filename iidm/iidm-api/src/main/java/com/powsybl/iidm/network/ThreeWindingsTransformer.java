@@ -300,6 +300,10 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     Optional<Substation> getSubstation();
 
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
+
     /**
      * Get the leg at the primary side.
      */

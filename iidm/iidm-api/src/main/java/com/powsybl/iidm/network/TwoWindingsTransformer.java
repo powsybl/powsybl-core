@@ -143,6 +143,10 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
 
     Optional<Substation> getSubstation();
 
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
+
     /**
      * Get the nominal series resistance specified in &#937; at the secondary
      * voltage side.

@@ -818,6 +818,10 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     Optional<Substation> getSubstation();
 
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
+
     /**
      * Get the nominal voltage in KV.
      */

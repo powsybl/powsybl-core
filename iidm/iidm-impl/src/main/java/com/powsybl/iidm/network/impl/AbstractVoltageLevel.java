@@ -55,6 +55,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public Substation getNullableSubstation() {
+        return substation;
+    }
+
+    @Override
     public NetworkImpl getNetwork() {
         return Optional.ofNullable(networkRef)
                 .map(Ref::get)
