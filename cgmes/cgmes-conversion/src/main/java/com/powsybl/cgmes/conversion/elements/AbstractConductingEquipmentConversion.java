@@ -275,7 +275,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    public static void calculateVoltageAndAngleInBoundaryBus(Network network, DanglingLine dl) {
+    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
         double v = dl.getBoundary().getV();
         double angle = dl.getBoundary().getAngle();
 

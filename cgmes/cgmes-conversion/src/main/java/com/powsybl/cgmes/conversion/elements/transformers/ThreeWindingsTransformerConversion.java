@@ -12,7 +12,6 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -72,7 +71,7 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         setToIidm(convertedT3xModel);
     }
 
-    public static void calculateVoltageAndAngleInStarBus(Network network, ThreeWindingsTransformer twt) {
+    public static void calculateVoltageAndAngleInStarBus(ThreeWindingsTransformer twt) {
         ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock");
         int phaseAngleClock2 = 0;
         int phaseAngleClock3 = 0;

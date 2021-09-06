@@ -15,12 +15,8 @@ import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -276,15 +272,6 @@ public class StateVariablesAdder {
             }
         }
         return nodesFromLines;
-    }
-
-    private static Complex complexVoltage(double r, double x, double g, double b,
-        double v, double angle, double p, double q) {
-        BranchAdmittanceMatrix adm = LinkData.calculateBranchAdmittance(r, x, 1.0, 0.0, 1.0, 0.0,
-            new Complex(g * 0.5, b * 0.5), new Complex(g * 0.5, b * 0.5));
-        Complex v1 = ComplexUtils.polar2Complex(v, Math.toRadians(angle));
-        Complex s1 = new Complex(p, q);
-        return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
 
     private String getTapChangerPositionName() {

@@ -253,11 +253,11 @@ public class Conversion {
 
         // Voltage and angle in starBus as properties
         network.getThreeWindingsTransformers()
-            .forEach(twt -> ThreeWindingsTransformerConversion.calculateVoltageAndAngleInStarBus(network, twt));
+            .forEach(twt -> ThreeWindingsTransformerConversion.calculateVoltageAndAngleInStarBus(twt));
 
         // Voltage and angle in boundary buses
         network.getDanglingLines()
-            .forEach(dl -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(network, dl));
+            .forEach(dl -> AbstractConductingEquipmentConversion.calculateVoltageAndAngleInBoundaryBus(dl));
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
