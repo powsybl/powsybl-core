@@ -192,7 +192,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public void convert() {
-        double value = p.asDouble("value");
+        double normalValue = p.asDouble("normalValue");
+        double value = p.asDouble("value", normalValue);
         if (value <= 0) {
             context.ignored(OPERATIONAL_LIMIT, "value is <= 0");
             return;

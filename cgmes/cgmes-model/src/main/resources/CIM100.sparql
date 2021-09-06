@@ -45,7 +45,6 @@ WHERE {
         a ?generatingUnitType ;
         cim:GeneratingUnit.minOperatingP ?minP ;
         cim:GeneratingUnit.maxOperatingP ?maxP ;
-        cim:GeneratingUnit.nominalP ?initialP ;
         cim:IdentifiedObject.name ?nameGeneratingUnit .
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
@@ -66,16 +65,16 @@ OPTIONAL { GRAPH ?graphSSH {
 
 # query: operationalLimits
 SELECT *
-WHERE
+WHERE {
 { GRAPH ?graph {
     ?OperationalLimit
         a $OperationalLimitSubclass ;
         cim:IdentifiedObject.name ?name ;
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
-    OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?value }
-    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?value }
-    OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?value }
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
     # operational limit sets can be attached to terminals or equipments
     OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
     OPTIONAL { GRAPH ?graph2 {
@@ -89,4 +88,9 @@ WHERE
     OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-
+OPTIONAL { GRAPH ?graphSSH {
+    OPTIONAL { ?CurrentLimit cim:CurrentLimit.value ?value }
+    OPTIONAL { ?ApparentPowerLimit cim:ApparentPowerLimit.value ?value }
+    OPTIONAL { ?VoltageLimit cim:VoltageLimit.value ?value }
+}}
+}
