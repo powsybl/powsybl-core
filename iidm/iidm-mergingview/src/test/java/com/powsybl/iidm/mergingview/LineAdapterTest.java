@@ -147,7 +147,19 @@ public class LineAdapterTest {
                     " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
         }
         try {
+            lineAdapted.move(0, vlNb, Branch.Side.ONE);
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
+                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
+        }
+        try {
             lineAdapted.move2(0, vlNb);
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
+                    " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
+        }
+        try {
+            lineAdapted.move(0, vlNb, Branch.Side.TWO);
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1." +
                     " Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Bus, boolean)."));
