@@ -819,7 +819,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get the substation to which the voltage level belongs.
      */
-    Substation getSubstation();
+    default Substation getSubstation() {
+        throw new UnsupportedOperationException();
+    }
 
     default Optional<Substation> getOptionalSubstation() {
         return Optional.ofNullable(getSubstation());

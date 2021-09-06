@@ -18,6 +18,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,8 +59,8 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
-    public Substation getSubstation() {
-        return getIndex().getSubstation(getDelegate().getSubstation());
+    public Optional<Substation> getOptionalSubstation() {
+        return getDelegate().getOptionalSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     @Override

@@ -50,11 +50,6 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public SubstationImpl getSubstation() {
-        return substation;
-    }
-
-    @Override
     public Optional<Substation> getOptionalSubstation() {
         return Optional.ofNullable(substation);
     }

@@ -256,7 +256,7 @@ public class MatpowerImporter implements Importer {
             String connectedBus2 = isInService ? bus2Id : null;
 
             if (isTransformer(model, mBranch)) {
-                TwoWindingsTransformer newTwt = voltageLevel2.getSubstation().newTwoWindingsTransformer()
+                TwoWindingsTransformer newTwt = voltageLevel2.getOptionalSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(network::newTwoWindingsTransformer)
                         .setId(getId(TRANSFORMER_PREFIX, mBranch.getFrom(), mBranch.getTo()))
                         .setEnsureIdUnicity(true)
                         .setBus1(connectedBus1)

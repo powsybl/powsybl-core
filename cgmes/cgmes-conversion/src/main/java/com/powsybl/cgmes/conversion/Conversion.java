@@ -530,7 +530,7 @@ public class Conversion {
 
     private void debugTopology(Context context) {
         context.network().getVoltageLevels().forEach(vl -> {
-            String name = vl.getSubstation().getNameOrId() + "-" + vl.getNameOrId();
+            String name = vl.getOptionalSubstation().map(s -> s.getNameOrId() + "-").orElse("") + vl.getNameOrId();
             name = name.replace('/', '-');
             Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
             try {

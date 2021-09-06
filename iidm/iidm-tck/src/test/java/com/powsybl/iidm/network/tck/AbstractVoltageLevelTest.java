@@ -54,7 +54,7 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(100.0, voltageLevel.getLowVoltageLimit(), 0.0);
         assertEquals(200.0, voltageLevel.getHighVoltageLimit(), 0.0);
         assertEquals(ContainerType.VOLTAGE_LEVEL, voltageLevel.getContainerType());
-        assertSame(substation, voltageLevel.getSubstation());
+        assertSame(substation, voltageLevel.getOptionalSubstation().orElse(null));
 
         // setter getter
         voltageLevel.setHighVoltageLimit(300.0);
