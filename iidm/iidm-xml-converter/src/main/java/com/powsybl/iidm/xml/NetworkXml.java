@@ -290,7 +290,7 @@ public final class NetworkXml {
 
     private static void writeTransformers(BusFilter filter, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (TwoWindingsTransformer twt : IidmXmlUtil.sorted(n.getTwoWindingsTransformers(), context.getOptions())) {
-            if (twt.getOptionalSubstation().isEmpty() && filter.test(twt)) {
+            if (twt.getSubstation().isEmpty() && filter.test(twt)) {
                 IidmXmlUtil.assertMinimumVersion(NETWORK_ROOT_ELEMENT_NAME, TwoWindingsTransformerXml.ROOT_ELEMENT_NAME,
                         IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
                 TwoWindingsTransformerXml.INSTANCE.write(twt, n, context);

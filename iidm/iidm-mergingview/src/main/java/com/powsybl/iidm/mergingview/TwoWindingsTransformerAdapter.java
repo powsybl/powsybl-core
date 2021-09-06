@@ -40,8 +40,8 @@ public class TwoWindingsTransformerAdapter extends AbstractBranchAdapter<TwoWind
     }
 
     @Override
-    public Optional<Substation> getOptionalSubstation() {
-        return getDelegate().getOptionalSubstation().map(s -> getIndex().getSubstation(s));
+    public Optional<Substation> getSubstation() {
+        return getDelegate().getSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     // -------------------------------

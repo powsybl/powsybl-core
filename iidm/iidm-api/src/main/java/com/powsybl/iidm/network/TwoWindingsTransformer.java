@@ -141,16 +141,7 @@ import java.util.Optional;
  */
 public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, RatioTapChangerHolder, PhaseTapChangerHolder {
 
-    /**
-     * Get the substation to which the transformer belongs.
-     */
-    default Substation getSubstation() {
-        throw new UnsupportedOperationException();
-    }
-
-    default Optional<Substation> getOptionalSubstation() {
-        return Optional.ofNullable(getSubstation());
-    }
+    Optional<Substation> getSubstation();
 
     /**
      * Get the nominal series resistance specified in &#937; at the secondary
