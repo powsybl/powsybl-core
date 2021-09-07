@@ -9,10 +9,13 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -20,6 +23,8 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> implements VoltageLevelExt {
+
+    private final Ref<NetworkImpl> networkRef;
 
     private final SubstationImpl substation;
 
@@ -29,10 +34,11 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
-    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
                          double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, fictitious);
         this.substation = substation;
+        this.networkRef = networkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
@@ -44,13 +50,22 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public SubstationImpl getSubstation() {
+    public Optional<Substation> getSubstation() {
+        return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
         return substation;
     }
 
     @Override
     public NetworkImpl getNetwork() {
-        return substation.getNetwork();
+        return Optional.ofNullable(networkRef)
+                .map(Ref::get)
+                .orElseGet(() -> Optional.ofNullable(substation)
+                        .map(SubstationImpl::getNetwork)
+                        .orElseThrow(() -> new PowsyblException(String.format("Voltage level %s has no container", id))));
     }
 
     private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
@@ -103,7 +118,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
         // the fastest way to get the equipment is to look in the index
         // and then check if it is connected to this substation
-        T connectable = substation.getNetwork().getIndex().get(id, aClass);
+        T connectable = getConnectable(id, aClass, substation, networkRef);
         if (connectable == null) {
             return null;
         } else if (connectable instanceof Injection) {
@@ -120,6 +135,16 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
                     ? connectable : null;
         } else {
             throw new AssertionError();
+        }
+    }
+
+    private static <T extends Connectable> T getConnectable(String id, Class<T> aClass, SubstationImpl substation, Ref<NetworkImpl> networkRef) {
+        if (substation != null) {
+            return substation.getNetwork().getIndex().get(id, aClass);
+        } else if (networkRef != null) {
+            return networkRef.get().getIndex().get(id, aClass);
+        } else {
+            throw new PowsyblException(String.format("Voltage level %s has no container", id));
         }
     }
 
@@ -383,7 +408,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         removeTopology();
 
         // Remove this voltage level from the network
-        getSubstation().remove(this);
+        getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
         getNetwork().getIndex().remove(this);
 
         getNetwork().getListeners().notifyRemoval(this);

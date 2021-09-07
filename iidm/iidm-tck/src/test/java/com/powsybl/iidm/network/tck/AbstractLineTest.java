@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.SV;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -571,6 +572,30 @@ public abstract class AbstractLineTest {
         TieLine tieLine2 = adder.setId("testTie2").add();
         assertNotSame(tieLine.getHalf1(), tieLine2.getHalf1());
         assertNotSame(tieLine.getHalf2(), tieLine2.getHalf2());
+
+        // Update power flows, voltages and angles
+        double p1 = -605.0;
+        double q1 = -302.5;
+        double p2 = 600.0;
+        double q2 = 300.0;
+        double v1 = 420.0;
+        double v2 = 380.0;
+        double angle1 = -1e-4;
+        double angle2 = -1.7e-3;
+        tieLine.getTerminal1().setP(p1).setQ(q1).getBusView().getBus().setV(v1).setAngle(angle1);
+        tieLine.getTerminal2().setP(p2).setQ(q2).getBusView().getBus().setV(v2).setAngle(angle2);
+
+        // test boundaries values
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.TWO);
+        assertEquals(expectedSV1.otherSideP(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV1.otherSideQ(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV2.otherSideP(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getP(), 0.0d);
+        assertEquals(expectedSV2.otherSideQ(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getQ(), 0.0d);
+        assertEquals(expectedSV1.otherSideU(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV1.otherSideA(tieLine.getHalf1()), tieLine.getHalf1().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.otherSideU(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getV(), 0.0d);
+        assertEquals(expectedSV2.otherSideA(tieLine.getHalf2()), tieLine.getHalf2().getBoundary().getAngle(), 0.0d);
     }
 
     @Test
