@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:io="http://www.itesla_project.eu/schema/iidm/ext/injection_observability/1_0" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" xmlns:io="http://www.itesla_project.eu/schema/iidm/ext/injection_observability/1_0" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="P1" country="FR" tso="R" geographicalTags="A">
         <iidm:voltageLevel id="VLGEN" nominalV="400.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -38,9 +38,8 @@
     </iidm:extension>
     <iidm:extension id="BAT">
         <io:injectionObservability observable="true">
-            <io:qualityZ standardDeviation="0.03" redundant="false"/>
-            <io:qualityQ standardDeviation="0.6" redundant="false"/>
-            <io:qualityV standardDeviation="0.1" redundant="false"/>
+            <io:qualityP standardDeviation="0.03"/>
+            <io:qualityQ standardDeviation="0.6"/>
         </io:injectionObservability>
     </iidm:extension>
 </iidm:network>
