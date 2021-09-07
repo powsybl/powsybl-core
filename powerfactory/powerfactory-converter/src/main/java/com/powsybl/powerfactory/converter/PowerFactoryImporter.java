@@ -407,7 +407,7 @@ public class PowerFactoryImporter implements Importer {
         NodeRef nodeRef2 = it.next();
         VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
-        Substation s = vl1.getSubstation();
+        Substation s = vl1.getSubstation().orElseThrow();
         DataObject typTr2 = elmTr2.getObjectAttributeValue("typ_id");
         float strn = typTr2.getFloatAttributeValue("strn");
         float utrnL = typTr2.getFloatAttributeValue("utrn_l");
@@ -477,7 +477,7 @@ public class PowerFactoryImporter implements Importer {
         double ratedU2 = utrn3[vls.indexOf(vl2)];
         double ratedU3 = utrn3[vls.indexOf(vl3)];
         // TODO
-        Substation s = vl1.getSubstation();
+        Substation s = vl1.getSubstation().orElseThrow();
         s.newThreeWindingsTransformer()
                 .setId(elmTr3.getName())
                 .setEnsureIdUnicity(true)
