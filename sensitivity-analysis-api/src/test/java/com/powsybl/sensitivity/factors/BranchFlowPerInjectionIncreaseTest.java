@@ -22,7 +22,7 @@ public class BranchFlowPerInjectionIncreaseTest {
     @Rule
     public ExpectedException exception = ExpectedException.none();
 
-    @Test
+    @Testf
     public void checkFailsWhenNullFunction() {
         InjectionIncrease injectionIncrease = Mockito.mock(InjectionIncrease.class);
         exception.expect(NullPointerException.class);
