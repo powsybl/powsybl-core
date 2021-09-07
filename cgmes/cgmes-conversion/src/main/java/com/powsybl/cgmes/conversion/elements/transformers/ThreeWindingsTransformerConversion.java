@@ -12,10 +12,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlPhase;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.CgmesRegulatingControlRatio;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -70,8 +67,10 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
     }
 
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {
-        ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer()
-            .setRatedU0(convertedT3xModel.ratedU0);
+        ThreeWindingsTransformerAdder txadder = substation()
+                .map(Substation::newThreeWindingsTransformer)
+                .orElseGet(() -> context.network().newThreeWindingsTransformer())
+                .setRatedU0(convertedT3xModel.ratedU0);
         identify(txadder);
 
         LegAdder l1adder = txadder.newLeg1();

@@ -7,7 +7,7 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<xs:schema version="1.5"
+<xs:schema version="1.6"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6"
            targetNamespace="http://www.powsybl.org/schema/iidm/1_6"
@@ -22,7 +22,12 @@
             <xs:sequence>
                 <xs:element name="alias" type="iidm:Alias" minOccurs="0" maxOccurs="unbounded" />
                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="voltageLevel" type="iidm:VoltageLevel" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:choice minOccurs="0" maxOccurs="unbounded">
+                    <xs:element name="twoWindingsTransformer" type="iidm:TwoWindingsTransformer"/>
+                    <xs:element name="threeWindingsTransformer" type="iidm:ThreeWindingsTransformer"/>
+                </xs:choice>
                 <xs:choice minOccurs="0" maxOccurs="unbounded">
                     <xs:element name="line" type="iidm:Line"/>
                     <xs:element name="tieLine" type="iidm:TieLine"/>
