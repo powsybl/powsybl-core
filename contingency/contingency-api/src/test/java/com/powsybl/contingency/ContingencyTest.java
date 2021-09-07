@@ -9,10 +9,7 @@ package com.powsybl.contingency;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -136,6 +133,22 @@ public class ContingencyTest {
 
         assertEquals(expectedValidIds,
                 ContingencyList.getValidContingencies(Arrays.asList(danglingLineContingency, danglingLineInvalidContingency), network)
+                        .stream()
+                        .map(Contingency::getId)
+                        .collect(Collectors.toList()));
+    }
+
+    @Test
+    public void validationTestForTwt3() {
+        var network = ThreeWindingsTransformerNetworkFactory.create();
+        var twt3Contingency = Contingency.builder("Twt3 contingency").addThreeWindingsTransformer("3WT").build();
+        var invalidContingency = Contingency.builder("Twt3 invalid contingency").addThreeWindingsTransformer("3WT_THAT_DO_NOT_EXIST").build();
+        var validContingencies = ContingencyList.of(twt3Contingency, invalidContingency).getContingencies(network);
+        var expectedIds = Collections.singletonList("Twt3 contingency");
+
+        assertEquals(expectedIds, validContingencies.stream().map(Contingency::getId).collect(Collectors.toList()));
+        assertEquals(expectedIds,
+                ContingencyList.getValidContingencies(Arrays.asList(twt3Contingency, invalidContingency), network)
                         .stream()
                         .map(Contingency::getId)
                         .collect(Collectors.toList()));

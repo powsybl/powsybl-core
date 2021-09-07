@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.tck;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 import org.junit.Test;
@@ -231,7 +232,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }
-                return topo.getTerminal(n2) == null;
+                return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
             });
         }
         return cs;
@@ -253,7 +254,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }
-                return true;
+                return TraverseResult.CONTINUE;
             });
         }
         return cs;

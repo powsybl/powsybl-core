@@ -100,31 +100,6 @@ public abstract class AbstractBatteryTest {
         createBattery(INVALID, 11, 12, 20.0, 11.0);
     }
 
-    /**
-     * This test goal is to check if the conditions:
-     * . minP <= p0 <= maxP
-     * . minP <= maxP
-     * Are performed by the Battery adders and setters.
-     * <p>
-     * For a Battery it is expected that the current power is between this bounds
-     */
-    @Test
-    public void invalidPowerBounds() {
-        try {
-            createBattery(INVALID, 0.0, 12.0, 10.0, 20.0);
-            fail("Should throw an exception");
-        } catch (ValidationException e) {
-            assertEquals("Battery 'invalid': invalid active power p < minP: 0.0 < 10.0", e.getMessage());
-        }
-
-        try {
-            createBattery(INVALID, 30.0, 12.0, 10.0, 20.0);
-            fail("Should throw an exception");
-        } catch (ValidationException e) {
-            assertEquals("Battery 'invalid': invalid active power p > maxP: 30.0 > 20.0", e.getMessage());
-        }
-    }
-
     @Test
     public void duplicateEquipment() {
         createBattery("duplicate", 11.0, 12, 10, 20.0);

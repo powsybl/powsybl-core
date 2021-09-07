@@ -145,7 +145,6 @@ public class Conversion {
         assignNetworkProperties(context);
         addCgmesSvMetadata(network, context);
         addCgmesSshMetadata(network, context);
-        addCgmesSshControlAreas(network, context);
         addCimCharacteristics(network);
         if (context.nodeBreaker() && context.config().createCgmesExportMapping) {
             CgmesIidmMappingAdder mappingAdder = network.newExtension(CgmesIidmMappingAdder.class);
@@ -252,7 +251,7 @@ public class Conversion {
                 .setId(controlAreaId)
                 .setName(ca.getLocal("name"))
                 .setEnergyIdentificationCodeEic(ca.getLocal("energyIdentCodeEic"))
-                .setNetInterchange(ca.asDouble("netInterchange"))
+                .setNetInterchange(ca.asDouble("netInterchange", Double.NaN))
                 .add();
     }
 
@@ -358,14 +357,6 @@ public class Conversion {
         } catch (NumberFormatException e) {
             context.fixed("Version", "The version is expected to be an integer: " + propertyBags.get(0).get("version") + ". Fixed to 1");
             return 1;
-        }
-    }
-
-    private void addCgmesSshControlAreas(Network network, Context context) {
-        PropertyBags sshControlAreas = cgmes.controlAreas();
-        if (sshControlAreas != null && !sshControlAreas.isEmpty()) {
-            // TODO Develop conversion after IIDM modelling of control areas or define extension
-            context.ignored("ControlAreas", "Unsupported in current version");
         }
     }
 
@@ -539,7 +530,7 @@ public class Conversion {
 
     private void debugTopology(Context context) {
         context.network().getVoltageLevels().forEach(vl -> {
-            String name = vl.getSubstation().getNameOrId() + "-" + vl.getNameOrId();
+            String name = vl.getSubstation().map(s -> s.getNameOrId() + "-").orElse("") + vl.getNameOrId();
             name = name.replace('/', '-');
             Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
             try {

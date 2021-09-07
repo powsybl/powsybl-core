@@ -234,8 +234,9 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index where the traverse has to start.
      * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
      * @param encountered the list of traversed vertices.
+     * @return false if traversing the graph met a breaking clause, true otherwise
      */
-    void traverse(int v, Traverser traverser, boolean[] encountered);
+    boolean traverse(int v, Traverser traverser, boolean[] encountered);
 
     /**
      * Traverse the entire graph, starting at the specified vertex v.

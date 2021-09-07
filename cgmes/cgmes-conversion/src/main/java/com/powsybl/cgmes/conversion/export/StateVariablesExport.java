@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.SlackTerminal;
+import com.powsybl.iidm.network.util.SwitchesFlow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -192,9 +193,10 @@ public final class StateVariablesExport {
                 continue;
             }
             TieLine tieLine = (TieLine) l;
-            Optional<String> topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
-            if (topologicalNode.isPresent()) {
-                writeVoltage(topologicalNode.get(), tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle(), cimNamespace, writer);
+            String topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE)
+                    .orElseGet(() -> tieLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tieLine.getHalf1().getId() + "." + CgmesNames.TOPOLOGICAL_NODE));
+            if (topologicalNode != null) {
+                writeVoltage(topologicalNode, tieLine.getHalf1().getBoundary().getV(), tieLine.getHalf1().getBoundary().getAngle(), cimNamespace, writer);
             }
         }
     }
@@ -225,10 +227,10 @@ public final class StateVariablesExport {
             // DanglingLine's attributes will be created to store calculated flows on the boundary side
             if (context.exportBoundaryPowerFlows()) {
                 dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary")
-                        .ifPresent(terminal -> writePowerFlow(terminal, -dl.getP0(), -dl.getQ0(), cimNamespace, writer));
+                        .ifPresent(terminal -> writePowerFlow(terminal, dl.getBoundary().getP(), dl.getBoundary().getQ(), cimNamespace, writer));
             }
             dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal")
-                    .ifPresent(eit -> writePowerFlow(eit, dl.getP0(), dl.getQ0(), cimNamespace, writer));
+                    .ifPresent(eit -> writePowerFlow(eit, -dl.getBoundary().getP(), -dl.getBoundary().getQ(), cimNamespace, writer));
         });
 
         network.getBranchStream().forEach(b -> {
@@ -236,7 +238,23 @@ public final class StateVariablesExport {
                 .ifPresent(t -> writePowerFlow((String) t, b.getTerminal1().getP(), b.getTerminal1().getQ(), cimNamespace, writer));
             b.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
                 .ifPresent(t -> writePowerFlow((String) t, b.getTerminal2().getP(), b.getTerminal2().getQ(), cimNamespace, writer));
+            if (b instanceof TieLine && context.exportBoundaryPowerFlows()) {
+                TieLine tl = (TieLine) b;
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Network"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal1().getP(), tl.getTerminal1().getQ(), cimNamespace, writer));
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Network"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getTerminal2().getP(), tl.getTerminal2().getQ(), cimNamespace, writer));
+                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF1." + CgmesNames.TERMINAL + "_Boundary")
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer));
+                tl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "HALF2." + CgmesNames.TERMINAL + "_Boundary")
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer));
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf1().getId() + ".Terminal_Boundary"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf1().getBoundary().getP(), tl.getHalf1().getBoundary().getQ(), cimNamespace, writer));
+                Optional.ofNullable(tl.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tl.getHalf2().getId() + ".Terminal_Boundary"))
+                        .ifPresent(t -> writePowerFlow(t, tl.getHalf2().getBoundary().getP(), tl.getHalf2().getBoundary().getQ(), cimNamespace, writer));
+            }
         });
+
         network.getThreeWindingsTransformerStream().forEach(twt -> {
             twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
                 .ifPresent(t -> writePowerFlow(t, twt.getLeg1().getTerminal().getP(), twt.getLeg1().getTerminal().getQ(), cimNamespace, writer));
@@ -245,6 +263,20 @@ public final class StateVariablesExport {
             twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL3)
                 .ifPresent(t -> writePowerFlow(t, twt.getLeg3().getTerminal().getP(), twt.getLeg3().getTerminal().getQ(), cimNamespace, writer));
         });
+
+        if (context.exportFlowsForSwitches()) {
+            network.getVoltageLevelStream().forEach(vl -> {
+                SwitchesFlow swflows = new SwitchesFlow(vl);
+                vl.getSwitches().forEach(sw -> {
+                    if (swflows.hasFlow(sw.getId())) {
+                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1)
+                            .ifPresent(t -> writePowerFlow(t, swflows.getP1(sw.getId()), swflows.getQ1(sw.getId()), cimNamespace, writer));
+                        sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL2)
+                            .ifPresent(t -> writePowerFlow(t, swflows.getP2(sw.getId()), swflows.getQ2(sw.getId()), cimNamespace, writer));
+                    }
+                });
+            });
+        }
     }
 
     private static <I extends Injection<I>> void writeInjectionsPowerFlows(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context, Function<Network, Stream<I>> getInjectionStream) {
@@ -254,31 +286,55 @@ public final class StateVariablesExport {
     private static void writePowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) {
         String cgmesTerminal = ((Connectable<?>) terminal.getConnectable()).getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL1).orElse(null);
         if (cgmesTerminal != null) {
-            writePowerFlow(cgmesTerminal, terminal.getP(), terminal.getQ(), cimNamespace, writer);
+            writePowerFlow(cgmesTerminal, getTerminalP(terminal), terminal.getQ(), cimNamespace, writer);
         } else if (terminal.getConnectable() instanceof Load && terminal.getConnectable().isFictitious()) {
-            // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
-            // These mismatches are given by SvInjection CGMES objects
-            // These loads have been taken into account as inputs for potential power flow analysis
-            // TODO(Luma) Not sure that its values should be written back as SvInjection objects
-            // Because in our output we should write our current mismatches
-            // Original mismatches, if they have been used, should be written as loads
-            // But that would mean to introduce a new object in the Equipment profile
-            Load svInjection = (Load) terminal.getConnectable();
-            Bus bus = svInjection.getTerminal().getBusView().getBus();
-            if (bus == null) {
-                LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
-            } else {
-                Set<String> topologicalNodes = context.getTopologicalNodesByBusViewBus(bus.getId());
-                if (topologicalNodes.isEmpty()) {
-                    LOG.warn("Fictitious load does not have a corresponding Topological Node. No SvInjection is written");
-                } else {
-                    // SvInjection will be assigned to the first of the TNs mapped to the bus
-                    String topologicalNode = topologicalNodes.iterator().next();
-                    writeSvInjection(svInjection, topologicalNode, cimNamespace, writer);
-                }
-            }
+            writeFictitiousLoadPowerFlow(terminal, cimNamespace, writer, context);
         } else {
             LOG.error("No defined CGMES terminal for {}", terminal.getConnectable().getId());
+        }
+    }
+
+    private static double getTerminalP(Terminal terminal) {
+        double p = terminal.getP();
+        if (!Double.isNaN(p)) {
+            return p;
+        }
+        // P is NaN
+        if (Double.isNaN(terminal.getQ())) {
+            return p;
+        }
+        // P is NaN and Q != NaN
+        if (terminal.getConnectable() instanceof StaticVarCompensator) {
+            return 0.0;
+        }
+        if (terminal.getConnectable() instanceof ShuntCompensator) {
+            return 0.0;
+        }
+        return p;
+    }
+
+    private static void writeFictitiousLoadPowerFlow(Terminal terminal, String cimNamespace, XMLStreamWriter writer,
+        CgmesExportContext context) {
+        // Fictitious loads are created in IIDM to keep track of mismatches in the input case,
+        // These mismatches are given by SvInjection CGMES objects
+        // These loads have been taken into account as inputs for potential power flow analysis
+        // TODO(Luma) Not sure that its values should be written back as SvInjection objects
+        // Because in our output we should write our current mismatches
+        // Original mismatches, if they have been used, should be written as loads
+        // But that would mean to introduce a new object in the Equipment profile
+        Load svInjection = (Load) terminal.getConnectable();
+        Bus bus = svInjection.getTerminal().getBusView().getBus();
+        if (bus == null) {
+            LOG.warn("Fictitious load does not have a BusView bus. No SvInjection is written");
+        } else {
+            Set<String> topologicalNodes = context.getTopologicalNodesByBusViewBus(bus.getId());
+            if (topologicalNodes.isEmpty()) {
+                LOG.warn("Fictitious load does not have a corresponding Topological Node. No SvInjection is written");
+            } else {
+                // SvInjection will be assigned to the first of the TNs mapped to the bus
+                String topologicalNode = topologicalNodes.iterator().next();
+                writeSvInjection(svInjection, topologicalNode, cimNamespace, writer);
+            }
         }
     }
 

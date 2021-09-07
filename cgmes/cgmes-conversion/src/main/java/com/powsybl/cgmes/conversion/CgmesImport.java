@@ -52,7 +52,7 @@ public class CgmesImport implements Importer {
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
-        this.boundaryLocationParameter = new Parameter(
+        boundaryLocationParameter = new Parameter(
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
