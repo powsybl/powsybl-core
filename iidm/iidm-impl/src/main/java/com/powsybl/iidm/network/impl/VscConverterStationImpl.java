@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -29,8 +30,15 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
+    private TerminalExt regulatingTerminal;
+
     VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
+        this(id, name, fictitious, lossFactor, ref, voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint, null);
+    }
+
+    VscConverterStationImpl(String id, String name, boolean fictitious, float lossFactor, Ref<NetworkImpl> ref,
+                            boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint, TerminalExt regulatingTerminal) {
         super(ref, id, name, fictitious, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
@@ -40,6 +48,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+        this.regulatingTerminal = regulatingTerminal;
     }
 
     @Override
@@ -153,5 +162,19 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
             reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
             voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
         }
+    }
+
+    @Override
+    public TerminalExt getRegulatingTerminal() {
+        return regulatingTerminal != null ? regulatingTerminal : this.getTerminal();
+    }
+
+    @Override
+    public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        Terminal oldValue = this.regulatingTerminal;
+        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
+        return this;
     }
 }

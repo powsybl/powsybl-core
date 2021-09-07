@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  * VSC converter station.
  *
  * <p>
- *  Characteristics
+ * Characteristics
  * </p>
  * <table style="border: 1px solid black; border-collapse: collapse">
  *     <thead>
@@ -110,4 +110,16 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @return the converter itself to allow method chaining
      */
     HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
+
+    /**
+     * Get the terminal used for regulation.
+     * @return the terminal used for regulation
+     */
+    default Terminal getRegulatingTerminal() {
+        return this.getTerminal();
+    }
+
+    default HvdcConverterStation setRegulatingTerminal(Terminal regulatingTerminal) {
+        return this;
+    }
 }

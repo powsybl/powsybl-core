@@ -20,5 +20,9 @@ public interface VscConverterStationAdder extends HvdcConverterStationAdder<VscC
 
     VscConverterStationAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
+    default VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        return this;
+    }
+
     VscConverterStation add();
 }
