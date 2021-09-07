@@ -164,6 +164,32 @@ public interface Matrix {
     Element addAndGetElement(int i, int j, double value);
 
     /**
+     * Add value at row {@code i} and column {@code j} and get an element index to later update the element.
+     *
+     * @param i row index
+     * @param j column index
+     * @param value the value to add at row {@code i} and column {@code j}
+     * @return an element index corresponding to row {@code i} and column {@code j}
+     */
+    int addAndGetIndex(int i, int j, double value);
+
+    /**
+     * Set value at element index {@code index}.
+     *
+     * @param index element index
+     * @param value the value to set at element index {@code index}
+     */
+    void setAtIndex(int index, double value);
+
+    /**
+     * Add value at element index {@code index}.
+     *
+     * @param index element index
+     * @param value the value to add at element index {@code index}
+     */
+    void addAtIndex(int index, double value);
+
+    /**
      * @deprecated Use {@link #add(int, int, double)} instead.
      */
     @Deprecated

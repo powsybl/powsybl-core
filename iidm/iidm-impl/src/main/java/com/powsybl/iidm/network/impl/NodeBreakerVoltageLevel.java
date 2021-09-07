@@ -15,6 +15,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.TraverseResult;
@@ -505,9 +506,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
                             double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
+        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
         variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
     }
 
@@ -709,7 +710,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             Integer e = switches.remove(switchId);
             if (e == null) {
                 throw new PowsyblException("Switch '" + switchId
-                        + "' not found in substation voltage level '" + id + "'");
+                        + "' not found in voltage level '" + id + "'");
             }
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
