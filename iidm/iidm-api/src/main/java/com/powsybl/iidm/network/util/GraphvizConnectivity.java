@@ -78,13 +78,11 @@ public class GraphvizConnectivity {
                     .attr(GraphVizAttribute.fillcolor, colors[b.getConnectedComponent().getNum()])
                     .attr(GraphVizAttribute.tooltip, tooltip);
             if (countryCluster) {
-                Country country = b.getVoltageLevel().getSubstation().getNullableCountry();
-                if (country != null) {
-                    graph.cluster(scope, country)
-                            .label(country.name())
-                            .attr(GraphVizAttribute.style, "rounded")
-                            .add(node);
-                }
+                b.getVoltageLevel().getSubstation().flatMap(Substation::getCountry)
+                        .ifPresent(country -> graph.cluster(scope, country)
+                        .label(country.name())
+                        .attr(GraphVizAttribute.style, "rounded")
+                        .add(node));
             }
         }
         for (Branch branch : network.getBranches()) {
