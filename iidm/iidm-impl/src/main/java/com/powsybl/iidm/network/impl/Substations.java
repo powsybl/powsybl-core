@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -47,6 +48,7 @@ final class Substations {
      * substation.
      */
     static void checkRemovability(Substation substation) {
+        Objects.requireNonNull(substation);
         for (VoltageLevel vl : substation.getVoltageLevels()) {
             for (Connectable connectable : vl.getConnectables()) {
                 if (connectable instanceof Branch) {
@@ -90,6 +92,5 @@ final class Substations {
 
     private static PowsyblException createIsolationException(Substation substation) {
         return new PowsyblException("The substation " + substation.getId() + " is still connected to another substation");
-
     }
 }
