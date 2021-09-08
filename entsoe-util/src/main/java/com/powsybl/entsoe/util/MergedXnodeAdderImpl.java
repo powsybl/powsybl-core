@@ -8,6 +8,7 @@ package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.AbstractExtensionAdder;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.TieLine;
 
 /**
  * @author Jérémy Labous <jlabous at silicom.fr>
@@ -51,6 +52,10 @@ public class MergedXnodeAdderImpl extends AbstractExtensionAdder<Line, MergedXno
 
     @Override
     protected MergedXnode createExtension(Line extendable) {
+        if (extendable instanceof TieLine) {
+            line1Name = ((TieLine) extendable).getHalf1().getName();
+            line2Name = ((TieLine) extendable).getHalf2().getName();
+        }
         return new MergedXnodeImpl(extendable, rdp, xdp,
                 line1Name, line1Fictitious, xnodeP1, xnodeQ1, b1dp, g1dp,
                 line2Name, line2Fictitious, xnodeP2, xnodeQ2, b2dp, g2dp,
