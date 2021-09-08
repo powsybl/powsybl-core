@@ -48,4 +48,14 @@ class VoltageLevelExtensionTest {
                 .setNominalV(340.0).add()
         assertNull(voltageLevel.substation)
     }
+
+    @Test
+    void getNullSubstationNodeBreakerTest() {
+        Network network = Network.create("test", "test")
+        VoltageLevel voltageLevel = network.newVoltageLevel()
+                .setId("VL")
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .setNominalV(340.0).add()
+        assertNull(voltageLevel.substation)
+    }
 }
