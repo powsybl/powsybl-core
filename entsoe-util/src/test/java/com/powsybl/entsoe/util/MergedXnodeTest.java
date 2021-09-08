@@ -56,7 +56,6 @@ public class MergedXnodeTest {
                 .setB1(0.0)
                 .setB2(0.0)
                 .add();
-
         // extends line
         line.newExtension(MergedXnodeAdder.class).withRdp(0.5).withXdp(0.75)
                 .withXnodeP1(1.0).withXnodeQ1(2.0)
@@ -70,6 +69,51 @@ public class MergedXnodeTest {
                 .withB2dp(3.5 / 8)
                 .withG2dp(5.5 / 12)
                 .withCode("XXXXXX11")
+                .add();
+
+        TieLine tieLine = network.newTieLine()
+                .setId("TL")
+                .setVoltageLevel1("VL1")
+                .setBus1("B1")
+                .setVoltageLevel2("VL2")
+                .setBus2("B2")
+                .setUcteXnodeCode("XXXXXX22")
+                .newHalfLine1()
+                .setId("HL1")
+                .setName("HalfLine1")
+                .setFictitious(false)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .add()
+                .newHalfLine2()
+                .setId("HL2")
+                .setName("HalfLine2")
+                .setFictitious(false)
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .add()
+                .add();
+        // extends tieLine
+        tieLine.newExtension(MergedXnodeAdder.class).withRdp(0.5).withXdp(0.75)
+                .withXnodeP1(1.0).withXnodeQ1(2.0)
+                .withXnodeP2(1.5).withXnodeQ2(2.5)
+                .withLine1Name("")
+                .withLine1Fictitious(true)
+                .withB1dp(3 / 7)
+                .withG1dp(5 / 11)
+                .withLine2Name("")
+                .withLine2Fictitious(true)
+                .withB2dp(3.5 / 8)
+                .withG2dp(5.5 / 12)
+                .withCode("XXXXXX22")
                 .add();
 
         return network;
@@ -99,6 +143,31 @@ public class MergedXnodeTest {
         assertEquals(3.5 / 8, xnode.getB2dp(), 0);
         assertEquals(5.5 / 12, xnode.getG2dp(), 0);
         assertEquals("XXXXXX11", xnode.getCode());
+        assertEquals("", xnode.getLine1Name());
+        assertEquals("", xnode.getLine2Name());
+
+        // extends tieLine
+        Line tieLine = network.getLine("TL");
+        xnode = tieLine.getExtension(MergedXnode.class);
+
+        assertEquals("mergedXnode", xnode.getName());
+        assertSame(tieLine, xnode.getExtendable());
+
+        assertEquals(0.5, xnode.getRdp(), 0);
+        assertEquals(0.75, xnode.getXdp(), 0);
+        assertEquals(1.0, xnode.getXnodeP1(), 0.0);
+        assertEquals(2.0, xnode.getXnodeQ1(), 0.0);
+        assertEquals(1.5, xnode.getXnodeP2(), 0.0);
+        assertEquals(2.5, xnode.getXnodeQ2(), 0.0);
+        assertTrue(xnode.isLine1Fictitious());
+        assertTrue(xnode.isLine1Fictitious());
+        assertEquals(3 / 7, xnode.getB1dp(), 0);
+        assertEquals(5 / 11, xnode.getG1dp(), 0);
+        assertEquals(3.5 / 8, xnode.getB2dp(), 0);
+        assertEquals(5.5 / 12, xnode.getG2dp(), 0);
+        assertEquals("XXXXXX22", xnode.getCode());
+        assertEquals("HalfLine1", xnode.getLine1Name());
+        assertEquals("HalfLine2", xnode.getLine2Name());
     }
 
     @Test
