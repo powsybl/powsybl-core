@@ -67,9 +67,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setR(double r) {
-            if (Double.isNaN(r)) {
-                throw new ValidationException(this, "r is invalid");
-            }
+            ValidationUtil.checkR(this, r);
             double oldValue = this.r;
             this.r = r;
             transformer.notifyUpdate(() -> getLegAttribute() + ".r", oldValue, r);
@@ -81,9 +79,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setX(double x) {
-            if (Double.isNaN(x)) {
-                throw new ValidationException(this, "x is invalid");
-            }
+            ValidationUtil.checkX(this, x);
             double oldValue = this.x;
             this.x = x;
             transformer.notifyUpdate(() -> getLegAttribute() + ".x", oldValue, x);
@@ -95,9 +91,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setG(double g) {
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is invalid");
-            }
+            ValidationUtil.checkG(this, g);
             double oldValue = this.g;
             this.g = g;
             transformer.notifyUpdate(() -> getLegAttribute() + ".g", oldValue, g);
@@ -109,9 +103,7 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public Leg setB(double b) {
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is invalid");
-            }
+            ValidationUtil.checkB(this, b);
             double oldValue = this.b;
             this.b = b;
             transformer.notifyUpdate(() -> getLegAttribute() + ".b", oldValue, b);

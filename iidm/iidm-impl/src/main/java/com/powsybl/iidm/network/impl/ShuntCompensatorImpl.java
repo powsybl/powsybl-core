@@ -19,7 +19,7 @@ import java.util.Objects;
  */
 class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
-    private final Ref<? extends VariantManagerHolder> network;
+    private final NetworkImpl network;
 
     private final ShuntCompensatorModelExt model;
 
@@ -40,14 +40,14 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the target deadband */
     private final TDoubleArrayList targetDeadband;
 
-    ShuntCompensatorImpl(Ref<NetworkImpl> network,
+    ShuntCompensatorImpl(Ref<NetworkImpl> networkRef,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
                          int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
-        super(network, id, name, fictitious);
-        this.network = network;
+        super(networkRef, id, name, fictitious);
+        network = networkRef.get();
         this.regulatingTerminal = regulatingTerminal;
-        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        int variantArraySize = network.getVariantManager().getVariantArraySize();
         this.sectionCount = new TIntArrayList(variantArraySize);
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
@@ -68,7 +68,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public int getSectionCount() {
-        return sectionCount.get(network.get().getVariantIndex());
+        return sectionCount.get(network.getVariantIndex());
     }
 
     @Override
@@ -78,25 +78,26 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setSectionCount(int sectionCount) {
-        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount());
+        ValidationUtil.checkSections(this, sectionCount, model.getMaximumSectionCount(), network.areValidationChecksEnabled());
         if (sectionCount < 0 || sectionCount > model.getMaximumSectionCount()) {
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = network.getVariantIndex();
         int oldValue = this.sectionCount.set(variantIndex, sectionCount);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public double getB() {
-        return model.getB(sectionCount.get(network.get().getVariantIndex()));
+        return model.getB(sectionCount.get(network.getVariantIndex()));
     }
 
     @Override
     public double getG() {
-        return model.getG(sectionCount.get(network.get().getVariantIndex()));
+        return model.getG(sectionCount.get(network.getVariantIndex()));
     }
 
     @Override
@@ -138,7 +139,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, this.regulatingTerminal);
@@ -147,47 +148,50 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(network.get().getVariantIndex());
+        return voltageRegulatorOn.get(network.getVariantIndex());
     }
 
     @Override
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex));
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband.get(variantIndex));
+        int variantIndex = network.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), network.areValidationChecksEnabled());
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband.get(variantIndex), network.areValidationChecksEnabled());
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return targetV.get(network.get().getVariantIndex());
+        return targetV.get(network.getVariantIndex());
     }
 
     @Override
     public ShuntCompensatorImpl setTargetV(double targetV) {
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV);
+        int variantIndex = network.getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, network.areValidationChecksEnabled());
         double oldValue = this.targetV.set(variantIndex, targetV);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValue, targetV);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public double getTargetDeadband() {
-        return targetDeadband.get(network.get().getVariantIndex());
+        return targetDeadband.get(network.getVariantIndex());
     }
 
     @Override
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", this.voltageRegulatorOn.get(variantIndex), targetDeadband);
+        int variantIndex = network.getVariantIndex();
+        ValidationUtil.checkTargetDeadband(this, "shunt compensator", this.voltageRegulatorOn.get(variantIndex), targetDeadband, network.areValidationChecksEnabled());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 

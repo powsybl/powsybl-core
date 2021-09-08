@@ -66,25 +66,27 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         }
         if (twt.getActivePowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, twt.getActivePowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, twt.getActivePowerLimits1(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getApparentPowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, twt.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, twt.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
         if (twt.getActivePowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, twt.getActivePowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, twt.getActivePowerLimits2(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getApparentPowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, twt.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, twt.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 
@@ -101,12 +103,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
-        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
-        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
+        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
+        double ratedU1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU1");
+        double ratedU2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)

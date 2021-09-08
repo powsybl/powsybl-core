@@ -59,25 +59,28 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     @Override
     public VscConverterStationImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetwork().getRef(), voltageRegulatorOn,
+                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), network.getRef(), voltageRegulatorOn,
                 reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(converterStation);
-        getNetwork().getListeners().notifyCreation(converterStation);
+        network.getIndex().checkAndAdd(converterStation);
+        network.getListeners().notifyCreation(converterStation);
+        network.uncheckValidationStatusIfDisabledCheck();
         return converterStation;
     }
 
     @Override
     protected void validate() {
         super.validate();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        NetworkImpl network = getNetwork();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, network.areValidationChecksEnabled());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 
 }

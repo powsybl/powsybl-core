@@ -34,7 +34,9 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
 
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("kind", s.getKind().name());
+        if (s.getKind() != null) {
+            context.getWriter().writeAttribute("kind", s.getKind().name());
+        }
         context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
         context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
 

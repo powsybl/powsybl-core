@@ -18,4 +18,8 @@ public interface OperationalLimitsOwner extends Validable {
     void setOperationalLimits(LimitType limitType, OperationalLimits operationalLimits);
 
     void notifyUpdate(LimitType limitType, String attribute, double oldValue, double newValue);
+
+    default NetworkImpl getNetwork() {
+        return null;
+    }
 }

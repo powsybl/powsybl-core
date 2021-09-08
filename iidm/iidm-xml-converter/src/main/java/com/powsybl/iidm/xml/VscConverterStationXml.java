@@ -63,7 +63,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     @Override
     protected VscConverterStation readRootElementAttributes(VscConverterStationAdder adder, NetworkXmlReaderContext context) {
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
+        float lossFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "lossFactor");
         double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
         readNodeOrBus(adder, context);

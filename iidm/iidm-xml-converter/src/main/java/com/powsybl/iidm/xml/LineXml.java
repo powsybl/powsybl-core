@@ -59,25 +59,27 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (l.getActivePowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, l.getActivePowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(1, l.getActivePowerLimits1(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (l.getApparentPowerLimits1() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_1, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, l.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(1, l.getApparentPowerLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (l.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
         if (l.getActivePowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, l.getActivePowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(2, l.getActivePowerLimits2(), context.getWriter(), context.getVersion(),
+                    context.isValid(), context.getOptions()));
         }
         if (l.getApparentPowerLimits2() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS_2, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, l.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(2, l.getApparentPowerLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (l.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, l.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(2, l.getCurrentLimits2(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 
@@ -88,12 +90,12 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
-        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
-        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
+        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
+        double g1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b1");
+        double g2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g2");
+        double b2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)

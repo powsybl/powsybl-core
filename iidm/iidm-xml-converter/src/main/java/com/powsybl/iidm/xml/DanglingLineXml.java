@@ -93,14 +93,15 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         }
         if (dl.getActivePowerLimits() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, ACTIVE_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, dl.getActivePowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeActivePowerLimits(null, dl.getActivePowerLimits(), context.getWriter(),
+                    context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (dl.getApparentPowerLimits() != null) {
             IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, APPARENT_POWER_LIMITS, IidmXmlUtil.ErrorMessage.NOT_NULL_NOT_SUPPORTED, IidmXmlVersion.V_1_5, context);
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, dl.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.getOptions()));
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_5, context, () -> writeApparentPowerLimits(null, dl.getApparentPowerLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions()));
         }
         if (dl.getCurrentLimits() != null) {
-            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.getOptions());
+            writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter(), context.getVersion(), context.isValid(), context.getOptions());
         }
     }
 
@@ -111,12 +112,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
-        double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
-        double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
+        double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
+        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
             if (voltageRegulationOnStr != null) {

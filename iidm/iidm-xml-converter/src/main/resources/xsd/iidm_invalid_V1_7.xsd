@@ -9,8 +9,8 @@
 -->
 <xs:schema version="1.7"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7"
-           targetNamespace="http://www.powsybl.org/schema/iidm/1_7"
+           xmlns:iidm="http://www.powsybl.org/schema/iidm/invalid/1_7"
+           targetNamespace="http://www.powsybl.org/schema/iidm/invalid/1_7"
            elementFormDefault="qualified">
     <xs:simpleType name='nonEmptyString'>
         <xs:restriction base='xs:string'>
@@ -161,7 +161,7 @@
     <xs:complexType name="Switch">
         <xs:complexContent>
             <xs:extension base="iidm:Identifiable">
-                <xs:attribute name="kind" use="required" type="iidm:SwitchKind"/>
+                <xs:attribute name="kind" use="optional" type="iidm:SwitchKind"/>
                 <xs:attribute name="retained" use="required" type="xs:boolean"/>
                 <xs:attribute name="open" use="required" type="xs:boolean"/>
             </xs:extension>
@@ -237,7 +237,7 @@
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="ratedS" use="optional" type="xs:double"/>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
-                <xs:attribute name="targetP" use="required" type="xs:double"/>
+                <xs:attribute name="targetP" use="optional" type="xs:double"/>
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
             </xs:extension>
@@ -252,8 +252,8 @@
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
                     </xs:choice>
                 </xs:sequence>
-                <xs:attribute name="p0" use="required" type="xs:double"/>
-                <xs:attribute name="q0" use="required" type="xs:double"/>
+                <xs:attribute name="p0" use="optional" type="xs:double"/>
+                <xs:attribute name="q0" use="optional" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
             </xs:extension>
@@ -269,9 +269,9 @@
     <xs:complexType name="Load">
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
-                <xs:attribute name="p0" use="required" type="xs:double"/>
-                <xs:attribute name="q0" use="required" type="xs:double"/>
-                <xs:attribute name="loadType" use="optional" type="iidm:LoadType"/>
+                <xs:attribute name="p0" use="optional" type="xs:double"/>
+                <xs:attribute name="q0" use="optional" type="xs:double"/>
+                <xs:attribute name="loadType" use="required" type="iidm:LoadType"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -331,8 +331,8 @@
                     <xs:element name="apparentPowerLimits" type="iidm:LoadingLimit" minOccurs="0"/>
                     <xs:element name="currentLimits" type="iidm:LoadingLimit" minOccurs="0"/>
                 </xs:sequence>
-                <xs:attribute name="p0" use="required" type="xs:double"/>
-                <xs:attribute name="q0" use="required" type="xs:double"/>
+                <xs:attribute name="p0" use="optional" type="xs:double"/>
+                <xs:attribute name="q0" use="optional" type="xs:double"/>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
                 <xs:attribute name="g" use="required" type="xs:double"/>
@@ -364,7 +364,7 @@
                 <xs:attribute name="bMax" use="required" type="xs:double"/>
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
-                <xs:attribute name="regulationMode" use="required" type="iidm:StaticVarCompensatorRegulationMode"/>
+                <xs:attribute name="regulationMode" use="optional" type="iidm:StaticVarCompensatorRegulationMode"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
@@ -498,10 +498,10 @@
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
+            <xs:element name="step" minOccurs="0" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
-        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
@@ -517,10 +517,10 @@
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
+            <xs:element name="step" minOccurs="0" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
-        <xs:attribute name="tapPosition" use="required" type="xs:int"/>
+        <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
         <xs:attribute name="targetDeadband" use="optional" type="xs:double"/>
         <xs:attribute name="regulationMode" use="required" type="iidm:PhaseRegulationMode"/>
         <xs:attribute name="regulationValue" use="optional" type="xs:double"/>
@@ -592,17 +592,13 @@
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
-
     <xs:complexType name="VscConverterStation">
         <xs:complexContent>
             <xs:extension base="iidm:HvdcConverterStation">
-                <xs:sequence>
-                    <xs:choice>
-                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
-                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
-                    </xs:choice>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
-                </xs:sequence>
+                <xs:choice>
+                    <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                    <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                </xs:choice>
                 <xs:attribute name="voltageRegulatorOn" use="required" type="xs:boolean"/>
                 <xs:attribute name="voltageSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="reactivePowerSetpoint" use="optional" type="xs:double"/>
@@ -621,7 +617,7 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="nominalV" use="required" type="xs:double"/>
-                <xs:attribute name="activePowerSetpoint" use="required" type="xs:double"/>
+                <xs:attribute name="activePowerSetpoint" use="optional" type="xs:double"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
                 <xs:attribute name="convertersMode" use="required" type="iidm:ConvertersMode"/>
                 <xs:attribute name="converterStation1" use="required" type="iidm:nonEmptyString"/>

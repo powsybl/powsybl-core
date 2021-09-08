@@ -8,7 +8,7 @@
   -->
 
 <iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00"
-              forecastDistance="0" sourceFormat="test"
+              forecastDistance="0" sourceFormat="test" valid="VALID"
               xmlns:hapc="http://www.itesla_project.eu/schema/iidm/ext/hvdc_angle_droop_active_power_control/1_0">
     <iidm:substation id="S1" country="FR">
         <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">

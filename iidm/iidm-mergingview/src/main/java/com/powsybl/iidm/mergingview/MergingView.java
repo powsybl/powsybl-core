@@ -10,6 +10,7 @@ import com.google.common.collect.FluentIterable;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -877,5 +878,40 @@ public final class MergingView implements Network, MultiVariantObject {
     @Override
     public void removeListener(final NetworkListener listener) {
         throw createNotImplementedException();
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks() {
+        index.getNetworkStream().forEach(Network::runValidationChecks);
+        return getValidationStatus();
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks(boolean throwsException) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException));
+        return getValidationStatus();
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
+        index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException, reporter));
+        return getValidationStatus();
+    }
+
+    @Override
+    public ValidationStatus getValidationStatus() {
+        if (index.getNetworkStream().anyMatch(n -> n.getValidationStatus() == ValidationStatus.VALID)) {
+            return ValidationStatus.VALID;
+        }
+        if (index.getNetworkStream().anyMatch(n -> n.getValidationStatus() == ValidationStatus.INVALID)) {
+            return ValidationStatus.INVALID;
+        }
+        return ValidationStatus.UNCHECKED;
+    }
+
+    @Override
+    public MergingView enableValidationChecks(boolean valid) {
+        index.getNetworkStream().forEach(n -> n.enableValidationChecks(valid));
+        return this;
     }
 }

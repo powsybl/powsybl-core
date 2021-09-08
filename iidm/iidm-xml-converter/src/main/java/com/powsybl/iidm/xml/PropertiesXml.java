@@ -8,6 +8,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
@@ -26,7 +27,7 @@ public final class PropertiesXml {
         if (identifiable.hasProperty()) {
             for (String name : IidmXmlUtil.sortedNames(identifiable.getPropertyNames(), context.getOptions())) {
                 String value = identifiable.getProperty(name);
-                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), PROPERTY);
+                context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(identifiable.getNetwork().getValidationStatus() == Network.ValidationStatus.VALID), PROPERTY);
                 context.getWriter().writeAttribute(NAME, name);
                 context.getWriter().writeAttribute(VALUE, value);
             }

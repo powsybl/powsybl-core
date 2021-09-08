@@ -18,7 +18,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class LoadImpl extends AbstractConnectable<Load> implements Load {
 
-    private final Ref<? extends VariantManagerHolder> network;
+    private final NetworkImpl network;
 
     private LoadType loadType;
 
@@ -28,12 +28,12 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     private final TDoubleArrayList q0;
 
-    LoadImpl(Ref<NetworkImpl> network,
+    LoadImpl(Ref<NetworkImpl> networkRef,
              String id, String name, boolean fictitious, LoadType loadType, double p0, double q0) {
-        super(network, id, name, fictitious);
-        this.network = network;
+        super(networkRef, id, name, fictitious);
+        network = networkRef.get();
         this.loadType = loadType;
-        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        int variantArraySize = network.getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);
         this.q0 = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -68,31 +68,33 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     @Override
     public double getP0() {
-        return p0.get(network.get().getVariantIndex());
+        return p0.get(network.getVariantIndex());
     }
 
     @Override
     public LoadImpl setP0(double p0) {
-        ValidationUtil.checkP0(this, p0);
-        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkP0(this, p0, network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("p0", variantId, oldValue, p0);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public double getQ0() {
-        return q0.get(network.get().getVariantIndex());
+        return q0.get(network.getVariantIndex());
     }
 
     @Override
     public LoadImpl setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0);
-        int variantIndex = network.get().getVariantIndex();
+        ValidationUtil.checkQ0(this, q0, network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("q0", variantId, oldValue, q0);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 

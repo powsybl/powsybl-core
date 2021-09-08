@@ -65,9 +65,11 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         @Override
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ);
+            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, getNetwork().areValidationChecksEnabled());
+            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().areValidationChecksEnabled());
+
             generationAdder = this;
+            getNetwork().uncheckValidationStatusIfDisabledCheck();
             return DanglingLineAdderImpl.this;
         }
 
@@ -157,11 +159,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
     @Override
     public DanglingLineImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkP0(this, p0);
-        ValidationUtil.checkQ0(this, q0);
+        ValidationUtil.checkP0(this, p0, network.areValidationChecksEnabled());
+        ValidationUtil.checkQ0(this, q0, network.areValidationChecksEnabled());
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
@@ -172,11 +175,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
             generation = generationAdder.build();
         }
 
-        DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
+        DanglingLineImpl danglingLine = new DanglingLineImpl(network.getRef(), id, getName(), isFictitious(), p0, q0, r, x, g, b, ucteXnodeCode, generation);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(danglingLine);
-        getNetwork().getListeners().notifyCreation(danglingLine);
+        network.getIndex().checkAndAdd(danglingLine);
+        network.getListeners().notifyCreation(danglingLine);
+        network.uncheckValidationStatusIfDisabledCheck();
         return danglingLine;
     }
 

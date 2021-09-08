@@ -10,6 +10,7 @@ import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.components.AbstractConnectedComponentsManager;
 import com.powsybl.iidm.network.components.AbstractSynchronousComponentsManager;
@@ -39,6 +40,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     private int forecastDistance = 0;
 
     private String sourceFormat;
+
+    private ValidationStatus validationStatus = ValidationStatus.VALID;
+
+    private boolean enableChecks = true;
 
     private final NetworkIndex index = new NetworkIndex();
 
@@ -1131,5 +1136,68 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public void removeListener(NetworkListener listener) {
         listeners.remove(listener);
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks(boolean throwsException) {
+        if (validationStatus != ValidationStatus.VALID) {
+            try {
+                ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()));
+            } catch (ValidationException e) {
+                validationStatus = ValidationStatus.INVALID;
+                if (throwsException) {
+                    throw e;
+                } else {
+                    return validationStatus;
+                }
+            }
+            validationStatus = ValidationStatus.VALID;
+        }
+        return validationStatus;
+    }
+
+    @Override
+    public ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
+        Reporter readReporter = reporter.createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+        if (validationStatus != ValidationStatus.VALID) {
+            if (throwsException) {
+                try {
+                    ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), true, readReporter);
+                } catch (ValidationException e) {
+                    validationStatus = ValidationStatus.INVALID;
+                    throw e;
+                }
+            } else {
+                ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, readReporter);
+                return runValidationChecks(false);
+            }
+        }
+        return validationStatus;
+    }
+
+    @Override
+    public ValidationStatus getValidationStatus() {
+        return validationStatus;
+    }
+
+    @Override
+    public NetworkImpl enableValidationChecks(boolean enableChecks) {
+        this.enableChecks = enableChecks;
+        return this;
+    }
+
+    boolean areValidationChecksEnabled() {
+        return enableChecks;
+    }
+
+    void uncheckValidationStatusIfDisabledCheck() {
+        if (!enableChecks) {
+            validationStatus = ValidationStatus.UNCHECKED;
+        }
     }
 }

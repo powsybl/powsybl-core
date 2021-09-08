@@ -84,20 +84,22 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
 
     @Override
     public StaticVarCompensatorImpl add() {
+        NetworkImpl network = getNetwork();
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode);
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
+        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, reactivePowerSetpoint, regulationMode, network.areValidationChecksEnabled());
         StaticVarCompensatorImpl svc = new StaticVarCompensatorImpl(id, name, isFictitious(), bMin, bMax, voltageSetpoint, reactivePowerSetpoint,
                 regulationMode, regulatingTerminal != null ? regulatingTerminal : terminal,
-                getNetwork().getRef());
+                network.getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
-        getNetwork().getIndex().checkAndAdd(svc);
-        getNetwork().getListeners().notifyCreation(svc);
+        network.getIndex().checkAndAdd(svc);
+        network.getListeners().notifyCreation(svc);
+        network.uncheckValidationStatusIfDisabledCheck();
         return svc;
     }
 

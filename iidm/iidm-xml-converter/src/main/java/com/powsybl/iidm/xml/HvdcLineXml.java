@@ -37,7 +37,9 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r", l.getR(), context.getWriter());
         XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
-        context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
+        if (l.getConvertersMode() != null) {
+            context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
+        }
         XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
         XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
         context.getWriter().writeAttribute("converterStation1", context.getAnonymizer().anonymizeString(l.getConverterStation1().getId()));
@@ -51,11 +53,12 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
-        HvdcLine.ConvertersMode convertersMode = HvdcLine.ConvertersMode.valueOf(context.getReader().getAttributeValue(null, "convertersMode"));
-        double activePowerSetpoint = XmlUtil.readDoubleAttribute(context.getReader(), "activePowerSetpoint");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
+        double nominalV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "nominalV");
+        String convertersModeStr = context.getReader().getAttributeValue(null, "convertersMode");
+        HvdcLine.ConvertersMode convertersMode = convertersModeStr != null ? HvdcLine.ConvertersMode.valueOf(convertersModeStr) : null;
+        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "activePowerSetpoint");
+        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
         String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation1"));
         String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation2"));
         return adder.setR(r)

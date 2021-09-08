@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
-<network xmlns="http://www.powsybl.org/schema/iidm/1_7" id="test" sourceFormat="???" caseDate="2014-02-12T13:19:17+01:00" forecastDistance="0">
+<network xmlns="http://www.powsybl.org/schema/iidm/1_7" id="test" sourceFormat="???" caseDate="2014-02-12T13:19:17+01:00" forecastDistance="0" valid="VALID">
     <substation id="S" country="FR" tso="RTE">
         <voltageLevel id="V" nominalV="380"  topologyKind="BUS_BREAKER">
             <busBreakerTopology>

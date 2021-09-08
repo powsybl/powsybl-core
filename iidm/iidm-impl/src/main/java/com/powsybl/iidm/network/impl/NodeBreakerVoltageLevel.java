@@ -118,9 +118,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public NodeBreakerView.SwitchAdder setKind(SwitchKind kind) {
-            if (kind == null) {
-                throw new NullPointerException("kind is null");
-            }
             this.kind = kind;
             return this;
         }
@@ -158,6 +155,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
             graph.addEdge(node1, node2, aSwitch);
+            getNetwork().uncheckValidationStatusIfDisabledCheck();
             return aSwitch;
         }
 

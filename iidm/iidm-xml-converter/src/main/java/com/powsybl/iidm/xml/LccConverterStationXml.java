@@ -48,7 +48,7 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
 
     @Override
     protected LccConverterStation readRootElementAttributes(LccConverterStationAdder adder, NetworkXmlReaderContext context) {
-        float lossFactor = XmlUtil.readFloatAttribute(context.getReader(), "lossFactor");
+        float lossFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "lossFactor");
         float powerFactor = XmlUtil.readOptionalFloatAttribute(context.getReader(), "powerFactor");
         readNodeOrBus(adder, context);
         LccConverterStation cs = adder

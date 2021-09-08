@@ -80,15 +80,15 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     private static void writeModel(ShuntCompensator sc, NetworkXmlWriterContext context) throws XMLStreamException {
         if (sc.getModelType() == ShuntCompensatorModelType.LINEAR) {
-            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), SHUNT_LINEAR_MODEL);
+            context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_LINEAR_MODEL);
             XmlUtil.writeDouble(B_PER_SECTION, sc.getModel(ShuntCompensatorLinearModel.class).getBPerSection(), context.getWriter());
             XmlUtil.writeDouble("gPerSection", sc.getModel(ShuntCompensatorLinearModel.class).getGPerSection(), context.getWriter());
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(sc.getMaximumSectionCount()));
         } else if (sc.getModelType() == ShuntCompensatorModelType.NON_LINEAR) {
             IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(), SHUNT_NON_LINEAR_MODEL);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(context.isValid()), SHUNT_NON_LINEAR_MODEL);
                 for (ShuntCompensatorNonLinearModel.Section s : sc.getModel(ShuntCompensatorNonLinearModel.class).getAllSections()) {
-                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(), "section");
+                    context.getWriter().writeEmptyElement(context.getVersion().getNamespaceURI(context.isValid()), "section");
                     XmlUtil.writeDouble("b", s.getB(), context.getWriter());
                     XmlUtil.writeDouble("g", s.getG(), context.getWriter());
                 }
@@ -159,7 +159,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
+                    double bPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), B_PER_SECTION);
                     double gPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "gPerSection");
                     int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
                     adder.newLinearModel()
@@ -173,7 +173,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
                     XmlUtil.readUntilEndElement(SHUNT_NON_LINEAR_MODEL, context.getReader(), () -> {
                         if ("section".equals(context.getReader().getLocalName())) {
-                            double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+                            double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
                             double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
                             modelAdder.beginSection()
                                     .setB(b)

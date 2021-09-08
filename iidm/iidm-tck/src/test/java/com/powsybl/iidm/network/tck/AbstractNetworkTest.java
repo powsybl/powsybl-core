@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Report;
+import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import com.powsybl.iidm.network.test.*;
@@ -16,10 +18,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -202,6 +201,20 @@ public abstract class AbstractNetworkTest {
         busCalc.setProperty(key, value);
         // Check no notification
         verifyNoMoreInteractions(mockedListener);
+
+        // validation
+        assertEquals(Network.ValidationStatus.VALID, network.getValidationStatus());
+        network.runValidationChecks();
+        network.enableValidationChecks(false);
+        voltageLevel1.newLoad()
+                .setId("unchecked")
+                .setP0(1.0)
+                .setQ0(1.0)
+                .setNode(3)
+                .add();
+        assertEquals(Network.ValidationStatus.UNCHECKED, network.getValidationStatus());
+        network.runValidationChecks();
+        assertEquals(Network.ValidationStatus.VALID, network.getValidationStatus());
     }
 
     @Test
@@ -541,5 +554,35 @@ public abstract class AbstractNetworkTest {
         } catch (PowsyblException ignored) {
             // ignore
         }
+    }
+
+    @Test
+    public void testInvalidNetwork() {
+        Network network = InvalidNetworkFactory.create();
+        assertEquals(Network.ValidationStatus.UNCHECKED, network.getValidationStatus());
+
+        assertEquals(Network.ValidationStatus.INVALID, network.runValidationChecks(false));
+
+        ReporterModel reporter = new ReporterModel("testReportInvalidNetwork", "Test reporting of invalid network", Collections.emptyMap());
+        assertEquals(Network.ValidationStatus.INVALID, network.runValidationChecks(false, reporter));
+        List<ReporterModel> subReporters = reporter.getSubReporters();
+        assertEquals(1, subReporters.size());
+        ReporterModel subReporter = subReporters.get(0);
+        assertEquals("IIDMValidation", subReporter.getTaskKey());
+        assertEquals("Running validation checks on IIDM network invalid", subReporter.getDefaultName());
+        Collection<Report> reports = subReporter.getReports();
+        assertEquals(34, reports.size());
+
+        assertEquals(Network.ValidationStatus.INVALID, network.getValidationStatus());
+
+        try {
+            network.runValidationChecks();
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
+        }
+
+        network.enableValidationChecks(true);
+        assertEquals(Network.ValidationStatus.INVALID, network.getValidationStatus());
     }
 }

@@ -93,6 +93,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
             return this;
         }
 
+        @Override
         public TieLineAdderImpl add() {
             if (id == null || id.isEmpty()) {
                 throw new ValidationException(this, String.format("id is not set for half line %d", num));
@@ -181,9 +182,7 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
 
-        if (ucteXnodeCode == null) {
-            throw new ValidationException(this, "ucteXnodeCode is not set");
-        }
+        ValidationUtil.checkUcteXnodeCode(this, ucteXnodeCode, network.areValidationChecksEnabled());
 
         if (halfLineAdder1 == null) {
             throw new ValidationException(this, "half line 1 is not set");
@@ -208,7 +207,8 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
         network.getIndex().checkAndAdd(line);
-        getNetwork().getListeners().notifyCreation(line);
+        network.getListeners().notifyCreation(line);
+        network.uncheckValidationStatusIfDisabledCheck();
         return line;
     }
 

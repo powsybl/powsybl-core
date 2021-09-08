@@ -54,7 +54,6 @@ class ReactiveCapabilityCurveImpl implements ReactiveCapabilityCurve {
     private final TreeMap<Double, Point> points;
 
     ReactiveCapabilityCurveImpl(TreeMap<Double, Point> points) {
-        assert points.size() >= 2;
         this.points = points;
     }
 

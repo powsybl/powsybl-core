@@ -7,11 +7,14 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.reporter.Reporter;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Stream;
+
+import static com.powsybl.iidm.network.Network.ValidationStatus.VALID;
 
 /**
  * A power network model.
@@ -86,6 +89,12 @@ import java.util.stream.Stream;
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
+
+    enum ValidationStatus {
+        VALID,
+        UNCHECKED,
+        INVALID
+    }
 
     /**
      * A global bus/breaker view of the network.
@@ -858,5 +867,53 @@ public interface Network extends Container<Network> {
     @Override
     default IdentifiableType getType() {
         return IdentifiableType.NETWORK;
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationStatus runValidationChecks() {
+        return runValidationChecks(true);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationStatus runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    /**
+     * If network is valid, do nothing.<br>
+     * If network not valid and <code>throwsException</code> is <code>true</code>, check if each network component is valid. A {@link ValidationException} is thrown with an explicit message if one network component is not valid.<br>
+     * If all network components are valid, network validation status is updated to true.
+     * Return the network validation status.
+     */
+    default ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
+        return VALID;
+    }
+
+    /**
+     * Return the network validation status. Do <b>not</b> run any validation check.
+     */
+    default ValidationStatus getValidationStatus() {
+        return VALID;
+    }
+
+    /**
+     * Set the validation status.<br>
+     * If the wanted validation status is true, attempt to {@link #runValidationChecks()} the network first if the network is invalid.
+     */
+    default Network enableValidationChecks(boolean valid) {
+        if (!valid) {
+            throw new UnsupportedOperationException("Invalid network not supported");
+        }
+        return this;
     }
 }

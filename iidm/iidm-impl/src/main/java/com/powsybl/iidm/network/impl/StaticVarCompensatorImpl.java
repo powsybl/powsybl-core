@@ -20,6 +20,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     static final String TYPE_DESCRIPTION = "staticVarCompensator";
 
+    private final NetworkImpl network;
+
     private double bMin;
 
     private double bMax;
@@ -37,6 +39,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     StaticVarCompensatorImpl(String id, String name, boolean fictitious, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
                              RegulationMode regulationMode, TerminalExt regulatingTerminal, Ref<NetworkImpl> ref) {
         super(ref, id, name, fictitious);
+        network = ref.get();
         this.bMin = bMin;
         this.bMax = bMax;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -47,7 +50,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         for (int i = 0; i < variantArraySize; i++) {
             this.voltageSetpoint.add(voltageSetpoint);
             this.reactivePowerSetpoint.add(reactivePowerSetpoint);
-            this.regulationMode.add(regulationMode.ordinal());
+            this.regulationMode.add(regulationMode != null ? regulationMode.ordinal() : -1);
         }
     }
 
@@ -91,47 +94,50 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public double getVoltageSetpoint() {
-        return voltageSetpoint.get(getNetwork().getVariantIndex());
+        return voltageSetpoint.get(network.getVariantIndex());
     }
 
     @Override
     public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
-        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode());
-        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode(), network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
+        return reactivePowerSetpoint.get(network.getVariantIndex());
     }
 
     @Override
     public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode());
-        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode(), network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
     @Override
     public RegulationMode getRegulationMode() {
-        return RegulationMode.values()[regulationMode.get(getNetwork().getVariantIndex())];
+        return regulationMode.get(network.getVariantIndex()) != -1 ? RegulationMode.values()[regulationMode.get(network.getVariantIndex())] : null;
     }
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
-        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode, network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(variantIndex,
-                regulationMode.ordinal())];
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+                regulationMode != null ? regulationMode.ordinal() : -1)];
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
@@ -142,7 +148,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);

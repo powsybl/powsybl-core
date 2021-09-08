@@ -63,12 +63,13 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
-        EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
-        double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
-        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
+        String energySourceStr = context.getReader().getAttributeValue(null, "energySource");
+        EnergySource energySource = energySourceStr != null ? EnergySource.valueOf(energySourceStr) : null;
+        double minP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "minP");
+        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
         double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
         boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
-        double targetP = XmlUtil.readDoubleAttribute(context.getReader(), "targetP");
+        double targetP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetP");
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
         double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
         readNodeOrBus(adder, context);

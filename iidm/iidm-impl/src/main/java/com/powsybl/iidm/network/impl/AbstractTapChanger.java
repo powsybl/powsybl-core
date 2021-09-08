@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
@@ -24,7 +25,9 @@ import java.util.OptionalInt;
  */
 abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
 
-    protected final Ref<? extends VariantManagerHolder> network;
+    protected final NetworkImpl network;
+
+    protected final Ref<? extends VariantManagerHolder> networkRef;
 
     protected final H parent;
 
@@ -46,21 +49,22 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TDoubleArrayList targetDeadband;
 
-    protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
+    protected AbstractTapChanger(Ref<? extends VariantManagerHolder> networkRef, H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
-                                 int tapPosition, boolean regulating, double targetDeadband, String type) {
-        this.network = network;
+                                 Integer tapPosition, boolean regulating, double targetDeadband, String type) {
+        this.networkRef = networkRef;
         this.parent = parent;
+        network = parent.getNetwork();
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
         steps.forEach(s -> s.setParent(this));
         this.regulationTerminal = regulationTerminal;
-        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new TIntArrayList(variantArraySize);
         this.regulating = new TBooleanArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.tapPosition.add(tapPosition);
+            this.tapPosition.add(tapPosition != null ? tapPosition : Integer.MIN_VALUE);
             this.regulating.add(regulating);
             this.targetDeadband.add(targetDeadband);
         }
@@ -84,7 +88,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         int oldValue = this.lowTapPosition;
         this.lowTapPosition = lowTapPosition;
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = networkRef.get().getVariantIndex();
         this.tapPosition.set(variantIndex, getTapPosition() + (this.lowTapPosition - oldValue));
         return (C) this;
     }
@@ -94,7 +98,19 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public int getTapPosition() {
-        return tapPosition.get(network.get().getVariantIndex());
+        int position = tapPosition.get(networkRef.get().getVariantIndex());
+        if (position == Integer.MIN_VALUE) {
+            throw new PowsyblException("Undefined tap position, use getTapPositionAsInteger");
+        }
+        return position;
+    }
+
+    public Integer getTapPositionAsInteger() {
+        int position = tapPosition.get(networkRef.get().getVariantIndex());
+        if (position == Integer.MIN_VALUE) {
+            return null;
+        }
+        return position;
     }
 
     public OptionalInt getNeutralPosition() {
@@ -106,14 +122,15 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C setTapPosition(int tapPosition) {
         if (tapPosition < lowTapPosition
                 || tapPosition > getHighTapPosition()) {
-            throw new ValidationException(parent, "incorrect tap position "
+            ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
-                    + getHighTapPosition() + "]");
+                    + getHighTapPosition() + "]", getNetwork().areValidationChecksEnabled());
         }
-        int variantIndex = network.get().getVariantIndex();
+        int variantIndex = networkRef.get().getVariantIndex();
         int oldValue = this.tapPosition.set(variantIndex, tapPosition);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        network.uncheckValidationStatusIfDisabledCheck();
         return (C) this;
     }
 
@@ -131,15 +148,16 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public boolean isRegulating() {
-        return regulating.get(network.get().getVariantIndex());
+        return regulating.get(networkRef.get().getVariantIndex());
     }
 
     public C setRegulating(boolean regulating) {
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex));
+        int variantIndex = networkRef.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, regulating, targetDeadband.get(variantIndex), getNetwork().areValidationChecksEnabled());
         boolean oldValue = this.regulating.set(variantIndex, regulating);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, regulating);
+        network.uncheckValidationStatusIfDisabledCheck();
         return (C) this;
     }
 
@@ -149,24 +167,26 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     public C setRegulationTerminal(Terminal regulationTerminal) {
         if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
-            throw new ValidationException(parent, "regulation terminal is not part of the network");
+            ValidationUtil.throwExceptionOrLogError(parent, "regulation terminal is not part of the network", getNetwork().areValidationChecksEnabled());
         }
         Terminal oldValue = this.regulationTerminal;
         this.regulationTerminal = (TerminalExt) regulationTerminal;
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
+        network.uncheckValidationStatusIfDisabledCheck();
         return (C) this;
     }
 
     public double getTargetDeadband() {
-        return targetDeadband.get(network.get().getVariantIndex());
+        return targetDeadband.get(networkRef.get().getVariantIndex());
     }
 
     public C setTargetDeadband(double targetDeadband) {
-        int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkTargetDeadband(parent, type, this.regulating.get(variantIndex), targetDeadband);
+        int variantIndex = networkRef.get().getVariantIndex();
+        ValidationUtil.checkTargetDeadband(parent, type, this.regulating.get(variantIndex), targetDeadband, getNetwork().areValidationChecksEnabled());
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
-        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, targetDeadband);
+        network.uncheckValidationStatusIfDisabledCheck();
         return (C) this;
     }
 

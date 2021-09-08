@@ -6,12 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.TapChanger;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -170,20 +165,23 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     @Override
     public RatioTapChanger add() {
+        NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            throw new ValidationException(parent, "tap position is not set");
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.areValidationChecksEnabled());
         }
         if (steps.isEmpty()) {
-            throw new ValidationException(parent, "ratio tap changer should have at least one step");
+            ValidationUtil.throwExceptionOrLogError(parent, "ratio tap changer should have at least one step", network.areValidationChecksEnabled());
         }
-        int highTapPosition = lowTapPosition + steps.size() - 1;
-        if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
-            throw new ValidationException(parent, "incorrect tap position "
-                    + tapPosition + " [" + lowTapPosition + ", "
-                    + highTapPosition + "]");
+        if (tapPosition != null) {
+            int highTapPosition = lowTapPosition + steps.size() - 1;
+            if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
+                ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
+                        + tapPosition + " [" + lowTapPosition + ", "
+                        + highTapPosition + "]", network.areValidationChecksEnabled());
+            }
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, getNetwork());
-        ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband);
+        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, network.areValidationChecksEnabled());
+        ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband, network.areValidationChecksEnabled());
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);
@@ -191,13 +189,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating);
+        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, network.areValidationChecksEnabled());
 
         if (parent.hasPhaseTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
         }
 
         parent.setRatioTapChanger(tapChanger);
+        network.uncheckValidationStatusIfDisabledCheck();
         return tapChanger;
     }
 

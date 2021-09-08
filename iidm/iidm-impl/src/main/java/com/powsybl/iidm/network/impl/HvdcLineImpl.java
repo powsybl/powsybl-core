@@ -6,19 +6,19 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-
-import java.util.Objects;
+import gnu.trove.list.array.TIntArrayList;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
+
+    private final NetworkImpl network;
 
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
@@ -30,13 +30,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     // attributes depending on the variant
 
-    private final TBooleanArrayList convertersMode;
+    private final TIntArrayList convertersMode;
 
     private final TDoubleArrayList activePowerSetpoint;
 
     //
-
-    private final Ref<NetworkImpl> networkRef;
 
     private AbstractHvdcConverterStation<?> converterStation1;
 
@@ -50,13 +48,13 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         this.nominalV = nominalV;
         this.maxP = maxP;
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.convertersMode = new TBooleanArrayList(variantArraySize);
-        this.convertersMode.fill(0, variantArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        this.convertersMode = new TIntArrayList(variantArraySize);
+        this.convertersMode.fill(0, variantArraySize, convertersMode != null ? convertersMode.ordinal() : -1);
         this.activePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.activePowerSetpoint.fill(0, variantArraySize, activePowerSetpoint);
         this.converterStation1 = attach(converterStation1);
         this.converterStation2 = attach(converterStation2);
-        this.networkRef = networkRef;
+        network = networkRef.get();
     }
 
     private AbstractHvdcConverterStation<?> attach(AbstractHvdcConverterStation<?> converterStation) {
@@ -65,39 +63,31 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+        network.getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
-        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+        network.getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
     public NetworkImpl getNetwork() {
-        return networkRef.get();
-    }
-
-    private static ConvertersMode toEnum(boolean convertersMode) {
-        return convertersMode ? ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
-    }
-
-    private static boolean fromEnum(ConvertersMode convertersMode) {
-        return convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+        return network;
     }
 
     @Override
     public ConvertersMode getConvertersMode() {
-        return toEnum(convertersMode.get(getNetwork().getVariantIndex()));
+        return convertersMode.get(network.getVariantIndex()) != -1 ? ConvertersMode.values()[convertersMode.get(network.getVariantIndex())] : null;
     }
 
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         ValidationUtil.checkConvertersMode(this, convertersMode);
-        int variantIndex = getNetwork().getVariantIndex();
-        boolean oldValue = this.convertersMode.get(variantIndex);
-        this.convertersMode.set(variantIndex, fromEnum(Objects.requireNonNull(convertersMode)));
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("convertersMode", variantId, toEnum(oldValue), convertersMode);
+        int variantIndex = network.getVariantIndex();
+        ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
+        this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
         return this;
     }
 
@@ -145,16 +135,17 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public double getActivePowerSetpoint() {
-        return activePowerSetpoint.get(getNetwork().getVariantIndex());
+        return activePowerSetpoint.get(network.getVariantIndex());
     }
 
     @Override
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
-        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint);
-        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkHvdcActivePowerSetpoint(this, activePowerSetpoint, network.areValidationChecksEnabled());
+        int variantIndex = network.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
-        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
+        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
@@ -209,8 +200,6 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public void remove() {
-        NetworkImpl network = getNetwork();
-
         network.getListeners().notifyBeforeRemoval(this);
 
         // Detach converter stations
