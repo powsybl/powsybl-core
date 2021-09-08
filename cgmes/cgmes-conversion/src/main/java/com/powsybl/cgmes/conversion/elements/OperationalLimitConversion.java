@@ -236,7 +236,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isPatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
+        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType) || "LimitKind.patl".equals(limitType);
     }
 
     private void addPatl(double value, LoadingLimitsAdder<?, ?> adder) {
@@ -270,7 +270,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private boolean isTatl() {
         String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
         String limitType = p.getLocal(LIMIT_TYPE);
-        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
+        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType) || "LimitKind.tatl".equals(limitType);
     }
 
     private void addTatl(String name, double value, int acceptableDuration, LoadingLimitsAdder<?, ?> adder) {

@@ -85,12 +85,12 @@ WHERE {
         a cim:OperationalLimitType ;
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
-    OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
+    OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
 OPTIONAL { GRAPH ?graphSSH {
-    OPTIONAL { ?CurrentLimit cim:CurrentLimit.value ?value }
-    OPTIONAL { ?ApparentPowerLimit cim:ApparentPowerLimit.value ?value }
-    OPTIONAL { ?VoltageLimit cim:VoltageLimit.value ?value }
+   OPTIONAL {?OperationalLimit cim:CurrentLimit.value ?value }
+   OPTIONAL {?OperationalLimit cim:ApparentPowerLimit.value ?value }
+   OPTIONAL {?OperationalLimit cim:VoltageLimit.value ?value }
 }}
 }
