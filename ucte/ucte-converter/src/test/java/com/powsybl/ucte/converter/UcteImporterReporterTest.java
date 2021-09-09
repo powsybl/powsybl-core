@@ -81,7 +81,7 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         ReporterModel rm = ReporterModelDeserializer.read(getClass().getResourceAsStream("/frVoltageRegulatingXnodeReport.json"), "de");
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 
@@ -92,14 +92,14 @@ public class UcteImporterReporterTest extends AbstractConverterTest {
         ReporterModel rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
 
         mapper.setInjectableValues(new InjectableValues.Std().addValue("foo", "bar"));
         rm = mapper.readValue(getClass().getResource("/frVoltageRegulatingXnodeReport.json"), ReporterModel.class);
         assertEquals(1, rm.getReports().size());
         assertEquals("No value report", rm.getReports().iterator().next().getDefaultMessage());
-        assertEquals(4, rm.getSubReporters().size());
+        assertEquals(1, rm.getSubReporters().size());
         assertEquals("Reading UCTE network file", rm.getSubReporters().get(0).getDefaultName());
     }
 
