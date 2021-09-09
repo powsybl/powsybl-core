@@ -42,21 +42,23 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      *
      * @param network IIDM network on which the sensitivity analysis will be performed
      * @param workingStateId network variant ID on which the analysis will be performed
-     * @param factorsProvider provider of sensitivity factors to be computed
+     * @param factorReader provider of sensitivity factors to be computed
+     * @param valueWriter provider of sensitivity values results
      * @param contingencies list of contingencies after which sensitivity factors will be computed
      * @param variableSets list of variableSets (ex-glsk)
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
-                                                     String workingStateId,
-                                                     SensitivityFactorsProvider factorsProvider,
-                                                     List<Contingency> contingencies,
-                                                     List<SensitivityVariableSet> variableSets,
-                                                     SensitivityAnalysisParameters parameters,
-                                                     ComputationManager computationManager) {
-        return run(network, workingStateId, factorsProvider, contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
+    default CompletableFuture<Void> run(Network network,
+                                        String workingStateId,
+                                        SensitivityFactorReader factorReader,
+                                        SensitivityValueWriter valueWriter,
+                                        List<Contingency> contingencies,
+                                        List<SensitivityVariableSet> variableSets,
+                                        SensitivityAnalysisParameters parameters,
+                                        ComputationManager computationManager) {
+        return run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, Reporter.NO_OP);
     }
 
     /**
@@ -67,7 +69,8 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      *
      * @param network IIDM network on which the sensitivity analysis will be performed
      * @param workingStateId network variant ID on which the analysis will be performed
-     * @param factorsProvider provider of sensitivity factors to be computed
+     * @param factorReader provider of sensitivity factors to be computed
+     * @param valueWriter provider of sensitivity values results
      * @param contingencies list of contingencies after which sensitivity factors will be computed
      * @param variableSets list of variableSets (ex-glsk)
      * @param parameters specific sensitivity analysis parameters
@@ -75,14 +78,15 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param reporter a reporter for functional logs
      * @return a {@link CompletableFuture} on {@link SensitivityAnalysisResult} that gathers sensitivity factor values
      */
-    default CompletableFuture<SensitivityAnalysisResult> run(Network network,
-                                                     String workingStateId,
-                                                     SensitivityFactorsProvider factorsProvider,
-                                                     List<Contingency> contingencies,
-                                                     List<SensitivityVariableSet> variableSets,
-                                                     SensitivityAnalysisParameters parameters,
-                                                     ComputationManager computationManager,
-                                                     Reporter reporter) {
-        return run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager);
+    default CompletableFuture<Void> run(Network network,
+                                        String workingStateId,
+                                        SensitivityFactorReader factorReader,
+                                        SensitivityValueWriter valueWriter,
+                                        List<Contingency> contingencies,
+                                        List<SensitivityVariableSet> variableSets,
+                                        SensitivityAnalysisParameters parameters,
+                                        ComputationManager computationManager,
+                                        Reporter reporter) {
+        return run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager);
     }
 }

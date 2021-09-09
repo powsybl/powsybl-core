@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -17,6 +18,7 @@ import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.sensitivity.converter.SensitivityAnalysisResultExporters;
 import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.converter.CsvSensitivityAnalysisResultExporter;
+import com.powsybl.sensitivity.json.SensitivityFactorsJsonSerializer;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -25,8 +27,9 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
@@ -143,8 +146,13 @@ public class SensitivityAnalysisTool implements Tool {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
             JsonSensitivityAnalysisParameters.update(params, parametersFile);
         }
-        SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
-        SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
+
+        List<SensitivityFactor> sensitivityFactors;
+        try (Reader reader = Files.newBufferedReader(sensitivityFactorsFile, StandardCharsets.UTF_8)) {
+            sensitivityFactors = SensitivityFactorsJsonSerializer.read(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         List<Contingency> contingencies = Collections.emptyList();
         if (line.hasOption(CONTINGENCIES_FILE_OPTION)) {
@@ -152,7 +160,9 @@ public class SensitivityAnalysisTool implements Tool {
         }
         List<SensitivityVariableSet> variableSets = Collections.emptyList();
         // FIXME : how to fill variableSets
-        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, factorsProvider, contingencies, variableSets, params);
+        SensitivityAnalysisResult result = SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
+                sensitivityFactors, contingencies, variableSets, params,
+                DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
 
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");
