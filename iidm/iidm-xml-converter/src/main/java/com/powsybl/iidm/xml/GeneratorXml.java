@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
@@ -68,25 +69,32 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void readElement(String id, GeneratorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        boolean voltageRegulatorOn = readRootElementAttributesGenerator(adder, context);
+        Rc rc = readRootElementAttributesGenerator(adder, context);
         Generator g = adder.add();
         readPQ(null, g.getTerminal(), context.getReader());
         readSubElementsGenerator(g, context);
-        if (voltageRegulatorOn && g.getRegulatingTerminal() == null) {
-            g.setRegulatingTerminal(g.getTerminal());
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            if (rc.voltageRegulatorOn && g.getRegulatingTerminal() == null) {
+                g.setRegulatingTerminal(g.getTerminal());
+            }
+        });
+        if (rc.voltageRegulatorOn) {
+            g.setVoltageRegulatorOn(true);
+            g.setTargetQ(rc.targetQ);
         }
-        g.setVoltageRegulatorOn(voltageRegulatorOn);
     }
 
-    private static boolean readRootElementAttributesGenerator(GeneratorAdder adder, NetworkXmlReaderContext context) {
+    private static Rc readRootElementAttributesGenerator(GeneratorAdder adder, NetworkXmlReaderContext context) {
         EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
-        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
+        Rc rc = new Rc();
+        rc.voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
         double targetP = XmlUtil.readDoubleAttribute(context.getReader(), "targetP");
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
+        rc.targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
+        double targetQ = rc.targetQ;
         if (Double.isNaN(targetQ)) {
             targetQ = 0.0;
         }
@@ -95,12 +103,11 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
                 .setVoltageRegulatorOn(false);
-        return voltageRegulatorOn;
+        return rc;
     }
 
     private void readSubElementsGenerator(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
@@ -121,5 +128,10 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                     super.readSubElements(g, context);
             }
         });
+    }
+
+    private static class Rc {
+        double targetQ;
+        boolean voltageRegulatorOn;
     }
 }

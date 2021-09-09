@@ -16,6 +16,8 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "generator";
+
     private EnergySource energySource;
 
     private double minP;
@@ -142,8 +144,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkGeneratorRegulatingVoltageControl(this, regulatingTerminal, targetV.get(variantIndex),
-            voltageRegulatorOn.get(variantIndex), targetQ.get(variantIndex), getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, voltageRegulatorOn.get(variantIndex), getNetwork());
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
@@ -173,7 +174,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkReactivePowerSetpoint(this, targetQ);
+        ValidationUtil.checkReactivePowerTarget(this, VALIDABLE_TYPE_DESCRIPTION, targetQ, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
@@ -188,8 +189,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetV(double targetV) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkGeneratorRegulatingVoltageControl(this, regulatingTerminal, targetV,
-            voltageRegulatorOn.get(variantIndex), targetQ.get(variantIndex), getNetwork());
+        ValidationUtil.checkVoltageSetpoint(this, VALIDABLE_TYPE_DESCRIPTION, targetV, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValue, targetV);

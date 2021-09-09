@@ -21,6 +21,8 @@ import java.util.Objects;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "dangling line";
+
     static class GenerationImpl implements Generation, ReactiveLimitsOwner, Validable {
 
         private DanglingLineImpl danglingLine;
@@ -122,7 +124,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetQ(double targetQ) {
             int variantIndex = danglingLine.network.get().getVariantIndex();
-            ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(danglingLine, targetV.get(variantIndex), targetQ, voltageRegulationOn.get(variantIndex));
+            ValidationUtil.checkReactivePowerTarget(this, VALIDABLE_TYPE_DESCRIPTION, targetQ, voltageRegulationOn.get(variantIndex));
             double oldValue = this.targetQ.set(variantIndex, targetQ);
             String variantId = danglingLine.network.get().getVariantManager().getVariantId(variantIndex);
             danglingLine.notifyUpdate("targetQ", variantId, oldValue, targetQ);
@@ -153,7 +155,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setTargetV(double targetV) {
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(danglingLine, targetV, targetQ.get(variantIndex), voltageRegulationOn.get(variantIndex));
+            ValidationUtil.checkVoltageSetpoint(this, VALIDABLE_TYPE_DESCRIPTION, targetV, voltageRegulationOn.get(variantIndex));
             double oldValue = this.targetV.set(variantIndex, targetV);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);
             danglingLine.notifyUpdate("targetV", variantId, oldValue, targetV);

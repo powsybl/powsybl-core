@@ -55,13 +55,12 @@ public final class PhaseShifterTestCaseFactory {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setTargetP(100.0)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
-        g1.setRegulatingTerminal(g1.getTerminal())
-            .setTargetV(400.0)
-            .setVoltageRegulatorOn(true);
         g1.getTerminal().setP(-100.16797).setQ(-58.402832);
         Substation s2 = network.newSubstation()
                 .setId("S2")

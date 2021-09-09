@@ -18,6 +18,8 @@ import java.util.function.Supplier;
  */
 class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "ratio tap changer";
+
     private boolean loadTapChangingCapabilities;
 
     // attributes depending on the variant
@@ -85,8 +87,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-            regulationTerminal, targetV, targetDeadband.get(variantIndex), getNetwork());
+        ValidationUtil.checkVoltageSetpoint(parent, VALIDABLE_TYPE_DESCRIPTION, targetV, isRegulating());
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate(() -> getTapChangerAttribute() + ".targetV", variantId, oldValue, targetV);
@@ -95,15 +96,13 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public RatioTapChangerImpl setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-            regulationTerminal, getTargetV(), targetDeadband, getNetwork());
+        ValidationUtil.checkTargetDeadband(parent, VALIDABLE_TYPE_DESCRIPTION, targetDeadband, isRegulating());
         return super.setTargetDeadband(targetDeadband);
     }
 
     @Override
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(), loadTapChangingCapabilities,
-            regulationTerminal, getTargetV(), targetDeadband.get(network.get().getVariantIndex()), getNetwork());
+        ValidationUtil.checkRegulatingTerminal(parent, VALIDABLE_TYPE_DESCRIPTION, regulationTerminal, isRegulating(), getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 

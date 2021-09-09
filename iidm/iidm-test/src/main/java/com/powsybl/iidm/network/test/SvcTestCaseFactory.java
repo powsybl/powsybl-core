@@ -55,13 +55,12 @@ public final class SvcTestCaseFactory {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setTargetP(100.0)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
-        g1.setRegulatingTerminal(g1.getTerminal())
-            .setTargetV(400.0)
-            .setVoltageRegulatorOn(true);
         Substation s2 = network.newSubstation()
                 .setId("S2")
                 .setCountry(Country.FR)

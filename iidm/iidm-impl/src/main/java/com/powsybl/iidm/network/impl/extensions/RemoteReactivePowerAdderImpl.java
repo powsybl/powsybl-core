@@ -19,6 +19,8 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
  */
 public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "generator";
+
     private double targetQ;
 
     private Terminal regulatingTerminal;
@@ -36,16 +38,14 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     @Override
     public RemoteReactivePowerControlAdder withTargetQ(double targetQ) {
-        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
-            targetQ, enabled, super.extendable.getNetwork());
+        ValidationUtil.checkReactivePowerSetpoint((Validable) super.extendable, VALIDABLE_TYPE_DESCRIPTION, targetQ, enabled);
         this.targetQ = targetQ;
         return this;
     }
 
     @Override
     public RemoteReactivePowerControlAdder withRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
-            targetQ, enabled, super.extendable.getNetwork());
+        ValidationUtil.checkRegulatingTerminal((Validable) super.extendable, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, enabled, super.extendable.getNetwork());
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }

@@ -115,10 +115,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
         double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
         ShuntCompensator sc = readSubElementsShuntCompensator(id, adder, context);
-
-        if (voltageRegulatorOn && sc.getRegulatingTerminal() == null) {
-            sc.setRegulatingTerminal(sc.getTerminal());
-        }
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            if (voltageRegulatorOn && sc.getRegulatingTerminal() == null) {
+                sc.setRegulatingTerminal(sc.getTerminal());
+            }
+        });
         sc.setVoltageRegulatorOn(voltageRegulatorOn);
         sc.getTerminal().setP(p).setQ(q);
     }

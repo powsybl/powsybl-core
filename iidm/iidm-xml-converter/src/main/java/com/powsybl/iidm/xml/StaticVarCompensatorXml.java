@@ -77,9 +77,11 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         StaticVarCompensator svc = adder.add();
         readPQ(null, svc.getTerminal(), context.getReader());
         readSubElementsStaticVarCompensator(svc, context);
-        if (regulationMode != StaticVarCompensator.RegulationMode.OFF && svc.getRegulatingTerminal() == null) {
-            svc.setRegulatingTerminal(svc.getTerminal());
-        }
+        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
+            if (regulationMode != StaticVarCompensator.RegulationMode.OFF && svc.getRegulatingTerminal() == null) {
+                svc.setRegulatingTerminal(svc.getTerminal());
+            }
+        });
         svc.setRegulationMode(regulationMode);
     }
 

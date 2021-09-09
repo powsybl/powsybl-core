@@ -21,6 +21,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     static final String TYPE_DESCRIPTION = "vscConverterStation";
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "vsc converter station";
+
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private final TBooleanArrayList voltageRegulatorOn;
@@ -76,7 +78,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint, reactivePowerSetpoint.get(variantIndex), voltageRegulatorOn.get(variantIndex));
+        ValidationUtil.checkVoltageSetpoint(this, VALIDABLE_TYPE_DESCRIPTION, voltageSetpoint, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
@@ -91,7 +93,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint.get(variantIndex), reactivePowerSetpoint, voltageRegulatorOn.get(variantIndex));
+        ValidationUtil.checkReactivePowerTarget(this, VALIDABLE_TYPE_DESCRIPTION, reactivePowerSetpoint, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);

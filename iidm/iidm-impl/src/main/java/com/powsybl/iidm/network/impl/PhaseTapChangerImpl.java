@@ -19,6 +19,8 @@ import java.util.function.Supplier;
 class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "phase tap changer";
+
     private RegulationMode regulationMode;
 
     // attributes depending on the variant
@@ -86,9 +88,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, isRegulating(), regulationMode, getRegulationTerminal(),
-            regulationValue, targetDeadband.get(variantIndex), getNetwork());
-
+        ValidationUtil.checkCurrentOrActivePowerSetpoint(parent, VALIDABLE_TYPE_DESCRIPTION, regulationValue, isRegulating());
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
@@ -97,15 +97,13 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, isRegulating(), regulationMode, getRegulationTerminal(),
-            getRegulationValue(), targetDeadband, getNetwork());
+        ValidationUtil.checkTargetDeadband(parent, VALIDABLE_TYPE_DESCRIPTION, targetDeadband, isRegulating());
         return super.setTargetDeadband(targetDeadband);
     }
 
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, isRegulating(), regulationMode, regulationTerminal,
-            getRegulationValue(), targetDeadband.get(network.get().getVariantIndex()), getNetwork());
+        ValidationUtil.checkRegulatingTerminal(parent, VALIDABLE_TYPE_DESCRIPTION, regulationTerminal, isRegulating(), getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 

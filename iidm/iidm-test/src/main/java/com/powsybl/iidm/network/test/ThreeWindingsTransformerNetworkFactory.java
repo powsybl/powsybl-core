@@ -40,17 +40,16 @@ public final class ThreeWindingsTransformerNetworkFactory {
                 .setId("BUS_132")
                 .add();
         bus132.setV(133.584).setAngle(-9.62);
-        Generator gen132 = vl1.newGenerator()
+        vl1.newGenerator()
                 .setId("GEN_132")
                 .setBus("BUS_132")
                 .setMinP(0.0)
                 .setMaxP(140)
                 .setTargetP(7.2)
-                .setTargetQ(0.0)
+                .setTargetV(135)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
                 .add();
-        gen132.setRegulatingTerminal(gen132.getTerminal())
-            .setTargetV(135)
-            .setVoltageRegulatorOn(true);
 
         VoltageLevel vl2 = substation.newVoltageLevel()
                 .setId("VL_33")

@@ -19,6 +19,8 @@ import java.util.Objects;
  */
 class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
+    static final String VALIDABLE_TYPE_DESCRIPTION = "shunt compensator";
+
     private final Ref<? extends VariantManagerHolder> network;
 
     private final ShuntCompensatorModelExt model;
@@ -144,8 +146,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV.get(variantIndex),
-            targetDeadband.get(variantIndex), voltageRegulatorOn.get(variantIndex), getNetwork());
+        ValidationUtil.checkRegulatingTerminal(this, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, voltageRegulatorOn.get(variantIndex), getNetwork());
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, this.regulatingTerminal);
@@ -176,8 +177,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setTargetV(double targetV) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV,
-            targetDeadband.get(variantIndex), voltageRegulatorOn.get(variantIndex), getNetwork());
+        ValidationUtil.checkVoltageSetpoint(this, VALIDABLE_TYPE_DESCRIPTION, targetV, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValue, targetV);
@@ -192,8 +192,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setTargetDeadband(double targetDeadband) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV.get(variantIndex),
-            targetDeadband, voltageRegulatorOn.get(variantIndex), getNetwork());
+        ValidationUtil.checkTargetDeadband(this, VALIDABLE_TYPE_DESCRIPTION, targetDeadband, voltageRegulatorOn.get(variantIndex));
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);

@@ -39,7 +39,9 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      */
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
-    GeneratorAdder useLocalRegulation(boolean use);
+    default GeneratorAdder useLocalRegulation(boolean use) {
+        return this; // does nothing
+    }
 
     GeneratorAdder setTargetP(double targetP);
 

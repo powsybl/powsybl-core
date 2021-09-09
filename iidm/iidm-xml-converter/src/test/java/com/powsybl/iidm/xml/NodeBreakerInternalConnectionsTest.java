@@ -46,17 +46,16 @@ public class NodeBreakerInternalConnectionsTest extends AbstractXmlConverterTest
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
         NodeBreakerView n1 = vl1.getNodeBreakerView();
-        Generator g1 = vl1.newGenerator()
+        vl1.newGenerator()
                 .setId("g1")
                 .setNode(0)
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(10)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400)
+                .setVoltageRegulatorOn(true)
                 .add();
-        g1.setRegulatingTerminal(g1.getTerminal())
-            .setTargetV(400)
-            .setVoltageRegulatorOn(true);
         n1.newInternalConnection().setNode1(0).setNode2(1).add();
         n1.newSwitch().setId("br1").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).add();
         n1.newBusbarSection().setId("b1").setNode(2).add();
