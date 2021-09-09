@@ -140,6 +140,7 @@ public class MatpowerImporter implements Importer {
                     .setMaxP(mGen.getMaximumRealPowerOutput())
                     .setMinP(mGen.getMinimumRealPowerOutput())
                     .add();
+
             if ((mGen.getPc1() != 0) || (mGen.getPc2() != 0)) {
                 generator.newReactiveCapabilityCurve()
                         .beginPoint()

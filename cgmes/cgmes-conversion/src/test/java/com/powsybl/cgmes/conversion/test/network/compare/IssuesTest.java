@@ -73,9 +73,10 @@ public class IssuesTest {
             .setMinP(0)
             .setMaxP(1)
             .setTargetP(1)
+            .setTargetQ(0)
             .useLocalRegulation(true)
-            .setTargetV(400)
             .setVoltageRegulatorOn(true)
+            .setTargetV(400)
             .add();
         vl2.getBusBreakerView().newBus()
             .setId("B2")

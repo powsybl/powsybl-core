@@ -1122,10 +1122,10 @@ public final class CgmesConformity1NetworkCatalog {
                             .setG(1.09E-5)
                         .endSection()
                     .add()
-                    .useLocalRegulation(true)
-                    .setTargetV(380.0)
-                    .setTargetDeadband(0.5)
-                    .setVoltageRegulatorOn(false)
+                .useLocalRegulation(true)
+                .setTargetV(380.0)
+                .setTargetDeadband(0.5)
+                .setVoltageRegulatorOn(false)
                 .add();
         return network;
     }
