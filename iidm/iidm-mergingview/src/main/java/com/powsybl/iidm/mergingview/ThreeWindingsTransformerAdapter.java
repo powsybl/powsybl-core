@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -218,8 +219,8 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     }
 
     @Override
-    public Substation getSubstation() {
-        return getIndex().getSubstation(getDelegate().getSubstation());
+    public Optional<Substation> getSubstation() {
+        return getDelegate().getSubstation().map(s -> getIndex().getSubstation(s));
     }
 
     // -------------------------------
