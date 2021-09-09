@@ -11,7 +11,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -68,17 +67,16 @@ public class IssuesTest {
         vl1.getBusBreakerView().newBus()
             .setId("B1")
             .add();
-        Generator g1 = vl1.newGenerator()
+        vl1.newGenerator()
             .setId("G1")
             .setBus("B1")
             .setMinP(0)
             .setMaxP(1)
             .setTargetP(1)
-            .setTargetQ(0)
-            .add();
-        g1.setRegulatingTerminal(g1.getTerminal())
+            .useLocalRegulation(true)
             .setTargetV(400)
-            .setVoltageRegulatorOn(true);
+            .setVoltageRegulatorOn(true)
+            .add();
         vl2.getBusBreakerView().newBus()
             .setId("B2")
             .add();

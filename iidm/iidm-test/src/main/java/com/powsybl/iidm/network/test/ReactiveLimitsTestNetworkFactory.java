@@ -48,8 +48,8 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setMinP(0)
                 .setTargetP(10)
                 .useLocalRegulation(true)
-                .setTargetV(380)
                 .setVoltageRegulatorOn(true)
+                .setTargetV(380)
                 .setBus("B")
                 .setConnectableBus("B")
                 .add();
@@ -72,8 +72,8 @@ public final class ReactiveLimitsTestNetworkFactory {
                 .setMinP(0)
                 .setTargetP(10)
                 .useLocalRegulation(true)
-                .setTargetV(380)
                 .setVoltageRegulatorOn(true)
+                .setTargetV(380)
                 .setBus("B")
                 .setConnectableBus("B")
                 .add();

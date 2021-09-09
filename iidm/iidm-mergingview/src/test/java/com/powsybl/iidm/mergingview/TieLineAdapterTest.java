@@ -82,18 +82,17 @@ public class TieLineAdapterTest {
         Bus b1 = vl1.getBusBreakerView().newBus()
                 .setId("b1")
                 .add();
-        Generator g1 = vl1.newGenerator()
+        vl1.newGenerator()
                 .setId("g1")
                 .setBus("b1")
                 .setConnectableBus("b1")
                 .setTargetP(100.0)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
                 .setMinP(50.0)
                 .setMaxP(150.0)
                 .add();
-        g1.setRegulatingTerminal(g1.getTerminal())
-            .setTargetV(400.0)
-            .setVoltageRegulatorOn(true);
         Substation s2 = n.newSubstation()
                 .setId("s2")
                 .setCountry(Country.BE)

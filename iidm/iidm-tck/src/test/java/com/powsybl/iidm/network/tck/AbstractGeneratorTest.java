@@ -187,8 +187,10 @@ public abstract class AbstractGeneratorTest {
 
     @Test
     public void testAdder() {
-        Generator genId = voltageLevel.newGenerator()
+        voltageLevel.newGenerator()
                 .setId(GEN_ID)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
                 .setMinP(10.0)
@@ -196,10 +198,8 @@ public abstract class AbstractGeneratorTest {
                 .setTargetP(30.0)
                 .setTargetQ(20.0)
                 .setNode(1)
+                .setTargetV(31.0)
                 .add();
-        genId.setRegulatingTerminal(genId.getTerminal())
-            .setTargetV(31.0)
-            .setVoltageRegulatorOn(true);
 
         Generator generator = network.getGenerator(GEN_ID);
         assertNotNull(generator);
@@ -279,8 +279,10 @@ public abstract class AbstractGeneratorTest {
 
     private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                  double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
-        Generator gen = voltageLevel.newGenerator()
+        return voltageLevel.newGenerator()
                 .setId(id)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(regulatorOn)
                 .setEnergySource(source)
                 .setMaxP(maxP)
                 .setMinP(minP)
@@ -288,10 +290,7 @@ public abstract class AbstractGeneratorTest {
                 .setTargetP(activePowerSetpoint)
                 .setTargetQ(reactivePowerSetpoint)
                 .setNode(1)
+                .setTargetV(voltageSetpoint)
                 .add();
-        gen.setRegulatingTerminal(gen.getTerminal())
-            .setTargetV(voltageSetpoint)
-            .setVoltageRegulatorOn(regulatorOn);
-        return gen;
     }
 }

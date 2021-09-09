@@ -183,10 +183,10 @@ public abstract class AbstractStaticVarCompensatorTest {
                 .setBus("B2")
                 .setBmin(0.0002)
                 .setBmax(0.0008)
-                .setRegulatingTerminal(regulatingTerminal)
+                .setRegulationMode(regulationMode)
                 .setVoltageSetpoint(390.0)
                 .setReactivePowerSetpoint(1.0)
-                .setRegulationMode(regulationMode)
+                .setRegulatingTerminal(regulatingTerminal)
                 .add();
     }
 }

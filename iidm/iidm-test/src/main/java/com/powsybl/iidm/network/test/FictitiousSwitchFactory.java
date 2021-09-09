@@ -104,13 +104,13 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(70.0)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(false)
                 .setTargetP(0.0)
+                .setTargetV(0.0)
                 .setTargetQ(0.0)
                 .setNode(12)
                 .add();
-        generatorCB.setRegulatingTerminal(generatorCB.getTerminal())
-            .setTargetV(0.0)
-            .setVoltageRegulatorOn(false);
         generatorCB.newReactiveCapabilityCurve()
                 .beginPoint()
                     .setP(0.0)
@@ -129,11 +129,11 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(80.0)
+                .setVoltageRegulatorOn(false)
                 .setTargetP(0.0)
+                .setTargetV(0.0)
                 .setTargetQ(0.0)
                 .setNode(14)
-                .setTargetV(0.0)
-                .setVoltageRegulatorOn(false)
                 .add();
         generatorCC.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -153,13 +153,13 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(35.0)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
                 .setTargetP(21.789589)
+                .setTargetV(236.44736)
                 .setTargetQ(-20.701546)
                 .setNode(16)
                 .add();
-        generatorCD.setRegulatingTerminal(generatorCD.getTerminal())
-            .setTargetV(236.44736)
-            .setVoltageRegulatorOn(true);
         generatorCD.getTerminal()
                 .setP(-21.789589)
                 .setQ(20.693394);

@@ -40,17 +40,16 @@ public abstract class AbstractBusBreakerTest {
                 .setOpen(false)
                 .add();
 
-        Generator g = vl1.newGenerator()
+        vl1.newGenerator()
                 .setId("G")
                 .setBus("B1")
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
                 .add();
-        g.setRegulatingTerminal(g.getTerminal())
-            .setTargetV(400.0)
-            .setVoltageRegulatorOn(true);
 
         vl1.newLoad()
                 .setId("LD1")
@@ -76,17 +75,16 @@ public abstract class AbstractBusBreakerTest {
         vl2.getBusBreakerView().newBus()
                 .setId("B21")
                 .add();
-        Generator g2 = vl2.newGenerator()
+        vl2.newGenerator()
                 .setId("G2")
                 .setBus("B21")
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
-                .setTargetQ(0.0)
+                .useLocalRegulation(true)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
                 .add();
-        g2.setRegulatingTerminal(g2.getTerminal())
-            .setTargetV(400.0)
-            .setVoltageRegulatorOn(true);
 
         network.newLine()
                 .setId("L1")

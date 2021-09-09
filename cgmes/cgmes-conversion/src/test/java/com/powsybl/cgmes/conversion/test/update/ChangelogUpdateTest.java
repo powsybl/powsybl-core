@@ -211,13 +211,13 @@ public final class ChangelogUpdateTest {
             .setEnergySource(EnergySource.NUCLEAR)
             .setMinP(200.0)
             .setMaxP(900.0)
+            .useLocalRegulation(true)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(24.5)
             .setTargetP(607.0)
             .setTargetQ(301.0)
             .setBus("bus1")
             .add();
-        generator.setRegulatingTerminal(generator.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
         generator.newReactiveCapabilityCurve()
             .beginPoint().setP(200.0).setMinQ(300.0).setMaxQ(500.0).endPoint()
             .beginPoint().setP(900.0).setMinQ(300.0).setMaxQ(500.0).endPoint()

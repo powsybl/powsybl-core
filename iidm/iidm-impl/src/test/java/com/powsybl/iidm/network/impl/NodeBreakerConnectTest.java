@@ -77,17 +77,17 @@ public class NodeBreakerConnectTest {
             .setP0(1)
             .setQ0(1)
             .add();
-        Generator generator = vl.newGenerator()
+        vl.newGenerator()
             .setId("G")
             .setNode(3)
             .setMinP(-9999.99)
             .setMaxP(9999.99)
+            .useLocalRegulation(true)
+            .setVoltageRegulatorOn(true)
+            .setTargetV(400)
             .setTargetP(1)
             .setTargetQ(0)
             .add();
-        generator.setRegulatingTerminal(generator.getTerminal())
-            .setTargetV(400)
-            .setVoltageRegulatorOn(true);
         return network;
     }
 

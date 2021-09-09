@@ -66,29 +66,29 @@ public class ScalableActionTest {
 
     private void addTwoMoreGensInNetwork() {
         VoltageLevel vlgen = network.getVoltageLevel("VLGEN");
-        Generator generator2 = vlgen.newGenerator()
+        vlgen.newGenerator()
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
-        generator2.setRegulatingTerminal(generator2.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
-        Generator generator3 = vlgen.newGenerator()
+        vlgen.newGenerator()
                 .setId("GEN3")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
-        generator3.setRegulatingTerminal(generator3.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
     }
 }

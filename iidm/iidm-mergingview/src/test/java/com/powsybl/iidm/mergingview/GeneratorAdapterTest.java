@@ -42,19 +42,19 @@ public class GeneratorAdapterTest {
         assertNotNull(generatorAdder);
         assertTrue(generatorAdder instanceof GeneratorAdderAdapter);
         final Generator generator = generatorAdder.setId(id)
+                                                  .useLocalRegulation(true)
+                                                  .setVoltageRegulatorOn(true)
                                                   .setName(name)
                                                   .setNode(1)
                                                   .setMaxP(maxP)
                                                   .setMinP(minP)
+                                                  .setTargetV(targetV)
                                                   .setTargetP(targetP)
                                                   .setTargetQ(targetQ)
                                                   .setRatedS(ratedS)
                                                   .setEnergySource(energySource)
                                                   .setEnsureIdUnicity(true)
                                               .add();
-        generator.setRegulatingTerminal(generator.getTerminal())
-            .setTargetV(targetV)
-            .setVoltageRegulatorOn(true);
         assertNotNull(generator);
         assertTrue(generator instanceof GeneratorAdapter);
         assertSame(mergingView, generator.getNetwork());

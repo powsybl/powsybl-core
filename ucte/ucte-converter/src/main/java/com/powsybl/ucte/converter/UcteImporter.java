@@ -270,12 +270,12 @@ public class UcteImporter implements Importer {
                 .setConnectableBus(bus.getId())
                 .setMinP(-ucteNode.getMinimumPermissibleActivePowerGeneration())
                 .setMaxP(-ucteNode.getMaximumPermissibleActivePowerGeneration())
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage())
                 .setTargetP(generatorP)
                 .setTargetQ(generatorQ)
+                .setTargetV(ucteNode.getVoltageReference())
                 .add();
-        generator.setRegulatingTerminal(generator.getTerminal())
-            .setTargetV(ucteNode.getVoltageReference())
-            .setVoltageRegulatorOn(ucteNode.isRegulatingVoltage());
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-ucteNode.getMinimumPermissibleReactivePowerGeneration())
                 .setMaxQ(-ucteNode.getMaximumPermissibleReactivePowerGeneration())

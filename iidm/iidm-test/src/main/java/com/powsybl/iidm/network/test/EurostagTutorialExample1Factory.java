@@ -176,12 +176,12 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
             .add();
-        generator.setRegulatingTerminal(generator.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
                 .setMaxQ(9999.99)
@@ -337,12 +337,12 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
-        generator2.setRegulatingTerminal(generator2.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
         generator2.newReactiveCapabilityCurve()
                 .beginPoint()
                 .setP(3.0)
@@ -412,18 +412,18 @@ public final class EurostagTutorialExample1Factory {
 
         network.getSubstation("P2").setCountry(Country.BE);
 
-        Generator gen2 = network.getVoltageLevel(VLGEN).newGenerator()
+        network.getVoltageLevel(VLGEN).newGenerator()
                 .setId("GEN2")
                 .setBus("NGEN")
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
-        gen2.setRegulatingTerminal(gen2.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
 
         ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
@@ -483,18 +483,18 @@ public final class EurostagTutorialExample1Factory {
 
         network.getSubstation("P2").setCountry(Country.BE);
 
-        Generator gen2 = network.getVoltageLevel(VLGEN).newGenerator()
+        network.getVoltageLevel(VLGEN).newGenerator()
                .setId("GEN2")
                .setBus("NGEN")
                .setConnectableBus("NGEN")
                .setMinP(-9999.99)
                .setMaxP(9999.99)
+               .useLocalRegulation(true)
+               .setVoltageRegulatorOn(true)
+               .setTargetV(24.5)
                .setTargetP(607.0)
                .setTargetQ(301.0)
                .add();
-        gen2.setRegulatingTerminal(gen2.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
 
         ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
         ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
@@ -612,27 +612,27 @@ public final class EurostagTutorialExample1Factory {
                 .setQ0(200.0)
                 .add();
 
-        Generator gen2 = vlhv3.newGenerator().setId("GEN2")
+        vlhv3.newGenerator().setId("GEN2")
                 .setBus(nconnected.getId())
                 .setConnectableBus(nconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
-        gen2.setRegulatingTerminal(gen2.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
-        Generator gen3 = vlhv3.newGenerator().setId("GEN3")
+        vlhv3.newGenerator().setId("GEN3")
                 .setConnectableBus(ndisconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
+                .useLocalRegulation(true)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
                 .add();
-        gen3.setRegulatingTerminal(gen3.getTerminal())
-            .setTargetV(24.5)
-            .setVoltageRegulatorOn(true);
 
         vlhv3.newShuntCompensator()
                 .setId("SHUNT")

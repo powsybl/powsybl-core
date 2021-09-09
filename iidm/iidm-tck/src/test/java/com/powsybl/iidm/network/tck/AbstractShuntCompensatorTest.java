@@ -522,8 +522,8 @@ public abstract class AbstractShuntCompensatorTest {
                 .setConnectableBus("busA")
                 .setSectionCount(sectionCount)
                 .setRegulatingTerminal(regulatingTerminal)
+                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetV(targetV)
-                .setTargetDeadband(targetDeadband)
-                .setVoltageRegulatorOn(voltageRegulatorOn);
+                .setTargetDeadband(targetDeadband);
     }
 }
