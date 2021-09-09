@@ -111,27 +111,17 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void readElement(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        boolean voltageRegulatorOn = readRootElementAttributesShuntCompensator(id, adder, context);
-        double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
-        double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
-        ShuntCompensator sc = readSubElementsShuntCompensator(id, adder, context);
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            if (voltageRegulatorOn && sc.getRegulatingTerminal() == null) {
-                sc.setRegulatingTerminal(sc.getTerminal());
-            }
-        });
-        sc.setVoltageRegulatorOn(voltageRegulatorOn);
-        sc.getTerminal().setP(p).setQ(q);
-    }
-
-    private static boolean readRootElementAttributesShuntCompensator(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) {
-        boolean[] voltageRegulatorOn = new boolean[1];
-        voltageRegulatorOn[0] = false;
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {
-            voltageRegulatorOn[0] = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
+            boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
             double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
-            adder.setTargetV(targetV)
+            boolean useLocalRegulation = false;
+            if (voltageRegulatorOn) {
+                useLocalRegulation = true;
+            }
+            adder.useLocalRegulation(useLocalRegulation)
+                    .setVoltageRegulatorOn(voltageRegulatorOn)
+                    .setTargetV(targetV)
                     .setTargetDeadband(targetDeadband);
         });
         IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_2, context, () -> {
@@ -149,11 +139,8 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             adder.setSectionCount(sectionCount);
         });
         readNodeOrBus(adder, context);
-
-        return voltageRegulatorOn[0];
-    }
-
-    private ShuntCompensator readSubElementsShuntCompensator(String id, ShuntCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
+        double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");
+        double q = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q");
         String[] regId = new String[1];
         String[] regSide = new String[1];
         Map<String, String> properties = new HashMap<>();
@@ -207,14 +194,12 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + id + ">");
             }
         });
-
         ShuntCompensator sc = adder.add();
         if (regId[0] != null) {
             context.getEndTasks().add(() -> sc.setRegulatingTerminal(TerminalRefXml.readTerminalRef(sc.getNetwork(), regId[0], regSide[0])));
         }
-
         properties.forEach(sc::setProperty);
         aliases.forEach(sc::addAlias);
-        return sc;
+        sc.getTerminal().setP(p).setQ(q);
     }
 }

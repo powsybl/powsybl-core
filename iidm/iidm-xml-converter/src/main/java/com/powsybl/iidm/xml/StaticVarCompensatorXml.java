@@ -68,24 +68,6 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void readElement(String id, StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        StaticVarCompensator.RegulationMode regulationMode = readRootElementAttributesStaticVarCompensator(adder, context);
-        StaticVarCompensator svc = adder.add();
-        readPQ(null, svc.getTerminal(), context.getReader());
-        readSubElementsStaticVarCompensator(svc, context);
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            if (regulationMode != StaticVarCompensator.RegulationMode.OFF && svc.getRegulatingTerminal() == null) {
-                svc.setRegulatingTerminal(svc.getTerminal());
-            }
-        });
-        svc.setRegulationMode(regulationMode);
-    }
-
-    private static StaticVarCompensator.RegulationMode readRootElementAttributesStaticVarCompensator(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
 
@@ -99,16 +81,24 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName[0]);
 
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
+        boolean useLocalRegulation = false;
+        if (regulationMode != StaticVarCompensator.RegulationMode.OFF) {
+            useLocalRegulation = true;
+        }
         adder.setBmin(bMin)
                 .setBmax(bMax)
+                .useLocalRegulation(useLocalRegulation)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+                .setRegulationMode(regulationMode);
         readNodeOrBus(adder, context);
-        return regulationMode;
+        StaticVarCompensator svc = adder.add();
+        readPQ(null, svc.getTerminal(), context.getReader());
+        return svc;
     }
 
-    private void readSubElementsStaticVarCompensator(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
+    @Override
+    protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             if (context.getReader().getLocalName().equals(REGULATING_TERMINAL)) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);

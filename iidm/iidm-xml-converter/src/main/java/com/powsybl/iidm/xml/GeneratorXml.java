@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Objects;
@@ -64,53 +63,35 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected Generator readRootElementAttributes(GeneratorAdder adder, NetworkXmlReaderContext context) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    protected void readElement(String id, GeneratorAdder adder, NetworkXmlReaderContext context) throws XMLStreamException {
-        Rc rc = readRootElementAttributesGenerator(adder, context);
-        Generator g = adder.add();
-        readPQ(null, g.getTerminal(), context.getReader());
-        readSubElementsGenerator(g, context);
-        IidmXmlUtil.runUntilMaximumVersion(IidmXmlVersion.V_1_5, context, () -> {
-            if (rc.voltageRegulatorOn && g.getRegulatingTerminal() == null) {
-                g.setRegulatingTerminal(g.getTerminal());
-            }
-        });
-        if (rc.voltageRegulatorOn) {
-            g.setVoltageRegulatorOn(true);
-            g.setTargetQ(rc.targetQ);
-        }
-    }
-
-    private static Rc readRootElementAttributesGenerator(GeneratorAdder adder, NetworkXmlReaderContext context) {
         EnergySource energySource = EnergySource.valueOf(context.getReader().getAttributeValue(null, "energySource"));
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         double ratedS = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedS");
-        Rc rc = new Rc();
-        rc.voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
+        boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
         double targetP = XmlUtil.readDoubleAttribute(context.getReader(), "targetP");
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
-        rc.targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
-        double targetQ = rc.targetQ;
-        if (Double.isNaN(targetQ)) {
-            targetQ = 0.0;
-        }
+        double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
         readNodeOrBus(adder, context);
-        adder.setEnergySource(energySource)
+        boolean useLocalRegulationOn = false;
+        if (voltageRegulatorOn) {
+            useLocalRegulationOn = true;
+        }
+        Generator g = adder.setEnergySource(energySource)
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
+                .useLocalRegulation(useLocalRegulationOn)
+                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetP(targetP)
                 .setTargetV(targetV)
                 .setTargetQ(targetQ)
-                .setVoltageRegulatorOn(false);
-        return rc;
+                .add();
+        readPQ(null, g.getTerminal(), context.getReader());
+        return g;
     }
 
-    private void readSubElementsGenerator(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
+    @Override
+    protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case "regulatingTerminal":
@@ -128,10 +109,6 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                     super.readSubElements(g, context);
             }
         });
-    }
-
-    private static class Rc {
-        double targetQ;
-        boolean voltageRegulatorOn;
+        System.err.printf("JAM Generator %s terminal %s regulatingTerminal %s on %s %n", g.getId(), g.getTerminal(), g.getRegulatingTerminal(), g.isVoltageRegulatorOn());
     }
 }
