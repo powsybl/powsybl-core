@@ -134,50 +134,22 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        if (isZeroImpedanceInsideVoltageLevel(r, x, bch, gch)) {
-            // Convert to switch
-            Switch sw;
-            boolean open = !(terminalConnected(1) && terminalConnected(2));
-            if (context.nodeBreaker()) {
-                VoltageLevel.NodeBreakerView.SwitchAdder adder;
-                adder = vl1.getNodeBreakerView().newSwitch()
-                        .setKind(SwitchKind.BREAKER)
-                        .setRetained(true)
-                        .setFictitious(true);
-                identify(adder);
-                adder.setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
-                        .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true))
-                        .setOpen(open);
-                sw = adder.add();
-            } else {
-                VoltageLevel.BusBreakerView.SwitchAdder adder;
-                adder = voltageLevel().getBusBreakerView().newSwitch()
-                        .setFictitious(true);
-                identify(adder);
-                adder.setBus1(busId(1))
-                        .setBus2(busId(2))
-                        .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
-                sw = adder.add();
-            }
-            addAliasesAndProperties(sw);
-        } else {
-            final LineAdder adder = context.network().newLine()
-                    .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                    .setR(r)
-                    .setX(x)
-                    .setG1(gch / 2)
-                    .setG2(gch / 2)
-                    .setB1(bch / 2)
-                    .setB2(bch / 2);
-            identify(adder);
-            adder.setVoltageLevel1(vl1.getId())
-                    .setVoltageLevel2(vl2.getId())
-                    .setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
-                    .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true));
-            final Line l = adder.add();
-            addAliasesAndProperties(l);
-            convertedTerminals(l.getTerminal1(), l.getTerminal2());
-        }
+        final LineAdder adder = context.network().newLine()
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                .setR(r)
+                .setX(x)
+                .setG1(gch / 2)
+                .setG2(gch / 2)
+                .setB1(bch / 2)
+                .setB2(bch / 2);
+        identify(adder);
+        adder.setVoltageLevel1(vl1.getId())
+                .setVoltageLevel2(vl2.getId())
+                .setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
+                .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true));
+        final Line l = adder.add();
+        addAliasesAndProperties(l);
+        convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 
     private boolean isZeroImpedanceInsideVoltageLevel(double r, double x, double bch, double gch) {
