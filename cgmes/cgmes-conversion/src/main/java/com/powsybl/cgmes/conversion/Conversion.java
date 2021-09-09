@@ -440,9 +440,9 @@ public class Conversion {
             String vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
             VoltageLevel vl1 = null;
             if (vl1Id == null) {
-                vl1 = context.network().getVoltageLevel(terminalId + "_VL");
+                vl1 = context.network().getVoltageLevel(t1.connectivityNode() + "_VL");
                 if (vl1 == null) {
-                    vl1 = newFictitiousVoltageLevel(context, terminalId + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
+                    vl1 = newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
                 }
                 LOG.warn(lineId + " VoltageLevel1 not found");
             } else {
@@ -454,9 +454,9 @@ public class Conversion {
             String vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
             VoltageLevel vl2 = null;
             if (vl2Id == null) {
-                vl2 = context.network().getVoltageLevel(terminalId + "_VL");
+                vl2 = context.network().getVoltageLevel(t2.connectivityNode() + "_VL");
                 if (vl2 == null) {
-                    vl2 = newFictitiousVoltageLevel(context, terminalId + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
+                    vl2 = newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
                 }
                 LOG.warn(lineId + " VoltageLevel2 not found");
             } else {
