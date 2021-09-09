@@ -109,6 +109,5 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                     super.readSubElements(g, context);
             }
         });
-        System.err.printf("JAM Generator %s terminal %s regulatingTerminal %s on %s %n", g.getId(), g.getTerminal(), g.getRegulatingTerminal(), g.isVoltageRegulatorOn());
     }
 }
