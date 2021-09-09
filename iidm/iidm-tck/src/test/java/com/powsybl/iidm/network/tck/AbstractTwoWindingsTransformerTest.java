@@ -47,7 +47,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(6.0, twoWindingsTransformer.getRatedU2(), 0.0);
         assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
-        assertSame(substation, twoWindingsTransformer.getSubstation());
+        assertSame(substation, twoWindingsTransformer.getSubstation().orElse(null));
 
         // setter getter
         double r = 0.5;
@@ -83,6 +83,56 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
                 twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.TWO));
         assertTrue(twoWindingsTransformer.getOptionalPhaseTapChanger().isPresent());
         assertSame(phaseTapChangerInLeg1, twoWindingsTransformer.getPhaseTapChanger());
+    }
+
+    @Test
+    public void invalidSubstationContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("2 windings transformer 'twt': the 2 windings of the transformer shall belong to the substation 'sub'");
+        network.newVoltageLevel()
+                .setId("no_substation")
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setNominalV(200.0)
+                .setLowVoltageLimit(180.0)
+                .setHighVoltageLimit(220.0)
+                .add()
+                .getBusBreakerView().newBus().setId("no_substation_bus").add();
+        substation.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("no_substation")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("no_substation_bus")
+                .setConnectableBus2("busB")
+                .add();
+    }
+
+    @Test
+    public void missingSubstationContainer() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("the 2 windings of the transformer shall belong to a substation since there are located in voltage levels with substations");
+        network.newTwoWindingsTransformer()
+                .setId("twt")
+                .setName(TWT_NAME)
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
     }
 
     @Test
