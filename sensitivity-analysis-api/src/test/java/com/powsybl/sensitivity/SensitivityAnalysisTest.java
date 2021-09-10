@@ -8,16 +8,17 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import static org.junit.Assert.*;
 
@@ -58,7 +59,7 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testAsyncDefaultProvider() throws InterruptedException, ExecutionException {
+    public void testAsyncDefaultProvider() {
         CompletableFuture<Void> job = SensitivityAnalysis.runAsync(network, "v", factorReader, valueWriter,
                 contingencies, variableSets, new SensitivityAnalysisParameters(), computationManager);
         job.join();
@@ -66,7 +67,7 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testAsyncDefaultProviderWithoutContingencies() throws InterruptedException, ExecutionException {
+    public void testAsyncDefaultProviderWithoutContingencies() {
         CompletableFuture<Void> job = SensitivityAnalysis.runAsync(network, "v", factorReader, valueWriter,
                 new SensitivityAnalysisParameters(), computationManager);
         job.join();
@@ -74,7 +75,7 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() throws InterruptedException, ExecutionException {
+    public void testAsyncDefaultProviderWithMinimumArgumentsWithContingencies() {
         CompletableFuture<Void> job = SensitivityAnalysis.runAsync(network,
                 factorReader, valueWriter, contingencies, variableSets);
         job.join();
@@ -82,7 +83,7 @@ public class SensitivityAnalysisTest {
     }
 
     @Test
-    public void testAsyncDefaultProviderWithMinimumArgumentsWithoutContingencies() throws InterruptedException, ExecutionException {
+    public void testAsyncDefaultProviderWithMinimumArgumentsWithoutContingencies() {
         CompletableFuture<Void> job = SensitivityAnalysis.runAsync(network,
                 factorReader, valueWriter);
         job.join();
@@ -151,5 +152,15 @@ public class SensitivityAnalysisTest {
     public void testStaticSimpleRunMethodWithNoContingencies() {
         SensitivityAnalysis.run(network, factorReader, valueWriter);
         assertEquals(1, valueWriter.getValues().size());
+    }
+
+    @Test
+    public void testSimpleRunWithSensitivityFactorList() {
+        List<SensitivityFactor> dummyList = new ArrayList<>();
+        dummyList.add(new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE, "dummy", SensitivityVariableType.BUS_TARGET_VOLTAGE, "dummy", false, ContingencyContext.all()));
+
+        SensitivityAnalysisResult res = SensitivityAnalysis.run(network, "v", dummyList,
+                contingencies, variableSets, new SensitivityAnalysisParameters(), computationManager);
+        assertNotNull(res);
     }
 }
