@@ -392,9 +392,7 @@ public class Conversion {
                 }
             }
         }
-        if (!lineContainers.isEmpty()) {
-            convertLineContainers(context, delayedBoundaryNodes, lineContainers);
-        }
+        convertLineContainers(context, delayedBoundaryNodes, lineContainers);
     }
 
     private void convertLineContainers(Context context, Set<String> delayedBoundaryNodes, Map<String, PropertyBags> lineContainers) {
@@ -430,7 +428,6 @@ public class Conversion {
                 } else {
                     c.convert();
                 }
-                LOG.error("Convert " + c.id());
             }
         }
     }
@@ -443,7 +440,7 @@ public class Conversion {
             vl1 = context.network().getVoltageLevel(vl1Id);
         } else {
             vl1 = context.network().getVoltageLevel(t1.connectivityNode() + "_VL");
-            LOG.warn(lineId + " VoltageLevel1 not found");
+            LOG.debug("{} VoltageLevel not found", lineId);
         }
 
         CgmesTerminal t2 = cgmes.terminal(lineSegment.getId("Terminal2"));
@@ -453,7 +450,7 @@ public class Conversion {
             vl2 = context.network().getVoltageLevel(vl2Id);
         } else {
             vl2 = context.network().getVoltageLevel(t2.connectivityNode() + "_VL");
-            LOG.warn(lineId + " VoltageLevel2 not found");
+            LOG.debug("{} VoltageLevel not found", lineId);
         }
 
         String lineName = lineSegment.get("lineName");
