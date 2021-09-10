@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.powsybl.commons.json.JsonUtil;
+import org.jgrapht.alg.util.Pair;
 import org.jgrapht.alg.util.Triple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,6 +61,8 @@ public class SensitivityAnalysisResult {
 
     private Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
 
+    private Map<Pair<String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
+
     /**
      * Sensitivity analysis result
      * @param ok true if the analysis succeeded, false otherwise
@@ -80,6 +83,7 @@ public class SensitivityAnalysisResult {
             valuesByContingencyId.computeIfAbsent(value.getContingencyId(), k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(value.getContingencyId(), factor.getFunctionId(), factor.getVariableId()), value);
+            functionReferenceByContingencyAndFunctionId.put(Pair.of(value.getContingencyId(), factor.getFunctionId()), value.getFunctionReference());
         }
     }
 
@@ -149,6 +153,17 @@ public class SensitivityAnalysisResult {
      */
     public SensitivityValue getValue(String contingencyId, String functionId, String variableId) {
         return valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
+    }
+
+    /**
+     * Get the function reference associated with a given contingency Id and a given function.
+     *
+     * @param contingencyId the id of the considered contingency
+     * @param functionId sensitivity function id
+     * @return the function reference value
+     */
+    public double getFunctionReferenceValue(String contingencyId, String functionId) {
+        return functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
     }
 
     /**

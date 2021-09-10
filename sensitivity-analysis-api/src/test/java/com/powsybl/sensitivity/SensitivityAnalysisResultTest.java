@@ -113,11 +113,13 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void getSensitivityValue() {
         List<SensitivityValue> values = new ArrayList<>();
-        values.add(new SensitivityValue(factorOk, "ContingencyOk", Double.NaN, Double.NaN));
-        values.add(new SensitivityValue(factorNok, "ContingencyNok", Double.NaN, Double.NaN));
+        values.add(new SensitivityValue(factorOk, "ContingencyOk", Double.NaN, 1.0));
+        values.add(new SensitivityValue(factorNok, "ContingencyNok", Double.NaN, 2.0));
         SensitivityAnalysisResult results = new SensitivityAnalysisResult(true, Collections.emptyMap(), "", values);
         assertSame(factorOk, results.getValue("ContingencyOk", factorOk.getFunctionId(), factorOk.getVariableId()).getFactor());
         assertSame(factorNok, results.getValue("ContingencyNok", factorNok.getFunctionId(), factorNok.getVariableId()).getFactor());
+        assertEquals(1.0, results.getFunctionReferenceValue("ContingencyOk", factorOk.getFunctionId()), 0.01);
+        assertEquals(2.0, results.getFunctionReferenceValue("ContingencyNok", factorNok.getFunctionId()), 0.01);
     }
 
     @Test
