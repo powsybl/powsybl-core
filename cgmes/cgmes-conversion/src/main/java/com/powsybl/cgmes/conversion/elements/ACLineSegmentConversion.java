@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.extensions.CgmesLineBoundaryNodeAdder;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.*;
 
 import com.powsybl.cgmes.conversion.Context;
