@@ -23,6 +23,7 @@ public final class ValidationUtil {
     private static final String REACTIVE_POWER_SETPOINT = "reactive power setpoint";
     private static final String VOLTAGE_SETPOINT = "voltage setpoint";
     private static final String REGULATING_TERMINAL_NOT_DEFINED = "regulating terminal is not defined or is not part of the network";
+    private static final String VOLTAGE_REGULATOR_OFF = "voltage regulator is off";
 
     private ValidationUtil() {
     }
@@ -533,7 +534,7 @@ public final class ValidationUtil {
     @Deprecated(since = "4.4.0")
     public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
         if (checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint) && Double.isNaN(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
         }
     }
 
@@ -608,7 +609,7 @@ public final class ValidationUtil {
     public static void checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
         double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn) {
         if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
         }
         checkRegulatingVoltageControl(validable, voltageSetpoint, voltageRegulatorOn);
     }
@@ -617,7 +618,7 @@ public final class ValidationUtil {
         Terminal regulatingTerminal, double voltageSetpoint, double reactivePowerSetpoint,
         boolean voltageRegulatorOn, Network network) {
         if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, "voltage regulator is off");
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
         }
         checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network);
     }

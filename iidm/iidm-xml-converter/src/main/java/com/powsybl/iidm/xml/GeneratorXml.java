@@ -25,6 +25,8 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     static final String ROOT_ELEMENT_NAME = "generator";
 
+    static final String REGULATING_TERMINAL = "regulatingTerminal";
+
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;
@@ -53,9 +55,9 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (g.getRegulatingTerminal() != null) {
             if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
-                TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
+                TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL);
             } else {
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal"));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL));
             }
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);
@@ -99,7 +101,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     protected void readSubElements(Generator g, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
-                case "regulatingTerminal":
+                case REGULATING_TERMINAL:
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getNetwork(), id, side)));
