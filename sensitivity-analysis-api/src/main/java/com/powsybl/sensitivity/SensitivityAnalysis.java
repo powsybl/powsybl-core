@@ -93,10 +93,9 @@ public final class SensitivityAnalysis {
                     provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
                 }
 
-                boolean ok = true;
                 Map<String, String> metrics = new HashMap<>();
                 String logs = "";
-                return new SensitivityAnalysisResult(ok, metrics, logs, valueWriter.getValues());
+                return new SensitivityAnalysisResult(metrics, logs, valueWriter.getValues());
             });
         }
 

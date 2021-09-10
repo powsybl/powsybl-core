@@ -49,8 +49,6 @@ public class SensitivityAnalysisResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisResult.class);
 
-    private final boolean ok;
-
     private final Map<String, String> metrics;
 
     private final String logs;
@@ -65,16 +63,13 @@ public class SensitivityAnalysisResult {
 
     /**
      * Sensitivity analysis result
-     * @param ok true if the analysis succeeded, false otherwise
      * @param metrics map of metrics about the analysis
      * @param logs sensitivity analysis logs
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(boolean ok,
-                                     Map<String, String> metrics,
+    public SensitivityAnalysisResult(Map<String, String> metrics,
                                      String logs,
                                      List<SensitivityValue> values) {
-        this.ok = ok;
         this.metrics = Objects.requireNonNull(metrics);
         this.logs = Objects.requireNonNull(logs);
         this.values = Objects.requireNonNull(values);
@@ -85,15 +80,6 @@ public class SensitivityAnalysisResult {
             valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(value.getContingencyId(), factor.getFunctionId(), factor.getVariableId()), value);
             functionReferenceByContingencyAndFunctionId.put(Pair.of(value.getContingencyId(), factor.getFunctionId()), value.getFunctionReference());
         }
-    }
-
-    /**
-     * Get the status of the sensitivity analysis.
-     *
-     * @return true if the analysis is ok, false otherwise
-     */
-    public boolean isOk() {
-        return ok;
     }
 
     /**
@@ -185,11 +171,10 @@ public class SensitivityAnalysisResult {
     }
 
     public static SensitivityAnalysisResult empty() {
-        return new SensitivityAnalysisResult(false, Collections.emptyMap(), "", Collections.emptyList());
+        return new SensitivityAnalysisResult(Collections.emptyMap(), "", Collections.emptyList());
     }
 
     static final class ParsingContext {
-        private boolean ok;
         private Map<String, String> metrics;
         private String logs;
         private List<SensitivityValue> values;
@@ -207,9 +192,6 @@ public class SensitivityAnalysisResult {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = jsonParser.getCurrentName();
                     switch (fieldName) {
-                        case "ok":
-                            context.ok = jsonParser.nextBooleanValue();
-                            break;
                         case "metrics":
                             jsonParser.nextToken();
                             context.metrics = new ObjectMapper().readValue(jsonParser, Map.class);
@@ -235,7 +217,7 @@ public class SensitivityAnalysisResult {
         stopwatch.stop();
         LOGGER.info("result read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
-        return new SensitivityAnalysisResult(context.ok, context.metrics, context.logs, context.values);
+        return new SensitivityAnalysisResult(context.metrics, context.logs, context.values);
     }
 
     public static void writeJson(Writer writer, SensitivityAnalysisResult result) {
@@ -245,8 +227,6 @@ public class SensitivityAnalysisResult {
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityAnalysisResult result) {
         try {
             jsonGenerator.writeStartObject();
-
-            jsonGenerator.writeBooleanField("ok", result.isOk());
 
             jsonGenerator.writeFieldName("metrics");
             new ObjectMapper().writeValue(jsonGenerator, result.getMetrics());

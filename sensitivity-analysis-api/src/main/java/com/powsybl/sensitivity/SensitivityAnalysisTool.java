@@ -162,17 +162,13 @@ public class SensitivityAnalysisTool implements Tool {
                 sensitivityFactors, contingencies, variableSets, params,
                 DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager());
 
-        if (!result.isOk()) {
-            context.getErrorStream().println("Initial state divergence");
+        if (outputFile != null) {
+            context.getOutputStream().println("Writing results to '" + outputFile + "'");
+            SensitivityAnalysisResultExporters.export(result, outputFile, format);
         } else {
-            if (outputFile != null) {
-                context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SensitivityAnalysisResultExporters.export(result, outputFile, format);
-            } else {
-                // To avoid the closing of System.out
-                Writer writer = new OutputStreamWriter(context.getOutputStream());
-                new CsvSensitivityAnalysisResultExporter().export(result, writer);
-            }
+            // To avoid the closing of System.out
+            Writer writer = new OutputStreamWriter(context.getOutputStream());
+            new CsvSensitivityAnalysisResultExporter().export(result, writer);
         }
     }
 }

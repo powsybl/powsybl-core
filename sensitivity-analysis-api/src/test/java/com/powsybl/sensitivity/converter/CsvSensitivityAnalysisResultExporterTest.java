@@ -35,7 +35,7 @@ public class CsvSensitivityAnalysisResultExporterTest extends AbstractConverterT
             sensitivityValues.add(new SensitivityValue(factor, "c1", 0, 0));
         });
         // create result
-        return new SensitivityAnalysisResult(true, Collections.emptyMap(), "", sensitivityValues);
+        return new SensitivityAnalysisResult(Collections.emptyMap(), "", sensitivityValues);
     }
 
     public void writeCsv(SensitivityAnalysisResult results, Path path) {
