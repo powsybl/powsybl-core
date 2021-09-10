@@ -43,7 +43,7 @@ public final class LimitViolationHelper {
     public static Optional<Country> getCountry(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
-        return voltageLevel.getSubstation().getCountry();
+        return voltageLevel.getSubstation().flatMap(Substation::getCountry);
     }
 
     public static String getVoltageLevelId(LimitViolation limitViolation, Network network) {

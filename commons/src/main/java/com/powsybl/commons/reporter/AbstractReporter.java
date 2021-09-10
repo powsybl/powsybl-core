@@ -14,7 +14,9 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * An abstract class providing some default method implementations for {@link Reporter} implementations.
+ * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
+ *
+ * <p>An abstract class providing some default method implementations for {@link Reporter} implementations.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public abstract class AbstractReporter implements Reporter {

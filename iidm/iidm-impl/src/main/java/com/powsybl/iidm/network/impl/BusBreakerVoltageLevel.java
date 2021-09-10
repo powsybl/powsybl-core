@@ -12,6 +12,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
@@ -110,7 +111,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer v = buses.get(busId);
         if (throwException && v == null) {
             throw new PowsyblException("Bus " + busId
-                    + " not found in substation voltage level "
+                    + " not found in voltage level "
                     + BusBreakerVoltageLevel.this.id);
         }
         return v;
@@ -133,7 +134,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer e = switches.get(switchId);
         if (throwException && e == null) {
             throw new PowsyblException("Switch " + switchId
-                    + " not found in substation voltage level"
+                    + " not found in voltage level"
                     + BusBreakerVoltageLevel.this.id);
         }
         return e;
@@ -281,7 +282,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             MergedBus bus = variants.get().cache.getMergedBus(mergedBusId);
             if (throwException && bus == null) {
                 throw new PowsyblException("Bus " + mergedBusId
-                        + " not found in substation voltage level "
+                        + " not found in voltage level "
                         + BusBreakerVoltageLevel.this.id);
             }
             return bus;
@@ -313,10 +314,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     protected final VariantArray<VariantImpl> variants;
 
-    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
+        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
+        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(this::invalidateCache);
     }
@@ -484,6 +485,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(int node, Traverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void traverse(int[] node, Traverser traverser) {
             throw createNotSupportedBusBreakerTopologyException();
         }
     };
@@ -687,7 +693,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer e = switches.remove(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
-                    + "' not found in substation voltage level '" + id + "'");
+                    + "' not found in voltage level '" + id + "'");
         }
         SwitchImpl aSwitch = graph.removeEdge(e);
         getNetwork().getIndex().remove(aSwitch);
@@ -821,7 +827,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     .filter(t -> traverser.traverse(t, t.isConnected()))
                     .forEach(t -> addNextTerminals(t, nextTerminals));
 
-            // then go through other buses of the substation
+            // then go through other buses of the voltage level
             graph.traverse(v, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 ConfiguredBus otherBus = graph.getVertexObject(v2);

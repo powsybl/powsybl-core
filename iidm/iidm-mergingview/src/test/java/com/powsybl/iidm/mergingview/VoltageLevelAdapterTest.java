@@ -46,7 +46,7 @@ public class VoltageLevelAdapterTest {
         // Setter / Getter
         assertTrue(vlActual instanceof BusBreakerVoltageLevelAdapter);
         assertSame(mergingView, vlActual.getNetwork());
-        assertSame(mergingView.getSubstation("sub"), vlActual.getSubstation());
+        assertSame(mergingView.getSubstation("sub"), vlActual.getSubstation().orElse(null));
         assertSame(mergingView.getIdentifiable(vlId), vlActual);
         assertEquals(vlExpected.getContainerType(), vlActual.getContainerType());
 
