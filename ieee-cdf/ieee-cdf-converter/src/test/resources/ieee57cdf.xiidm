@@ -6,6 +6,7 @@
                 <iidm:bus id="B1" name="Kanawha   V1" v="1.04" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="128.9" targetV="1.04" targetQ="-16.1" bus="B1" connectableBus="B1">
+                <iidm:regulatingTerminal id="B1-G"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
             <iidm:load id="B1-L" loadType="UNDEFINED" p0="55.0" q0="17.0" bus="B1" connectableBus="B1"/>
@@ -17,6 +18,7 @@
                 <iidm:bus id="B2" name="Turner    V1" v="1.01" angle="-1.18"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B2-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="-0.8" bus="B2" connectableBus="B2">
+                <iidm:regulatingTerminal id="B2-G"/>
                 <iidm:minMaxReactiveLimits minQ="-17.0" maxQ="50.0"/>
             </iidm:generator>
             <iidm:load id="B2-L" loadType="UNDEFINED" p0="3.0" q0="88.0" bus="B2" connectableBus="B2"/>
@@ -28,6 +30,7 @@
                 <iidm:bus id="B3" name="Logan     V1" v="0.985" angle="-5.97"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B3-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="40.0" targetV="0.985" targetQ="-1.0" bus="B3" connectableBus="B3">
+                <iidm:regulatingTerminal id="B3-G"/>
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="60.0"/>
             </iidm:generator>
             <iidm:load id="B3-L" loadType="UNDEFINED" p0="41.0" q0="21.0" bus="B3" connectableBus="B3"/>
@@ -65,6 +68,7 @@
                 <iidm:bus id="B6" name="Beaver Ck V1" v="0.98" angle="-8.65"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B6-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="0.98" targetQ="0.8" bus="B6" connectableBus="B6">
+                <iidm:regulatingTerminal id="B6-G"/>
                 <iidm:minMaxReactiveLimits minQ="-8.0" maxQ="25.0"/>
             </iidm:generator>
             <iidm:load id="B6-L" loadType="UNDEFINED" p0="75.0" q0="2.0" bus="B6" connectableBus="B6"/>
@@ -90,6 +94,7 @@
                 <iidm:bus id="B8" name="Clinch Rv V1" v="1.005" angle="-4.45"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B8-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="450.0" targetV="1.005" targetQ="62.1" bus="B8" connectableBus="B8">
+                <iidm:regulatingTerminal id="B8-G"/>
                 <iidm:minMaxReactiveLimits minQ="-140.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="B8-L" loadType="UNDEFINED" p0="150.0" q0="22.0" bus="B8" connectableBus="B8"/>
@@ -101,6 +106,7 @@
                 <iidm:bus id="B9" name="Saltville V1" v="0.98" angle="-9.56"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B9-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="0.98" targetQ="2.2" bus="B9" connectableBus="B9">
+                <iidm:regulatingTerminal id="B9-G"/>
                 <iidm:minMaxReactiveLimits minQ="-3.0" maxQ="9.0"/>
             </iidm:generator>
             <iidm:load id="B9-L" loadType="UNDEFINED" p0="121.0" q0="26.0" bus="B9" connectableBus="B9"/>
@@ -155,6 +161,7 @@
                 <iidm:bus id="B12" name="Glen Lyn  V1" v="1.015" angle="-10.46"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B12-G" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="310.0" targetV="1.015" targetQ="128.5" bus="B12" connectableBus="B12">
+                <iidm:regulatingTerminal id="B12-G"/>
                 <iidm:minMaxReactiveLimits minQ="-150.0" maxQ="155.0"/>
             </iidm:generator>
             <iidm:load id="B12-L" loadType="UNDEFINED" p0="377.0" q0="24.0" bus="B12" connectableBus="B12"/>

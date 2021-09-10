@@ -6,6 +6,7 @@
                 <iidm:bus id="B1" name="1           " v="18.72" angle="-6.5957"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G1 " energySource="OTHER" minP="0.0" maxP="1560.0" voltageRegulatorOn="true" targetP="1404.0" targetV="18.72" targetQ="434.409" bus="B1" connectableBus="B1">
+                <iidm:regulatingTerminal id="B1-G1 "/>
                 <iidm:minMaxReactiveLimits minQ="-9900.0" maxQ="9900.0"/>
             </iidm:generator>
         </iidm:voltageLevel>
@@ -25,6 +26,7 @@
                     <iidm:section b="-0.015432098765432098" g="0.0"/>
                     <iidm:section b="0.0" g="0.0"/>
                 </iidm:shuntNonLinearModel>
+                <iidm:regulatingTerminal id="B2-SwSH1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL4" nominalV="500.0" topologyKind="BUS_BREAKER">
@@ -74,6 +76,7 @@
                     <iidm:section b="0.0" g="0.0"/>
                     <iidm:section b="0.046296296296296294" g="0.0"/>
                 </iidm:shuntNonLinearModel>
+                <iidm:regulatingTerminal id="B3-SwSH1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL5" nominalV="500.0" topologyKind="BUS_BREAKER">

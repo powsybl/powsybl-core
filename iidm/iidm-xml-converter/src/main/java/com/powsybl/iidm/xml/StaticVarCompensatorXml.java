@@ -33,7 +33,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected boolean hasSubElements(StaticVarCompensator svc) {
-        return svc.getRegulatingTerminal() != null && !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable());
+        return svc.getRegulatingTerminal() != null;
     }
 
     @Override
@@ -56,9 +56,14 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
-        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(svc.getRegulatingTerminal() != null && !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable()),
-                ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+        if (svc.getRegulatingTerminal() != null) {
+            if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
+                IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            } else {
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(svc.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+            }
+        }
     }
 
     @Override

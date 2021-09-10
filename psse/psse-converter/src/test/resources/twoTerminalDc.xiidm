@@ -6,6 +6,7 @@
                 <iidm:bus id="B1" name="Bus 1" v="243.8" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="B1-G1" energySource="OTHER" minP="0.0" maxP="464.8" voltageRegulatorOn="false" targetP="232.385916" targetV="243.8" targetQ="-16.888891" bus="B1" connectableBus="B1">
+                <iidm:regulatingTerminal id="B1-G1"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="0.0"/>
             </iidm:generator>
         </iidm:voltageLevel>

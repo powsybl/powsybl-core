@@ -104,7 +104,6 @@ public final class FictitiousSwitchFactory {
                 .setEnergySource(EnergySource.HYDRO)
                 .setMinP(0.0)
                 .setMaxP(70.0)
-                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(false)
                 .setTargetP(0.0)
                 .setTargetV(0.0)

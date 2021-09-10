@@ -71,6 +71,7 @@ public abstract class AbstractGeneratorTest {
 
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
+        generator.setRegulatingTerminal(generator.getTerminal());
         generator.setVoltageRegulatorOn(true);
         assertTrue(generator.isVoltageRegulatorOn());
 

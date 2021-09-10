@@ -6,6 +6,7 @@
                 <iidm:bus id="BUS-1" v="1.04" angle="0.0"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-1" energySource="OTHER" minP="0.0" maxP="575.88" voltageRegulatorOn="true" targetP="128.9" targetV="1.04" targetQ="-16.1" bus="BUS-1" connectableBus="BUS-1">
+                <iidm:regulatingTerminal id="GEN-1"/>
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-1" loadType="UNDEFINED" p0="55.0" q0="17.0" bus="BUS-1" connectableBus="BUS-1"/>
@@ -17,6 +18,7 @@
                 <iidm:bus id="BUS-2" v="1.01" angle="-1.18"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-2" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="1.01" targetQ="-0.8" bus="BUS-2" connectableBus="BUS-2">
+                <iidm:regulatingTerminal id="GEN-2"/>
                 <iidm:minMaxReactiveLimits minQ="-17.0" maxQ="50.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-2" loadType="UNDEFINED" p0="3.0" q0="88.0" bus="BUS-2" connectableBus="BUS-2"/>
@@ -28,6 +30,7 @@
                 <iidm:bus id="BUS-3" v="0.985" angle="-5.97"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-3" energySource="OTHER" minP="0.0" maxP="140.0" voltageRegulatorOn="true" targetP="40.0" targetV="0.985" targetQ="-1.0" bus="BUS-3" connectableBus="BUS-3">
+                <iidm:regulatingTerminal id="GEN-3"/>
                 <iidm:minMaxReactiveLimits minQ="-10.0" maxQ="60.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-3" loadType="UNDEFINED" p0="41.0" q0="21.0" bus="BUS-3" connectableBus="BUS-3"/>
@@ -65,6 +68,7 @@
                 <iidm:bus id="BUS-6" v="0.98" angle="-8.65"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-6" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="0.98" targetQ="0.8" bus="BUS-6" connectableBus="BUS-6">
+                <iidm:regulatingTerminal id="GEN-6"/>
                 <iidm:minMaxReactiveLimits minQ="-8.0" maxQ="25.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-6" loadType="UNDEFINED" p0="75.0" q0="2.0" bus="BUS-6" connectableBus="BUS-6"/>
@@ -90,6 +94,7 @@
                 <iidm:bus id="BUS-8" v="1.005" angle="-4.45"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-8" energySource="OTHER" minP="0.0" maxP="550.0" voltageRegulatorOn="true" targetP="450.0" targetV="1.005" targetQ="62.1" bus="BUS-8" connectableBus="BUS-8">
+                <iidm:regulatingTerminal id="GEN-8"/>
                 <iidm:minMaxReactiveLimits minQ="-140.0" maxQ="200.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-8" loadType="UNDEFINED" p0="150.0" q0="22.0" bus="BUS-8" connectableBus="BUS-8"/>
@@ -101,6 +106,7 @@
                 <iidm:bus id="BUS-9" v="0.98" angle="-9.56"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-9" energySource="OTHER" minP="0.0" maxP="100.0" voltageRegulatorOn="true" targetP="0.0" targetV="0.98" targetQ="2.2" bus="BUS-9" connectableBus="BUS-9">
+                <iidm:regulatingTerminal id="GEN-9"/>
                 <iidm:minMaxReactiveLimits minQ="-3.0" maxQ="9.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-9" loadType="UNDEFINED" p0="121.0" q0="26.0" bus="BUS-9" connectableBus="BUS-9"/>
@@ -155,6 +161,7 @@
                 <iidm:bus id="BUS-12" v="1.015" angle="-10.46"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN-12" energySource="OTHER" minP="0.0" maxP="410.0" voltageRegulatorOn="true" targetP="310.0" targetV="1.015" targetQ="128.5" bus="BUS-12" connectableBus="BUS-12">
+                <iidm:regulatingTerminal id="GEN-12"/>
                 <iidm:minMaxReactiveLimits minQ="-150.0" maxQ="155.0"/>
             </iidm:generator>
             <iidm:load id="LOAD-12" loadType="UNDEFINED" p0="377.0" q0="24.0" bus="BUS-12" connectableBus="BUS-12"/>
