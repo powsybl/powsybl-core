@@ -187,16 +187,14 @@ public class Conversion {
         // They have to be processed after all lines/switches have been reviewed
         // FIXME(Luma) store delayedBoundaryNodes in context
         Set<String> delayedBoundaryNodes = new HashSet<>();
-        Map<String, PropertyBags> delayedLines = new HashMap<>();
         convertSwitches(context, delayedBoundaryNodes);
-        convertACLineSegmentsToLines(context, delayedBoundaryNodes, delayedLines);
+        convertACLineSegmentsToLines(context, delayedBoundaryNodes);
 
         convertEquivalentBranchesToLines(context, delayedBoundaryNodes);
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
 
         convertTransformers(context, delayedBoundaryNodes);
         delayedBoundaryNodes.forEach(node -> convertEquipmentAtBoundaryNode(context, node));
-        delayedLines.forEach((lineId, segments) -> convertLine(context, lineId, segments));
 
         CgmesDcConversion cgmesDcConversion = new CgmesDcConversion(cgmes, context);
         cgmesDcConversion.convert();
@@ -370,7 +368,8 @@ public class Conversion {
         }
     }
 
-    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes, Map<String, PropertyBags> delayedLines) {
+    private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
+        Map<String, PropertyBags> lineContainers = new HashMap<>();
         Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
@@ -379,93 +378,82 @@ public class Conversion {
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
-                String node = c.boundaryNode();
-                if (node != null && !context.config().convertBoundary()) {
-                    String lineContainerId = line.getId("Line");
-                    if (lineContainerId != null) {
-                        delayedLines.computeIfAbsent(lineContainerId, l -> new PropertyBags()).add(line);
-                    } else {
+                String lineContainerId = line.getId("Line");
+                if (lineContainerId != null) {
+                    lineContainers.computeIfAbsent(lineContainerId, l -> new PropertyBags()).add(line);
+                } else {
+                    String node = c.boundaryNode();
+                    if (node != null && !context.config().convertBoundary()) {
                         context.boundary().addAcLineSegmentAtNode(line, node);
                         delayedBoundaryNodes.add(node);
+                    } else {
+                        c.convert();
                     }
-                } else {
-                    c.convert();
                 }
             }
         }
-        Map<String, PropertyBags> linesCopy = new HashMap<>(delayedLines);
-        linesCopy.forEach((lineContainerId, p) -> {
-            boolean onlyOneLineAtBoundary = p.size() == 1;
-            boolean twoLinesAtBoundary = p.size() == 1;
-            if (onlyOneLineAtBoundary || twoLinesAtBoundary) {
+        lineContainers.forEach((lineContainerId, p) -> {
+            boolean onlyOneLineAtContainer = p.size() == 1;
+            if (onlyOneLineAtContainer) {
                 p.forEach(line -> {
                     ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
-                    context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
-                    delayedBoundaryNodes.add(c.boundaryNode());
+                    String node = c.boundaryNode();
+                    if (node != null && !context.config().convertBoundary()) {
+                        context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
+                        delayedBoundaryNodes.add(c.boundaryNode());
+                    } else {
+                        c.convert();
+                    }
                 });
-                delayedLines.remove(lineContainerId, p);
+            } else {
+                convertLineContainer(context, delayedBoundaryNodes, lineContainerId, p);
             }
         });
     }
 
-    private void convertLine(Context context, String lineId, PropertyBags lineSegments) {
-        double nominalV = 1.0;
-        double lowVoltageLimit = 1.0;
-        double highVoltageLimit = 1.0;
-        for (PropertyBag lineSegment : lineSegments) {
-            CgmesTerminal t = cgmes.terminal(lineSegment.getId("Terminal1"));
-            String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
-            if (vlId != null) {
-                VoltageLevel vl = context.network().getVoltageLevel(vlId);
-                nominalV = vl.getNominalV();
-                lowVoltageLimit = vl.getLowVoltageLimit();
-                highVoltageLimit = vl.getHighVoltageLimit();
-                break;
-            }
-            t = cgmes.terminal(lineSegment.getId("Terminal2"));
-            vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
-            if (vlId != null) {
-                VoltageLevel vl = context.network().getVoltageLevel(vlId);
-                nominalV = vl.getNominalV();
-                lowVoltageLimit = vl.getLowVoltageLimit();
-                highVoltageLimit = vl.getHighVoltageLimit();
-                break;
-            }
-        }
+    private void convertLineContainer(Context context, Set<String> delayedBoundaryNodes, String lineId, PropertyBags lineSegments) {
         for (PropertyBag lineSegment : lineSegments) {
 
-            String terminalId = lineSegment.getId("Terminal1");
-            String lineName = lineSegment.get("lineName");
-            CgmesTerminal t1 = cgmes.terminal(terminalId);
+            CgmesTerminal t1 = cgmes.terminal(lineSegment.getId("Terminal1"));
             String vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
-            VoltageLevel vl1 = null;
-            if (vl1Id == null) {
-                vl1 = context.network().getVoltageLevel(t1.connectivityNode() + "_VL");
-                if (vl1 == null) {
-                    vl1 = newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
-                }
-                LOG.warn(lineId + " VoltageLevel1 not found");
-            } else {
+            VoltageLevel vl1;
+            if (vl1Id != null) {
                 vl1 = context.network().getVoltageLevel(vl1Id);
+            } else {
+                vl1 = context.network().getVoltageLevel(t1.connectivityNode() + "_VL");
+                LOG.warn(lineId + " VoltageLevel1 not found");
             }
 
-            terminalId = lineSegment.getId("Terminal2");
-            CgmesTerminal t2 = cgmes.terminal(terminalId);
+            CgmesTerminal t2 = cgmes.terminal(lineSegment.getId("Terminal2"));
             String vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
-            VoltageLevel vl2 = null;
-            if (vl2Id == null) {
-                vl2 = context.network().getVoltageLevel(t2.connectivityNode() + "_VL");
-                if (vl2 == null) {
-                    vl2 = newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
-                }
-                LOG.warn(lineId + " VoltageLevel2 not found");
-            } else {
+            VoltageLevel vl2;
+            if (vl2Id != null) {
                 vl2 = context.network().getVoltageLevel(vl2Id);
+            } else {
+                vl2 = context.network().getVoltageLevel(t2.connectivityNode() + "_VL");
+                LOG.warn(lineId + " VoltageLevel2 not found");
             }
+
+            String lineName = lineSegment.get("lineName");
+            if (vl1 == null && vl2 != null) {
+                vl1 = newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, vl2.getNominalV(), vl2.getLowVoltageLimit(), vl2.getHighVoltageLimit());
+            } else if (vl2 == null && vl1 != null) {
+                vl2 = newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, vl1.getNominalV(), vl1.getLowVoltageLimit(), vl1.getHighVoltageLimit());
+            } else if (vl1 == null && vl2 == null) {
+                vl1 = newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, 1.0, 1.0, 1.0);
+                vl2 = newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, 1.0, 1.0, 1.0);
+            }
+
             ACLineSegmentConversion c = new ACLineSegmentConversion(lineSegment, context);
             if (c.valid()) {
+                String node = c.boundaryNode();
+                if (node != null && !context.config().convertBoundary()) {
+                    context.boundary().addAcLineSegmentAtNode(lineSegment, c.boundaryNode());
+                    delayedBoundaryNodes.add(c.boundaryNode());
+                } else {
+                    c.convert();
+                }
                 LOG.error("Convert " + c.id());
-                c.convertSplittedLine(t1, t2, vl1, vl2);
             }
         }
     }

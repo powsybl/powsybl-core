@@ -129,29 +129,6 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
-    public void convertSplittedLine(CgmesTerminal t1, CgmesTerminal t2, VoltageLevel vl1, VoltageLevel vl2) {
-        double r = p.asDouble("r");
-        double x = p.asDouble("x");
-        double bch = p.asDouble("bch");
-        double gch = p.asDouble("gch", 0.0);
-        final LineAdder adder = context.network().newLine()
-                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
-                .setR(r)
-                .setX(x)
-                .setG1(gch / 2)
-                .setG2(gch / 2)
-                .setB1(bch / 2)
-                .setB2(bch / 2);
-        identify(adder);
-        adder.setVoltageLevel1(vl1.getId())
-                .setVoltageLevel2(vl2.getId())
-                .setNode1(context.nodeMapping().iidmNodeForTerminal(t1, vl1, true))
-                .setNode2(context.nodeMapping().iidmNodeForTerminal(t2, vl2, true));
-        final Line l = adder.add();
-        addAliasesAndProperties(l);
-        convertedTerminals(l.getTerminal1(), l.getTerminal2());
-    }
-
     private boolean isZeroImpedanceInsideVoltageLevel(double r, double x, double bch, double gch) {
         return r == 0.0 && x == 0.0 && voltageLevel(1) == voltageLevel(2);
     }
