@@ -72,6 +72,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void writeSubElements(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> writeModel(sc, context));
+        // Remote regulatingTerminal has been written since 1.2, from 1.6 local regulatingTerminal is also written
         if (sc.getRegulatingTerminal() != null) {
             if (sc != sc.getRegulatingTerminal().getConnectable()) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_2, context);
@@ -119,6 +120,10 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             boolean voltageRegulatorOn = XmlUtil.readBoolAttribute(context.getReader(), "voltageRegulatorOn");
             double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
             double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
+
+            // Until version 1.6 there is an ambiguity in the reading process (Only remote regulatingTerminals are written).
+            // In disabled regulating controls the regulatingTerminal could be null or local.
+            // We decided to consider it null.
             boolean useLocalRegulation = false;
             if (voltageRegulatorOn) {
                 useLocalRegulation = true;

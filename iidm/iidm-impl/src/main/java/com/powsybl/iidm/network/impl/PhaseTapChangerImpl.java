@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
-    static final String PTC_VALIDABLE_TYPE_DESCRIPTION = "phase tap changer";
+    static final String VALIDABLE_TYPE_DESCRIPTION = "phase tapChanger";
 
     private RegulationMode regulationMode;
 
@@ -88,7 +88,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkCurrentOrActivePowerSetpoint(parent, PTC_VALIDABLE_TYPE_DESCRIPTION, regulationValue, isRegulating());
+        ValidationUtil.checkCurrentOrActivePowerSetpoint(parent, VALIDABLE_TYPE_DESCRIPTION, regulationValue, isRegulating());
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
@@ -97,13 +97,13 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
 
     @Override
     public PhaseTapChangerImpl setTargetDeadband(double targetDeadband) {
-        ValidationUtil.checkTargetDeadband(parent, PTC_VALIDABLE_TYPE_DESCRIPTION, targetDeadband, isRegulating());
+        ValidationUtil.checkTargetDeadband(parent, VALIDABLE_TYPE_DESCRIPTION, targetDeadband, isRegulating());
         return super.setTargetDeadband(targetDeadband);
     }
 
     @Override
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
-        ValidationUtil.checkRegulatingTerminal(parent, PTC_VALIDABLE_TYPE_DESCRIPTION, regulationTerminal, isRegulating(), getNetwork());
+        ValidationUtil.checkRegulatingTerminal(parent, VALIDABLE_TYPE_DESCRIPTION, regulationTerminal, isRegulating(), getNetwork());
         return super.setRegulationTerminal(regulationTerminal);
     }
 

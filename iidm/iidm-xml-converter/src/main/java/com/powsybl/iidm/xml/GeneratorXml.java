@@ -54,6 +54,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     @Override
     protected void writeSubElements(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (g.getRegulatingTerminal() != null) {
+            // Remote regulatingTerminal is always written, from 1.6 local regulatingTerminal is also written
             if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
                 TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL);
             } else {
@@ -79,6 +80,10 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
         double targetQ = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetQ");
         readNodeOrBus(adder, context);
+
+        // Until version 1.6 there is an ambiguity in the reading process (Only remote regulatingTerminals are written).
+        // In disabled voltage regulating controls the regulatingTerminal could be null or local.
+        // We decided to consider it null.
         boolean useLocalRegulationOn = false;
         if (voltageRegulatorOn) {
             useLocalRegulationOn = true;

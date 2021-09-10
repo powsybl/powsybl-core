@@ -56,6 +56,7 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeSubElements(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) {
+        // Remote regulatingTerminal has been written since 1.1, from 1.6 local regulatingTerminal is also written
         if (svc.getRegulatingTerminal() != null) {
             if (!Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
                 IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED, IidmXmlVersion.V_1_1, context);
@@ -86,6 +87,10 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), reactivePowerSetpointName[0]);
 
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
+
+        // Until version 1.6 there is an ambiguity in the reading process (Only remote regulatingTerminals are written).
+        // In disabled regulating controls the regulatingTerminal could be null or local.
+        // We decided to consider it null.
         boolean useLocalRegulation = false;
         if (regulationMode != StaticVarCompensator.RegulationMode.OFF) {
             useLocalRegulation = true;
