@@ -8,7 +8,6 @@ package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.*;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -120,7 +119,6 @@ public class SensitivityAnalysisTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = null;
         String format = null;
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
