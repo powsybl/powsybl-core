@@ -39,6 +39,10 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      */
     GeneratorAdder setRegulatingTerminal(Terminal regulatingTerminal);
 
+    /**
+     * To express local regulation. When the adder.add() method was invoked,
+     * the adder must set the regulating terminal to the terminal of the resulting generator added to the Network.
+     */
     default GeneratorAdder useLocalRegulation(boolean use) {
         return this; // does nothing
     }

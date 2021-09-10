@@ -45,6 +45,10 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
+    /**
+     * To express local regulation. When the adder.add() method was invoked,
+     * the adder must set the regulating terminal to the terminal of the resulting staticVarCompensator added to the Network.
+     */
     default StaticVarCompensatorAdder useLocalRegulation(boolean use) {
         return this; // does nothing
     }
