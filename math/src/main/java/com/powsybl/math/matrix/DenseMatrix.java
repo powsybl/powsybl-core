@@ -261,6 +261,18 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public DenseMatrix transpose() {
+        double[] transposed = new double[columnCount * rowCount];
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columnCount; j++) {
+                double value = buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
+                transposed[i * columnCount + j] = value;
+            }
+        }
+        return new DenseMatrix(columnCount, rowCount, transposed);
+    }
+
+    @Override
     public void print(PrintStream out) {
         print(out, null, null);
     }

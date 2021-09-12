@@ -268,6 +268,13 @@ public interface Matrix {
     Matrix copy(MatrixFactory factory);
 
     /**
+     * Calculate the transposed matrix.
+     *
+     * @return the transposed matrix
+     */
+    Matrix transpose();
+
+    /**
      * Print the matrix to a stream. Row and column names are also printed to facilitate debugging.
      *
      * @param out the stream
