@@ -40,11 +40,12 @@ public class IdBasedBusRef extends AbstractBusRef {
 
     @Override
     protected Optional<Bus> resolveByLevel(Network network, TopologyLevel level) {
+        final Identifiable<?> identifiable = network.getIdentifiable(id);
+        if (identifiable == null) {
+            return Optional.empty();
+        }
+
         if (side == null) {
-            final Identifiable<?> identifiable = network.getIdentifiable(id);
-            if (identifiable == null) {
-                return Optional.empty();
-            }
             if (identifiable instanceof Bus) {
                 Bus bus = (Bus) identifiable;
                 if (level == TopologyLevel.BUS_BRANCH) {
@@ -53,25 +54,29 @@ public class IdBasedBusRef extends AbstractBusRef {
                     return Optional.of(bus);
                 }
             } else if (identifiable instanceof Injection) {
-                final Injection injection = (Injection) identifiable;
+                final Injection<?> injection = (Injection<?>) identifiable;
                 return chooseBusByLevel(injection.getTerminal(), level);
             } else {
                 throw new PowsyblException(id + " is not a bus or injection.");
             }
         } else {
-            Branch branch = network.getBranch(id);
-            Terminal terminal;
-            switch (side) {
-                case ONE:
-                    terminal = branch.getTerminal1();
-                    break;
-                case TWO:
-                    terminal = branch.getTerminal2();
-                    break;
-                default:
-                    throw new AssertionError("Unexpected side: " + side);
+            if (identifiable instanceof Branch) {
+                Branch<?> branch = (Branch<?>) identifiable;
+                Terminal terminal;
+                switch (side) {
+                    case ONE:
+                        terminal = branch.getTerminal1();
+                        break;
+                    case TWO:
+                        terminal = branch.getTerminal2();
+                        break;
+                    default:
+                        throw new AssertionError("Unexpected side: " + side);
+                }
+                return chooseBusByLevel(terminal, level);
+            } else {
+                throw new PowsyblException(id + " is not a branch.");
             }
-            return chooseBusByLevel(terminal, level);
         }
     }
 
