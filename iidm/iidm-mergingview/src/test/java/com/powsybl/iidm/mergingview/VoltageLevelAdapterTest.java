@@ -16,10 +16,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
@@ -389,6 +386,8 @@ public class VoltageLevelAdapterTest {
             .add();
         nbv.getInternalConnections().forEach(Assert::assertNotNull);
         assertEquals(nbv.getInternalConnectionCount(), nbv.getInternalConnectionStream().count());
+        assertEquals(Collections.singletonList(0), nbv.getNodesInternalConnectedTo(1));
+        assertEquals(Collections.singletonList(1), nbv.getNodeInternalConnectedToStream(0).boxed().collect(Collectors.toList()));
 
         final Switch switchSW1 = nbv.newSwitch()
                                         .setId("NBV_SW1")
