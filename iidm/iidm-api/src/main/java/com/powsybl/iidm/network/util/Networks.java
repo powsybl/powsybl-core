@@ -380,7 +380,7 @@ public final class Networks {
     /**
      * Return a terminal for the specified node.
      * If a terminal is attached to the node, return this terminal. Otherwise, this method traverses the topology and return
-     * the closest and equivalent terminal.
+     * the first equivalent terminal found.
      *
      * @param voltageLevel The voltage level to traverse
      * @param node The starting node
@@ -400,8 +400,9 @@ public final class Networks {
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
                 equivalentTerminal[0] = t;
+                return TraverseResult.BREAK;
             }
-            return t == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
+            return TraverseResult.CONTINUE;
         };
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);
