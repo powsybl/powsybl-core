@@ -752,6 +752,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         public void traverse(int node, Traverser t) {
             graph.traverse(node, adapt(t));
         }
+
+        @Override
+        public void traverse(int[] nodes, Traverser t) {
+            graph.traverse(nodes, adapt(t));
+        }
     };
 
     @Override

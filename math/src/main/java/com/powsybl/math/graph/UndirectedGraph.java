@@ -248,6 +248,16 @@ public interface UndirectedGraph<V, E> {
     void traverse(int v, Traverser traverser);
 
     /**
+     * Traverse the entire graph, starting at each vertex index of the specified vertices array v.
+     * This method allocates a boolean array and calls {@link #traverse(int, Traverser, boolean[])} for each entry of
+     * the array.
+     *
+     * @param v the array of vertex indices where the traverse has to start.
+     * @param traverser the {@link Traverser} instance to use to know if the traverse should continue or stop.
+     */
+    void traverse(int[] v, Traverser traverser);
+
+    /**
      * Find all paths from the specified vertex.
      * This method relies on two functions to stop the traverse when the target vertex is found or when an edge must not be traversed.
      *
