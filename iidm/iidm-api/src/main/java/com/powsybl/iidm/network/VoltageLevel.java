@@ -613,6 +613,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * The {@code traverser} callback is called every time an edge is traversed.
          */
         void traverse(int node, Traverser traverser);
+
+        /**
+         * Performs a depth-first traversal of the topology graph,
+         * starting from each node in array {@code nodes}.
+         * The {@code traverser} callback is called every time an edge is traversed.
+         */
+        void traverse(int[] node, Traverser traverser);
     }
 
     /**
@@ -816,10 +823,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     }
 
-    /**
-     * Get the substation to which the voltage level belongs.
-     */
-    Substation getSubstation();
+    Optional<Substation> getSubstation();
+
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
 
     /**
      * Get the nominal voltage in KV.

@@ -11,24 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.CurrentLimitsAdder;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseException;
@@ -104,7 +92,7 @@ public class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChangerAdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChangerAdjustedRatio);
 
-        TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().newTwoWindingsTransformer()
+        TwoWindingsTransformerAdder adder = voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newTwoWindingsTransformer())
             .setId(id)
             .setEnsureIdUnicity(true)
             .setConnectableBus1(bus1Id)
@@ -185,7 +173,7 @@ public class TransformerConverter extends AbstractConverter {
         // move ysh between w1 and z
         TapChanger tapChanger1AdjustedYsh = tapChangerAdjustmentAfterMovingShuntAdmittance(tapChanger1);
 
-        ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation().newThreeWindingsTransformer()
+        ThreeWindingsTransformerAdder adder = voltageLevel1.getSubstation().map(Substation::newThreeWindingsTransformer).orElseGet(() -> voltageLevel2.getNetwork().newThreeWindingsTransformer())
             .setRatedU0(v0)
             .setEnsureIdUnicity(true)
             .setId(id)

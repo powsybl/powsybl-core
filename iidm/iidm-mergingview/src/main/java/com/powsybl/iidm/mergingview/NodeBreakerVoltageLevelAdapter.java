@@ -253,6 +253,12 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
             // TODO(mathbagu)
             throw MergingView.createNotImplementedException();
         }
+
+        @Override
+        public void traverse(int[] nodes, Traverser traverser) {
+            // TODO
+            throw MergingView.createNotImplementedException();
+        }
     }
 
     static class BusBreakerViewAdapter extends BusCache<BusBreakerView> implements BusBreakerViewExt {
