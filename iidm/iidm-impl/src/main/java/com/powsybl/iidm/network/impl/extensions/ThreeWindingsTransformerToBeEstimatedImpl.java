@@ -48,6 +48,19 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
+    public boolean containsRatioTapChanger(ThreeWindingsTransformer.Side side) {
+        switch (side) {
+            case ONE:
+                return rtc1Status;
+            case TWO:
+                return rtc2Status;
+            case THREE:
+                return rtc3Status;
+        }
+        throw new AssertionError("Unexpected side: " + side);
+    }
+
+    @Override
     public boolean containsPhaseTapChanger1() {
         return ptc1Status;
     }
@@ -60,6 +73,19 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     @Override
     public boolean containsPhaseTapChanger3() {
         return ptc3Status;
+    }
+
+    @Override
+    public boolean containsPhaseTapChanger(ThreeWindingsTransformer.Side side) {
+        switch (side) {
+            case ONE:
+                return ptc1Status;
+            case TWO:
+                return ptc2Status;
+            case THREE:
+                return ptc3Status;
+        }
+        throw new AssertionError("Unexpected side: " + side);
     }
 
     @Override
@@ -81,6 +107,24 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
+    public ThreeWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+        switch (side) {
+            case ONE:
+                rtc1Status = toBeEstimated;
+                break;
+            case TWO:
+                rtc2Status = toBeEstimated;
+                break;
+            case THREE:
+                rtc3Status = toBeEstimated;
+                break;
+            default:
+                throw new AssertionError("Unexpected side: " + side);
+        }
+        return this;
+    }
+
+    @Override
     public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger1Status(boolean toBeEstimated) {
         this.ptc1Status = toBeEstimated;
         return this;
@@ -95,6 +139,24 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     @Override
     public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger3Status(boolean toBeEstimated) {
         this.ptc3Status = toBeEstimated;
+        return this;
+    }
+
+    @Override
+    public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+        switch (side) {
+            case ONE:
+                ptc1Status = toBeEstimated;
+                break;
+            case TWO:
+                ptc2Status = toBeEstimated;
+                break;
+            case THREE:
+                ptc3Status = toBeEstimated;
+                break;
+            default:
+                throw new AssertionError("Unexpected side: " + side);
+        }
         return this;
     }
 }
