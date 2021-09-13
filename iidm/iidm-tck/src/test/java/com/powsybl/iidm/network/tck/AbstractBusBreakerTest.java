@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
@@ -230,5 +231,16 @@ public abstract class AbstractBusBreakerTest {
 
         assertEquals(4, vl1.getBusView().getBus("VL1_0").getConnectedTerminalCount());
         assertEquals(4, Lists.newArrayList(vl1.getBusView().getBus("VL1_0").getConnectedTerminals()).size());
+    }
+
+    @Test
+    public void testNodeBreakerNonSupportedMethods() {
+        Network network = createTestNetwork();
+        VoltageLevel vl1 = network.getVoltageLevel("VL1");
+        VoltageLevel.NodeBreakerView nodeBreakerView = vl1.getNodeBreakerView();
+        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getSwitchStream(0));
+        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getSwitches(1));
+        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getNodeInternalConnectedToStream(2));
+        assertThrows("Not supported in a bus breaker topology", PowsyblException.class, () -> nodeBreakerView.getNodesInternalConnectedTo(3));
     }
 }
