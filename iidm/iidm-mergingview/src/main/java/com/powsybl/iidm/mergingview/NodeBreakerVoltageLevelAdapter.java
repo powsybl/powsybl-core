@@ -11,6 +11,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
@@ -180,7 +181,7 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public Iterable<Switch> getSwitches(int node) {
+        public List<Switch> getSwitches(int node) {
             return getDelegate().getSwitches(node);
         }
 
@@ -190,7 +191,7 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
+        public List<Integer> getNodesInternalConnectedTo(int node) {
             return getDelegate().getNodesInternalConnectedTo(node);
         }
 

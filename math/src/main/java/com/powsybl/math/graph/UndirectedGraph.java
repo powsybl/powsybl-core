@@ -188,7 +188,7 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index.
      * @return an iterable of the edge objects
      */
-    Iterable<E> getEdgeObjects(int v);
+    List<E> getEdgeObjectsConnectedToVertex(int v);
 
     /**
      * Return the edge objects connected to the specified vertex.
@@ -197,7 +197,7 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index.
      * @return a stream of the edge objects
      */
-    Stream<E> getEdgeObjectStream(int v);
+    Stream<E> getEdgeObjectConnectedToVertexStream(int v);
 
     /**
      * Return the indices of the edges connected to the specified vertex.
@@ -206,7 +206,7 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index.
      * @return an iterable of the edge indices
      */
-    Iterable<Integer> getEdges(int v);
+    List<Integer> getEdgesConnectedToVertex(int v);
 
     /**
      * Return the indices of the edges connected to the specified vertex.
@@ -215,7 +215,7 @@ public interface UndirectedGraph<V, E> {
      * @param v the vertex index.
      * @return a stream of the edge indices
      */
-    IntStream getEdgeStream(int v);
+    IntStream getEdgeConnectedToVertexStream(int v);
 
     /**
      * Return the index of the second vertex that the specified edge is connected to.

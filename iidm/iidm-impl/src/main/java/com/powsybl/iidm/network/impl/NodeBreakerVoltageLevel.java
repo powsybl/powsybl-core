@@ -597,17 +597,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Stream<Switch> getSwitchStream(int node) {
-            return graph.getEdgeObjectStream(node).filter(Objects::nonNull).map(Switch.class::cast);
+            return graph.getEdgeObjectConnectedToVertexStream(node).filter(Objects::nonNull).map(Switch.class::cast);
         }
 
         @Override
-        public Iterable<Switch> getSwitches(int node) {
+        public List<Switch> getSwitches(int node) {
             return getSwitchStream(node).collect(Collectors.toList());
         }
 
         @Override
         public IntStream getNodeStreamInternalConnectedTo(int node) {
-            return graph.getEdgeStream(node).filter(e -> graph.getEdgeObject(e) == null)
+            return graph.getEdgeConnectedToVertexStream(node).filter(e -> graph.getEdgeObject(e) == null)
                 .map(e -> {
                     int vertex1 = graph.getEdgeVertex1(e);
                     return vertex1 != node ? vertex1 : graph.getEdgeVertex2(e);
@@ -615,7 +615,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
+        public List<Integer> getNodesInternalConnectedTo(int node) {
             return getNodeStreamInternalConnectedTo(node).boxed().collect(Collectors.toList());
         }
 

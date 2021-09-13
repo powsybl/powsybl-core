@@ -200,8 +200,8 @@ public class UndirectedGraphImplTest {
         graph.addVertex();
         graph.addEdge(0, 1, null);
         graph.addEdge(1, 2, null);
-        assertEquals(Arrays.asList(0, 1), graph.getEdges(1));
-        assertEquals(Collections.singletonList(0), graph.getEdges(0));
+        assertEquals(Arrays.asList(0, 1), graph.getEdgesConnectedToVertex(1));
+        assertEquals(Collections.singletonList(0), graph.getEdgesConnectedToVertex(0));
     }
 
     @Test
@@ -219,8 +219,8 @@ public class UndirectedGraphImplTest {
         graph.addVertex();
         graph.addEdge(0, 1, "Arrow01");
         graph.addEdge(1, 2, "Arrow12");
-        assertEquals(Collections.singletonList("Arrow01"), graph.getEdgeObjects(0));
-        assertEquals(Arrays.asList("Arrow01", "Arrow12"), graph.getEdgeObjects(1));
+        assertEquals(Collections.singletonList("Arrow01"), graph.getEdgeObjectsConnectedToVertex(0));
+        assertEquals(Arrays.asList("Arrow01", "Arrow12"), graph.getEdgeObjectsConnectedToVertex(1));
     }
 
     @Test

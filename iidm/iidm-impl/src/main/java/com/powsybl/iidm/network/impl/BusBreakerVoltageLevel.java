@@ -380,7 +380,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Iterable<Switch> getSwitches(int node) {
+        public List<Switch> getSwitches(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -390,7 +390,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public Iterable<Integer> getNodesInternalConnectedTo(int node) {
+        public List<Integer> getNodesInternalConnectedTo(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
