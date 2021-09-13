@@ -416,4 +416,18 @@ public abstract class AbstractMatrixTest {
         } catch (IllegalArgumentException ignored) {
         }
     }
+
+    @Test
+    public void testTranspose() {
+        Matrix a = createA(getMatrixFactory());
+        DenseMatrix at = a.transpose().toDense();
+        assertEquals(2, at.getRowCount());
+        assertEquals(3, at.getColumnCount());
+        assertEquals(1d, at.get(0, 0), 0d);
+        assertEquals(0d, at.get(0, 1), 0d);
+        assertEquals(2d, at.get(0, 2), 0d);
+        assertEquals(0d, at.get(1, 0), 0d);
+        assertEquals(3d, at.get(1, 1), 0d);
+        assertEquals(0d, at.get(1, 2), 0d);
+    }
 }
