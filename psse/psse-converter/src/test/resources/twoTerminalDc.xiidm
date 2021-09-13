@@ -40,7 +40,7 @@
                 <iidm:bus id="B4" name="Bus 4" v="234.28338521999999" angle="-10.324222435"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
-            <iidm:lccConverterStation id="LccConverter-4-1 " lossFactor="0.0" powerFactor="0.7562995" bus="B4" connectableBus="B4"/>
+            <iidm:lccConverterStation id="LccConverter-4-8-4" lossFactor="0.0" powerFactor="0.7562995" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -93,7 +93,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B8" name="Bus 8" v="242.95957816" angle="-14.946601016"/>
             </iidm:busBreakerTopology>
-            <iidm:lccConverterStation id="LccConverter-8-1 " lossFactor="0.0" powerFactor="0.7693887" bus="B8" connectableBus="B8"/>
+            <iidm:lccConverterStation id="LccConverter-4-8-8" lossFactor="0.0" powerFactor="0.7693887" bus="B8" connectableBus="B8"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL9" nominalV="20.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -144,7 +144,7 @@
         <iidm:currentLimits1 permanentLimit="25099.675398378557"/>
         <iidm:currentLimits2 permanentLimit="288646.2670813534"/>
     </iidm:line>
-    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-1 " converterStation2="LccConverter-8-1 "/>
+    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4" converterStation2="LccConverter-4-8-8"/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>
