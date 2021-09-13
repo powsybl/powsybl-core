@@ -161,7 +161,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public TerminalExt getRegulatingTerminal() {
-        return regulatingTerminal != null ? regulatingTerminal : this.getTerminal();
+        return regulatingTerminal;
     }
 
     @Override

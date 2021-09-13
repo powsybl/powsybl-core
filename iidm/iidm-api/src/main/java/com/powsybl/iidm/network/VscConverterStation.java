@@ -109,7 +109,7 @@ public interface VscConverterStation extends HvdcConverterStation<VscConverterSt
      * @param reactivePowerSetpoint the reactive power setpoint
      * @return the converter itself to allow method chaining
      */
-    VscConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
+    HvdcConverterStation setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * Get the terminal used for regulation.
