@@ -25,14 +25,22 @@
       "actionsTaken" : [ ]
     },
     "branchResults" : [ {
-      "branchId" : "branchId",
+      "branchId" : "branch2",
       "p1" : 0.0,
       "q1" : 0.0,
       "i1" : 0.0,
       "p2" : 0.0,
       "q2" : 0.0,
       "i2" : 0.0,
-      "flowTransfer" : 0.0
+      "flowTransfer" : 10.0
+    }, {
+      "branchId" : "branch1",
+      "p1" : 0.0,
+      "q1" : 0.0,
+      "i1" : 0.0,
+      "p2" : 0.0,
+      "q2" : 0.0,
+      "i2" : 0.0
     } ],
     "busResults" : [ {
       "voltageLevelId" : "voltageLevelId",

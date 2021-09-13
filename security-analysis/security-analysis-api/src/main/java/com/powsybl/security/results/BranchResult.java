@@ -7,9 +7,19 @@
 package com.powsybl.security.results;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JavaType;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+import com.fasterxml.jackson.databind.util.Converter;
+import com.fasterxml.jackson.databind.util.StdConverter;
 
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * provide electrical information on a branch after a security analysis.
@@ -43,20 +53,34 @@ public class BranchResult {
      * <b>p1j,N</b> the active power flow on side 1 of lost branch j at pre contingency stage.
      * Verifying : <i>p1i,N-1 = P1i,N + flow transfer(j->i) * p1j,N</i>
      */
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final double flowTransfer;
 
     @JsonCreator
-    public BranchResult(@JsonProperty("branchId") String branchId, @JsonProperty("p1") double p1, @JsonProperty("q1") double q1,
-                        @JsonProperty("i1") double i1, @JsonProperty("p2") double p2,
-                        @JsonProperty("q2") double q2, @JsonProperty("i2") double i2, @JsonProperty("flowTransfer") double flowTransfer) {
+    public BranchResult(Map<String, Object> props) {
+        this.branchId = Objects.requireNonNull((String) props.get("branchId"));
+        this.p1 = Objects.requireNonNull((Double) props.get("p1"));
+        this.q1 = Objects.requireNonNull((Double) props.get("q1"));
+        this.i1 = Objects.requireNonNull((Double) props.get("i1"));
+        this.p2 = Objects.requireNonNull((Double) props.get("p2"));
+        this.q2 = Objects.requireNonNull((Double) props.get("q2"));
+        this.i2 = Objects.requireNonNull((Double) props.get("i2"));
+        this.flowTransfer = Objects.requireNonNullElse((Double) props.get("flowTransfer"), Double.NaN);
+    }
+
+    public BranchResult(String branchId, double p1, double q1, double i1, double p2, double q2, double i2) {
+        this(branchId, p1, q1, i1, p2, q2, i2, Double.NaN);
+    }
+
+    public BranchResult(String branchId, double p1, double q1, double i1, double p2, double q2, double i2, double flowTransfer) {
         this.branchId = Objects.requireNonNull(branchId);
-        this.p1 = Objects.requireNonNull(p1);
-        this.q1 = Objects.requireNonNull(q1);
-        this.i1 = Objects.requireNonNull(i1);
-        this.p2 = Objects.requireNonNull(p2);
-        this.q2 = Objects.requireNonNull(q2);
-        this.i2 = Objects.requireNonNull(i2);
-        this.flowTransfer = Objects.requireNonNull(flowTransfer);
+        this.p1 = p1;
+        this.q1 = q1;
+        this.i1 = i1;
+        this.p2 = p2;
+        this.q2 = q2;
+        this.i2 = i2;
+        this.flowTransfer = flowTransfer;
     }
 
     @Override
@@ -114,6 +138,11 @@ public class BranchResult {
         return flowTransfer;
     }
 
+    @JsonGetter(value = "flowTransfer")
+    private Double getNullableFlowTransfer() {
+        return Double.isNaN(flowTransfer) ? null : flowTransfer;
+    }
+
     @Override
     public String toString() {
         return "BranchResult{" +
@@ -124,6 +153,7 @@ public class BranchResult {
             ", p2=" + p2 +
             ", q2=" + q2 +
             ", i2=" + i2 +
+            ", flowTransfer=" + flowTransfer +
             '}';
     }
 }
