@@ -642,6 +642,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * The {@code traverser} callback is called every time an edge is traversed.
          */
         void traverse(int node, Traverser traverser);
+
+        /**
+         * Performs a depth-first traversal of the topology graph,
+         * starting from each node in array {@code nodes}.
+         * The {@code traverser} callback is called every time an edge is traversed.
+         */
+        void traverse(int[] node, Traverser traverser);
     }
 
     /**

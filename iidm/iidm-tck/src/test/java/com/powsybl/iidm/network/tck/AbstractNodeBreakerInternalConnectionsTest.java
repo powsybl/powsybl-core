@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.tck;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.math.graph.TraverseResult;
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
 import org.junit.Test;
 
 import java.util.*;
@@ -59,7 +57,8 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         // If we stop traversal at terminals
         // some internal connections are expected to be missing
         InternalConnections expectedMissing = new InternalConnections();
-        expectedMissing.add(5, 2);
+        expectedMissing.add(6, 3);
+        expectedMissing.add(9, 2);
         expectedMissing.add(4, 3);
         // Compute all missing connections
         Set<String> actualMissing = all.stream()
@@ -230,43 +229,31 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         InternalConnections cs = new InternalConnections();
 
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n) || topo.getTerminal(n) == null) {
-                continue;
-            }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
-                if (sw == null) {
-                    cs.add(n1, n2);
-                }
-                return topo.getTerminal(n2) == null ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
-            });
-        }
-        return cs;
-    }
-
-    private InternalConnections findInternalConnections(VoltageLevel vl) {
-        InternalConnections cs = new InternalConnections();
-
-        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
-        int[] nodes = topo.getNodes();
-        final TIntSet explored = new TIntHashSet();
-        for (int n : nodes) {
-            if (explored.contains(n)) {
-                continue;
-            }
-            explored.add(n);
-            topo.traverse(n, (n1, sw, n2) -> {
-                explored.add(n2);
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (topo.getTerminal(n2) == null) {
                 if (sw == null) {
                     cs.add(n1, n2);
                 }
                 return TraverseResult.CONTINUE;
-            });
-        }
+            } else {
+                return TraverseResult.TERMINATE;
+            }
+        });
+
+        return cs;
+    }
+
+    private InternalConnections findInternalConnections(VoltageLevel vl) {
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+
+        InternalConnections cs = new InternalConnections();
+        topo.traverse(topo.getNodes(), (n1, sw, n2) -> {
+            if (sw == null) {
+                cs.add(n1, n2);
+            }
+            return TraverseResult.CONTINUE;
+        });
+
         return cs;
     }
 }
