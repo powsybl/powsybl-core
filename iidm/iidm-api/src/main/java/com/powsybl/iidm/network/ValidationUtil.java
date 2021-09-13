@@ -32,10 +32,11 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network, boolean)} for static Var compensator controls.<br>
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network)} for generic continuous voltage controls.<br>
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network, boolean)} for generic continuous voltage controls.<br>
- * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network, boolean)} for generic discrete voltage controls.<br>
+ * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} for generic discrete voltage controls.<br>
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network, boolean)} for generic discrete voltage controls.<br>
  * {@link #checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable, double, double, boolean)} for dangling line and vsc converter controls.<br>
  * {@link #checkRegulatingReactivePowerControl(Validable, Terminal, double, boolean, Network)} for generator reactive power controls.<br>
+ * {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} for ratio tapChanger controls.<br>
  * {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} for phase tapChanger controls.<br>
  * <p>
  *
@@ -45,9 +46,10 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * For local regulation we assume the terminal will be ok since it will be the one of the equipment and it is set automatically by the adder method.
  * <p>
  * Individual check methods.<br>
- * Individual methods are used when one attribute is changed by the corresponding set method after the adder.
+ * Individual methods are used when one attribute is changed by the corresponding set method
+ * after the equipment object was created with adder method.
  * The verification of each attribute depends always on the enabled attribute.
- * If the control is enabled only valid attributes are allowed but, when is not enabled the verification is not done.
+ * If the control is enabled only valid attributes are allowed, but when is not enabled the verification is not done.
  * That allows to define controls after the adder method. Usually, controls must be filled at the end of the conversion process
  * when all remote regulating terminals have previously been defined.
  * When only the EQ file is imported the control could be created disabled with not defined and valid attributes. <br>
@@ -55,11 +57,12 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * <p>
  * {@link #checkVoltageSetpoint(Validable, String, double, boolean)} for validating voltage setpoint.<br>
  * {@link #checkVoltageSetpoint(Validable, String, double, RegulationMode)} for validating voltage setpoint.<br>
- * {@link #checkTargetDeadband(Validable, String, double, boolean)} for validating voltage setpoint.<br>
+ * {@link #checkTargetDeadband(Validable, String, double, boolean)} for validating target deadband.<br>
  * {@link #checkRegulatingTerminal(Validable, String, Terminal, boolean, Network)} for validating regulating terminal.<br>
+ * {@link #checkRegulatingTerminal(Validable, String, Terminal, RegulationMode, Network)} for validating regulating terminal.<br>
  * {@link #checkCurrentOrActivePowerSetpoint(Validable, String, double, boolean)} for validating current or active power setpoint.<br>
  * {@link #checkReactivePowerSetpoint(Validable, String, double, boolean)} for validating reactive power setpoint.<br>
- * {@link #checkReactivePowerSetpoint(Validable, String, double, RegualtionMode)} for validating reactive power setpoint.<br>
+ * {@link #checkReactivePowerSetpoint(Validable, String, double, RegulationMode)} for validating reactive power setpoint.<br>
  * {@link #checkReactivePowerTarget(Validable, String, double, boolean)} for validating reactive power setpoint.<br>
  *
  *
@@ -647,11 +650,11 @@ public final class ValidationUtil {
     }
 
     /**
-     * For validating a static Var compensator control.<br>
-     * User can select if regulating terminal should be validated.<br>
-     * Depending on RegulationMode (OFF, VOLTAGE, REACTIVE_POWER) static Var compensator will control voltage or reactive power.<br>
-     * When RegulationMode is OFF there is no validation.<br>
-     * When RegulationMode is VOLTAGE, voltage setpoint and regulating terminal must be defined and valid.<br>
+     * For validating a static Var compensator control.
+     * User can select if regulating terminal should be validated.
+     * Depending on RegulationMode (OFF, VOLTAGE, REACTIVE_POWER) static Var compensator will control voltage or reactive power.
+     * When RegulationMode is OFF there is no validation.
+     * When RegulationMode is VOLTAGE, voltage setpoint and regulating terminal must be defined and valid.
      * When RegulationMode is REACTIVE_POWER reactive power setpoint and regulating terminal must be defined and valid.
      */
     public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
