@@ -67,14 +67,14 @@ public class BranchObservabilityXmlTest extends AbstractConverterTest {
 
         assertEquals(line1BranchObservability.isObservable(), line1BranchObservability2.isObservable());
         assertEquals(line1BranchObservability.getQualityP1().getStandardDeviation(), line1BranchObservability2.getQualityP1().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityP1().isRedundant(), line1BranchObservability2.getQualityP1().isRedundant());
+        assertEquals(line1BranchObservability.getQualityP1().isRedundant().orElse(null), line1BranchObservability2.getQualityP1().isRedundant().orElse(null));
         assertEquals(line1BranchObservability.getQualityP2().getStandardDeviation(), line1BranchObservability2.getQualityP2().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityP2().isRedundant(), line1BranchObservability2.getQualityP2().isRedundant());
+        assertEquals(line1BranchObservability.getQualityP2().isRedundant().orElse(null), line1BranchObservability2.getQualityP2().isRedundant().orElse(null));
 
         assertEquals(line1BranchObservability.getQualityQ1().getStandardDeviation(), line1BranchObservability2.getQualityQ1().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityQ1().isRedundant(), line1BranchObservability2.getQualityQ1().isRedundant());
+        assertEquals(line1BranchObservability.getQualityQ1().isRedundant().orElse(null), line1BranchObservability2.getQualityQ1().isRedundant().orElse(null));
         assertEquals(line1BranchObservability.getQualityQ2().getStandardDeviation(), line1BranchObservability2.getQualityQ2().getStandardDeviation(), 0.0d);
-        assertEquals(line1BranchObservability.getQualityQ2().isRedundant(), line1BranchObservability2.getQualityQ2().isRedundant());
+        assertEquals(line1BranchObservability.getQualityQ2().isRedundant().orElse(null), line1BranchObservability2.getQualityQ2().isRedundant().orElse(null));
 
         assertEquals(line1BranchObservability.getName(), line1BranchObservability2.getName());
 
