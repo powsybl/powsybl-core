@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -20,6 +21,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     private double reactivePowerSetpoint = Double.NaN;
 
     private double voltageSetpoint = Double.NaN;
+
+    private TerminalExt regulatingTerminal;
 
     VscConverterStationAdderImpl(VoltageLevelExt voltageLevel) {
         super(voltageLevel);
@@ -49,13 +52,20 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     }
 
     @Override
+    public VscConverterStationAdder setRegulatingTerminal(Terminal regulatingTerminal) {
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        return this;
+    }
+
+    @Override
     public VscConverterStationImpl add() {
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
-                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
+                = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetwork().getRef(), voltageRegulatorOn,
+                reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);
@@ -66,7 +76,6 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     @Override
     protected void validate() {
         super.validate();
-
         ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn);
     }
 

@@ -65,12 +65,20 @@ public class PsseTransformerWinding extends PsseVersioned {
         return windv;
     }
 
+    public void setWindv(double windv) {
+        this.windv = windv;
+    }
+
     public double getNomv() {
         return nomv;
     }
 
     public double getAng() {
         return ang;
+    }
+
+    public void setAng(double ang) {
+        this.ang = ang;
     }
 
     public int getCod() {
