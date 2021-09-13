@@ -160,8 +160,6 @@ public abstract class AbstractVscTest {
         assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
         cs1.setRegulatingTerminal(cs2Terminal);
         assertEquals(cs2Terminal, cs1.getRegulatingTerminal());
-        cs1.setRegulatingTerminal(null);
-        assertEquals(cs1.getTerminal(), cs1.getRegulatingTerminal());
     }
 
     @Test

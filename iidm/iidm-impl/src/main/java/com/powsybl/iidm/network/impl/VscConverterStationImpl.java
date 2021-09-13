@@ -168,7 +168,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public VscConverterStationImpl setRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, getNetwork());
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkRegulatingTerminal(this, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, voltageRegulatorOn.get(variantIndex), getNetwork());
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
