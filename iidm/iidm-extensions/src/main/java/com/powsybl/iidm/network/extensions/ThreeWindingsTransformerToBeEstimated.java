@@ -109,5 +109,5 @@ public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWi
     /**
      * Specify if the phase tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
+    ThreeWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
 }

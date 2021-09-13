@@ -143,7 +143,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
         switch (side) {
             case ONE:
                 ptc1Status = toBeEstimated;
