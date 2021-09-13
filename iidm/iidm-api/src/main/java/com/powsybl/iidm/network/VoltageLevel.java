@@ -543,7 +543,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
-        IntStream getNodeStreamInternalConnectedTo(int node);
+        IntStream getNodeInternalConnectedToStream(int node);
 
         /**
          * Get the internal connections connected to the {@code node}.

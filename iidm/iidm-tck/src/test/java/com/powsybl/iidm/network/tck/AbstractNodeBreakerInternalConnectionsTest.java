@@ -50,7 +50,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         assertEquals(9, (int) nodeIterator2.next());
         assertFalse(nodeIterator2.hasNext());
 
-        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeStreamInternalConnectedTo(3).boxed().collect(Collectors.toList());
+        List<Integer> nodesInternallyConnectedTo3 = vl.getNodeBreakerView().getNodeInternalConnectedToStream(3).boxed().collect(Collectors.toList());
         assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
 
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);

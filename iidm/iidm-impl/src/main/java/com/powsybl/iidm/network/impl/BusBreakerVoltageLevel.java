@@ -385,7 +385,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
-        public IntStream getNodeStreamInternalConnectedTo(int node) {
+        public IntStream getNodeInternalConnectedToStream(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
