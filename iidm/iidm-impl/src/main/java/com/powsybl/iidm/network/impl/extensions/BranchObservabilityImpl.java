@@ -71,6 +71,16 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
+    public BranchObservability<B> setQualityP1(double standardDeviation) {
+        if (qualityP1 == null) {
+            qualityP1 = new ObservabilityQualityImpl<>(standardDeviation);
+        } else {
+            qualityP1.setStandardDeviation(standardDeviation);
+        }
+        return this;
+    }
+
+    @Override
     public ObservabilityQuality<B> getQualityP2() {
         return qualityP2;
     }
@@ -82,6 +92,16 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
         } else {
             qualityP2.setStandardDeviation(standardDeviation);
             qualityP2.setRedundant(redundant);
+        }
+        return this;
+    }
+
+    @Override
+    public BranchObservability<B> setQualityP2(double standardDeviation) {
+        if (qualityP2 == null) {
+            qualityP2 = new ObservabilityQualityImpl<>(standardDeviation);
+        } else {
+            qualityP2.setStandardDeviation(standardDeviation);
         }
         return this;
     }
@@ -103,6 +123,16 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
     }
 
     @Override
+    public BranchObservability<B> setQualityQ1(double standardDeviation) {
+        if (qualityQ1 == null) {
+            qualityQ1 = new ObservabilityQualityImpl<>(standardDeviation);
+        } else {
+            qualityQ1.setStandardDeviation(standardDeviation);
+        }
+        return this;
+    }
+
+    @Override
     public ObservabilityQuality<B> getQualityQ2() {
         return qualityQ2;
     }
@@ -114,6 +144,16 @@ public class BranchObservabilityImpl<B extends Branch<B>> extends AbstractExtens
         } else {
             qualityQ2.setStandardDeviation(standardDeviation);
             qualityQ2.setRedundant(redundant);
+        }
+        return this;
+    }
+
+    @Override
+    public BranchObservability<B> setQualityQ2(double standardDeviation) {
+        if (qualityQ2 == null) {
+            qualityQ2 = new ObservabilityQualityImpl<>(standardDeviation);
+        } else {
+            qualityQ2.setStandardDeviation(standardDeviation);
         }
         return this;
     }

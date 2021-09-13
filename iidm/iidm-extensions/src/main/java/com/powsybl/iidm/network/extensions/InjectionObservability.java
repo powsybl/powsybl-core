@@ -27,6 +27,8 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
 
     InjectionObservability<I> setQualityP(double standardDeviation, Boolean redundant);
 
+    InjectionObservability<I> setQualityP(double standardDeviation);
+
     /**
      * StandardDeviation for reactive power in MVar.
      * @return nullable
@@ -35,6 +37,8 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
 
     InjectionObservability<I> setQualityQ(double standardDeviation, Boolean redundant);
 
+    InjectionObservability<I> setQualityQ(double standardDeviation);
+
     /**
      * StandardDeviation for voltage amplitude en kV.
      * @return nullable
@@ -42,4 +46,6 @@ public interface InjectionObservability<I extends Injection<I>> extends Extensio
     ObservabilityQuality<I> getQualityV();
 
     InjectionObservability<I> setQualityV(double standardDeviation, Boolean redundant);
+
+    InjectionObservability<I> setQualityV(double standardDeviation);
 }

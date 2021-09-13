@@ -22,6 +22,11 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
         this.redundant = redundant;
     }
 
+    public ObservabilityQualityImpl(double standardDeviation) {
+        this.standardDeviation = standardDeviation;
+        redundant = null;
+    }
+
     @Override
     public double getStandardDeviation() {
         return standardDeviation;
