@@ -15,6 +15,8 @@ import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerToBeEstimated
  */
 class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeWindingsTransformer> implements ThreeWindingsTransformerToBeEstimated {
 
+    private static final String UNEXPECTED_SIDE = "Unexpected side: ";
+
     private boolean rtc1Status;
     private boolean rtc2Status;
     private boolean rtc3Status;
@@ -57,7 +59,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return rtc3Status;
         }
-        throw new AssertionError("Unexpected side: " + side);
+        throw new AssertionError(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -85,7 +87,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
             case THREE:
                 return ptc3Status;
         }
-        throw new AssertionError("Unexpected side: " + side);
+        throw new AssertionError(UNEXPECTED_SIDE + side);
     }
 
     @Override
@@ -119,7 +121,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 rtc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + side);
         }
         return this;
     }
@@ -155,7 +157,7 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
                 ptc3Status = toBeEstimated;
                 break;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + side);
         }
         return this;
     }
