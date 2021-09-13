@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -520,6 +522,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         default Optional<Terminal> getOptionalTerminal(int node) {
             throw new UnsupportedOperationException();
         }
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        Stream<Switch> getSwitchStream(int node);
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Switch> getSwitches(int node);
+
+        /**
+         * Get the indices of the nodes connected with an internal connections to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        IntStream getNodeInternalConnectedToStream(int node);
+
+        /**
+         * Get the internal connections connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Integer> getNodesInternalConnectedTo(int node);
 
         /**
          * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.

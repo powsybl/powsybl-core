@@ -11,6 +11,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -179,6 +180,42 @@ public interface UndirectedGraph<V, E> {
      * @return the index of the first vertex that the specified edge is connected to.
      */
     int getEdgeVertex1(int e);
+
+    /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge objects
+     */
+    List<E> getEdgeObjectsConnectedToVertex(int v);
+
+    /**
+     * Return the edge objects connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge objects
+     */
+    Stream<E> getEdgeObjectConnectedToVertexStream(int v);
+
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return an iterable of the edge indices
+     */
+    List<Integer> getEdgesConnectedToVertex(int v);
+
+    /**
+     * Return the indices of the edges connected to the specified vertex.
+     * This method throws a {@link com.powsybl.commons.PowsyblException} if the vertex doesn't exist.
+     *
+     * @param v the vertex index.
+     * @return a stream of the edge indices
+     */
+    IntStream getEdgeConnectedToVertexStream(int v);
 
     /**
      * Return the index of the second vertex that the specified edge is connected to.
