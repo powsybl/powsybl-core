@@ -135,6 +135,34 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return j * rowCount + i;
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= rowCount * columnCount) {
+            throw new IllegalArgumentException("Element index out of bound [0, " + (rowCount * columnCount - 1) + "]");
+        }
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
+        int i = index % rowCount;
+        int j = index / rowCount;
+        set(i, j, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
+        int i = index % rowCount;
+        int j = index / rowCount;
+        add(i, j, value);
+    }
+
+    @Override
     public void reset() {
         for (int k = 0; k < rowCount * columnCount; k++) {
             buffer.putDouble(k * Double.BYTES, 0);
@@ -230,6 +258,20 @@ public class DenseMatrix extends AbstractMatrix {
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return getRowCount() * getColumnCount();
+    }
+
+    @Override
+    public DenseMatrix transpose() {
+        int transposedRowCount = columnCount;
+        int transposedColumnCount = rowCount;
+        ByteBuffer transposedBuffer = createBuffer(transposedRowCount, transposedColumnCount);
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columnCount; j++) {
+                double value = this.buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
+                transposedBuffer.putDouble(i * Double.BYTES * transposedRowCount + j * Double.BYTES, value);
+            }
+        }
+        return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
     }
 
     @Override
