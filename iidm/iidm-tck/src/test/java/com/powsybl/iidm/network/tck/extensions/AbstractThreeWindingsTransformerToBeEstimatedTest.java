@@ -38,27 +38,27 @@ public abstract class AbstractThreeWindingsTransformerToBeEstimatedTest {
 
         ThreeWindingsTransformerToBeEstimated ext = twt.getExtension(ThreeWindingsTransformerToBeEstimated.class);
         assertNotNull(ext);
-        assertFalse(ext.containsRatioTapChanger1());
-        assertFalse(ext.containsRatioTapChanger(ThreeWindingsTransformer.Side.ONE));
-        assertTrue(ext.containsRatioTapChanger2());
-        assertTrue(ext.containsRatioTapChanger(ThreeWindingsTransformer.Side.TWO));
-        assertTrue(ext.containsRatioTapChanger3());
-        assertTrue(ext.containsRatioTapChanger(ThreeWindingsTransformer.Side.THREE));
-        assertFalse(ext.containsPhaseTapChanger1());
-        assertFalse(ext.containsPhaseTapChanger(ThreeWindingsTransformer.Side.ONE));
-        assertFalse(ext.containsPhaseTapChanger2());
-        assertFalse(ext.containsPhaseTapChanger(ThreeWindingsTransformer.Side.TWO));
-        assertFalse(ext.containsPhaseTapChanger3());
-        assertFalse(ext.containsPhaseTapChanger(ThreeWindingsTransformer.Side.THREE));
+        assertFalse(ext.shouldEstimateRatioTapChanger1());
+        assertFalse(ext.shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side.ONE));
+        assertTrue(ext.shouldEstimateRatioTapChanger2());
+        assertTrue(ext.shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side.TWO));
+        assertTrue(ext.shouldEstimateRatioTapChanger3());
+        assertTrue(ext.shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side.THREE));
+        assertFalse(ext.shouldEstimatePhaseTapChanger1());
+        assertFalse(ext.shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side.ONE));
+        assertFalse(ext.shouldEstimatePhaseTapChanger2());
+        assertFalse(ext.shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side.TWO));
+        assertFalse(ext.shouldEstimatePhaseTapChanger3());
+        assertFalse(ext.shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side.THREE));
 
-        ext.setPhaseTapChanger1Status(true);
-        assertTrue(ext.containsPhaseTapChanger1());
-        ext.setPhaseTapChangerStatus(false, ThreeWindingsTransformer.Side.ONE);
-        assertFalse(ext.containsRatioTapChanger1());
+        ext.shouldEstimatePhaseTapChanger1(true);
+        assertTrue(ext.shouldEstimatePhaseTapChanger1());
+        ext.shouldEstimatePhaseTapChanger(false, ThreeWindingsTransformer.Side.ONE);
+        assertFalse(ext.shouldEstimateRatioTapChanger1());
 
-        ext.setRatioTapChanger2Status(false);
-        assertFalse(ext.containsRatioTapChanger2());
-        ext.setRatioTapChangerStatus(true, ThreeWindingsTransformer.Side.TWO);
-        assertTrue(ext.containsRatioTapChanger2());
+        ext.shouldEstimateRatioTapChanger2(false);
+        assertFalse(ext.shouldEstimateRatioTapChanger2());
+        ext.shouldEstimateRatioTapChanger(true, ThreeWindingsTransformer.Side.TWO);
+        assertTrue(ext.shouldEstimateRatioTapChanger2());
     }
 }

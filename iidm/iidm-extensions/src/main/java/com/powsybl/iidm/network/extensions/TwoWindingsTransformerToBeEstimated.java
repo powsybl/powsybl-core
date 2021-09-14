@@ -25,20 +25,20 @@ public interface TwoWindingsTransformerToBeEstimated extends Extension<TwoWindin
     /**
      * Return true if the ratio tap changer of the extended two windings transformer is to be estimated during a state estimation. Else, return false.
      */
-    boolean containsRatioTapChanger();
+    boolean shouldEstimateRatioTapChanger();
 
     /**
      * Return true if the phase tap changer of the extended two windings transformer is to be estimated during a state estimation. Else, return false.
      */
-    boolean containsPhaseTapChanger();
+    boolean shouldEstimatePhaseTapChanger();
 
     /**
      * Specify if the ratio tap changer of the extended two windings transformer is to be estimated during a state estimation.
      */
-    TwoWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated);
+    TwoWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated);
 
     /**
      * Specify if the phase tap changer of the extended two windings transformer is to be estimated during a state estimation.
      */
-    TwoWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated);
+    TwoWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated);
 }

@@ -26,88 +26,88 @@ public interface ThreeWindingsTransformerToBeEstimated extends Extension<ThreeWi
      * Return true if the ratio tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsRatioTapChanger1();
+    boolean shouldEstimateRatioTapChanger1();
 
     /**
      * Return true if the ratio tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsRatioTapChanger2();
+    boolean shouldEstimateRatioTapChanger2();
 
     /**
      * Return true if the ratio tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsRatioTapChanger3();
+    boolean shouldEstimateRatioTapChanger3();
 
     /**
      * Return true if the ratio tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsRatioTapChanger(ThreeWindingsTransformer.Side side);
+    boolean shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side side);
 
     /**
      * Return true if the phase tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsPhaseTapChanger1();
+    boolean shouldEstimatePhaseTapChanger1();
 
     /**
      * Return true if the phase tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsPhaseTapChanger2();
+    boolean shouldEstimatePhaseTapChanger2();
 
     /**
      * Return true if the phase tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsPhaseTapChanger3();
+    boolean shouldEstimatePhaseTapChanger3();
 
 
     /**
      * Return true if the phase tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      * Else, return false.
      */
-    boolean containsPhaseTapChanger(ThreeWindingsTransformer.Side side);
+    boolean shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side side);
 
     /**
      * Specify if the ratio tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setRatioTapChanger1Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger1(boolean toBeEstimated);
 
     /**
      * Specify if the ratio tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setRatioTapChanger2Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger2(boolean toBeEstimated);
 
     /**
      * Specify if the ratio tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setRatioTapChanger3Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger3(boolean toBeEstimated);
 
     /**
      * Specify if the ratio tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
+    ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
 
     /**
      * Specify if the phase tap changer of the leg 1 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger1Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger1(boolean toBeEstimated);
 
     /**
      * Specify if the phase tap changer of the leg 2 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger2Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger2(boolean toBeEstimated);
 
     /**
      * Specify if the phase tap changer of the leg 3 of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setPhaseTapChanger3Status(boolean toBeEstimated);
+    ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger3(boolean toBeEstimated);
 
     /**
      * Specify if the phase tap changer of the leg of the given side of the extended three windings transformer is to be estimated during a state estimation.
      */
-    ThreeWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
+    ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side);
 }

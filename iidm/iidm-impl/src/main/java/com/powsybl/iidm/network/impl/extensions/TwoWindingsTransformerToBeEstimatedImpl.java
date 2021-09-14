@@ -24,23 +24,23 @@ class TwoWindingsTransformerToBeEstimatedImpl extends AbstractExtension<TwoWindi
     }
 
     @Override
-    public boolean containsRatioTapChanger() {
+    public boolean shouldEstimateRatioTapChanger() {
         return rtcStatus;
     }
 
     @Override
-    public boolean containsPhaseTapChanger() {
+    public boolean shouldEstimatePhaseTapChanger() {
         return ptcStatus;
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated) {
+    public TwoWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated) {
         this.rtcStatus = toBeEstimated;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated) {
+    public TwoWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated) {
         this.ptcStatus = toBeEstimated;
         return this;
     }

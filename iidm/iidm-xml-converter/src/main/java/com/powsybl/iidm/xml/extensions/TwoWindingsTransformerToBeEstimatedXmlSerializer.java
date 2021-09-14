@@ -33,8 +33,8 @@ public class TwoWindingsTransformerToBeEstimatedXmlSerializer extends AbstractEx
 
     @Override
     public void write(TwoWindingsTransformerToBeEstimated extension, XmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("ratioTapChangerStatus", String.valueOf(extension.containsRatioTapChanger()));
-        context.getWriter().writeAttribute("phaseTapChangerStatus", String.valueOf(extension.containsPhaseTapChanger()));
+        context.getWriter().writeAttribute("ratioTapChangerStatus", String.valueOf(extension.shouldEstimateRatioTapChanger()));
+        context.getWriter().writeAttribute("phaseTapChangerStatus", String.valueOf(extension.shouldEstimatePhaseTapChanger()));
     }
 
     @Override

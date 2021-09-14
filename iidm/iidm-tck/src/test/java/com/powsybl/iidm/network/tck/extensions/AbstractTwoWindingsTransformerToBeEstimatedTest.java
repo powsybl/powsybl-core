@@ -34,15 +34,15 @@ public abstract class AbstractTwoWindingsTransformerToBeEstimatedTest {
 
         TwoWindingsTransformerToBeEstimated ext = twt.getExtension(TwoWindingsTransformerToBeEstimated.class);
         assertNotNull(ext);
-        assertTrue(ext.containsRatioTapChanger());
-        assertFalse(ext.containsPhaseTapChanger());
+        assertTrue(ext.shouldEstimateRatioTapChanger());
+        assertFalse(ext.shouldEstimatePhaseTapChanger());
 
-        ext.setPhaseTapChangerStatus(true);
-        assertTrue(ext.containsRatioTapChanger());
-        assertTrue(ext.containsPhaseTapChanger());
+        ext.shouldEstimatePhaseTapChanger(true);
+        assertTrue(ext.shouldEstimateRatioTapChanger());
+        assertTrue(ext.shouldEstimatePhaseTapChanger());
 
-        ext.setRatioTapChangerStatus(false);
-        assertFalse(ext.containsRatioTapChanger());
-        assertTrue(ext.containsPhaseTapChanger());
+        ext.shouldEstimateRatioTapChanger(false);
+        assertFalse(ext.shouldEstimateRatioTapChanger());
+        assertTrue(ext.shouldEstimatePhaseTapChanger());
     }
 }

@@ -35,22 +35,22 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public boolean containsRatioTapChanger1() {
+    public boolean shouldEstimateRatioTapChanger1() {
         return rtc1Status;
     }
 
     @Override
-    public boolean containsRatioTapChanger2() {
+    public boolean shouldEstimateRatioTapChanger2() {
         return rtc2Status;
     }
 
     @Override
-    public boolean containsRatioTapChanger3() {
+    public boolean shouldEstimateRatioTapChanger3() {
         return rtc3Status;
     }
 
     @Override
-    public boolean containsRatioTapChanger(ThreeWindingsTransformer.Side side) {
+    public boolean shouldEstimateRatioTapChanger(ThreeWindingsTransformer.Side side) {
         switch (side) {
             case ONE:
                 return rtc1Status;
@@ -63,22 +63,22 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public boolean containsPhaseTapChanger1() {
+    public boolean shouldEstimatePhaseTapChanger1() {
         return ptc1Status;
     }
 
     @Override
-    public boolean containsPhaseTapChanger2() {
+    public boolean shouldEstimatePhaseTapChanger2() {
         return ptc2Status;
     }
 
     @Override
-    public boolean containsPhaseTapChanger3() {
+    public boolean shouldEstimatePhaseTapChanger3() {
         return ptc3Status;
     }
 
     @Override
-    public boolean containsPhaseTapChanger(ThreeWindingsTransformer.Side side) {
+    public boolean shouldEstimatePhaseTapChanger(ThreeWindingsTransformer.Side side) {
         switch (side) {
             case ONE:
                 return ptc1Status;
@@ -91,25 +91,25 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setRatioTapChanger1Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger1(boolean toBeEstimated) {
         this.rtc1Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setRatioTapChanger2Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger2(boolean toBeEstimated) {
         this.rtc2Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setRatioTapChanger3Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger3(boolean toBeEstimated) {
         this.rtc3Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setRatioTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimateRatioTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
         switch (side) {
             case ONE:
                 rtc1Status = toBeEstimated;
@@ -127,25 +127,25 @@ class ThreeWindingsTransformerToBeEstimatedImpl extends AbstractExtension<ThreeW
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger1Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger1(boolean toBeEstimated) {
         this.ptc1Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger2Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger2(boolean toBeEstimated) {
         this.ptc2Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setPhaseTapChanger3Status(boolean toBeEstimated) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger3(boolean toBeEstimated) {
         this.ptc3Status = toBeEstimated;
         return this;
     }
 
     @Override
-    public ThreeWindingsTransformerToBeEstimated setPhaseTapChangerStatus(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
+    public ThreeWindingsTransformerToBeEstimated shouldEstimatePhaseTapChanger(boolean toBeEstimated, ThreeWindingsTransformer.Side side) {
         switch (side) {
             case ONE:
                 ptc1Status = toBeEstimated;
