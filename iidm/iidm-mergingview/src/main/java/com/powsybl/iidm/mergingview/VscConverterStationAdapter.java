@@ -69,4 +69,19 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
     public double getReactivePowerSetpoint() {
         return getDelegate().getReactivePowerSetpoint();
     }
+
+    @Override
+    public VscConverterStation setRegulatingTerminal(final Terminal regulatingTerminal) {
+        Terminal terminal = regulatingTerminal;
+        if (terminal instanceof TerminalAdapter) {
+            terminal = ((TerminalAdapter) terminal).getDelegate();
+        }
+        getDelegate().setRegulatingTerminal(terminal);
+        return this;
+    }
+
+    @Override
+    public Terminal getRegulatingTerminal() {
+        return getIndex().getTerminal(getDelegate().getRegulatingTerminal());
+    }
 }

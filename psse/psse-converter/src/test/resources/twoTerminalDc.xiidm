@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2" id="twoTerminalDc" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3" id="twoTerminalDc" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S5">
         <iidm:voltageLevel id="VL1" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -40,7 +40,7 @@
                 <iidm:bus id="B4" name="Bus 4" v="243.98007619999998" angle="-13.09089157"/>
             </iidm:busBreakerTopology>
             <iidm:load id="B4-L1" loadType="UNDEFINED" p0="47.8" q0="-3.9" bus="B4" connectableBus="B4"/>
-            <iidm:lccConverterStation id="LccConverter-4-1 " lossFactor="0.0" powerFactor="0.7562995" bus="B4" connectableBus="B4"/>
+            <iidm:lccConverterStation id="LccConverter-4-8-4" lossFactor="0.0" powerFactor="0.7562995" bus="B4" connectableBus="B4"/>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VL7" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -93,7 +93,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B8" name="Bus 8" v="227.6281066" angle="-5.48014421"/>
             </iidm:busBreakerTopology>
-            <iidm:lccConverterStation id="LccConverter-8-1 " lossFactor="0.0" powerFactor="0.7693887" bus="B8" connectableBus="B8"/>
+            <iidm:lccConverterStation id="LccConverter-4-8-8" lossFactor="0.0" powerFactor="0.7693887" bus="B8" connectableBus="B8"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:substation id="S3">
@@ -139,7 +139,7 @@
         <iidm:currentLimits1 permanentLimit="25099.675398378557"/>
         <iidm:currentLimits2 permanentLimit="2509.967539837856"/>
     </iidm:line>
-    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-1 " converterStation2="LccConverter-8-1 "/>
+    <iidm:hvdcLine id="TwoTerminalDc-4-8-EATL P1     " r="7.365" nominalV="240.0" convertersMode="SIDE_1_RECTIFIER_SIDE_2_INVERTER" activePowerSetpoint="100.0" maxP="120.0" converterStation1="LccConverter-4-8-4" converterStation2="LccConverter-4-8-8"/>
     <iidm:extension id="VL1">
         <slt:slackTerminal id="B1-G1"/>
     </iidm:extension>

@@ -7,13 +7,16 @@
 package com.powsybl.iidm.network;
 
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.TraverseResult;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -504,21 +507,51 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         int getNode2(String switchId);
 
         /**
-         * Get the terminal corresponding to the {@param node}.
+         * Get the terminal corresponding to the {@code node}.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
         Terminal getTerminal(int node);
 
         /**
-         * Get the terminal corresponding to the {@param node} if the {@param node} is valid.
-         * Return an empty optional if no existing terminal corresponds to {@param node}.
+         * Get the terminal corresponding to the {@code node} if the {@code node} is valid.
+         * Return an empty optional if no existing terminal corresponds to {@code node}.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not valid.
          */
         default Optional<Terminal> getOptionalTerminal(int node) {
             throw new UnsupportedOperationException();
         }
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        Stream<Switch> getSwitchStream(int node);
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Switch> getSwitches(int node);
+
+        /**
+         * Get the indices of the nodes connected with an internal connections to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        IntStream getNodeInternalConnectedToStream(int node);
+
+        /**
+         * Get the internal connections connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Integer> getNodesInternalConnectedTo(int node);
 
         /**
          * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.
@@ -530,7 +563,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
-         * Get the first terminal corresponding to the {@param switchId}.
+         * Get the first terminal corresponding to the {@code switchId}.
          * May return null.
          *
          * @throws com.powsybl.commons.PowsyblException if switch is not found.
@@ -538,7 +571,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Terminal getTerminal1(String switchId);
 
         /**
-         * Get the second terminal corresponding to the {@param switchId}.
+         * Get the second terminal corresponding to the {@code switchId}.
          * May return null.
          *
          * @throws com.powsybl.commons.PowsyblException if switch is not found.
@@ -603,15 +636,22 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         BusbarSection getBusbarSection(String id);
 
         interface Traverser {
-            boolean traverse(int node1, Switch sw, int node2);
+            TraverseResult traverse(int node1, Switch sw, int node2);
         }
 
         /**
          * Performs a depth-first traversal of the topology graph,
-         * starting from {@param node}.
-         * The {@param traverser} callback is called every time an edge is traversed.
+         * starting from {@code node}.
+         * The {@code traverser} callback is called every time an edge is traversed.
          */
         void traverse(int node, Traverser traverser);
+
+        /**
+         * Performs a depth-first traversal of the topology graph,
+         * starting from each node in array {@code nodes}.
+         * The {@code traverser} callback is called every time an edge is traversed.
+         */
+        void traverse(int[] node, Traverser traverser);
     }
 
     /**
@@ -815,10 +855,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
 
     }
 
-    /**
-     * Get the substation to which the voltage level belongs.
-     */
-    Substation getSubstation();
+    Optional<Substation> getSubstation();
+
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
 
     /**
      * Get the nominal voltage in KV.

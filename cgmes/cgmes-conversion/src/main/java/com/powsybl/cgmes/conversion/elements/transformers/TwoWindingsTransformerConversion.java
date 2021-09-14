@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements.transformers;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
@@ -18,10 +19,6 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.conversion.elements.BoundaryLine;
 import com.powsybl.cgmes.conversion.elements.EquipmentAtBoundaryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -147,13 +144,15 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
     }
 
     private void setToIidm(ConvertedT2xModel convertedT2xModel) {
-        TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
-            .setR(convertedT2xModel.r)
-            .setX(convertedT2xModel.x)
-            .setG(convertedT2xModel.end1.g)
-            .setB(convertedT2xModel.end1.b)
-            .setRatedU1(convertedT2xModel.end1.ratedU)
-            .setRatedU2(convertedT2xModel.end2.ratedU);
+        TwoWindingsTransformerAdder adder = substation()
+                .map(Substation::newTwoWindingsTransformer)
+                .orElseGet(() -> context.network().newTwoWindingsTransformer())
+                .setR(convertedT2xModel.r)
+                .setX(convertedT2xModel.x)
+                .setG(convertedT2xModel.end1.g)
+                .setB(convertedT2xModel.end1.b)
+                .setRatedU1(convertedT2xModel.end1.ratedU)
+                .setRatedU2(convertedT2xModel.end2.ratedU);
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();

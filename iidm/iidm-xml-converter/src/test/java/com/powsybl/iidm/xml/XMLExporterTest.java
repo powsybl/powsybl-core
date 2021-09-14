@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.CURRENT_IIDM_XML_VERSION;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -39,5 +40,12 @@ public class XMLExporterTest extends AbstractXmlConverterTest {
     @Test
     public void exportTest() throws IOException {
         exporterTest(MultipleExtensionsTestNetworkFactory.create(), CURRENT_IIDM_XML_VERSION);
+    }
+
+    @Test
+    public void paramsTest() {
+        var xmlExporter = new XMLExporter();
+        assertEquals(10, xmlExporter.getParameters().size());
+        assertEquals("IIDM XML v" + CURRENT_IIDM_XML_VERSION.toString(".") + " exporter", xmlExporter.getComment());
     }
 }
