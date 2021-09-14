@@ -139,7 +139,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         @Override
         public GenerationImpl setVoltageRegulationOn(boolean voltageRegulationOn) {
             int variantIndex = danglingLine.getNetwork().getVariantIndex();
-            ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(danglingLine, targetV.get(variantIndex), targetQ.get(variantIndex), voltageRegulationOn);
+            ValidationUtil.checkVoltageControlTargetQ(danglingLine, targetV.get(variantIndex), targetQ.get(variantIndex), voltageRegulationOn);
             boolean oldValue = this.voltageRegulationOn.get(variantIndex);
             this.voltageRegulationOn.set(variantIndex, voltageRegulationOn);
             String variantId = danglingLine.getNetwork().getVariantManager().getVariantId(variantIndex);

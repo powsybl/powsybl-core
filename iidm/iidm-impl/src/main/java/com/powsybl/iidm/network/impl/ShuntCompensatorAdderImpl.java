@@ -232,7 +232,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         // As we do not want to move the order of validation and terminal attachment
         // we do not check the regulating terminal if useLocalRegulation is true.
         // We assume the terminal will be ok since it will be the one of the equipment.
-        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV, targetDeadband,
+        ValidationUtil.checkDiscreteVoltageControl(this, regulatingTerminal, targetV, targetDeadband,
             voltageRegulatorOn, getNetwork(), validateRegulatingTerminal);
 
         if (modelBuilder == null) {

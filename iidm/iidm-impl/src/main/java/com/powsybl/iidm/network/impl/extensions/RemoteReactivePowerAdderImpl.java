@@ -52,7 +52,7 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     @Override
     public RemoteReactivePowerControlAdder withEnabled(boolean enabled) {
-        ValidationUtil.checkRegulatingReactivePowerControl((Validable) super.extendable, regulatingTerminal,
+        ValidationUtil.checkReactivePowerControl((Validable) super.extendable, regulatingTerminal,
             targetQ, enabled, super.extendable.getNetwork());
         this.enabled = enabled;
         return this;

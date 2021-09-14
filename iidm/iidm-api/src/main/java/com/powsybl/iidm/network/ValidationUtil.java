@@ -20,24 +20,20 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * Check methods for regulation controls are organized in two sets: Complete check methods and Individual check methods.
  * <p>
  * Complete check methods. <br>
- * Complete check methods verify all the attributes associated with the regulation control. <br>
+ * Complete check methods verify all the attributes associated with regulation controls. <br>
  * These methods are used in the adder, where the equipment is created and every time
  * that the regulation control is enabled. Regulation control will only change to enable if all their
- * attributes are defined and valid. Complete methods are:
+ * attributes are defined and valid.<br>
+ * Complete methods are:
  * <p>
- * {@link #checkGeneratorRegulatingVoltageControl(Validable, Terminal, double, boolean, double, Network)} for voltage control of generators.<br>
- * {@link #checkGeneratorRegulatingVoltageControl(Validable, Terminal, double, boolean, double, Network, boolean)} for voltage control of generators.<br>
- * {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network)} for static Var compensator controls.<br>
- * {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network, boolean)} for static Var compensator controls.<br>
- * {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network, boolean)} for static Var compensator controls.<br>
- * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network)} for generic continuous voltage controls.<br>
- * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network, boolean)} for generic continuous voltage controls.<br>
- * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} for generic discrete voltage controls.<br>
- * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network, boolean)} for generic discrete voltage controls.<br>
- * {@link #checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable, double, double, boolean)} for dangling line controls.<br>
- * {@link #checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable, Terminal, double, double, boolean, Network)} for vsc converter controls.<br>
- * {@link #checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable, Terminal, double, double, boolean, Network, boolean)} for vsc converter controls.<br>
- * {@link #checkRegulatingReactivePowerControl(Validable, Terminal, double, boolean, Network)} for generator reactive power controls.<br>
+ * {@link #checkVoltageControlTargetQ(Validable, Terminal, double, double, boolean, Network)} for voltage control and targetQ validation.<br>
+ * {@link #checkVoltageControlTargetQ(Validable, Terminal, double, double, boolean, Network, boolean)} for voltage control and targetQ validation.<br>
+ * {@link #checkSvcRegulation(Validable, Terminal, double, double, RegulationMode, Network)} for static Var compensator controls.<br>
+ * {@link #checkSvcRegulation(Validable, Terminal, double, double, RegulationMode, Network, boolean)} for static Var compensator controls.<br>
+ * {@link #checkDiscreteVoltageControl(Validable, Terminal, double, double, boolean, Network)} for discrete voltage control.<br>
+ * {@link #checkDiscreteVoltageControl(Validable, Terminal, double, double, boolean, Network, boolean)} for discrete voltage control.<br>
+ * {@link #checkVoltageControlTargetQ(Validable, double, double, boolean)} for voltage control without regulating terminal and targetQ validation.<br>
+ * {@link #checkReactivePowerControl(Validable, Terminal, double, boolean, Network)} for reactive power controls.<br>
  * {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} for ratio tapChanger controls.<br>
  * {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} for phase tapChanger controls.<br>
  * <p>
@@ -45,15 +41,15 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * Validation of regulating terminal checks that the terminal is not null and its network is the same as the object being added.
  * The network for the terminal is obtained from its voltage level and terminal voltage level is not set until the terminal is attached.
  * Currently, the terminal is attached after the validation is performed so the regulating terminal is only checked if it is remote.
- * For local regulation we assume the terminal will be ok since it will be the one of the equipment and it is set automatically by the adder method.
+ * For local regulation (useLocalRegulation) we assume the terminal will be ok since it will be the one of the equipment and it is set automatically by the adder method.
  * <p>
  * Individual check methods.<br>
  * Individual methods are used when one attribute is changed by the corresponding set method
  * after the equipment object was created with adder method.
  * The verification of each attribute depends always on the enabled attribute.
  * If the control is enabled only valid attributes are allowed, but when is not enabled the verification is not done.
- * That allows to define controls after the adder method. Usually, controls must be filled at the end of the conversion process
- * when all remote regulating terminals have previously been defined.
+ * That allows to define controls after the equipment has been created with the adder method. Usually, controls must be filled
+ * at the end of the conversion process when all remote regulating terminals have previously been defined.
  * When only the EQ file is imported the control could be created disabled with not defined and valid attributes. <br>
  * Individual check methods are:
  * <p>
@@ -70,14 +66,6 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-
-// The complete check methods that verify all the attributes associated with the regulation control.
-// The individual check methods that only verify one attribute.
-// Complete methods are used in the adder and when the enabled attribute is changed after doing the adder. If the regulation control is enabled, all the attributes must be valid, complete verification.
-//
-// Individual methods are used when the corresponding attribute is changed after the adder. The verification of one attribute depends always on the enabled attribute. It the control is enabled only valid attributes are allowed.
-//
-// If the control is disabled the verification is not done. That allows to set the attributes of the controls after the adder. (Controls must be filled at the end of the conversion process so all remote regulating terminals have previously been defined). When only the EQ file is imported the control could be created disabled with not valid attributes.
 
 public final class ValidationUtil {
 
@@ -102,12 +90,6 @@ public final class ValidationUtil {
     public static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
         if (Double.isNaN(activePowerSetpoint)) {
             throw createInvalidValueException(validable, activePowerSetpoint, "active power setpoint");
-        }
-    }
-
-    private static void checkReactivePowerTarget(Validable validable, double targetQ) {
-        if (Double.isNaN(targetQ)) {
-            throw createInvalidValueException(validable, targetQ, REACTIVE_POWER_SETPOINT);
         }
     }
 
@@ -482,6 +464,11 @@ public final class ValidationUtil {
         }
     }
 
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
+        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
+        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, targetDeadband, network);
+    }
+
     /**
      * @deprecated
      * Use {@link #checkRatioTapChangerRegulation(Validable, boolean, Terminal, double, double, Network)} instead
@@ -490,6 +477,18 @@ public final class ValidationUtil {
     public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
         Terminal regulationTerminal, double targetV, Network network) {
         checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, network);
+    }
+
+    /**
+     * For validating ratio tapChanger controls.
+     * If the control is enabled voltage setpoint, target deadband and regulating terminal must be defined and valid.
+     */
+    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
+        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
+        if (!loadTapChangingCapabilities) {
+            return;
+        }
+        ValidationUtil.checkDiscreteVoltageControl(validable, regulationTerminal, targetV, targetDeadband, regulating, network);
     }
 
     /**
@@ -519,26 +518,9 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
-        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
-        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, targetDeadband, network);
-    }
-
     /**
-     * For validating a ratio tapChanger control.
-     * If the ratio tapChanger control is enabled voltage setpoint, target deadband and regulating terminal must be defined and valid.
-     */
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-        Terminal regulationTerminal, double targetV, double targetDeadband, Network network) {
-        if (!loadTapChangingCapabilities) {
-            return;
-        }
-        ValidationUtil.checkRegulatingVoltageControl(validable, regulationTerminal, targetV, targetDeadband, regulating, network);
-    }
-
-    /**
-     * For validating a phase tapChanger control.
-     * If the phase tapChanger control is enabled current or active power setpoint, target deadband and regulating terminal must be defined and valid.
+     * For validating phase tapChanger controls.
+     * If the control is enabled current or active power setpoint, target deadband and regulating terminal must be defined and valid.
      */
     public static void checkPhaseTapChangerRegulation(Validable validable, boolean regulating,
         PhaseTapChanger.RegulationMode regulationMode, Terminal regulationTerminal, double regulationValue,
@@ -549,11 +531,11 @@ public final class ValidationUtil {
         if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
             throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
         }
-        checkRegulatingCurrentOrActivePowerControl(validable, regulationTerminal, regulationValue, targetDeadband,
+        checkCurrentOrActivePowerControl(validable, regulationTerminal, regulationValue, targetDeadband,
             regulating, network);
     }
 
-    private static void checkRegulatingCurrentOrActivePowerControl(Validable validable, Terminal regulatingTerminal,
+    private static void checkCurrentOrActivePowerControl(Validable validable, Terminal regulatingTerminal,
         double valueSetpoint, double targetDeadband, boolean regulatorOn, Network network) {
         if (!regulatorOn) {
             return;
@@ -587,32 +569,8 @@ public final class ValidationUtil {
     }
 
     /**
-     * For validating a voltage regulation control of a generator.
-     * Regulating Terminal is forced to be validated.
-     */
-    public static void checkGeneratorRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
-        double voltageSetpoint, boolean voltageRegulatorOn, double targetQ, Network network) {
-        checkGeneratorRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, targetQ, network, true);
-    }
-
-    /**
-     * For validating a voltage regulation control of a generator.
-     * User can select if regulating terminal should be validated.
-     * If the voltage regulation control is disabled targetQ must be defined and valid.
-     * If the voltage regulation control is enabled voltage setpoint and regulating terminal must be defined and valid.
-     */
-    public static void checkGeneratorRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
-        double voltageSetpoint, boolean voltageRegulatorOn, double targetQ, Network network,
-        boolean validateRegulatingTerminal) {
-        if (!voltageRegulatorOn) {
-            checkReactivePowerTarget(validable, targetQ);
-        }
-        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, validateRegulatingTerminal);
-    }
-
-    /**
      * @deprecated
-     * Use {@link #checkSvcRegulatingControl(Validable, Terminal, double, double, RegulationMode, Network)}
+     * Use {@link #checkSvcRegulation(Validable, Terminal, double, double, RegulationMode, Network)}
      */
     @Deprecated(since = "4.4.0")
     public static void checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint, StaticVarCompensator.RegulationMode regulationMode) {
@@ -643,37 +601,37 @@ public final class ValidationUtil {
     }
 
     /**
-     * For validating a static Var compensator control.
+     * For validating static Var compensator control.
      * Regulating Terminal is forced to be validated.
      */
-    public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
+    public static void checkSvcRegulation(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
         double reactivePowerSetpoint, RegulationMode regulationMode, Network network) {
-        checkSvcRegulatingControl(validable, regulatingTerminal, voltageSetpoint, reactivePowerSetpoint, regulationMode, network, true);
+        checkSvcRegulation(validable, regulatingTerminal, voltageSetpoint, reactivePowerSetpoint, regulationMode, network, true);
     }
 
     /**
-     * For validating a static Var compensator control.
+     * For validating static Var compensator control.
      * User can select if regulating terminal should be validated.
      * Depending on RegulationMode (OFF, VOLTAGE, REACTIVE_POWER) static Var compensator will control voltage or reactive power.
      * When RegulationMode is OFF there is no validation.
      * When RegulationMode is VOLTAGE, voltage setpoint and regulating terminal must be defined and valid.
      * When RegulationMode is REACTIVE_POWER reactive power setpoint and regulating terminal must be defined and valid.
      */
-    public static void checkSvcRegulatingControl(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
+    public static void checkSvcRegulation(Validable validable, Terminal regulatingTerminal, double voltageSetpoint,
         double reactivePowerSetpoint, RegulationMode regulationMode, Network network, boolean validateRegulatingTerminal) {
         if (regulationMode == null) {
             throw new ValidationException(validable, "Regulation mode is invalid");
         }
         if (regulationMode == StaticVarCompensator.RegulationMode.VOLTAGE) {
-            ValidationUtil.checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, true, network, validateRegulatingTerminal);
+            ValidationUtil.checkContinuousVoltageControl(validable, regulatingTerminal, voltageSetpoint, true, network, validateRegulatingTerminal);
         } else if (regulationMode == StaticVarCompensator.RegulationMode.REACTIVE_POWER) {
-            ValidationUtil.checkRegulatingReactivePowerControl(validable, regulatingTerminal, reactivePowerSetpoint, true, network);
+            ValidationUtil.checkReactivePowerControl(validable, regulatingTerminal, reactivePowerSetpoint, true, network);
         }
     }
 
     /**
      * @deprecated
-     * Use {@link #checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable, Terminal, double, double, boolean, Network)} instead
+     * Use {@link #checkVoltageControlTargetQ(Validable, Terminal, double, double, boolean, Network)} instead
      */
     @Deprecated(since = "4.4.0")
     public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
@@ -683,66 +641,68 @@ public final class ValidationUtil {
     }
 
     /**
-     * @deprecated
-     * Use {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network)} instead
-     */
-    @Deprecated(since = "4.4.0")
-    public static boolean checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint) {
-        if (voltageRegulatorOn == null) {
-            throw new ValidationException(validable, "voltage regulator status is not set");
-        }
-        boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
-        if (bVoltageRegulatorOn) {
-            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
-            }
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * For validating a continuous voltage regulation control.
+     * For validating voltage control and targetQ.
      * Regulating Terminal is forced to be validated.
      */
-    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
-        double voltageSetpoint, boolean voltageRegulatorOn, Network network) {
-        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, true);
+    public static void checkVoltageControlTargetQ(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, double targetQ, boolean voltageRegulatorOn, Network network) {
+        checkVoltageControlTargetQ(validable, regulatingTerminal, voltageSetpoint, targetQ, voltageRegulatorOn, network, true);
     }
 
     /**
-     * For validating a continuous voltage regulation control.
+     * For validating voltage control ant targetQ.
      * User can select if regulating terminal should be validated.
-     * If the voltage regulation control is enabled voltage setpoint and regulating terminal must be defined and valid.
+     * If the voltage control is disabled targetQ must be defined and valid.
+     * If the voltage control is enabled voltage setpoint and regulating terminal must be defined and valid.
      */
-    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
-        double voltageSetpoint, boolean voltageRegulatorOn, Network network, boolean validateRegulatingTerminal) {
+    public static void checkVoltageControlTargetQ(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, double targetQ, boolean voltageRegulatorOn, Network network,
+        boolean validateRegulatingTerminal) {
+        if (!voltageRegulatorOn) {
+            checkReactivePowerTarget(validable, targetQ);
+        }
+        checkContinuousVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, validateRegulatingTerminal);
+    }
+
+    /**
+     * For validating voltage control (without regulating terminal) and targetQ.
+     * If the voltage control is disabled targetQ must be defined and valid.
+     * If the voltage control is enabled voltage setpoint must be defined and valid.
+     */
+    public static void checkVoltageControlTargetQ(Validable validable,
+        double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn) {
+        if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
+        }
+
+        checkVoltageRegulation(validable, voltageSetpoint, voltageRegulatorOn);
+    }
+
+    private static void checkVoltageRegulation(Validable validable, double voltageSetpoint, boolean voltageRegulatorOn) {
         if (!voltageRegulatorOn) {
             return;
         }
-        if (validateRegulatingTerminal && !validRegulatingTerminal(regulatingTerminal, network)) {
-            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
-        }
         if (!validVoltageSetpoint(voltageSetpoint)) {
-            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT);
+            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
         }
     }
 
     /**
-     * For validating a discrete voltage regulation control.
+     * For validating discrete voltage controls.
      * Regulating Terminal is forced to be validated.
      */
-    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+    public static void checkDiscreteVoltageControl(Validable validable, Terminal regulatingTerminal,
         double voltageSetpoint, double targetDeadband, boolean voltageRegulatorOn, Network network) {
-        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, targetDeadband, voltageRegulatorOn, network, true);
+        checkDiscreteVoltageControl(validable, regulatingTerminal, voltageSetpoint, targetDeadband, voltageRegulatorOn,
+            network, true);
     }
 
     /**
-     * For validating a discrete voltage regulation control.
-     * User can select if regulating terminal should be validated.
-     * If the voltage regulation control is enabled voltage setpoint, target deadband and regulating terminal must be defined and valid.
-     */
-    public static void checkRegulatingVoltageControl(Validable validable, Terminal regulatingTerminal,
+    * For validating discrete voltage controls.
+    * User can select if regulating terminal should be validated.
+    * If the voltage regulation control is enabled voltage setpoint, target deadband and regulating terminal must be defined and valid.
+    */
+    public static void checkDiscreteVoltageControl(Validable validable, Terminal regulatingTerminal,
         double voltageSetpoint, double targetDeadband, boolean voltageRegulatorOn, Network network,
         boolean validateRegulatingTerminal) {
         if (!voltageRegulatorOn) {
@@ -759,58 +719,11 @@ public final class ValidationUtil {
         }
     }
 
-    private static void checkRegulatingVoltageControl(Validable validable, double voltageSetpoint, boolean voltageRegulatorOn) {
-        if (!voltageRegulatorOn) {
-            return;
-        }
-        if (!validVoltageSetpoint(voltageSetpoint)) {
-            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
-        }
-    }
-
     /**
-     * For validating a danglingLine control.
-     * No regulating terminal.
-     */
-    public static void checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
-        double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn) {
-        if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
-        }
-        checkRegulatingVoltageControl(validable, voltageSetpoint, voltageRegulatorOn);
-    }
-
-    /**
-     * For validating a a vsc converter control.
-     * Regulating Terminal is forced to be validated.
-     */
-    public static void checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
-        Terminal regulatingTerminal, double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn,
-        Network network) {
-        checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(validable, regulatingTerminal,
-            voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, network, true);
-    }
-
-    /**
-     * For validating a vsc converter control.
-     * * User can select if regulating terminal should be validated.
-     * If the voltage regulation control is disabled reactive power setpoint must be defined and valid.
-     * If the voltage regulation control is enabled voltage setpoint and regulating terminal must be defined and valid.
-     */
-    public static void checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
-        Terminal regulatingTerminal, double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn,
-        Network network, boolean validateRegulatingTerminal) {
-        if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
-            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
-        }
-        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, validateRegulatingTerminal);
-    }
-
-    /**
-     * For validating reactive power controls of generators recorded as an extension.
-     * If the voltage regulation control is enabled voltage setpoint and regulating terminal must be defined and valid.
-     */
-    public static void checkRegulatingReactivePowerControl(Validable validable, Terminal regulatingTerminal,
+    * For validating reactive power controls.
+    * If the control is enabled reactive power setpoint and regulating terminal must be defined and valid.
+    */
+    public static void checkReactivePowerControl(Validable validable, Terminal regulatingTerminal,
         double reactivePowerSetpoint, boolean reactivePowerRegulatorOn, Network network) {
         if (!reactivePowerRegulatorOn) {
             return;
@@ -821,6 +734,44 @@ public final class ValidationUtil {
         if (!validReactivePowerSetpoint(reactivePowerSetpoint)) {
             throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT);
         }
+    }
+
+    private static void checkContinuousVoltageControl(Validable validable, Terminal regulatingTerminal,
+        double voltageSetpoint, boolean voltageRegulatorOn, Network network, boolean validateRegulatingTerminal) {
+        if (!voltageRegulatorOn) {
+            return;
+        }
+        if (validateRegulatingTerminal && !validRegulatingTerminal(regulatingTerminal, network)) {
+            throw new ValidationException(validable, REGULATING_TERMINAL_NOT_DEFINED);
+        }
+        if (!validVoltageSetpoint(voltageSetpoint)) {
+            throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT);
+        }
+    }
+
+    private static void checkReactivePowerTarget(Validable validable, double targetQ) {
+        if (Double.isNaN(targetQ)) {
+            throw createInvalidValueException(validable, targetQ, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
+        }
+    }
+
+    /**
+     * @deprecated
+     * Use {@link #checkVoltageSetpoint(Validable, String, double, boolean)} instead
+     */
+    @Deprecated(since = "4.4.0")
+    public static boolean checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint) {
+        if (voltageRegulatorOn == null) {
+            throw new ValidationException(validable, "voltage regulator status is not set");
+        }
+        boolean bVoltageRegulatorOn = voltageRegulatorOn; // make sonar happy java:S5411 Boxed "Boolean" should be avoided in boolean expressions
+        if (bVoltageRegulatorOn) {
+            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
+                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
+            }
+            return false;
+        }
+        return true;
     }
 
     public static boolean validRegulatingVoltageControl(Terminal regulatingTerminal, double voltageSetpoint, Network network) {

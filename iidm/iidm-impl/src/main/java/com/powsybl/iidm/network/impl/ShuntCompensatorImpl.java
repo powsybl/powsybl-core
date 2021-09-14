@@ -161,7 +161,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public ShuntCompensatorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         int variantIndex = network.get().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControl(this, regulatingTerminal, targetV.get(variantIndex),
+        ValidationUtil.checkDiscreteVoltageControl(this, regulatingTerminal, targetV.get(variantIndex),
             targetDeadband.get(variantIndex), voltageRegulatorOn, getNetwork());
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
