@@ -9,10 +9,7 @@ package com.powsybl.cgmes.measurements;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.Measurement;
@@ -66,32 +63,59 @@ public class CgmesMeasurementsTest {
         assertTrue(measExt.getMeasurements(Measurement.Type.ANGLE).contains(meas2));
         assertEquals(1, measExt.getMeasurements(Measurement.Type.ANGLE).size());
 
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertNotNull(generator);
+        Measurements<Generator> measExt2 = generator.getExtension(Measurements.class);
+        assertNotNull(measExt2);
+        assertEquals(1, measExt2.getMeasurements().size());
+        Measurement meas3 = measExt2.getMeasurement("test_analog_3");
+        assertNotNull(meas3);
+        assertEquals(Measurement.Type.ANGLE, meas3.getType());
+        assertNull(meas3.getSide());
+        assertTrue(Double.isNaN(meas3.getValue()));
+        assertTrue(Double.isNaN(meas3.getStandardDeviation()));
+        assertFalse(meas3.isValid());
+        assertTrue(meas3.getPropertyNames().isEmpty());
+
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
         assertNotNull(twt);
 
         DiscreteMeasurements<TwoWindingsTransformer> discMeasExt = twt.getExtension(DiscreteMeasurements.class);
         assertNotNull(discMeasExt);
-        assertEquals(1, discMeasExt.getDiscreteMeasurements().size());
+        assertEquals(2, discMeasExt.getDiscreteMeasurements().size());
 
-        DiscreteMeasurement discrMeas = discMeasExt.getDiscreteMeasurement("test_discrete");
-        assertNotNull(discrMeas);
-        assertEquals(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, discrMeas.getTapChanger());
-        assertEquals(DiscreteMeasurement.Type.TAP_POSITION, discrMeas.getType());
-        assertEquals(DiscreteMeasurement.ValueType.STRING, discrMeas.getValueType());
-        assertNull(discrMeas.getValueAsString());
+        DiscreteMeasurement discrMeas1 = discMeasExt.getDiscreteMeasurement("test_discrete_1");
+        assertNotNull(discrMeas1);
+        assertEquals(DiscreteMeasurement.Type.TAP_POSITION, discrMeas1.getType());
+        assertEquals(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER, discrMeas1.getTapChanger());
+        assertEquals(DiscreteMeasurement.ValueType.STRING, discrMeas1.getValueType());
+        assertNull(discrMeas1.getValueAsString());
         try {
-            discrMeas.getValueAsBoolean();
+            discrMeas1.getValueAsBoolean();
             fail();
         } catch (PowsyblException e) {
             // Ignore
         }
         try {
-            discrMeas.getValueAsInt();
+            discrMeas1.getValueAsInt();
             fail();
         } catch (PowsyblException e) {
             // Ignore
         }
-        assertFalse(discrMeas.isValid());
-        assertTrue(discrMeas.getPropertyNames().isEmpty());
+        assertFalse(discrMeas1.isValid());
+        assertTrue(discrMeas1.getPropertyNames().isEmpty());
+
+        DiscreteMeasurement discrMeas2 = discMeasExt.getDiscreteMeasurement("test_discrete_2");
+        assertNotNull(discrMeas2);
+        assertEquals(DiscreteMeasurement.Type.OTHER, discrMeas2.getType());
+        assertNull(discrMeas2.getTapChanger());
+        assertEquals(DiscreteMeasurement.ValueType.STRING, discrMeas2.getValueType());
+        assertNull(discrMeas2.getValueAsString());
+        assertFalse(discrMeas2.isValid());
+        assertEquals(1, discrMeas2.getPropertyNames().size());
+        String property2 = discrMeas2.getProperty("type");
+        assertNotNull(property2);
+        assertEquals("TestType", property2);
+
     }
 }

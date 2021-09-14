@@ -77,7 +77,7 @@ public final class CgmesAnalogPostProcessor {
                 side = getSide(terminalId, c);
             }
             if (type != OTHER && side == null && !(c instanceof Injection)) {
-                adder.setType(OTHER); // TODO: this should be deleted, why are "not OTHER" measurements without terminal ID?
+                adder.setType(OTHER);
             } else {
                 adder.setType(type);
             }
