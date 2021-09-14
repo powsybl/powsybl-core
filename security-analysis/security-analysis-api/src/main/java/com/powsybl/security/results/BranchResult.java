@@ -49,7 +49,7 @@ public class BranchResult {
     private final double flowTransfer;
 
     @JsonCreator
-    public BranchResult(Map<String, Object> props) {
+    private BranchResult(Map<String, Object> props) {
         this.branchId = Objects.requireNonNull((String) props.get("branchId"));
         this.p1 = Objects.requireNonNull((Double) props.get("p1"));
         this.q1 = Objects.requireNonNull((Double) props.get("q1"));
