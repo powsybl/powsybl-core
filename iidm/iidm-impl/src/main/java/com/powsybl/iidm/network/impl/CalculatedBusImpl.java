@@ -8,9 +8,13 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.Networks;
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -47,24 +51,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         if (!terminals.isEmpty()) {
             return terminals.get(0);
         }
-
-        NodeTerminal[] terminal = new NodeTerminal[1];
-
-        // Traverse the graph until a valid NodeTerminal is found
-        VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
-            if (terminal[0] != null) {
-                return false;
-            }
-            if (sw != null && sw.isOpen()) {
-                return false;
-            }
-            terminal[0] = (NodeTerminal) voltageLevel.getNodeBreakerView().getTerminal(node2);
-            return terminal[0] == null;
-        };
-
-        voltageLevel.getNodeBreakerView().traverse(nodes.getQuick(0), traverser);
-
-        return terminal[0];
+        return (NodeTerminal) Networks.getEquivalentTerminal(voltageLevel, nodes.getQuick(0));
     }
 
     private void checkValidity() {

@@ -11,6 +11,7 @@ import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.file.Paths;
@@ -23,6 +24,7 @@ import java.util.Properties;
 public class MyTest {
 
     @Test
+    @Ignore
     public void test() {
         Properties parameters = new Properties();
         parameters.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));

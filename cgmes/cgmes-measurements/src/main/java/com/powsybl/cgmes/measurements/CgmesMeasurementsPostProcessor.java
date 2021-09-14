@@ -73,7 +73,6 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
             return Collections.emptyMap();
         }
         return typesMappingList.stream()
-                .collect(Collectors.toMap(s -> s.split(",")[0].replaceAll("\\s+", ""),
-                        s -> s.split(",")[1].replaceAll("\\s+", "")));
+                .collect(Collectors.toMap(s -> s.split(",")[0].replaceAll("\\s+", ""), s -> s.split(",")[1].replaceAll("\\s+", "")));
     }
 }

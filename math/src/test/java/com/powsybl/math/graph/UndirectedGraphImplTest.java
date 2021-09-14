@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -193,11 +194,33 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
+    public void testGetEdgesFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 2, null);
+        assertEquals(Arrays.asList(0, 1), graph.getEdgesConnectedToVertex(1));
+        assertEquals(Collections.singletonList(0), graph.getEdgesConnectedToVertex(0));
+    }
+
+    @Test
     public void testGetEdgeObject() {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, "Arrow");
         assertEquals("Arrow", graph.getEdgeObject(e));
+    }
+
+    @Test
+    public void testGetEdgeObjectFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, "Arrow01");
+        graph.addEdge(1, 2, "Arrow12");
+        assertEquals(Collections.singletonList("Arrow01"), graph.getEdgeObjectsConnectedToVertex(0));
+        assertEquals(Arrays.asList("Arrow01", "Arrow12"), graph.getEdgeObjectsConnectedToVertex(1));
     }
 
     @Test
@@ -355,6 +378,7 @@ public class UndirectedGraphImplTest {
 
 
     /**
+     * <pre>
      *           0
      *           |
      *         ---------
@@ -368,7 +392,7 @@ public class UndirectedGraphImplTest {
      *           -------
      *              |
      *              5
-     *
+     * </pre>
      *  edges:
      *  0 <-> 1 : 0
      *  0 <-> 2 : 1
@@ -409,9 +433,27 @@ public class UndirectedGraphImplTest {
         boolean[] encountered = new boolean[graph.getVertexCount()];
         Arrays.fill(encountered, false);
         graph.traverse(5, traverser, encountered);
-        // Only vertex 4 and 5 encontered
+        // Only vertex 4 and 5 encountered
         assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
-        graph.traverse(4, traverser);
+
+        Arrays.fill(encountered, false);
+        Traverser traverser2 = (v1, e, v2) -> {
+            encountered[v1] = true;
+            return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE : TraverseResult.CONTINUE;
+        };
+
+        graph.traverse(4, traverser2);
+        // Only vertex 4 and 5 encountered
+        assertArrayEquals(new boolean[] {false, false, false, false, true, true}, encountered);
+
+        Arrays.fill(encountered, false);
+        Traverser traverser3 = (v1, e, v2) -> {
+            return v2 == 0 ? TraverseResult.BREAK : TraverseResult.CONTINUE;
+        };
+
+        graph.traverse(5, traverser3, encountered);
+        // Only vertices on first path encountering 0 are encountered
+        assertArrayEquals(new boolean[] {false, true, false, false, true, true}, encountered);
     }
 
     @Test

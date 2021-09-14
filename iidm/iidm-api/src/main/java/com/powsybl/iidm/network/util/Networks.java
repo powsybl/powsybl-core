@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import org.slf4j.Logger;
 
 import javax.script.*;
@@ -379,7 +380,7 @@ public final class Networks {
     /**
      * Return a terminal for the specified node.
      * If a terminal is attached to the node, return this terminal. Otherwise, this method traverses the topology and return
-     * the closest and equivalent terminal.
+     * the first equivalent terminal found.
      *
      * @param voltageLevel The voltage level to traverse
      * @param node The starting node
@@ -394,13 +395,14 @@ public final class Networks {
 
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
-                return false;
+                return TraverseResult.TERMINATE;
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
                 equivalentTerminal[0] = t;
+                return TraverseResult.BREAK;
             }
-            return t == null;
+            return TraverseResult.CONTINUE;
         };
 
         voltageLevel.getNodeBreakerView().traverse(node, traverser);

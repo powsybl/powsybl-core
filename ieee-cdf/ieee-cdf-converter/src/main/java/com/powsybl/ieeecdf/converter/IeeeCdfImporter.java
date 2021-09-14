@@ -28,6 +28,7 @@ import java.io.*;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.function.ToDoubleFunction;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -44,9 +45,21 @@ public class IeeeCdfImporter implements Importer {
     private static final Parameter IGNORE_BASE_VOLTAGE_PARAMETER = new Parameter("ignore-base-voltage",
                                                                                  ParameterType.BOOLEAN,
                                                                                  "Ignore base voltage specified in the file",
-                                                                                 Boolean.TRUE);
+                                                                                 Boolean.FALSE);
 
     private static final double DEFAULT_ACTIVE_POWER_LIMIT = 9999d;
+
+    static final ToDoubleFunction<IeeeCdfBus> DEFAULT_NOMINAL_VOLTAGE_PROVIDER = ieeeCdfBus -> ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+
+    private final ToDoubleFunction<IeeeCdfBus> nominalVoltageProvider;
+
+    public IeeeCdfImporter() {
+        this(DEFAULT_NOMINAL_VOLTAGE_PROVIDER);
+    }
+
+    public IeeeCdfImporter(ToDoubleFunction<IeeeCdfBus> nominalVoltageProvider) {
+        this.nominalVoltageProvider = Objects.requireNonNull(nominalVoltageProvider);
+    }
 
     @Override
     public String getFormat() {
@@ -125,7 +138,7 @@ public class IeeeCdfImporter implements Importer {
         return "B" + busNum;
     }
 
-    private static void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
+    private void createBuses(IeeeCdfModel ieeeCdfModel, ContainersMapping containerMapping, PerUnitContext perUnitContext,
                                     Network network) {
         for (IeeeCdfBus ieeeCdfBus : ieeeCdfModel.getBuses()) {
             String voltageLevelId = containerMapping.getVoltageLevelId(ieeeCdfBus.getNumber());
@@ -209,9 +222,16 @@ public class IeeeCdfImporter implements Importer {
         return substation;
     }
 
-    private static VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
-                                                   String voltageLevelId, Substation substation, Network network) {
-        double nominalV = perUnitContext.isIgnoreBaseVoltage() || ieeeCdfBus.getBaseVoltage() == 0 ? 1 : ieeeCdfBus.getBaseVoltage();
+    private double getNominalV(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext) {
+        if (perUnitContext.isIgnoreBaseVoltage()) {
+            return 1;
+        }
+        return nominalVoltageProvider.applyAsDouble(ieeeCdfBus);
+    }
+
+    private VoltageLevel createVoltageLevel(IeeeCdfBus ieeeCdfBus, PerUnitContext perUnitContext,
+                                            String voltageLevelId, Substation substation, Network network) {
+        double nominalV = getNominalV(ieeeCdfBus, perUnitContext);
         VoltageLevel voltageLevel = network.getVoltageLevel(voltageLevelId);
         if (voltageLevel == null) {
             voltageLevel = substation.newVoltageLevel()
@@ -307,7 +327,8 @@ public class IeeeCdfImporter implements Importer {
         VoltageLevel voltageLevel1 = network.getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = network.getVoltageLevel(voltageLevel2Id);
         double zb = Math.pow(voltageLevel2.getNominalV(), 2) / perUnitContext.getSb();
-        return voltageLevel2.getSubstation().newTwoWindingsTransformer()
+        return voltageLevel2.getSubstation().map(Substation::newTwoWindingsTransformer)
+                .orElseGet(network::newTwoWindingsTransformer)
                 .setId(id)
                 .setBus1(bus1Id)
                 .setConnectableBus1(bus1Id)

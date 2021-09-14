@@ -56,6 +56,10 @@ public abstract class AbstractConverter {
         return power / (vnom * vnom);
     }
 
+    public static double shuntAdmittanceToPower(double shuntAdmittance, double vnom) {
+        return shuntAdmittance * vnom * vnom;
+    }
+
     private final ContainersMapping containersMapping;
     private final Network network;
 }

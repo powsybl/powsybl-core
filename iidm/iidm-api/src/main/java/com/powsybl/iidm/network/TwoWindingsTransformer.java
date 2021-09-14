@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.Optional;
+
 /**
  * A two windings power transformer.
  * <p>The equivalent &#960; model used is:
@@ -109,28 +111,29 @@ package com.powsybl.iidm.network;
  * <p>b, g, r, x, &#961; and &#945; variables in the model can be computed with
  * the following Java code supposing <code>transfo</code> is an instance of
  * <code>TwoWindingsTransformer</code>.
- *<pre>
- *r = transfo.getR()
+ * <pre>
+ * r = transfo.getR()
  *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getR() / 100 : 0)
  *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getR() / 100 : 0));
- *x = transfo.getX()
+ * x = transfo.getX()
  *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getX() / 100 : 0)
  *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getX() / 100 : 0));
- *g = transfo.getG()
+ * g = transfo.getG()
  *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getG() / 100 : 0)
  *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getG() / 100 : 0));
- *b = transfo.getB()
+ * b = transfo.getB()
  *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getB() / 100 : 0)
  *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getB() / 100 : 0));
- *rho = transfo.getRatedU2() / transfo.getRatedU1()
+ * rho = transfo.getRatedU2() / transfo.getRatedU1()
  *    * (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRho() : 1);
  *    * (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRho() : 1);
- *alpha = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getAlpha() : 0);
+ * alpha = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getAlpha() : 0);
  *
- *</pre>
+ * </pre>
  * A 2 windings transformer is connected to 2 voltage levels (side 1 and side 2)
  * that belong to the same substation.
  * <p>To create a 2 windings transformer, see {@link TwoWindingsTransformerAdder}
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see RatioTapChanger
  * @see PhaseTapChanger
@@ -138,10 +141,11 @@ package com.powsybl.iidm.network;
  */
 public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, RatioTapChangerHolder, PhaseTapChangerHolder {
 
-    /**
-     * Get the substation to which the transformer belongs.
-     */
-    Substation getSubstation();
+    Optional<Substation> getSubstation();
+
+    default Substation getNullableSubstation() {
+        return getSubstation().orElse(null);
+    }
 
     /**
      * Get the nominal series resistance specified in &#937; at the secondary
