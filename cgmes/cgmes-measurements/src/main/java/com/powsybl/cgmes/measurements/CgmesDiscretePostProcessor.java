@@ -6,16 +6,18 @@
  */
 package com.powsybl.cgmes.measurements;
 
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
+import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.Type.*;
 
@@ -62,14 +64,44 @@ public final class CgmesDiscretePostProcessor {
             identifiable.newExtension(DiscreteMeasurementsAdder.class).add();
             meas = identifiable.getExtension(DiscreteMeasurements.class);
         }
-        DiscreteMeasurement measurement = meas.newDiscreteMeasurement()
+        DiscreteMeasurement.Type type = getType(measurementType);
+        DiscreteMeasurementAdder adder = meas.newDiscreteMeasurement()
                 .setValid(false)
                 .setId(id)
-                .setType(getType(measurementType))
-                .add();
+                .setType(type);
+        if (type == TAP_POSITION) {
+            if (identifiable instanceof TwoWindingsTransformer) {
+                TwoWindingsTransformer twt = (TwoWindingsTransformer) identifiable;
+                if (twt.hasRatioTapChanger() && !twt.hasPhaseTapChanger()) {
+                    adder.setTapChanger(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER);
+                } else if (!twt.hasRatioTapChanger() && twt.hasPhaseTapChanger()) {
+                    adder.setTapChanger(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER);
+                } else {
+                    adder.setType(OTHER);
+                }
+            } else if (identifiable instanceof ThreeWindingsTransformer) {
+                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+                List<DiscreteMeasurement.TapChanger> tapChangers = new ArrayList<>();
+                twt.getLeg1().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_1));
+                twt.getLeg2().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_2));
+                twt.getLeg3().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_3));
+                twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_1));
+                twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_2));
+                twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_3));
+                if (tapChangers.size() == 1) {
+                    adder.setTapChanger(tapChangers.get(0));
+                } else {
+                    adder.setType(OTHER);
+                }
+            }
+        } else {
+            adder.setType(OTHER);
+        }
+        DiscreteMeasurement measurement = adder.add();
         if (measurement.getType() == OTHER) {
             measurement.putProperty("type", measurementType);
         }
+        // TODO get value of discrete measurements
     }
 
     private static DiscreteMeasurement.Type getType(String measurementType) {

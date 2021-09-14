@@ -89,6 +89,7 @@ public final class CgmesAnalogPostProcessor {
         } else {
             identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType, id);
         }
+        // TODO get value of measurement
     }
 
     private static Measurement.Type getType(String measurementType, Map<String, String> typesMapping) {
