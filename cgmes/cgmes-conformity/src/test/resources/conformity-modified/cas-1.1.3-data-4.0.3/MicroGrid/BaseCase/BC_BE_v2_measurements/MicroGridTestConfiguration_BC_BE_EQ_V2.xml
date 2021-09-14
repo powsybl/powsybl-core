@@ -2225,6 +2225,15 @@
 		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
 		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
 	</cim:Analog>
+	<cim:Analog rdf:ID="invalid_analog">
+		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
+		<cim:Measurement.measurementType>Angle</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.V" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_invalid" />
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
+	</cim:Analog>
 	<cim:Discrete rdf:ID="test_discrete_1">
 		<cim:Measurement.measurementType>TapPosition</cim:Measurement.measurementType>
 		<cim:Measurement.Terminal rdf:resource="#_4c19ace6-c825-4c5b-87d9-031e6e6a3379"/>
@@ -2239,6 +2248,15 @@
 		<cim:Measurement.measurementType>TestType</cim:Measurement.measurementType>
 		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.none" />
 		<cim:Measurement.PowerSystemResource rdf:resource="#_b94318f6-6d24-4f56-96b9-df2531ad6543"/>
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>TEST</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>TEST_DISCRETE</cim:IdentifiedObject.description>
+	</cim:Discrete>
+	<cim:Discrete rdf:ID="invalid_discrete">
+		<cim:Measurement.measurementType>TapPosition</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.none" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_invalid"/>
 		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
 		<entsoe:IdentifiedObject.shortName>TEST</entsoe:IdentifiedObject.shortName>
 		<cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
