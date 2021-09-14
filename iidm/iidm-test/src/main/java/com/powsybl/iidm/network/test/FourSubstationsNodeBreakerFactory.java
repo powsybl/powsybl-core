@@ -216,6 +216,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setName("VSC1")
                 .setNode(5)
                 .setLossFactor(1.1f)
+                .useLocalRegulation(true)
                 .setReactivePowerSetpoint(500)
                 .setVoltageSetpoint(400)
                 .setVoltageRegulatorOn(true)

@@ -34,7 +34,9 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, boolean, Network, boolean)} for generic continuous voltage controls.<br>
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network)} for generic discrete voltage controls.<br>
  * {@link #checkRegulatingVoltageControl(Validable, Terminal, double, double, boolean, Network, boolean)} for generic discrete voltage controls.<br>
- * {@link #checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable, double, double, boolean)} for dangling line and vsc converter controls.<br>
+ * {@link #checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable, double, double, boolean)} for dangling line controls.<br>
+ * {@link #checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable, Terminal, double, double, boolean, Network)} for vsc converter controls.<br>
+ * {@link #checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable, Terminal, double, double, boolean, Network, boolean)} for vsc converter controls.<br>
  * {@link #checkRegulatingReactivePowerControl(Validable, Terminal, double, boolean, Network)} for generator reactive power controls.<br>
  * {@link #checkRatioTapChangerRegulation(Validable, boolean, boolean, Terminal, double, double, Network)} for ratio tapChanger controls.<br>
  * {@link #checkPhaseTapChangerRegulation(Validable, boolean, PhaseTapChanger.RegulationMode, Terminal, double, double, Network)} for phase tapChanger controls.<br>
@@ -767,7 +769,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * For validating a danglingLine and vscConverter control.
+     * For validating a danglingLine control.
      * No regulating terminal.
      */
     public static void checkRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
@@ -776,6 +778,32 @@ public final class ValidationUtil {
             throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
         }
         checkRegulatingVoltageControl(validable, voltageSetpoint, voltageRegulatorOn);
+    }
+
+    /**
+     * For validating a a vsc converter control.
+     * Regulating Terminal is forced to be validated.
+     */
+    public static void checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
+        Terminal regulatingTerminal, double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn,
+        Network network) {
+        checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(validable, regulatingTerminal,
+            voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, network, true);
+    }
+
+    /**
+     * For validating a vsc converter control.
+     * * User can select if regulating terminal should be validated.
+     * If the voltage regulation control is disabled reactive power setpoint must be defined and valid.
+     * If the voltage regulation control is enabled voltage setpoint and regulating terminal must be defined and valid.
+     */
+    public static void checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(Validable validable,
+        Terminal regulatingTerminal, double voltageSetpoint, double reactivePowerSetpoint, boolean voltageRegulatorOn,
+        Network network, boolean validateRegulatingTerminal) {
+        if (!voltageRegulatorOn && !validReactivePowerSetpoint(reactivePowerSetpoint)) {
+            throw createInvalidValueException(validable, reactivePowerSetpoint, REACTIVE_POWER_SETPOINT, VOLTAGE_REGULATOR_OFF);
+        }
+        checkRegulatingVoltageControl(validable, regulatingTerminal, voltageSetpoint, voltageRegulatorOn, network, validateRegulatingTerminal);
     }
 
     /**
@@ -801,6 +829,10 @@ public final class ValidationUtil {
 
     public static boolean validRegulatingVoltageControl(Terminal regulatingTerminal, double voltageSetpoint, double targetDeadband, Network network) {
         return validRegulatingTerminal(regulatingTerminal, network) && validVoltageSetpoint(voltageSetpoint) && validDeadband(targetDeadband);
+    }
+
+    public static boolean validRegulatingVoltageControl(double voltageSetpoint) {
+        return validVoltageSetpoint(voltageSetpoint);
     }
 
     public static boolean validRegulatingReactivePowerControl(Terminal regulatingTerminal, double reactivePowerSetpoint, Network network) {

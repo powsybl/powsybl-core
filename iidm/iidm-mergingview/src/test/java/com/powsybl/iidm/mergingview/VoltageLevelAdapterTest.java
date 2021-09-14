@@ -66,6 +66,7 @@ public class VoltageLevelAdapterTest {
                     .setConnectableBus("busA")
                     .setBus("busA")
                     .setLossFactor(0.011f)
+                    .useLocalRegulation(true)
                     .setVoltageSetpoint(405.0)
                     .setVoltageRegulatorOn(true)
                     .setReactivePowerSetpoint(123)

@@ -13,7 +13,6 @@ import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -50,9 +49,10 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     @Override
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         ReactiveLimitsXml.INSTANCE.write(cs, context);
-        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(cs, cs.getRegulatingTerminal().getConnectable()),
-                ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
-                IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(cs.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+        if (cs.getRegulatingTerminal() != null) {
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context,
+                () -> TerminalRefXml.writeTerminalRef(cs.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+        }
     }
 
     @Override
@@ -67,8 +67,15 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
         double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetpoint");
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
         readNodeOrBus(adder, context);
+
+        boolean useLocalRegulationOn = false;
+        if (voltageRegulatorOn) {
+            useLocalRegulationOn = true;
+        }
+
         VscConverterStation cs = adder
                 .setLossFactor(lossFactor)
+                .useLocalRegulation(useLocalRegulationOn)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint)

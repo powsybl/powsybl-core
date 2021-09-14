@@ -66,7 +66,9 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), voltageRegulatorOn);
+        ValidationUtil.checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(this, regulatingTerminal,
+            voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex), voltageRegulatorOn,
+            getNetwork());
         boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
         this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
@@ -171,7 +173,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkRegulatingTerminal(this, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, voltageRegulatorOn.get(variantIndex), getNetwork());
         Terminal oldValue = this.regulatingTerminal;
-        this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
+        this.regulatingTerminal = (TerminalExt) regulatingTerminal;
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }

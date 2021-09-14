@@ -83,6 +83,7 @@
                     <iidm:point p="-100.0" minQ="-550.0" maxQ="570.0"/>
                     <iidm:point p="100.0" minQ="-550.0" maxQ="570.0"/>
                 </iidm:reactiveCapabilityCurve>
+				<iidm:regulatingTerminal id="VSC1"/>
             </iidm:vscConverterStation>
             <iidm:lccConverterStation id="LCC1" name="LCC1" lossFactor="1.1" powerFactor="0.6" node="21" p="80.88"/>
         </iidm:voltageLevel>

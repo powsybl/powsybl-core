@@ -83,6 +83,6 @@ public class VscConverterStationAdapterTest {
         cs1.setRegulatingTerminal(cs2.getTerminal());
         assertEquals(cs2.getTerminal(), cs1.getRegulatingTerminal());
         cs2.setRegulatingTerminal(null);
-        assertEquals(cs2.getTerminal(), cs2.getRegulatingTerminal());
+        assertTrue(cs2.getRegulatingTerminal() == null);
     }
 }

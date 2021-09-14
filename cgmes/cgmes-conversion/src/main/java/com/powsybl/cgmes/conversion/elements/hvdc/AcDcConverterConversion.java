@@ -14,6 +14,7 @@ import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversi
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -65,8 +66,13 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
                 reactivePowerSetpoint = -p.asDouble("targetQpcc");
             }
+            boolean valid = ValidationUtil.validRegulatingVoltageControl(voltageSetpoint);
+            if (!valid) {
+                voltageRegulatorOn = false;
+            }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
                 .setLossFactor((float) this.lossFactor)
+                .useLocalRegulation(true)
                 .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setVoltageSetpoint(voltageSetpoint)
                 .setReactivePowerSetpoint(reactivePowerSetpoint);

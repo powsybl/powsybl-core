@@ -104,6 +104,7 @@ public final class HvdcTestNetwork {
                 .setConnectableBus("B1")
                 .setBus("B1")
                 .setLossFactor(1.1f)
+                .useLocalRegulation(true)
                 .setVoltageSetpoint(405.0)
                 .setVoltageRegulatorOn(true)
                 .add();

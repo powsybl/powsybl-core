@@ -18,6 +18,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
 
     private boolean voltageRegulatorOn = false;
 
+    private boolean useLocalRegulation = false;
+
     private double reactivePowerSetpoint = Double.NaN;
 
     private double voltageSetpoint = Double.NaN;
@@ -36,6 +38,12 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     @Override
     public VscConverterStationAdderImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         this.voltageRegulatorOn = voltageRegulatorOn;
+        return this;
+    }
+
+    @Override
+    public VscConverterStationAdderImpl useLocalRegulation(boolean useLocalRegulation) {
+        this.useLocalRegulation = useLocalRegulation;
         return this;
     }
 
@@ -62,21 +70,24 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         String id = checkAndGetUniqueId();
         String name = getName();
         TerminalExt terminal = checkAndGetTerminal();
+
+        boolean validateRegulatingTerminal = true;
+        if (useLocalRegulation) {
+            regulatingTerminal = terminal;
+            validateRegulatingTerminal = false;
+        }
+
         validate();
+        ValidationUtil.checkVscConverterRegulatingVoltageControlAndReactivePowerSetpoint(this, regulatingTerminal,
+            voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, getNetwork(), validateRegulatingTerminal);
+
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, isFictitious(), getLossFactor(), getNetwork().getRef(), voltageRegulatorOn,
-                reactivePowerSetpoint, voltageSetpoint, regulatingTerminal == null ? terminal : regulatingTerminal);
+                reactivePowerSetpoint, voltageSetpoint, regulatingTerminal);
         converterStation.addTerminal(terminal);
         getVoltageLevel().attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(converterStation);
         getNetwork().getListeners().notifyCreation(converterStation);
         return converterStation;
     }
-
-    @Override
-    protected void validate() {
-        super.validate();
-        ValidationUtil.checkRegulatingVoltageControlAndReactivePowerSetpoint(this, voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn);
-    }
-
 }

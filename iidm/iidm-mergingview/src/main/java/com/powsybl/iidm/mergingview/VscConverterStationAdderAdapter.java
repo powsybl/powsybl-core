@@ -34,6 +34,12 @@ public class VscConverterStationAdderAdapter extends AbstractHvdcConverterStatio
     }
 
     @Override
+    public VscConverterStationAdder useLocalRegulation(final boolean useLocalRegulation) {
+        getDelegate().useLocalRegulation(useLocalRegulation);
+        return this;
+    }
+
+    @Override
     public VscConverterStationAdder setVoltageSetpoint(final double voltageSetpoint) {
         getDelegate().setVoltageSetpoint(voltageSetpoint);
         return this;
