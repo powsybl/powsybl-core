@@ -68,6 +68,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
         double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetpoint");
         readNodeOrBus(adder, context);
 
+        // TODO: to be improved
         boolean useLocalRegulationOn = false;
         if (voltageRegulatorOn) {
             useLocalRegulationOn = true;

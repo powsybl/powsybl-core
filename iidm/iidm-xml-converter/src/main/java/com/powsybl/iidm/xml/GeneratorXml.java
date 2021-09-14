@@ -84,6 +84,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         // Until version 1.6 there is an ambiguity in the reading process (Only remote regulatingTerminals are written).
         // In disabled voltage regulating controls the regulatingTerminal could be null or local.
         // We decided to consider it null.
+        // TODO: to be improved
         boolean useLocalRegulationOn = false;
         if (voltageRegulatorOn) {
             useLocalRegulationOn = true;
