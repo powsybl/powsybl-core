@@ -149,7 +149,7 @@ public class TwoWindingsTransformerConversion extends AbstractTransformerConvers
                 .orElseGet(() -> context.network().newTwoWindingsTransformer())
                 .setR(convertedT2xModel.r)
                 .setX(convertedT2xModel.x)
-                .setG(convertedT2xModel.end1.g)
+                .setG(Double.isNaN(convertedT2xModel.end1.g) ? 0.0 : convertedT2xModel.end1.g)
                 .setB(Double.isNaN(convertedT2xModel.end1.b) ? 0.0 : convertedT2xModel.end1.b)
                 .setRatedU1(convertedT2xModel.end1.ratedU)
                 .setRatedU2(convertedT2xModel.end2.ratedU);
