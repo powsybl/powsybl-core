@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
