@@ -9,7 +9,6 @@ package com.powsybl.cgmes.measurements;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
