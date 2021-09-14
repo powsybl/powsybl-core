@@ -37,6 +37,9 @@ public class CgmesExportContext {
     private final Map<String, Set<String>> topologicalNodeByBusViewBusMapping = new HashMap<>();
     private final Set<String> unmappedTopologicalNodes = new HashSet<>();
 
+    private final Map<Double, String> baseVoltageByNominalVoltageMapping = new HashMap<>();
+    private final Set<String> unmappedBaseVoltages = new HashSet<>();
+
     public static final class ModelDescription {
 
         private String description;
@@ -135,9 +138,15 @@ public class CgmesExportContext {
             Map<String, Set<String>> tnsByBus = cgmesIidmMapping.topologicalNodesByBusViewBusMap();
             topologicalNodeByBusViewBusMapping.putAll(tnsByBus);
             unmappedTopologicalNodes.addAll(cgmesIidmMapping.getUnmappedTopologicalNodes());
+
+            Map<Double, String> bvByNominalVoltage = cgmesIidmMapping.baseVoltagesByNominalVoltageMap();
+            baseVoltageByNominalVoltageMapping.putAll(bvByNominalVoltage);
+            unmappedBaseVoltages.addAll(cgmesIidmMapping.getUnmappedBaseVoltages());
+
             // And remove from unmapped the currently mapped
             // When we have multiple networks, mappings from a new Network may add mapped TNs to the list
             unmappedTopologicalNodes.removeAll(tnsByBus.values().stream().flatMap(Set::stream).collect(Collectors.toSet()));
+            unmappedBaseVoltages.removeAll(bvByNominalVoltage.values().stream().collect(Collectors.toSet()));
         } else {
             // If we do not have an explicit mapping
             // For bus/branch models there is a 1:1 mapping between busBreakerView bus and TN
@@ -146,7 +155,9 @@ public class CgmesExportContext {
             // Switches do not add as terminals
             // We have to rely on the busView to obtain the calculated bus for every configured bus (getMergedBus)s
             Map<String, Set<String>> tnsFromBusBreaker = new HashMap<>();
+            Map<Double, String> bvsFromBusBreaker = new HashMap<>();
             Set<String> mappedTns = new HashSet<>();
+            Set<String> mappedBvs = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
                     Bus busViewBus;
@@ -174,9 +185,19 @@ public class CgmesExportContext {
                         mappedTns.add(topologicalNode);
                     }
                 }
+
+                double nominalV = vl.getNominalV();
+                if (!bvsFromBusBreaker.containsKey(nominalV)) {
+                    String baseVoltageId = CgmesExportUtil.getUniqueId();
+                    bvsFromBusBreaker.put(nominalV, baseVoltageId);
+                    mappedBvs.add(baseVoltageId);
+                }
             }
             topologicalNodeByBusViewBusMapping.putAll(tnsFromBusBreaker);
             unmappedTopologicalNodes.removeAll(mappedTns);
+
+            baseVoltageByNominalVoltageMapping.putAll(bvsFromBusBreaker);
+            unmappedBaseVoltages.removeAll(mappedBvs);
         }
     }
 
@@ -248,7 +269,15 @@ public class CgmesExportContext {
         return Collections.unmodifiableSet(unmappedTopologicalNodes);
     }
 
-    public void isMapped(String mappedTopologicalNode) {
+    public void isTopologicalNodeMapped(String mappedTopologicalNode) {
         this.unmappedTopologicalNodes.remove(mappedTopologicalNode);
+    }
+
+    public String getBaseVoltageByNominalVoltage(double nominalV) {
+        return baseVoltageByNominalVoltageMapping.get(nominalV);
+    }
+
+    public Set<String> getUnmappedBaseVoltages() {
+        return Collections.unmodifiableSet(unmappedBaseVoltages);
     }
 }

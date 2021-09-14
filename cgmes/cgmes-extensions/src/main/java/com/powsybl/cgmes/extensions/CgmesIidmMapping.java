@@ -52,5 +52,7 @@ public interface CgmesIidmMapping extends Extension<Network> {
 
     CgmesIidmMapping addBaseVoltage(double nominalVoltage, String baseVoltage);
 
+    Map<Double, String> baseVoltagesByNominalVoltageMap();
+
     Set<String> getUnmappedBaseVoltages();
 }

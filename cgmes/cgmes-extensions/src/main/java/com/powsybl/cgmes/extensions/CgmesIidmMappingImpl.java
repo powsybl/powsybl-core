@@ -170,6 +170,10 @@ class CgmesIidmMappingImpl extends AbstractExtension<Network> implements CgmesIi
         return this;
     }
 
+    public Map<Double, String> baseVoltagesByNominalVoltageMap() {
+        return new HashMap<>(nominalVoltageBaseVoltageMap);
+    }
+
     @Override
     public Set<String> getUnmappedBaseVoltages() {
         return new HashSet<>(unmappedBaseVoltages);
