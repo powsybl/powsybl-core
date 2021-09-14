@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
 import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
 import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -27,7 +28,7 @@ import static org.junit.Assert.*;
 public class CgmesMeasurementsTest {
 
     @Test
-    public void test() {
+    public void testBusBranch() {
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
@@ -121,5 +122,32 @@ public class CgmesMeasurementsTest {
         assertNull(discrMeas3.getValueAsString());
         assertFalse(discrMeas3.isValid());
         assertTrue(discrMeas3.getPropertyNames().isEmpty());
+    }
+
+    @Test
+    public void testNodeBreaker() {
+        Properties properties = new Properties();
+        properties.put("iidm.import.cgmes.post-processors", Collections.singletonList("measurements"));
+        Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerMeasurements().dataSource(),
+                NetworkFactory.findDefault(), properties);
+        assertNotNull(network);
+
+        VoltageLevel voltageLevel = network.getVoltageLevel("_a43d15db-44a6-4fda-a525-2402ff43226f");
+        assertTrue(voltageLevel.hasProperty("CGMES.Analog_Angle"));
+        assertEquals("analog", voltageLevel.getProperty("CGMES.Analog_Angle"));
+
+        DiscreteMeasurements<VoltageLevel> ext = voltageLevel.getExtension(DiscreteMeasurements.class);
+        assertNotNull(ext);
+        assertEquals(1, ext.getDiscreteMeasurements().size());
+
+        DiscreteMeasurement meas = ext.getDiscreteMeasurement("discrete");
+        assertNotNull(meas);
+        assertEquals(DiscreteMeasurement.Type.OTHER, meas.getType());
+        assertEquals(DiscreteMeasurement.ValueType.STRING, meas.getValueType());
+        assertNull(meas.getValueAsString());
+        assertFalse(meas.isValid());
+        assertEquals(1, meas.getPropertyNames().size());
+        String property = meas.getProperty("type");
+        assertEquals("TestType", property);
     }
 }

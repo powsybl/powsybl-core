@@ -54,7 +54,7 @@ public final class CgmesAnalogPostProcessor {
                 LOG.warn("Ignored {} {}: associated voltage level {} not found", measurementType, id, voltageLevelId);
                 return;
             }
-            voltageLevel.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + measurementType, id);
+            voltageLevel.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType, id);
         } else {
             LOG.warn("Ignored {} {}: attached power system resource {} not found", measurementType, id, powerSystemResourceId);
         }

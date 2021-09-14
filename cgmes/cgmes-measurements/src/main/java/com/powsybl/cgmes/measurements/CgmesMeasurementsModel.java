@@ -34,7 +34,7 @@ public class CgmesMeasurementsModel {
     }
 
     public PropertyBags bays() {
-        LOG.info("Querying bays ");
+        LOG.info("Querying triplestore for Bays");
         return queryTripleStore("bays");
     }
 

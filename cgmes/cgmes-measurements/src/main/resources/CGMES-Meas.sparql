@@ -34,7 +34,7 @@ SELECT *
 WHERE {
 { GRAPH ?graph {
     ?Bay
-        a cim:Bay;
-        cim:VoltageLevel ?VoltageLevel
+        a cim:Bay ;
+        cim:Bay.VoltageLevel ?VoltageLevel
 }}
 }
