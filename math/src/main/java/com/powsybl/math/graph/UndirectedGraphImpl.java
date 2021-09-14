@@ -19,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -305,6 +307,29 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     public int getEdgeVertex1(int e) {
         checkEdge(e);
         return edges.get(e).getV1();
+    }
+
+    @Override
+    public List<E> getEdgeObjectsConnectedToVertex(int v) {
+        return getEdgeObjectConnectedToVertexStream(v).collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<E> getEdgeObjectConnectedToVertexStream(int v) {
+        return getEdgeConnectedToVertexStream(v).mapToObj(this::getEdgeObject);
+    }
+
+    @Override
+    public List<Integer> getEdgesConnectedToVertex(int v) {
+        return getEdgeConnectedToVertexStream(v).boxed().collect(Collectors.toList());
+    }
+
+    @Override
+    public IntStream getEdgeConnectedToVertexStream(int v) {
+        checkVertex(v);
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        return IntStream.range(0, adjacentEdges.size()).map(adjacentEdges::getQuick);
     }
 
     @Override
