@@ -32,7 +32,7 @@ public final class CgmesAnalogPostProcessor {
 
     public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
         if (terminalId != null) {
-            Identifiable identifiable = network.getIdentifiable(terminalId);
+            Identifiable<?> identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
                 createMeas(identifiable, id, terminalId, measurementType, typesMapping);
                 return;

@@ -70,30 +70,7 @@ public final class CgmesDiscretePostProcessor {
                 .setId(id)
                 .setType(type);
         if (type == TAP_POSITION) {
-            if (identifiable instanceof TwoWindingsTransformer) {
-                TwoWindingsTransformer twt = (TwoWindingsTransformer) identifiable;
-                if (twt.hasRatioTapChanger() && !twt.hasPhaseTapChanger()) {
-                    adder.setTapChanger(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER);
-                } else if (!twt.hasRatioTapChanger() && twt.hasPhaseTapChanger()) {
-                    adder.setTapChanger(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER);
-                } else {
-                    adder.setType(OTHER);
-                }
-            } else if (identifiable instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-                List<DiscreteMeasurement.TapChanger> tapChangers = new ArrayList<>();
-                twt.getLeg1().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_1));
-                twt.getLeg2().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_2));
-                twt.getLeg3().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_3));
-                twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_1));
-                twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_2));
-                twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_3));
-                if (tapChangers.size() == 1) {
-                    adder.setTapChanger(tapChangers.get(0));
-                } else {
-                    adder.setType(OTHER);
-                }
-            }
+            setTapChanger(adder, identifiable);
         } else {
             adder.setType(OTHER);
         }
@@ -102,6 +79,33 @@ public final class CgmesDiscretePostProcessor {
             measurement.putProperty("type", measurementType);
         }
         // TODO get value of discrete measurements
+    }
+
+    private static void setTapChanger(DiscreteMeasurementAdder adder, Identifiable<?> identifiable) {
+        if (identifiable instanceof TwoWindingsTransformer) {
+            TwoWindingsTransformer twt = (TwoWindingsTransformer) identifiable;
+            if (twt.hasRatioTapChanger() && !twt.hasPhaseTapChanger()) {
+                adder.setTapChanger(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER);
+            } else if (!twt.hasRatioTapChanger() && twt.hasPhaseTapChanger()) {
+                adder.setTapChanger(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER);
+            } else {
+                adder.setType(OTHER);
+            }
+        } else if (identifiable instanceof ThreeWindingsTransformer) {
+            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
+            List<DiscreteMeasurement.TapChanger> tapChangers = new ArrayList<>();
+            twt.getLeg1().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_1));
+            twt.getLeg2().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_2));
+            twt.getLeg3().getOptionalRatioTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.RATIO_TAP_CHANGER_3));
+            twt.getLeg1().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_1));
+            twt.getLeg2().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_2));
+            twt.getLeg3().getOptionalPhaseTapChanger().ifPresent(tc -> tapChangers.add(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER_3));
+            if (tapChangers.size() == 1) {
+                adder.setTapChanger(tapChangers.get(0));
+            } else {
+                adder.setType(OTHER);
+            }
+        }
     }
 
     private static DiscreteMeasurement.Type getType(String measurementType) {
