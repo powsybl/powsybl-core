@@ -20,6 +20,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -193,11 +194,33 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
+    public void testGetEdgesFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, null);
+        graph.addEdge(1, 2, null);
+        assertEquals(Arrays.asList(0, 1), graph.getEdgesConnectedToVertex(1));
+        assertEquals(Collections.singletonList(0), graph.getEdgesConnectedToVertex(0));
+    }
+
+    @Test
     public void testGetEdgeObject() {
         graph.addVertex();
         graph.addVertex();
         int e = graph.addEdge(0, 1, "Arrow");
         assertEquals("Arrow", graph.getEdgeObject(e));
+    }
+
+    @Test
+    public void testGetEdgeObjectFromVertex() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 1, "Arrow01");
+        graph.addEdge(1, 2, "Arrow12");
+        assertEquals(Collections.singletonList("Arrow01"), graph.getEdgeObjectsConnectedToVertex(0));
+        assertEquals(Arrays.asList("Arrow01", "Arrow12"), graph.getEdgeObjectsConnectedToVertex(1));
     }
 
     @Test
