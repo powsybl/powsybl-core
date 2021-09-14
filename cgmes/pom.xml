@@ -27,6 +27,7 @@
         <module>cgmes-extensions</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
+        <module>cgmes-measurements</module>
     </modules>
 
 </project>
