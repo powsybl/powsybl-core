@@ -10,8 +10,10 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,6 +24,8 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     static final VscConverterStationXml INSTANCE = new VscConverterStationXml();
 
     static final String ROOT_ELEMENT_NAME = "vscConverterStation";
+
+    private static final String REGULATING_TERMINAL = "regulatingTerminal";
 
     @Override
     protected String getRootElementName() {
@@ -46,6 +50,9 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     @Override
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         ReactiveLimitsXml.INSTANCE.write(cs, context);
+        IidmXmlUtil.assertMinimumVersionAndRunIfNotDefault(!Objects.equals(cs, cs.getRegulatingTerminal().getConnectable()),
+                ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_DEFAULT_NOT_SUPPORTED,
+                IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(cs.getRegulatingTerminal(), context, REGULATING_TERMINAL));
     }
 
     @Override
@@ -78,7 +85,13 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
                 case "minMaxReactiveLimits":
                     ReactiveLimitsXml.INSTANCE.read(cs, context);
                     break;
-
+                case REGULATING_TERMINAL:
+                    IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, REGULATING_TERMINAL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_6, context);
+                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String side = context.getReader().getAttributeValue(null, "side");
+                    context.getEndTasks().add(() -> cs.setRegulatingTerminal(TerminalRefXml
+                            .readTerminalRef(cs.getNetwork(), id, side)));
+                    break;
                 default:
                     super.readSubElements(cs, context);
             }

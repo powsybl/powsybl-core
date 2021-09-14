@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl.extensions;
 
 import com.powsybl.iidm.network.extensions.ObservabilityQuality;
 
+import java.util.Optional;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -22,6 +24,11 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
         this.redundant = redundant;
     }
 
+    public ObservabilityQualityImpl(double standardDeviation) {
+        this.standardDeviation = standardDeviation;
+        redundant = null;
+    }
+
     @Override
     public double getStandardDeviation() {
         return standardDeviation;
@@ -34,8 +41,8 @@ public class ObservabilityQualityImpl<T> implements ObservabilityQuality<T> {
     }
 
     @Override
-    public Boolean isRedundant() {
-        return redundant;
+    public Optional<Boolean> isRedundant() {
+        return Optional.ofNullable(redundant);
     }
 
     @Override
