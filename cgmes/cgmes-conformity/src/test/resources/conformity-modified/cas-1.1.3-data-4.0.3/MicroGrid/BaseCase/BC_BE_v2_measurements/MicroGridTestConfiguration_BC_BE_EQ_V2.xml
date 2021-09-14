@@ -2253,6 +2253,15 @@
 		<cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
 		<cim:IdentifiedObject.description>TEST_DISCRETE</cim:IdentifiedObject.description>
 	</cim:Discrete>
+	<cim:Discrete rdf:ID="test_discrete_3">
+		<cim:Measurement.measurementType>TapPosition</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.none" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0"/>
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>TEST</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>TEST_DISCRETE</cim:IdentifiedObject.description>
+	</cim:Discrete>
 	<cim:Discrete rdf:ID="invalid_discrete">
 		<cim:Measurement.measurementType>TapPosition</cim:Measurement.measurementType>
 		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.none" />

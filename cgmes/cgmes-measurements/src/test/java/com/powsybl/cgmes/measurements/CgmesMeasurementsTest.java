@@ -34,10 +34,7 @@ public class CgmesMeasurementsTest {
                 NetworkFactory.findDefault(), properties);
         assertNotNull(network);
 
-        Line line = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
-        assertNotNull(line);
-
-        Measurements<Line> measExt = line.getExtension(Measurements.class);
+        Measurements<Line> measExt = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7").getExtension(Measurements.class);
         assertNotNull(measExt);
         assertEquals(2, measExt.getMeasurements().size());
 
@@ -63,9 +60,7 @@ public class CgmesMeasurementsTest {
         assertTrue(measExt.getMeasurements(Measurement.Type.ANGLE).contains(meas2));
         assertEquals(1, measExt.getMeasurements(Measurement.Type.ANGLE).size());
 
-        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertNotNull(generator);
-        Measurements<Generator> measExt2 = generator.getExtension(Measurements.class);
+        Measurements<Generator> measExt2 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(Measurements.class);
         assertNotNull(measExt2);
         assertEquals(1, measExt2.getMeasurements().size());
         Measurement meas3 = measExt2.getMeasurement("test_analog_3");
@@ -77,10 +72,7 @@ public class CgmesMeasurementsTest {
         assertFalse(meas3.isValid());
         assertTrue(meas3.getPropertyNames().isEmpty());
 
-        TwoWindingsTransformer twt = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
-        assertNotNull(twt);
-
-        DiscreteMeasurements<TwoWindingsTransformer> discMeasExt = twt.getExtension(DiscreteMeasurements.class);
+        DiscreteMeasurements<TwoWindingsTransformer> discMeasExt = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getExtension(DiscreteMeasurements.class);
         assertNotNull(discMeasExt);
         assertEquals(2, discMeasExt.getDiscreteMeasurements().size());
 
@@ -117,5 +109,17 @@ public class CgmesMeasurementsTest {
         assertNotNull(property2);
         assertEquals("TestType", property2);
 
+        DiscreteMeasurements<TwoWindingsTransformer> discMeasExt2 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getExtension(DiscreteMeasurements.class);
+        assertNotNull(discMeasExt2);
+        assertEquals(1, discMeasExt2.getDiscreteMeasurements().size());
+
+        DiscreteMeasurement discrMeas3 = discMeasExt2.getDiscreteMeasurement("test_discrete_3");
+        assertNotNull(discrMeas3);
+        assertEquals(DiscreteMeasurement.Type.TAP_POSITION, discrMeas3.getType());
+        assertEquals(DiscreteMeasurement.TapChanger.PHASE_TAP_CHANGER, discrMeas3.getTapChanger());
+        assertEquals(DiscreteMeasurement.ValueType.STRING, discrMeas3.getValueType());
+        assertNull(discrMeas3.getValueAsString());
+        assertFalse(discrMeas3.isValid());
+        assertTrue(discrMeas3.getPropertyNames().isEmpty());
     }
 }
