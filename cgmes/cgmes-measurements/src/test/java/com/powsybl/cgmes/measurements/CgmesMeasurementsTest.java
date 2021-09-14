@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.extensions.Measurement;
 import com.powsybl.iidm.network.extensions.Measurements;
 import org.junit.Test;
 
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -38,7 +37,6 @@ public class CgmesMeasurementsTest {
         Network network = new CgmesImport().importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseMeasurements().dataSource(),
                 NetworkFactory.findDefault(), properties);
         assertNotNull(network);
-        Exporters.export("XIIDM", network, null, Paths.get("/home/ralambotianamio/tmp/test"));
 
         Line line = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
         assertNotNull(line);
