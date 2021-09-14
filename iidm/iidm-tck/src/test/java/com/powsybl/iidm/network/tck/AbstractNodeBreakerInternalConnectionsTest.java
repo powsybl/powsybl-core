@@ -236,7 +236,7 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
                 }
                 return TraverseResult.CONTINUE;
             } else {
-                return TraverseResult.TERMINATE;
+                return TraverseResult.TERMINATE_PATH;
             }
         });
 
