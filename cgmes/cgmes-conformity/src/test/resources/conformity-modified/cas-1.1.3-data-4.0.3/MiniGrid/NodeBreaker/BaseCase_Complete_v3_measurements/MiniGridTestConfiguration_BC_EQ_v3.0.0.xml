@@ -4493,4 +4493,17 @@
     <cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
     <cim:IdentifiedObject.description>TEST_DISCRETE</cim:IdentifiedObject.description>
   </cim:Discrete>
+  <cim:Discrete rdf:ID="invalid">
+    <cim:Measurement.measurementType>TestType</cim:Measurement.measurementType>
+    <cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.none" />
+    <cim:Measurement.PowerSystemResource rdf:resource="#invalidBay"/>
+    <cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+    <entsoe:IdentifiedObject.shortName>TEST</entsoe:IdentifiedObject.shortName>
+    <cim:IdentifiedObject.name>test</cim:IdentifiedObject.name>
+    <cim:IdentifiedObject.description>TEST_DISCRETE</cim:IdentifiedObject.description>
+  </cim:Discrete>
+  <cim:Bay rdf:ID="invalidBay">
+    <cim:IdentifiedObject.name>BAY_71-73_0</cim:IdentifiedObject.name>
+    <cim:Bay.VoltageLevel rdf:resource="#invalidVl" />
+  </cim:Bay>
 </rdf:RDF>
