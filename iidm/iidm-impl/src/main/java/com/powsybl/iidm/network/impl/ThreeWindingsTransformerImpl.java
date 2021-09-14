@@ -287,8 +287,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public SubstationImpl getSubstation() {
-        return leg1.getTerminal().getVoltageLevel().getSubstation();
+    public Optional<Substation> getSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getSubstation())
+                .filter(Optional::isPresent)
+                .findFirst()
+                .orElseGet(Optional::empty);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getNullableSubstation())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
