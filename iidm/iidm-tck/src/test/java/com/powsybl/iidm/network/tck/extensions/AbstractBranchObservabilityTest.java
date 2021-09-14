@@ -92,9 +92,9 @@ public abstract class AbstractBranchObservabilityTest {
         assertNull(branchObservability.getQualityQ2());
 
         // P1
-        assertSame(branchObservability, branchObservability.setQualityP1(0.03d, null));
+        assertSame(branchObservability, branchObservability.setQualityP1(0.03d));
         assertEquals(0.03d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
-        assertSame(branchObservability, branchObservability.setQualityP1(0.04d, null));
+        assertSame(branchObservability, branchObservability.setQualityP1(0.04d));
         assertEquals(0.04d, branchObservability.getQualityP1().getStandardDeviation(), 0d);
 
         assertTrue(branchObservability.getQualityP1().isRedundant().isEmpty());
@@ -102,9 +102,9 @@ public abstract class AbstractBranchObservabilityTest {
         assertTrue(branchObservability.getQualityP1().isRedundant().orElseThrow(AssertionError::new));
 
         // P2
-        assertSame(branchObservability, branchObservability.setQualityP2(0.031d, null));
+        assertSame(branchObservability, branchObservability.setQualityP2(0.031d));
         assertEquals(0.031d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
-        assertSame(branchObservability, branchObservability.setQualityP2(0.041d, null));
+        assertSame(branchObservability, branchObservability.setQualityP2(0.041d));
         assertEquals(0.041d, branchObservability.getQualityP2().getStandardDeviation(), 0d);
 
         assertTrue(branchObservability.getQualityP2().isRedundant().isEmpty());
@@ -112,9 +112,9 @@ public abstract class AbstractBranchObservabilityTest {
         assertTrue(branchObservability.getQualityP2().isRedundant().orElseThrow(AssertionError::new));
 
         // Q1
-        assertSame(branchObservability, branchObservability.setQualityQ1(0.6d, null));
+        assertSame(branchObservability, branchObservability.setQualityQ1(0.6d));
         assertEquals(0.6d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
-        assertSame(branchObservability, branchObservability.setQualityQ1(0.61d, null));
+        assertSame(branchObservability, branchObservability.setQualityQ1(0.61d));
         assertEquals(0.61d, branchObservability.getQualityQ1().getStandardDeviation(), 0d);
 
         assertTrue(branchObservability.getQualityQ1().isRedundant().isEmpty());
@@ -122,9 +122,9 @@ public abstract class AbstractBranchObservabilityTest {
         assertTrue(branchObservability.getQualityQ1().isRedundant().orElseThrow(AssertionError::new));
 
         // Q2
-        assertSame(branchObservability, branchObservability.setQualityQ2(0.6d, null));
+        assertSame(branchObservability, branchObservability.setQualityQ2(0.6d));
         assertEquals(0.6d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
-        assertSame(branchObservability, branchObservability.setQualityQ2(0.61d, null));
+        assertSame(branchObservability, branchObservability.setQualityQ2(0.61d));
         assertEquals(0.61d, branchObservability.getQualityQ2().getStandardDeviation(), 0d);
 
         assertTrue(branchObservability.getQualityQ2().isRedundant().isEmpty());

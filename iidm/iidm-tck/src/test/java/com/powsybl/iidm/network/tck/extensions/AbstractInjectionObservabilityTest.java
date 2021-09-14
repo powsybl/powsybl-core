@@ -82,27 +82,27 @@ public abstract class AbstractInjectionObservabilityTest {
         assertNull(injectionObservability.getQualityQ());
         assertNull(injectionObservability.getQualityV());
 
-        assertSame(injectionObservability, injectionObservability.setQualityP(0.03d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityP(0.03d));
         assertEquals(0.03d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
-        assertSame(injectionObservability, injectionObservability.setQualityP(0.04d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityP(0.04d));
         assertEquals(0.04d, injectionObservability.getQualityP().getStandardDeviation(), 0d);
 
         assertTrue(injectionObservability.getQualityP().isRedundant().isEmpty());
         injectionObservability.getQualityP().setRedundant(true);
         assertTrue(injectionObservability.getQualityP().isRedundant().orElseThrow(AssertionError::new));
 
-        assertSame(injectionObservability, injectionObservability.setQualityQ(0.6d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityQ(0.6d));
         assertEquals(0.6d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
-        assertSame(injectionObservability, injectionObservability.setQualityQ(0.61d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityQ(0.61d));
         assertEquals(0.61d, injectionObservability.getQualityQ().getStandardDeviation(), 0d);
 
         assertTrue(injectionObservability.getQualityQ().isRedundant().isEmpty());
         injectionObservability.getQualityQ().setRedundant(true);
         assertTrue(injectionObservability.getQualityQ().isRedundant().orElseThrow(AssertionError::new));
 
-        assertSame(injectionObservability, injectionObservability.setQualityV(0.01d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityV(0.01d));
         assertEquals(0.01d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
-        assertSame(injectionObservability, injectionObservability.setQualityV(0.02d, null));
+        assertSame(injectionObservability, injectionObservability.setQualityV(0.02d));
         assertEquals(0.02d, injectionObservability.getQualityV().getStandardDeviation(), 0d);
 
         assertTrue(injectionObservability.getQualityV().isRedundant().isEmpty());
