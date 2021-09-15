@@ -427,9 +427,9 @@ public class UndirectedGraphImplTest {
         Traverser traverser = Mockito.mock(Traverser.class);
         // Stops  on 1, 2 and 3
         Mockito.when(traverser.traverse(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(TraverseResult.CONTINUE);
-        Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE);
-        Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE);
-        Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE);
+        Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE_PATH);
+        Mockito.when(traverser.traverse(4, 4, 2)).thenReturn(TraverseResult.TERMINATE_PATH);
+        Mockito.when(traverser.traverse(5, 6, 3)).thenReturn(TraverseResult.TERMINATE_PATH);
         boolean[] encountered = new boolean[graph.getVertexCount()];
         Arrays.fill(encountered, false);
         graph.traverse(5, traverser, encountered);
@@ -439,7 +439,7 @@ public class UndirectedGraphImplTest {
         Arrays.fill(encountered, false);
         Traverser traverser2 = (v1, e, v2) -> {
             encountered[v1] = true;
-            return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE : TraverseResult.CONTINUE;
+            return v2 == 1 || v2 == 2 || v2 == 3 ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
         };
 
         graph.traverse(4, traverser2);
@@ -448,7 +448,7 @@ public class UndirectedGraphImplTest {
 
         Arrays.fill(encountered, false);
         Traverser traverser3 = (v1, e, v2) -> {
-            return v2 == 0 ? TraverseResult.BREAK : TraverseResult.CONTINUE;
+            return v2 == 0 ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE;
         };
 
         graph.traverse(5, traverser3, encountered);

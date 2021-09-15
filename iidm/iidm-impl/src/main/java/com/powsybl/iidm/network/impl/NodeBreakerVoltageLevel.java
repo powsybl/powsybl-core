@@ -256,7 +256,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 graph.traverse(n, (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.apply(aSwitch)) {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
 
                     nodes.add(n2);
@@ -343,11 +343,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (connectableBus2[0] != null) {
                     // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
                     // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 connectableBus2[0] = getBus(v2);
                 if (connectableBus2[0] != null) {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 return TraverseResult.CONTINUE;
             });
@@ -1087,10 +1087,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
                 } else {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
             });
 
