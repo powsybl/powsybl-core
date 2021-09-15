@@ -246,7 +246,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     graph.traverse(v, (v1, e, v2) -> {
                         SwitchImpl aSwitch = graph.getEdgeObject(e);
                         if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE;
+                            return TraverseResult.TERMINATE_PATH;
                         } else {
                             busSet.add(graph.getVertexObject(v2));
                             return TraverseResult.CONTINUE;
@@ -865,7 +865,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         return TraverseResult.CONTINUE;
                     }
                 }
-                return TraverseResult.TERMINATE;
+                return TraverseResult.TERMINATE_PATH;
             });
 
             nextTerminals.forEach(t -> t.traverse(traverser, traversedTerminals));
