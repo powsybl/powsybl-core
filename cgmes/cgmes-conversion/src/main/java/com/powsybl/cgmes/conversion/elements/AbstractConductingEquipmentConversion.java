@@ -497,7 +497,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             } else {
                 // if terminal is contained in a Line Container, a fictitious voltage level is created,
                 // its ID is composed by its connectivity node ID + '_VL' sufix
-                voltageLevel = context.network().getVoltageLevel(t.connectivityNode() + "_VL");
+                voltageLevel = context.network().getVoltageLevel( nodeId + "_VL");
                 if (voltageLevel != null) {
                     iidmVoltageLevelId = t.connectivityNode() + "_VL";
                 } else {
