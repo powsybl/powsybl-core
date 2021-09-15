@@ -376,55 +376,16 @@ public class Conversion {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(line.tabulateLocals("ACLineSegment"));
             }
+            String lineContainerId = line.getId("Line");
+            if (lineContainerId != null) {
+                prepareLineContainerVoltageLevels(context, lineContainerId, line);
+            }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
-            if (c.valid()) {
-                String lineContainerId = line.getId("Line");
-                if (lineContainerId != null) {
-                    lineContainers.computeIfAbsent(lineContainerId, l -> new PropertyBags()).add(line);
-                } else {
-                    String node = c.boundaryNode();
-                    if (node != null && !context.config().convertBoundary()) {
-                        context.boundary().addAcLineSegmentAtNode(line, node);
-                        delayedBoundaryNodes.add(node);
-                    } else {
-                        c.convert();
-                    }
-                }
-            }
-        }
-        convertLineContainers(context, delayedBoundaryNodes, lineContainers);
-    }
-
-    private void convertLineContainers(Context context, Set<String> delayedBoundaryNodes, Map<String, PropertyBags> lineContainers) {
-        lineContainers.forEach((lineContainerId, p) -> {
-            boolean onlyOneLineAtContainer = p.size() == 1;
-            if (onlyOneLineAtContainer) {
-                p.forEach(line -> {
-                    ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
-                    String node = c.boundaryNode();
-                    if (node != null && !context.config().convertBoundary()) {
-                        context.boundary().addAcLineSegmentAtNode(line, c.boundaryNode());
-                        delayedBoundaryNodes.add(c.boundaryNode());
-                    } else {
-                        c.convert();
-                    }
-                });
-            } else {
-                convertLineContainer(context, delayedBoundaryNodes, lineContainerId, p);
-            }
-        });
-    }
-
-    private void convertLineContainer(Context context, Set<String> delayedBoundaryNodes, String lineId, PropertyBags lineSegments) {
-        for (PropertyBag lineSegment : lineSegments) {
-            prepareLineContainerVoltageLevels(context, lineId, lineSegment);
-
-            ACLineSegmentConversion c = new ACLineSegmentConversion(lineSegment, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
                 if (node != null && !context.config().convertBoundary()) {
-                    context.boundary().addAcLineSegmentAtNode(lineSegment, c.boundaryNode());
-                    delayedBoundaryNodes.add(c.boundaryNode());
+                    context.boundary().addAcLineSegmentAtNode(line, node);
+                    delayedBoundaryNodes.add(node);
                 } else {
                     c.convert();
                 }
@@ -454,13 +415,13 @@ public class Conversion {
         }
 
         String lineName = lineSegment.get("lineName");
-        if (vl1 == null && vl2 != null) {
-            newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, vl2.getNominalV(), vl2.getLowVoltageLimit(), vl2.getHighVoltageLimit());
-        } else if (vl2 == null && vl1 != null) {
-            newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, vl1.getNominalV(), vl1.getLowVoltageLimit(), vl1.getHighVoltageLimit());
-        } else if (vl1 == null && vl2 == null) {
+        if (vl1 == null && vl2 == null) {
             newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, 1.0, 1.0, 1.0);
             newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, 1.0, 1.0, 1.0);
+        } else if (vl1 == null) {
+            newFictitiousVoltageLevel(context, t1.connectivityNode() + "_VL", lineName, vl2.getNominalV(), vl2.getLowVoltageLimit(), vl2.getHighVoltageLimit());
+        } else if (vl2 == null) {
+            newFictitiousVoltageLevel(context, t2.connectivityNode() + "_VL", lineName, vl1.getNominalV(), vl1.getLowVoltageLimit(), vl1.getHighVoltageLimit());
         }
     }
 
