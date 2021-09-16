@@ -395,12 +395,12 @@ public final class Networks {
 
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
-                return TraverseResult.TERMINATE;
+                return TraverseResult.TERMINATE_PATH;
             }
             Terminal t = voltageLevel.getNodeBreakerView().getTerminal(node2);
             if (t != null) {
                 equivalentTerminal[0] = t;
-                return TraverseResult.BREAK;
+                return TraverseResult.TERMINATE_TRAVERSER;
             }
             return TraverseResult.CONTINUE;
         };
