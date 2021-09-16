@@ -18,18 +18,18 @@ public class VscConverterStationAdapter extends AbstractHvdcConverterStationAdap
     }
 
     @Override
-    public HvdcConverterStation setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
-        return getIndex().getHvdcConverterStation(getDelegate().setVoltageRegulatorOn(voltageRegulatorOn));
+    public VscConverterStation setVoltageRegulatorOn(final boolean voltageRegulatorOn) {
+        return getIndex().getVscConverterStation(getDelegate().setVoltageRegulatorOn(voltageRegulatorOn));
     }
 
     @Override
-    public HvdcConverterStation setVoltageSetpoint(final double voltageSetpoint) {
-        return getIndex().getHvdcConverterStation(getDelegate().setVoltageSetpoint(voltageSetpoint));
+    public VscConverterStation setVoltageSetpoint(final double voltageSetpoint) {
+        return getIndex().getVscConverterStation(getDelegate().setVoltageSetpoint(voltageSetpoint));
     }
 
     @Override
-    public HvdcConverterStation setReactivePowerSetpoint(final double reactivePowerSetpoint) {
-        return getIndex().getHvdcConverterStation(getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint));
+    public VscConverterStation setReactivePowerSetpoint(final double reactivePowerSetpoint) {
+        return getIndex().getVscConverterStation(getDelegate().setReactivePowerSetpoint(reactivePowerSetpoint));
     }
 
     // -------------------------------
