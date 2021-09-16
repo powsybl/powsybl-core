@@ -11,7 +11,9 @@ import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A power network model.
@@ -318,6 +320,12 @@ public interface Network extends Container<Network> {
      * Get all substation voltage levels.
      */
     Iterable<VoltageLevel> getVoltageLevels();
+
+    default Iterable<VoltageLevel> getVoltageLevels(String country) {
+        return StreamSupport.stream(getSubstations(country, null).spliterator(), false)
+                .flatMap(Substation::getVoltageLevelStream)
+                .collect(Collectors.toList());
+    }
 
     /**
      * Get all substation voltage levels.

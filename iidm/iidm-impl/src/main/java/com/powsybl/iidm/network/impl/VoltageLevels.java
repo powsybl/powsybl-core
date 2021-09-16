@@ -10,6 +10,8 @@ import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.*;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -41,5 +43,17 @@ final class VoltageLevels {
                 throw new AssertionError("The voltage level '" + voltageLevel.getId() + "' cannot be removed because of a remaining HVDC line");
             }
         }
+    }
+
+    static Iterable<? extends VoltageLevel> filter(Iterable<? extends VoltageLevel> voltageLevels, String country) {
+        if (country == null) {
+            return voltageLevels;
+        }
+        return StreamSupport.stream(voltageLevels.spliterator(), false)
+                .filter(vl -> vl.getCountry()
+                        .map(Country::getName)
+                        .map(name -> name.equals(country))
+                        .orElse(false))
+                .collect(Collectors.toList());
     }
 }

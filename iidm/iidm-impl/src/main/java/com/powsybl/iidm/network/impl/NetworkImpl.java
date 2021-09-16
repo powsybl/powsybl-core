@@ -260,6 +260,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Iterable<VoltageLevel> getVoltageLevels(String country) {
+        return Iterables.concat(VoltageLevels.filter(index.getAll(BusBreakerVoltageLevel.class), country),
+                VoltageLevels.filter(index.getAll(NodeBreakerVoltageLevel.class), country));
+    }
+
+    @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
         return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
                 index.getAll(NodeBreakerVoltageLevel.class).stream());
