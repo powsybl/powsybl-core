@@ -733,6 +733,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniNodeBreakerCimLine() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerCimLine().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        VoltageLevel vl = network.getVoltageLevel("_d3de846d-5271-465e-8558-3e736fa120c4_2_VL");
+        assertNotNull(vl);
+        assertNull(vl.getNullableSubstation());
+
+        vl = network.getVoltageLevel("_e2f8de8c-3191-4676-9ee7-f920e46f9085_2_VL");
+        assertNotNull(vl);
+        assertNull(vl.getNullableSubstation());
+    }
+
+    @Test
     public void miniNodeBreakerProtectedSwitch() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.miniNodeBreakerProtectedSwitch().dataSource(),
