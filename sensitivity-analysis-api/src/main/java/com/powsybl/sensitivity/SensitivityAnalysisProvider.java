@@ -13,7 +13,9 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -88,5 +90,31 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
                                         ComputationManager computationManager,
                                         Reporter reporter) {
         return run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager);
+    }
+
+    default CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId,
+                                                             List<SensitivityFactor> factors,
+                                                             List<Contingency> contingencies,
+                                                             List<SensitivityVariableSet> variableSets,
+                                                             SensitivityAnalysisParameters sensitivityAnalysisParameters,
+                                                             ComputationManager computationManager) {
+        return run(network, workingStateId, factors, contingencies, variableSets, sensitivityAnalysisParameters, computationManager, Reporter.NO_OP);
+    }
+
+    default CompletableFuture<SensitivityAnalysisResult> run(Network network, String workingStateId,
+                                                            List<SensitivityFactor> factors,
+                                                            List<Contingency> contingencies,
+                                                            List<SensitivityVariableSet> variableSets,
+                                                            SensitivityAnalysisParameters sensitivityAnalysisParameters,
+                                                            ComputationManager computationManager,
+                                                            Reporter reporter) {
+        return CompletableFuture.supplyAsync(() -> {
+            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+            SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
+            run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, sensitivityAnalysisParameters, computationManager).join();
+            Map<String, String> metrics = new HashMap<>();
+            String logs = "";
+            return new SensitivityAnalysisResult(metrics, logs, valueWriter.getValues());
+        });
     }
 }
