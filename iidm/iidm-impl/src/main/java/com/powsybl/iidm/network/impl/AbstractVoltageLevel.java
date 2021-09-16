@@ -34,14 +34,28 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     private double highVoltageLimit;
 
+    private Country country;
+
     AbstractVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> networkRef,
-                         double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+                         double nominalV, double lowVoltageLimit, double highVoltageLimit, Country country) {
         super(id, name, fictitious);
         this.substation = substation;
         this.networkRef = networkRef;
         this.nominalV = nominalV;
         this.lowVoltageLimit = lowVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
+        this.country = country;
+    }
+
+    @Override
+    public Optional<Country> getCountry() {
+        return Optional.ofNullable(country).or(() -> getSubstation().flatMap(Substation::getCountry));
+    }
+
+    @Override
+    public VoltageLevelExt setCountry(Country country) {
+        this.country = country;
+        return this;
     }
 
     @Override

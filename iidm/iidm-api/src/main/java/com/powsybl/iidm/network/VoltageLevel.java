@@ -1152,6 +1152,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     TopologyKind getTopologyKind();
 
+    default Optional<Country> getCountry() {
+        return getSubstation().flatMap(Substation::getCountry);
+    }
+
+    default VoltageLevel setCountry(Country country) {
+        getSubstation().ifPresent(s -> s.setCountry(country));
+        return this;
+    }
+
     /**
      * Get a node/breaker view of the topology.
      *

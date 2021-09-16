@@ -22,5 +22,9 @@ public interface VoltageLevelAdder extends IdentifiableAdder<VoltageLevelAdder> 
 
     VoltageLevelAdder setTopologyKind(TopologyKind topologyKind);
 
+    default VoltageLevelAdder setCountry(Country country) {
+        return this;
+    }
+
     VoltageLevel add();
 }

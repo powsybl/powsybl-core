@@ -7,10 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageLevelAdder;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.Optional;
@@ -31,6 +28,8 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     private double highVoltageLimit = Double.NaN;
 
     private TopologyKind topologyKind;
+
+    private Country country;
 
     VoltageLevelAdderImpl(SubstationImpl substation) {
         networkRef = null;
@@ -87,6 +86,12 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
     }
 
     @Override
+    public VoltageLevelAdder setCountry(Country country) {
+        this.country = country;
+        return this;
+    }
+
+    @Override
     public VoltageLevel add() {
         String id = checkAndGetUniqueId();
         // TODO : ckeck that there are not another voltage level with same base voltage
@@ -98,10 +103,10 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:
-                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new NodeBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit, country);
                 break;
             case BUS_BREAKER:
-                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit);
+                voltageLevel = new BusBreakerVoltageLevel(id, getName(), isFictitious(), substation, networkRef, nominalV, lowVoltageLimit, highVoltageLimit, country);
                 break;
             default:
                 throw new AssertionError();
