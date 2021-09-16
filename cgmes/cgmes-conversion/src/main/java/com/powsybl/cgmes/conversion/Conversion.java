@@ -369,7 +369,6 @@ public class Conversion {
     }
 
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
-        Map<String, PropertyBags> lineContainers = new HashMap<>();
         Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
@@ -378,7 +377,7 @@ public class Conversion {
             }
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null) {
-                prepareLineContainerVoltageLevels(context, lineContainerId, line);
+                createLineContainerFictitiousVoltageLevels(context, lineContainerId, line);
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
@@ -393,64 +392,66 @@ public class Conversion {
         }
     }
 
-    private void prepareLineContainerVoltageLevels(Context context, String lineId, PropertyBag lineSegment) {
-        double nominalV = 1.0;
-        double lowVoltageLimit = 1.0;
-        double highVoltageLimit = 1.0;
-        CgmesTerminal t1 = cgmes.terminal(lineSegment.getId("Terminal1"));
-        String node1Id = context.nodeBreaker() ? t1.connectivityNode() : t1.topologicalNode();
-        String vl1Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t1, context.nodeBreaker()));
-        VoltageLevel vl1;
-        if (vl1Id != null) {
-            vl1 = context.network().getVoltageLevel(vl1Id);
-        } else {
-            vl1 = context.network().getVoltageLevel(node1Id + "_VL");
-            LOG.debug("{} VoltageLevel not found", lineId);
-        }
-        if (vl1 != null) {
-            nominalV = vl1.getNominalV();
-            lowVoltageLimit = vl1.getLowVoltageLimit();
-            highVoltageLimit = vl1.getHighVoltageLimit();
-        }
+    static class LineContainerFictitiousVoltageLevelData {
+        String lineId;
 
-        CgmesTerminal t2 = cgmes.terminal(lineSegment.getId("Terminal2"));
-        String node2Id = context.nodeBreaker() ? t2.connectivityNode() : t2.topologicalNode();
-        String vl2Id = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t2, context.nodeBreaker()));
-        VoltageLevel vl2;
-        if (vl2Id != null) {
-            vl2 = context.network().getVoltageLevel(vl2Id);
-        } else {
-            vl2 = context.network().getVoltageLevel(node2Id + "_VL");
-            LOG.debug("{} VoltageLevel not found", lineId);
-        }
-        if (vl2 != null) {
-            nominalV = vl2.getNominalV();
-            lowVoltageLimit = vl2.getLowVoltageLimit();
-            highVoltageLimit = vl2.getHighVoltageLimit();
-        }
+        String lineName;
+        String nodeId;
+        VoltageLevel vl;
 
-        String lineName = lineSegment.get("lineName");
-        if (vl1 == null && !context.boundary().containsNode(node1Id)) {
-            newFictitiousVoltageLevel(context, node1Id + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
-        }
-        if (vl2 == null && !context.boundary().containsNode(node2Id)) {
-            newFictitiousVoltageLevel(context, node2Id + "_VL", lineName, nominalV, lowVoltageLimit, highVoltageLimit);
+        String idForFictitiousVoltageLevel() {
+            return nodeId + "_VL";
         }
     }
 
-    private VoltageLevel newFictitiousVoltageLevel(Context context, String id, String name, double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        return context.network().newVoltageLevel()
-                .setNominalV(nominalV)
+    private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, String terminalRef) {
+        LineContainerFictitiousVoltageLevelData vldata = new LineContainerFictitiousVoltageLevelData();
+        vldata.lineId = lineId;
+        vldata.lineName = lineSegment.get("lineName");
+        CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
+        vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
+        String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        VoltageLevel vl;
+        if (vlId != null) {
+            vldata.vl = context.network().getVoltageLevel(vlId);
+        } else {
+            vldata.vl = context.network().getVoltageLevel(vldata.idForFictitiousVoltageLevel());
+        }
+        return vldata;
+    }
+
+    private void createLineContainerFictitiousVoltageLevels(Context context, String lineId, PropertyBag lineSegment) {
+        // Try to obtain data for a potential fictitious voltage level from Terminal1 of AC Line Segment
+        LineContainerFictitiousVoltageLevelData vldata1 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal1");
+        // The same, from Terminal2 of AC Line Segment
+        LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal2");
+        // Only create a fictitious voltage levels replacing cim:Line Container if we are NOT at boundaries
+        if (vldata1.vl == null && !context.boundary().containsNode(vldata1.nodeId)) {
+            newFictitiousVoltageLevel(context, vldata1, vldata2.vl);
+        }
+        if (vldata2.vl == null && !context.boundary().containsNode(vldata2.nodeId)) {
+            newFictitiousVoltageLevel(context, vldata2, vldata1.vl);
+        }
+    }
+
+    private VoltageLevel newFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
+        String id = vldata.idForFictitiousVoltageLevel();
+        LOG.warn("Fictitious Voltage Level {} created for Line container {} node {}", id, vldata.lineId, vldata.lineName);
+        // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
+        VoltageLevel vl = context.network().newVoltageLevel()
+                .setNominalV(vlref != null ? vlref.getNominalV() : 1.0)
                 .setTopologyKind(
                         context.nodeBreaker()
                                 ? TopologyKind.NODE_BREAKER
                                 : TopologyKind.BUS_BREAKER)
-                .setLowVoltageLimit(lowVoltageLimit)
-                .setHighVoltageLimit(highVoltageLimit)
+                .setLowVoltageLimit(vlref != null ? vlref.getLowVoltageLimit() : 1.0)
+                .setHighVoltageLimit(vlref != null ? vlref.getHighVoltageLimit() : 1.0)
                 .setId(id)
-                .setName(name)
+                .setName(vldata.lineName)
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
+        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        return vl;
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
