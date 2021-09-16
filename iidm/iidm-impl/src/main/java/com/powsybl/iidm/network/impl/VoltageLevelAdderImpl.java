@@ -101,7 +101,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
         if (country == null && substation != null && substation.getCountry().isPresent()) {
-            country = substation.getCountry().get();
+            country = substation.getNullableCountry();
         }
 
         VoltageLevelExt voltageLevel;
