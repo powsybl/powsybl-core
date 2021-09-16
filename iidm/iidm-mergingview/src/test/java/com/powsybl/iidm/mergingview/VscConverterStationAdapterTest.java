@@ -74,4 +74,15 @@ public class VscConverterStationAdapterTest {
         // Not implemented yet !
         TestUtil.notImplemented(cs1::remove);
     }
+
+    @Test
+    public void testRegulatingTerminal() {
+        final VscConverterStation cs1 = mergingView.getVscConverterStation("C1");
+        final VscConverterStation cs2 = mergingView.getVscConverterStation("C2");
+        assertEquals(cs1.getTerminal(), cs2.getRegulatingTerminal());
+        cs1.setRegulatingTerminal(cs2.getTerminal());
+        assertEquals(cs2.getTerminal(), cs1.getRegulatingTerminal());
+        cs2.setRegulatingTerminal(null);
+        assertEquals(cs2.getTerminal(), cs2.getRegulatingTerminal());
+    }
 }
