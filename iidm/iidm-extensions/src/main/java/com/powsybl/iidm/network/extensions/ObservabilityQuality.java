@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.extensions;
 
+import java.util.Optional;
+
 /**
  * Quality information.
  *
@@ -22,10 +24,9 @@ public interface ObservabilityQuality<T> {
     ObservabilityQuality<T> setStandardDeviation(double standardDeviation);
 
     /**
-     * Value optional.
-     * @return nullable
+     * Value optional. Can be empty.
      */
-    Boolean isRedundant();
+    Optional<Boolean> isRedundant();
 
     ObservabilityQuality<T> setRedundant(Boolean redundant);
 }

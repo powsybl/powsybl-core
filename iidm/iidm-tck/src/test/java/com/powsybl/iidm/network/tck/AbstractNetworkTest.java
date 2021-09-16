@@ -98,6 +98,12 @@ public abstract class AbstractNetworkTest {
         assertEquals(5, Iterables.size(topology1.getSwitches()));
         assertEquals(5, topology1.getSwitchCount());
 
+        assertEquals(Arrays.asList(network.getSwitch("generator1Disconnector1"), network.getSwitch("generator1Breaker1")),
+            topology1.getSwitches(6));
+        assertEquals(Arrays.asList(network.getSwitch("load1Disconnector1"), network.getSwitch("load1Breaker1")),
+            topology1.getSwitchStream(3).collect(Collectors.toList()));
+        assertEquals(Collections.singletonList(network.getSwitch("load1Disconnector1")), topology1.getSwitches(2));
+
         assertEquals(5, Iterables.size(network.getSwitches()));
         assertEquals(5, network.getSwitchCount());
         assertEquals(5, network.getSwitchStream().count());

@@ -41,11 +41,11 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         threeWindingsTransformerResults.put("threeWindingsTransformerId", new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
         Map<String, BranchResult> branchResults = new HashMap<>();
-        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0));
+        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         Map<String, BusResults> busResults = new HashMap<>();
         busResults.put("busId", new BusResults("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);
-        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0), postContingencyResult.getBranchResult("branchId"));
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getBranchResult("branchId"));
         assertEquals(new BusResults("voltageLevelId", "busId", 400, 3.14), postContingencyResult.getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), postContingencyResult.getThreeWindingsTransformerResult("threeWindingsTransformerId"));
@@ -60,7 +60,7 @@ public class PostContingencyResultTest extends AbstractConverterTest {
         threeWindingsTransformerResults.put("threeWindingsTransformerId", new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0));
         Map<String, BranchResult> branchResults = new HashMap<>();
-        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0));
+        branchResults.put("branchId", new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0));
         Map<String, BusResults> busResults = new HashMap<>();
         busResults.put("busId", new BusResults("voltageLevelId", "busId", 400, 3.14));
         PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, result, branchResults, busResults, threeWindingsTransformerResults);

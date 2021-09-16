@@ -32,6 +32,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -245,7 +246,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     graph.traverse(v, (v1, e, v2) -> {
                         SwitchImpl aSwitch = graph.getEdgeObject(e);
                         if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE;
+                            return TraverseResult.TERMINATE_PATH;
                         } else {
                             busSet.add(graph.getVertexObject(v2));
                             return TraverseResult.CONTINUE;
@@ -374,6 +375,26 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public Stream<Switch> getSwitchStream(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public List<Switch> getSwitches(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public IntStream getNodeInternalConnectedToStream(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public List<Integer> getNodesInternalConnectedTo(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
         public Optional<Terminal> getOptionalTerminal(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
@@ -485,6 +506,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(int node, Traverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void traverse(int[] node, Traverser traverser) {
             throw createNotSupportedBusBreakerTopologyException();
         }
     };
@@ -839,7 +865,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         return TraverseResult.CONTINUE;
                     }
                 }
-                return TraverseResult.TERMINATE;
+                return TraverseResult.TERMINATE_PATH;
             });
 
             nextTerminals.forEach(t -> t.traverse(traverser, traversedTerminals));
