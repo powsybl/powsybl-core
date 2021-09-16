@@ -132,6 +132,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .setHighVoltageLimit(280)
                 .setLowVoltageLimit(160)
+                .setCountry(Country.AD)
                 .add();
         String bus1Id = "ADDITIONAL_BUS1";
         String bus2Id = "ADDITIONAL_BUS2";

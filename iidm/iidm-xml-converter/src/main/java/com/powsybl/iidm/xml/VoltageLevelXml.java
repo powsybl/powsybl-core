@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -52,6 +53,13 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> {
+            Optional<Country> vlCountry = vl.getCountry();
+            Optional<Country> subCountry = vl.getSubstation().flatMap(Substation::getCountry);
+            if (vlCountry.isPresent() && subCountry.map(country -> country != vlCountry.get()).orElse(true)) {
+                context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(vlCountry.get()).toString());
+            }
+        });
     }
 
     @Override
@@ -243,6 +251,12 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
         double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> {
+            Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, "country"))
+                    .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
+                    .orElse(null);
+            adder.setCountry(country);
+        });
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)

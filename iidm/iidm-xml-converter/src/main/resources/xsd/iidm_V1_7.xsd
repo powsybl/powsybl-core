@@ -113,6 +113,7 @@
                 <xs:attribute name="topologyKind" use="required" type="iidm:TopologyKind"/>
                 <xs:attribute name="lowVoltageLimit" use="optional" type="xs:double"/>
                 <xs:attribute name="highVoltageLimit" use="optional" type="xs:double"/>
+                <xs:attribute name="country" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
