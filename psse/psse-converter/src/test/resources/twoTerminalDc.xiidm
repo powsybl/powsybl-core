@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3" id="twoTerminalDc" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_4" id="twoTerminalDc" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S5">
         <iidm:voltageLevel id="VL1" nominalV="230.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
