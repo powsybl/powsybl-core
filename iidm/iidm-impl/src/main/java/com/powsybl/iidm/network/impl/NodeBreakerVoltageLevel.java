@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -255,7 +256,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 graph.traverse(n, (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.apply(aSwitch)) {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
 
                     nodes.add(n2);
@@ -342,11 +343,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (connectableBus2[0] != null) {
                     // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
                     // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 connectableBus2[0] = getBus(v2);
                 if (connectableBus2[0] != null) {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 return TraverseResult.CONTINUE;
             });
@@ -592,6 +593,30 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Terminal getTerminal(int node) {
             return graph.getVertexObject(node);
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream(int node) {
+            return graph.getEdgeObjectConnectedToVertexStream(node).filter(Objects::nonNull).map(Switch.class::cast);
+        }
+
+        @Override
+        public List<Switch> getSwitches(int node) {
+            return getSwitchStream(node).collect(Collectors.toList());
+        }
+
+        @Override
+        public IntStream getNodeInternalConnectedToStream(int node) {
+            return graph.getEdgeConnectedToVertexStream(node).filter(e -> graph.getEdgeObject(e) == null)
+                .map(e -> {
+                    int vertex1 = graph.getEdgeVertex1(e);
+                    return vertex1 != node ? vertex1 : graph.getEdgeVertex2(e);
+                });
+        }
+
+        @Override
+        public List<Integer> getNodesInternalConnectedTo(int node) {
+            return getNodeInternalConnectedToStream(node).boxed().collect(Collectors.toList());
         }
 
         @Override
@@ -1062,10 +1087,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
                 } else {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
             });
 

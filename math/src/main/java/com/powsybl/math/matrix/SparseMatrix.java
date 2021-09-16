@@ -385,6 +385,15 @@ class SparseMatrix extends AbstractMatrix {
         return values.size();
     }
 
+    private native SparseMatrix transpose(int m, int n, int[] ap, int[] ai, double[] ax);
+
+    @Override
+    public SparseMatrix transpose() {
+        SparseMatrix transposed = transpose(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData());
+        transposed.setRgrowthThreshold(rgrowthThreshold);
+        return transposed;
+    }
+
     @Override
     public void print(PrintStream out) {
         print(out, null, null);
