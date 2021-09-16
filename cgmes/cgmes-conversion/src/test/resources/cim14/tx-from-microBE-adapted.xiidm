@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" id="tx-from-microBE-adapted" caseDate="2019-04-01T15:09:53.597+02:00" forecastDistance="0" sourceFormat="CIM1">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="tx-from-microBE-adapted" caseDate="2019-04-01T15:09:53.597+02:00" forecastDistance="0" sourceFormat="CIM1">
     <iidm:substation id="_37e14a0f-5e34-4647-a062-8bfd9305fa9d" name="PP_Brussels" geographicalTags="_c1d5bfc88f8011e08e4d00247eb1f55e">
         <iidm:voltageLevel id="_GRID_VL" name="GRID_VL" nominalV="110.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
