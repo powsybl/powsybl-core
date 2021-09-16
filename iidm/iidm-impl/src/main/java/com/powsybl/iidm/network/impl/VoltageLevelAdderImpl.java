@@ -100,6 +100,10 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         ValidationUtil.checkTopologyKind(this, topologyKind);
 
+        if (country == null && substation != null && substation.getCountry().isPresent()) {
+            country = substation.getCountry().get();
+        }
+
         VoltageLevelExt voltageLevel;
         switch (topologyKind) {
             case NODE_BREAKER:

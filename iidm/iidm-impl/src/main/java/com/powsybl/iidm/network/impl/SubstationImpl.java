@@ -58,6 +58,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public SubstationImpl setCountry(Country country) {
         String oldValue = Optional.ofNullable(this.country).map(Enum::toString).orElse("");
         this.country = country;
+        getVoltageLevelStream().filter(vl -> vl.getCountry().isEmpty()).forEach(vl -> vl.setCountry(country));
         getNetwork().getListeners().notifyUpdate(this, "country", oldValue, Optional.ofNullable(country).map(Enum::toString).orElse(""));
         return this;
     }

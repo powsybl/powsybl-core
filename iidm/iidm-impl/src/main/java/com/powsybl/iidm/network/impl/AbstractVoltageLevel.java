@@ -49,12 +49,19 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public Optional<Country> getCountry() {
-        return Optional.ofNullable(country).or(() -> getSubstation().flatMap(Substation::getCountry));
+        return Optional.ofNullable(country);
     }
 
     @Override
     public VoltageLevelExt setCountry(Country country) {
-        this.country = country;
+        String oldValue = Optional.ofNullable(this.country).map(Enum::toString).orElse("");
+        if (country == null && getSubstation().flatMap(Substation::getCountry).isPresent()) {
+            this.country = getSubstation().get().getNullableCountry();
+            getNetwork().getListeners().notifyUpdate(this, "country", oldValue, getSubstation().get().getCountry().map(Enum::toString).orElse(""));
+        } else {
+            this.country = country;
+            getNetwork().getListeners().notifyUpdate(this, "country", oldValue, Optional.ofNullable(country).map(Enum::toString).orElse(""));
+        }
         return this;
     }
 
