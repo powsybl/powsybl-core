@@ -63,6 +63,10 @@ public abstract class AbstractVoltageLevelTest {
         assertEquals(200.0, voltageLevel.getLowVoltageLimit(), 0.0);
         voltageLevel.setNominalV(500.0);
         assertEquals(500.0, voltageLevel.getNominalV(), 0.0);
+        voltageLevel.setCountry(Country.AD);
+        assertEquals(Country.AD, voltageLevel.getCountry().orElse(null));
+        voltageLevel.setCountry(null);
+        assertEquals(Country.AF, voltageLevel.getCountry().orElse(null));
     }
 
     @Test
