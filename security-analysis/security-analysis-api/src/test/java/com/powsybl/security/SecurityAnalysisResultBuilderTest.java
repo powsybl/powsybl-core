@@ -91,7 +91,7 @@ public class SecurityAnalysisResultBuilderTest {
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
         builder.contingency(new Contingency("contingency1")).setComputationOk(true)
-                .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0))
+                .addBranchResult(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0))
                 .addBusResult(new BusResults("voltageLevelId", "busId", 400, 3.14))
                 .addThreeWindingsTransformerResult(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
                 0, 0, 0, 0, 0, 0, 0, 0, 0))
@@ -111,7 +111,7 @@ public class SecurityAnalysisResultBuilderTest {
 
         PostContingencyResult res1 = res.getPostContingencyResults().get(0);
         assertEquals("contingency1", res1.getContingency().getId());
-        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0), res1.getBranchResult("branchId"));
+        assertEquals(new BranchResult("branchId", 0, 0, 0, 0, 0, 0, 0), res1.getBranchResult("branchId"));
         assertEquals(new BusResults("voltageLevelId", "busId", 400, 3.14), res1.getBusResult("busId"));
         assertEquals(new ThreeWindingsTransformerResult("threeWindingsTransformerId",
             0, 0, 0, 0, 0, 0, 0, 0, 0), res1.getThreeWindingsTransformerResult("threeWindingsTransformerId"));

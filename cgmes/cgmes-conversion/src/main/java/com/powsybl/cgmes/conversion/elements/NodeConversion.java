@@ -212,9 +212,9 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 id);
             Supplier<String> location = () -> bus == null
                 ? "No bus"
-                : String.format("Bus %s, Substation %s, Voltage level %s",
+                : String.format("Bus %s, %sVoltage level %s",
                     bus.getId(),
-                    bus.getVoltageLevel().getSubstation().getNameOrId(),
+                    bus.getVoltageLevel().getSubstation().map(s -> "Substation " + s.getNameOrId() + ", ").orElse(""),
                     bus.getVoltageLevel().getNameOrId());
             Supplier<String> message = () -> reason.get() + ". " + location.get();
             context.invalid("SvVoltage", message);

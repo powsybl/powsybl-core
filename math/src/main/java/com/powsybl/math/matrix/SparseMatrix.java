@@ -101,6 +101,8 @@ class SparseMatrix extends AbstractMatrix {
      */
     private final TDoubleArrayListHack values;
 
+    private double rgrowthThreshold = SparseLUDecomposition.DEFAULT_RGROWTH_THRESHOLD;
+
     private int currentColumn = -1; // just for matrix filling
 
     /**
@@ -160,6 +162,14 @@ class SparseMatrix extends AbstractMatrix {
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
+    }
+
+    double getRgrowthThreshold() {
+        return rgrowthThreshold;
+    }
+
+    void setRgrowthThreshold(double rgrowthThreshold) {
+        this.rgrowthThreshold = rgrowthThreshold;
     }
 
     /**
@@ -285,6 +295,30 @@ class SparseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public int addAndGetIndex(int i, int j, double value) {
+        add(i, j, value);
+        return values.size() - 1;
+    }
+
+    private void checkElementIndex(int index) {
+        if (index < 0 || index >= values.size()) {
+            throw new IllegalArgumentException("Element index out of bound [0, " + (values.size() - 1) + "]");
+        }
+    }
+
+    @Override
+    public void setAtIndex(int index, double value) {
+        checkElementIndex(index);
+        values.set(index, value);
+    }
+
+    @Override
+    public void addAtIndex(int index, double value) {
+        checkElementIndex(index);
+        values.setQuick(index, values.getQuick(index) + value);
+    }
+
+    @Override
     public void reset() {
         values.fill(0d);
     }
@@ -302,8 +336,10 @@ class SparseMatrix extends AbstractMatrix {
             throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
         }
         SparseMatrix o = (SparseMatrix) other;
-        return times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
-                     o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
     }
 
     @Override
@@ -347,6 +383,15 @@ class SparseMatrix extends AbstractMatrix {
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return values.size();
+    }
+
+    private native SparseMatrix transpose(int m, int n, int[] ap, int[] ai, double[] ax);
+
+    @Override
+    public SparseMatrix transpose() {
+        SparseMatrix transposed = transpose(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData());
+        transposed.setRgrowthThreshold(rgrowthThreshold);
+        return transposed;
     }
 
     @Override

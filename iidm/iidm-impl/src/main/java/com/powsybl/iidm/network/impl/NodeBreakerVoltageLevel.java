@@ -15,6 +15,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.TraverseResult;
@@ -37,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -254,7 +256,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 graph.traverse(n, (n1, e, n2) -> {
                     SwitchImpl aSwitch = graph.getEdgeObject(e);
                     if (aSwitch != null && terminate.apply(aSwitch)) {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
 
                     nodes.add(n2);
@@ -341,11 +343,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 if (connectableBus2[0] != null) {
                     // traverse does not stop the algorithm when TERMINATE, it only stops searching in a given direction
                     // this condition insures that while checking all the edges (in every direction) of a node, if a bus is found, it will not be lost
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 connectableBus2[0] = getBus(v2);
                 if (connectableBus2[0] != null) {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 return TraverseResult.CONTINUE;
             });
@@ -505,10 +507,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
     }
 
-    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    NodeBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
                             double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
+        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
+        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
     }
 
     @Override
@@ -591,6 +593,30 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         @Override
         public Terminal getTerminal(int node) {
             return graph.getVertexObject(node);
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream(int node) {
+            return graph.getEdgeObjectConnectedToVertexStream(node).filter(Objects::nonNull).map(Switch.class::cast);
+        }
+
+        @Override
+        public List<Switch> getSwitches(int node) {
+            return getSwitchStream(node).collect(Collectors.toList());
+        }
+
+        @Override
+        public IntStream getNodeInternalConnectedToStream(int node) {
+            return graph.getEdgeConnectedToVertexStream(node).filter(e -> graph.getEdgeObject(e) == null)
+                .map(e -> {
+                    int vertex1 = graph.getEdgeVertex1(e);
+                    return vertex1 != node ? vertex1 : graph.getEdgeVertex2(e);
+                });
+        }
+
+        @Override
+        public List<Integer> getNodesInternalConnectedTo(int node) {
+            return getNodeInternalConnectedToStream(node).boxed().collect(Collectors.toList());
         }
 
         @Override
@@ -709,7 +735,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             Integer e = switches.remove(switchId);
             if (e == null) {
                 throw new PowsyblException("Switch '" + switchId
-                        + "' not found in substation voltage level '" + id + "'");
+                        + "' not found in voltage level '" + id + "'");
             }
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
@@ -744,12 +770,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         private com.powsybl.math.graph.Traverser adapt(Traverser t) {
-            return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2) ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
+            return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2);
         }
 
         @Override
         public void traverse(int node, Traverser t) {
             graph.traverse(node, adapt(t));
+        }
+
+        @Override
+        public void traverse(int[] nodes, Traverser t) {
+            graph.traverse(nodes, adapt(t));
         }
     };
 
@@ -1056,10 +1087,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
-                        return TraverseResult.TERMINATE;
+                        return TraverseResult.TERMINATE_PATH;
                     }
                 } else {
-                    return TraverseResult.TERMINATE;
+                    return TraverseResult.TERMINATE_PATH;
                 }
             });
 
