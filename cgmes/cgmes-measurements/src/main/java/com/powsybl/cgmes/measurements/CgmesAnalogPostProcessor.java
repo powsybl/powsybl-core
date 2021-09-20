@@ -93,12 +93,16 @@ public final class CgmesAnalogPostProcessor {
     private static Measurement.Type getType(String measurementType, Map<String, String> typesMapping) {
         switch (measurementType) {
             case "ThreePhaseActivePower":
+            case "ActivePower":
                 return ACTIVE_POWER;
             case "ThreePhaseReactivePower":
+            case "ReactivePower":
                 return REACTIVE_POWER;
             case "LineCurrent":
+            case "Current":
                 return CURRENT;
             case "PhaseVoltage":
+            case "Voltage":
                 return VOLTAGE;
             case "Angle":
                 return ANGLE;
