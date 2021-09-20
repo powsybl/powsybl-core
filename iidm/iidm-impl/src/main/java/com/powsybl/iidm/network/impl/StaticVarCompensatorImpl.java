@@ -155,7 +155,9 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     public StaticVarCompensatorImpl setRegulatingTerminal(Terminal regulatingTerminal) {
         ValidationUtil.checkRegulatingTerminal(this, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal,
             RegulationMode.values()[regulationMode.get(getNetwork().getVariantIndex())], getNetwork());
+        Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = (TerminalExt) regulatingTerminal;
+        notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
         return this;
     }
 
