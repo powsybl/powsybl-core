@@ -95,17 +95,21 @@ public final class CgmesAnalogPostProcessor {
             case "ThreePhaseActivePower":
             case "ActivePower":
                 return ACTIVE_POWER;
-            case "ThreePhaseReactivePower":
-            case "ReactivePower":
-                return REACTIVE_POWER;
+            case "Angle":
+                return ANGLE;
+            case "ApparentPower":
+                return APPARENT_POWER;
             case "LineCurrent":
             case "Current":
                 return CURRENT;
+            case "Frequency":
+                return FREQUENCY;
+            case "ThreePhaseReactivePower":
+            case "ReactivePower":
+                return REACTIVE_POWER;
             case "PhaseVoltage":
             case "Voltage":
                 return VOLTAGE;
-            case "Angle":
-                return ANGLE;
             default:
                 String iidmType = typesMapping.get(measurementType);
                 if (iidmType != null) {
