@@ -15,6 +15,7 @@ import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
@@ -69,6 +70,13 @@ public interface ExtensionXmlSerializer<T extends Extendable, E extends Extensio
      */
     default String getVersion() {
         return "1.0";
+    }
+
+    /**
+     * Return all supported versions for of the serialization of this extension.
+     */
+    default Set<String> getVersions() {
+        return Collections.singleton("1.0");
     }
 
     /**
