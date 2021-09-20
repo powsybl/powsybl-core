@@ -112,13 +112,15 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-        double p0 = 1.0;
-        double q0 = 1.0;
-        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+        double p10 = -606.2968572845882;
+        double q10 = -305.09371456918353;
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busB");
+        double p20 = 598.4418282548444;
+        double q20 = 296.88365650968643;
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p20, q20, "code", "busB");
         // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
         assertNull(mergingView.getDanglingLine("dl1"));
@@ -210,10 +212,10 @@ public class DanglingLineAdapterTest {
         assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
         assertSame(mergedLine, mergedLine.setB2(0.0d));
         assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
-        assertEquals(p0, dl1.getP0(), 0.0d);
-        assertEquals(q0, dl1.getQ0(), 0.0d);
-        assertEquals(p0, dl2.getP0(), 0.0d);
-        assertEquals(q0, dl2.getQ0(), 0.0d);
+        assertEquals(p10, dl1.getP0(), 0.0d);
+        assertEquals(q10, dl1.getQ0(), 0.0d);
+        assertEquals(p20, dl2.getP0(), 0.0d);
+        assertEquals(q20, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
@@ -286,14 +288,14 @@ public class DanglingLineAdapterTest {
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
         // Check V & Angle are computed by Listener
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 1.0e-8);
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
@@ -301,14 +303,14 @@ public class DanglingLineAdapterTest {
         // Exceptions when creating dangling lines with mergedline ids
 
         try {
-            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
             fail();
         } catch (PowsyblException e) {
             assertEquals("The network already contains an object 'MergedLine' with the id 'dl1'", e.getMessage());
         }
 
         try {
-            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
             fail();
         } catch (PowsyblException e) {
             assertEquals("The network already contains an object 'MergedLine' with the id 'dl1 + dl2'", e.getMessage());
