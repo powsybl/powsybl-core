@@ -2209,7 +2209,7 @@
 	<cim:Analog rdf:ID="test_analog_2">
 		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
 		<cim:Measurement.Terminal rdf:resource="#_77f04391-aa23-49b6-b3e9-6089130bb5d5" />
-		<cim:Measurement.measurementType>Angle</cim:Measurement.measurementType>
+		<cim:Measurement.measurementType>ThreePhaseActivePower</cim:Measurement.measurementType>
 		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.A" />
 		<cim:Measurement.PowerSystemResource rdf:resource="#_b58bf21a-096a-4dae-9a01-3f03b60c24c7" />
 		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
@@ -2217,6 +2217,24 @@
 		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
 	</cim:Analog>
 	<cim:Analog rdf:ID="test_analog_3">
+		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
+		<cim:Measurement.measurementType>ThreePhaseReactivePower</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.V" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_3a3b27be-b18b-4385-b557-6735d733baf0" />
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
+	</cim:Analog>
+	<cim:Analog rdf:ID="test_analog_4">
+		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
+		<cim:Measurement.measurementType>PhaseVoltage</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.V" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_3a3b27be-b18b-4385-b557-6735d733baf0" />
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
+	</cim:Analog>
+	<cim:Analog rdf:ID="test_analog_5">
 		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
 		<cim:Measurement.measurementType>Angle</cim:Measurement.measurementType>
 		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.V" />

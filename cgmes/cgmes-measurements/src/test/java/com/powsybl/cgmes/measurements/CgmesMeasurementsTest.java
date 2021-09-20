@@ -55,26 +55,51 @@ public class CgmesMeasurementsTest {
         assertTrue(Double.isNaN(meas2.getValue()));
         assertTrue(Double.isNaN(meas2.getStandardDeviation()));
         assertFalse(meas2.isValid());
-        assertEquals(Measurement.Type.ANGLE, meas2.getType());
+        assertEquals(Measurement.Type.ACTIVE_POWER, meas2.getType());
         assertEquals(1, meas2.getPropertyNames().size());
         property = meas2.getProperty("cgmesType");
         assertNotNull(property);
-        assertEquals("Angle", property);
-        assertTrue(measExt.getMeasurements(Measurement.Type.ANGLE).contains(meas2));
-        assertEquals(1, measExt.getMeasurements(Measurement.Type.ANGLE).size());
+        assertEquals("ThreePhaseActivePower", property);
+        assertTrue(measExt.getMeasurements(Measurement.Type.ACTIVE_POWER).contains(meas2));
+        assertEquals(1, measExt.getMeasurements(Measurement.Type.ACTIVE_POWER).size());
 
         Measurements<Generator> measExt2 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getExtension(Measurements.class);
         assertNotNull(measExt2);
-        assertEquals(1, measExt2.getMeasurements().size());
-        Measurement meas3 = measExt2.getMeasurement("test_analog_3");
-        assertNotNull(meas3);
-        assertEquals(Measurement.Type.ANGLE, meas3.getType());
-        assertNull(meas3.getSide());
-        assertTrue(Double.isNaN(meas3.getValue()));
-        assertTrue(Double.isNaN(meas3.getStandardDeviation()));
-        assertFalse(meas3.isValid());
-        assertEquals(1, meas3.getPropertyNames().size());
-        property = meas3.getProperty("cgmesType");
+        assertEquals(3, measExt2.getMeasurements().size());
+
+        Measurement meas = measExt2.getMeasurement("test_analog_3");
+        assertNotNull(meas);
+        assertEquals(Measurement.Type.REACTIVE_POWER, meas.getType());
+        assertNull(meas.getSide());
+        assertTrue(Double.isNaN(meas.getValue()));
+        assertTrue(Double.isNaN(meas.getStandardDeviation()));
+        assertFalse(meas.isValid());
+        assertEquals(1, meas.getPropertyNames().size());
+        property = meas.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("ThreePhaseReactivePower", property);
+
+        meas = measExt2.getMeasurement("test_analog_4");
+        assertNotNull(meas);
+        assertEquals(Measurement.Type.VOLTAGE, meas.getType());
+        assertNull(meas.getSide());
+        assertTrue(Double.isNaN(meas.getValue()));
+        assertTrue(Double.isNaN(meas.getStandardDeviation()));
+        assertFalse(meas.isValid());
+        assertEquals(1, meas.getPropertyNames().size());
+        property = meas.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("PhaseVoltage", property);
+
+        meas = measExt2.getMeasurement("test_analog_5");
+        assertNotNull(meas);
+        assertEquals(Measurement.Type.ANGLE, meas.getType());
+        assertNull(meas.getSide());
+        assertTrue(Double.isNaN(meas.getValue()));
+        assertTrue(Double.isNaN(meas.getStandardDeviation()));
+        assertFalse(meas.isValid());
+        assertEquals(1, meas.getPropertyNames().size());
+        property = meas.getProperty("cgmesType");
         assertNotNull(property);
         assertEquals("Angle", property);
 
