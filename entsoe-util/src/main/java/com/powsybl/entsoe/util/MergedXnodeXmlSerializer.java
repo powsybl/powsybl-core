@@ -19,7 +19,6 @@ import com.powsybl.iidm.xml.IidmXmlVersion;
 import com.powsybl.iidm.xml.NetworkXmlReaderContext;
 import com.powsybl.iidm.xml.NetworkXmlWriterContext;
 import com.powsybl.iidm.xml.extensions.AbstractVersionableNetworkExtensionXmlSerializer;
-import com.powsybl.iidm.xml.util.IidmXmlUtil;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
@@ -34,13 +33,13 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
     public MergedXnodeXmlSerializer() {
         super("mergedXnode", MergedXnode.class, false, "mxn",
                 ImmutableMap.<IidmXmlVersion, ImmutableSortedSet<String>>builder()
-                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0"))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.1"))
+                        .put(IidmXmlVersion.V_1_0, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_1, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_2, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
+                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.1", "1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
                         .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/voltage_regulation/1_0")
@@ -70,7 +69,11 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         context.getWriter().writeAttribute("code", xnode.getCode());
         if (context instanceof NetworkXmlWriterContext) {
             NetworkXmlWriterContext networkXmlWriterContext = (NetworkXmlWriterContext) context;
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, networkXmlWriterContext, () -> writeLinesNames(xnode, context));
+            String extVersionStr = networkXmlWriterContext.getExtensionVersion("mergedXnode")
+                    .orElseGet(() -> getVersion(networkXmlWriterContext.getVersion()));
+            if ("1.1".equals(extVersionStr)) {
+                writeLinesNames(xnode, context);
+            }
         }
     }
 
@@ -92,7 +95,8 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
         String line2Name = "";
         if (context instanceof NetworkXmlReaderContext) {
             NetworkXmlReaderContext networkXmlReaderContext = (NetworkXmlReaderContext) context;
-            if (networkXmlReaderContext.getVersion().compareTo(IidmXmlVersion.V_1_6) >= 0) {
+            String extensionVersionStr = networkXmlReaderContext.getExtensionVersion(this).orElseThrow(AssertionError::new);
+            if ("1.1".equals(extensionVersionStr)) {
                 line1Name = context.getReader().getAttributeValue(null, "line1Name");
                 line2Name = context.getReader().getAttributeValue(null, "line2Name");
             }
