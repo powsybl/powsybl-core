@@ -2252,6 +2252,15 @@
 		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
 		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
 	</cim:Analog>
+	<cim:Analog rdf:ID="test_analog_7">
+		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
+		<cim:Measurement.measurementType>Frequency</cim:Measurement.measurementType>
+		<cim:Measurement.unitSymbol rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitSymbol.V" />
+		<cim:Measurement.PowerSystemResource rdf:resource="#_3a3b27be-b18b-4385-b557-6735d733baf0" />
+		<cim:Measurement.unitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.none" />
+		<entsoe:IdentifiedObject.shortName>test</entsoe:IdentifiedObject.shortName>
+		<cim:IdentifiedObject.name>TEST_ANALOG</cim:IdentifiedObject.name>
+	</cim:Analog>
 	<cim:Analog rdf:ID="invalid_analog">
 		<cim:Analog.positiveFlowIn>true</cim:Analog.positiveFlowIn>
 		<cim:Measurement.measurementType>Angle</cim:Measurement.measurementType>
