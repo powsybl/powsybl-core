@@ -7,7 +7,6 @@
 package com.powsybl.entsoe.util;
 
 import com.google.auto.service.AutoService;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
@@ -54,7 +53,7 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
 
     @Override
     public List<InputStream> getXsdAsStreamList() {
-        return ImmutableList.of(getClass().getResourceAsStream("/xsd/mergedXnode_V1_0.xsd"),
+        return List.of(getClass().getResourceAsStream("/xsd/mergedXnode_V1_0.xsd"),
                 getClass().getResourceAsStream("/xsd/mergedXnode_V1_1.xsd"));
     }
 
