@@ -106,14 +106,4 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
                 .withXnodeP2(xnodeP2).withXnodeQ2(xnodeQ2).withLine1Name(line1Name).withLine2Name(line2Name).withCode(code).add();
         return line.getExtension(MergedXnode.class);
     }
-
-    @Override
-    public String getName() {
-        return null;
-    }
-
-    @Override
-    public boolean isSerializable(MergedXnode extension) {
-        return true;
-    }
 }
