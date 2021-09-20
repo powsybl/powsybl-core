@@ -44,9 +44,9 @@ public class CgmesMeasurementsTest {
         assertTrue(Double.isNaN(meas1.getValue()));
         assertTrue(Double.isNaN(meas1.getStandardDeviation()));
         assertFalse(meas1.isValid());
-        assertEquals(Measurement.Type.OTHER, meas1.getType());
+        assertEquals(Measurement.Type.CURRENT, meas1.getType());
         assertEquals(1, meas1.getPropertyNames().size());
-        String property = meas1.getProperty("type");
+        String property = meas1.getProperty("cgmesType");
         assertNotNull(property);
         assertEquals("LineCurrent", property);
         Measurement meas2 = measExt.getMeasurement("test_analog_2");
@@ -56,7 +56,10 @@ public class CgmesMeasurementsTest {
         assertTrue(Double.isNaN(meas2.getStandardDeviation()));
         assertFalse(meas2.isValid());
         assertEquals(Measurement.Type.ANGLE, meas2.getType());
-        assertTrue(meas2.getPropertyNames().isEmpty());
+        assertEquals(1, meas2.getPropertyNames().size());
+        property = meas2.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("Angle", property);
         assertTrue(measExt.getMeasurements(Measurement.Type.ANGLE).contains(meas2));
         assertEquals(1, measExt.getMeasurements(Measurement.Type.ANGLE).size());
 
@@ -70,7 +73,10 @@ public class CgmesMeasurementsTest {
         assertTrue(Double.isNaN(meas3.getValue()));
         assertTrue(Double.isNaN(meas3.getStandardDeviation()));
         assertFalse(meas3.isValid());
-        assertTrue(meas3.getPropertyNames().isEmpty());
+        assertEquals(1, meas3.getPropertyNames().size());
+        property = meas3.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("Angle", property);
 
         DiscreteMeasurements<TwoWindingsTransformer> discMeasExt = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getExtension(DiscreteMeasurements.class);
         assertNotNull(discMeasExt);
@@ -95,7 +101,10 @@ public class CgmesMeasurementsTest {
             // Ignore
         }
         assertFalse(discrMeas1.isValid());
-        assertTrue(discrMeas1.getPropertyNames().isEmpty());
+        assertEquals(1, discrMeas1.getPropertyNames().size());
+        property = discrMeas1.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("TapPosition", property);
 
         DiscreteMeasurement discrMeas2 = discMeasExt.getDiscreteMeasurement("test_discrete_2");
         assertNotNull(discrMeas2);
@@ -105,9 +114,9 @@ public class CgmesMeasurementsTest {
         assertNull(discrMeas2.getValueAsString());
         assertFalse(discrMeas2.isValid());
         assertEquals(1, discrMeas2.getPropertyNames().size());
-        String property2 = discrMeas2.getProperty("type");
-        assertNotNull(property2);
-        assertEquals("TestType", property2);
+        property = discrMeas2.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("TestType", property);
 
         DiscreteMeasurements<TwoWindingsTransformer> discMeasExt2 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getExtension(DiscreteMeasurements.class);
         assertNotNull(discMeasExt2);
@@ -120,7 +129,10 @@ public class CgmesMeasurementsTest {
         assertEquals(DiscreteMeasurement.ValueType.STRING, discrMeas3.getValueType());
         assertNull(discrMeas3.getValueAsString());
         assertFalse(discrMeas3.isValid());
-        assertTrue(discrMeas3.getPropertyNames().isEmpty());
+        assertEquals(1, discrMeas3.getPropertyNames().size());
+        property = discrMeas3.getProperty("cgmesType");
+        assertNotNull(property);
+        assertEquals("TapPosition", property);
     }
 
     @Test
@@ -146,7 +158,7 @@ public class CgmesMeasurementsTest {
         assertNull(meas.getValueAsString());
         assertFalse(meas.isValid());
         assertEquals(1, meas.getPropertyNames().size());
-        String property = meas.getProperty("type");
+        String property = meas.getProperty("cgmesType");
         assertEquals("TestType", property);
     }
 }

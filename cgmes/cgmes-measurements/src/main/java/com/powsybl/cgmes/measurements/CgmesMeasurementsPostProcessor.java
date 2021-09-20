@@ -31,10 +31,16 @@ import java.util.stream.Collectors;
 public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor {
 
     public static final String ANALOG_TYPES_MAPPING = "iidm.import.cgmes.analog-types-mapping";
+    public static final String DISCRETE_TYPES_MAPPING = "iidm.import.cgmes.discrete-types-mapping";
 
     private static final Parameter ANALOG_TYPES_MAPPING_PARAMETER = new Parameter(ANALOG_TYPES_MAPPING,
             ParameterType.STRING_LIST,
             "maps CGMES analog types with IIDM measurement types",
+            Collections.emptyList());
+
+    private static final Parameter DISCRETE_TYPES_MAPPING_PARAMETER = new Parameter(DISCRETE_TYPES_MAPPING,
+            ParameterType.STRING_LIST,
+            "maps CGMES discrete types with IIDM discrete measurement types",
             Collections.emptyList());
 
     private final ParameterDefaultValueConfig defaultValueConfig;
@@ -64,7 +70,11 @@ public class CgmesMeasurementsPostProcessor implements CgmesImportPostProcessor 
                     createTypesMapping(ConversionParameters.readStringListParameter("CGMES", null, ANALOG_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
         }
         for (PropertyBag discrete : model.discretes()) {
-            CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"), discrete.getId("powerSystemResource"), discrete.getId("type"), bays);
+            CgmesDiscretePostProcessor.process(network, discrete.getId("Discrete"), discrete.getId("Terminal"),
+                    discrete.getId("powerSystemResource"),
+                    discrete.getId("type"),
+                    bays,
+                    createTypesMapping(ConversionParameters.readStringListParameter("CGMES", null, DISCRETE_TYPES_MAPPING_PARAMETER, defaultValueConfig)));
         }
     }
 

@@ -83,9 +83,7 @@ public final class CgmesAnalogPostProcessor {
             }
             adder.setSide(side);
             Measurement measurement = adder.add();
-            if (measurement.getType() == OTHER) {
-                measurement.putProperty("type", measurementType);
-            }
+            measurement.putProperty("cgmesType", measurementType);
         } else {
             identifiable.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Analog_" + measurementType, id);
         }
@@ -93,14 +91,24 @@ public final class CgmesAnalogPostProcessor {
     }
 
     private static Measurement.Type getType(String measurementType, Map<String, String> typesMapping) {
-        if (measurementType.equals("Angle")) {
-            return ANGLE;
+        switch (measurementType) {
+            case "ThreePhaseActivePower":
+                return ACTIVE_POWER;
+            case "ThreePhaseReactivePower":
+                return REACTIVE_POWER;
+            case "LineCurrent":
+                return CURRENT;
+            case "PhaseVoltage":
+                return VOLTAGE;
+            case "Angle":
+                return ANGLE;
+            default:
+                String iidmType = typesMapping.get(measurementType);
+                if (iidmType != null) {
+                    return Measurement.Type.valueOf(iidmType);
+                }
+                return OTHER;
         }
-        String iidmType = typesMapping.get(measurementType);
-        if (iidmType != null) {
-            return Measurement.Type.valueOf(iidmType);
-        }
-        return OTHER;
     }
 
     private static Measurement.Side getSide(String terminalId, Connectable<?> c) {

@@ -7,10 +7,7 @@
 package com.powsybl.cgmes.measurements;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurement;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurementAdder;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurements;
-import com.powsybl.iidm.network.extensions.DiscreteMeasurementsAdder;
+import com.powsybl.iidm.network.extensions.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.slf4j.Logger;
@@ -18,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static com.powsybl.iidm.network.extensions.DiscreteMeasurement.Type.*;
 
@@ -28,18 +26,18 @@ public final class CgmesDiscretePostProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesDiscretePostProcessor.class);
 
-    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays) {
+    public static void process(Network network, String id, String terminalId, String powerSystemResourceId, String measurementType, PropertyBags bays, Map<String, String> typesMapping) {
         if (terminalId != null) {
             Identifiable<?> identifiable = network.getIdentifiable(terminalId);
             if (identifiable != null) {
-                createDisMeas(identifiable, id, measurementType);
+                createDisMeas(identifiable, id, measurementType, typesMapping);
                 return;
             }
             LOG.warn("Ignored terminal {} of {} {}: not found", terminalId, measurementType, id);
         }
         Identifiable<?> identifiable = network.getIdentifiable(powerSystemResourceId);
         if (identifiable != null) {
-            createDisMeas(identifiable, id, measurementType);
+            createDisMeas(identifiable, id, measurementType, typesMapping);
             return;
         }
         PropertyBag bay = bays.stream().filter(b -> b.getId("Bay").equals(powerSystemResourceId)).findFirst().orElse(null);
@@ -52,19 +50,19 @@ public final class CgmesDiscretePostProcessor {
                 LOG.warn("Ignored {} {}: associated voltage level {} not found", measurementType, id, voltageLevelId);
                 return;
             }
-            createDisMeas(voltageLevel, id, measurementType);
+            createDisMeas(voltageLevel, id, measurementType, typesMapping);
         } else {
             LOG.warn("Ignored {} {}: attached power system resource {} not found", measurementType, id, powerSystemResourceId);
         }
     }
 
-    private static void createDisMeas(Identifiable<?> identifiable, String id, String measurementType) {
+    private static void createDisMeas(Identifiable<?> identifiable, String id, String measurementType, Map<String, String> typesMapping) {
         DiscreteMeasurements meas = identifiable.getExtension(DiscreteMeasurements.class);
         if (meas == null) {
             identifiable.newExtension(DiscreteMeasurementsAdder.class).add();
             meas = identifiable.getExtension(DiscreteMeasurements.class);
         }
-        DiscreteMeasurement.Type type = getType(measurementType);
+        DiscreteMeasurement.Type type = getType(measurementType, typesMapping);
         DiscreteMeasurementAdder adder = meas.newDiscreteMeasurement()
                 .setValid(false)
                 .setId(id)
@@ -75,9 +73,7 @@ public final class CgmesDiscretePostProcessor {
             adder.setType(OTHER);
         }
         DiscreteMeasurement measurement = adder.add();
-        if (measurement.getType() == OTHER) {
-            measurement.putProperty("type", measurementType);
-        }
+        measurement.putProperty("cgmesType", measurementType);
         // TODO get value of discrete measurements
     }
 
@@ -108,13 +104,17 @@ public final class CgmesDiscretePostProcessor {
         }
     }
 
-    private static DiscreteMeasurement.Type getType(String measurementType) {
+    private static DiscreteMeasurement.Type getType(String measurementType, Map<String, String> typesMapping) {
         switch (measurementType) {
             case "SwitchPosition":
                 return SWITCH_POSITION;
             case "TapPosition":
                 return TAP_POSITION;
             default:
+                String iidmType = typesMapping.get(measurementType);
+                if (iidmType != null) {
+                    return DiscreteMeasurement.Type.valueOf(iidmType);
+                }
                 return OTHER;
         }
     }
