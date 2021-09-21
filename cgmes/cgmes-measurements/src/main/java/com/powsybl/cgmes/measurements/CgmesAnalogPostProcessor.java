@@ -107,6 +107,7 @@ public final class CgmesAnalogPostProcessor {
             case "ThreePhaseReactivePower":
             case "ReactivePower":
                 return REACTIVE_POWER;
+            case "LineToLineVoltage":
             case "PhaseVoltage":
             case "Voltage":
                 return VOLTAGE;
