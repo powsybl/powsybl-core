@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conformity.test.Cgmes3Catalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
+import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -19,11 +20,13 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -91,6 +94,26 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
+    public void microGridWithAndWithoutTp() {
+        Network network = new CgmesImport().importData(
+            Cgmes3Catalog.microGrid().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        Network networkWithoutTp = new CgmesImport().importData(
+            Cgmes3Catalog.microGridWithoutTp().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        fixBusVoltageAndAngleBeforeComparison(network);
+        // RegulatingTerminals of both networks are localized to avoid differences.
+        // TODO must be deleted after fixing regulatingTerminals.
+        // Differences are associated with regulating cgmesTerminals defined for breakers
+        fixRegulatingTerminalsBeforeComparison(network);
+        fixRegulatingTerminalsBeforeComparison(networkWithoutTp);
+        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        assertTrue(true);
+    }
+
+    @Test
     public void miniGrid() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
@@ -132,6 +155,21 @@ public class Cgmes3ConversionTest {
         assertEquals(0, tw3t.getLeg1().getCurrentLimits().getTemporaryLimits().size());
         assertEquals(0, tw3t.getLeg2().getCurrentLimits().getTemporaryLimits().size());
         assertEquals(0, tw3t.getLeg3().getCurrentLimits().getTemporaryLimits().size());
+    }
+
+    @Test
+    public void miniGridWithAndWithoutTp() throws IOException {
+        Network network = new CgmesImport().importData(
+            Cgmes3Catalog.miniGrid().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        Network networkWithoutTp = new CgmesImport().importData(
+            Cgmes3Catalog.miniGridWithoutTp().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        fixBusVoltageAndAngleBeforeComparison(network);
+        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        assertTrue(true);
     }
 
     @Test
@@ -177,6 +215,21 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
+    public void smallGridWithAndWithoutTp() throws IOException {
+        Network network = new CgmesImport().importData(
+            Cgmes3Catalog.smallGrid().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        Network networkWithoutTp = new CgmesImport().importData(
+            Cgmes3Catalog.smallGridWithoutTp().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        fixBusVoltageAndAngleBeforeComparison(network);
+        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        assertTrue(true);
+    }
+
+    @Test
     public void svedala() throws IOException {
         Properties importParams = new Properties();
         ConversionTester t = new ConversionTester(
@@ -218,6 +271,25 @@ public class Cgmes3ConversionTest {
         assertEquals(600, lntl2.getAcceptableDuration());
     }
 
+    @Test
+    public void svedalaWithAndWithoutTp() throws IOException {
+        Network network = new CgmesImport().importData(
+            Cgmes3Catalog.svedala().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        Network networkWithoutTp = new CgmesImport().importData(
+            Cgmes3Catalog.svedalaWithoutTp().dataSource(),
+            NetworkFactory.findDefault(), null);
+
+        fixBusVoltageAndAngleBeforeComparison(network);
+        // regulatingTerminals of network are localized to avoid differences.
+        // TODO must be deleted after fixing regulatingTerminals.
+        // Differences are associated with regulating cgmesTerminals defined for breakers
+        fixRegulatingTerminalsBeforeComparison(network);
+        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        assertTrue(true);
+    }
+
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
         ReadOnlyDataSource ds = testGridModel.dataSource();
         String impl = TripleStoreFactory.defaultImplementation();
@@ -228,5 +300,27 @@ public class Cgmes3ConversionTest {
         config.setProfileUsedForInitialStateValues(Conversion.Config.StateProfile.SSH.name());
         Conversion c = new Conversion(cgmes, config);
         return c.convert();
+    }
+
+    private static void fixBusVoltageAndAngleBeforeComparison(Network network) {
+        network.getBusBreakerView().getBuses().forEach(bus -> {
+            bus.setV(Double.NaN);
+            bus.setAngle(Double.NaN);
+        });
+        network.getGenerators().forEach(generator -> {
+            generator.setRegulatingTerminal(generator.getTerminal());
+        });
+        network.getShuntCompensators().forEach(shuntCompensator -> {
+            shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
+        });
+    }
+
+    private static void fixRegulatingTerminalsBeforeComparison(Network network) {
+        network.getGenerators().forEach(generator -> {
+            generator.setRegulatingTerminal(generator.getTerminal());
+        });
+        network.getShuntCompensators().forEach(shuntCompensator -> {
+            shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
+        });
     }
 }
