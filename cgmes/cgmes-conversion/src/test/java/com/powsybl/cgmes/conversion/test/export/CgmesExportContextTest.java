@@ -15,8 +15,6 @@ import com.powsybl.cgmes.conversion.export.CgmesExportContext;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -162,13 +160,6 @@ public class CgmesExportContextTest {
         ep.setProperty(CgmesExport.BASE_NAME, exportBaseName);
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
-            String expectedMessage = "Node/breaker model without explicit mapping between IIDM buses and CGMES Topological Nodes. "
-                + " To be able to export you must import the CGMES data with the parameter "
-                + CgmesImport.CREATE_CGMES_EXPORT_MAPPING
-                + " set to true";
-            assertThrows(expectedMessage,
-                PowsyblException.class,
-                () -> new CgmesExport().export(n, ep, new FileDataSource(tmpDir, exportBaseName)));
             // TODO (Luma) After TP files are exported and exception is not thrown,
             // check that these file exists:
             // tmpDir.resolve(exportBaseName + "_SSH.xml")
