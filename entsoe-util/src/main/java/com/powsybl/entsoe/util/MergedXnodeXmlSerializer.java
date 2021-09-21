@@ -38,11 +38,11 @@ public class MergedXnodeXmlSerializer extends AbstractVersionableNetworkExtensio
                         .put(IidmXmlVersion.V_1_3, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_4, ImmutableSortedSet.of("1.0", "1.1"))
                         .put(IidmXmlVersion.V_1_5, ImmutableSortedSet.of("1.0", "1.1"))
-                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.1", "1.1"))
+                        .put(IidmXmlVersion.V_1_6, ImmutableSortedSet.of("1.0", "1.1"))
                         .build(),
                 ImmutableMap.<String, String>builder()
-                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/voltage_regulation/1_0")
-                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/voltage_regulation/1_1")
+                        .put("1.0", "http://www.itesla_project.eu/schema/iidm/ext/merged_xnode/1_0")
+                        .put("1.1", "http://www.powsybl.org/schema/iidm/ext/merged_xnode/1_1")
                         .build());
     }
 
