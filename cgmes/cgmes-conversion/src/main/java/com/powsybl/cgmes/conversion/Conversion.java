@@ -233,8 +233,13 @@ public class Conversion {
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
+            // TODO maybe pass the properties to the post processors
             postProcessor.process(network, cgmes.tripleStore());
         }
+
+        // Complete Voltages and angles in starBus as properties
+        // Complete Voltages and angles in boundary buses
+        completeVoltagesAndAngles(network);
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
@@ -242,6 +247,17 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private static void completeVoltagesAndAngles(Network network) {
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers()
+            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
+
+        // Voltage and angle in boundary buses
+        network.getDanglingLines()
+            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
