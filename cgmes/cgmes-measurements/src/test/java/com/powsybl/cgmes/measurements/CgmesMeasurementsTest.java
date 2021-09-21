@@ -48,7 +48,7 @@ public class CgmesMeasurementsTest {
         assertEquals(1, meas1.getPropertyNames().size());
         String property = meas1.getProperty("cgmesType");
         assertNotNull(property);
-        assertEquals("LineCurrent", property);
+        assertEquals("Current", property);
         Measurement meas2 = measExt.getMeasurement("test_analog_2");
         assertNotNull(meas2);
         assertEquals(Measurement.Side.TWO, meas2.getSide());
