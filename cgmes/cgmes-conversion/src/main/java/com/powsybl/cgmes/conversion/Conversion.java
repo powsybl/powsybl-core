@@ -233,6 +233,7 @@ public class Conversion {
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
+            // TODO maybe pass the properties to the post processors
             postProcessor.process(network, cgmes.tripleStore());
         }
 
