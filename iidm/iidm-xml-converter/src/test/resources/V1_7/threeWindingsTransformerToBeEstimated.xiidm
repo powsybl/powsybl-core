@@ -6,6 +6,7 @@
                 <iidm:bus id="BUS_132" v="133.584" angle="-9.62"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN_132" energySource="OTHER" minP="0.0" maxP="140.0" voltageRegulatorOn="true" targetP="7.2" targetV="135.0" bus="BUS_132" connectableBus="BUS_132">
+                <iidm:regulatingTerminal id="GEN_132"/>
                 <iidm:minMaxReactiveLimits minQ="-1.7976931348623157E308" maxQ="1.7976931348623157E308"/>
             </iidm:generator>
         </iidm:voltageLevel>

@@ -10,7 +10,6 @@
                     <iidm:point p="5.0" minQ="0.0" maxQ="10.0"/>
                     <iidm:point p="10.0" minQ="0.0" maxQ="10.0"/>
                 </iidm:reactiveCapabilityCurve>
-				<iidm:regulatingTerminal id="C1"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
@@ -23,7 +22,6 @@
             </iidm:nodeBreakerTopology>
             <iidm:vscConverterStation id="C2" name="Converter2" lossFactor="1.1" voltageRegulatorOn="false" reactivePowerSetpoint="123.0" node="2">
                 <iidm:minMaxReactiveLimits minQ="0.0" maxQ="10.0"/>
-				<iidm:regulatingTerminal id="C1"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>

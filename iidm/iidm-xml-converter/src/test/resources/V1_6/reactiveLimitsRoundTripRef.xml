@@ -6,15 +6,13 @@
                 <iidm:bus id="B"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="G1" energySource="OTHER" maxP="10.0" minP="0.0" targetV="380.0" voltageRegulatorOn="true" targetP="10.0" bus="B" connectableBus="B">
-                <iidm:regulatingTerminal id="G1"/>
-				<iidm:reactiveCapabilityCurve>
+                <iidm:reactiveCapabilityCurve>
                     <iidm:point p="5.0" minQ="1.0" maxQ="10.0"/>
                     <iidm:point p="10.0" minQ="-10.0" maxQ="1.0"/>
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
             <iidm:generator id="G2" energySource="OTHER" maxP="10.0" minP="0.0" targetV="380.0" voltageRegulatorOn="true" targetP="10.0" bus="B" connectableBus="B">
-                <iidm:regulatingTerminal id="G2"/>
-				<iidm:minMaxReactiveLimits minQ="1.0" maxQ="10.0" />
+                <iidm:minMaxReactiveLimits minQ="1.0" maxQ="10.0" />
             </iidm:generator>
         </iidm:voltageLevel>
     </iidm:substation>

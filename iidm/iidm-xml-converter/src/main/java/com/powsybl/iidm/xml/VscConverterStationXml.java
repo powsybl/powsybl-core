@@ -50,7 +50,7 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         ReactiveLimitsXml.INSTANCE.write(cs, context);
         if (cs.getRegulatingTerminal() != null) {
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context,
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context,
                 () -> TerminalRefXml.writeTerminalRef(cs.getRegulatingTerminal(), context, REGULATING_TERMINAL));
         }
     }

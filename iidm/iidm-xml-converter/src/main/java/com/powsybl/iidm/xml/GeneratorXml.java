@@ -58,7 +58,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
             if (!Objects.equals(g, g.getRegulatingTerminal().getConnectable())) {
                 TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL);
             } else {
-                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_6, context, () -> TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL));
+                IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, REGULATING_TERMINAL));
             }
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);

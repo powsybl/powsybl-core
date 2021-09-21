@@ -12,7 +12,7 @@
                 <iidm:bus id="N_3"/>
             </iidm:busBreakerTopology>
             <iidm:generator id="CB" energySource="HYDRO" minP="0.0" maxP="70.0" voltageRegulatorOn="false" targetP="0.0" targetV="0.0" targetQ="0.0" connectableBus="N_0">
-				<iidm:reactiveCapabilityCurve>
+                <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-59.3" maxQ="60.0"/>
                     <iidm:point p="70.0" minQ="-54.55" maxQ="46.25"/>
                 </iidm:reactiveCapabilityCurve>
@@ -24,8 +24,7 @@
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
             <iidm:generator id="CD" energySource="HYDRO" minP="0.0" maxP="35.0" voltageRegulatorOn="true" targetP="21.789589" targetV="236.44736" targetQ="-20.701546" bus="N_0" connectableBus="N_0" p="-21.789589" q="20.693394">
-                <iidm:regulatingTerminal id="CD"/>
-				<iidm:reactiveCapabilityCurve>
+                <iidm:reactiveCapabilityCurve>
                     <iidm:point p="0.0" minQ="-20.6" maxQ="18.1"/>
                     <iidm:point p="35.0" minQ="-21.725" maxQ="6.3500004"/>
                 </iidm:reactiveCapabilityCurve>
