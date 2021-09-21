@@ -99,7 +99,6 @@ public final class CgmesAnalogPostProcessor {
                 return ANGLE;
             case "ApparentPower":
                 return APPARENT_POWER;
-            case "LineCurrent":
             case "Current":
                 return CURRENT;
             case "Frequency":
@@ -107,7 +106,6 @@ public final class CgmesAnalogPostProcessor {
             case "ThreePhaseReactivePower":
             case "ReactivePower":
                 return REACTIVE_POWER;
-            case "LineToLineVoltage":
             case "PhaseVoltage":
             case "Voltage":
                 return VOLTAGE;
