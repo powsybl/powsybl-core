@@ -25,9 +25,9 @@
         <module>cgmes-conformity</module>
         <module>cgmes-conversion</module>
         <module>cgmes-extensions</module>
+        <module>cgmes-measurements</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
-        <module>cgmes-measurements</module>
     </modules>
 
 </project>
