@@ -7,6 +7,7 @@
 package com.powsybl.sensitivity.mocks;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
@@ -23,7 +24,7 @@ import java.util.concurrent.CompletableFuture;
 public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvider {
 
     @Override
-    public CompletableFuture<Void> run(Network network, String workingStateId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager) {
+    public CompletableFuture<Void> run(Network network, String workingStateId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE,
                 "dummy",
                 SensitivityVariableType.BUS_TARGET_VOLTAGE,

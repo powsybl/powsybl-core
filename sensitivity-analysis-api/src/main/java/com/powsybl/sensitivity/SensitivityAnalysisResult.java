@@ -9,7 +9,6 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Stopwatch;
 import com.powsybl.commons.json.JsonUtil;
 import org.jgrapht.alg.util.Pair;
@@ -49,29 +48,19 @@ public class SensitivityAnalysisResult {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisResult.class);
 
-    private final Map<String, String> metrics;
-
-    private final String logs;
-
     private final List<SensitivityValue> values;
 
-    private Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
+    private final Map<String, List<SensitivityValue>> valuesByContingencyId = new HashMap<>();
 
-    private Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
+    private final Map<Triple<String, String, String>, SensitivityValue> valuesByContingencyIdAndFunctionIdAndVariableId = new HashMap<>();
 
-    private Map<Pair<String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
+    private final Map<Pair<String, String>, Double> functionReferenceByContingencyAndFunctionId = new HashMap<>();
 
     /**
      * Sensitivity analysis result
-     * @param metrics map of metrics about the analysis
-     * @param logs sensitivity analysis logs
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(Map<String, String> metrics,
-                                     String logs,
-                                     List<SensitivityValue> values) {
-        this.metrics = Objects.requireNonNull(metrics);
-        this.logs = Objects.requireNonNull(logs);
+    public SensitivityAnalysisResult(List<SensitivityValue> values) {
         this.values = Objects.requireNonNull(values);
         for (SensitivityValue value : values) {
             SensitivityFactor factor = value.getFactor();
@@ -83,31 +72,12 @@ public class SensitivityAnalysisResult {
     }
 
     /**
-     * Get some metrics about analysis execution.
-     * Content may vary a lot depending of the implementation
-     *
-     * @return the metrics of the execution
-     */
-    public Map<String, String> getMetrics() {
-        return metrics;
-    }
-
-    /**
-     * Get analysis logs.
-     *
-     * @return the analysis logs
-     */
-    public String getLogs() {
-        return logs;
-    }
-
-    /**
      * Get a collection of all the sensitivity values.
      *
      * @return a collection of all the sensitivity values.
      */
-    public Collection<SensitivityValue> getValues() {
-        return Collections.unmodifiableCollection(values);
+    public List<SensitivityValue> getValues() {
+        return values;
     }
 
     /**
@@ -171,12 +141,10 @@ public class SensitivityAnalysisResult {
     }
 
     public static SensitivityAnalysisResult empty() {
-        return new SensitivityAnalysisResult(Collections.emptyMap(), "", Collections.emptyList());
+        return new SensitivityAnalysisResult(Collections.emptyList());
     }
 
     static final class ParsingContext {
-        private Map<String, String> metrics;
-        private String logs;
         private List<SensitivityValue> values;
     }
 
@@ -192,13 +160,6 @@ public class SensitivityAnalysisResult {
                 if (token == JsonToken.FIELD_NAME) {
                     String fieldName = jsonParser.getCurrentName();
                     switch (fieldName) {
-                        case "metrics":
-                            jsonParser.nextToken();
-                            context.metrics = new ObjectMapper().readValue(jsonParser, Map.class);
-                            break;
-                        case "logs":
-                            context.logs = jsonParser.nextTextValue();
-                            break;
                         case "values":
                             jsonParser.nextToken();
                             context.values = SensitivityValue.parseJson(jsonParser);
@@ -217,7 +178,7 @@ public class SensitivityAnalysisResult {
         stopwatch.stop();
         LOGGER.info("result read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
-        return new SensitivityAnalysisResult(context.metrics, context.logs, context.values);
+        return new SensitivityAnalysisResult(context.values);
     }
 
     public static void writeJson(Writer writer, SensitivityAnalysisResult result) {
@@ -227,11 +188,6 @@ public class SensitivityAnalysisResult {
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityAnalysisResult result) {
         try {
             jsonGenerator.writeStartObject();
-
-            jsonGenerator.writeFieldName("metrics");
-            new ObjectMapper().writeValue(jsonGenerator, result.getMetrics());
-
-            jsonGenerator.writeStringField("logs", result.getLogs());
 
             jsonGenerator.writeFieldName("values");
             SensitivityValue.writeJson(jsonGenerator, result.getValues());

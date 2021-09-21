@@ -13,10 +13,7 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -49,29 +46,9 @@ public class SensitivityAnalysisResultTest {
     }
 
     @Test
-    public void getMetrics() {
-        Map<String, String > metrics = new HashMap<>();
-        metrics.put("Key 1", "Val 1");
-        metrics.put("Key 2", "Val 2");
-        metrics.put("Key 3", "Val 3");
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(metrics, "", Collections.emptyList());
-        assertEquals(metrics.size(), results.getMetrics().size());
-        assertEquals("Val 1", results.getMetrics().get("Key 1"));
-        assertEquals("Val 2", results.getMetrics().get("Key 2"));
-        assertEquals("Val 3", results.getMetrics().get("Key 3"));
-    }
-
-    @Test
-    public void getLogs() {
-        String logs = "I don't know half of you half as well as I should like; and I like less than half of you half as well as you deserve.";
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(Collections.emptyMap(), logs, Collections.emptyList());
-        assertEquals(logs, results.getLogs());
-    }
-
-    @Test
     public void createResultsWithNullValues() {
         exception.expect(NullPointerException.class);
-        new SensitivityAnalysisResult(Collections.emptyMap(), "", null);
+        new SensitivityAnalysisResult(null);
     }
 
     @Test
@@ -79,7 +56,7 @@ public class SensitivityAnalysisResultTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, "", Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, "", Double.NaN, Double.NaN));
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(Collections.emptyMap(), "", values);
+        SensitivityAnalysisResult results = new SensitivityAnalysisResult(values);
         assertEquals(values.size(), results.getValues().size());
     }
 
@@ -88,7 +65,7 @@ public class SensitivityAnalysisResultTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, null, Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, null, Double.NaN, Double.NaN));
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(Collections.emptyMap(), "", values);
+        SensitivityAnalysisResult results = new SensitivityAnalysisResult(values);
         assertEquals(values.size(), results.getPreContingencyValues().size());
     }
 
@@ -97,7 +74,7 @@ public class SensitivityAnalysisResultTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, "Contingency", Double.NaN, Double.NaN));
         values.add(new SensitivityValue(factorNok, "Contingency", Double.NaN, Double.NaN));
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(Collections.emptyMap(), "", values);
+        SensitivityAnalysisResult results = new SensitivityAnalysisResult(values);
         assertEquals(2, results.getValues("Contingency").size());
     }
 
@@ -106,7 +83,7 @@ public class SensitivityAnalysisResultTest {
         List<SensitivityValue> values = new ArrayList<>();
         values.add(new SensitivityValue(factorOk, "ContingencyOk", Double.NaN, 1.0));
         values.add(new SensitivityValue(factorNok, "ContingencyNok", Double.NaN, 2.0));
-        SensitivityAnalysisResult results = new SensitivityAnalysisResult(Collections.emptyMap(), "", values);
+        SensitivityAnalysisResult results = new SensitivityAnalysisResult(values);
         assertSame(factorOk, results.getValue("ContingencyOk", factorOk.getFunctionId(), factorOk.getVariableId()).getFactor());
         assertSame(factorNok, results.getValue("ContingencyNok", factorNok.getFunctionId(), factorNok.getVariableId()).getFactor());
         assertEquals(1.0, results.getFunctionReferenceValue("ContingencyOk", factorOk.getFunctionId()), 0.01);
@@ -116,8 +93,6 @@ public class SensitivityAnalysisResultTest {
     @Test
     public void emptyMethod() {
         SensitivityAnalysisResult result = SensitivityAnalysisResult.empty();
-        assertTrue(result.getMetrics().isEmpty());
-        assertTrue(result.getLogs().isEmpty());
         assertTrue(result.getValues().isEmpty());
     }
 }

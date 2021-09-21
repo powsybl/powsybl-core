@@ -149,7 +149,7 @@ public final class JsonSensitivityAnalysisParameters {
 
     private static ObjectMapper createObjectMapper() {
         return JsonUtil.createObjectMapper()
-                .registerModule(new SensitivityAnalysisParametersJsonModule());
+                .registerModule(new SensitivityJsonModule());
     }
 
     private JsonSensitivityAnalysisParameters() {

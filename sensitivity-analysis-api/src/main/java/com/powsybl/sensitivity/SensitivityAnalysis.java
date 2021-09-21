@@ -44,14 +44,14 @@ public final class SensitivityAnalysis {
         }
 
         public CompletableFuture<Void> runAsync(Network network,
-                                                                     String workingStateId,
-                                                                     SensitivityFactorReader factorReader,
-                                                                     SensitivityValueWriter valueWriter,
-                                                                     List<Contingency> contingencies,
-                                                                     List<SensitivityVariableSet> variableSets,
-                                                                     SensitivityAnalysisParameters parameters,
-                                                                     ComputationManager computationManager,
-                                                                     Reporter reporter) {
+                                                String workingStateId,
+                                                SensitivityFactorReader factorReader,
+                                                SensitivityValueWriter valueWriter,
+                                                List<Contingency> contingencies,
+                                                List<SensitivityVariableSet> variableSets,
+                                                SensitivityAnalysisParameters parameters,
+                                                ComputationManager computationManager,
+                                                Reporter reporter) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "Parameters should not be null");
             Objects.requireNonNull(factorReader, "Sensitivity factors reader should not be null");
@@ -61,9 +61,8 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
             Objects.requireNonNull(reporter, "Reporter should not be null");
-            return reporter == Reporter.NO_OP
-                ? provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager)
-                : provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
+
+            return provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
@@ -87,15 +86,9 @@ public final class SensitivityAnalysis {
                 SensitivityFactorReader factorReader = new SensitivityFactorModelReader(sensitivityFactors, network);
                 SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
 
-                if (reporter == Reporter.NO_OP) {
-                    provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager);
-                } else {
-                    provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
-                }
+                provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
 
-                Map<String, String> metrics = new HashMap<>();
-                String logs = "";
-                return new SensitivityAnalysisResult(metrics, logs, valueWriter.getValues());
+                return new SensitivityAnalysisResult(valueWriter.getValues());
             });
         }
 

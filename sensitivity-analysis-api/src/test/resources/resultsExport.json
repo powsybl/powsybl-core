@@ -1,13 +1,4 @@
 {
-  "metrics" : {
-    "nbIter" : "1",
-    "dureeCalcul" : "0.0",
-    "cause" : "0",
-    "contraintes" : "32",
-    "statut" : "OK",
-    "csprMarcheForcee" : "0"
-  },
-  "logs" : "<?xml version=\"1.0\" encoding=\"ISO-8859-1\" standalone=\"no\"?>\n<logs xmlns=\"http://www.rte-france.com/gsr\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <ctxt nom=\"Hades2\">\n    <ctxt nom=\"Data Initialization\">\n      <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">First node of the connected component : BBE1AA1_0 ; Number of nodes : 20, number of branches : 32</rec>\n      <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">Active Gen = 34000.000000, Active Load = 34000.000000, Reactive Gen = 0.000000, Reactive Load =0.000000</rec>\n      <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">Computation of the slack node - Slack node = BBE2AA1_0</rec>\n    </ctxt>\n    <ctxt nom=\"DCSensiAS\">\n      <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">DCSensiAS 20170215_0830_2D4_UX0/InitialState, cosphi = 1.00, Flat voltage values proportional to nominal voltage , Load with losses=NO</rec>\n      <ctxt nom=\"Base case\">\n        <ctxt nom=\"DC load flow\">\n          <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">Compensation achieved = -0.0000 MW</rec>\n        </ctxt>\n      </ctxt>\n      <ctxt nom=\"Contingencies\">\n        <rec dt=\"05/04/2018 14:38:49\" level=\"INFO\">No calculation of contingencies because no contingincy</rec>\n      </ctxt>\n    </ctxt>\n  </ctxt>\n</logs>\n",
   "values" : [ {
     "factorContext" : {
       "functionType" : "BRANCH_ACTIVE_POWER",
