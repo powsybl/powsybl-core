@@ -184,11 +184,9 @@ public class CgmesExportContext {
             Set<String> mappedBvs = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 double nominalV = vl.getNominalV();
-                if (!bvsFromBusBreaker.containsKey(nominalV)) {
-                    String baseVoltageId = CgmesExportUtil.getUniqueId();
-                    bvsFromBusBreaker.put(nominalV, baseVoltageId);
-                    mappedBvs.add(baseVoltageId);
-                }
+                String baseVoltageId = CgmesExportUtil.getUniqueId();
+                bvsFromBusBreaker.computeIfAbsent(nominalV, v -> baseVoltageId);
+                mappedBvs.add(baseVoltageId);
             }
 
             baseVoltageByNominalVoltageMapping.putAll(bvsFromBusBreaker);
