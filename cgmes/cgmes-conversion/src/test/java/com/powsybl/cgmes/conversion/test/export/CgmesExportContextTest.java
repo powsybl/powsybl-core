@@ -6,19 +6,14 @@
  */
 package com.powsybl.cgmes.conversion.test.export;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.StateVariablesExport;
-import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
 import com.powsybl.cgmes.extensions.CgmesSvMetadataAdder;
 import com.powsybl.cgmes.extensions.CgmesTopologyKind;
 import com.powsybl.cgmes.extensions.CimCharacteristicsAdder;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -28,13 +23,6 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.junit.Test;
 
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
