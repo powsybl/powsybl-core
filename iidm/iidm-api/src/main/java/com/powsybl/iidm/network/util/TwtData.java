@@ -182,12 +182,11 @@ public class TwtData {
 
         // Assume the ratedU at the star bus is equal to ratedU of Leg1
 
-        if (connected1 && connected2 && connected3) {
+        if (connected1 && connected2 && connected3 && valid(u1, theta1) && valid(u2, theta2) && valid(u3, theta3)) {
 
             calculateThreeConnectedLegsFlowAndStarBusVoltage(u1, theta1, u2, theta2, u3, theta3, branchAdmittanceLeg1,
                 branchAdmittanceLeg2, branchAdmittanceLeg3);
-
-        } else if (connected1 && connected2) {
+        } else if (connected1 && connected2 && valid(u1, theta1) && valid(u2, theta2)) {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u2, theta2,
                 branchAdmittanceLeg1, branchAdmittanceLeg2, branchAdmittanceLeg3);
@@ -202,8 +201,7 @@ public class TwtData {
                 branchAdmittanceLeg1, branchAdmittanceLeg2, branchAdmittanceLeg3);
             starU = v0.abs();
             starTheta = v0.getArgument();
-
-        } else if (connected1 && connected3) {
+        } else if (connected1 && connected3 && valid(u1, theta1) && valid(u3, theta3)) {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u3, theta3,
                 branchAdmittanceLeg1, branchAdmittanceLeg3, branchAdmittanceLeg2);
@@ -219,8 +217,7 @@ public class TwtData {
 
             starU = v0.abs();
             starTheta = v0.getArgument();
-
-        } else if (connected2 && connected3) {
+        } else if (connected2 && connected3 && valid(u2, theta2) && valid(u3, theta3)) {
 
             LinkData.Flow flow = calculateTwoConnectedLegsFlow(u2, theta2, u3, theta3,
                 branchAdmittanceLeg2, branchAdmittanceLeg3, branchAdmittanceLeg1);
@@ -235,8 +232,7 @@ public class TwtData {
                 branchAdmittanceLeg2, branchAdmittanceLeg3, branchAdmittanceLeg1);
             starU = v0.abs();
             starTheta = v0.getArgument();
-
-        } else if (connected1) {
+        } else if (connected1 && valid(u1, theta1)) {
 
             Complex flow = calculateOneConnectedLegFlow(u1, theta1, branchAdmittanceLeg1,
                 branchAdmittanceLeg2, branchAdmittanceLeg3);
@@ -252,8 +248,7 @@ public class TwtData {
 
             starU = v0.abs();
             starTheta = v0.getArgument();
-
-        } else if (connected2) {
+        } else if (connected2 && valid(u2, theta2)) {
 
             Complex flow = calculateOneConnectedLegFlow(u2, theta2, branchAdmittanceLeg2,
                 branchAdmittanceLeg1, branchAdmittanceLeg3);
@@ -269,8 +264,7 @@ public class TwtData {
                 branchAdmittanceLeg1, branchAdmittanceLeg3);
             starU = v0.abs();
             starTheta = v0.getArgument();
-
-        } else if (connected3) {
+        } else if (connected3 && valid(u3, theta3)) {
 
             Complex flow = calculateOneConnectedLegFlow(u3, theta3, branchAdmittanceLeg3,
                 branchAdmittanceLeg1, branchAdmittanceLeg2);
@@ -286,7 +280,6 @@ public class TwtData {
                 branchAdmittanceLeg1, branchAdmittanceLeg2);
             starU = v0.abs();
             starTheta = v0.getArgument();
-
         } else {
 
             computedP1 = Double.NaN;
@@ -467,6 +460,13 @@ public class TwtData {
         Bus connectableBus = leg.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
+    }
+
+    private static boolean valid(double voltage, double theta) {
+        if (Double.isNaN(voltage) || voltage <= 0.0) {
+            return false;
+        }
+        return !Double.isNaN(theta);
     }
 
     public String getId() {
