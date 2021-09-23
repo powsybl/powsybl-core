@@ -60,7 +60,7 @@ import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
  * {@link #checkTargetDeadband(Validable, String, double, boolean, boolean)} for validating target deadband.<br>
  * {@link #checkRegulatingTerminal(Validable, String, Terminal, boolean, Network)} for validating regulating terminal.<br>
  * {@link #checkRegulatingTerminal(Validable, String, Terminal, RegulationMode, Network)} for validating regulating terminal.<br>
- * {@link #checkRegulatingTerminal(Validable, String, Terminal, RegulationMode, Network, boolean)} for validating regulating terminal.<br>
+ * {@link #checkRegulatingTerminal(Validable, String, Terminal, boolean, Network, boolean)} for validating regulating terminal.<br>
  * {@link #checkCurrentOrActivePowerSetpoint(Validable, String, double, boolean)} for validating current or active power setpoint.<br>
  * {@link #checkReactivePowerSetpoint(Validable, String, double, boolean)} for validating reactive power setpoint.<br>
  * {@link #checkReactivePowerSetpoint(Validable, String, double, RegulationMode)} for validating reactive power setpoint.<br>
