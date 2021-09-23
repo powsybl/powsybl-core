@@ -15,6 +15,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
@@ -134,6 +135,46 @@ public class LineAdapterTest {
         verify(visitor, times(2)).visitLine(any(Line.class), any(Branch.Side.class));
 
         // Not implemented yet !
+
+        //Move
+        VoltageLevel vlNb = mergingView.getSubstation("P1")
+                .newVoltageLevel()
+                .setId("VLNB")
+                .setNominalV(400)
+                .setTopologyKind(TopologyKind.NODE_BREAKER)
+                .add();
+        TestUtil.notImplemented(() -> lineAdapted.move1(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.move2(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.ONE));
+        TestUtil.notImplemented(() -> lineAdapted.move(0, vlNb, Branch.Side.TWO));
+        Bus mockBus = Mockito.mock(Bus.class);
+        VoltageLevel mockVl = Mockito.mock(VoltageLevel.class);
+        Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVl);
+        Mockito.when(mockVl.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
+        try {
+            lineAdapted.move1(mockBus, false);
+            fail();
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1. " +
+                    "Use move1(int, VoltageLevel), move2(int, VoltageLevel) or move(int, VoltageLevel, Side)"));
+        }
+        Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
+                .newBus()
+                .setId("NGEN2")
+                .add();
+        TestUtil.notImplemented(() -> lineAdapted.move1(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.ONE));
+        TestUtil.notImplemented(() -> lineAdapted.move2(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.move(ngen2, true, Branch.Side.TWO));
+        VoltageLevel vlgen = mergingView.getVoltageLevel("VLGEN");
+        try {
+            lineAdapted.move1(0, vlgen);
+            fail();
+        } catch (RuntimeException e) {
+            assertTrue(e.getMessage().contains("Inconsistent topology for terminals of Line NHV1_NHV2_1. " +
+                    "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side)."));
+        }
+
         TestUtil.notImplemented(lineAdapted::remove);
     }
 
@@ -211,8 +252,12 @@ public class LineAdapterTest {
         double angle2 = -1.7e-3;
         double lossesQ = q1 + q2;
         // Update P & Q
+        dl1.setP0(-607.7783748702557);
+        dl1.setQ0(-75.43639718320378);
         dl1.getTerminal().setP(p1).setQ(q1);
         dl1.getTerminal().getBusView().getBus().setV(v1).setAngle(angle1);
+        dl2.setP0(596.6050999999967);
+        dl2.setQ0(546.8941796000062);
         dl2.getTerminal().setP(p2).setQ(q2);
         dl2.getTerminal().getBusView().getBus().setV(v2).setAngle(angle2);
         // Check P & Q are updated
@@ -220,12 +265,12 @@ public class LineAdapterTest {
         SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
         assertEquals(expectedSV2.getP(), dl2.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
     }
 
     @Test

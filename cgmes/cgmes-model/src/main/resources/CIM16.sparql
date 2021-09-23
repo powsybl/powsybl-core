@@ -372,6 +372,12 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
         cim:ACDCTerminal.sequenceNumber "2" .
+    OPTIONAL {
+        ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
+        ?Line
+            a cim:Line ;
+            cim:IdentifiedObject.name ?lineName
+    }
 }}
 }
 

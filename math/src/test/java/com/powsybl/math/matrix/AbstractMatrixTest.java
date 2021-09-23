@@ -378,4 +378,56 @@ public abstract class AbstractMatrixTest {
         a.addValue(0, 1, 2d);
         assertEquals(3d, a.toDense().get(0, 1), 0d);
     }
+
+    @Test
+    public void testAddAndGetIndex() {
+        Matrix a = getMatrixFactory().create(3, 3, 3);
+        // 1 0 4
+        // 0 2 0
+        // 0 3 0
+        int index1 = a.addAndGetIndex(0, 0, 1d);
+        int index2 = a.addAndGetIndex(1, 1, 2d);
+        int index3 = a.addAndGetIndex(2, 1, 3d);
+        int index4 = a.addAndGetIndex(0, 2, 4d);
+
+        assertEquals(1d, a.toDense().get(0, 0), 0d);
+        assertEquals(0d, a.toDense().get(1, 0), 0d);
+        assertEquals(0d, a.toDense().get(2, 0), 0d);
+        assertEquals(0d, a.toDense().get(0, 1), 0d);
+        assertEquals(2d, a.toDense().get(1, 1), 0d);
+        assertEquals(3d, a.toDense().get(2, 1), 0d);
+        assertEquals(4d, a.toDense().get(0, 2), 0d);
+        assertEquals(0d, a.toDense().get(1, 2), 0d);
+        assertEquals(0d, a.toDense().get(2, 2), 0d);
+
+        a.setAtIndex(index1, 9);
+        a.addAtIndex(index2, 1);
+        a.setAtIndex(index3, 10);
+        a.addAtIndex(index4, 1);
+
+        assertEquals(9d, a.toDense().get(0, 0), 0d);
+        assertEquals(3d, a.toDense().get(1, 1), 0d);
+        assertEquals(10d, a.toDense().get(2, 1), 0d);
+        assertEquals(5d, a.toDense().get(0, 2), 0d);
+
+        try {
+            a.setAtIndex(10, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    @Test
+    public void testTranspose() {
+        Matrix a = createA(getMatrixFactory());
+        DenseMatrix at = a.transpose().toDense();
+        assertEquals(2, at.getRowCount());
+        assertEquals(3, at.getColumnCount());
+        assertEquals(1d, at.get(0, 0), 0d);
+        assertEquals(0d, at.get(0, 1), 0d);
+        assertEquals(2d, at.get(0, 2), 0d);
+        assertEquals(0d, at.get(1, 0), 0d);
+        assertEquals(3d, at.get(1, 1), 0d);
+        assertEquals(0d, at.get(1, 2), 0d);
+    }
 }

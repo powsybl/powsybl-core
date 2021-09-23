@@ -44,8 +44,20 @@ public abstract class AbstractConverter {
         return impedance * vnom * vnom / sbase;
     }
 
+    public static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+        return impedance * vnom1 * vnom2 / sbase;
+    }
+
     public static Complex admittanceToEngineeringUnits(Complex admittance, double vnom, double sbase) {
         return admittance.multiply(sbase / (vnom * vnom));
+    }
+
+    public static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
+    }
+
+    public static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+        return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
     }
 
     public static double admittanceToEngineeringUnits(double admittance, double vnom, double sbase) {
@@ -54,6 +66,10 @@ public abstract class AbstractConverter {
 
     public static double powerToShuntAdmittance(double power, double vnom) {
         return power / (vnom * vnom);
+    }
+
+    public static double shuntAdmittanceToPower(double shuntAdmittance, double vnom) {
+        return shuntAdmittance * vnom * vnom;
     }
 
     private final ContainersMapping containersMapping;

@@ -60,7 +60,12 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public SubstationImpl getSubstation() {
+    public Optional<Substation> getSubstation() {
+        return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
         return substation;
     }
 
