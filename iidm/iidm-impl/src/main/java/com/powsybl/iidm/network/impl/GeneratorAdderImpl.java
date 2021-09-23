@@ -135,7 +135,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         // As we do not want to move the order of validation and terminal attachment
         // we do not check the regulating terminal if useLocalRegulation is true.
         // We assume the terminal will be ok since it will be the one of the equipment.
-        ValidationUtil.checkVoltageControlTargetQ(this, regulatingTerminal, targetV, targetQ, voltageRegulatorOn, getNetwork(), validateRegulatingTerminal);
+        ValidationUtil.checkVoltageControlAndTargetQ(this, regulatingTerminal, targetV, targetQ, voltageRegulatorOn, getNetwork(), validateRegulatingTerminal);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator

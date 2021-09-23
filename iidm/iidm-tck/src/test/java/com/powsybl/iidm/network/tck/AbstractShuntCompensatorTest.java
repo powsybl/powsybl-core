@@ -401,7 +401,7 @@ public abstract class AbstractShuntCompensatorTest {
     @Test
     public void invalidRegulatingTerminal() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("Shunt compensator 'invalid': regulating terminal is not defined or is not part of the network");
+        thrown.expectMessage("Shunt compensator 'invalid': invalid value (NGEN) for regulating terminal of voltage control (must be part of the network)");
         Network tmp = EurostagTutorialExample1Factory.create();
         Terminal tmpTerminal = tmp.getGenerator("GEN").getTerminal();
         createLinearShunt(INVALID, INVALID, 2.0, 1.0, 0, 10, tmpTerminal, true, Double.NaN, Double.NaN);
@@ -417,7 +417,7 @@ public abstract class AbstractShuntCompensatorTest {
     @Test
     public void invalidNanTargetV() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("Shunt compensator 'invalid': invalid value (NaN) for voltage setpoint");
+        thrown.expectMessage("Shunt compensator 'invalid': voltage setpoint has to be set for the voltage control");
         createLinearShuntWithDefaultRegulatingTerminal(INVALID, INVALID, 5.0, 1.0, 6, 10, true, Double.NaN, 0);
     }
 

@@ -106,7 +106,7 @@ public final class FictitiousSwitchFactory {
                 .setMaxP(70.0)
                 .setVoltageRegulatorOn(false)
                 .setTargetP(0.0)
-                .setTargetV(0.0)
+                .setTargetV(vlN.getNominalV())
                 .setTargetQ(0.0)
                 .setNode(12)
                 .add();
@@ -130,7 +130,7 @@ public final class FictitiousSwitchFactory {
                 .setMaxP(80.0)
                 .setVoltageRegulatorOn(false)
                 .setTargetP(0.0)
-                .setTargetV(0.0)
+                .setTargetV(vlN.getNominalV())
                 .setTargetQ(0.0)
                 .setNode(14)
                 .add();

@@ -430,7 +430,7 @@ public final class FourSubstationsNodeBreakerFactory {
                 .setNode(4)
                 .setLossFactor(1.1f)
                 .setReactivePowerSetpoint(120)
-                .setVoltageSetpoint(0)
+                .setVoltageSetpoint(s2vl1.getNominalV())
                 .setVoltageRegulatorOn(false)
                 .add();
         vsc2.newMinMaxReactiveLimits()

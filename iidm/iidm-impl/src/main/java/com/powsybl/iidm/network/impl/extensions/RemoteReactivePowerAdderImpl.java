@@ -17,9 +17,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
-
-    static final String VALIDABLE_TYPE_DESCRIPTION = "generator";
+public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder, Validable {
 
     private double targetQ;
 
@@ -27,33 +25,36 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     private boolean enabled;
 
+    @Override
+    public String getMessageHeader() {
+        return "generatorRemoteReactivePowerControl";
+    }
+
     protected RemoteReactivePowerAdderImpl(final Generator extendable) {
         super(extendable);
     }
 
     @Override
     protected RemoteReactivePowerControl createExtension(final Generator extendable) {
+        ValidationUtil.checkReactivePowerControl((Validable) extendable, regulatingTerminal,
+            targetQ, enabled, extendable.getNetwork());
         return new RemoteReactivePowerControlImpl(targetQ, regulatingTerminal, enabled);
     }
 
     @Override
     public RemoteReactivePowerControlAdder withTargetQ(double targetQ) {
-        ValidationUtil.checkReactivePowerSetpoint((Validable) super.extendable, VALIDABLE_TYPE_DESCRIPTION, targetQ, enabled);
         this.targetQ = targetQ;
         return this;
     }
 
     @Override
     public RemoteReactivePowerControlAdder withRegulatingTerminal(Terminal regulatingTerminal) {
-        ValidationUtil.checkRegulatingTerminal((Validable) super.extendable, VALIDABLE_TYPE_DESCRIPTION, regulatingTerminal, enabled, super.extendable.getNetwork());
         this.regulatingTerminal = regulatingTerminal;
         return this;
     }
 
     @Override
     public RemoteReactivePowerControlAdder withEnabled(boolean enabled) {
-        ValidationUtil.checkReactivePowerControl((Validable) super.extendable, regulatingTerminal,
-            targetQ, enabled, super.extendable.getNetwork());
         this.enabled = enabled;
         return this;
     }

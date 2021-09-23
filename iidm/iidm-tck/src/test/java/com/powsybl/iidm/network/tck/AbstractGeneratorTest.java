@@ -155,7 +155,7 @@ public abstract class AbstractGeneratorTest {
     @Test
     public void invalidReactiveQ() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("for reactive power setpoint");
+        thrown.expectMessage("reactive power target has to be set for the voltage control");
         createGenerator(INVALID, EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, Double.NaN, false, 10.0);
     }

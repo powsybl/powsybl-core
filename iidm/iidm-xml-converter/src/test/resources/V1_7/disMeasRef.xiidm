@@ -146,7 +146,7 @@
                     <iidm:point p="100.0" minQ="-73.514" maxQ="76.4"/>
                 </iidm:reactiveCapabilityCurve>
             </iidm:generator>
-            <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="0.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
+            <iidm:vscConverterStation id="VSC2" name="VSC2" voltageRegulatorOn="false" lossFactor="1.1" voltageSetpoint="400.0" reactivePowerSetpoint="120.0" node="4" p="-9.89" q="-120.0">
                 <iidm:minMaxReactiveLimits minQ="-400.0" maxQ="500.0"/>
             </iidm:vscConverterStation>
         </iidm:voltageLevel>

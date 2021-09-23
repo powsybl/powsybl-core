@@ -78,7 +78,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         }
 
         validate();
-        ValidationUtil.checkVoltageControlTargetQ(this, regulatingTerminal,
+        ValidationUtil.checkVoltageControlAndTargetQ(this, regulatingTerminal,
             voltageSetpoint, reactivePowerSetpoint, voltageRegulatorOn, getNetwork(), validateRegulatingTerminal);
 
         VscConverterStationImpl converterStation

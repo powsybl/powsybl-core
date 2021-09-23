@@ -66,7 +66,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         public DanglingLineAdder add() {
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
             ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP);
-            ValidationUtil.checkVoltageControlTargetQ(DanglingLineAdderImpl.this, targetV, targetQ, voltageRegulationOn);
+            ValidationUtil.checkVoltageControlAndTargetQ(DanglingLineAdderImpl.this, targetV, targetQ, voltageRegulationOn);
             generationAdder = this;
             return DanglingLineAdderImpl.this;
         }

@@ -184,7 +184,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidRegulatingValuePhase() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': invalid value (NaN) for current or active power setpoint");
+        thrown.expectMessage("2 windings transformer 'twt': current or active power setpoint has to be set for the phase tap changer control");
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, Double.NaN, 1.0, terminal);
     }
@@ -192,7 +192,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void invalidNullRegulatingTerminalPhase() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': regulating terminal is not defined or is not part of the network");
+        thrown.expectMessage("2 windings transformer 'twt': regulating terminal has to be set for the phase tap changer control");
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, 1.0, null);
     }
@@ -468,7 +468,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void undefinedTargetV() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': invalid value (NaN) for voltage setpoint");
+        thrown.expectMessage("2 windings transformer 'twt': voltage setpoint has to be set for the ratio tap changer control");
         createRatioTapChangerWith3Steps(0, 1, true, true, Double.NaN, 1.0, terminal);
     }
 
@@ -509,7 +509,7 @@ public abstract class AbstractTapChangerTest {
     @Test
     public void nullRegulatingTerminal() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("2 windings transformer 'twt': regulating terminal is not defined or is not part of the network");
+        thrown.expectMessage("2 windings transformer 'twt': regulating terminal has to be set for the ratio tap changer control");
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, 1.0, null);
     }
 
