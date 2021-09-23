@@ -101,7 +101,7 @@ public final class ValidationUtil {
     }
 
     private static ValidationException createInvalidValueException(Validable validable, String controlType, String value, String valueName) {
-        return new ValidationException(validable, "invalid value (" + value + ") for " + valueName + " of " + controlType + " control");
+        return createInvalidValueException(validable, controlType, value, valueName, null);
     }
 
     private static ValidationException createInvalidValueException(Validable validable, String controlType, String value, String valueName, String reason) {
