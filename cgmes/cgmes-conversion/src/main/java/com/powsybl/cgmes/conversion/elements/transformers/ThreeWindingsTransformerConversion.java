@@ -14,6 +14,8 @@ import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers.Cgme
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.network.extensions.ThreeWindingsTransformerPhaseAngleClock;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -64,6 +66,26 @@ public class ThreeWindingsTransformerConversion extends AbstractTransformerConve
         ConvertedT3xModel convertedT3xModel = new ConvertedT3xModel(interpretedT3xModel, context);
 
         setToIidm(convertedT3xModel);
+    }
+
+    public static void calculateVoltageAndAngleInStarBus(ThreeWindingsTransformer twt) {
+        ThreeWindingsTransformerPhaseAngleClock phaseAngleClock = twt.getExtensionByName("threeWindingsTransformerPhaseAngleClock");
+        int phaseAngleClock2 = 0;
+        int phaseAngleClock3 = 0;
+        if (phaseAngleClock != null) {
+            phaseAngleClock2 = phaseAngleClock.getPhaseAngleClockLeg2();
+            phaseAngleClock3 = phaseAngleClock.getPhaseAngleClockLeg3();
+        }
+        boolean splitShuntAdmittance = false;
+        TwtData twtData = new TwtData(twt, phaseAngleClock2, phaseAngleClock3, 0.0, false, splitShuntAdmittance);
+
+        double starBusV = twtData.getStarU();
+        double starBusTheta = Math.toDegrees(twtData.getStarTheta());
+
+        if (!Double.isNaN(starBusV) && !Double.isNaN(starBusTheta)) {
+            twt.setProperty("v", Double.toString(starBusV));
+            twt.setProperty("angle", Double.toString(starBusTheta));
+        }
     }
 
     private void setToIidm(ConvertedT3xModel convertedT3xModel) {

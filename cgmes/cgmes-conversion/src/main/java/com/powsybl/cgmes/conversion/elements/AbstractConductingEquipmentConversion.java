@@ -275,6 +275,16 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
+    public static void calculateVoltageAndAngleInBoundaryBus(DanglingLine dl) {
+        double v = dl.getBoundary().getV();
+        double angle = dl.getBoundary().getAngle();
+
+        if (!Double.isNaN(v) && !Double.isNaN(angle)) {
+            dl.setProperty("v", Double.toString(v));
+            dl.setProperty("angle", Double.toString(angle));
+        }
+    }
+
     private void setBoundaryNodeInfo(String boundaryNode, DanglingLine dl) {
         if (context.boundary().isHvdc(boundaryNode) || context.boundary().lineAtBoundary(boundaryNode) != null) {
             dl.newExtension(CgmesDanglingLineBoundaryNodeAdder.class)

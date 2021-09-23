@@ -61,4 +61,13 @@ public class NetworkXmlReaderContext extends AbstractNetworkXmlContext<ImportOpt
     public boolean containsExtensionNamespaceUri(String extensionNamespaceUri) {
         return extensionsNamespaceUri.contains(extensionNamespaceUri);
     }
+
+    public Optional<String> getExtensionVersion(ExtensionXmlSerializer<?, ?> extensionXmlSerializer) {
+        return extensionXmlSerializer.getVersions()
+                .stream()
+                .filter(v -> extensionsNamespaceUri
+                        .stream()
+                        .anyMatch(uri -> extensionXmlSerializer.getNamespaceUri(v).equals(uri)))
+                .findFirst();
+    }
 }
