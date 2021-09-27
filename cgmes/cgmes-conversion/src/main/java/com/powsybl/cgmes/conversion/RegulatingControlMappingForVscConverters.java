@@ -46,7 +46,7 @@ public class RegulatingControlMappingForVscConverters {
         }
 
         CgmesRegulatingControlForVscConverter rd = new CgmesRegulatingControlForVscConverter();
-        rd.vscRegulation = decodeVscRegulation(sm.getLocal("qPccControl"));
+        rd.vscRegulation = sm.getLocal("qPccControl");
         rd.voltageSetpoint = sm.asDouble("targetUpcc");
         rd.reactivePowerSetpoint = -sm.asDouble("targetQpcc");
         rd.pccTerminal = sm.getId("PccTerminal");
@@ -78,12 +78,13 @@ public class RegulatingControlMappingForVscConverters {
             return;
         }
 
-        if (rc.vscRegulation == VscRegulation.VOLTAGE) {
+        VscRegulation vscRegulation = decodeVscRegulation(rc.vscRegulation);
+        if (vscRegulation == VscRegulation.VOLTAGE) {
             setRegulatingControlVoltage(rc, vscConverter);
-        } else if (rc.vscRegulation == VscRegulation.REACTIVE_POWER) {
+        } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
             setRegulatingControlReactivePower(rc, vscConverter);
         } else {
-            context.ignored(rc.vscRegulation.name(), "Unsupported regulation mode for vscConverter " + vscConverter.getId());
+            context.ignored(rc.vscRegulation, "Unsupported regulation mode for vscConverter " + vscConverter.getId());
         }
     }
 
@@ -128,7 +129,7 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     private static class CgmesRegulatingControlForVscConverter {
-        VscRegulation vscRegulation;
+        String vscRegulation;
         double voltageSetpoint;
         double reactivePowerSetpoint;
         String pccTerminal;
