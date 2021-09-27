@@ -25,7 +25,7 @@ public class SensitivityFactorModelReader implements SensitivityFactorReader {
 
     public SensitivityFactorModelReader(List<SensitivityFactor> factors, Network network) {
         this.factors = Objects.requireNonNull(factors);
-        this.network = network;
+        this.network = Objects.requireNonNull(network);
     }
 
     @Override
@@ -38,7 +38,7 @@ public class SensitivityFactorModelReader implements SensitivityFactorReader {
                     .orElseThrow(() -> new PowsyblException("The bus ref for '" + factor.getFunctionId() + "' cannot be resolved."));
                 functionId = bus.getId();
             }
-            handler.onFactor(factor, factor.getFunctionType(), functionId, factor.getVariableType(),
+            handler.onFactor(factor.getFunctionType(), functionId, factor.getVariableType(),
                     factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
         }
     }

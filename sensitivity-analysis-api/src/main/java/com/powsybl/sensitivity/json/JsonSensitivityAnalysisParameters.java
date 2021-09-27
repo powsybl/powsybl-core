@@ -6,12 +6,8 @@
  */
 package com.powsybl.sensitivity.json;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.Extension;
@@ -124,27 +120,6 @@ public final class JsonSensitivityAnalysisParameters {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    /**
-     *  Low level deserialization method, to be used for instance for reading sensitivity analysis parameters nested in another object.
-     */
-    public static SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context, SensitivityAnalysisParameters parameters) throws IOException {
-        return new SensitivityAnalysisParametersDeserializer().deserialize(parser, context, parameters);
-    }
-
-    /**
-     *  Low level deserialization method, to be used for instance for updating sensitivity analysis parameters nested in another object.
-     */
-    public static SensitivityAnalysisParameters deserialize(JsonParser parser, DeserializationContext context) throws IOException {
-        return new SensitivityAnalysisParametersDeserializer().deserialize(parser, context);
-    }
-
-    /**
-     *  Low level serialization method, to be used for instance for writing sensitivity analysis parameters nested in another object.
-     */
-    public static void serialize(SensitivityAnalysisParameters parameters, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException  {
-        new SensitivityAnalysisParametersSerializer().serialize(parameters, jsonGenerator, serializerProvider);
     }
 
     private static ObjectMapper createObjectMapper() {

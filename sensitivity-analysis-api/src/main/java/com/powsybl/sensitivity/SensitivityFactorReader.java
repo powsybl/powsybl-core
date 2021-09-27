@@ -15,7 +15,7 @@ public interface SensitivityFactorReader {
 
     interface Handler {
 
-        void onFactor(Object factorContext, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType, String variableId, boolean variableSet, ContingencyContext contingencyContext);
+        void onFactor(SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType, String variableId, boolean variableSet, ContingencyContext contingencyContext);
     }
 
     void read(Handler handler);

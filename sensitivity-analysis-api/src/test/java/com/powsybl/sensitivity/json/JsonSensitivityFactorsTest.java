@@ -27,25 +27,25 @@ import java.util.Objects;
 public class JsonSensitivityFactorsTest extends AbstractConverterTest {
 
     private static List<SensitivityFactor> create() {
-        return SensitivityFactorsJsonSerializer.read(new InputStreamReader(JsonSensitivityFactorsTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
+        return SensitivityFactor.readJson(new InputStreamReader(JsonSensitivityFactorsTest.class.getResourceAsStream("/sensitivityFactorsExample.json")));
     }
 
     private static List<SensitivityFactor> read(Path jsonFile) {
         Objects.requireNonNull(jsonFile);
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
-            return SensitivityFactorsJsonSerializer.read(new InputStreamReader(is));
+            return SensitivityFactor.readJson(new InputStreamReader(is));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static void write(List<SensitivityFactor> cracFile, Path jsonFile) {
-        Objects.requireNonNull(cracFile);
+    private static void write(List<SensitivityFactor> factors, Path jsonFile) {
+        Objects.requireNonNull(factors);
         Objects.requireNonNull(jsonFile);
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
-            SensitivityFactorsJsonSerializer.write(cracFile, new OutputStreamWriter(os));
+            SensitivityFactor.writeJson(new OutputStreamWriter(os), factors);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

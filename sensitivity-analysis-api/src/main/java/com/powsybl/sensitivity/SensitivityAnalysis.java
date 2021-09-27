@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfigNamedProvider;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
+import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
@@ -39,7 +40,7 @@ public final class SensitivityAnalysis {
 
         private final SensitivityAnalysisProvider provider;
 
-        private Runner(SensitivityAnalysisProvider provider) {
+        public Runner(SensitivityAnalysisProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
@@ -67,7 +68,7 @@ public final class SensitivityAnalysis {
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
                                                                      String workingStateId,
-                                                                     List<SensitivityFactor> sensitivityFactors,
+                                                                     List<SensitivityFactor> factors,
                                                                      List<Contingency> contingencies,
                                                                      List<SensitivityVariableSet> variableSets,
                                                                      SensitivityAnalysisParameters parameters,
@@ -75,7 +76,7 @@ public final class SensitivityAnalysis {
                                                                      Reporter reporter) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "Parameters should not be null");
-            Objects.requireNonNull(sensitivityFactors, "Sensitivity factor list should not be null");
+            Objects.requireNonNull(factors, "Sensitivity factor list should not be null");
             Objects.requireNonNull(contingencies, "Contingency list should not be null");
             Objects.requireNonNull(variableSets, "VariableSet list should not be null");
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
@@ -83,13 +84,22 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(reporter, "Reporter should not be null");
 
             return CompletableFuture.supplyAsync(() -> {
-                SensitivityFactorReader factorReader = new SensitivityFactorModelReader(sensitivityFactors, network);
-                SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
+                SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+                SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter(factors);
 
                 provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
 
                 return new SensitivityAnalysisResult(valueWriter.getValues());
             });
+        }
+
+        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                     String workingStateId,
+                                                                     List<SensitivityFactor> factors,
+                                                                     List<Contingency> contingencies,
+                                                                     List<SensitivityVariableSet> variableSets,
+                                                                     SensitivityAnalysisParameters parameters) {
+            return runAsync(network, workingStateId, factors, contingencies, variableSets, parameters, LocalComputationManager.getDefault(), Reporter.NO_OP);
         }
 
         public CompletableFuture<Void> runAsync(Network network,
@@ -237,6 +247,15 @@ public final class SensitivityAnalysis {
                                              ComputationManager computationManager,
                                              Reporter reporter) {
             return runAsync(network, workingStateId, sensitivityFactors, contingencies, variableSets, parameters, computationManager, reporter).join();
+        }
+
+        public SensitivityAnalysisResult run(Network network,
+                                             String workingStateId,
+                                             List<SensitivityFactor> sensitivityFactors,
+                                             List<Contingency> contingencies,
+                                             List<SensitivityVariableSet> variableSets,
+                                             SensitivityAnalysisParameters parameters) {
+            return runAsync(network, workingStateId, sensitivityFactors, contingencies, variableSets, parameters).join();
         }
 
         @Override

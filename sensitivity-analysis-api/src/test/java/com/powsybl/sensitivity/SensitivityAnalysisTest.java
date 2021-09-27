@@ -10,17 +10,17 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -31,6 +31,7 @@ public class SensitivityAnalysisTest {
 
     private Network network;
     private ComputationManager computationManager;
+    private SensitivityFactor factor;
     private SensitivityFactorReader factorReader;
     private SensitivityValueModelWriter valueWriter;
     private List<Contingency> contingencies;
@@ -39,13 +40,16 @@ public class SensitivityAnalysisTest {
 
     @Before
     public void setUp() {
-        network = Mockito.mock(Network.class);
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
-        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
+        network = EurostagTutorialExample1Factory.create();
         computationManager = Mockito.mock(ComputationManager.class);
-        factorReader = Mockito.mock(SensitivityFactorReader.class);
-        valueWriter = new SensitivityValueModelWriter();
+        factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER,
+                "NHV1_NHV2_1",
+                SensitivityVariableType.INJECTION_ACTIVE_POWER,
+                "GEN",
+                false,
+                ContingencyContext.none());
+        factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+        valueWriter = new SensitivityValueModelWriter(List.of(factor));
         contingencies = Collections.emptyList();
         variableSets = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);
@@ -156,10 +160,7 @@ public class SensitivityAnalysisTest {
 
     @Test
     public void testSimpleRunWithSensitivityFactorList() {
-        List<SensitivityFactor> dummyList = new ArrayList<>();
-        dummyList.add(new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE, "dummy", SensitivityVariableType.BUS_TARGET_VOLTAGE, "dummy", false, ContingencyContext.all()));
-
-        SensitivityAnalysisResult res = SensitivityAnalysis.run(network, "v", dummyList,
+        SensitivityAnalysisResult res = SensitivityAnalysis.run(network, "v", List.of(factor),
                 contingencies, variableSets, new SensitivityAnalysisParameters(), computationManager);
         assertNotNull(res);
     }

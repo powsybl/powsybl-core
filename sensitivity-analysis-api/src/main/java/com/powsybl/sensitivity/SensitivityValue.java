@@ -32,7 +32,7 @@ public class SensitivityValue {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityValue.class);
 
-    private final SensitivityFactor factorContext;
+    private final SensitivityFactor factor;
 
     private final String contingencyId;
 
@@ -42,20 +42,20 @@ public class SensitivityValue {
 
     /**
      * Constructor
-     * @param factorContext the sensitivity factor {@link com.powsybl.sensitivity.SensitivityFactor}
+     * @param factor the sensitivity factor {@link com.powsybl.sensitivity.SensitivityFactor}
      * @param contingencyId the id of the contingency. Use null for pre-contingency state.
      * @param value the sensitivity value, as a result of the computation.
      * @param functionReference the value of the sensitivity function in the pre-contingency state.
      */
-    public SensitivityValue(SensitivityFactor factorContext, String contingencyId, double value, double functionReference) {
-        this.factorContext = factorContext;
+    public SensitivityValue(SensitivityFactor factor, String contingencyId, double value, double functionReference) {
+        this.factor = factor;
         this.contingencyId = contingencyId;
         this.value = value;
         this.functionReference = functionReference;
     }
 
     public SensitivityFactor getFactor() {
-        return factorContext;
+        return factor;
     }
 
     public String getContingencyId() {
@@ -73,7 +73,7 @@ public class SensitivityValue {
     @Override
     public String toString() {
         return "SensitivityValue(" +
-                "factorContext=" + factorContext +
+                "factor=" + factor +
                 ", contingencyId='" + contingencyId + '\'' +
                 ", value=" + value +
                 ", functionReference=" + functionReference +
@@ -81,20 +81,40 @@ public class SensitivityValue {
     }
 
     static final class ParsingContext {
-        private SensitivityFactor factorContext;
+        private SensitivityFactor factor;
         private String contingencyId;
         private double value;
         private double functionReference;
 
         private void reset() {
-            factorContext = null;
+            factor = null;
             contingencyId = null;
             value = Double.NaN;
             functionReference = Double.NaN;
         }
     }
 
-    public static List<SensitivityValue> parseJson(JsonParser parser) {
+    public static SensitivityValue parseJson(JsonParser parser) {
+        Objects.requireNonNull(parser);
+
+        var context = new ParsingContext();
+        try {
+            JsonToken token;
+            while ((token = parser.nextToken()) != null) {
+                if (token == JsonToken.FIELD_NAME) {
+                    parseJson(parser, context);
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        return new SensitivityValue(context.factor, context.contingencyId, context.value, context.functionReference);
+    }
+
+    public static List<SensitivityValue> parseJsonArray(JsonParser parser) {
         Objects.requireNonNull(parser);
 
         Stopwatch stopwatch = Stopwatch.createStarted();
@@ -105,28 +125,9 @@ public class SensitivityValue {
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = parser.getCurrentName();
-                    switch (fieldName) {
-                        case "factorContext":
-                            parser.nextToken();
-                            context.factorContext = SensitivityFactor.parseJson(parser);
-                            break;
-                        case "contingencyId":
-                            context.contingencyId = parser.nextTextValue();
-                            break;
-                        case "value":
-                            parser.nextToken();
-                            context.value = parser.getDoubleValue();
-                            break;
-                        case "functionReference":
-                            parser.nextToken();
-                            context.functionReference = parser.getDoubleValue();
-                            break;
-                        default:
-                            break;
-                    }
+                    parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    values.add(new SensitivityValue(context.factorContext, context.contingencyId, context.value, context.functionReference));
+                    values.add(new SensitivityValue(context.factor, context.contingencyId, context.value, context.functionReference));
                     context.reset();
                 } else if (token == JsonToken.END_ARRAY) {
                     break;
@@ -142,12 +143,39 @@ public class SensitivityValue {
         return values;
     }
 
+    private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+        String fieldName = parser.getCurrentName();
+        switch (fieldName) {
+            case "factor":
+                parser.nextToken();
+                context.factor = SensitivityFactor.parseJson(parser);
+                break;
+            case "contingencyId":
+                context.contingencyId = parser.nextTextValue();
+                break;
+            case "value":
+                parser.nextToken();
+                context.value = parser.getDoubleValue();
+                break;
+            case "functionReference":
+                parser.nextToken();
+                context.functionReference = parser.getDoubleValue();
+                break;
+            default:
+                break;
+        }
+    }
+
+    public static void writeJson(JsonGenerator generator, SensitivityValue value) {
+        writeJson(generator, value.contingencyId, value.getFactor().getVariableId(), value.getFactor().getFunctionId(), value.value, value.functionReference);
+    }
+
     static void writeJson(JsonGenerator generator, Collection<? extends SensitivityValue> valueList) {
         Objects.requireNonNull(valueList);
         try {
             generator.writeStartArray();
             for (SensitivityValue value : valueList) {
-                SensitivityValue.writeJson(generator, value.factorContext, value.contingencyId, value.value, value.functionReference);
+                writeJson(generator, value);
             }
             generator.writeEndArray();
         } catch (IOException e) {
@@ -160,17 +188,16 @@ public class SensitivityValue {
     }
 
     static void writeJson(JsonGenerator jsonGenerator,
-                          SensitivityFactor factorContext,
                           String contingencyId,
+                          String variableId,
+                          String functionId,
                           double value,
                           double functionReference) {
         try {
             jsonGenerator.writeStartObject();
-
-            jsonGenerator.writeFieldName("factorContext");
-            SensitivityFactor.writeJson(jsonGenerator, factorContext.getFunctionType(), factorContext.getFunctionId(), factorContext.getVariableType(),
-                    factorContext.getVariableId(), factorContext.isVariableSet(), factorContext.getContingencyContext());
             jsonGenerator.writeStringField("contingencyId", contingencyId);
+            jsonGenerator.writeStringField("variableId", variableId);
+            jsonGenerator.writeStringField("functionId", functionId);
             jsonGenerator.writeNumberField("value", value);
             jsonGenerator.writeNumberField("functionReference", functionReference);
 

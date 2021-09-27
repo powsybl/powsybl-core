@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ import java.util.Collections;
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
+@Ignore
 public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-analysis";

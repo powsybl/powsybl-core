@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.contingency.ContingencyContext;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.sensitivity.*;
 
@@ -25,13 +24,11 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
 
     @Override
     public CompletableFuture<Void> run(Network network, String workingStateId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
-        SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BUS_VOLTAGE,
-                "dummy",
-                SensitivityVariableType.BUS_TARGET_VOLTAGE,
-                "dummy",
-                false,
-                ContingencyContext.none());
-        valueWriter.write(factor, "dummy", 0, 0.0, 0.0);
+        int[] factorIndex = new int[1];
+        factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
+            valueWriter.write(contingencyContext.getContingencyId(), variableId, functionId, factorIndex[0], 0, 0.0, 0.0);
+            factorIndex[0]++;
+        });
         return CompletableFuture.completedFuture(null);
     }
 

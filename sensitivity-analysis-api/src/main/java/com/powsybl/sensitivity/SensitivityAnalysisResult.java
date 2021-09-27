@@ -17,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.*;
@@ -162,7 +163,7 @@ public class SensitivityAnalysisResult {
                     switch (fieldName) {
                         case "values":
                             jsonParser.nextToken();
-                            context.values = SensitivityValue.parseJson(jsonParser);
+                            context.values = SensitivityValue.parseJsonArray(jsonParser);
                             break;
                         default:
                             break;
@@ -179,6 +180,10 @@ public class SensitivityAnalysisResult {
         LOGGER.info("result read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
 
         return new SensitivityAnalysisResult(context.values);
+    }
+
+    public static SensitivityAnalysisResult readJson(Reader reader) {
+        return JsonUtil.parseJson(reader, SensitivityAnalysisResult::parseJson);
     }
 
     public static void writeJson(Writer writer, SensitivityAnalysisResult result) {

@@ -17,8 +17,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -106,13 +110,17 @@ public class SensitivityFactor {
                 ')';
     }
 
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityFactor factor) {
+        writeJson(jsonGenerator, factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(),
+                factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+    }
+
     static void writeJson(JsonGenerator generator, List<? extends SensitivityFactor> factorList) {
         Objects.requireNonNull(factorList);
         try {
             generator.writeStartArray();
             for (SensitivityFactor factor : factorList) {
-                SensitivityFactor.writeJson(generator, factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(),
-                        factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
+                writeJson(generator, factor);
             }
             generator.writeEndArray();
         } catch (IOException e) {
@@ -124,7 +132,7 @@ public class SensitivityFactor {
         JsonUtil.writeJson(writer, generator -> writeJson(generator, factorList));
     }
 
-    static void writeJson(JsonGenerator jsonGenerator, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
+    public static void writeJson(JsonGenerator jsonGenerator, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
                           String variableId, boolean variableSet, ContingencyContext contingencyContext) {
         try {
             jsonGenerator.writeStartObject();
@@ -146,15 +154,15 @@ public class SensitivityFactor {
     }
 
     static final class ParsingContext {
-        private SensitivityFunctionType functionType;
-        private String functionId;
-        private SensitivityVariableType variableType;
-        private String variableId;
-        private Boolean variableSet;
-        private ContingencyContextType contingencyContextType;
-        private String contingencyId;
+        SensitivityFunctionType functionType;
+        String functionId;
+        SensitivityVariableType variableType;
+        String variableId;
+        Boolean variableSet;
+        ContingencyContextType contingencyContextType;
+        String contingencyId;
 
-        private void reset() {
+        void reset() {
             functionType = null;
             functionId = null;
             variableType = null;
@@ -165,7 +173,7 @@ public class SensitivityFactor {
         }
     }
 
-    public static List<SensitivityFactor> parseMultipleJson(JsonParser parser) {
+    public static List<SensitivityFactor> parseJsonArray(JsonParser parser) {
         Objects.requireNonNull(parser);
 
         var stopwatch = Stopwatch.createStarted();
@@ -198,8 +206,6 @@ public class SensitivityFactor {
     public static SensitivityFactor parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
 
-        var stopwatch = Stopwatch.createStarted();
-
         var context = new ParsingContext();
         try {
             JsonToken token;
@@ -214,14 +220,11 @@ public class SensitivityFactor {
             throw new UncheckedIOException(e);
         }
 
-        stopwatch.stop();
-        LOGGER.info("factor read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
         return new SensitivityFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
                 new ContingencyContext(context.contingencyId, context.contingencyContextType));
     }
 
-    private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
+    static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
         String fieldName = parser.getCurrentName();
         switch (fieldName) {
             case "functionType":
@@ -247,6 +250,18 @@ public class SensitivityFactor {
                 break;
             default:
                 break;
+        }
+    }
+
+    public static List<SensitivityFactor> readJson(Reader reader) {
+        return JsonUtil.parseJson(reader, SensitivityFactor::parseJsonArray);
+    }
+
+    public static List<SensitivityFactor> readJson(Path jsonFile) {
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return SensitivityFactor.readJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
