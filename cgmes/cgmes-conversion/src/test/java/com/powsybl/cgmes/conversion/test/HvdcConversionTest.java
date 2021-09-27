@@ -134,7 +134,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcMissingDCLineSegment() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment(), config);
 
         assertEquals(0, n.getHvdcConverterStationCount());
         assertEquals(0, n.getHvdcLineCount());
@@ -143,7 +143,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcMissingAcDcConverters() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingAcDcConverters(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingAcDcConverters(), config);
 
         assertEquals(0, n.getHvdcConverterStationCount());
         assertEquals(0, n.getHvdcLineCount());
@@ -152,7 +152,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcNanTargetPpcc() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
@@ -171,7 +171,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcTwoDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config();
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoDcLineSegments(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoDcLineSegments(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
@@ -190,7 +190,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegments(), config);
 
         assertEquals(6, n.getHvdcConverterStationCount());
         assertEquals(3, n.getHvdcLineCount());
@@ -215,7 +215,7 @@ public class HvdcConversionTest {
     @Test
     public void smallNodeBrokerHvdcWithTransformers() throws IOException {
         Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
-        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcWithTransformers(), config);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithTransformers(), config);
 
         assertEquals(4, n.getHvdcConverterStationCount());
         assertEquals(2, n.getHvdcLineCount());
