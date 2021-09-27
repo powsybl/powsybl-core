@@ -481,11 +481,11 @@ public final class EquipmentExport {
     private static void writeHvdcLines(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcLine line : network.getHvdcLines()) {
             String dcConverterUnit1 = CgmesExportUtil.getUniqueId();
-            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", line.getConverterStation1().getTerminal().getVoltageLevel().getSubstation().getId(), cimNamespace, writer);
+            writeDCConverterUnit(dcConverterUnit1, line.getNameOrId() + "_1", line.getConverterStation1().getTerminal().getVoltageLevel().getNullableSubstation().getId(), cimNamespace, writer);
             String dcNode1 = CgmesExportUtil.getUniqueId();
             writeDCNode(dcNode1, line.getNameOrId() + "_1", dcConverterUnit1, cimNamespace, writer);
             String dcConverterUnit2 = CgmesExportUtil.getUniqueId();
-            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", line.getConverterStation2().getTerminal().getVoltageLevel().getSubstation().getId(), cimNamespace, writer);
+            writeDCConverterUnit(dcConverterUnit2, line.getNameOrId() + "_1", line.getConverterStation2().getTerminal().getVoltageLevel().getNullableSubstation().getId(), cimNamespace, writer);
             String dcNode2 = CgmesExportUtil.getUniqueId();
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer);
             writeDCTerminal(CgmesExportUtil.getUniqueId(), line.getId(), dcNode1, 1, cimNamespace, writer);
