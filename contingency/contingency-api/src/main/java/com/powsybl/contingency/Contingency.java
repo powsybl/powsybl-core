@@ -304,7 +304,12 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return builder(id).addThreeWindingsTransformer(id).build();
     }
 
-    public static Contingency load(String id) {
-        return builder(id).addLoad(id).build();
+    /**
+     * Creates a new load contingency
+     * @param loadId the id of the Load
+     * @return the new load contingency
+     */
+    public static Contingency load(String loadId) {
+        return builder(loadId).addLoad(loadId).build();
     }
 }
