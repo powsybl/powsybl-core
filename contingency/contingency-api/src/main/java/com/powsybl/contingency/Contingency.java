@@ -121,6 +121,10 @@ public class Contingency extends AbstractExtendable<Contingency> {
                     valid = checkThreeWindingsTransformerContingency(this, (ThreeWindingsTransformerContingency) element, network);
                     break;
 
+                case LOAD:
+                    valid = checkLoadContingency(this, (LoadContingency) element, network);
+                    break;
+
                 default:
                     throw new AssertionError("Unknown contingency element type " + element.getType());
             }
@@ -232,6 +236,14 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkLoadContingency(Contingency contingency, LoadContingency element, Network network) {
+        if (network.getLoad(element.getId()) == null) {
+            LOGGER.warn("Load '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     public static ContingencyBuilder builder(String id) {
         return new ContingencyBuilder(id);
     }
@@ -290,5 +302,9 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     public static Contingency threeWindingsTransformer(String id) {
         return builder(id).addThreeWindingsTransformer(id).build();
+    }
+
+    public static Contingency load(String id) {
+        return builder(id).addLoad(id).build();
     }
 }

@@ -98,4 +98,9 @@ public class ContingencyBuilder {
         elements.add(new ThreeWindingsTransformerContingency(id));
         return this;
     }
+
+    public ContingencyBuilder addLoad(String id) {
+        elements.add(new LoadContingency(id));
+        return this;
+    }
 }
