@@ -1134,6 +1134,69 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLccConverterStationCount();
 
     /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Iterable<Line> getLines();
+
+    /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Stream<Line> getLineStream();
+
+    /**
+     * Get line count connected to this voltage level.
+     *
+     * @return line count connected to this voltage level
+     */
+    int getLineCount();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
+
+    /**
+     * Get two windings transformer count connected to this voltage level.
+     *
+     * @return two windings transformer count connected to this voltage level
+     */
+    int getTwoWindingsTransformerCount();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
+
+    /**
+     * Get three windings transformer count connected to this voltage level.
+     *
+     * @return three windings transformer count connected to this voltage level
+     */
+    int getThreeWindingsTransformerCount();
+
+    /**
      * Remove this voltage level from the network.
      */
     default void remove() {

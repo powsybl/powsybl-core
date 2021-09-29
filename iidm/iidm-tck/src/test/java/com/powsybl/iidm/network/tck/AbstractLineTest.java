@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -75,6 +76,12 @@ public abstract class AbstractLineTest {
         assertEquals(3.5, acLine.getG2(), 0.0);
         assertEquals(4.0, acLine.getB1(), 0.0);
         assertEquals(4.5, acLine.getB2(), 0.0);
+
+        assertEquals(1, Iterables.size(voltageLevelA.getLines()));
+        assertEquals(1, voltageLevelA.getLineStream().count());
+        assertEquals(1, voltageLevelA.getLineCount());
+        assertSame(acLine, voltageLevelA.getLines().iterator().next());
+        assertSame(acLine, voltageLevelA.getLineStream().findFirst().get());
 
         Bus busA = voltageLevelA.getBusBreakerView().getBus("busA");
         Bus busB = voltageLevelB.getBusBreakerView().getBus("busB");
