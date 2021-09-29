@@ -80,7 +80,7 @@ public abstract class AbstractRecordGroup<T> {
      * @param object the object to be evaluated for a specific record group identification
      * @return the specific record group identification for the object
      */
-    protected RecordGroupIdentification getIdentificationFor(T object) {
+    RecordGroupIdentification getIdentificationFor(T object) {
         return this.identification;
     }
 
@@ -96,7 +96,7 @@ public abstract class AbstractRecordGroup<T> {
     }
 
     // Record groups with multiline records
-    protected String[][] getFieldNamesByLine(PsseVersion version, String line0) {
+    String[][] getFieldNamesByLine(PsseVersion version, String line0) {
         throw new PsseException("Multiline records no supported at this level");
     }
 
@@ -106,14 +106,14 @@ public abstract class AbstractRecordGroup<T> {
 
     protected abstract Class<T> psseTypeClass();
 
-    protected RecordGroupIO<T> ioFor(FileFormat fileFormat, PsseVersion.Major version) {
+    RecordGroupIO<T> ioFor(FileFormat fileFormat, PsseVersion.Major version) {
         if (ioFormatVersion.contains(fileFormat, version)) {
             return ioFormatVersion.get(fileFormat, version);
         }
         return ioFor(fileFormat);
     }
 
-    protected RecordGroupIO<T> ioFor(FileFormat fileFormat) {
+    RecordGroupIO<T> ioFor(FileFormat fileFormat) {
         RecordGroupIO<T> r = ioFormat.get(fileFormat);
         if (r == null) {
             throw new PsseException("No reader/writer for file format " + fileFormat);
@@ -121,7 +121,7 @@ public abstract class AbstractRecordGroup<T> {
         return r;
     }
 
-    protected RecordGroupIO<T> ioFor(Context context) {
+    RecordGroupIO<T> ioFor(Context context) {
         if (context.getVersion() == null) {
             return ioFor(context.getFileFormat());
         }
@@ -156,7 +156,7 @@ public abstract class AbstractRecordGroup<T> {
         return parseRecords(Collections.singletonList(record), headers, context).get(0);
     }
 
-    protected List<T> parseRecords(List<String> records, String[] headers, Context context) {
+    List<T> parseRecords(List<String> records, String[] headers, Context context) {
         int expectedCount = records.size();
         BeanListProcessor<T> processor = new BeanListProcessor<>(psseTypeClass(), expectedCount);
         CsvParserSettings settings = context.getCsvParserSettings();
