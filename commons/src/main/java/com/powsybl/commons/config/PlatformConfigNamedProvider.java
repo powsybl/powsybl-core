@@ -146,7 +146,7 @@ public interface PlatformConfigNamedProvider {
                 String moduleName, List<String> propertyNames, Class<T> clazz,
                 PlatformConfig platformConfig) {
             List<T> providers = alwaysSameComputeIfAbsent(PROVIDERS, clazz,
-                k -> Lists.newArrayList(ServiceLoader.load(clazz)));
+                k -> Lists.newArrayList(ServiceLoader.load(clazz, PlatformConfigNamedProvider.class.getClassLoader())));
             return find(name, moduleName, propertyNames, providers, platformConfig, clazz);
         }
 
@@ -190,7 +190,7 @@ public interface PlatformConfigNamedProvider {
                 provider = providers.stream()
                         .filter(p -> p.getPlatformConfigName().equals(finalName)).findFirst()
                         .orElseThrow(() -> new PowsyblException(
-                                clazz.getSimpleName() + finalName + "' not found"));
+                                clazz.getSimpleName() + " '" + finalName + "' not found"));
             }
 
             return provider;

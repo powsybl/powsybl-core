@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,13 +79,13 @@ public class UcteRegulation implements UcteRecord {
     }
 
     @Override
-    public void fix() {
+    public void fix(Reporter reporter) {
         if (phaseRegulation != null) {
-            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId);
+            UcteValidation.checkPhaseRegulation(phaseRegulation, transfoId, reporter);
             if (phaseRegulation.getU() <= 0) {
                 LOGGER.warn("Phase regulation of transformer '{}' has a bad target voltage {}, set to undefined",
                         transfoId, phaseRegulation.getU());
-                phaseRegulation.setU(Float.NaN);
+                phaseRegulation.setU(Double.NaN);
             }
             double nominalVoltage = transfoId.getNodeCode2().getVoltageLevelCode().getVoltageLevel();
             if (nominalVoltage > LOW_NOMINAL_VOLTAGE && (phaseRegulation.getU() < LOW_VOLTAGE_FACTOR * nominalVoltage
@@ -94,17 +95,17 @@ public class UcteRegulation implements UcteRecord {
             }
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (phaseRegulation.getN() == null || phaseRegulation.getN() == 0
-                || phaseRegulation.getNp() == null || Float.isNaN(phaseRegulation.getDu())) {
+                || phaseRegulation.getNp() == null || Double.isNaN(phaseRegulation.getDu())) {
                 LOGGER.warn("Phase regulation of transformer '{}' removed because incomplete", transfoId);
                 phaseRegulation = null;
             }
         }
         if (angleRegulation != null) {
-            UcteValidation.checkAngleRegulation(angleRegulation, transfoId);
+            UcteValidation.checkAngleRegulation(angleRegulation, transfoId, reporter);
             // FIXME: N should be stricly positive and NP in [-n, n]
             if (angleRegulation.getN() == null || angleRegulation.getN() == 0
-                    || angleRegulation.getNp() == null || Float.isNaN(angleRegulation.getDu())
-                    || Float.isNaN(angleRegulation.getTheta())) {
+                    || angleRegulation.getNp() == null || Double.isNaN(angleRegulation.getDu())
+                    || Double.isNaN(angleRegulation.getTheta())) {
                 LOGGER.warn("Angle regulation of transformer '{}' removed because incomplete", transfoId);
                 angleRegulation = null;
             } else {

@@ -14,37 +14,10 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.ComponentConstants;
-import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.LoadingLimits.TemporaryLimit;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
-import com.powsybl.iidm.network.ShuntCompensatorModelType;
-import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.util.ConnectedComponents;
 import com.powsybl.iidm.network.util.SV;
 import org.slf4j.Logger;
@@ -279,7 +252,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(vl.getId())
                         .writeCell(vl.getNameOrId());
                 addExtensions(num, vl);
@@ -299,7 +272,7 @@ public class AmplNetworkWriter {
                         .writeCell(Float.NaN)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl1.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl1.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(vlId)
                         .writeCell("");
                 addExtensions(num, twt);
@@ -321,7 +294,7 @@ public class AmplNetworkWriter {
                         .writeCell(maxV)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
-                        .writeCell(vl.getSubstation().getCountry().map(Enum::toString).orElse(""))
+                        .writeCell(vl.getSubstation().flatMap(Substation::getCountry).map(Enum::toString).orElse(""))
                         .writeCell(dl.getId() + "_voltageLevel")
                         .writeCell("");
                 addExtensions(num, dl);
@@ -490,7 +463,7 @@ public class AmplNetworkWriter {
                 context.busIdsToExport.add(middleBusId);
                 int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
-                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN).otherSide(dl);
+                SV sv = new SV(t.getP(), t.getQ(), b != null ? b.getV() : Double.NaN, b != null ? b.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
                 double nomV = t.getVoltageLevel().getNominalV();
                 double v = sv.getU() / nomV;
                 double theta = Math.toRadians(sv.getA());
@@ -985,7 +958,7 @@ public class AmplNetworkWriter {
             double zb = vb * vb / AmplConstants.SB;
             double p1 = t.getP();
             double q1 = t.getQ();
-            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN).otherSide(dl);
+            SV sv = new SV(p1, q1, bus1 != null ? bus1.getV() : Double.NaN, bus1 != null ? bus1.getAngle() : Double.NaN, Branch.Side.ONE).otherSide(dl, true);
             double p2 = sv.getP();
             double q2 = sv.getQ();
             double patl = getPermanentLimit(dl.getCurrentLimits());

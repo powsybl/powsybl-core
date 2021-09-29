@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.*;
 import java.util.stream.Stream;
@@ -272,8 +273,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private double ratedU0;
 
-    ThreeWindingsTransformerImpl(String id, String name, boolean fictitious, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
-        super(id, name, fictitious);
+    ThreeWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, LegImpl leg1, LegImpl leg2, LegImpl leg3, double ratedU0) {
+        super(network, id, name, fictitious);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
@@ -286,8 +287,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public SubstationImpl getSubstation() {
-        return leg1.getTerminal().getVoltageLevel().getSubstation();
+    public Optional<Substation> getSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getSubstation())
+                .filter(Optional::isPresent)
+                .findFirst()
+                .orElseGet(Optional::empty);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
+        return getLegStream()
+                .map(leg -> leg.getTerminal().getVoltageLevel().getNullableSubstation())
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override

@@ -72,7 +72,7 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNameOnlyIfNickFailsForBlazegraph() {
+    public void testLastNameOnlyIfNickFailsForImplBadNestedGraphs() {
         Expected expected = new Expected()
                 .expect("lastName", null, null, null)
                 .expect("graphLastnames", null, null, null)

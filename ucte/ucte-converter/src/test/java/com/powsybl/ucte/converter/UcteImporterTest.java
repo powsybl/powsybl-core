@@ -47,7 +47,7 @@ public class UcteImporterTest {
     }
 
     @Test
-    public void germanTsosImport() throws Exception {
+    public void germanTsosImport() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("germanTsos", new ResourceSet("/", "germanTsos.uct"));
 
         Network network = new UcteImporter().importData(dataSource, null);
@@ -207,6 +207,43 @@ public class UcteImporterTest {
     public void testInvalidVoltageReference() {
         ResourceDataSource dataSource = new ResourceDataSource("invalidVoltageReference", new ResourceSet("/", "invalidVoltageReference.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
+    }
+
+    @Test
+    public void checkTapPositionsRangeIsExtended() {
+        ResourceDataSource dataSource = new ResourceDataSource("tapPositionsRange", new ResourceSet("/", "tapPositionsRange.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        // Ratio tap with negative tap position higher than initial tap's number
+        assertEquals(-7, network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1").getRatioTapChanger().getLowTapPosition());
+        assertEquals(7, network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1").getRatioTapChanger().getHighTapPosition());
+        // Phase tap with positive tap position higher than initial tap's number
+        assertEquals(-9, network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getLowTapPosition());
+        assertEquals(9, network.getTwoWindingsTransformer("HDDDDD2  HCCCCC1  1").getPhaseTapChanger().getHighTapPosition());
+        // Phase tap with negative tap position equal to initial tap's number
+        assertEquals(-8, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getLowTapPosition());
+        assertEquals(8, network.getTwoWindingsTransformer("ZABCD221 ZEFGH221 1").getPhaseTapChanger().getHighTapPosition());
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeOneClosedLine", new ResourceSet("/", "xnodeOneClosedLine.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertNotNull(network.getDanglingLine("FFFFFF12 XXXXXX11 1"));
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeTwoClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
+        Network network = new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null);
+        assertNotNull(network.getLine("BEBBBB11 XXXXXX11 1 + FFFFFF12 XXXXXX11 1"));
+        assertNotNull(network.getDanglingLine("FFFFFF11 XXXXXX11 1"));
+        assertNotNull(network.getDanglingLine("BEBBBB12 XXXXXX11 1"));
+    }
+
+    @Test
+    public void importOfNetworkWithXnodesConnectedToMoreThanTwoClosedLineMustFail() {
+        ResourceDataSource dataSource = new ResourceDataSource("xnodeThreeClosedLine", new ResourceSet("/", "xnodeTwoClosedLine.uct"));
+        assertThrows(UcteException.class, () -> new UcteImporter().importData(dataSource, new NetworkFactoryImpl(), null));
     }
 }
 

@@ -87,22 +87,22 @@ public abstract class AbstractCurrentLimitsTest {
         l.getTerminal1().setP(100.0).setQ(50.0); // i = 165.51212
         assertFalse(Double.isNaN(l.getTerminal1().getI()));
         assertFalse(l.isOverloaded());
-        assertFalse(l.checkPermanentLimit1());
-        assertNull(l.checkTemporaryLimits1());
+        assertFalse(l.checkPermanentLimit1(LimitType.CURRENT));
+        assertNull(l.checkTemporaryLimits1(LimitType.CURRENT));
 
         l.getTerminal1().setP(800.0).setQ(400.0); // i = 1324.0969
         assertTrue(l.isOverloaded());
         assertEquals(5 * 60L, l.getOverloadDuration());
-        assertTrue(l.checkPermanentLimit1());
-        assertNotNull(l.checkTemporaryLimits1());
-        assertEquals(5 * 60L, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
-        assertEquals(1200.0, l.checkTemporaryLimits1().getPreviousLimit(), 0.0);
+        assertTrue(l.checkPermanentLimit1(LimitType.CURRENT));
+        assertNotNull(l.checkTemporaryLimits1(LimitType.CURRENT));
+        assertEquals(5 * 60L, l.checkTemporaryLimits1(LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1200.0, l.checkTemporaryLimits1(LimitType.CURRENT).getPreviousLimit(), 0.0);
 
         l.getTerminal1().setP(900.0).setQ(500.0); // i = 1524.1499
         assertEquals(60, l.getOverloadDuration());
-        assertNotNull(l.checkTemporaryLimits1());
-        assertEquals(60, l.checkTemporaryLimits1().getTemporaryLimit().getAcceptableDuration());
-        assertEquals(1400.0, l.checkTemporaryLimits1().getPreviousLimit(), 0.0);
+        assertNotNull(l.checkTemporaryLimits1(LimitType.CURRENT));
+        assertEquals(60, l.checkTemporaryLimits1(LimitType.CURRENT).getTemporaryLimit().getAcceptableDuration());
+        assertEquals(1400.0, l.checkTemporaryLimits1(LimitType.CURRENT).getPreviousLimit(), 0.0);
     }
 
     @Test

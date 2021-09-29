@@ -54,7 +54,8 @@ public class ExportAlternativesTest {
         DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
             ExportXmlCompare::sameScenarioTime,
             ExportXmlCompare::ensuringIncreasedModelVersion,
-            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals,
+            ExportXmlCompare::ignoringSimilarPowerFlows);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.smallBusBranch().dataSource(), knownDiffs);
     }
 
@@ -65,7 +66,8 @@ public class ExportAlternativesTest {
             ExportXmlCompare::ensuringIncreasedModelVersion,
             ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
-            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals,
+            ExportXmlCompare::ignoringSimilarPowerFlows);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), knownDiffs);
     }
 
@@ -77,7 +79,8 @@ public class ExportAlternativesTest {
             ExportXmlCompare::ignoringStaticVarCompensatorDiffq,
             ExportXmlCompare::ignoringMissingTopologicalIslandInControl,
             ExportXmlCompare::ignoringSynchronousMachinesSVCsWithTargetDeadband,
-            ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+            ExportXmlCompare::ignoringJunctionOrBusbarTerminals,
+            ExportXmlCompare::ignoringSimilarPowerFlows);
         exportUsingCgmesModelUsingOnlyNetworkAndCompare(CgmesConformity1Catalog.microGridType4BE().dataSource(), knownDiffs);
     }
 
@@ -103,6 +106,7 @@ public class ExportAlternativesTest {
         e.export(network0, ep, tmpUsingCgmes);
         ep.setProperty(CgmesExport.USING_ONLY_NETWORK, "true");
         ep.setProperty(CgmesExport.BASE_NAME, ds.getBaseName());
+        ep.setProperty(CgmesExport.EXPORT_BOUNDARY_POWER_FLOWS, "false");
         network0.removeExtension(CgmesModelExtension.class);
         e.export(network0, ep, tmpUsingOnlyNetwork);
 

@@ -6,12 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
+
+import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class LineImpl extends AbstractBranch<Line> implements Line {
@@ -28,8 +29,8 @@ class LineImpl extends AbstractBranch<Line> implements Line {
 
     private double b2;
 
-    LineImpl(String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
-        super(id, name, fictitious);
+    LineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double r, double x, double g1, double b1, double g2, double b2) {
+        super(network, id, name, fictitious);
         this.r = r;
         this.x = x;
         this.g1 = g1;
@@ -130,6 +131,105 @@ class LineImpl extends AbstractBranch<Line> implements Line {
     @Override
     public boolean isTieLine() {
         return false;
+    }
+
+    @Override
+    public LineImpl move1(int node, VoltageLevel voltageLevel) {
+        move(node, voltageLevel, 1);
+        return this;
+    }
+
+    @Override
+    public LineImpl move2(int node, VoltageLevel voltageLevel) {
+        move(node, voltageLevel, 2);
+        return this;
+    }
+
+    @Override
+    public LineImpl move(int node, VoltageLevel voltageLevel, Side side) {
+        Objects.requireNonNull(side);
+        move(node, voltageLevel, side == Side.ONE ? 1 : 2);
+        return this;
+    }
+
+    private void move(int node, VoltageLevel voltageLevel, int side) {
+        Objects.requireNonNull(voltageLevel);
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(Bus, boolean)," +
+                    " move2(Bus, boolean) or move(Bus, boolean, Side)", id));
+        }
+        TerminalExt oldTerminal = terminals.get(side - 1);
+        String oldConnectionInfo = getConnectionInfo(oldTerminal);
+        move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
+                .setNode(node)
+                .build(), (VoltageLevelExt) voltageLevel);
+        notifyUpdate("terminal" + side, oldConnectionInfo,
+                String.format("node %d, Voltage level %s", node, voltageLevel.getId()));
+    }
+
+    @Override
+    public LineImpl move1(Bus bus, boolean connected) {
+        move(bus, connected, 1);
+        return this;
+    }
+
+    @Override
+    public LineImpl move2(Bus bus, boolean connected) {
+        move(bus, connected, 2);
+        return this;
+    }
+
+    @Override
+    public LineImpl move(Bus bus, boolean connected, Side side) {
+        Objects.requireNonNull(side);
+        move(bus, connected, side == Side.ONE ? 1 : 2);
+        return this;
+    }
+
+    private void move(Bus bus, boolean connected, int side) {
+        Objects.requireNonNull(bus);
+        if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            throw new ValidationException(this, String.format("Inconsistent topology kind for terminals of Line %s. Use move1(int, VoltageLevel)," +
+                    " move2(int, VoltageLevel) or move(int, VoltageLevel, Side)", id));
+        }
+        VoltageLevelExt voltageLevelExt = (VoltageLevelExt) bus.getVoltageLevel();
+        TerminalExt oldTerminal = terminals.get(side - 1);
+        String oldConnectionInfo = getConnectionInfo(oldTerminal);
+        move(side, oldTerminal, new TerminalBuilder(getNetwork().getRef(), this)
+                .setBus(connected ? bus.getId() : null)
+                .setConnectableBus(bus.getId())
+                .build(), voltageLevelExt);
+        notifyUpdate("terminal" + side, oldConnectionInfo,
+                String.format("bus %s, %s", bus.getId(), connected ? "connected" : "disconnected"));
+    }
+
+    private void move(int side, TerminalExt oldTerminal, TerminalExt terminal, VoltageLevelExt voltageLevelExt) {
+        VoltageLevelExt oldVoltageLevelExt = oldTerminal.getVoltageLevel();
+        oldVoltageLevelExt.detach(oldTerminal);
+        terminals.set(side - 1, terminal);
+        terminal.setConnectable(this);
+        voltageLevelExt.attach(terminal, false);
+    }
+
+    private static String getConnectionInfo(Terminal terminal) {
+        int node = -1;
+        String voltageLevelId = null;
+        String busId = null;
+        boolean connected = false;
+        if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
+            node = terminal.getNodeBreakerView().getNode();
+            voltageLevelId = terminal.getVoltageLevel().getId();
+        } else if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+            busId = terminal.getBusBreakerView().getConnectableBus().getId();
+            connected = terminal.getBusBreakerView().getBus() != null;
+        }
+        if (node == -1) {
+            if (busId == null) {
+                throw new PowsyblException("Node and bus of terminal not set. Should not happen");
+            }
+            return "bus " + busId + ", " + (connected ? "connected" : "disconnected");
+        }
+        return "node " + node + ", Voltage level " + voltageLevelId;
     }
 
     @Override

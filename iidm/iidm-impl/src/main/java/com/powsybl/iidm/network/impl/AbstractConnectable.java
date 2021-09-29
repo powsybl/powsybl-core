@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,9 +21,11 @@ import java.util.function.Supplier;
 abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
+    private Ref<NetworkImpl> networkRef;
 
-    AbstractConnectable(String id, String name, boolean fictitious) {
+    AbstractConnectable(Ref<NetworkImpl> ref, String id, String name, boolean fictitious) {
         super(id, name, fictitious);
+        this.networkRef = Objects.requireNonNull(ref);
     }
 
     public I setName(String name) {
@@ -44,17 +46,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public NetworkImpl getNetwork() {
-        if (terminals.isEmpty()) {
-            throw new PowsyblException(id + " is not attached to a network");
-        }
-
-        // During the removal of a multi terminals component (Line, 2WT or 3WT), terminals are detached from the voltage level
-        return terminals.stream()
-                        .map(TerminalExt::getVoltageLevel)
-                        .filter(Objects::nonNull)
-                        .map(VoltageLevelExt::getNetwork)
-                        .findFirst()
-                        .orElse(null);
+        return networkRef.get();
     }
 
     @Override

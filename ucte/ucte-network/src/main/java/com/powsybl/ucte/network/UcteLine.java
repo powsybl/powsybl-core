@@ -6,13 +6,15 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UcteLine extends UcteElement {
 
-    public UcteLine(UcteElementId id, UcteElementStatus status, float resistance, float reactance, float susceptance, Integer currentLimit, String elementName) {
+    public UcteLine(UcteElementId id, UcteElementStatus status, double resistance, double reactance, double susceptance, Integer currentLimit, String elementName) {
         super(id, status, resistance, reactance, susceptance, currentLimit, elementName);
 
         if (id.getNodeCode1().getVoltageLevelCode() != id.getNodeCode2().getVoltageLevelCode()) {
@@ -21,8 +23,8 @@ public class UcteLine extends UcteElement {
     }
 
     @Override
-    public void fix() {
-        UcteValidation.checkValidLineCharacteristics(this);
-        super.fix();
+    public void fix(Reporter reporter) {
+        UcteValidation.checkValidLineCharacteristics(this, reporter);
+        super.fix(reporter);
     }
 }

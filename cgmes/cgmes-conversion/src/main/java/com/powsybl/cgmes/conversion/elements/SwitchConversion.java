@@ -12,15 +12,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SwitchConversion extends AbstractConnectorConversion {
+public class SwitchConversion extends AbstractConductingEquipmentConversion implements EquipmentAtBoundaryConversion {
 
     public SwitchConversion(PropertyBag sw, Context context) {
-        super("Switch", sw, context);
+        super("Switch", sw, context, 2);
     }
 
     @Override
@@ -47,25 +48,26 @@ public class SwitchConversion extends AbstractConnectorConversion {
 
     @Override
     public void convert() {
+        convertToSwitch();
+    }
+
+    @Override
+    public void convertAtBoundary() {
         if (isBoundary(1)) {
             convertSwitchAtBoundary(1);
         } else if (isBoundary(2)) {
             convertSwitchAtBoundary(2);
         } else {
-            convertToSwitch();
+            throw new ConversionException("Boundary must be at one end of the switch");
         }
     }
 
-    private void convertSwitchAtBoundary(int boundarySide) {
-        if (context.config().convertBoundary()) {
-            convertToSwitch();
-        } else {
-            warnDanglingLineCreated();
-            convertToDanglingLine(boundarySide);
-        }
+    @Override
+    public BoundaryLine asBoundaryLine(String node) {
+        return super.createBoundaryLine(node);
     }
 
-    private void convertToSwitch() {
+    private Switch convertToSwitch() {
         boolean normalOpen = p.asBoolean("normalOpen", false);
         boolean open = p.asBoolean("open", normalOpen);
         Switch s;
@@ -73,6 +75,8 @@ public class SwitchConversion extends AbstractConnectorConversion {
             VoltageLevel.NodeBreakerView.SwitchAdder adder = voltageLevel().getNodeBreakerView().newSwitch().setKind(kind());
             identify(adder);
             connect(adder, open);
+            boolean retained = p.asBoolean("retained", false);
+            adder.setRetained(retained);
             s = adder.add();
         } else {
             VoltageLevel.BusBreakerView.SwitchAdder adder = voltageLevel().getBusBreakerView().newSwitch();
@@ -80,7 +84,17 @@ public class SwitchConversion extends AbstractConnectorConversion {
             connect(adder, open);
             s = adder.add();
         }
-        addAliases(s);
+        addAliasesAndProperties(s);
+        return s;
+    }
+
+    private void convertSwitchAtBoundary(int boundarySide) {
+        if (context.config().convertBoundary()) {
+            convertToSwitch().setRetained(true);
+        } else {
+            warnDanglingLineCreated();
+            convertToDanglingLine(boundarySide);
+        }
     }
 
     private SwitchKind kind() {

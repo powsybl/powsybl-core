@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_5" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_2" id="ExampleVersion32" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_6" xmlns:slt="http://www.powsybl.org/schema/iidm/ext/slack_terminal/1_3" id="ExampleVersion32" caseDate="2016-01-01T10:00:00.000+02:00" forecastDistance="0" sourceFormat="PSS/E">
     <iidm:substation id="S3">
         <iidm:voltageLevel id="VL1" nominalV="138.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
@@ -19,6 +19,13 @@
             </iidm:busBreakerTopology>
             <iidm:shunt id="B7-SH 1" sectionCount="1" voltageRegulatorOn="false" bus="B7" connectableBus="B7">
                 <iidm:shuntLinearModel bPerSection="0.05864197530864197" gPerSection="0.0" maximumSectionCount="1"/>
+            </iidm:shunt>
+            <iidm:shunt id="B7-SwSH1" sectionCount="1" voltageRegulatorOn="true" targetV="18.459" targetDeadband="0.9179999999999993" bus="B7" connectableBus="B7">
+                <iidm:shuntNonLinearModel>
+                    <iidm:section b="0.0" g="0.0"/>
+                    <iidm:section b="0.046141975308641975" g="0.0"/>
+                </iidm:shuntNonLinearModel>
+                <iidm:regulatingTerminal id="B7-SH 1"/>
             </iidm:shunt>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="T-2-7-1 " r="0.0" x="1.1405448" g="0.0" b="0.0" ratedU1="138.0" ratedU2="18.0" bus1="B2" connectableBus1="B2" voltageLevelId1="VL2" bus2="B7" connectableBus2="B7" voltageLevelId2="VL7">

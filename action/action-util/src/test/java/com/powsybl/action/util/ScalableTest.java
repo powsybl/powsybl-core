@@ -36,6 +36,8 @@ public class ScalableTest {
     private Scalable s;
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
+    private Scalable unknownDanglingLine;
+    private Scalable dl1;
 
     private ScalingConvention convention;
 
@@ -53,6 +55,8 @@ public class ScalableTest {
         l2 = Scalable.onLoad("l1", 20, 80);
         l3 = Scalable.onLoad("l1", -50, 100);
         unknownLoad = Scalable.onLoad("unknown");
+        unknownDanglingLine = Scalable.onDanglingLine("unknown");
+        dl1 = Scalable.onDanglingLine("dl1", 20, 80);
 
         reset();
     }
@@ -60,7 +64,7 @@ public class ScalableTest {
     private void reset() {
 
         Scalable.stack(g1, g2, g3).reset(network);
-        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad).reset(network);
+        Scalable.stack(l1, l2, s, unknownGenerator, unknownLoad, unknownDanglingLine, dl1).reset(network);
         l3.reset(network);
     }
 
@@ -282,6 +286,18 @@ public class ScalableTest {
     }
 
     @Test
+    public void testConstantPowerFactorScaling() {
+        reset();
+        network.getLoad("l1").setQ0(10);
+        network.getLoad("l1").setP0(100);
+        double done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, l1)).scaleWithConstantPowerFactor(network, 100.0);
+        assertEquals(100.0, done, 1e-5);
+        assertEquals(50.0, network.getLoad("l1").getP0(), 1e-5);
+        assertEquals(5.0, network.getLoad("l1").getQ0(), 1e-5);
+        assertEquals(50.0, network.getGenerator("g1").getTargetP(), 1e-5);
+    }
+
+    @Test
     public void testStackScale() {
         //By default ScalingConvention.GENERATOR
         Scalable scalable = Scalable.stack(g1, g2);
@@ -296,7 +312,7 @@ public class ScalableTest {
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 0.0);
 
-        scalable = Scalable.stack(s, unknownGenerator, unknownLoad);
+        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownDanglingLine);
         done = scalable.scale(network, 150.0);
         assertEquals(0.0, done, 0.0);
 
@@ -340,7 +356,7 @@ public class ScalableTest {
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
         assertEquals(100.0, network.getGenerator("g2").getTargetP(), 0.0);
 
-        scalable = Scalable.stack(s, unknownGenerator, unknownLoad);
+        scalable = Scalable.stack(s, unknownGenerator, unknownLoad, unknownDanglingLine);
         done = scalable.scale(network, -150.0, convention);
         assertEquals(0.0, done, 0.0);
 

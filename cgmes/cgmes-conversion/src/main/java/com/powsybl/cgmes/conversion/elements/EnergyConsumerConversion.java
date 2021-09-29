@@ -34,17 +34,9 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
         identify(adder);
         connect(adder);
         Load load = adder.add();
-        addAliases(load);
+        addAliasesAndProperties(load);
         convertedTerminals(load.getTerminal());
         setLoadDetail(loadKind, load);
-    }
-
-    private double p0() {
-        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", Double.NaN);
-    }
-
-    private double q0() {
-        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", Double.NaN);
     }
 
     private static void setLoadDetail(String type, Load load) {
@@ -64,6 +56,16 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
                     .add();
         }
         // else: EnergyConsumer - undefined
+    }
+
+    @Override
+    protected double p0() {
+        return powerFlow().defined() ? powerFlow().p() : p.asDouble("pFixed", 0.0);
+    }
+
+    @Override
+    protected double q0() {
+        return powerFlow().defined() ? powerFlow().q() : p.asDouble("qFixed", 0.0);
     }
 
     private final String loadKind;

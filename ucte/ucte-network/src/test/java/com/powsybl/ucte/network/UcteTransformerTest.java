@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -26,39 +27,39 @@ public class UcteTransformerTest extends AbstractUcteElementTest {
     @Test
     public void test() {
         UcteElementId id = createElementId();
-        UcteTransformer transformer = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 1.0f, 2.0f, 3.0f, 1000, "Transformer", 4.0f, 5.0f, 6.0f, 7.0f);
+        UcteTransformer transformer = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 1.0, 2.0, 3.0, 1000, "Transformer", 4.0, 5.0, 6.0, 7.0);
 
         // Test the constructor
         assertEquals(id, transformer.getId());
         assertEquals(id.toString(), transformer.toString());
         assertEquals(REAL_ELEMENT_IN_OPERATION, transformer.getStatus());
-        assertEquals(1.0f, transformer.getResistance(), 0.0f);
-        assertEquals(2.0f, transformer.getReactance(), 0.0f);
-        assertEquals(3.0f, transformer.getSusceptance(), 0.0f);
+        assertEquals(1.0, transformer.getResistance(), 0.0);
+        assertEquals(2.0, transformer.getReactance(), 0.0);
+        assertEquals(3.0, transformer.getSusceptance(), 0.0);
         assertEquals(Integer.valueOf(1000), transformer.getCurrentLimit());
 
         // Test getters and setters
         testElement(transformer);
 
-        transformer.setRatedVoltage1(4.1f);
-        assertEquals(4.1f, transformer.getRatedVoltage1(), 0.0f);
-        transformer.setRatedVoltage2(5.1f);
-        assertEquals(5.1f, transformer.getRatedVoltage2(), 0.0f);
-        transformer.setNominalPower(6.1f);
-        assertEquals(6.1f, transformer.getNominalPower(), 0.0f);
-        transformer.setConductance(7.1f);
-        assertEquals(7.1f, transformer.getConductance(), 0.0f);
+        transformer.setRatedVoltage1(4.1);
+        assertEquals(4.1, transformer.getRatedVoltage1(), 0.0);
+        transformer.setRatedVoltage2(5.1);
+        assertEquals(5.1, transformer.getRatedVoltage2(), 0.0);
+        transformer.setNominalPower(6.1);
+        assertEquals(6.1, transformer.getNominalPower(), 0.0);
+        transformer.setConductance(7.1);
+        assertEquals(7.1, transformer.getConductance(), 0.0);
     }
 
     @Test
     public void testFix() {
         UcteElementId id = createElementId();
-        UcteTransformer invalidTransformer1 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0f, 0.0f, 0.0f, -1, null, 0.0f, 0.0f, 0.0f, 0.0f);
-        invalidTransformer1.fix();
-        Assert.assertEquals(0.05f, invalidTransformer1.getReactance(), 0.0f);
+        UcteTransformer invalidTransformer1 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, 0.0, 0.0, -1, null, 0.0, 0.0, 0.0, 0.0);
+        invalidTransformer1.fix(Reporter.NO_OP);
+        Assert.assertEquals(0.05, invalidTransformer1.getReactance(), 0.0);
 
-        UcteTransformer invalidTransformer2 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0f, -0.01f, 0.0f, null, null, 0.0f, 0.0f, 0.0f, 0.0f);
-        invalidTransformer2.fix();
-        Assert.assertEquals(-0.05f, invalidTransformer2.getReactance(), 0.0f);
+        UcteTransformer invalidTransformer2 = new UcteTransformer(id, REAL_ELEMENT_IN_OPERATION, 0.0, -0.01, 0.0, null, null, 0.0, 0.0, 0.0, 0.0);
+        invalidTransformer2.fix(Reporter.NO_OP);
+        Assert.assertEquals(-0.05, invalidTransformer2.getReactance(), 0.0);
     }
 }

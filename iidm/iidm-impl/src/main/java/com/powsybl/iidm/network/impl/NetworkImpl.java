@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.base.Functions;
 import com.google.common.collect.*;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
@@ -20,11 +21,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
@@ -76,10 +77,15 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            Bus bus = index.get(id, Bus.class);
+            if (bus != null) {
+                return bus;
+            }
+            return variants.get().busBreakerViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busBreakerViewCache.invalidate();
         }
     }
 
@@ -104,11 +110,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         @Override
+        public Collection<Component> getSynchronousComponents() {
+            return Collections.unmodifiableList(variants.get().synchronousComponentsManager.getConnectedComponents());
+        }
+
+        @Override
         public Bus getBus(String id) {
-            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
-                    .filter(Objects::nonNull)
-                    .findFirst()
-                    .orElse(null);
+            return variants.get().busViewCache.getBus(id);
+        }
+
+        void invalidateCache() {
+            variants.get().busViewCache.invalidate();
         }
 
     }
@@ -237,6 +249,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public VoltageLevelAdder newVoltageLevel() {
+        return new VoltageLevelAdderImpl(ref);
+    }
+
+    @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
         return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
                 index.getAll(NodeBreakerVoltageLevel.class));
@@ -319,6 +336,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public TwoWindingsTransformerAdderImpl newTwoWindingsTransformer() {
+        return new TwoWindingsTransformerAdderImpl(ref);
+    }
+
+    @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
@@ -336,6 +358,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
         return index.get(id, TwoWindingsTransformerImpl.class);
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdderImpl newThreeWindingsTransformer() {
+        return new ThreeWindingsTransformerAdderImpl(ref);
     }
 
     @Override
@@ -715,6 +742,40 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
     }
 
+    /**
+     * Caching buses by their ID :
+     * the cache is fully builts on first call to {@link BusCache#getBus(String)},
+     * and must be invalidated on any topology change.
+     */
+    private static final class BusCache {
+
+        private final Supplier<Stream<Bus>> busStream;
+        private Map<String, Bus> cache;
+
+        private BusCache(Supplier<Stream<Bus>> busStream) {
+            this.busStream = busStream;
+        }
+
+        private void buildCache() {
+            cache = busStream.get().collect(ImmutableMap.toImmutableMap(Bus::getId, Functions.identity()));
+        }
+
+        synchronized void invalidate() {
+            cache = null;
+        }
+
+        private synchronized Map<String, Bus> getCache() {
+            if (cache == null) {
+                buildCache();
+            }
+            return cache;
+        }
+
+        Bus getBus(String id) {
+            return getCache().get(id);
+        }
+    }
+
     private class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
@@ -722,6 +783,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
         private final SynchronousComponentsManager synchronousComponentsManager
                 = new SynchronousComponentsManager(NetworkImpl.this);
+
+        private final BusCache busViewCache = new BusCache(() -> getVoltageLevelStream().flatMap(vl -> vl.getBusView().getBusStream()));
+
+        //For bus breaker view, we exclude bus breaker topologies from the cache,
+        //because thoses buses are already indexed in the NetworkIndex
+        private final BusCache busBreakerViewCache = new BusCache(() -> getVoltageLevelStream()
+                .filter(vl -> vl.getTopologyKind() != TopologyKind.BUS_BREAKER)
+                .flatMap(vl -> getBusBreakerView().getBusStream()));
 
         @Override
         public VariantImpl copy() {
@@ -917,8 +986,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.q1 = t1.getQ();
             l.p2 = t2.getP();
             l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().getCountry().orElse(null);
-            l.country2 = vl2.getSubstation().getCountry().orElse(null);
+            l.country1 = vl1.getSubstation().flatMap(Substation::getCountry).orElse(null);
+            l.country2 = vl2.getSubstation().flatMap(Substation::getCountry).orElse(null);
             mergeProperties(dl1, dl2, l.properties);
             lines.add(l);
 
@@ -961,24 +1030,24 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .newHalfLine1().setId(mergedLine.half1.id)
-                        .setName(mergedLine.half1.name)
-                        .setR(mergedLine.half1.r)
-                        .setX(mergedLine.half1.x)
-                        .setG1(mergedLine.half1.g1)
-                        .setG2(mergedLine.half1.g2)
-                        .setB1(mergedLine.half1.b1)
-                        .setB2(mergedLine.half1.b2)
-                        .setFictitious(mergedLine.half1.fictitious)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setFictitious(mergedLine.half1.fictitious)
                     .add()
                     .newHalfLine2().setId(mergedLine.half2.id)
-                        .setName(mergedLine.half2.name)
-                        .setR(mergedLine.half2.r)
-                        .setX(mergedLine.half2.x)
-                        .setG1(mergedLine.half2.g1)
-                        .setG2(mergedLine.half2.g2)
-                        .setB1(mergedLine.half2.b1)
-                        .setB2(mergedLine.half2.b2)
-                        .setFictitious(mergedLine.half2.fictitious)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setFictitious(mergedLine.half2.fictitious)
                     .add()
                     .setUcteXnodeCode(mergedLine.xnode);
             if (mergedLine.bus1 != null) {

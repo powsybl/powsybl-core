@@ -26,7 +26,12 @@ class OperationalLimitsHolderImpl implements OperationalLimitsOwner {
 
     @Override
     public void setOperationalLimits(LimitType limitType, OperationalLimits operationalLimits) {
-        OperationalLimits oldValue = this.operationalLimits.put(limitType, operationalLimits);
+        OperationalLimits oldValue;
+        if (operationalLimits == null) {
+            oldValue = this.operationalLimits.remove(limitType);
+        } else {
+            oldValue = this.operationalLimits.put(limitType, operationalLimits);
+        }
         identifiable.getNetwork().getListeners().notifyUpdate(identifiable, attributeName + "_" + limitType, oldValue, operationalLimits);
     }
 

@@ -7,7 +7,6 @@
 package com.powsybl.psse.model.pf;
 
 import com.univocity.parsers.annotations.Parsed;
-import com.univocity.parsers.annotations.Validate;
 
 /**
  *
@@ -16,7 +15,6 @@ import com.univocity.parsers.annotations.Validate;
 public class PsseOwner {
 
     @Parsed(field = {"i", "iowner"})
-    @Validate
     private int i;
 
     @Parsed(field = {"owname", "owner"}, defaultNullRead = "            ")

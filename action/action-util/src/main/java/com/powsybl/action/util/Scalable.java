@@ -150,6 +150,30 @@ public interface Scalable {
     double scale(Network n, double asked, ScalingConvention scalingConvention);
 
     /**
+     * Scale the given network using Generator convention by default.
+     * If the object is a load, scaling is done with constant power factor.
+     * @param n network
+     * @param asked value asked to adjust the scalable active power and reactive power if load
+     * @return the actual value of the scalable active power adjustment
+     */
+    default double scaleWithConstantPowerFactor(Network n, double asked) {
+        return scale(n, asked);
+    }
+
+    /**
+     * Scale the given network.
+     * The actual scaling value may be different to the one asked, if
+     * the Scalable limit is reached. If the Scalable is a load, the power factor is kept constant.
+     * @param n network
+     * @param asked value asked to adjust the scalable active power and reactive power if load
+     * @param scalingConvention power convention used for scaling
+     * @return the actual value of the scalable active power adjustment
+     */
+    default double scaleWithConstantPowerFactor(Network n, double asked, ScalingConvention scalingConvention) {
+        return scale(n, asked, scalingConvention);
+    }
+
+    /**
      * @deprecated gen should be replaced by onGenerator
      */
     @Deprecated
@@ -183,6 +207,36 @@ public interface Scalable {
      */
     static LoadScalable onLoad(String id, double minValue, double maxValue) {
         return new LoadScalable(id, minValue, maxValue);
+    }
+
+    /**
+     * create DanglingLineScalable with id.
+     * The generator scaling convention is used by default.
+     */
+    static DanglingLineScalable onDanglingLine(String id) {
+        return new DanglingLineScalable(id);
+    }
+
+    /**
+     * create DanglingLineScalable with id and the scaling convention that will be used.
+     */
+    static DanglingLineScalable onDanglingLine(String id, ScalingConvention scalingConvention) {
+        return new DanglingLineScalable(id, scalingConvention);
+    }
+
+    /**
+     * create DanglingLineScalable with id, min and max power values for scaling.
+     * The generator scaling convention is used by default.
+     */
+    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue) {
+        return new DanglingLineScalable(id, minValue, maxValue);
+    }
+
+    /**
+     * create DanglingLineScalable with id, min and max power values for scaling and the scaling convention that will be used.
+     */
+    static DanglingLineScalable onDanglingLine(String id, double minValue, double maxValue, ScalingConvention scalingConvention) {
+        return new DanglingLineScalable(id, minValue, maxValue, scalingConvention);
     }
 
     static Scalable scalable(String id) {

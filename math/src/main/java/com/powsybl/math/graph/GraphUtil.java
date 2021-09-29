@@ -105,7 +105,7 @@ public final class GraphUtil {
     }
 
     /**
-     * Remove from the {@param graph} vertices which are not connected to any edge,
+     * Remove from the {@code graph} vertices which are not connected to any edge,
      * and which have no associated object.
      */
     public static <V, E> void removeIsolatedVertices(UndirectedGraph<V, E> graph) {

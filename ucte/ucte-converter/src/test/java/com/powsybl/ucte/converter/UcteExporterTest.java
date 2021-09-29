@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.fail;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -86,17 +85,13 @@ public class UcteExporterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void getFormatTest() {
-        UcteExporter exporter = new UcteExporter();
+    public void testExporter() {
+        var exporter = new UcteExporter();
         assertEquals("UCTE", exporter.getFormat());
         assertNotEquals("IIDM", exporter.getFormat());
-    }
-
-    @Test
-    public void getCommentTest() {
-        UcteExporter exporter = new UcteExporter();
         assertEquals("IIDM to UCTE converter", exporter.getComment());
         assertNotEquals("UCTE to IIDM converter", exporter.getComment());
+        assertEquals(1, exporter.getParameters().size());
     }
 
     @Test
@@ -191,6 +186,18 @@ public class UcteExporterTest extends AbstractConverterTest {
             }
         }
         testExporter(network, "/invalidVoltageReference.uct");
+    }
+
+    @Test
+    public void roundTripOfNetworkWithXnodesConnectedToOneClosedLineMustSucceed() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xnodeOneClosedLine.uct");
+        testExporter(network, "/xnodeOneClosedLine.uct");
+    }
+
+    @Test
+    public void roundTripOfNetworkWithXnodesConnectedToTwoClosedLineMustSucceed() throws IOException {
+        Network network = loadNetworkFromResourceFile("/xnodeTwoClosedLine.uct");
+        testExporter(network, "/xnodeTwoClosedLine.uct");
     }
 
 }

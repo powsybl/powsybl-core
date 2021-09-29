@@ -9,7 +9,6 @@ package com.powsybl.psse.model.io;
 import com.powsybl.psse.model.PsseException;
 import com.univocity.parsers.csv.CsvWriter;
 import com.univocity.parsers.csv.CsvWriterSettings;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,12 +48,8 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         // We store the "actual" field names in the context for potential later use.
         // For parsing records we use all the field names defined for the record group.
 
-        String[] allFieldNames = recordGroup.fieldNames(context.getVersion());
         List<String> records = readRecords(reader);
-        List<T> psseObjects = recordGroup.parseRecords(records, allFieldNames, context);
-        String[] actualFieldNames = ArrayUtils.subarray(allFieldNames, 0, context.getCurrentRecordGroupMaxNumFields());
-        context.setFieldNames(recordGroup.identification, actualFieldNames);
-        return psseObjects;
+        return recordGroup.readFromStrings(records, context);
     }
 
     @Override
@@ -127,6 +122,10 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
         write(String.format("%nQ%n"), outputStream);
     }
 
+    public static void write(List<String> ss, OutputStream outputStream) {
+        ss.forEach(s -> write(String.format("%s%n", s), outputStream));
+    }
+
     public static void write(String s, OutputStream outputStream) {
         try {
             outputStream.write(s.getBytes(StandardCharsets.UTF_8));
@@ -138,11 +137,15 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     protected static List<String> readRecords(BufferedReader reader) throws IOException {
         List<String> records = new ArrayList<>();
         String line = readRecordLine(reader);
-        while (!line.trim().equals("0")) {
+        while (!endOfBlock(line)) {
             records.add(line);
             line = readRecordLine(reader);
         }
         return records;
+    }
+
+    protected static boolean endOfBlock(String line) {
+        return line.trim().equals("0");
     }
 
     // Read a line that contains a record
@@ -168,10 +171,7 @@ public class RecordGroupIOLegacyText<T> implements RecordGroupIO<T> {
     }
 
     private static String removeComment(String line) {
-        int slashIndex = line.indexOf('/');
-        if (slashIndex == -1) {
-            return line;
-        }
-        return line.substring(0, slashIndex);
+        // Only outside quotes
+        return line.replaceAll("('[^']*')|(^/[^/]*)|(/[^/]*)", "$1$2");
     }
 }

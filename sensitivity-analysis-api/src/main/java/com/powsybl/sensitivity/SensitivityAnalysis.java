@@ -10,6 +10,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PlatformConfigNamedProvider;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
@@ -49,14 +50,27 @@ public final class SensitivityAnalysis {
                                                                      SensitivityFactorsProvider factorsProvider,
                                                                      List<Contingency> contingencies,
                                                                      SensitivityAnalysisParameters parameters,
-                                                                     ComputationManager computationManager) {
+                                                                     ComputationManager computationManager,
+                                                                     Reporter reporter) {
             Objects.requireNonNull(network, "Network should not be null");
             Objects.requireNonNull(workingStateId, "Parameters should not be null");
             Objects.requireNonNull(factorsProvider, "Sensitivity factors provider should not be null");
             Objects.requireNonNull(contingencies, "Contingency list should not be null");
             Objects.requireNonNull(parameters, "Sensitivity analysis parameters should not be null");
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
-            return provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager);
+            Objects.requireNonNull(reporter, "Reporter should not be null");
+            return reporter == Reporter.NO_OP
+                ? provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager)
+                : provider.run(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, reporter);
+        }
+
+        public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
+                                                                     String workingStateId,
+                                                                     SensitivityFactorsProvider factorsProvider,
+                                                                     List<Contingency> contingencies,
+                                                                     SensitivityAnalysisParameters parameters,
+                                                                     ComputationManager computationManager) {
+            return runAsync(network, workingStateId, factorsProvider, contingencies, parameters, computationManager, Reporter.NO_OP);
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,

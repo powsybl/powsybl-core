@@ -59,6 +59,9 @@ public class ContingencyJsonTest extends AbstractConverterTest {
                                              .addStaticVarCompensator("SVC")
                                              .addBusbarSection("BBS1")
                                              .addDanglingLine("DL1")
+                                             .addLine("LINE1")
+                                             .addTwoWindingsTransformer("TRANSFO1")
+                                             .addThreeWindingsTransformer("TWT3")
                                              .build();
 
         contingency.addExtension(DummyExtension.class, new DummyExtension());

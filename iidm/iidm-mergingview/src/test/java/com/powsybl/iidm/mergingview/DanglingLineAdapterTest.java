@@ -112,13 +112,15 @@ public class DanglingLineAdapterTest {
     @Test
     public void mergedDanglingLine() {
         mergingView.merge(noEquipNetwork);
-        double p0 = 1.0;
-        double q0 = 1.0;
-        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+        double p10 = -606.2968572845882;
+        double q10 = -305.09371456918353;
+        final DanglingLine dl1 = createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
         assertNotNull(mergingView.getDanglingLine("dl1"));
         assertEquals(1, mergingView.getDanglingLineCount());
         assertEquals(0, mergingView.getLineCount());
-        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busB");
+        double p20 = 598.4418282548444;
+        double q20 = 296.88365650968643;
+        final DanglingLine dl2 = createDanglingLine(mergingView, "vl2", "dl2", "dl2", 1.0, 1.0, 1.0, 1.0, p20, q20, "code", "busB");
         // Check no access to Dl1 & Dl2
         assertEquals(0, mergingView.getDanglingLineCount());
         assertNull(mergingView.getDanglingLine("dl1"));
@@ -210,21 +212,31 @@ public class DanglingLineAdapterTest {
         assertEquals(dl1.getB(), mergedLine.getB1(), 0.0d);
         assertSame(mergedLine, mergedLine.setB2(0.0d));
         assertEquals(dl2.getB(), mergedLine.getB2(), 0.0d);
-        assertEquals(p0, dl1.getP0(), 0.0d);
-        assertEquals(q0, dl1.getQ0(), 0.0d);
-        assertEquals(p0, dl2.getP0(), 0.0d);
-        assertEquals(q0, dl2.getQ0(), 0.0d);
+        assertEquals(p10, dl1.getP0(), 0.0d);
+        assertEquals(q10, dl1.getQ0(), 0.0d);
+        assertEquals(p20, dl2.getP0(), 0.0d);
+        assertEquals(q20, dl2.getQ0(), 0.0d);
 
         assertFalse(mergedLine.isOverloaded());
         assertEquals(Integer.MAX_VALUE, mergedLine.getOverloadDuration());
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE, LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO, LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.ONE));
         assertFalse(mergedLine.checkPermanentLimit(Branch.Side.TWO));
+        assertFalse(mergedLine.checkPermanentLimit1(LimitType.CURRENT));
+        assertFalse(mergedLine.checkPermanentLimit2(LimitType.CURRENT));
         assertFalse(mergedLine.checkPermanentLimit1());
         assertFalse(mergedLine.checkPermanentLimit2());
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO, LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.ONE));
         assertNull(mergedLine.checkTemporaryLimits(Branch.Side.TWO));
+        assertNull(mergedLine.checkTemporaryLimits1(1.0f, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits1(LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits1(1.0f));
         assertNull(mergedLine.checkTemporaryLimits1());
+        assertNull(mergedLine.checkTemporaryLimits2(1.0f, LimitType.CURRENT));
+        assertNull(mergedLine.checkTemporaryLimits2(LimitType.CURRENT));
         assertNull(mergedLine.checkTemporaryLimits2(1.0f));
         assertNull(mergedLine.checkTemporaryLimits2());
         mergedLine.getTerminals().forEach(t -> {
@@ -243,6 +255,14 @@ public class DanglingLineAdapterTest {
         assertNotNull(t2);
         assertEquals(Branch.Side.TWO, mergedLine.getSide(t2));
 
+        // Boundary
+        assertEquals(Branch.Side.ONE, dl1.getBoundary().getSide());
+        assertSame(mergedLine, dl1.getBoundary().getConnectable());
+        assertSame(mergedLine.getTerminal1().getVoltageLevel(), dl1.getBoundary().getVoltageLevel());
+        assertEquals(Branch.Side.TWO, dl2.getBoundary().getSide());
+        assertSame(mergedLine, dl2.getBoundary().getConnectable());
+        assertSame(mergedLine.getTerminal2().getVoltageLevel(), dl2.getBoundary().getVoltageLevel());
+
         // Update P & Q
         t1.setP(p1);
         t1.setQ(q1);
@@ -257,8 +277,8 @@ public class DanglingLineAdapterTest {
         t2.getBusView().getBus().setV(v2).setAngle(angle2);
 
         // Check P & Q are computed by Listener
-        SV expectedSV1 = new SV(p1, q1, v1, angle1).otherSide(dl1);
-        SV expectedSV2 = new SV(p2, q2, v2, angle2).otherSide(dl2);
+        SV expectedSV1 = new SV(p1, q1, v1, angle1, Branch.Side.ONE).otherSide(dl1, true);
+        SV expectedSV2 = new SV(p2, q2, v2, angle2, Branch.Side.ONE).otherSide(dl2, true);
         assertEquals(expectedSV1.getP(), dl1.getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getP(), mergedLine.getHalf1().getBoundary().getP(), 0.0d);
         assertEquals(expectedSV1.getQ(), dl1.getBoundary().getQ(), 0.0d);
@@ -268,14 +288,14 @@ public class DanglingLineAdapterTest {
         assertEquals(expectedSV2.getQ(), dl2.getBoundary().getQ(), 0.0d);
         assertEquals(expectedSV2.getQ(), mergedLine.getHalf2().getBoundary().getQ(), 0.0d);
         // Check V & Angle are computed by Listener
-        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 0.0d);
-        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 0.0d);
-        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 0.0d);
+        assertEquals(expectedSV1.getU(), mergedLine.getHalf1().getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), dl1.getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV1.getA(), mergedLine.getHalf1().getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV1.getU(), dl1.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getU(), dl2.getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getU(), mergedLine.getHalf2().getBoundary().getV(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), dl2.getBoundary().getAngle(), 1.0e-8);
+        assertEquals(expectedSV2.getA(), mergedLine.getHalf2().getBoundary().getAngle(), 1.0e-8);
 
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
@@ -283,14 +303,14 @@ public class DanglingLineAdapterTest {
         // Exceptions when creating dangling lines with mergedline ids
 
         try {
-            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            createDanglingLine(mergingView, "vl1", "dl1", "dl1", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
             fail();
         } catch (PowsyblException e) {
             assertEquals("The network already contains an object 'MergedLine' with the id 'dl1'", e.getMessage());
         }
 
         try {
-            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p0, q0, "code", "busA");
+            createDanglingLine(mergingView, "vl1", "dl1 + dl2", "dl1 + dl2", 1.0, 1.0, 1.0, 1.0, p10, q10, "code", "busA");
             fail();
         } catch (PowsyblException e) {
             assertEquals("The network already contains an object 'MergedLine' with the id 'dl1 + dl2'", e.getMessage());

@@ -20,12 +20,12 @@ SELECT *
         a md:FullModel ;
         md:Model.scenarioTime ?scenarioTime ;
         md:Model.created ?created ;
-        md:Model.description ?description ;
         md:Model.version ?version ;
         md:Model.DependentOn ?DependentOn ;
         md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
         md:Model.profile ?profile .
     FILTER (regex(?profile, "{0}", "i"))
+    OPTIONAL { ?FullModel md:Model.description ?description }
 }}
 
 # query: modelIds
@@ -90,26 +90,26 @@ SELECT *
 }}
 
 # query: boundaryNodes
-# All topological nodes belonging to a graph that has a modelProfile that contains the string "TopologyBoundary"
-# Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation
+# All pairs (Connectiviy Node, Topological Node) from a graph that has a modelProfile EquipmentBoundaryOperation
+# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
 prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
 SELECT *
 {
-{ GRAPH ?graphBDTP {
-    ?FullModel md:Model.profile ?modelProfile .
-    FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
-    ?Node
-        a cim:TopologicalNode ;
-        cim:IdentifiedObject.name ?Name
-}}
-UNION
-{ GRAPH ?graphBDEQ {
+GRAPH ?graphBDEQ {
     ?FullModel md:Model.profile ?modelProfile .
     FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
-    ?Node
+    ?ConnectivityNode
         a cim:ConnectivityNode ;
-        cim:IdentifiedObject.name ?Name
-}}
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+}
+GRAPH ?grapBDTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}
 }
 
 # query: baseVoltages
@@ -334,6 +334,9 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.EquipmentContainer ?EquipmentContainer .
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector cim:LoadBreakSwitch cim:ProtectedSwitch } .
+    OPTIONAL {
+        ?Switch cim:Switch.retained ?retained
+    }
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?Switch ;
@@ -369,6 +372,12 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
         cim:ACDCTerminal.sequenceNumber "2" .
+    OPTIONAL {
+        ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
+        ?Line
+            a cim:Line ;
+            cim:IdentifiedObject.name ?lineName
+    }
 }}
 }
 
@@ -620,7 +629,7 @@ WHERE {
         cim:RegulatingControl.mode ?mode ;
         cim:RegulatingControl.Terminal ?Terminal .
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?RegulatingControl
         cim:RegulatingControl.enabled ?enabled ;
         cim:RegulatingControl.targetValue ?targetValue ;
@@ -642,7 +651,7 @@ WHERE {
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
     OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergyConsumer
         cim:EnergyConsumer.p ?p ;
         cim:EnergyConsumer.q ?q
@@ -658,7 +667,7 @@ WHERE {
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?EnergySource
         cim:EnergySource.activePower ?p ;
         cim:EnergySource.reactivePower ?q
@@ -839,7 +848,7 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-{ GRAPH ?graphSSH  {
+OPTIONAL { GRAPH ?graphSSH  {
     ?StaticVarCompensator
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled
@@ -870,12 +879,16 @@ WHERE {
 { GRAPH ?graph {
     ?ControlArea
         a cim:ControlArea ;
-        cim:IdentifiedObject.name ?name
+        cim:IdentifiedObject.name ?name ;
+        cim:ControlArea.type ?controlAreaType .
+        OPTIONAL { ?ControlArea entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEic }
+    FILTER (regex(STR(?controlAreaType), "Interchange", "i"))
+        
 }}
-{ GRAPH ?graphSSH {
+{ OPTIONAL { GRAPH ?graphSSH {
     ?ControlArea cim:ControlArea.netInterchange ?netInterchange .
     OPTIONAL { ?ControlArea cim:ControlArea.pTolerance ?pTolerance }
-}}
+}}}
 }
 
 # query: acDcConverters
@@ -890,13 +903,13 @@ WHERE {
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
 }}
-{ GRAPH ?graphSSH {
+OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
         cim:ACDCConverter.targetPpcc ?targetPpcc ;
         cim:ACDCConverter.p ?p ;
         cim:ACDCConverter.q ?q .
 }}
-{ GRAPH ?graphSV {
+OPTIONAL { GRAPH ?graphSV {
     ?ACDCConverter cim:ACDCConverter.poleLossP ?poleLossP
 }}
 # For Current Source Converter
@@ -969,6 +982,17 @@ WHERE {
         a cim:DCTerminal ;
         cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
         cim:ACDCTerminal.sequenceNumber "2" .
+}}
+}
+
+# query: tieFlows
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?TieFlow
+        a cim:TieFlow ;
+        cim:TieFlow.Terminal ?terminal ;
+        cim:TieFlow.ControlArea ?ControlArea
 }}
 }
 

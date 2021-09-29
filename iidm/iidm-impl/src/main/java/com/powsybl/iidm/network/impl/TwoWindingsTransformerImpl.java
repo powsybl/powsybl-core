@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  *
@@ -39,10 +40,10 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(String id, String name, boolean fictitious,
-            SubstationImpl substation,
-            double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
-        super(id, name, fictitious);
+    TwoWindingsTransformerImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious,
+                               SubstationImpl substation,
+                               double r, double x, double g, double b, double ratedU1, double ratedU2, double ratedS) {
+        super(network, id, name, fictitious);
         this.substation = substation;
         this.r = r;
         this.x = x;
@@ -59,7 +60,12 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public SubstationImpl getSubstation() {
+    public Optional<Substation> getSubstation() {
+        return Optional.ofNullable(substation);
+    }
+
+    @Override
+    public Substation getNullableSubstation() {
         return substation;
     }
 
@@ -211,11 +217,6 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     @Override
     public boolean hasPhaseTapChanger() {
         return phaseTapChanger != null;
-    }
-
-    @Override
-    public NetworkImpl getNetwork() {
-        return substation.getNetwork();
     }
 
     @Override

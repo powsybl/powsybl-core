@@ -29,9 +29,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     private final TDoubleArrayList q0;
 
-    LoadImpl(Ref<? extends VariantManagerHolder> network,
+    LoadImpl(Ref<NetworkImpl> network,
              String id, String name, boolean fictitious, LoadType loadType, double p0, double q0) {
-        super(id, name, fictitious);
+        super(network, id, name, fictitious);
         this.network = network;
         this.loadType = loadType;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();

@@ -73,7 +73,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             identify(adder);
             connect(adder);
             VscConverterStation c = adder.add();
-            addAliases(c);
+            addAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
         } else if (converterType.equals(HvdcType.LCC)) {
@@ -88,7 +88,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
-            addAliases(c);
+            addAliasesAndProperties(c);
 
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());
@@ -100,10 +100,12 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     }
 
     private static VscRegulation decodeVscRegulation(String qPccControl) {
-        if (qPccControl.endsWith("voltagePcc")) {
-            return VscRegulation.VOLTAGE;
-        } else if (qPccControl.endsWith("reactivePcc")) {
-            return VscRegulation.REACTIVE_POWER;
+        if (qPccControl != null) {
+            if (qPccControl.endsWith("voltagePcc")) {
+                return VscRegulation.VOLTAGE;
+            } else if (qPccControl.endsWith("reactivePcc")) {
+                return VscRegulation.REACTIVE_POWER;
+            }
         }
         return null;
     }

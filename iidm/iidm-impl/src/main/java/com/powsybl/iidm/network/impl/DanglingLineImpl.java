@@ -10,6 +10,7 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.impl.util.Ref;
+import com.powsybl.iidm.network.util.DanglingLineBoundaryImpl;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Collection;
@@ -243,8 +244,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final DanglingLineBoundaryImpl boundary;
 
-    DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
-        super(id, name, fictitious);
+    DanglingLineImpl(Ref<NetworkImpl> network, String id, String name, boolean fictitious, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode, GenerationImpl generation) {
+        super(network, id, name, fictitious);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.p0 = new TDoubleArrayList(variantArraySize);

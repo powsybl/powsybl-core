@@ -52,7 +52,7 @@ public class CgmesImport implements Importer {
         // Boundary location parameter can not be static
         // because we want its default value
         // to depend on the received platformConfig
-        this.boundaryLocationParameter = new Parameter(
+        boundaryLocationParameter = new Parameter(
                 BOUNDARY_LOCATION,
                 ParameterType.STRING,
                 "The location of boundary files",
@@ -164,12 +164,6 @@ public class CgmesImport implements Importer {
                                 p,
                                 CONVERT_BOUNDARY_PARAMETER,
                                 defaultValueConfig))
-                .setMergeBoundariesUsingTieLines(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                MERGE_BOUNDARIES_USING_TIE_LINES_PARAMETER,
-                                defaultValueConfig))
                 .setConvertSvInjections(
                         ConversionParameters.readBooleanParameter(
                                 getFormat(),
@@ -206,6 +200,13 @@ public class CgmesImport implements Importer {
                                 p,
                                 ENSURE_ID_ALIAS_UNICITY_PARAMETER,
                                 defaultValueConfig
+                        ))
+                .setCreateCgmesExportMapping(
+                        ConversionParameters.readBooleanParameter(
+                                getFormat(),
+                                p,
+                                CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
+                                defaultValueConfig
                         )
                 );
     }
@@ -240,10 +241,11 @@ public class CgmesImport implements Importer {
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
     public static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
     public static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
-    public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
-    public static final String MERGE_BOUNDARIES_USING_TIE_LINES = "iidm.import.cgmes.merge-boundaries-using-tie-lines";
     public static final String CONVERT_SV_INJECTIONS = "iidm.import.cgmes.convert-sv-injections";
     public static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
+    public static final String CREATE_CGMES_EXPORT_MAPPING = "iidm.import.cgmes.create-cgmes-export-mapping";
+    public static final String ENSURE_ID_ALIAS_UNICITY = "iidm.import.cgmes.ensure-id-alias-unicity";
+    public static final String IMPORT_CONTROL_AREAS = "iidm.import.cgmes.import-control-areas";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
     public static final String PROFILE_USED_FOR_INITIAL_STATE_VALUES = "iidm.import.cgmes.profile-used-for-initial-state-values";
@@ -267,16 +269,6 @@ public class CgmesImport implements Importer {
             "Convert boundary during import",
             Boolean.FALSE)
             .addAdditionalNames("convertBoundary");
-    private static final Parameter ENSURE_ID_ALIAS_UNICITY_PARAMETER = new Parameter(
-            ENSURE_ID_ALIAS_UNICITY,
-            ParameterType.BOOLEAN,
-            "Ensure IDs and aliases are unique",
-            Boolean.FALSE);
-    private static final Parameter MERGE_BOUNDARIES_USING_TIE_LINES_PARAMETER = new Parameter(
-            MERGE_BOUNDARIES_USING_TIE_LINES,
-            ParameterType.BOOLEAN,
-            "Merge equipment at boundary using Tie Lines",
-            Boolean.TRUE);
     private static final Parameter CONVERT_SV_INJECTIONS_PARAMETER = new Parameter(
             CONVERT_SV_INJECTIONS,
             ParameterType.BOOLEAN,
@@ -288,6 +280,21 @@ public class CgmesImport implements Importer {
             "Create busbar section for every connectivity node",
             Boolean.FALSE)
             .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
+    private static final Parameter CREATE_CGMES_EXPORT_MAPPING_PARAMETER = new Parameter(
+            CREATE_CGMES_EXPORT_MAPPING,
+            ParameterType.BOOLEAN,
+            "Create CGMES context for export",
+            Boolean.FALSE);
+    private static final Parameter ENSURE_ID_ALIAS_UNICITY_PARAMETER = new Parameter(
+            ENSURE_ID_ALIAS_UNICITY,
+            ParameterType.BOOLEAN,
+            "Ensure IDs and aliases are unique",
+            Boolean.FALSE);
+    private static final Parameter IMPORT_CONTROL_AREAS_PARAMETER = new Parameter(
+            IMPORT_CONTROL_AREAS,
+            ParameterType.BOOLEAN,
+            "Import control areas",
+            Boolean.TRUE);
     private static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(
             POST_PROCESSORS,
             ParameterType.STRING_LIST,
@@ -321,8 +328,10 @@ public class CgmesImport implements Importer {
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CONVERT_SV_INJECTIONS_PARAMETER,
+            CREATE_CGMES_EXPORT_MAPPING_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             ENSURE_ID_ALIAS_UNICITY_PARAMETER,
+            IMPORT_CONTROL_AREAS_PARAMETER,
             POST_PROCESSORS_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION_PARAMETER,

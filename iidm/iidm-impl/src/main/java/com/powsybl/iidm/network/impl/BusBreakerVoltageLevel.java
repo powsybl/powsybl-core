@@ -12,6 +12,7 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
@@ -31,6 +32,7 @@ import java.nio.file.Path;
 import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -110,7 +112,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer v = buses.get(busId);
         if (throwException && v == null) {
             throw new PowsyblException("Bus " + busId
-                    + " not found in substation voltage level "
+                    + " not found in voltage level "
                     + BusBreakerVoltageLevel.this.id);
         }
         return v;
@@ -133,7 +135,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer e = switches.get(switchId);
         if (throwException && e == null) {
             throw new PowsyblException("Switch " + switchId
-                    + " not found in substation voltage level"
+                    + " not found in voltage level"
                     + BusBreakerVoltageLevel.this.id);
         }
         return e;
@@ -244,7 +246,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     graph.traverse(v, (v1, e, v2) -> {
                         SwitchImpl aSwitch = graph.getEdgeObject(e);
                         if (aSwitch.isOpen()) {
-                            return TraverseResult.TERMINATE;
+                            return TraverseResult.TERMINATE_PATH;
                         } else {
                             busSet.add(graph.getVertexObject(v2));
                             return TraverseResult.CONTINUE;
@@ -281,7 +283,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             MergedBus bus = variants.get().cache.getMergedBus(mergedBusId);
             if (throwException && bus == null) {
                 throw new PowsyblException("Bus " + mergedBusId
-                        + " not found in substation voltage level "
+                        + " not found in voltage level "
                         + BusBreakerVoltageLevel.this.id);
             }
             return bus;
@@ -313,10 +315,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     protected final VariantArray<VariantImpl> variants;
 
-    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation,
+    BusBreakerVoltageLevel(String id, String name, boolean fictitious, SubstationImpl substation, Ref<NetworkImpl> ref,
                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
-        super(id, name, fictitious, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
+        super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
+        variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(this::invalidateCache);
     }
@@ -324,6 +326,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void invalidateCache() {
         calculatedBusTopology.invalidateCache();
+        getNetwork().getBusView().invalidateCache();
+        getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
         getNetwork().getSynchronousComponentsManager().invalidate();
     }
@@ -367,6 +371,26 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Terminal getTerminal(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public Stream<Switch> getSwitchStream(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public List<Switch> getSwitches(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public IntStream getNodeInternalConnectedToStream(int node) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public List<Integer> getNodesInternalConnectedTo(int node) {
             throw createNotSupportedBusBreakerTopologyException();
         }
 
@@ -482,6 +506,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public void traverse(int node, Traverser traverser) {
+            throw createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void traverse(int[] node, Traverser traverser) {
             throw createNotSupportedBusBreakerTopologyException();
         }
     };
@@ -685,7 +714,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         Integer e = switches.remove(switchId);
         if (e == null) {
             throw new PowsyblException("Switch '" + switchId
-                    + "' not found in substation voltage level '" + id + "'");
+                    + "' not found in voltage level '" + id + "'");
         }
         SwitchImpl aSwitch = graph.removeEdge(e);
         getNetwork().getIndex().remove(aSwitch);
@@ -777,7 +806,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public boolean disconnect(TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
-        // already connected?
+        // already disconnected?
         if (!terminal.isConnected()) {
             return false;
         }
@@ -819,7 +848,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     .filter(t -> traverser.traverse(t, t.isConnected()))
                     .forEach(t -> addNextTerminals(t, nextTerminals));
 
-            // then go through other buses of the substation
+            // then go through other buses of the voltage level
             graph.traverse(v, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 ConfiguredBus otherBus = graph.getVertexObject(v2);
@@ -836,7 +865,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         return TraverseResult.CONTINUE;
                     }
                 }
-                return TraverseResult.TERMINATE;
+                return TraverseResult.TERMINATE_PATH;
             });
 
             nextTerminals.forEach(t -> t.traverse(traverser, traversedTerminals));
@@ -965,7 +994,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             ConfiguredBus bus2 = graph.getVertexObject(v2);
             // Assign an id to the edge to allow parallel edges (multigraph)
             GraphVizEdge edge = gvGraph.edge(scope, bus1.getId(), bus2.getId(), sw.getId())
-                    .style(sw.isOpen() ? "solid" : "dotted");
+                    .style(sw.isOpen() ? "dotted" : "solid");
             if (DRAW_SWITCH_ID) {
                 String label = sw.getKind().toString()
                     + System.lineSeparator() + sw.getId()

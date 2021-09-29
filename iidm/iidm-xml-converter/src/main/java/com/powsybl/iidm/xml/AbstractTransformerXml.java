@@ -19,7 +19,7 @@ import java.util.function.DoubleConsumer;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Substation> {
+abstract class AbstractTransformerXml<T extends Connectable, A extends IdentifiableAdder<A>> extends AbstractConnectableXml<T, A, Container<? extends Identifiable<?>>> {
 
     private interface StepConsumer {
         void accept(double r, double x, double g, double b, double rho);

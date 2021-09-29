@@ -6,6 +6,7 @@
  */
 package com.powsybl.ucte.network;
 
+import com.powsybl.commons.reporter.Reporter;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -25,8 +26,8 @@ public class UcteRegulationTest {
     public void test() {
         UcteElementId id = createElementId();
 
-        UctePhaseRegulation phaseRegulation = new UctePhaseRegulation(1.0f, 2, 3, 4.0f);
-        UcteAngleRegulation angleRegulation = new UcteAngleRegulation(1.0f, 2.0f, 3, 4, 5.0f, UcteAngleRegulationType.ASYM);
+        UctePhaseRegulation phaseRegulation = new UctePhaseRegulation(1.0, 2, 3, 4.0);
+        UcteAngleRegulation angleRegulation = new UcteAngleRegulation(1.0, 2.0, 3, 4, 5.0, UcteAngleRegulationType.ASYM);
 
         UcteRegulation regulation = new UcteRegulation(id, phaseRegulation, angleRegulation);
         assertEquals(id, regulation.getTransfoId());
@@ -45,32 +46,32 @@ public class UcteRegulationTest {
         UcteElementId id = createElementId();
         UcteRegulation regulation = new UcteRegulation(id, null, null);
 
-        UctePhaseRegulation invalidPhaseRegulation1 = new UctePhaseRegulation(0.0f, 1, 1, -10);
-        UctePhaseRegulation invalidPhaseRegulation2 = new UctePhaseRegulation(Float.NaN, null, null, Float.NaN);
-        UctePhaseRegulation invalidPhaseRegulation3 = new UctePhaseRegulation(Float.NaN, 0, null, Float.NaN);
-        UctePhaseRegulation invalidPhaseRegulation4 = new UctePhaseRegulation(Float.NaN, 1, null, Float.NaN);
-        UctePhaseRegulation invalidPhaseRegulation5 = new UctePhaseRegulation(Float.NaN, 1, 0, Float.NaN);
+        UctePhaseRegulation invalidPhaseRegulation1 = new UctePhaseRegulation(0.0, 1, 1, -10);
+        UctePhaseRegulation invalidPhaseRegulation2 = new UctePhaseRegulation(Double.NaN, null, null, Double.NaN);
+        UctePhaseRegulation invalidPhaseRegulation3 = new UctePhaseRegulation(Double.NaN, 0, null, Double.NaN);
+        UctePhaseRegulation invalidPhaseRegulation4 = new UctePhaseRegulation(Double.NaN, 1, null, Double.NaN);
+        UctePhaseRegulation invalidPhaseRegulation5 = new UctePhaseRegulation(Double.NaN, 1, 0, Double.NaN);
 
         regulation.setPhaseRegulation(invalidPhaseRegulation1);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNotNull(regulation.getPhaseRegulation());
-        assertTrue(Float.isNaN(invalidPhaseRegulation1.getU()));
+        assertTrue(Double.isNaN(invalidPhaseRegulation1.getU()));
 
         testFix(regulation, invalidPhaseRegulation2);
         testFix(regulation, invalidPhaseRegulation3);
         testFix(regulation, invalidPhaseRegulation4);
         testFix(regulation, invalidPhaseRegulation5);
 
-        UcteAngleRegulation invalidAngleRegulation1 = new UcteAngleRegulation(0.0f, 0.0f, 1, 1, 0.0f, null);
-        UcteAngleRegulation invalidAngleRegulation2 = new UcteAngleRegulation(Float.NaN, Float.NaN, null, null, Float.NaN, null);
-        UcteAngleRegulation invalidAngleRegulation3 = new UcteAngleRegulation(Float.NaN, Float.NaN, 0, null, Float.NaN, null);
-        UcteAngleRegulation invalidAngleRegulation4 = new UcteAngleRegulation(Float.NaN, Float.NaN, 1, null, Float.NaN, null);
-        UcteAngleRegulation invalidAngleRegulation5 = new UcteAngleRegulation(Float.NaN, Float.NaN, 1, 0, Float.NaN, null);
-        UcteAngleRegulation invalidAngleRegulation6 = new UcteAngleRegulation(Float.NaN, Float.NaN, 1, 0, Float.NaN, null);
-        UcteAngleRegulation invalidAngleRegulation7 = new UcteAngleRegulation(0.0f, Float.NaN, 1, 0, Float.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation1 = new UcteAngleRegulation(0.0, 0.0, 1, 1, 0.0, null);
+        UcteAngleRegulation invalidAngleRegulation2 = new UcteAngleRegulation(Double.NaN, Double.NaN, null, null, Double.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation3 = new UcteAngleRegulation(Double.NaN, Double.NaN, 0, null, Double.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation4 = new UcteAngleRegulation(Double.NaN, Double.NaN, 1, null, Double.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation5 = new UcteAngleRegulation(Double.NaN, Double.NaN, 1, 0, Double.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation6 = new UcteAngleRegulation(Double.NaN, Double.NaN, 1, 0, Double.NaN, null);
+        UcteAngleRegulation invalidAngleRegulation7 = new UcteAngleRegulation(0.0, Double.NaN, 1, 0, Double.NaN, null);
 
         regulation.setAngleRegulation(invalidAngleRegulation1);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNotNull(regulation.getAngleRegulation());
         assertEquals(UcteAngleRegulationType.ASYM, invalidAngleRegulation1.getType());
 
@@ -84,13 +85,13 @@ public class UcteRegulationTest {
 
     private void testFix(UcteRegulation regulation, UctePhaseRegulation phaseRegulation) {
         regulation.setPhaseRegulation(phaseRegulation);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNull(regulation.getPhaseRegulation());
     }
 
     private void testFix(UcteRegulation regulation, UcteAngleRegulation angleRegulation) {
         regulation.setAngleRegulation(angleRegulation);
-        regulation.fix();
+        regulation.fix(Reporter.NO_OP);
         assertNull(regulation.getAngleRegulation());
     }
 }

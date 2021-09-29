@@ -8,6 +8,7 @@ package com.powsybl.ucte.network.ext;
 
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.ucte.network.*;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.connectivity.ConnectivityInspector;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -26,13 +28,13 @@ public class UcteNetworkExt implements UcteNetwork {
 
     private final UcteNetwork network;
 
-    private final float lineMinZ;
+    private final double lineMinZ;
 
     private List<UcteSubstation> substations;
 
     private Map<UcteNodeCode, UcteVoltageLevel> node2voltageLevel;
 
-    public UcteNetworkExt(UcteNetwork network, float lineMinZ) {
+    public UcteNetworkExt(UcteNetwork network, double lineMinZ) {
         this.network = Objects.requireNonNull(network);
         this.lineMinZ = lineMinZ;
     }
@@ -214,12 +216,11 @@ public class UcteNetworkExt implements UcteNetwork {
             node2voltageLevel = new TreeMap<>();
             Graph<UcteNodeCode, Object> graph = createSubstationGraph(network);
             for (Set<UcteNodeCode> substationNodes : new ConnectivityInspector<>(graph).connectedSets()) {
-                UcteNodeCode mainNode = substationNodes.stream()
-                        .min(UcteNetworkExt::compareUcteNodeCode)
-                        .orElseThrow(AssertionError::new);
+                List<UcteNodeCode> sortedNodes = substationNodes.stream().sorted(UcteNetworkExt::compareUcteNodeCode).collect(Collectors.toList());
+                UcteNodeCode mainNode = sortedNodes.stream().findFirst().orElseThrow(AssertionError::new);
 
                 Multimap<UcteVoltageLevelCode, UcteNodeCode> nodesByVoltageLevel
-                        = Multimaps.index(substationNodes, UcteNodeCode::getVoltageLevelCode);
+                        = Multimaps.index(sortedNodes, UcteNodeCode::getVoltageLevelCode);
 
                 String substationName = mainNode.getUcteCountryCode().getUcteCode() + mainNode.getGeographicalSpot();
                 List<UcteVoltageLevel> voltageLevels = new ArrayList<>();
@@ -253,8 +254,8 @@ public class UcteNetworkExt implements UcteNetwork {
     }
 
     @Override
-    public void fix() {
-        network.fix();
+    public void fix(Reporter reporter) {
+        network.fix(reporter);
     }
 
 }
