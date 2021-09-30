@@ -27,11 +27,11 @@ public enum FileFormat {
         this.defaultDelimiter = defaultDelimiter;
     }
 
-    public char getQuote() {
+    char getQuote() {
         return quote;
     }
 
-    public char getDefaultDelimiter() {
+    char getDefaultDelimiter() {
         return defaultDelimiter;
     }
 
