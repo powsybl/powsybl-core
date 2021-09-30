@@ -6,13 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.ValidationException;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -40,6 +40,40 @@ class NodeTerminal extends AbstractTerminal {
         public int getNode() {
             return node;
         }
+
+        @Override
+        public void moveConnectable(int node, VoltageLevel voltageLevel, Branch.Side side) {
+            Objects.requireNonNull(voltageLevel);
+            Objects.requireNonNull(side);
+
+            AbstractConnectable<?> connectable = getConnectable();
+
+            // check bus topology
+            if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+                String msg = String.format(
+                        "Trying to move connectable %s to node %d of voltage level %s, which is not in node breaker topology",
+                        connectable.getId(), node, voltageLevel.getId());
+                throw new PowsyblException(msg);
+            }
+
+            // retain info before detaching/overwriting
+            String oldConnectionInfo = "node " + getNode() + ", Voltage level " + getVoltageLevel().getId();
+
+            // detach the terminal from its previous voltage level
+            getVoltageLevel().detach(NodeTerminal.this);
+
+            // create the new terminal and attach it to the given voltage level and to the connectable
+            TerminalExt terminalExt = new TerminalBuilder(connectable.getNetwork().getRef(), connectable)
+                    .setNode(node)
+                    .build();
+            int iSide = side == Branch.Side.ONE ? 1 : 2;
+            connectable.getTerminals().set(iSide - 1, terminalExt);
+            terminalExt.setConnectable(connectable);
+            ((VoltageLevelExt) voltageLevel).attach(terminalExt, false);
+
+            connectable.notifyUpdate("terminal" + iSide, oldConnectionInfo,
+                    String.format("node %d, Voltage level %s", node, voltageLevel.getId()));
+        }
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
@@ -56,6 +90,11 @@ class NodeTerminal extends AbstractTerminal {
 
         @Override
         public void setConnectableBus(String busId) {
+            throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
+        }
+
+        @Override
+        public void moveConnectable(Bus bus, boolean connected, Branch.Side side) {
             throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
         }
 

@@ -168,22 +168,22 @@ public abstract class AbstractLineTest {
                 .setLowVoltageLimit(380.0)
                 .setHighVoltageLimit(420.0)
                 .add();
-        assertNotNull(line.move1(0, vlNb));
+        line.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb, Branch.Side.ONE);
         assertEquals(0, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal1().getVoltageLevel());
         try {
-            line.move1(0, voltageLevelA);
+            line.getTerminal1().getNodeBreakerView().moveConnectable(0, voltageLevelA, Branch.Side.ONE);
             fail();
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line line. " +
                     "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side)"));
         }
 
-        assertNotNull(line.move1(busC, true));
+        line.getTerminal1().getBusBreakerView().moveConnectable(busC, true, Branch.Side.ONE);
         assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
 
-        assertNotNull(line.move(network.getBusBreakerView().getBus("busA"), false, Branch.Side.ONE));
+        line.getTerminal1().getBusBreakerView().moveConnectable(network.getBusBreakerView().getBus("busA"), false, Branch.Side.ONE);
         assertSame(network.getBusBreakerView().getBus("busA"), line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertNull(line.getTerminal1().getBusBreakerView().getBus());
     }
@@ -202,7 +202,7 @@ public abstract class AbstractLineTest {
                 .setHighVoltageLimit(420.0)
                 .add();
         Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
-        assertNotNull(line.move1(bus, true));
+        line.getTerminal1().getBusBreakerView().moveConnectable(bus, true, Branch.Side.ONE);
         assertSame(bus, line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertSame(bus, line.getTerminal1().getBusBreakerView().getBus());
 
@@ -211,18 +211,18 @@ public abstract class AbstractLineTest {
         Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
         Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
         try {
-            line.move1(mockBus, true);
+            line.getTerminal1().getBusBreakerView().moveConnectable(mockBus, true, Branch.Side.ONE);
             fail();
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line CJ. " +
                     "Use move1(int, VoltageLevel), move2(int, VoltageLevel) or move(int, VoltageLevel, Side)"));
         }
 
-        assertNotNull(line.move1(6, fictitiousSwitchNetwork.getVoltageLevel("C")));
+        line.getTerminal1().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("C"), Branch.Side.ONE);
         assertEquals(6, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
 
-        assertNotNull(line.move(4, fictitiousSwitchNetwork.getVoltageLevel("C"), Branch.Side.ONE));
+        line.getTerminal1().getNodeBreakerView().moveConnectable(4, fictitiousSwitchNetwork.getVoltageLevel("C"), Branch.Side.ONE);
         assertEquals(4, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
     }
@@ -240,20 +240,20 @@ public abstract class AbstractLineTest {
                 .setLowVoltageLimit(380.0)
                 .setHighVoltageLimit(420.0)
                 .add();
-        assertNotNull(line.move2(0, vlNb));
+        line.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb, Branch.Side.TWO);
         assertEquals(0, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal2().getVoltageLevel());
         try {
-            line.move2(0, voltageLevelB);
+            line.getTerminal2().getNodeBreakerView().moveConnectable(0, voltageLevelB, Branch.Side.TWO);
             fail();
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line line. " +
                     "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side)"));
         }
-        assertNotNull(line.move2(busC, true));
+        line.getTerminal2().getBusBreakerView().moveConnectable(busC, true, Branch.Side.TWO);
         assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
-        assertNotNull(line.move(network.getBusBreakerView().getBus("busB"), false, Branch.Side.TWO));
+        line.getTerminal2().getBusBreakerView().moveConnectable(network.getBusBreakerView().getBus("busB"), false, Branch.Side.TWO);
         assertSame(network.getBusBreakerView().getBus("busB"), line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertNull(line.getTerminal2().getBusBreakerView().getBus());
     }
@@ -271,7 +271,7 @@ public abstract class AbstractLineTest {
                 .setHighVoltageLimit(420.0)
                 .add();
         Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
-        assertNotNull(line.move2(bus, true));
+        line.getTerminal2().getBusBreakerView().moveConnectable(bus, true, Branch.Side.TWO);
         assertSame(bus, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(bus, line.getTerminal2().getBusBreakerView().getBus());
         Bus mockBus = Mockito.mock(Bus.class);
@@ -279,16 +279,16 @@ public abstract class AbstractLineTest {
         Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
         Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
         try {
-            line.move2(mockBus, true);
+            line.getTerminal2().getBusBreakerView().moveConnectable(mockBus, true, Branch.Side.TWO);
             fail();
         } catch (RuntimeException e) {
             assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line CJ. " +
                     "Use move1(int, VoltageLevel), move2(int, VoltageLevel) or move(int, VoltageLevel, Side)"));
         }
-        assertNotNull(line.move2(6, fictitiousSwitchNetwork.getVoltageLevel("N")));
+        line.getTerminal2().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("N"), Branch.Side.TWO);
         assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
-        assertNotNull(line.move(5, fictitiousSwitchNetwork.getVoltageLevel("N"), Branch.Side.TWO));
+        line.getTerminal2().getNodeBreakerView().moveConnectable(5, fictitiousSwitchNetwork.getVoltageLevel("N"), Branch.Side.TWO);
         assertEquals(5, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
     }
