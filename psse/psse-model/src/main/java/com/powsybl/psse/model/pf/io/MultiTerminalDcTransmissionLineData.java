@@ -48,7 +48,7 @@ class MultiTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseMultiT
     }
 
     @Override
-    public Class<PsseMultiTerminalDcTransmissionLine> psseTypeClass() {
+    protected Class<PsseMultiTerminalDcTransmissionLine> psseTypeClass() {
         return PsseMultiTerminalDcTransmissionLine.class;
     }
 
