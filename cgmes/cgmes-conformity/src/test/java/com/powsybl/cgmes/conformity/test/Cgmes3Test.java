@@ -24,7 +24,7 @@ public class Cgmes3Test {
 
     @Test
     public void microGridWithoutTp() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.microGridWithoutTp()).test();
+        new CgmesModelTester(Cgmes3Catalog.microGridWithoutTpSv()).test();
     }
 
     @Test
@@ -34,7 +34,7 @@ public class Cgmes3Test {
 
     @Test
     public void miniGridWithoutTp() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.miniGridWithoutTp()).test();
+        new CgmesModelTester(Cgmes3Catalog.miniGridWithoutTpSv()).test();
     }
 
     @Test
@@ -44,7 +44,7 @@ public class Cgmes3Test {
 
     @Test
     public void smallGridWithoutTp() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.smallGridWithoutTp()).test();
+        new CgmesModelTester(Cgmes3Catalog.smallGridWithoutTpSv()).test();
     }
 
     @Test
@@ -54,6 +54,6 @@ public class Cgmes3Test {
 
     @Test
     public void svedalaWithoutTp() throws IOException {
-        new CgmesModelTester(Cgmes3Catalog.svedalaWithoutTp()).test();
+        new CgmesModelTester(Cgmes3Catalog.svedalaWithoutTpSv()).test();
     }
 }

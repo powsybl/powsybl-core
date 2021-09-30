@@ -94,22 +94,22 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void microGridWithAndWithoutTp() {
+    public void microGridWithAndWithoutTpSv() {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.microGrid().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        Network networkWithoutTp = new CgmesImport().importData(
-            Cgmes3Catalog.microGridWithoutTp().dataSource(),
+        Network networkwithoutTpSv = new CgmesImport().importData(
+            Cgmes3Catalog.microGridWithoutTpSv().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        fixBusVoltageAndAngleBeforeComparison(network);
+        resetBusVoltageAndAngleBeforeComparison(network);
         // RegulatingTerminals of both networks are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
         fixRegulatingTerminalsBeforeComparison(network);
-        fixRegulatingTerminalsBeforeComparison(networkWithoutTp);
-        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        fixRegulatingTerminalsBeforeComparison(networkwithoutTpSv);
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
 
@@ -158,17 +158,17 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void miniGridWithAndWithoutTp() throws IOException {
+    public void miniGridWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.miniGrid().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        Network networkWithoutTp = new CgmesImport().importData(
-            Cgmes3Catalog.miniGridWithoutTp().dataSource(),
+        Network networkwithoutTpSv = new CgmesImport().importData(
+            Cgmes3Catalog.miniGridWithoutTpSv().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        fixBusVoltageAndAngleBeforeComparison(network);
-        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        resetBusVoltageAndAngleBeforeComparison(network);
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
 
@@ -215,17 +215,17 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void smallGridWithAndWithoutTp() throws IOException {
+    public void smallGridWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.smallGrid().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        Network networkWithoutTp = new CgmesImport().importData(
-            Cgmes3Catalog.smallGridWithoutTp().dataSource(),
+        Network networkwithoutTpSv = new CgmesImport().importData(
+            Cgmes3Catalog.smallGridWithoutTpSv().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        fixBusVoltageAndAngleBeforeComparison(network);
-        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        resetBusVoltageAndAngleBeforeComparison(network);
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
 
@@ -272,21 +272,21 @@ public class Cgmes3ConversionTest {
     }
 
     @Test
-    public void svedalaWithAndWithoutTp() throws IOException {
+    public void svedalaWithAndWithoutTpSv() throws IOException {
         Network network = new CgmesImport().importData(
             Cgmes3Catalog.svedala().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        Network networkWithoutTp = new CgmesImport().importData(
-            Cgmes3Catalog.svedalaWithoutTp().dataSource(),
+        Network networkwithoutTpSv = new CgmesImport().importData(
+            Cgmes3Catalog.svedalaWithoutTpSv().dataSource(),
             NetworkFactory.findDefault(), null);
 
-        fixBusVoltageAndAngleBeforeComparison(network);
+        resetBusVoltageAndAngleBeforeComparison(network);
         // regulatingTerminals of network are localized to avoid differences.
         // TODO must be deleted after fixing regulatingTerminals.
         // Differences are associated with regulating cgmesTerminals defined for breakers
         fixRegulatingTerminalsBeforeComparison(network);
-        new Comparison(network, networkWithoutTp, new ComparisonConfig()).compare();
+        new Comparison(network, networkwithoutTpSv, new ComparisonConfig()).compare();
         assertTrue(true);
     }
 
@@ -302,16 +302,10 @@ public class Cgmes3ConversionTest {
         return c.convert();
     }
 
-    private static void fixBusVoltageAndAngleBeforeComparison(Network network) {
+    private static void resetBusVoltageAndAngleBeforeComparison(Network network) {
         network.getBusBreakerView().getBuses().forEach(bus -> {
             bus.setV(Double.NaN);
             bus.setAngle(Double.NaN);
-        });
-        network.getGenerators().forEach(generator -> {
-            generator.setRegulatingTerminal(generator.getTerminal());
-        });
-        network.getShuntCompensators().forEach(shuntCompensator -> {
-            shuntCompensator.setRegulatingTerminal(shuntCompensator.getTerminal());
         });
     }
 
