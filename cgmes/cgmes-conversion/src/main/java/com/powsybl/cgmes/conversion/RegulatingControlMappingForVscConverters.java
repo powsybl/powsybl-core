@@ -35,7 +35,6 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     public static void initialize(VscConverterStationAdder adder) {
-        // TODO Eliminar la inicializacion de la reactiva, es temporal hasta mergear con nueva version
         adder.setVoltageRegulatorOn(false)
             .setReactivePowerSetpoint(0.0);
     }
@@ -93,19 +92,12 @@ public class RegulatingControlMappingForVscConverters {
         if (terminal == null) {
             terminal = vscConverter.getTerminal();
         }
-        // TODO No modificar terminal, calcular el valid
-        double voltageSetpoint = rc.voltageSetpoint;
-        boolean voltageRegulatorOn = true;
-        //boolean valid = false;
-        //if (!valid) {
-        //    voltageRegulatorOn = false;
-        //}
 
         vscConverter
-            .setVoltageSetpoint(voltageSetpoint)
+            .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
             .setRegulatingTerminal(terminal)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+            .setVoltageRegulatorOn(true);
     }
 
     private void setRegulatingControlReactivePower(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
@@ -113,19 +105,12 @@ public class RegulatingControlMappingForVscConverters {
         if (terminal == null) {
             terminal = vscConverter.getTerminal();
         }
-        // TODO No modificar terminal, calcular el valid
-        double reactivePowerSetpoint = rc.reactivePowerSetpoint;
-        boolean voltageRegulatorOn = false;
-        //boolean valid = false;
-        //if (!valid) {
-        //    voltageRegulatorOn = false;
-        //}
 
         vscConverter
             .setVoltageSetpoint(0.0)
-            .setReactivePowerSetpoint(reactivePowerSetpoint)
+            .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
             .setRegulatingTerminal(terminal)
-            .setVoltageRegulatorOn(voltageRegulatorOn);
+            .setVoltageRegulatorOn(false);
     }
 
     private static class CgmesRegulatingControlForVscConverter {
