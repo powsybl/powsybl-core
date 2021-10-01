@@ -7,10 +7,9 @@
 
 package com.powsybl.cgmes.model;
 
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_14_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.CIM_16_NAMESPACE;
-import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
+import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -20,9 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import javax.xml.stream.XMLStreamException;
-
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -80,10 +77,16 @@ public class CgmesOnDataSource {
         }
     }
 
+    private static boolean isCimNamespace(String ns) {
+        // Until CIM16 the CIM namespace contained the string "CIM-schema-cim<versionNumber>#"
+        // Since CIM100 the namespace seems to follow the pattern "/CIM<versionNumber>#"
+        return ns.contains("CIM-schema-cim") || CIM_100_PLUS_NAMESPACE_PATTERN.matcher(ns).matches();
+    }
+
     private boolean containsValidNamespace(String name) {
         try (InputStream is = dataSource.newInputStream(name)) {
             Set<String> ns = NamespaceReader.namespaces1(is);
-            return ns.contains(RDF_NAMESPACE) && (ns.contains(CIM_16_NAMESPACE) || ns.contains(CIM_14_NAMESPACE));
+            return ns.contains(RDF_NAMESPACE) && ns.stream().anyMatch(CgmesOnDataSource::isCimNamespace);
         } catch (XMLStreamException e) {
             return false;
         } catch (IOException x) {
@@ -104,12 +107,11 @@ public class CgmesOnDataSource {
     }
 
     public String cimNamespace() {
-        // Return the first namespace that contains the string "CIM-schema-cim"
-        // If no namespace is found, return CIM16 namespace
-        Set<String> foundNamespaces = namespaces();
-        return foundNamespaces.stream()
-            .filter(ns -> ns.contains("CIM-schema-cim"))
-            .findFirst().orElse(CIM_16_NAMESPACE);
+        // If no cim namespace is found, return CIM16 namespace
+        return namespaces().stream()
+            .filter(CgmesOnDataSource::isCimNamespace)
+            .findFirst()
+            .orElseThrow(() -> new CgmesModelException("CIM Namespace not found"));
     }
 
     private final ReadOnlyDataSource dataSource;

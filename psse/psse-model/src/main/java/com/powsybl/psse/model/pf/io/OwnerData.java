@@ -30,7 +30,7 @@ class OwnerData extends AbstractRecordGroup<PsseOwner> {
     }
 
     @Override
-    public Class<PsseOwner> psseTypeClass() {
+    protected Class<PsseOwner> psseTypeClass() {
         return PsseOwner.class;
     }
 }

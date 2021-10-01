@@ -27,14 +27,14 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class GeneratorConverter extends AbstractConverter {
+class GeneratorConverter extends AbstractConverter {
 
-    public GeneratorConverter(PsseGenerator psseGenerator, ContainersMapping containerMapping, Network network) {
+    GeneratorConverter(PsseGenerator psseGenerator, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseGenerator = Objects.requireNonNull(psseGenerator);
     }
 
-    public void create() {
+    void create() {
         String busId = getBusId(psseGenerator.getI());
         VoltageLevel voltageLevel = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseGenerator.getI()));
         GeneratorAdder adder = voltageLevel.newGenerator()
@@ -59,7 +59,7 @@ public class GeneratorConverter extends AbstractConverter {
         }
     }
 
-    public void addControl(PsseBus psseBus) {
+    void addControl(PsseBus psseBus) {
         String busId = getBusId(psseGenerator.getI());
         Generator generator = getNetwork().getGenerator(getGeneratorId(busId, psseGenerator));
 

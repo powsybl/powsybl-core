@@ -32,11 +32,11 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TransformerConverter extends AbstractConverter {
+class TransformerConverter extends AbstractConverter {
 
     private static final double TOLERANCE = 0.00001;
 
-    public TransformerConverter(PsseTransformer psseTransformer, ContainersMapping containersMapping,
+    TransformerConverter(PsseTransformer psseTransformer, ContainersMapping containersMapping,
         PerUnitContext perUnitContext, Network network, Map<Integer, PsseBus> busNumToPsseBus, double sbase,
         PsseVersion version) {
         super(containersMapping, network);
@@ -47,7 +47,7 @@ public class TransformerConverter extends AbstractConverter {
         this.version = Objects.requireNonNull(version);
     }
 
-    public void create() {
+    void create() {
         if (psseTransformer.getK() == 0) {
             createTwoWindingsTransformer();
         } else {
