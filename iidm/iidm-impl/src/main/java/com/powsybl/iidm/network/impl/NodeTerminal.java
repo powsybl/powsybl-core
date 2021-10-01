@@ -72,7 +72,8 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    private String getConnectionInfo() {
+    @Override
+    public String getConnectionInfo() {
         return "node " + getNode() + ", Voltage level " + getVoltageLevel().getId();
     }
 

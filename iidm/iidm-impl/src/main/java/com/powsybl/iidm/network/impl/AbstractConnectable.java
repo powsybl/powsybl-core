@@ -126,21 +126,13 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             throw new PowsyblException(msg);
         }
 
-        // detach the terminal from its previous voltage level
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
-
         // create the new terminal and attach it to the given voltage level and to the connectable
         TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node)
                 .build();
 
-        int iSide = terminals.indexOf(oldTerminal);
-        terminals.set(iSide, terminalExt);
-        terminalExt.setConnectable(this);
-        voltageLevel.attach(terminalExt, false);
-
-        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo,
-                String.format("node %d, Voltage level %s", node, voltageLevel.getId()));
+        // detach the terminal from its previous voltage level
+        attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
     }
 
     protected void move(TerminalExt oldTerminal, String oldConnectionInfo, Bus bus, boolean connected) {
@@ -152,21 +144,24 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
                     getId(), bus.getId()));
         }
 
-        // detach the terminal from its previous voltage level
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
-
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
         TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
                 .setBus(connected ? bus.getId() : null)
                 .setConnectableBus(bus.getId())
                 .build();
 
+        // detach the terminal from its previous voltage level
+        attachTerminal(oldTerminal, oldConnectionInfo, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
+    }
+
+    private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+        oldTerminal.getVoltageLevel().detach(oldTerminal);
+
         int iSide = terminals.indexOf(oldTerminal);
         terminals.set(iSide, terminalExt);
         terminalExt.setConnectable(this);
-        ((VoltageLevelExt) bus.getVoltageLevel()).attach(terminalExt, false);
+        voltageLevel.attach(terminalExt, false);
 
-        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo,
-                String.format("bus %s, %s", bus.getId(), connected ? "connected" : "disconnected"));
+        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
     }
 }

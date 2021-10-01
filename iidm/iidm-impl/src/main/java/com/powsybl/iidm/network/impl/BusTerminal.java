@@ -70,7 +70,8 @@ class BusTerminal extends AbstractTerminal {
 
     };
 
-    private String getConnectionInfo() {
+    @Override
+    public String getConnectionInfo() {
         return "bus " + getBusBreakerView().getConnectableBus().getId() + ", "
                 + (getBusBreakerView().getBus() != null ? "connected" : "disconnected");
     }
