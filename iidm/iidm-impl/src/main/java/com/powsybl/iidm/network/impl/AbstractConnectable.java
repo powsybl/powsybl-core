@@ -121,7 +121,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         // check bus topology
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
             String msg = String.format(
-                    "Trying to move connectable %s to node %d of voltage level %s, which is not in node breaker topology",
+                    "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
                     getId(), node, voltageLevel.getId());
             throw new PowsyblException(msg);
         }
@@ -140,8 +140,9 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
         // check bus topology
         if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
-            throw new PowsyblException(String.format("Trying to move connectable %s to bus %s which is not in bus breaker topology",
-                    getId(), bus.getId()));
+            throw new PowsyblException(String.format(
+                    "Trying to move connectable %s to bus %s of voltage level %s, which is a node breaker voltage level",
+                    getId(), bus.getId(), bus.getVoltageLevel().getId()));
         }
 
         // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
