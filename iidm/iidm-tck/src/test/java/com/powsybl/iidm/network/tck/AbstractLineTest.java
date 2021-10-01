@@ -175,8 +175,7 @@ public abstract class AbstractLineTest {
             line.getTerminal1().getNodeBreakerView().moveConnectable(0, voltageLevelA, Branch.Side.ONE);
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line line. " +
-                    "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side)"));
+            assertEquals("Trying to move connectable line to node 0 of voltage level vl1, which is not in node breaker topology", e.getMessage());
         }
 
         line.getTerminal1().getBusBreakerView().moveConnectable(busC, true, Branch.Side.ONE);
@@ -207,6 +206,7 @@ public abstract class AbstractLineTest {
         assertSame(bus, line.getTerminal1().getBusBreakerView().getBus());
 
         Bus mockBus = Mockito.mock(Bus.class);
+        Mockito.when(mockBus.getId()).thenReturn("mockBus");
         VoltageLevel mockVL = Mockito.mock(VoltageLevel.class);
         Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
         Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
@@ -214,8 +214,7 @@ public abstract class AbstractLineTest {
             line.getTerminal1().getBusBreakerView().moveConnectable(mockBus, true, Branch.Side.ONE);
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line CJ. " +
-                    "Use move1(int, VoltageLevel), move2(int, VoltageLevel) or move(int, VoltageLevel, Side)"));
+            assertEquals(e.getMessage(), "Trying to move connectable CJ to bus mockBus which is not in bus breaker topology");
         }
 
         line.getTerminal1().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("C"), Branch.Side.ONE);
@@ -247,8 +246,7 @@ public abstract class AbstractLineTest {
             line.getTerminal2().getNodeBreakerView().moveConnectable(0, voltageLevelB, Branch.Side.TWO);
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line line. " +
-                    "Use move1(Bus, boolean), move2(Bus, boolean) or move(Bus, boolean, Side)"));
+            assertEquals("Trying to move connectable line to node 0 of voltage level vl2, which is not in node breaker topology", e.getMessage());
         }
         line.getTerminal2().getBusBreakerView().moveConnectable(busC, true, Branch.Side.TWO);
         assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
@@ -275,6 +273,7 @@ public abstract class AbstractLineTest {
         assertSame(bus, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(bus, line.getTerminal2().getBusBreakerView().getBus());
         Bus mockBus = Mockito.mock(Bus.class);
+        Mockito.when(mockBus.getId()).thenReturn("mockBus");
         VoltageLevel mockVL = Mockito.mock(VoltageLevel.class);
         Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
         Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
@@ -282,8 +281,7 @@ public abstract class AbstractLineTest {
             line.getTerminal2().getBusBreakerView().moveConnectable(mockBus, true, Branch.Side.TWO);
             fail();
         } catch (RuntimeException e) {
-            assertTrue(e.getMessage().contains("Inconsistent topology kind for terminals of Line CJ. " +
-                    "Use move1(int, VoltageLevel), move2(int, VoltageLevel) or move(int, VoltageLevel, Side)"));
+            assertEquals("Trying to move connectable CJ to bus mockBus which is not in bus breaker topology", e.getMessage());
         }
         line.getTerminal2().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("N"), Branch.Side.TWO);
         assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
