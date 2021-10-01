@@ -16,11 +16,11 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseConversionContextExtensionImpl extends AbstractExtension<Network> implements PsseConversionContextExtension {
+class PsseConversionContextExtensionImpl extends AbstractExtension<Network> implements PsseConversionContextExtension {
 
     private final Context context;
 
-    public PsseConversionContextExtensionImpl(Context context) {
+    PsseConversionContextExtensionImpl(Context context) {
         this.context = Objects.requireNonNull(context);
     }
 

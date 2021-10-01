@@ -16,11 +16,11 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class PsseModelExtensionImpl extends AbstractExtension<Network> implements PsseModelExtension {
+class PsseModelExtensionImpl extends AbstractExtension<Network> implements PsseModelExtension {
 
     private final PssePowerFlowModel psseModel;
 
-    public PsseModelExtensionImpl(PssePowerFlowModel psseModel) {
+    PsseModelExtensionImpl(PssePowerFlowModel psseModel) {
         this.psseModel = Objects.requireNonNull(psseModel);
     }
 

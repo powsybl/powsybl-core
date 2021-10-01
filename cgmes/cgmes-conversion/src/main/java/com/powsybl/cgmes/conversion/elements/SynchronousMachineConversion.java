@@ -35,7 +35,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
-        // Default targetP from initial P defined in EQ GeneratingUnit
+        // Default targetP from initial P defined in EQ GeneratingUnit. Removed since CGMES 3.0
         double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
         // Flow values may come from Terminal or Equipment (SSH RotatingMachine)

@@ -252,7 +252,7 @@ public class PsseImporter implements Importer {
         }
     }
 
-    public static class PerUnitContext {
+    static class PerUnitContext {
         private final double sb;
         private final boolean ignoreBaseVoltage;
 
@@ -261,11 +261,11 @@ public class PsseImporter implements Importer {
             this.ignoreBaseVoltage = ignoreBaseVoltage;
         }
 
-        public double getSb() {
+        double getSb() {
             return sb;
         }
 
-        public boolean isIgnoreBaseVoltage() {
+        boolean isIgnoreBaseVoltage() {
             return ignoreBaseVoltage;
         }
     }

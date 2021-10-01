@@ -30,16 +30,16 @@ import java.util.Objects;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class LineConverter extends AbstractConverter {
+class LineConverter extends AbstractConverter {
 
-    public LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
+    LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
         super(containerMapping, network);
         this.psseLine = Objects.requireNonNull(psseLine);
         this.perUnitContext = Objects.requireNonNull(perUnitContext);
         this.version = Objects.requireNonNull(version);
     }
 
-    public void create() {
+    void create() {
         String id = getLineId();
 
         String bus1Id = getBusId(psseLine.getI());
