@@ -8,7 +8,6 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -88,28 +87,20 @@ public class RegulatingControlMappingForVscConverters {
     }
 
     private void setRegulatingControlVoltage(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-        Terminal terminal = parent.findRegulatingTerminal(rc.pccTerminal, false);
-        if (terminal == null) {
-            terminal = vscConverter.getTerminal();
-        }
 
         vscConverter
             .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(terminal)
+            .setRegulatingTerminal(parent.findRegulatingTerminal(rc.pccTerminal, false))
             .setVoltageRegulatorOn(true);
     }
 
     private void setRegulatingControlReactivePower(CgmesRegulatingControlForVscConverter rc, VscConverterStation vscConverter) {
-        Terminal terminal = parent.findRegulatingTerminal(rc.pccTerminal, false);
-        if (terminal == null) {
-            terminal = vscConverter.getTerminal();
-        }
 
         vscConverter
             .setVoltageSetpoint(0.0)
             .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
-            .setRegulatingTerminal(terminal)
+            .setRegulatingTerminal(parent.findRegulatingTerminal(rc.pccTerminal, false))
             .setVoltageRegulatorOn(false);
     }
 
