@@ -143,21 +143,21 @@ public class LineAdapterTest {
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb, Branch.Side.ONE));
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb, Branch.Side.TWO));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb));
 
         Bus mockBus = Mockito.mock(Bus.class);
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(mockBus, false, Branch.Side.ONE));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(mockBus, false));
 
         Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
                 .newBus()
                 .setId("NGEN2")
                 .add();
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(ngen2, true, Branch.Side.ONE));
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getBusBreakerView().moveConnectable(ngen2, true, Branch.Side.TWO));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getBusBreakerView().moveConnectable(ngen2, true));
 
         VoltageLevel vlgen = mergingView.getVoltageLevel("VLGEN");
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlgen, Branch.Side.ONE));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlgen));
 
         TestUtil.notImplemented(lineAdapted::remove);
     }

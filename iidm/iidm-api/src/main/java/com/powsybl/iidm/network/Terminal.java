@@ -27,7 +27,7 @@ public interface Terminal {
          * Move the connectable end on the given side to the given node of the given voltage level.
          * If the given voltage level's topology is not NODE-BREAKER, a runtime exception is thrown.
          */
-        void moveConnectable(int node, VoltageLevel voltageLevel, Branch.Side side);
+        void moveConnectable(int node, VoltageLevel voltageLevel);
 
     }
 
@@ -56,7 +56,7 @@ public interface Terminal {
          * Move the connectable end on the given side to the given connectable bus with the given connection status.
          * If the given bus' voltage level topology is not BUS-BREAKER, a runtime exception is thrown.
          */
-        void moveConnectable(Bus bus, boolean connected, Branch.Side side);
+        void moveConnectable(Bus bus, boolean connected);
     }
 
     /**

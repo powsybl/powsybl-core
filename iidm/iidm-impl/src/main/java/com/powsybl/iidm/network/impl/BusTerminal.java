@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -31,8 +30,8 @@ class BusTerminal extends AbstractTerminal {
         }
 
         @Override
-        public void moveConnectable(int node, VoltageLevel voltageLevel, Branch.Side side) {
-            getConnectable().move(BusTerminal.this, getConnectionInfo(), node, (VoltageLevelExt) voltageLevel, side);
+        public void moveConnectable(int node, VoltageLevel voltageLevel) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), node, (VoltageLevelExt) voltageLevel);
         }
     };
 
@@ -65,8 +64,8 @@ class BusTerminal extends AbstractTerminal {
         }
 
         @Override
-        public void moveConnectable(Bus bus, boolean connected, Branch.Side side) {
-            getConnectable().move(BusTerminal.this, getConnectionInfo(), bus, connected, side);
+        public void moveConnectable(Bus bus, boolean connected) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), bus, connected);
         }
 
     };

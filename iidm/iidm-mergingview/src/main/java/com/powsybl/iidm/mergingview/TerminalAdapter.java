@@ -41,7 +41,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         }
 
         @Override
-        public void moveConnectable(Bus bus, boolean connected, Branch.Side side) {
+        public void moveConnectable(Bus bus, boolean connected) {
             throw new PowsyblException("Not implemented");
         }
 
@@ -90,7 +90,7 @@ public class TerminalAdapter extends AbstractAdapter<Terminal> implements Termin
         }
 
         @Override
-        public void moveConnectable(int node, VoltageLevel voltageLevel, Branch.Side side) {
+        public void moveConnectable(int node, VoltageLevel voltageLevel) {
             throw new PowsyblException("Not implemented");
         }
     }
