@@ -512,7 +512,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, loadClassName(loadDetail));
+        writer.writeStartElement(cimNamespace, CgmesExportUtil.loadClassName(loadDetail));
         writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -521,22 +521,6 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();
-    }
-
-    private static String loadClassName(LoadDetail loadDetail) {
-        if (loadDetail != null) {
-            // Conform load if fixed part is zero and variable part is non-zero
-            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
-                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
-                return "ConformLoad";
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
-                return "NonConformLoad";
-            }
-        }
-        return "EnergyConsumer";
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {

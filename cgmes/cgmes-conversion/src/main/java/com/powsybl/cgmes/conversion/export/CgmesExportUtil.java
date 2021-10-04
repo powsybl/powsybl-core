@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
@@ -102,4 +103,21 @@ public final class CgmesExportUtil {
         Complex s1 = new Complex(p, q);
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
+
+    public static String loadClassName(LoadDetail loadDetail) {
+        if (loadDetail != null) {
+            // Conform load if fixed part is zero and variable part is non-zero
+            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
+                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
+                return "ConformLoad";
+            }
+            // NonConform load if fixed part is non-zero and variable part is all zero
+            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+                return "NonConformLoad";
+            }
+        }
+        return "EnergyConsumer";
+    }
+
 }
