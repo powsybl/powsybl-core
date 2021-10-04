@@ -7,15 +7,15 @@
 
 package com.powsybl.triplestore.api;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -28,20 +28,19 @@ public class QueryCatalog extends HashMap<String, String> {
 
     public QueryCatalog(String resource) {
         this.resource = resource;
-        load(resourceStream(resource));
+        load(resourceStream(resource), new ParsingContext());
     }
 
     public String resource() {
         return resource;
     }
 
-    private void load(InputStream ir) {
-        ParsingContext context = new ParsingContext();
+    private void load(InputStream ir, ParsingContext context) {
         try (Stream<String> stream = new BufferedReader(
                 new InputStreamReader(ir)).lines()) {
             stream.forEach(line -> parse(line, context));
         }
-        context.close();
+        context.leaveQuery();
     }
 
     @Override
@@ -64,6 +63,9 @@ public class QueryCatalog extends HashMap<String, String> {
     private void parse(String line, ParsingContext context) {
         if (queryDefinition(line)) {
             context.enterQuery(line);
+        } else if (include(line)) {
+            context.leaveQuery();
+            load(resourceStream(includedResource(line)), context);
         } else if (comment(line)) {
             // Ignore the line
         } else {
@@ -84,6 +86,16 @@ public class QueryCatalog extends HashMap<String, String> {
         return line.trim().startsWith("#");
     }
 
+    private static boolean include(String line) {
+        return line.contains(INCLUDE);
+    }
+
+    private static String includedResource(String line) {
+        int p = line.indexOf(INCLUDE);
+        assert p > 0;
+        return line.substring(p + INCLUDE.length()).trim();
+    }
+
     class ParsingContext {
         ParsingContext() {
             queryText = new StringBuilder(2048);
@@ -91,30 +103,24 @@ public class QueryCatalog extends HashMap<String, String> {
         }
 
         void enterQuery(String line) {
-            if (queryName != null) {
-                leaveQuery();
-            }
+            leaveQuery();
             int p = line.indexOf(QUERY_DEFINITION);
             assert p > 0;
             queryName = line.substring(p + QUERY_DEFINITION.length()).trim();
         }
 
         void leaveQuery() {
-            LOG.debug("loaded query [{}]", queryName);
-            put(queryName, queryText.toString());
-            queryName = null;
-            queryText.setLength(0);
+            if (queryName != null) {
+                LOG.debug("loaded query [{}]", queryName);
+                put(queryName, queryText.toString());
+                queryName = null;
+                queryText.setLength(0);
+            }
         }
 
         void appendText(String line) {
             queryText.append(line);
             queryText.append(LINE_SEPARATOR);
-        }
-
-        void close() {
-            if (queryName != null) {
-                leaveQuery();
-            }
         }
 
         private final StringBuilder queryText;
@@ -124,6 +130,7 @@ public class QueryCatalog extends HashMap<String, String> {
     private final String resource;
 
     private static final String QUERY_DEFINITION = "query:";
+    private static final String INCLUDE = "include:";
     private static final String LINE_SEPARATOR = System.getProperty("line.separator");
     private static final Logger LOG = LoggerFactory.getLogger(QueryCatalog.class);
 }

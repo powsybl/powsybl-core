@@ -21,7 +21,7 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
 
     private static final String[] FIELD_NAMES_32_33 = {"i", "id", "status", "gl", "bl"};
 
-    public FixedBusShuntData() {
+    FixedBusShuntData() {
         super(PowerFlowRecordGroup.FIXED_BUS_SHUNT);
         withFieldNames(V32, FIELD_NAMES_32_33);
         withFieldNames(V33, FIELD_NAMES_32_33);
@@ -30,7 +30,7 @@ class FixedBusShuntData extends AbstractRecordGroup<PsseFixedShunt> {
     }
 
     @Override
-    public Class<PsseFixedShunt> psseTypeClass() {
+    protected Class<PsseFixedShunt> psseTypeClass() {
         return PsseFixedShunt.class;
     }
 }

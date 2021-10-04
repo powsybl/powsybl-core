@@ -30,7 +30,7 @@ class SwitchedShuntData extends AbstractRecordGroup<PsseSwitchedShunt> {
     }
 
     @Override
-    public Class<PsseSwitchedShunt> psseTypeClass() {
+    protected Class<PsseSwitchedShunt> psseTypeClass() {
         return PsseSwitchedShunt.class;
     }
 }

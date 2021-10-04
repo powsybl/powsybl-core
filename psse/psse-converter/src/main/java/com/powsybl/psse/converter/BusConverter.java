@@ -20,14 +20,14 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class BusConverter extends AbstractConverter {
+class BusConverter extends AbstractConverter {
 
-    public BusConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
+    BusConverter(PsseBus psseBus, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseBus = Objects.requireNonNull(psseBus);
     }
 
-    public void create(VoltageLevel voltageLevel) {
+    void create(VoltageLevel voltageLevel) {
         String busId = getBusId(psseBus.getI());
         Bus bus = voltageLevel.getBusBreakerView().newBus()
             .setId(busId)
