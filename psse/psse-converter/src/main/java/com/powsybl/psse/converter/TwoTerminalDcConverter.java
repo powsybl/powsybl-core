@@ -22,16 +22,16 @@ import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TwoTerminalDcConverter extends AbstractConverter {
+class TwoTerminalDcConverter extends AbstractConverter {
 
     private static final double DEFAULT_MAXP_FACTOR = 1.2;
 
-    public TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network) {
+    TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseTwoTerminalDc = Objects.requireNonNull(psseTwoTerminalDc);
     }
 
-    public void create() {
+    void create() {
 
         double lossFactor = 0.0;
         String busIdR = getBusId(psseTwoTerminalDc.getRectifier().getIp());

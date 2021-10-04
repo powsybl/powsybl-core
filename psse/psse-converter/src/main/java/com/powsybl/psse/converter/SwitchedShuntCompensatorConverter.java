@@ -33,15 +33,15 @@ import static com.powsybl.psse.model.PsseVersion.Major.V35;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SwitchedShuntCompensatorConverter extends AbstractConverter {
+class SwitchedShuntCompensatorConverter extends AbstractConverter {
 
-    public SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
+    SwitchedShuntCompensatorConverter(PsseSwitchedShunt psseSwitchedShunt, ContainersMapping containerMapping, Network network, PsseVersion version) {
         super(containerMapping, network);
         this.psseSwitchedShunt = Objects.requireNonNull(psseSwitchedShunt);
         this.version = Objects.requireNonNull(version);
     }
 
-    public void create() {
+    void create() {
         List<ShuntBlock> shuntBlocks = defineShuntBlocks(psseSwitchedShunt, version);
         if (shuntBlocks.isEmpty()) {
             return;
@@ -70,7 +70,7 @@ public class SwitchedShuntCompensatorConverter extends AbstractConverter {
         adder.add();
     }
 
-    public void addControl() {
+    void addControl() {
         String busId = getBusId(psseSwitchedShunt.getI());
         String id = defineShuntId(psseSwitchedShunt, version);
         ShuntCompensator shunt = getNetwork().getShuntCompensator(getShuntId(busId, id));
