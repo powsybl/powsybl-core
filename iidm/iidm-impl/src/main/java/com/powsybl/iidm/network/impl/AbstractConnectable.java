@@ -156,12 +156,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
-
-        int iSide = terminals.indexOf(oldTerminal);
-        terminals.set(iSide, terminalExt);
+        // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
         terminalExt.setConnectable(this);
         voltageLevel.attach(terminalExt, false);
+
+        // then we can detach the old terminal, as we now know that the new terminal is valid
+        oldTerminal.getVoltageLevel().detach(oldTerminal);
+
+        // replace the old terminal by the new terminal in the connectable
+        int iSide = terminals.indexOf(oldTerminal);
+        terminals.set(iSide, terminalExt);
 
         notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
     }
