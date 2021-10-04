@@ -344,6 +344,54 @@ abstract class AbstractVoltageLevelAdapter extends AbstractIdentifiableAdapter<V
     }
 
     @Override
+    public Iterable<Line> getLines() {
+        return Iterables.transform(getDelegate().getLines(),
+                getIndex()::getLine);
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getDelegate().getLineStream().map(getIndex()::getLine);
+    }
+
+    @Override
+    public int getLineCount() {
+        return getDelegate().getLineCount();
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return Iterables.transform(getDelegate().getTwoWindingsTransformers(),
+                getIndex()::getTwoWindingsTransformer);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getDelegate().getTwoWindingsTransformerStream().map(getIndex()::getTwoWindingsTransformer);
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getDelegate().getTwoWindingsTransformerCount();
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return Iterables.transform(getDelegate().getThreeWindingsTransformers(),
+                getIndex()::getThreeWindingsTransformer);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getDelegate().getThreeWindingsTransformerStream().map(getIndex()::getThreeWindingsTransformer);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getDelegate().getThreeWindingsTransformerCount();
+    }
+
+    @Override
     public void remove() {
         // TODO(mathbagu)
         throw  MergingView.createNotImplementedException();
