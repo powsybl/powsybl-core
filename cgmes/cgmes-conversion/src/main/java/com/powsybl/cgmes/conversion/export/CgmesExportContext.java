@@ -151,8 +151,8 @@ public class CgmesExportContext {
             Set<String> mappedTns = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
-                    Bus busViewBus;
-                    String topologicalNode;
+                    Bus busViewBus = null;
+                    String topologicalNode = null;
                     if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                         // Bus/breaker IIDM networks have been created from bus/branch CGMES data
                         // CGMES Topological Nodes have been used as configured bus identifiers
@@ -169,7 +169,7 @@ public class CgmesExportContext {
                         String solution = String.format("To be able to export you must import the CGMES data with the parameter %s set to true",
                             CgmesImport.CREATE_CGMES_EXPORT_MAPPING);
                         String msg = String.format("%s. %s", problem, solution);
-                        throw new PowsyblException(msg);
+                        //throw new PowsyblException(msg);
                     }
                     if (busViewBus != null && topologicalNode != null) {
                         tnsFromBusBreaker.computeIfAbsent(busViewBus.getId(), b -> new HashSet<>()).add(topologicalNode);

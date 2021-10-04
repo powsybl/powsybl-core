@@ -365,10 +365,18 @@ public final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 } else if (control != null && control.getLocalName().equals("targetQ")) {
                     return ComparisonResult.EQUAL;
+                } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
+                    // If the control node is a temporary limit, the order depends on the name attribute,
+                    // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
+                    return ComparisonResult.EQUAL;
                 }
             } else if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
                 if (control.getLocalName().equals("network") || control.getLocalName().equals("shunt")
                         || control.getLocalName().equals("generator")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+                if (control.getLocalName().equals("temporaryLimits")) {
                     return ComparisonResult.EQUAL;
                 }
             }
@@ -522,8 +530,14 @@ public final class ExportXmlCompare {
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             // DanglingLine p, q, p0, q0 attributes in IIDM Network
+            // TapChanger r, x, g, b, rho, alpha attributes in IIDM Network
+            // Line b1, b2, g1, g2 attributes in IIDM Network
+            // Shunt bPerSection attribute in IIDM Network
             String name = n.getLocalName();
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
+                || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
+                || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
+                || name.equals("bPerSection")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;

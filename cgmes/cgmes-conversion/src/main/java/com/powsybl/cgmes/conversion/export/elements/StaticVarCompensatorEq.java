@@ -39,9 +39,11 @@ public final class StaticVarCompensatorEq {
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_CAPACITIVERATING);
         writer.writeCharacters(CgmesExportUtil.format(capacitiveRating));
         writer.writeEndElement();
-        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
-        writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
-        writer.writeEndElement();
+        if (voltagePerReactivePowerControl != null) {
+            writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
+            writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
+            writer.writeEndElement();
+        }
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
         writer.writeCharacters(regulationMode(svcControlMode));
         writer.writeEndElement();
