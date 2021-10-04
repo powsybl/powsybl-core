@@ -351,6 +351,51 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public int getLineCount() {
+        return getConnectableCount(Line.class);
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getConnectables(Line.class);
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getConnectableStream(Line.class);
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getConnectableCount(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getConnectables(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getConnectableStream(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getConnectableCount(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getConnectables(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getConnectableStream(ThreeWindingsTransformer.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }
