@@ -47,8 +47,8 @@ public final class EquipmentExport {
             writeSwitches(network, exportedNodes, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
-            writeVoltageLevels(network, cimNamespace, writer, context);
-            writeBusbarSections(network, cimNamespace, writer, context);
+            Map<Double, String> baseVoltageIds = writeVoltageLevels(network, cimNamespace, writer, context);
+            writeBusbarSections(network, baseVoltageIds, cimNamespace, writer, context);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
@@ -153,22 +153,24 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static Map<Double, String> writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         Map<Double, String> baseVoltageIds = new HashMap<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
             if (!baseVoltageIds.containsKey(nominalV)) {
-                String baseVoltageId = context.getBaseVoltageByNominalVoltage(nominalV);
+                String baseVoltageId = CgmesExportUtil.getUniqueId();
                 baseVoltageIds.put(nominalV, baseVoltageId);
                 BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer);
             }
             VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltageIds.get(voltageLevel.getNominalV()), cimNamespace, writer);
         }
+
+        return baseVoltageIds;
     }
 
-    private static void writeBusbarSections(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBusbarSections(Network network, Map<Double, String> baseVoltageIds, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
-            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), context.getBaseVoltageByNominalVoltage(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
+            BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), baseVoltageIds.get(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
         }
     }
 
