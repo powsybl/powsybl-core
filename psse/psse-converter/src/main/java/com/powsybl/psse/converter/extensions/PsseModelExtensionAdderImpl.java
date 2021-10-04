@@ -19,7 +19,7 @@ public class PsseModelExtensionAdderImpl extends AbstractExtensionAdder<Network,
 
     private PssePowerFlowModel psseModel;
 
-    protected PsseModelExtensionAdderImpl(Network extendable) {
+    PsseModelExtensionAdderImpl(Network extendable) {
         super(extendable);
     }
 

@@ -19,14 +19,14 @@ import com.powsybl.psse.model.pf.PsseBus;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class SlackConverter extends AbstractConverter {
+class SlackConverter extends AbstractConverter {
 
-    public SlackConverter(List<PsseBus> psseBusList, ContainersMapping containerMapping, Network network) {
+    SlackConverter(List<PsseBus> psseBusList, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseBusList = Objects.requireNonNull(psseBusList);
     }
 
-    public void create() {
+    void create() {
 
         for (PsseBus psseBus : psseBusList) {
             if (psseBus.getIde() == 3) {

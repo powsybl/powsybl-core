@@ -42,7 +42,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
     }
 
     @Override
-    public Class<PsseTransformerImpedanceCorrection> psseTypeClass() {
+    protected Class<PsseTransformerImpedanceCorrection> psseTypeClass() {
         return PsseTransformerImpedanceCorrection.class;
     }
 
@@ -124,7 +124,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             }
 
             @Override
-            public Class<ZCorr33> psseTypeClass() {
+            protected Class<ZCorr33> psseTypeClass() {
                 return ZCorr33.class;
             }
         }
@@ -489,7 +489,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             }
 
             @Override
-            public Class<ZCorr35First> psseTypeClass() {
+            protected Class<ZCorr35First> psseTypeClass() {
                 return ZCorr35First.class;
             }
         }
@@ -500,7 +500,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             }
 
             @Override
-            public Class<ZCorr35Points> psseTypeClass() {
+            protected Class<ZCorr35Points> psseTypeClass() {
                 return ZCorr35Points.class;
             }
         }
@@ -798,7 +798,7 @@ class TransformerImpedanceCorrectionTablesData extends AbstractRecordGroup<PsseT
             }
 
             @Override
-            public Class<IOLegacyText35.ZCorr35X> psseTypeClass() {
+            protected Class<IOLegacyText35.ZCorr35X> psseTypeClass() {
                 return IOLegacyText35.ZCorr35X.class;
             }
         }
