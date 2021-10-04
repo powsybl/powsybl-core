@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
