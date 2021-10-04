@@ -115,8 +115,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, VoltageLevelExt voltageLevel) {
-        Objects.requireNonNull(voltageLevel);
+    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, String voltageLevelId) {
+        VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
+        }
 
         // check bus topology
         if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
@@ -135,8 +138,11 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
     }
 
-    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, Bus bus, boolean connected) {
-        Objects.requireNonNull(bus);
+    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, String busId, boolean connected) {
+        Bus bus = getNetwork().getBusBreakerView().getBus(busId);
+        if (bus == null) {
+            throw new PowsyblException("Bus '" + busId + "' not found");
+        }
 
         // check bus topology
         if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {

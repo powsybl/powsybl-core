@@ -15,10 +15,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -137,27 +135,29 @@ public class LineAdapterTest {
         // Not implemented yet !
 
         //Move
+        String vlNbId = "VLNB";
         VoltageLevel vlNb = mergingView.getSubstation("P1")
                 .newVoltageLevel()
-                .setId("VLNB")
+                .setId(vlNbId)
                 .setNominalV(400)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb));
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNbId));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNbId));
 
-        Bus mockBus = Mockito.mock(Bus.class);
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(mockBus, false));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable("busId", false));
 
+        String ngen2Id = "NGEN2";
         Bus ngen2 = mergingView.getVoltageLevel("VLGEN").getBusBreakerView()
                 .newBus()
-                .setId("NGEN2")
+                .setId(ngen2Id)
                 .add();
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(ngen2, true));
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getBusBreakerView().moveConnectable(ngen2, true));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getBusBreakerView().moveConnectable(ngen2Id, true));
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal2().getBusBreakerView().moveConnectable(ngen2Id, true));
 
-        VoltageLevel vlgen = mergingView.getVoltageLevel("VLGEN");
-        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlgen));
+        String vlGenId = "VLGEN";
+        VoltageLevel vlgen = mergingView.getVoltageLevel(vlGenId);
+        TestUtil.notImplemented(() -> lineAdapted.getTerminal1().getNodeBreakerView().moveConnectable(0, vlGenId));
 
         TestUtil.notImplemented(lineAdapted::remove);
     }

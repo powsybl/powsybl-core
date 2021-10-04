@@ -15,7 +15,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.Mockito;
 
 import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
@@ -168,22 +167,22 @@ public abstract class AbstractLineTest {
                 .setLowVoltageLimit(380.0)
                 .setHighVoltageLimit(420.0)
                 .add();
-        line.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb);
+        line.getTerminal1().getNodeBreakerView().moveConnectable(0, vlNb.getId());
         assertEquals(0, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal1().getVoltageLevel());
         Terminal.NodeBreakerView tNbv = line.getTerminal1().getNodeBreakerView();
         try {
-            tNbv.moveConnectable(0, voltageLevelA);
+            tNbv.moveConnectable(0, "vl1");
             fail();
         } catch (RuntimeException e) {
             assertEquals("Trying to move connectable line to node 0 of voltage level vl1, which is a bus breaker voltage level", e.getMessage());
         }
 
-        line.getTerminal1().getBusBreakerView().moveConnectable(busC, true);
+        line.getTerminal1().getBusBreakerView().moveConnectable(busC.getId(), true);
         assertSame(busC, line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal1().getBusBreakerView().getBus());
 
-        line.getTerminal1().getBusBreakerView().moveConnectable(network.getBusBreakerView().getBus("busA"), false);
+        line.getTerminal1().getBusBreakerView().moveConnectable("busA", false);
         assertSame(network.getBusBreakerView().getBus("busA"), line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertNull(line.getTerminal1().getBusBreakerView().getBus());
     }
@@ -202,30 +201,25 @@ public abstract class AbstractLineTest {
                 .setHighVoltageLimit(420.0)
                 .add();
         Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
-        line.getTerminal1().getBusBreakerView().moveConnectable(bus, true);
+        line.getTerminal1().getBusBreakerView().moveConnectable(bus.getId(), true);
         assertSame(bus, line.getTerminal1().getBusBreakerView().getConnectableBus());
         assertSame(bus, line.getTerminal1().getBusBreakerView().getBus());
 
-        Bus mockBus = Mockito.mock(Bus.class);
-        Mockito.when(mockBus.getId()).thenReturn("mockBus");
-        VoltageLevel mockVL = Mockito.mock(VoltageLevel.class);
-        Mockito.when(mockVL.getId()).thenReturn("mockVL");
-        Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
-        Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
+        String busCcId = fictitiousSwitchNetwork.getGenerator("CC").getTerminal().getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv = line.getTerminal1().getBusBreakerView();
         try {
-            tBbv.moveConnectable(mockBus, true);
+            tBbv.moveConnectable(busCcId, true);
             fail();
         } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable CJ to bus mockBus of voltage level mockVL, which is a node breaker voltage level",
+            assertEquals("Trying to move connectable CJ to bus N_14 of voltage level N, which is a node breaker voltage level",
                     e.getMessage());
         }
 
-        line.getTerminal1().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("C"));
+        line.getTerminal1().getNodeBreakerView().moveConnectable(6, "C");
         assertEquals(6, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
 
-        line.getTerminal1().getNodeBreakerView().moveConnectable(4, fictitiousSwitchNetwork.getVoltageLevel("C"));
+        line.getTerminal1().getNodeBreakerView().moveConnectable(4, "C");
         assertEquals(4, line.getTerminal1().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("C"), line.getTerminal1().getVoltageLevel());
     }
@@ -243,20 +237,20 @@ public abstract class AbstractLineTest {
                 .setLowVoltageLimit(380.0)
                 .setHighVoltageLimit(420.0)
                 .add();
-        line.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb);
+        line.getTerminal2().getNodeBreakerView().moveConnectable(0, vlNb.getId());
         assertEquals(0, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(vlNb, line.getTerminal2().getVoltageLevel());
         Terminal.NodeBreakerView tNbv = line.getTerminal2().getNodeBreakerView();
         try {
-            tNbv.moveConnectable(0, voltageLevelB);
+            tNbv.moveConnectable(0, "vl2");
             fail();
         } catch (RuntimeException e) {
             assertEquals("Trying to move connectable line to node 0 of voltage level vl2, which is a bus breaker voltage level", e.getMessage());
         }
-        line.getTerminal2().getBusBreakerView().moveConnectable(busC, true);
+        line.getTerminal2().getBusBreakerView().moveConnectable(busC.getId(), true);
         assertSame(busC, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(busC, line.getTerminal2().getBusBreakerView().getBus());
-        line.getTerminal2().getBusBreakerView().moveConnectable(network.getBusBreakerView().getBus("busB"), false);
+        line.getTerminal2().getBusBreakerView().moveConnectable("busB", false);
         assertSame(network.getBusBreakerView().getBus("busB"), line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertNull(line.getTerminal2().getBusBreakerView().getBus());
     }
@@ -274,33 +268,29 @@ public abstract class AbstractLineTest {
                 .setHighVoltageLimit(420.0)
                 .add();
         Bus bus = vlBb.getBusBreakerView().newBus().setId("bus").add();
-        line.getTerminal2().getBusBreakerView().moveConnectable(bus, true);
+        line.getTerminal2().getBusBreakerView().moveConnectable(bus.getId(), true);
         assertSame(bus, line.getTerminal2().getBusBreakerView().getConnectableBus());
         assertSame(bus, line.getTerminal2().getBusBreakerView().getBus());
-        Bus mockBus = Mockito.mock(Bus.class);
-        Mockito.when(mockBus.getId()).thenReturn("mockBus");
-        VoltageLevel mockVL = Mockito.mock(VoltageLevel.class);
-        Mockito.when(mockVL.getId()).thenReturn("mockVL");
-        Mockito.when(mockBus.getVoltageLevel()).thenReturn(mockVL);
-        Mockito.when(mockVL.getTopologyKind()).thenReturn(TopologyKind.NODE_BREAKER);
+
+        String calculatedBusCHId = fictitiousSwitchNetwork.getLoad("CH").getTerminal().getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv0 = line.getTerminal2().getBusBreakerView();
         try {
-            tBbv0.moveConnectable(mockBus, true);
+            tBbv0.moveConnectable(calculatedBusCHId, true);
             fail();
         } catch (RuntimeException e) {
-            assertEquals("Trying to move connectable CJ to bus mockBus of voltage level mockVL, which is a node breaker voltage level", e.getMessage());
+            assertEquals("Trying to move connectable CJ to bus N_22 of voltage level N, which is a node breaker voltage level", e.getMessage());
         }
-        line.getTerminal2().getNodeBreakerView().moveConnectable(6, fictitiousSwitchNetwork.getVoltageLevel("N"));
+        line.getTerminal2().getNodeBreakerView().moveConnectable(6, "N");
         assertEquals(6, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
-        line.getTerminal2().getNodeBreakerView().moveConnectable(5, fictitiousSwitchNetwork.getVoltageLevel("N"));
+        line.getTerminal2().getNodeBreakerView().moveConnectable(5, "N");
         assertEquals(5, line.getTerminal2().getNodeBreakerView().getNode());
         assertSame(fictitiousSwitchNetwork.getVoltageLevel("N"), line.getTerminal2().getVoltageLevel());
 
-        Bus calculatedBus = fictitiousSwitchNetwork.getVoltageLevel("C").getNodeBreakerView().getTerminal(0).getBusBreakerView().getBus();
+        String calculatedBusCId = fictitiousSwitchNetwork.getVoltageLevel("C").getNodeBreakerView().getTerminal(0).getBusBreakerView().getBus().getId();
         Terminal.BusBreakerView tBbv1 = line.getTerminal2().getBusBreakerView();
         try {
-            tBbv1.moveConnectable(calculatedBus, true);
+            tBbv1.moveConnectable(calculatedBusCId, true);
             fail();
         } catch (RuntimeException e) {
             assertEquals("Trying to move connectable CJ to bus C_0 of voltage level C, which is a node breaker voltage level", e.getMessage());

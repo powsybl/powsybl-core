@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -43,8 +42,8 @@ class NodeTerminal extends AbstractTerminal {
         }
 
         @Override
-        public void moveConnectable(int node, VoltageLevel voltageLevel) {
-            getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, (VoltageLevelExt) voltageLevel);
+        public void moveConnectable(int node, String voltageLevelId) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, voltageLevelId);
         }
     };
 
@@ -66,8 +65,8 @@ class NodeTerminal extends AbstractTerminal {
         }
 
         @Override
-        public void moveConnectable(Bus bus, boolean connected) {
-            getConnectable().move(NodeTerminal.this, getConnectionInfo(), bus, connected);
+        public void moveConnectable(String busId, boolean connected) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), busId, connected);
         }
 
     };
