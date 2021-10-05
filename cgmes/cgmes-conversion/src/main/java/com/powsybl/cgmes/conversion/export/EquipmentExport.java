@@ -55,8 +55,8 @@ public final class EquipmentExport {
             writeShuntCompensators(network, cimNamespace, writer);
             writeStaticVarCompensators(network, cimNamespace, writer);
             writeLines(network, exportedTerminals, cimNamespace, writer);
-            writeTwoWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
-            writeThreeWindingsTransformer(network, exportedTerminals, cimNamespace, writer);
+            writeTwoWindingsTransformers(network, exportedTerminals, cimNamespace, writer);
+            writeThreeWindingsTransformers(network, exportedTerminals, cimNamespace, writer);
             Map <Boundary, String> danglingLineBoundaries = new HashMap<>();
             writeDanglingLines(network, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
             writeHvdcLines(network, exportedTerminals, exportedNodes, cimNamespace, writer);
@@ -284,7 +284,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeTwoWindingsTransformer(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTwoWindingsTransformers(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             PowerTransformerEq.write(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
             String end1Id = CgmesExportUtil.getUniqueId();
@@ -304,7 +304,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeThreeWindingsTransformer(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeThreeWindingsTransformers(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             PowerTransformerEq.write(twt.getId(), twt.getNameOrId(), cimNamespace, writer);
             double ratedU0 = twt.getLeg1().getRatedU();
