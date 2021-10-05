@@ -78,7 +78,7 @@ public final class EquipmentExport {
             }
             writeSwitchesConnectivity(vl, exportedNodes, cimNamespace, writer);
         }
-        writeBusbarSectionConnectivity(network, exportedNodes, cimNamespace, writer);
+        writeBusbarSectionsConnectivity(network, exportedNodes, cimNamespace, writer);
     }
 
     private static void writeSwitchesConnectivity(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -102,7 +102,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeBusbarSectionConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeBusbarSectionsConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
             String connectivityNodeId = connectivityNodeId(exportedNodes, bus.getTerminal());
             if (connectivityNodeId == null) {
