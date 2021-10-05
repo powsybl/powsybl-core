@@ -17,6 +17,7 @@ import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.xml.XmlUtil;
@@ -33,8 +34,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.Properties;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -92,6 +95,106 @@ public class EquipmentExportTest extends AbstractConverterTest {
                 DifferenceEvaluators.Default,
                 ExportXmlCompare::numericDifferenceEvaluator,
                 ExportXmlCompare::ignoringNonEQ));
+
+        compareTemporaryLimits(xiidm(tmpDir, "expected"), xiidm(tmpDir, "actual"));
+    }
+
+    private Network xiidm(Path basePath, String baseName) {
+        XMLImporter xmli = new XMLImporter();
+        ReadOnlyDataSource ds = new FileDataSource(basePath, baseName);
+        Network n = xmli.importData(ds, NetworkFactory.findDefault(), null);
+        return n;
+    }
+
+    private void compareTemporaryLimits(Network expected, Network actual) {
+        for (Line line : actual.getLines()) {
+            Identifiable identifiable = expected.getIdentifiable(line.getId());
+            if (identifiable instanceof Branch) {
+                compareBranchLimits((Branch) identifiable, line);
+            } else {
+                compareFlowBranchLimits((FlowsLimitsHolder) identifiable, line);
+            }
+        }
+        for (TwoWindingsTransformer twt : actual.getTwoWindingsTransformers()) {
+            compareBranchLimits((Branch) expected.getIdentifiable(twt.getId()), twt);
+        }
+        for (ThreeWindingsTransformer twt : actual.getThreeWindingsTransformers()) {
+            ThreeWindingsTransformer expectedTwt = (ThreeWindingsTransformer) expected.getIdentifiable(twt.getId());
+            compareFlowLimits(expectedTwt.getLeg1(), twt.getLeg1());
+            compareFlowLimits(expectedTwt.getLeg2(), twt.getLeg2());
+            compareFlowLimits(expectedTwt.getLeg3(), twt.getLeg3());
+        }
+        for (DanglingLine danglingLine : actual.getDanglingLines()) {
+            compareFlowLimits((FlowsLimitsHolder) expected.getIdentifiable(danglingLine.getId()), danglingLine);
+        }
+    }
+
+    private void compareBranchLimits(Branch expected, Branch actual) {
+        if (actual.getActivePowerLimits1() != null) {
+            compareLoadingLimits(expected.getActivePowerLimits1(), actual.getActivePowerLimits1());
+        }
+        if (actual.getActivePowerLimits2() != null) {
+            compareLoadingLimits(expected.getActivePowerLimits2(), actual.getActivePowerLimits2());
+        }
+        if (actual.getApparentPowerLimits1() != null) {
+            compareLoadingLimits(expected.getApparentPowerLimits1(), actual.getApparentPowerLimits1());
+        }
+        if (actual.getApparentPowerLimits2() != null) {
+            compareLoadingLimits(expected.getApparentPowerLimits2(), actual.getApparentPowerLimits2());
+        }
+        if (actual.getCurrentLimits1() != null) {
+            compareLoadingLimits(expected.getCurrentLimits1(), actual.getCurrentLimits1());
+        }
+        if (actual.getCurrentLimits2() != null) {
+            compareLoadingLimits(expected.getCurrentLimits2(), actual.getCurrentLimits2());
+        }
+    }
+
+    private void compareFlowBranchLimits(FlowsLimitsHolder expected, Line actual) {
+        if (actual.getActivePowerLimits1() != null) {
+            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits1());
+        }
+        if (actual.getActivePowerLimits2() != null) {
+            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits2());
+        }
+        if (actual.getApparentPowerLimits1() != null) {
+            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits1());
+        }
+        if (actual.getApparentPowerLimits2() != null) {
+            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits2());
+        }
+        if (actual.getCurrentLimits1() != null) {
+            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits1());
+        }
+        if (actual.getCurrentLimits2() != null) {
+            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits2());
+        }
+    }
+
+    private void compareFlowLimits(FlowsLimitsHolder expected, FlowsLimitsHolder actual) {
+        if (actual.getActivePowerLimits() != null) {
+            compareLoadingLimits(expected.getActivePowerLimits(), actual.getActivePowerLimits());
+        }
+        if (actual.getApparentPowerLimits() != null) {
+            compareLoadingLimits(expected.getApparentPowerLimits(), actual.getApparentPowerLimits());
+        }
+        if (actual.getCurrentLimits() != null) {
+            compareLoadingLimits(expected.getCurrentLimits(), actual.getCurrentLimits());
+        }
+    }
+
+    private void compareLoadingLimits(LoadingLimits expected, LoadingLimits actual) {
+        if (!actual.getTemporaryLimits().isEmpty()) {
+            assertTrue(!expected.getTemporaryLimits().isEmpty());
+            Iterator<LoadingLimits.TemporaryLimit> iterator = actual.getTemporaryLimits().iterator();
+            while (iterator.hasNext()) {
+                LoadingLimits.TemporaryLimit temporaryLimit = iterator.next();
+                int acceptableDuration = temporaryLimit.getAcceptableDuration();
+                assertEquals(expected.getTemporaryLimit(acceptableDuration).getValue(), temporaryLimit.getValue(), 0.0);
+            }
+        } else {
+            assertTrue(expected.getTemporaryLimits().isEmpty());
+        }
     }
 
     private Network prepareNetwork(Network network) {
