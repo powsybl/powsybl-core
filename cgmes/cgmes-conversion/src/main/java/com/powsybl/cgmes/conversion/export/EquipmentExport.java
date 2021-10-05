@@ -329,7 +329,7 @@ public final class EquipmentExport {
         writeFlowsLimits(leg, terminalId, cimNamespace, writer);
     }
 
-    private static void writePhaseTapChanger(Identifiable eq, PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writePhaseTapChanger(Identifiable<?> eq, PhaseTapChanger ptc, String twtName, String endId, double neutralU, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (ptc != null) {
             String tapChangerId = (String) eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1)
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElse(null));
@@ -359,7 +359,7 @@ public final class EquipmentExport {
         return neutralStep;
     }
 
-    private static void writeRatioTapChanger(Identifiable eq, RatioTapChanger rtc, String twtName, String endId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeRatioTapChanger(Identifiable<?> eq, RatioTapChanger rtc, String twtName, String endId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (rtc != null) {
             String tapChangerId = (String) eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1)
                     .orElseGet(() -> eq.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElse(null));
@@ -467,7 +467,7 @@ public final class EquipmentExport {
         return connectivityNodeId;
     }
 
-    private static void writeBranchLimits(Branch branch, String terminalId1, String terminalId2, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeBranchLimits(Branch<?> branch, String terminalId1, String terminalId2, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         if (branch.getActivePowerLimits1() != null) {
             writeLoadingLimits(branch.getActivePowerLimits1(), terminalId1, cimNamespace, writer);
         }
@@ -533,7 +533,7 @@ public final class EquipmentExport {
             writeDCNode(dcNode2, line.getNameOrId() + "_2", dcConverterUnit2, cimNamespace, writer);
             writeDCTerminal(CgmesExportUtil.getUniqueId(), line.getId(), dcNode1, 1, cimNamespace, writer);
             writeDCTerminal(CgmesExportUtil.getUniqueId(), line.getId(), dcNode2, 2, cimNamespace, writer);
-            HvdcConverterStation converter = line.getConverterStation1();
+            HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
             writeAcdcConverterDCTerminal(CgmesExportUtil.getUniqueId(), converter.getId(), dcNode1, 2, cimNamespace, writer);
             converter = line.getConverterStation2();

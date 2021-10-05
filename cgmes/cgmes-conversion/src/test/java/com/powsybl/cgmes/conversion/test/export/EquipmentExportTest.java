@@ -129,7 +129,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
         }
     }
 
-    private void compareBranchLimits(Branch expected, Branch actual) {
+    private void compareBranchLimits(Branch<?> expected, Branch<?> actual) {
         if (actual.getActivePowerLimits1() != null) {
             compareLoadingLimits(expected.getActivePowerLimits1(), actual.getActivePowerLimits1());
         }
