@@ -45,11 +45,11 @@ public final class EquipmentExport {
             Map <Terminal, String> exportedTerminals = new HashMap<>();
             writeConnectivity(network, exportedNodes, cimNamespace, writer);
             writeTerminals(network, exportedTerminals, exportedNodes, cimNamespace, writer);
-            writeSwitches(network, exportedNodes, cimNamespace, writer);
+            writeSwitches(network, cimNamespace, writer);
 
             writeSubstations(network, cimNamespace, writer);
-            Map<Double, String> baseVoltageIds = writeVoltageLevels(network, cimNamespace, writer, context);
-            writeBusbarSections(network, baseVoltageIds, cimNamespace, writer, context);
+            Map<Double, String> baseVoltageIds = writeVoltageLevels(network, cimNamespace, writer);
+            writeBusbarSections(network, baseVoltageIds, cimNamespace, writer);
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
@@ -76,25 +76,33 @@ public final class EquipmentExport {
             } else {
                 writeBuses(vl, exportedNodes, cimNamespace, writer);
             }
-            for (Switch sw : vl.getSwitches()) {
-                String node1Key = getNode1Key(vl, sw);
-                String node1 = exportedNodes.get(node1Key);
-                if (node1 == null) {
-                    String nodeId = sw.getId();
-                    String node = CgmesExportUtil.getUniqueId();
-                    ConnectivityNodeEq.write(node, nodeId, vl.getId(), cimNamespace, writer);
-                    exportedNodes.put(node1Key, node);
-                }
-                String node2Key = getNode2Key(vl, sw);
-                String node2 = exportedNodes.get(node2Key);
-                if (node2 == null) {
-                    String nodeId = sw.getId();
-                    String node = CgmesExportUtil.getUniqueId();
-                    ConnectivityNodeEq.write(node, nodeId, vl.getId(), cimNamespace, writer);
-                    exportedNodes.put(node2Key, node);
-                }
+            writeSwitchesConnectivity(vl, exportedNodes, cimNamespace, writer);
+        }
+        writeBusbarSectionConnectivity(network, exportedNodes, cimNamespace, writer);
+    }
+
+    private static void writeSwitchesConnectivity(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (Switch sw : vl.getSwitches()) {
+            String node1Key = getNode1Key(vl, sw);
+            String node1 = exportedNodes.get(node1Key);
+            if (node1 == null) {
+                String nodeId = sw.getId();
+                String node = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node, nodeId, vl.getId(), cimNamespace, writer);
+                exportedNodes.put(node1Key, node);
+            }
+            String node2Key = getNode2Key(vl, sw);
+            String node2 = exportedNodes.get(node2Key);
+            if (node2 == null) {
+                String nodeId = sw.getId();
+                String node = CgmesExportUtil.getUniqueId();
+                ConnectivityNodeEq.write(node, nodeId, vl.getId(), cimNamespace, writer);
+                exportedNodes.put(node2Key, node);
             }
         }
+    }
+
+    private static void writeBusbarSectionConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
             String connectivityNodeId = connectivityNodeId(exportedNodes, bus.getTerminal());
             if (connectivityNodeId == null) {
@@ -129,25 +137,11 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeSwitches(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
+    private static void writeSwitches(Network network, String cimNamespace, XMLStreamWriter writer)throws XMLStreamException {
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
             SwitchEq.write(sw.getId(), sw.getNameOrId(), sw.getKind(), vl.getId(), sw.isRetained(), cimNamespace, writer);
         }
-    }
-
-    private static String getSide1Id(VoltageLevel vl, Switch sw) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return CgmesExportUtil.format(vl.getNodeBreakerView().getNode1(sw.getId()));
-        }
-        return vl.getBusBreakerView().getBus1(sw.getId()).getId();
-    }
-
-    private static String getSide2Id(VoltageLevel vl, Identifiable id) {
-        if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-            return CgmesExportUtil.format(vl.getNodeBreakerView().getNode2(id.getId()));
-        }
-        return vl.getBusBreakerView().getBus2(id.getId()).getId();
     }
 
     private static String getNode1Key(VoltageLevel vl, Switch sw) {
@@ -185,7 +179,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static Map<Double, String> writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static Map<Double, String> writeVoltageLevels(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         Map<Double, String> baseVoltageIds = new HashMap<>();
         for (VoltageLevel voltageLevel : network.getVoltageLevels()) {
             double nominalV = voltageLevel.getNominalV();
@@ -200,7 +194,7 @@ public final class EquipmentExport {
         return baseVoltageIds;
     }
 
-    private static void writeBusbarSections(Network network, Map<Double, String> baseVoltageIds, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
+    private static void writeBusbarSections(Network network, Map<Double, String> baseVoltageIds, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
             BusbarSectionEq.write(bus.getId(), bus.getNameOrId(), bus.getTerminal().getVoltageLevel().getId(), baseVoltageIds.get(bus.getTerminal().getVoltageLevel().getNominalV()), cimNamespace, writer);
         }
@@ -416,7 +410,6 @@ public final class EquipmentExport {
             if (danglingLine.getGeneration() != null) {
                 minP = danglingLine.getGeneration().getMinP();
                 maxP = danglingLine.getGeneration().getMaxP();
-                ReactiveLimits reactiveLimits = danglingLine.getGeneration().getReactiveLimits();
                 if (danglingLine.getGeneration().getReactiveLimits().getKind().equals(ReactiveLimitsKind.MIN_MAX)) {
                     minQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMinQ();
                     maxQ = danglingLine.getGeneration().getReactiveLimits(MinMaxReactiveLimits.class).getMaxQ();
@@ -523,7 +516,6 @@ public final class EquipmentExport {
                 OperationalLimitTypeEq.writeTatl(operationalLimitTypeId, temporaryLimit.getName(), temporaryLimit.getAcceptableDuration(), cimNamespace, writer);
                 String operationalLimitSetId = CgmesExportUtil.getUniqueId();
                 OperationalLimitSetEq.write(operationalLimitSetId, "operational limit tatl", terminalId, cimNamespace, writer);
-                //TODO: Create unique ID when network is not generated from CGMES import
                 LoadingLimitEq.write(CgmesExportUtil.getUniqueId(), limits.getClass(), "CurrentLimit", temporaryLimit.getValue(), operationalLimitTypeId, operationalLimitSetId, cimNamespace, writer);
             }
         }
@@ -548,8 +540,8 @@ public final class EquipmentExport {
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
             writeAcdcConverterDCTerminal(CgmesExportUtil.getUniqueId(), converter.getId(), dcNode2, 2, cimNamespace, writer);
             DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
-            writeHvdcConverterStation(network, line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, cimNamespace, writer);
-            writeHvdcConverterStation(network, line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, cimNamespace, writer);
+            writeHvdcConverterStation(line.getConverterStation2(), line.getNominalV(), dcConverterUnit2, cimNamespace, writer);
         }
     }
 
@@ -557,7 +549,7 @@ public final class EquipmentExport {
         DCConverterUnitEq.write(id, dcConverterUnitName, substationId, cimNamespace, writer);
     }
 
-    private static void writeHvdcConverterStation(Network network, HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeHvdcConverterStation(HvdcConverterStation<?> converterStation, double ratedUdc, String dcEquipmentContainerId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         HvdcConverterStationEq.write(converterStation.getId(), converterStation.getNameOrId(), converterStation.getHvdcType(), ratedUdc, dcEquipmentContainerId, cimNamespace, writer);
     }
 
@@ -577,21 +569,25 @@ public final class EquipmentExport {
         CgmesControlAreas cgmesControlAreas = network.getExtension(CgmesControlAreas.class);
         if (cgmesControlAreas != null) {
             for (CgmesControlArea cgmesControlArea : cgmesControlAreas.getCgmesControlAreas()) {
-                ControlAreaEq.write(cgmesControlArea.getId(), cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, writer);
-                for (Terminal terminal : cgmesControlArea.getTerminals()) {
-                    TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(exportedTerminals, terminal), cimNamespace, writer);
-                }
-                for (Boundary boundary : cgmesControlArea.getBoundaries()) {
-                    if (cgmesControlArea.getBoundaries().contains(boundary)) {
-                        TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), danglingLineBoundaries.get(boundary), cimNamespace, writer);
-                    }
-                }
+                writeControlArea(cgmesControlArea, exportedTerminals, danglingLineBoundaries, cimNamespace, writer);
             }
         } else {
             String cgmesControlAreaId = CgmesExportUtil.getUniqueId();
             ControlAreaEq.write(cgmesControlAreaId, "Network", "Network--1", cimNamespace, writer);
             for (DanglingLine danglingLine : network.getDanglingLines()) {
                 TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlAreaId, exportedTerminalId(exportedTerminals, danglingLine.getTerminal()), cimNamespace, writer);
+            }
+        }
+    }
+
+    private static void writeControlArea(CgmesControlArea cgmesControlArea, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        ControlAreaEq.write(cgmesControlArea.getId(), cgmesControlArea.getName(), cgmesControlArea.getEnergyIdentificationCodeEIC(), cimNamespace, writer);
+        for (Terminal terminal : cgmesControlArea.getTerminals()) {
+            TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), exportedTerminalId(exportedTerminals, terminal), cimNamespace, writer);
+        }
+        for (Boundary boundary : cgmesControlArea.getBoundaries()) {
+            if (cgmesControlArea.getBoundaries().contains(boundary)) {
+                TieFlowEq.write(CgmesExportUtil.getUniqueId(), cgmesControlArea.getId(), danglingLineBoundaries.get(boundary), cimNamespace, writer);
             }
         }
     }
@@ -715,7 +711,7 @@ public final class EquipmentExport {
         NodeAdjacency(VoltageLevel vl) {
             adjacency = new HashMap<>();
             if (vl.getTopologyKind().equals(TopologyKind.NODE_BREAKER)) {
-                vl.getNodeBreakerView().getInternalConnections().forEach(ic -> computeInternalConnectionAdjacency(ic));
+                vl.getNodeBreakerView().getInternalConnections().forEach(this::computeInternalConnectionAdjacency);
             }
         }
 

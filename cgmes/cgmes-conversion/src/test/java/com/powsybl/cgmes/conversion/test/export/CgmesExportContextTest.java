@@ -140,7 +140,7 @@ public class CgmesExportContextTest {
         assertTrue(context.getSvModelDescription().getDependencies().isEmpty());
     }
 
-    //@Test
+    @Test
     public void nodeBreakerBuildTNMappingError() throws IOException {
         // Instead of a generic NPE exception,
         // Check that a controlled exception is thrown explaining the problem
