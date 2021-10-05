@@ -19,56 +19,56 @@ import com.powsybl.iidm.network.util.ContainersMapping;
  */
 public abstract class AbstractConverter {
 
-    protected AbstractConverter(ContainersMapping containersMapping, Network network) {
+    AbstractConverter(ContainersMapping containersMapping, Network network) {
         this.containersMapping = Objects.requireNonNull(containersMapping);
         this.network = Objects.requireNonNull(network);
     }
 
-    public ContainersMapping getContainersMapping() {
+    ContainersMapping getContainersMapping() {
         return containersMapping;
     }
 
-    public Network getNetwork() {
+    Network getNetwork() {
         return network;
     }
 
-    public static String getBusId(int busNum) {
+    static String getBusId(int busNum) {
         return "B" + busNum;
     }
 
-    public static Complex impedanceToEngineeringUnits(Complex impedance, double vnom, double sbase) {
+    static Complex impedanceToEngineeringUnits(Complex impedance, double vnom, double sbase) {
         return impedance.multiply(vnom * vnom / sbase);
     }
 
-    public static double impedanceToEngineeringUnits(double impedance, double vnom, double sbase) {
+    static double impedanceToEngineeringUnits(double impedance, double vnom, double sbase) {
         return impedance * vnom * vnom / sbase;
     }
 
-    public static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
+    static double impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double impedance, double vnom1, double vnom2, double sbase) {
         return impedance * vnom1 * vnom2 / sbase;
     }
 
-    public static Complex admittanceToEngineeringUnits(Complex admittance, double vnom, double sbase) {
+    static Complex admittanceToEngineeringUnits(Complex admittance, double vnom, double sbase) {
         return admittance.multiply(sbase / (vnom * vnom));
     }
 
-    public static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+    static double admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
         return shuntAdmittance * sbase / (vnom1 * vnom1) - (1 - vnom2 / vnom1) * admittanceTransmissionEu;
     }
 
-    public static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
+    static double admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(double admittanceTransmissionEu, double shuntAdmittance, double vnom1, double vnom2, double sbase) {
         return shuntAdmittance * sbase / (vnom2 * vnom2) - (1 - vnom1 / vnom2) * admittanceTransmissionEu;
     }
 
-    public static double admittanceToEngineeringUnits(double admittance, double vnom, double sbase) {
+    static double admittanceToEngineeringUnits(double admittance, double vnom, double sbase) {
         return admittance * sbase / (vnom * vnom);
     }
 
-    public static double powerToShuntAdmittance(double power, double vnom) {
+    static double powerToShuntAdmittance(double power, double vnom) {
         return power / (vnom * vnom);
     }
 
-    public static double shuntAdmittanceToPower(double shuntAdmittance, double vnom) {
+    static double shuntAdmittanceToPower(double shuntAdmittance, double vnom) {
         return shuntAdmittance * vnom * vnom;
     }
 

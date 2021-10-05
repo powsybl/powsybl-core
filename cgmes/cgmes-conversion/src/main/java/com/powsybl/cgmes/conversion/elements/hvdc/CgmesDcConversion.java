@@ -162,14 +162,21 @@ public class CgmesDcConversion {
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId) {
-        convert(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId, false);
+        if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
+            return;
+        }
+        this.r = computeR(this.dcLineSegment);
+
+        if (createHvdc()) {
+            setCommonDataUsed();
+        }
     }
 
     private void convert(String acDcConverterIdEnd1, String acDcConverterIdEnd2, String dcLineSegmentId, boolean isDuplicated) {
         if (!convertCommonData(acDcConverterIdEnd1, acDcConverterIdEnd2, dcLineSegmentId)) {
             return;
         }
-        this.r = computeR(this.dcLineSegment);
+        this.r = 2.0 * computeR(this.dcLineSegment);
 
         // After collecting all commomData the id can be modified to guarantee uniqueness
         if (isDuplicated) {

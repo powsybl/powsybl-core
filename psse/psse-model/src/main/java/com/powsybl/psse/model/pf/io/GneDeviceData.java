@@ -36,7 +36,7 @@ class GneDeviceData extends AbstractRecordGroup<PsseGneDevice> {
     }
 
     @Override
-    public Class<PsseGneDevice> psseTypeClass() {
+    protected Class<PsseGneDevice> psseTypeClass() {
         return PsseGneDevice.class;
     }
 
