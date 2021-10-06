@@ -108,7 +108,6 @@ public final class EquipmentExport {
         }
     }
 
-
     private static void writeBusbarSectionsConnectivity(Network network, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (BusbarSection bus : network.getBusbarSections()) {
             String connectivityNodeId = connectivityNodeId(exportedNodes, bus.getTerminal());
