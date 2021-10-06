@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
@@ -112,12 +111,12 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    public void traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(TopologyTraverser traverser) {
         ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 

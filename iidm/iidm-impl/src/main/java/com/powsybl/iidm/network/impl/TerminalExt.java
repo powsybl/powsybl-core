@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Set;
 
@@ -44,6 +43,6 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     void setNum(int num);
 
-    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals);
+    void traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals);
 
 }

@@ -7,7 +7,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel.TopologyTraverser;
 
 import java.util.HashMap;
 import java.util.List;

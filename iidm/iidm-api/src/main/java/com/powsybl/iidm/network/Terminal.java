@@ -158,6 +158,29 @@ public interface Terminal {
      * Traverse the full network topology graph.
      * @param traverser traversal handler
      */
-    void traverse(VoltageLevel.TopologyTraverser traverser);
+    void traverse(TopologyTraverser traverser);
 
+    /**
+     * Topology traversal handler
+     */
+    interface TopologyTraverser {
+
+        /**
+         * Called when a terminal is encountered.
+         *
+         * @param terminal  the encountered terminal
+         * @param connected in bus/breaker topology, give the terminal connection status
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Terminal terminal, boolean connected);
+
+        /**
+         * Called when a switch is encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return true to continue the graph traversal, false otherwise
+         */
+        boolean traverse(Switch aSwitch);
+
+    }
 }

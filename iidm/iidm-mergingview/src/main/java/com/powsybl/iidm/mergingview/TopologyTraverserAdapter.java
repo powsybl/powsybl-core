@@ -8,19 +8,18 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 
 import java.util.Objects;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-class TopologyTraverserAdapter implements VoltageLevel.TopologyTraverser {
+class TopologyTraverserAdapter implements Terminal.TopologyTraverser {
 
-    private final VoltageLevel.TopologyTraverser delegate;
+    private final Terminal.TopologyTraverser delegate;
     private final MergingViewIndex index;
 
-    TopologyTraverserAdapter(VoltageLevel.TopologyTraverser traverser, MergingViewIndex index) {
+    TopologyTraverserAdapter(Terminal.TopologyTraverser traverser, MergingViewIndex index) {
         this.delegate = Objects.requireNonNull(traverser);
         this.index = Objects.requireNonNull(index);
     }

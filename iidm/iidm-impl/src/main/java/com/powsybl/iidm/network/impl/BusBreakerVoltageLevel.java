@@ -819,11 +819,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         return true;
     }
 
-    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser) {
+    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser) {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    void traverse(BusTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(traversedTerminals);

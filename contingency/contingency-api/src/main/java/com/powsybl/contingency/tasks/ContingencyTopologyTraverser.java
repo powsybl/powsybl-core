@@ -30,7 +30,7 @@ final class ContingencyTopologyTraverser {
         Objects.requireNonNull(switchesToOpen);
         Objects.requireNonNull(terminalsToDisconnect);
 
-        terminal.traverse(new VoltageLevel.TopologyTraverser() {
+        terminal.traverse(new Terminal.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
                 if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {

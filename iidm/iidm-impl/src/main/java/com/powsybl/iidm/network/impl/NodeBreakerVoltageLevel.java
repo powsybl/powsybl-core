@@ -1053,11 +1053,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return terminal.getBusView().getBus() != null;
     }
 
-    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser) {
+    void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(traversedTerminals);

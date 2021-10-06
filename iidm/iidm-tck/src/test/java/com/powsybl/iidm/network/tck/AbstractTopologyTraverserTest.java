@@ -191,7 +191,7 @@ public abstract class AbstractTopologyTraverserTest {
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
         List<String> traversed = new ArrayList<>();
-        start.traverse(new VoltageLevel.TopologyTraverser() {
+        start.traverse(new Terminal.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
