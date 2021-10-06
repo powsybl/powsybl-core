@@ -81,7 +81,7 @@ public final class EquipmentExport {
         writeBusbarSectionsConnectivity(network, exportedNodes, cimNamespace, writer);
     }
 
-    private static void writeSwitchesConnectivity(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeSwitchesConnectivity(VoltageLevel vl, Map <String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) {
         for (Switch sw : vl.getSwitches()) {
             String node1Key = getSwitchNode1Id(vl, sw);
             exportedNodes.computeIfAbsent(node1Key, k -> {
@@ -571,11 +571,11 @@ public final class EquipmentExport {
     }
 
     private static void writeDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        DCTerminalEq.write(id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
+        DCTerminalEq.write("DCTerminal", id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
     private static void writeAcdcConverterDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        AcdcConverterDCTerminalEq.write(id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
+        DCTerminalEq.write("ACDCConverterDCTerminal", id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
     private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
@@ -646,7 +646,7 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeTerminal(Terminal terminal, Map<Terminal, String> exportedTerminals, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeTerminal(Terminal terminal, Map<Terminal, String> exportedTerminals, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) {
         exportedTerminals.computeIfAbsent(terminal, k -> {
             try {
                 TerminalEq.write(id, conductingEquipmentId, connectivityNodeId, sequenceNumber, cimNamespace, writer);

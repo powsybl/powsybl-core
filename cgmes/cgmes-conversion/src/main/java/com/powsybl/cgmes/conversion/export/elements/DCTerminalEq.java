@@ -19,10 +19,10 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class DCTerminalEq {
 
-    public static void write(String id, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, "DCTerminal");
+    public static void write(String element, String id, String dcConductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, element);
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
-        writer.writeEmptyElement(cimNamespace, "DCTerminal.DCConductingEquipment");
+        writer.writeEmptyElement(cimNamespace, element + ".DCConductingEquipment");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcConductingEquipmentId);
         writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCNode");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcNodeId);
