@@ -90,9 +90,8 @@ public final class EquipmentExport {
                     ConnectivityNodeEq.write(node, node1Key, vl.getId(), cimNamespace, writer);
                     return node;
                 } catch (XMLStreamException e) {
-                    e.printStackTrace();
+                    throw new UncheckedXmlStreamException(e);
                 }
-                return null;
             });
             String node2Key = getSwitchNode2Id(vl, sw);
             exportedNodes.computeIfAbsent(node2Key, k -> {
@@ -101,9 +100,8 @@ public final class EquipmentExport {
                     ConnectivityNodeEq.write(node, node2Key, vl.getId(), cimNamespace, writer);
                     return node;
                 } catch (XMLStreamException e) {
-                    e.printStackTrace();
+                    throw new UncheckedXmlStreamException(e);
                 }
-                return null;
             });
         }
     }
@@ -183,9 +181,8 @@ public final class EquipmentExport {
                     SubGeographicalRegionEq.write(subGeographicalRegionId, finalGeoName, geographicalRegionId, cimNamespace, writer);
                     return subGeographicalRegionId;
                 } catch (XMLStreamException e) {
-                    e.printStackTrace();
+                    throw new UncheckedXmlStreamException(e);
                 }
-                return null;
             });
             SubstationEq.write(substation.getId(), substation.getNameOrId(), geographicalRegionIds.get(geoName), cimNamespace, writer);
         }
@@ -201,9 +198,8 @@ public final class EquipmentExport {
                     BaseVoltageEq.write(baseVoltageId, nominalV, cimNamespace, writer);
                     return baseVoltageId;
                 } catch (XMLStreamException e) {
-                    e.printStackTrace();
+                    throw new UncheckedXmlStreamException(e);
                 }
-                return null;
             });
             VoltageLevelEq.write(voltageLevel.getId(), voltageLevel.getNameOrId(), voltageLevel.getNullableSubstation().getId(), baseVoltageIds.get(voltageLevel.getNominalV()), cimNamespace, writer);
         }
@@ -656,9 +652,8 @@ public final class EquipmentExport {
                 TerminalEq.write(id, conductingEquipmentId, connectivityNodeId, sequenceNumber, cimNamespace, writer);
                 return id;
             } catch (XMLStreamException e) {
-                e.printStackTrace();
+                throw new UncheckedXmlStreamException(e);
             }
-            return null;
         });
     }
 
