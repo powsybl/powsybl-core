@@ -1057,46 +1057,69 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    /**
+     * Traverse from given node terminal using the given topology traverser, using the fact that the terminals in the
+     * given set have already been traversed.
+     * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
+     */
+    boolean traverse(NodeTerminal terminal, Terminal.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(traversedTerminals);
 
         if (traversedTerminals.contains(terminal)) {
-            return;
+            return true;
         }
 
-        if (traverser.traverse(terminal, true)) {
+        TraverseResult termTraverseResult = traverser.traverse(terminal, true);
+        if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+            return false;
+        } else if (termTraverseResult == TraverseResult.CONTINUE) {
             traversedTerminals.add(terminal);
 
-            int node = terminal.getNode();
             List<TerminalExt> nextTerminals = new ArrayList<>();
-
             addNextTerminals(terminal, nextTerminals);
 
-            graph.traverse(node, (v1, e, v2) -> {
+            int node = terminal.getNode();
+            boolean traverseTerminated = !graph.traverse(node, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                if (aSwitch == null // internal connection case
-                        || traverser.traverse(aSwitch)) {
-                    if (otherTerminal == null) {
-                        return TraverseResult.CONTINUE;
-                    } else if (traverser.traverse(otherTerminal, true)) {
-                        traversedTerminals.add(otherTerminal);
-
-                        addNextTerminals(otherTerminal, nextTerminals);
-                        return TraverseResult.CONTINUE;
-                    } else {
-                        return TraverseResult.TERMINATE_PATH;
-                    }
+                if (aSwitch == null) { // internal connection case
+                    return traverseTerminal(otherTerminal, traverser, traversedTerminals, nextTerminals);
                 } else {
-                    return TraverseResult.TERMINATE_PATH;
+                    TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
+                    if (switchTraverseResult == TraverseResult.CONTINUE) {
+                        return traverseTerminal(otherTerminal, traverser, traversedTerminals, nextTerminals);
+                    }
+                    return switchTraverseResult;
                 }
             });
+            if (traverseTerminated) {
+                return false;
+            }
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedTerminals);
+                if (!nextTerminal.traverse(traverser, traversedTerminals)) {
+                    return false;
+                }
             }
+        }
+
+        return true;
+    }
+
+    private TraverseResult traverseTerminal(NodeTerminal terminal, Terminal.TopologyTraverser traverser,
+                                            Set<Terminal> traversedTerminals, List<TerminalExt> nextTerminals) {
+        if (terminal == null) {
+            return TraverseResult.CONTINUE;
+        } else {
+            TraverseResult termTraverseResult = traverser.traverse(terminal, true);
+            if (termTraverseResult == TraverseResult.CONTINUE) {
+                traversedTerminals.add(terminal);
+                addNextTerminals(terminal, nextTerminals);
+            }
+            return termTraverseResult;
         }
     }
 

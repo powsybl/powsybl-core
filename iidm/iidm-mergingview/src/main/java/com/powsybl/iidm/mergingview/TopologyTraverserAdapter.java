@@ -8,6 +8,7 @@ package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Objects;
 
@@ -25,12 +26,12 @@ class TopologyTraverserAdapter implements Terminal.TopologyTraverser {
     }
 
     @Override
-    public boolean traverse(Terminal terminal, boolean connected) {
+    public TraverseResult traverse(Terminal terminal, boolean connected) {
         return delegate.traverse(index.getTerminal(terminal), connected);
     }
 
     @Override
-    public boolean traverse(Switch aSwitch) {
+    public TraverseResult traverse(Switch aSwitch) {
         return delegate.traverse(index.getSwitch(aSwitch));
     }
 }

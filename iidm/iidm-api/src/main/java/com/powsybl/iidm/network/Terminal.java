@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraverseResult;
+
 /**
  * An equipment connection point in a substation topology.
  *
@@ -172,7 +174,7 @@ public interface Terminal {
          * @param connected in bus/breaker topology, give the terminal connection status
          * @return true to continue the graph traversal, false otherwise
          */
-        boolean traverse(Terminal terminal, boolean connected);
+        TraverseResult traverse(Terminal terminal, boolean connected);
 
         /**
          * Called when a switch is encountered
@@ -180,7 +182,7 @@ public interface Terminal {
          * @param aSwitch the encountered switch
          * @return true to continue the graph traversal, false otherwise
          */
-        boolean traverse(Switch aSwitch);
+        TraverseResult traverse(Switch aSwitch);
 
     }
 }

@@ -54,12 +54,11 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
         assertEquals(Arrays.asList(6, 4), nodesInternallyConnectedTo3);
 
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
+
         // If we stop traversal at terminals
         // some internal connections are expected to be missing
-        InternalConnections expectedMissing = new InternalConnections();
-        expectedMissing.add(6, 3);
-        expectedMissing.add(9, 2);
-        expectedMissing.add(4, 3);
+        InternalConnections expectedMissing = new InternalConnections().add(6, 3).add(9, 2).add(4, 3);
+
         // Compute all missing connections
         Set<String> actualMissing = all.stream()
                 .filter(c -> !foundStoppingAtTerminals.contains(c))
@@ -219,9 +218,10 @@ public abstract class AbstractNodeBreakerInternalConnectionsTest {
     }
 
     static class InternalConnections extends HashSet<String> {
-        void add(int node1, int node2) {
+        InternalConnections add(int node1, int node2) {
             add(node1 + "-" + node2);
             add(node2 + "-" + node1);
+            return this;
         }
     }
 

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Set;
 
@@ -43,6 +44,12 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     void setNum(int num);
 
-    void traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals);
+    /**
+     * Traverse from this terminal using the given topology traverser, knowing that the terminals in the given
+     * set have already been traversed.
+     * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
+     * has been returned from the traverser, true otherwise
+     */
+    boolean traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals);
 
 }

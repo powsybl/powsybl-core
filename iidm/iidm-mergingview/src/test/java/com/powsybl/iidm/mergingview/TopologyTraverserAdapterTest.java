@@ -6,14 +6,17 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -26,29 +29,30 @@ public class TopologyTraverserAdapterTest {
     public void test() {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Terminal start1 = cgm.getLoad("LOAD1").getTerminal();
-        List<String> traversed1 = recordTraversed(start1, s -> true);
+        List<String> traversed1 = recordTraversed(start1, s -> TraverseResult.CONTINUE);
         assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1 + DL2"), traversed1);
 
-        List<String> traversed1bis = recordTraversed(start1, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
+        List<String> traversed1bis = recordTraversed(start1,
+            aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH);
         assertEquals(Collections.singletonList("LOAD1"), traversed1bis);
 
         Terminal start2 = cgm.getLoad("LOAD2").getTerminal();
-        List<String> traversed2 = recordTraversed(start2, s -> true);
+        List<String> traversed2 = recordTraversed(start2, s -> TraverseResult.CONTINUE);
         assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), traversed2);
     }
 
-    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
+    private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchPredicate) {
         List<String> traversed = new ArrayList<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
-                return true;
+                return TraverseResult.CONTINUE;
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                return switchPredicate.test(aSwitch);
+            public TraverseResult traverse(Switch aSwitch) {
+                return switchPredicate.apply(aSwitch);
             }
         });
         return traversed;

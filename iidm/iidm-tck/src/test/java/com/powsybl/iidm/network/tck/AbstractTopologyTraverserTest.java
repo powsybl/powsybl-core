@@ -7,12 +7,13 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Predicate;
+import java.util.function.Function;
 
 import static org.junit.Assert.assertEquals;
 
@@ -169,7 +170,7 @@ public abstract class AbstractTopologyTraverserTest {
     public void test1() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> true);
+        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
     }
 
@@ -177,7 +178,8 @@ public abstract class AbstractTopologyTraverserTest {
     public void test2() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
-        List<String> traversed = recordTraversed(start, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
+        List<String> traversed = recordTraversed(start, aSwitch ->
+                !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH);
         assertEquals(Arrays.asList("BBS1", "G"), traversed);
     }
 
@@ -185,22 +187,22 @@ public abstract class AbstractTopologyTraverserTest {
     public void test3() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> true);
+        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
     }
 
-    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
+    private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchPredicate) {
         List<String> traversed = new ArrayList<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
-                return true;
+                return TraverseResult.CONTINUE;
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                return switchPredicate.test(aSwitch);
+            public TraverseResult traverse(Switch aSwitch) {
+                return switchPredicate.apply(aSwitch);
             }
         });
         return traversed;
