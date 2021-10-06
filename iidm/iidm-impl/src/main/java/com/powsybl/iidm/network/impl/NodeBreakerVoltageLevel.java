@@ -769,17 +769,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return getNetwork().getIndex().get(id, BusbarSection.class);
         }
 
-        private com.powsybl.math.graph.Traverser adapt(Traverser t) {
+        private com.powsybl.math.graph.Traverser adapt(TopologyTraverser t) {
             return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2);
         }
 
         @Override
-        public void traverse(int node, Traverser t) {
+        public void traverse(int node, TopologyTraverser t) {
             graph.traverse(node, adapt(t));
         }
 
         @Override
-        public void traverse(int[] nodes, Traverser t) {
+        public void traverse(int[] nodes, TopologyTraverser t) {
             graph.traverse(nodes, adapt(t));
         }
     };

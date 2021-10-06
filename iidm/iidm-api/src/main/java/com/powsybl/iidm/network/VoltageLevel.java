@@ -635,7 +635,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         BusbarSection getBusbarSection(String id);
 
-        interface Traverser {
+        interface TopologyTraverser {
             TraverseResult traverse(int node1, Switch sw, int node2);
         }
 
@@ -644,14 +644,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * starting from {@code node}.
          * The {@code traverser} callback is called every time an edge is traversed.
          */
-        void traverse(int node, Traverser traverser);
+        void traverse(int node, TopologyTraverser traverser);
 
         /**
          * Performs a depth-first traversal of the topology graph,
          * starting from each node in array {@code nodes}.
          * The {@code traverser} callback is called every time an edge is traversed.
          */
-        void traverse(int[] node, Traverser traverser);
+        void traverse(int[] node, TopologyTraverser traverser);
     }
 
     /**
