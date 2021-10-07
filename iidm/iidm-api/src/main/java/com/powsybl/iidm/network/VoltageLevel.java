@@ -636,6 +636,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         BusbarSection getBusbarSection(String id);
 
         interface TopologyTraverser {
+            /**
+             * Called for each traversal step
+             * @param node1 the node the traversal comes from
+             * @param sw the {@link Switch} encountered, or null if it is an {@link InternalConnection}
+             * @param node2 the node the traversal will go to, if the returned TraverseResult is {@link TraverseResult#CONTINUE}
+             * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+             * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+             */
             TraverseResult traverse(int node1, Switch sw, int node2);
         }
 

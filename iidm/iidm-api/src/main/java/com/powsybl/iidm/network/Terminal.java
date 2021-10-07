@@ -172,7 +172,8 @@ public interface Terminal {
          *
          * @param terminal  the encountered terminal
          * @param connected in bus/breaker topology, give the terminal connection status
-         * @return true to continue the graph traversal, false otherwise
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
          */
         TraverseResult traverse(Terminal terminal, boolean connected);
 
@@ -180,7 +181,8 @@ public interface Terminal {
          * Called when a switch is encountered
          *
          * @param aSwitch the encountered switch
-         * @return true to continue the graph traversal, false otherwise
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
          */
         TraverseResult traverse(Switch aSwitch);
 
