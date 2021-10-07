@@ -430,7 +430,11 @@ public final class EquipmentExport {
                     throw new PowsyblException("Unexpected type of ReactiveLimits on the dangling line " + danglingLine.getNameOrId());
                 }
             }
-            String equivalentInjectionId = CgmesExportUtil.getUniqueId();
+            String equivalentInjectionId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection").orElse(null);
+            if (equivalentInjectionId == null) {
+                equivalentInjectionId = CgmesExportUtil.getUniqueId();
+                danglingLine.addAlias(equivalentInjectionId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
+            }
             EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
             TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
 
@@ -473,7 +477,10 @@ public final class EquipmentExport {
         String connectivityNodeId = CgmesExportUtil.getUniqueId();
         ConnectivityNodeEq.write(connectivityNodeId, danglingLine.getNameOrId() + "_NODE", voltageLevelId, cimNamespace, writer);
         // New Terminal
-        String terminalId = CgmesExportUtil.getUniqueId();
+        String terminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
+        if (terminalId == null) {
+            terminalId = CgmesExportUtil.getUniqueId();
+        }
         TerminalEq.write(terminalId, danglingLine.getId(), connectivityNodeId, 2, cimNamespace, writer);
         danglingLineBoundaries.put(danglingLine.getBoundary(), terminalId);
 
@@ -606,6 +613,12 @@ public final class EquipmentExport {
     }
 
     private static void writeTerminals(Network network, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (Connectable<?> c : network.getConnectables()) {
+            for (Terminal t : c.getTerminals()) {
+                writeTerminal(t, c, exportedTerminals, exportedNodes, cimNamespace, writer);
+            }
+        }
+
         for (Switch sw : network.getSwitches()) {
             VoltageLevel vl = sw.getVoltageLevel();
             String node1 = exportedNodes.get(getSwitchNode1Id(vl, sw));
@@ -613,37 +626,26 @@ public final class EquipmentExport {
             String node2 = exportedNodes.get(getSwitchNode2Id(vl, sw));
             TerminalEq.write(CgmesExportUtil.getUniqueId(), sw.getId(), node2, 2, cimNamespace, writer);
         }
-        for (BusbarSection bus : network.getBusbarSections()) {
-            writeTerminal(bus.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), bus.getId(), connectivityNodeId(exportedNodes, bus.getTerminal()), 1, cimNamespace, writer);
+    }
+
+    private static void writeTerminal(Terminal t, Connectable<?> c, Map<Terminal, String> exportedTerminals, Map<String, String> exportedNodes, String cimNamespace, XMLStreamWriter writer) {
+        String terminalId = null;
+        int sequenceNumber = 1;
+        if (c instanceof DanglingLine) {
+            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network").orElse(null);
+            if (terminalId == null) {
+                terminalId = CgmesExportUtil.getUniqueId();
+                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
+            }
+        } else {
+            sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
+            terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
+            if (terminalId == null) {
+                terminalId = CgmesExportUtil.getUniqueId();
+                c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber);
+            }
         }
-        for (Load load : network.getLoads()) {
-            writeTerminal(load.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), load.getId(), connectivityNodeId(exportedNodes, load.getTerminal()), 1, cimNamespace, writer);
-        }
-        for (Generator generator : network.getGenerators()) {
-            writeTerminal(generator.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), generator.getId(), connectivityNodeId(exportedNodes, generator.getTerminal()), 1, cimNamespace, writer);
-        }
-        for (ShuntCompensator s : network.getShuntCompensators()) {
-            writeTerminal(s.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), s.getId(), connectivityNodeId(exportedNodes, s.getTerminal()), 1, cimNamespace, writer);
-        }
-        for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            writeTerminal(svc.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), svc.getId(), connectivityNodeId(exportedNodes, svc.getTerminal()), 1, cimNamespace, writer);
-        }
-        for (Line line : network.getLines()) {
-            writeTerminal(line.getTerminal1(), exportedTerminals, CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal1()), 1, cimNamespace, writer);
-            writeTerminal(line.getTerminal2(), exportedTerminals, CgmesExportUtil.getUniqueId(), line.getId(), connectivityNodeId(exportedNodes, line.getTerminal2()), 2, cimNamespace, writer);
-        }
-        for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
-            writeTerminal(twt.getTerminal1(), exportedTerminals, CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal1()), 1, cimNamespace, writer);
-            writeTerminal(twt.getTerminal2(), exportedTerminals, CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getTerminal2()), 2, cimNamespace, writer);
-        }
-        for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            writeTerminal(twt.getLeg1().getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg1().getTerminal()), 1, cimNamespace, writer);
-            writeTerminal(twt.getLeg2().getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg2().getTerminal()), 2, cimNamespace, writer);
-            writeTerminal(twt.getLeg3().getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), twt.getId(), connectivityNodeId(exportedNodes, twt.getLeg3().getTerminal()), 3, cimNamespace, writer);
-        }
-        for (DanglingLine danglingLine : network.getDanglingLines()) {
-            writeTerminal(danglingLine.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), danglingLine.getId(), connectivityNodeId(exportedNodes, danglingLine.getTerminal()), 1, cimNamespace, writer);
-        }
+        writeTerminal(t, exportedTerminals, terminalId, c.getId(), connectivityNodeId(exportedNodes, t), sequenceNumber, cimNamespace, writer);
     }
 
     private static void writeTerminal(Terminal terminal, Map<Terminal, String> exportedTerminals, String id, String conductingEquipmentId, String connectivityNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) {

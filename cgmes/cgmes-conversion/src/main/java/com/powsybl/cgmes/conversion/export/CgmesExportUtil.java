@@ -8,6 +8,8 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
@@ -120,4 +122,36 @@ public final class CgmesExportUtil {
         return "EnergyConsumer";
     }
 
+    public static int getTerminalSide(Terminal t, Connectable<?> c) {
+        if (c.getTerminals().size() == 1) {
+            return 1;
+        } else {
+            if (c instanceof Injection) {
+                // An injection should have only one terminal
+            } else if (c instanceof Branch) {
+                switch (((Branch<?>) c).getSide(t)) {
+                    case ONE:
+                        return 1;
+                    case TWO:
+                        return 2;
+                    default:
+                        throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
+                }
+            } else if (c instanceof ThreeWindingsTransformer) {
+                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+                    case ONE:
+                        return 1;
+                    case TWO:
+                        return 2;
+                    case THREE:
+                        return 3;
+                    default:
+                        throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                }
+            } else {
+                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
+            }
+        }
+        return 0;
+    }
 }

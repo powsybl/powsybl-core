@@ -419,41 +419,7 @@ public final class SteadyStateHypothesisExport {
         if (c instanceof DanglingLine) {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
         } else {
-            int numt = 0;
-            if (c.getTerminals().size() == 1) {
-                numt = 1;
-            } else {
-                if (c instanceof Injection) {
-                    // An injection should have only one terminal
-                } else if (c instanceof Branch) {
-                    switch (((Branch<?>) c).getSide(t)) {
-                        case ONE:
-                            numt = 1;
-                            break;
-                        case TWO:
-                            numt = 2;
-                            break;
-                        default:
-                            throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
-                    }
-                } else if (c instanceof ThreeWindingsTransformer) {
-                    switch (((ThreeWindingsTransformer) c).getSide(t)) {
-                        case ONE:
-                            numt = 1;
-                            break;
-                        case TWO:
-                            numt = 2;
-                            break;
-                        case THREE:
-                            numt = 3;
-                            break;
-                        default:
-                            throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
-                    }
-                } else {
-                    throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
-                }
-            }
+            int numt = CgmesExportUtil.getTerminalSide(t, c);
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + numt);
         }
         if (tid.isPresent()) {
