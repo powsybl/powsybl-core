@@ -39,20 +39,28 @@ public class TopologyTraverserAdapterTest {
         Terminal start2 = cgm.getLoad("LOAD2").getTerminal();
         List<String> traversed2 = recordTraversed(start2, s -> TraverseResult.CONTINUE);
         assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), traversed2);
+
+        List<String> traversed3 = recordTraversed(start2, s -> TraverseResult.CONTINUE,
+            t -> t.getConnectable().getId().equals("DL1 + DL2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), traversed3);
     }
 
     private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchPredicate) {
+        return recordTraversed(start, switchPredicate, t -> TraverseResult.CONTINUE);
+    }
+
+    private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
         List<String> traversed = new ArrayList<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
             public TraverseResult traverse(Terminal terminal, boolean connected) {
                 traversed.add(terminal.getConnectable().getId());
-                return TraverseResult.CONTINUE;
+                return terminalTest.apply(terminal);
             }
 
             @Override
             public TraverseResult traverse(Switch aSwitch) {
-                return switchPredicate.apply(aSwitch);
+                return switchTest.apply(aSwitch);
             }
         });
         return traversed;
