@@ -740,8 +740,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
 
+            getNetwork().getListeners().notifyBeforeRemoval(aSwitch);
+
             getNetwork().getIndex().remove(aSwitch);
-            getNetwork().getListeners().notifyRemoval(aSwitch);
+
+            getNetwork().getListeners().notifyAfterRemoval(switchId);
         }
 
         @Override
@@ -1130,14 +1133,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeAllEdges() {
+        List<String> removedSwitchesIds = new ArrayList<>(graph.getEdgeCount());
+        NetworkImpl network = getNetwork();
         for (SwitchImpl s : graph.getEdgesObject()) {
             if (s != null) {
+                network.getListeners().notifyBeforeRemoval(s);
+
+                removedSwitchesIds.add(s.getId());
                 getNetwork().getIndex().remove(s);
-                getNetwork().getListeners().notifyRemoval(s);
             }
         }
         graph.removeAllEdges();
         switches.clear();
+
+        removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
     }
 
     @Override
