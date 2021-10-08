@@ -443,7 +443,8 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public void remove() {
         VoltageLevels.checkRemovability(this);
 
-        getNetwork().getListeners().notifyBeforeRemoval(this);
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
 
         // Remove all connectables
         List<Connectable> connectables = Lists.newArrayList(getConnectables());
@@ -456,9 +457,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
         // Remove this voltage level from the network
         getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
-        getNetwork().getIndex().remove(this);
+        network.getIndex().remove(this);
 
-        getNetwork().getListeners().notifyAfterRemoval(id);
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     protected abstract void removeTopology();
