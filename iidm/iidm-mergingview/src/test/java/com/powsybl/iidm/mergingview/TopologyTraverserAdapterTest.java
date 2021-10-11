@@ -9,13 +9,12 @@ package com.powsybl.iidm.mergingview;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -38,11 +37,13 @@ public class TopologyTraverserAdapterTest {
     }
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
-        List<String> traversed = new ArrayList<>();
+        Set<Terminal> traversed = new LinkedHashSet<>();
         start.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
+                if (!traversed.add(terminal)) {
+                    fail();
+                }
                 return true;
             }
 
@@ -51,7 +52,7 @@ public class TopologyTraverserAdapterTest {
                 return switchPredicate.test(aSwitch);
             }
         });
-        return traversed;
+        return traversed.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }
