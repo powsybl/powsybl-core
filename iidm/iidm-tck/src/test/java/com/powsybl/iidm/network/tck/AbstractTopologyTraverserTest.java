@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -187,6 +188,14 @@ public abstract class AbstractTopologyTraverserTest {
         Terminal start = network.getGenerator("G").getTerminal();
         List<String> traversed = recordTraversed(start, s -> true);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
+    }
+
+    @Test
+    public void test4() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
     }
 
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
