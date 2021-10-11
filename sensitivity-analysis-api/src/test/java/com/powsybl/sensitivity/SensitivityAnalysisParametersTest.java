@@ -17,6 +17,7 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public class SensitivityAnalysisParametersTest {
+
     private static final String DUMMY_EXTENSION_NAME = "dummyExtension";
 
     @Test

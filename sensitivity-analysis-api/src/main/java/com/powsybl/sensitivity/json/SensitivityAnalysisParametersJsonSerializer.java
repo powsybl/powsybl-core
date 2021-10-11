@@ -20,9 +20,9 @@ import java.io.IOException;
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityAnalysisParametersSerializer extends StdSerializer<SensitivityAnalysisParameters> {
+public class SensitivityAnalysisParametersJsonSerializer extends StdSerializer<SensitivityAnalysisParameters> {
 
-    SensitivityAnalysisParametersSerializer() {
+    SensitivityAnalysisParametersJsonSerializer() {
         super(SensitivityAnalysisParameters.class);
     }
 

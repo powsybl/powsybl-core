@@ -24,9 +24,9 @@ import java.util.List;
  *
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
-public class SensitivityAnalysisParametersDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
+public class SensitivityAnalysisParametersJsonDeserializer extends StdDeserializer<SensitivityAnalysisParameters> {
 
-    SensitivityAnalysisParametersDeserializer() {
+    SensitivityAnalysisParametersJsonDeserializer() {
         super(SensitivityAnalysisParameters.class);
     }
 
