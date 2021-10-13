@@ -6,7 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
@@ -112,4 +115,64 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         }
     }
 
+    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, int node, String voltageLevelId) {
+        VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
+        if (voltageLevel == null) {
+            throw new PowsyblException("Voltage level '" + voltageLevelId + "' not found");
+        }
+
+        // check bus topology
+        if (voltageLevel.getTopologyKind() != TopologyKind.NODE_BREAKER) {
+            String msg = String.format(
+                    "Trying to move connectable %s to node %d of voltage level %s, which is a bus breaker voltage level",
+                    getId(), node, voltageLevel.getId());
+            throw new PowsyblException(msg);
+        }
+
+        // create the new terminal and attach it to the given voltage level and to the connectable
+        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+                .setNode(node)
+                .build();
+
+        // detach the terminal from its previous voltage level
+        attachTerminal(oldTerminal, oldConnectionInfo, voltageLevel, terminalExt);
+    }
+
+    protected void move(TerminalExt oldTerminal, String oldConnectionInfo, String busId, boolean connected) {
+        Bus bus = getNetwork().getBusBreakerView().getBus(busId);
+        if (bus == null) {
+            throw new PowsyblException("Bus '" + busId + "' not found");
+        }
+
+        // check bus topology
+        if (bus.getVoltageLevel().getTopologyKind() != TopologyKind.BUS_BREAKER) {
+            throw new PowsyblException(String.format(
+                    "Trying to move connectable %s to bus %s of voltage level %s, which is a node breaker voltage level",
+                    getId(), bus.getId(), bus.getVoltageLevel().getId()));
+        }
+
+        // create the new terminal and attach it to the voltage level of the given bus and links it to the connectable
+        TerminalExt terminalExt = new TerminalBuilder(getNetwork().getRef(), this)
+                .setBus(connected ? bus.getId() : null)
+                .setConnectableBus(bus.getId())
+                .build();
+
+        // detach the terminal from its previous voltage level
+        attachTerminal(oldTerminal, oldConnectionInfo, (VoltageLevelExt) bus.getVoltageLevel(), terminalExt);
+    }
+
+    private void attachTerminal(TerminalExt oldTerminal, String oldConnectionInfo, VoltageLevelExt voltageLevel, TerminalExt terminalExt) {
+        // first, attach new terminal to connectable and to voltage level of destination, to ensure that the new terminal is valid
+        terminalExt.setConnectable(this);
+        voltageLevel.attach(terminalExt, false);
+
+        // then we can detach the old terminal, as we now know that the new terminal is valid
+        oldTerminal.getVoltageLevel().detach(oldTerminal);
+
+        // replace the old terminal by the new terminal in the connectable
+        int iSide = terminals.indexOf(oldTerminal);
+        terminals.set(iSide, terminalExt);
+
+        notifyUpdate("terminal" + (iSide + 1), oldConnectionInfo, terminalExt.getConnectionInfo());
+    }
 }
