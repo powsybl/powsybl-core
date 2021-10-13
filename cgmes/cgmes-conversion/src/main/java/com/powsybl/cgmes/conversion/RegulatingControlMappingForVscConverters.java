@@ -91,7 +91,7 @@ public class RegulatingControlMappingForVscConverters {
         vscConverter
             .setVoltageSetpoint(rc.voltageSetpoint)
             .setReactivePowerSetpoint(0.0)
-            .setRegulatingTerminal(parent.findRegulatingTerminal(rc.pccTerminal, false))
+            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
             .setVoltageRegulatorOn(true);
     }
 
@@ -100,7 +100,7 @@ public class RegulatingControlMappingForVscConverters {
         vscConverter
             .setVoltageSetpoint(0.0)
             .setReactivePowerSetpoint(rc.reactivePowerSetpoint)
-            .setRegulatingTerminal(parent.findRegulatingTerminal(rc.pccTerminal, false))
+            .setRegulatingTerminal(parent.getRegulatingTerminal(vscConverter, rc.pccTerminal))
             .setVoltageRegulatorOn(false);
     }
 
