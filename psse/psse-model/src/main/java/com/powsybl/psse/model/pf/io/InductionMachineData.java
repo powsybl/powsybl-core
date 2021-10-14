@@ -30,7 +30,7 @@ class InductionMachineData extends AbstractRecordGroup<PsseInductionMachine> {
     }
 
     @Override
-    public Class<PsseInductionMachine> psseTypeClass() {
+    protected Class<PsseInductionMachine> psseTypeClass() {
         return PsseInductionMachine.class;
     }
 }

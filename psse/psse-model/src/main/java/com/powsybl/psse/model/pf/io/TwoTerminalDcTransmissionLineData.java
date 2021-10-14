@@ -46,7 +46,7 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
     }
 
     @Override
-    public Class<PsseTwoTerminalDcTransmissionLine> psseTypeClass() {
+    protected Class<PsseTwoTerminalDcTransmissionLine> psseTypeClass() {
         return PsseTwoTerminalDcTransmissionLine.class;
     }
 
@@ -124,7 +124,7 @@ class TwoTerminalDcTransmissionLineData extends AbstractRecordGroup<PsseTwoTermi
             }
 
             @Override
-            public Class<PsseTwoTerminalDcConverter> psseTypeClass() {
+            protected Class<PsseTwoTerminalDcConverter> psseTypeClass() {
                 return PsseTwoTerminalDcConverter.class;
             }
         }

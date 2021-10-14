@@ -33,6 +33,7 @@ public class RegulatingControlMapping {
     private final RegulatingControlMappingForTransformers regulatingControlMappingForTransformers;
     private final RegulatingControlMappingForShuntCompensators regulatingControlMappingForShuntCompensators;
     private final RegulatingControlMappingForStaticVarCompensators regulatingControlMappingForStaticVarCompensators;
+    private final RegulatingControlMappingForVscConverters regulatingControlMappingForVscConverters;
 
     RegulatingControlMapping(Context context) {
         this.context = context;
@@ -40,6 +41,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers = new RegulatingControlMappingForTransformers(this, context);
         regulatingControlMappingForStaticVarCompensators = new RegulatingControlMappingForStaticVarCompensators(this, context);
         regulatingControlMappingForShuntCompensators = new RegulatingControlMappingForShuntCompensators(this, context);
+        regulatingControlMappingForVscConverters = new RegulatingControlMappingForVscConverters(this, context);
     }
 
     public RegulatingControlMappingForGenerators forGenerators() {
@@ -56,6 +58,10 @@ public class RegulatingControlMapping {
 
     public RegulatingControlMappingForStaticVarCompensators forStaticVarCompensators() {
         return regulatingControlMappingForStaticVarCompensators;
+    }
+
+    public RegulatingControlMappingForVscConverters forVscConverters() {
+        return regulatingControlMappingForVscConverters;
     }
 
     public static class RegulatingControl {
@@ -111,6 +117,7 @@ public class RegulatingControlMapping {
         regulatingControlMappingForTransformers.applyTapChangersRegulatingControl(network);
         regulatingControlMappingForShuntCompensators.applyRegulatingControls(network);
         regulatingControlMappingForStaticVarCompensators.applyRegulatingControls(network);
+        regulatingControlMappingForVscConverters.applyRegulatingControls(network);
 
         cachedRegulatingControls.forEach((key, value) -> {
             if (value.correctlySet == null || !value.correctlySet) {
