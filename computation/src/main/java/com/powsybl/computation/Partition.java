@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
  */
 public class Partition {
 
-    private static final Pattern PATTERN = Pattern.compile("\\d+/\\d+");
+    private static final Pattern PATTERN = Pattern.compile("^\\d+/\\d+$");
 
     private final int taskIndex;
 

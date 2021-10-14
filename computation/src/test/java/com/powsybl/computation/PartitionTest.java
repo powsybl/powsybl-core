@@ -63,26 +63,17 @@ public class PartitionTest {
         assertPartitionInvalid("/1");
         assertPartitionInvalid("1/");
         assertPartitionInvalid("1|2");
+        assertPartitionInvalid("-1/2");
+        assertPartitionInvalid("+1/+2/foo0/0bar");
+        assertPartitionInvalid("foo/1/2");
+        assertPartitionInvalid("a1/2");
+        assertPartitionInvalid(" 1/2 ");
+        assertPartitionInvalid("+1/2");
+        assertPartitionInvalid("1/2/foo");
+        assertPartitionInvalid("-0/2");
 
-        //invalid values (but parses ok, bug or feature?)
+        //invalid values
         assertPartitionInvalid("2/1");
         assertPartitionInvalid("0/2");
-        assertPartitionInvalid("-1/2");
-
-        // Are the following bugs or features ?
-        assertThrows(NumberFormatException.class, () -> Partition.parse("foo/1/2"));
-        assertThrows(NumberFormatException.class, () -> Partition.parse("a1/2"));
-        assertThrows(NumberFormatException.class, () -> Partition.parse(" 1/2 "));
-        Partition.parse("+1/2");
-        Partition.parse("1/2/foo");
-        {
-            Partition p = Partition.parse("+1/+2/foo0/0bar");
-            assertEquals("1/2", p.toString());
-        }
-        {
-            PowsyblException exception = assertThrows(PowsyblException.class,
-                () -> Partition.parse("-0/2"));
-            assertEquals("0/2 is not valid", exception.getMessage());
-        }
     }
 }
