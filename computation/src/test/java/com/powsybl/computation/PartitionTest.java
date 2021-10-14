@@ -7,8 +7,10 @@
 package com.powsybl.computation;
 
 import org.junit.Test;
+import com.powsybl.commons.PowsyblException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -43,5 +45,44 @@ public class PartitionTest {
         assertEquals(3, p2of3.endIndex(5)); // 2 * 5 / 3
         assertEquals(3, p3of3.startIndex(5)); // (3-1) * 5 / 3
         assertEquals(5, p3of3.endIndex(5)); // 3 * 5 / 3
+    }
+
+    private void assertPartitionInvalid(String s) {
+        PowsyblException exception = assertThrows(PowsyblException.class,
+            () -> Partition.parse(s));
+        assertEquals(s + " is not valid", exception.getMessage());
+    }
+
+    @Test
+    public void testInvalid() {
+        //parsing
+        assertPartitionInvalid("a");
+        assertPartitionInvalid("/");
+        assertPartitionInvalid("1");
+        assertPartitionInvalid("12");
+        assertPartitionInvalid("/1");
+        assertPartitionInvalid("1/");
+        assertPartitionInvalid("1|2");
+
+        //invalid values (but parses ok, bug or feature?)
+        assertPartitionInvalid("2/1");
+        assertPartitionInvalid("0/2");
+        assertPartitionInvalid("-1/2");
+
+        // Are the following bugs or features ?
+        assertThrows(NumberFormatException.class, () -> Partition.parse("foo/1/2"));
+        assertThrows(NumberFormatException.class, () -> Partition.parse("a1/2"));
+        assertThrows(NumberFormatException.class, () -> Partition.parse(" 1/2 "));
+        Partition.parse("+1/2");
+        Partition.parse("1/2/foo");
+        {
+            Partition p = Partition.parse("+1/+2/foo0/0bar");
+            assertEquals("1/2", p.toString());
+        }
+        {
+            PowsyblException exception = assertThrows(PowsyblException.class,
+                () -> Partition.parse("-0/2"));
+            assertEquals("0/2 is not valid", exception.getMessage());
+        }
     }
 }
