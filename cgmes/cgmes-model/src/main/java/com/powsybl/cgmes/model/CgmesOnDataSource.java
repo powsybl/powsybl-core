@@ -39,7 +39,7 @@ public class CgmesOnDataSource {
         if (!foundNamespaces.contains(RDF_NAMESPACE)) {
             return false;
         }
-        if (!foundNamespaces.contains(CIM_16_NAMESPACE)) {
+        if (!(foundNamespaces.contains(CIM_16_NAMESPACE) || foundNamespaces.contains(CIM_100_NAMESPACE))) {
             return false;
         }
         return names().stream().anyMatch(CgmesSubset.EQUIPMENT::isValidName);
