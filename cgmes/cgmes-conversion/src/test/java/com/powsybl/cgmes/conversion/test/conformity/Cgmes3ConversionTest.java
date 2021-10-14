@@ -25,18 +25,28 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.io.IOException;
 import java.util.Properties;
 
 import org.junit.Test;
 
+import static org.junit.Assert.*;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cgmes3ConversionTest {
+
+    @Test
+    public void loadNetworkMicroGrid() {
+        // Check that CGMES importer supports check existence of valid CGMES 3 (CIM100) files
+        CgmesImport importer = new CgmesImport();
+        ReadOnlyDataSource ds = Cgmes3Catalog.microGrid().dataSource();
+        assertTrue(importer.exists(ds));
+        Network network = importer.importData(ds, NetworkFactory.findDefault(), null);
+        assertNotNull(network);
+    }
+
     @Test
     public void microGrid() throws IOException {
         Properties importParams = new Properties();

@@ -794,15 +794,20 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void smallNodeBrokerHvdcNanTargetPpcc() {
+    public void smallNodeBreakerHvdcNanTargetPpcc() {
         // Small Grid Node Breaker HVDC modified so targetPpcc are NaN
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcNanTargetPpcc().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcNanTargetPpcc().dataSource(), null));
     }
 
     @Test
-    public void smallNodeBrokerHvdcMissingDCLineSegment() {
+    public void smallNodeBreakerHvdcMissingDCLineSegment() {
         // Small Grid Node Breaker HVDC modified so there is not DC Line Segment
-        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBrokerHvdcMissingDCLineSegment().dataSource(), null));
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcMissingDCLineSegment().dataSource(), null));
+    }
+
+    @Test
+    public void smallNodeBreakerVscControllerRemotePccTerminal() {
+        assertNotNull(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerVscConverterRemotePccTerminal().dataSource(), null));
     }
 
     @Test
