@@ -198,7 +198,36 @@ public abstract class AbstractTopologyTraverserTest {
         assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
     }
 
+    @Test
+    public void test5() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Duplicate 2wt to go from VLGEN to VLHV1 even if traverser stops at one of them
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NGEN_NHV1");
+        TwoWindingsTransformer duplicatedTransformer = network.getSubstation("P1")
+                .newTwoWindingsTransformer()
+                .setId("duplicate")
+                .setVoltageLevel1("VLGEN").setBus1("NGEN")
+                .setVoltageLevel2("VLHV1").setBus2("NHV1")
+                .setRatedU1(transformer.getRatedU1())
+                .setRatedU2(transformer.getRatedU2())
+                .setR(transformer.getR())
+                .setX(transformer.getX())
+                .setG(transformer.getG())
+                .setB(transformer.getB())
+                .add();
+
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true,
+            t -> !(t.getConnectable() == duplicatedTransformer && t.getVoltageLevel().getId().equals("VLGEN")));
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "duplicate", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "duplicate", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+    }
+
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
+        return recordTraversed(start, switchPredicate, t -> true);
+    }
+
+    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate, Predicate<Terminal> terminalPredicate) {
         Set<Terminal> traversed = new LinkedHashSet<>();
         start.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
@@ -206,7 +235,7 @@ public abstract class AbstractTopologyTraverserTest {
                 if (!traversed.add(terminal)) {
                     fail("Traversing an already traversed terminal");
                 }
-                return true;
+                return terminalPredicate.test(terminal);
             }
 
             @Override
