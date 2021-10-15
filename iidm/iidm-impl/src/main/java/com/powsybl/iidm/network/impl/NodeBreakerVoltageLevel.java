@@ -1057,33 +1057,24 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(traversedTerminals);
+        Objects.requireNonNull(visitedTerminals);
 
-        if (traversedTerminals.contains(terminal)) {
-            return;
-        }
+        if (visitedTerminals.add(terminal) && traverser.traverse(terminal, true)) {
 
-        if (traverser.traverse(terminal, true)) {
-            traversedTerminals.add(terminal);
-
-            int node = terminal.getNode();
             List<TerminalExt> nextTerminals = new ArrayList<>();
-
             addNextTerminals(terminal, nextTerminals);
 
-            graph.traverse(node, (v1, e, v2) -> {
+            graph.traverse(terminal.getNode(), (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
                 if (aSwitch == null // internal connection case
                         || traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
-                    } else if (traverser.traverse(otherTerminal, true)) {
-                        traversedTerminals.add(otherTerminal);
-
+                    } else if (visitedTerminals.add(otherTerminal) && traverser.traverse(otherTerminal, true)) {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
@@ -1095,7 +1086,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedTerminals);
+                nextTerminal.traverse(traverser, visitedTerminals);
             }
         }
     }
