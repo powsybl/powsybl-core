@@ -7,16 +7,20 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -193,6 +197,14 @@ public abstract class AbstractTopologyTraverserTest {
     }
 
     @Test
+    public void test4() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+    }
+
+    @Test
     public void testTerminateTraverser() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal startGNbv = network.getGenerator("G").getTerminal();
@@ -232,11 +244,13 @@ public abstract class AbstractTopologyTraverserTest {
     }
 
     private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
-        List<String> traversed = new ArrayList<>();
+        Set<Terminal> traversed = new LinkedHashSet<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
             public TraverseResult traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
+                if (!traversed.add(terminal)) {
+                    fail("Traversing an already traversed terminal");
+                }
                 return terminalTest.apply(terminal);
             }
 
@@ -245,7 +259,7 @@ public abstract class AbstractTopologyTraverserTest {
                 return switchTest.apply(aSwitch);
             }
         });
-        return traversed;
+        return traversed.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }

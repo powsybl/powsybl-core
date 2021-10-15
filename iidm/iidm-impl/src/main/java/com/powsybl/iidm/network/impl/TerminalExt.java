@@ -52,4 +52,6 @@ interface TerminalExt extends Terminal, MultiVariantObject {
      */
     boolean traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals);
 
+    String getConnectionInfo();
+
 }

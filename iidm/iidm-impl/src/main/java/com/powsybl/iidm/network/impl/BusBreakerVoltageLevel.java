@@ -857,6 +857,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     if (tTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
                         return false;
                     } else if (tTraverseResult == TraverseResult.CONTINUE) {
+                        traversedTerminals.add(t);
                         addNextTerminals(t, nextTerminals);
                     }
                 }

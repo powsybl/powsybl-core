@@ -39,6 +39,11 @@ class NodeTerminal extends AbstractTerminal {
         public int getNode() {
             return node;
         }
+
+        @Override
+        public void moveConnectable(int node, String voltageLevelId) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, voltageLevelId);
+        }
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
@@ -58,7 +63,17 @@ class NodeTerminal extends AbstractTerminal {
             throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
         }
 
+        @Override
+        public void moveConnectable(String busId, boolean connected) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), busId, connected);
+        }
+
     };
+
+    @Override
+    public String getConnectionInfo() {
+        return "node " + getNode() + ", Voltage level " + getVoltageLevel().getId();
+    }
 
     private final BusViewExt busView = new BusViewExt() {
 

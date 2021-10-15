@@ -902,6 +902,9 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
+    }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter

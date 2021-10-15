@@ -12,13 +12,12 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -50,11 +49,13 @@ public class TopologyTraverserAdapterTest {
     }
 
     private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
-        List<String> traversed = new ArrayList<>();
+        Set<Terminal> traversed = new LinkedHashSet<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
             public TraverseResult traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
+                if (!traversed.add(terminal)) {
+                    fail();
+                }
                 return terminalTest.apply(terminal);
             }
 
@@ -63,7 +64,7 @@ public class TopologyTraverserAdapterTest {
                 return switchTest.apply(aSwitch);
             }
         });
-        return traversed;
+        return traversed.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }
