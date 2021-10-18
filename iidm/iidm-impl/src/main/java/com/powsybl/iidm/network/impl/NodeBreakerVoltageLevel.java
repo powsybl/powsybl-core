@@ -520,6 +520,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
+        getNetwork().getSynchronousComponentsManager().invalidate();
     }
 
     private Integer getEdge(String switchId, boolean throwException) {
