@@ -23,4 +23,6 @@ public interface BusRef {
      * @throws IllegalArgumentException if try to resolve by {@link com.powsybl.iidm.network.TopologyLevel#NODE_BREAKER}
      */
     Optional<Bus> resolve(Network network, TopologyLevel level);
+
+    default void foo() { }
 }
