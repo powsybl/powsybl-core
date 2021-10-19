@@ -53,7 +53,7 @@ public final class EquipmentExport {
             writeLoads(network, cimNamespace, writer);
             writeGenerators(network, exportedTerminals, cimNamespace, writer);
             writeShuntCompensators(network, cimNamespace, writer);
-            writeStaticVarCompensators(network, cimNamespace, writer);
+            writeStaticVarCompensators(network, exportedTerminals, cimNamespace, writer);
             writeLines(network, exportedTerminals, cimNamespace, writer);
             writeTwoWindingsTransformers(network, exportedTerminals, cimNamespace, writer);
             writeThreeWindingsTransformers(network, exportedTerminals, cimNamespace, writer);
@@ -284,9 +284,18 @@ public final class EquipmentExport {
         }
     }
 
-    private static void writeStaticVarCompensators(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeStaticVarCompensators(Network network, Map<Terminal, String> exportedTerminals, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (StaticVarCompensator svc : network.getStaticVarCompensators()) {
-            StaticVarCompensatorEq.write(svc.getId(), svc.getNameOrId(), 1 / svc.getBmin(), 1 / svc.getBmax(), svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer);
+            String regulatingControlId = svc.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl");
+            if (regulatingControlId != null || StaticVarCompensator.RegulationMode.VOLTAGE.equals(svc.getRegulationMode()) || !Objects.equals(svc, svc.getRegulatingTerminal().getConnectable())) {
+                if (regulatingControlId == null) {
+                    regulatingControlId = CgmesExportUtil.getUniqueId();
+                    svc.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "RegulatingControl", regulatingControlId);
+                }
+                String regulatingControlName = "RC_" + svc.getNameOrId();
+                RegulatingControlEq.write(regulatingControlId, regulatingControlName, exportedTerminalId(exportedTerminals, svc.getRegulatingTerminal()), cimNamespace, writer);
+            }
+            StaticVarCompensatorEq.write(svc.getId(), svc.getNameOrId(), regulatingControlId, 1 / svc.getBmin(), 1 / svc.getBmax(), svc.getExtension(VoltagePerReactivePowerControl.class), svc.getRegulationMode(), svc.getVoltageSetpoint(), cimNamespace, writer);
         }
     }
 

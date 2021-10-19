@@ -27,23 +27,29 @@ public final class StaticVarCompensatorEq {
     private static final String EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE = "StaticVarCompensator.sVCControlMode";
     private static final String EQ_STATICVARCOMPENSATOR_VOLTAGESETPOINT = "StaticVarCompensator.voltageSetPoint";
 
-    public static void write(String id, String svcName, double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl, StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    public static void write(String id, String svcName, String regulatingControlId, double inductiveRating, double capacitiveRating, VoltagePerReactivePowerControl voltagePerReactivePowerControl, StaticVarCompensator.RegulationMode svcControlMode, double voltageSetPoint, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writer.writeStartElement(cimNamespace, "StaticVarCompensator");
         writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, id);
         writer.writeStartElement(cimNamespace, CgmesNames.NAME);
         writer.writeCharacters(svcName);
         writer.writeEndElement();
+        if (regulatingControlId != null) {
+            writer.writeEmptyElement(cimNamespace, "RegulatingCondEq.RegulatingControl");
+            writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + regulatingControlId);
+        }
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_INDUCTIVERATING);
         writer.writeCharacters(CgmesExportUtil.format(inductiveRating));
         writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_CAPACITIVERATING);
         writer.writeCharacters(CgmesExportUtil.format(capacitiveRating));
         writer.writeEndElement();
+        writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
         if (voltagePerReactivePowerControl != null) {
-            writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SLOPE);
             writer.writeCharacters(CgmesExportUtil.format(voltagePerReactivePowerControl.getSlope()));
-            writer.writeEndElement();
+        } else {
+            writer.writeCharacters(CgmesExportUtil.format(0.0));
         }
+        writer.writeEndElement();
         writer.writeStartElement(cimNamespace, EQ_STATICVARCOMPENSATOR_SVCCONTROLMODE);
         writer.writeCharacters(regulationMode(svcControlMode));
         writer.writeEndElement();

@@ -16,6 +16,8 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -119,6 +121,7 @@ public final class CgmesExportUtil {
                 return "NonConformLoad";
             }
         }
+        LOG.warn("It is not possible to determine the type of load");
         return "EnergyConsumer";
     }
 
@@ -154,4 +157,6 @@ public final class CgmesExportUtil {
         }
         return 0;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 }

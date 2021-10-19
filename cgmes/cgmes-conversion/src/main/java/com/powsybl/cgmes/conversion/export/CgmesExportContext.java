@@ -151,8 +151,8 @@ public class CgmesExportContext {
             Set<String> mappedTns = new HashSet<>();
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 for (Bus configuredBus : vl.getBusBreakerView().getBuses()) {
-                    Bus busViewBus = null;
-                    String topologicalNode = null;
+                    Bus busViewBus;
+                    String topologicalNode;
                     if (vl.getTopologyKind() == TopologyKind.BUS_BREAKER) {
                         // Bus/breaker IIDM networks have been created from bus/branch CGMES data
                         // CGMES Topological Nodes have been used as configured bus identifiers
