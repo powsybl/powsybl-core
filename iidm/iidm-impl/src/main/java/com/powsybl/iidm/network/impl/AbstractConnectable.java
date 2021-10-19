@@ -53,7 +53,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean cleanDanglingSwitches) {
         NetworkImpl network = getNetwork();
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
