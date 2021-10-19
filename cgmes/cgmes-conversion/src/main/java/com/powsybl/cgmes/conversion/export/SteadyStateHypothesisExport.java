@@ -419,41 +419,7 @@ public final class SteadyStateHypothesisExport {
         if (c instanceof DanglingLine) {
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
         } else {
-            int numt = 0;
-            if (c.getTerminals().size() == 1) {
-                numt = 1;
-            } else {
-                if (c instanceof Injection) {
-                    // An injection should have only one terminal
-                } else if (c instanceof Branch) {
-                    switch (((Branch<?>) c).getSide(t)) {
-                        case ONE:
-                            numt = 1;
-                            break;
-                        case TWO:
-                            numt = 2;
-                            break;
-                        default:
-                            throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
-                    }
-                } else if (c instanceof ThreeWindingsTransformer) {
-                    switch (((ThreeWindingsTransformer) c).getSide(t)) {
-                        case ONE:
-                            numt = 1;
-                            break;
-                        case TWO:
-                            numt = 2;
-                            break;
-                        case THREE:
-                            numt = 3;
-                            break;
-                        default:
-                            throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
-                    }
-                } else {
-                    throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
-                }
-            }
+            int numt = CgmesExportUtil.getTerminalSide(t, c);
             tid = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + numt);
         }
         if (tid.isPresent()) {
@@ -512,7 +478,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeSshEnergyConsumer(String id, double p, double q, LoadDetail loadDetail, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeStartElement(cimNamespace, loadClassName(loadDetail));
+        writer.writeStartElement(cimNamespace, CgmesExportUtil.loadClassName(loadDetail));
         writer.writeAttribute(RDF_NAMESPACE, "about", "#" + id);
         writer.writeStartElement(cimNamespace, "EnergyConsumer.p");
         writer.writeCharacters(CgmesExportUtil.format(p));
@@ -521,22 +487,6 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();
-    }
-
-    private static String loadClassName(LoadDetail loadDetail) {
-        if (loadDetail != null) {
-            // Conform load if fixed part is zero and variable part is non-zero
-            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
-                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
-                return "ConformLoad";
-            }
-            // NonConform load if fixed part is non-zero and variable part is all zero
-            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
-                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
-                return "NonConformLoad";
-            }
-        }
-        return "EnergyConsumer";
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
