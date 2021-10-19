@@ -22,8 +22,16 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
-    private final NodeBreakerView nodeBreakerView = () -> {
-        throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
+    private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
+        @Override
+        public int getNode() {
+            throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void moveConnectable(int node, String voltageLevelId) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), node, voltageLevelId);
+        }
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
@@ -53,7 +61,19 @@ class BusTerminal extends AbstractTerminal {
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
+
+        @Override
+        public void moveConnectable(String busId, boolean connected) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), busId, connected);
+        }
+
     };
+
+    @Override
+    public String getConnectionInfo() {
+        return "bus " + getBusBreakerView().getConnectableBus().getId() + ", "
+                + (getBusBreakerView().getBus() != null ? "connected" : "disconnected");
+    }
 
     private final BusViewExt busView = new BusViewExt() {
 

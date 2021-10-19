@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStation;
@@ -26,11 +27,6 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
 
     private static final double DEFAULT_POWER_FACTOR = 0.8;
-
-    enum VscRegulation {
-        REACTIVE_POWER,
-        VOLTAGE
-    }
 
     public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, Context context) {
         super("ACDCConverter", c, context);
@@ -55,27 +51,16 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     public void convert() {
         Objects.requireNonNull(converterType);
         if (converterType.equals(HvdcType.VSC)) {
-            VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
-            boolean voltageRegulatorOn = false;
-            double voltageSetpoint = 0;
-            double reactivePowerSetpoint = 0;
-            if (vscRegulation == VscRegulation.VOLTAGE) {
-                voltageRegulatorOn = true;
-                voltageSetpoint = p.asDouble("targetUpcc");
-            } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
-                reactivePowerSetpoint = -p.asDouble("targetQpcc");
-            }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                .setLossFactor((float) this.lossFactor)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
-                .setVoltageSetpoint(voltageSetpoint)
-                .setReactivePowerSetpoint(reactivePowerSetpoint);
+                .setLossFactor((float) this.lossFactor);
             identify(adder);
             connect(adder);
+            RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
             addAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
+            context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
         } else if (converterType.equals(HvdcType.LCC)) {
 
             // TODO: There are two modes of control: dcVoltage and activePower
@@ -97,17 +82,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
     public void setLccPowerFactor(double powerFactor) {
         this.lccConverter.setPowerFactor((float) powerFactor);
-    }
-
-    private static VscRegulation decodeVscRegulation(String qPccControl) {
-        if (qPccControl != null) {
-            if (qPccControl.endsWith("voltagePcc")) {
-                return VscRegulation.VOLTAGE;
-            } else if (qPccControl.endsWith("reactivePcc")) {
-                return VscRegulation.REACTIVE_POWER;
-            }
-        }
-        return null;
     }
 
     LccConverterStation getLccConverter() {
