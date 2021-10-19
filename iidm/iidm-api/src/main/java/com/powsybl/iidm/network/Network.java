@@ -854,4 +854,9 @@ public interface Network extends Container<Network> {
     void addListener(NetworkListener listener);
 
     void removeListener(NetworkListener listener);
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.NETWORK;
+    }
 }

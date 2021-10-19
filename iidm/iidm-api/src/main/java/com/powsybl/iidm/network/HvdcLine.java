@@ -213,4 +213,9 @@ public interface HvdcLine extends Identifiable<HvdcLine> {
      * Remove the HVDC line
      */
     void remove();
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.HVDC_LINE;
+    }
 }

@@ -37,6 +37,12 @@ public abstract class AbstractLoadTest {
     }
 
     @Test
+    public void testType() {
+        assertSame(IdentifiableType.LOAD, network.getLoad("CE").getIdentifiableType());
+        assertSame(ConnectableType.LOAD, network.getLoad("CE").getIdentifiableType().getConnectableType().orElseThrow());
+    }
+
+    @Test
     public void testSetterGetter() {
         Load load = network.getLoad("CE");
         load.setP0(-1.0);

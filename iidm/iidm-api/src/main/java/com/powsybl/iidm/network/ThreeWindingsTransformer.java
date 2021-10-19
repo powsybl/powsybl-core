@@ -337,4 +337,9 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
      * Get the ratedU at the fictitious bus in kV (also used as nominal voltage)
      */
     double getRatedU0();
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
+    }
 }

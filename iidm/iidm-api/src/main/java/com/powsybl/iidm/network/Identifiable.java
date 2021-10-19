@@ -65,7 +65,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     /**
      * Add an alias to the object. Aliases must be unique in associated Network, and different
      * from any identifiable ID. No alias type is associated to this alias.
-     *
+     * <p>
      * If the alias already exists (i.e. is not unique) or equals an identifiable ID, throw a {@link com.powsybl.commons.PowsyblException}
      */
     default void addAlias(String alias) {
@@ -80,7 +80,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      * from any identifiable ID. This alias is associated to a given alias type.
      * If the given alias type is null or empty, no alias type is considered associated to the alias.
      * Only one alias can be associated to a non null given alias type for one object.
-     *
+     * <p>
      * If the alias already exists (i.e. is not unique) or equals an identifiable ID, throw a {@link com.powsybl.commons.PowsyblException}
      * If a given non null type already has an associated alias for this object, throw a {@link com.powsybl.commons.PowsyblException}
      */
@@ -93,7 +93,7 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
 
     /**
      * Remove an alias of the object.
-     *
+     * <p>
      * If the alias does not exist for this object, throw a {@link com.powsybl.commons.PowsyblException}
      */
     default void removeAlias(String alias) {
@@ -173,4 +173,11 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     default void setFictitious(boolean fictitious) {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Get identifiable type
+     *
+     * @return the identifiable type
+     */
+    IdentifiableType getIdentifiableType();
 }

@@ -129,6 +129,11 @@ public class VariantManagerImplTest {
         @Override
         public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         }
+
+        @Override
+        public IdentifiableType getIdentifiableType() {
+            return null;
+        }
     }
 
     private static final class LoadExtension extends AbstractExtension<Load> implements MultiVariantObject {

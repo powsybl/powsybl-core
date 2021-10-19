@@ -279,4 +279,9 @@ public interface DanglingLine extends Injection<DanglingLine>, FlowsLimitsHolder
     default Boundary getBoundary() {
         return new DanglingLineBoundaryImpl(this);
     }
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.DANGLING_LINE;
+    }
 }

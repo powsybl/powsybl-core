@@ -22,4 +22,8 @@ public interface Line extends Branch<Line>, LineCharacteristics<Line> {
 
     boolean isTieLine();
 
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.LINE;
+    }
 }

@@ -240,4 +240,9 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     double getRatedS();
 
     Generator setRatedS(double ratedS);
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.GENERATOR;
+    }
 }

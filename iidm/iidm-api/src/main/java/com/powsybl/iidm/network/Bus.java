@@ -255,4 +255,8 @@ public interface Bus extends Identifiable<Bus> {
         return Stream.empty();
     }
 
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.BUS;
+    }
 }

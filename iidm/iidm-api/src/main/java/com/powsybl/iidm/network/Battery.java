@@ -133,4 +133,9 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
      * Set the maximal active power in MW.
      */
     Battery setMaxP(double maxP);
+
+    @Override
+    default IdentifiableType getIdentifiableType() {
+        return IdentifiableType.BATTERY;
+    }
 }
