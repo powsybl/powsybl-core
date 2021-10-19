@@ -26,6 +26,7 @@ public class CgmesExportContext {
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
+    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
@@ -229,6 +230,8 @@ public class CgmesExportContext {
                 terminalId = CgmesExportUtil.getUniqueId();
                 c.addAlias(terminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network");
             }
+        } else if (c instanceof Load && ((Load) c).isFictitious()) {
+            // An fictitious load do not need an alias
         } else {
             int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
             String terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
@@ -403,6 +406,10 @@ public class CgmesExportContext {
     public CgmesExportContext setScenarioTime(DateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         return this;
+    }
+
+    public ModelDescription getEqModelDescription() {
+        return eqModelDescription;
     }
 
     public ModelDescription getSvModelDescription() {
