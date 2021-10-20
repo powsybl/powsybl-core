@@ -58,7 +58,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
             VoltageLevelExt vl = terminal.getVoltageLevel();
-            vl.detach(terminal);
+            vl.detach(terminal, cleanDanglingSwitches);
         }
         network.getListeners().notifyRemoval(this);
     }
@@ -167,7 +167,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         voltageLevel.attach(terminalExt, false);
 
         // then we can detach the old terminal, as we now know that the new terminal is valid
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
+        oldTerminal.getVoltageLevel().detach(oldTerminal, false);
 
         // replace the old terminal by the new terminal in the connectable
         int iSide = terminals.indexOf(oldTerminal);

@@ -353,27 +353,27 @@ public class UndirectedGraphImplTest {
 
     @Test
     public void testAddListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
-        Mockito.verify(listener1, Mockito.never()).graphChanged();
-        Mockito.verify(listener2, Mockito.never()).graphChanged();
+        Mockito.verify(listener1, Mockito.never()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.never()).vertexAdded(Mockito.anyInt());
         graph.addVertex();
-        Mockito.verify(listener1, Mockito.atLeastOnce()).graphChanged();
-        Mockito.verify(listener2, Mockito.atLeastOnce()).graphChanged();
+        Mockito.verify(listener1, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
     }
 
     @Test
     public void testRemoveListener() {
-        UndirectedGraphListener listener1 = Mockito.mock(UndirectedGraphListener.class);
-        UndirectedGraphListener listener2 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener1 = Mockito.mock(UndirectedGraphListener.class);
+        UndirectedGraphListener<Vertex, Object> listener2 = Mockito.mock(UndirectedGraphListener.class);
         graph.addListener(listener1);
         graph.addListener(listener2);
         graph.removeListener(listener1);
         graph.addVertex();
-        Mockito.verify(listener1, Mockito.never()).graphChanged();
-        Mockito.verify(listener2, Mockito.atLeastOnce()).graphChanged();
+        Mockito.verify(listener1, Mockito.never()).vertexAdded(Mockito.anyInt());
+        Mockito.verify(listener2, Mockito.atLeastOnce()).vertexAdded(Mockito.anyInt());
     }
 
 
