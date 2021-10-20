@@ -724,7 +724,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int ic : internalConnectionsToBeRemoved) {
                 graph.removeEdge(ic);
             }
-            clean(false);
+            graph.removeIsolatedVertices(false);
             invalidateCache();
         }
 
@@ -770,7 +770,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         + "' not found in voltage level '" + id + "'");
             }
             graph.removeEdge(e);
-            clean(false);
+            graph.removeIsolatedVertices(false);
         }
 
         @Override
@@ -994,15 +994,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
 
-        clean(cleanDanglingSwitches);
-    }
-
-    private void clean(boolean cleanDanglingSwitches) {
-        if (cleanDanglingSwitches) {
-            graph.removeDanglingVerticesAndEdges();
-        } else {
-            GraphUtil.removeIsolatedVertices(graph);
-        }
+        graph.removeIsolatedVertices(cleanDanglingSwitches);
     }
 
     private static boolean isBusbarSection(Terminal t) {

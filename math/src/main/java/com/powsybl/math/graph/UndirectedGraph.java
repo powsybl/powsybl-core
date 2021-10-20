@@ -329,5 +329,9 @@ public interface UndirectedGraph<V, E> {
      */
     void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
 
-    void removeDanglingVerticesAndEdges();
+    /**
+     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * If {@code andAlsoDanglingEdges} is true, also remove dangling edges.
+     */
+    void removeIsolatedVertices(boolean andAlsoDanglingEdges);
 }

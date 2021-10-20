@@ -657,7 +657,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    public boolean removeDanglingVerticesAndEdges(int v, TIntArrayList[] adjacencyList, BitSet encountered) {
+    public boolean removeIsolatedVertices(boolean andAlsoDanglingEdges, int v, TIntArrayList[] adjacencyList, BitSet encountered) {
         if (encountered.get(v)) {
             return false;
         }
@@ -666,9 +666,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         boolean changed = false;
 
         Vertex<V> vertex = vertices.get(v);
-        if (vertex.getObject() == null) {
+        if (vertex != null && vertex.getObject() == null) {
             TIntArrayList adjacentEdges = adjacencyList[v];
-            if (adjacentEdges.size() <= 1) {
+            if (adjacentEdges.isEmpty() || (adjacentEdges.size() == 1 && andAlsoDanglingEdges)) {
                 changed = true;
 
                 removeVertexInternal(v);
@@ -683,9 +683,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
                     // propagate to neighbors
                     if (v1 == v) {
-                        removeDanglingVerticesAndEdges(v2, adjacencyList, encountered);
+                        removeIsolatedVertices(andAlsoDanglingEdges, v2, adjacencyList, encountered);
                     } else {
-                        removeDanglingVerticesAndEdges(v1, adjacencyList, encountered);
+                        removeIsolatedVertices(andAlsoDanglingEdges, v1, adjacencyList, encountered);
                     }
                 }
             }
@@ -695,12 +695,12 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void removeDanglingVerticesAndEdges() {
+    public void removeIsolatedVertices(boolean andAlsoDanglingEdges) {
         TIntArrayList[] adjacencyList = getAdjacencyList();
         BitSet encountered = new BitSet(vertices.size());
         boolean changed = false;
         for (int v = 0; v < vertices.size(); v++) {
-            if (removeDanglingVerticesAndEdges(v, adjacencyList, encountered)) {
+            if (removeIsolatedVertices(andAlsoDanglingEdges, v, adjacencyList, encountered)) {
                 changed = true;
             }
         }

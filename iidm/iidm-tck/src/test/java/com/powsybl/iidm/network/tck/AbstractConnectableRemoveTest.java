@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.DefaultNetworkListener;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FourSubstationsNodeBreakerFactory;
