@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons.config;
 
+import java.util.Objects;
+
 /**
 *
 * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
@@ -46,7 +48,7 @@ public class BaseVoltageConfig {
     }
 
     public void setProfile(String profile) {
-        this.profile = profile;
+        this.profile = Objects.requireNonNull(profile);
     }
 
 }

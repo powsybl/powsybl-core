@@ -37,7 +37,7 @@ public class BaseVoltagesConfig {
     }
 
     public void setBaseVoltages(List<BaseVoltageConfig> baseVoltages) {
-        this.baseVoltages = baseVoltages;
+        this.baseVoltages = Objects.requireNonNull(baseVoltages);
     }
 
     public String getDefaultProfile() {
@@ -45,7 +45,7 @@ public class BaseVoltagesConfig {
     }
 
     public void setDefaultProfile(String defaultProfile) {
-        this.defaultProfile = defaultProfile;
+        this.defaultProfile = Objects.requireNonNull(defaultProfile);
     }
 
     public static BaseVoltagesConfig fromPlatformConfig() {
