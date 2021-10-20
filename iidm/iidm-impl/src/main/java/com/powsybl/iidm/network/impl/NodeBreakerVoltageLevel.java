@@ -520,6 +520,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             public void edgeRemoved(int e, SwitchImpl aSwitch) {
                 if (aSwitch != null) {
                     NetworkImpl network = getNetwork();
+                    String switchId = aSwitch.getId();
                     network.getListeners().notifyBeforeRemoval(aSwitch);
                     network.getIndex().remove(aSwitch);
                     network.getListeners().notifyAfterRemoval(switchId);
