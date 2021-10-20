@@ -59,6 +59,13 @@ public final class ExportXmlCompare {
         }
     }
 
+    static void compareEQNetworks(Path expected, Path actual, DifferenceEvaluator knownDiffs) throws IOException {
+        try (InputStream expectedIs = Files.newInputStream(expected);
+             InputStream actualIs = Files.newInputStream(actual)) {
+            compareEQNetworks(expectedIs, actualIs, knownDiffs);
+        }
+    }
+
     static void compareNetworks(InputStream expected, InputStream actual) {
         compareNetworks(expected, actual, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
@@ -80,8 +87,135 @@ public final class ExportXmlCompare {
         assertTrue(!diff.hasDifferences());
     }
 
+    static void compareEQNetworks(InputStream expected, InputStream actual, DifferenceEvaluator knownDiffs) {
+        Source control = Input.fromStream(expected).build();
+        Source test = Input.fromStream(actual).build();
+        Diff diff = DiffBuilder
+                .compare(control)
+                .withTest(test)
+                .ignoreWhitespace()
+                .ignoreComments()
+                .withAttributeFilter(ExportXmlCompare::isConsideredForEQNetwork)
+                .withNodeFilter(ExportXmlCompare::isConsideredEQNode)
+                .withDifferenceEvaluator(knownDiffs)
+                .withComparisonListeners(ExportXmlCompare::debugComparison)
+                .build();
+        assertTrue(!diff.hasDifferences());
+    }
+
     static boolean isConsideredForNetwork(Attr attr) {
         return !(attr.getLocalName().equals("forecastDistance"));
+    }
+
+    private static boolean isConsideredForEQNetwork(Attr attr) {
+        String elementName = attr.getOwnerElement().getLocalName();
+        boolean ignored = false;
+        if (elementName != null) {
+            ignored = elementName.equals("danglingLine");
+            if (elementName.startsWith("network")) {
+                ignored |= attr.getLocalName().equals("id") || attr.getLocalName().equals("forecastDistance") || attr.getLocalName().equals("caseDate") || attr.getLocalName().equals("sourceFormat");
+            } else if (elementName.startsWith("voltageLevel")) {
+                ignored |= attr.getLocalName().equals("topologyKind") || attr.getLocalName().equals("lowVoltageLimit") || attr.getLocalName().equals("highVoltageLimit");
+            } else if (elementName.startsWith("hvdcLine")) {
+                ignored |= attr.getLocalName().equals("converterStation1") || attr.getLocalName().equals("converterStation2") || attr.getLocalName().equals("convertersMode");
+            } else if (elementName.contains("TapChanger")) {
+                ignored |= attr.getLocalName().equals("regulating") || attr.getLocalName().equals("regulationMode") || attr.getLocalName().equals("regulationValue")
+                        || attr.getLocalName().equals("targetV") || attr.getLocalName().equals("targetDeadband");
+            } else {
+                ignored |= attr.getLocalName().contains("node") || attr.getLocalName().contains("bus") || attr.getLocalName().contains("Bus");
+            }
+        }
+        return !ignored;
+    }
+
+    // Present in small grid HVDC
+    private static final Set<String> SMALLGRID_SUBSTATIONS = Stream.of(
+            "68-116_SUBSTATION",
+            "71-73_SUBSTATION",
+            "12-117_SUBSTATION")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> SMALLGRID_VOLTAGELEVELS = Stream.of(
+            "68-116_VL",
+            "71-73_VL",
+            "12-117_VL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> SMALLGRID_LINES = Stream.of(
+            "68-116_DL",
+            "71-73_DL",
+            "12-117_DL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    // Present in mini grid
+    private static final Set<String> MINIGRID_SUBSTATIONS = Stream.of(
+            "XQ2-N5_SUBSTATION",
+            "XQ1-N1_SUBSTATION")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> MINIGRID_VOLTAGELEVELS = Stream.of(
+            "XQ2-N5_VL",
+            "XQ1-N1_VL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> MINIGRID_LINES = Stream.of(
+            "XQ2-N5_DL",
+            "XQ1-N1_DL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    // Present in micro grid
+    private static final Set<String> MICROGRID_SUBSTATIONS = Stream.of(
+            "BE-Line_1_SUBSTATION",
+            "BE-Line_3_SUBSTATION",
+            "BE-Line_4_SUBSTATION",
+            "BE-Line_5_SUBSTATION",
+            "BE-Line_7_SUBSTATION")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> MICROGRID_VOLTAGELEVELS = Stream.of(
+            "BE-Line_1_VL",
+            "BE-Line_3_VL",
+            "BE-Line_4_VL",
+            "BE-Line_5_VL",
+            "BE-Line_7_VL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static final Set<String> MICROGRID_LINES = Stream.of(
+            "BE-Line_1_DL",
+            "BE-Line_3_DL",
+            "BE-Line_4_DL",
+            "BE-Line_5_DL",
+            "BE-Line_7_DL")
+            .collect(Collectors.toCollection(HashSet::new));
+
+    private static boolean isConsideredEQNode(Node n) {
+        if (n.getNodeType() == Node.ELEMENT_NODE) {
+            String name = n.getLocalName();
+            return !name.startsWith("danglingLine") && !name.contains("BreakerTopology") && !name.startsWith("internalConnection")
+                    && !name.startsWith("property") && !name.startsWith("regulatingTerminal") && !name.startsWith("terminalRef")
+                    && !isDanglingLineConversion(n) && !isNodeBreakerProperty(n);
+        }
+        return false;
+    }
+
+    private static boolean isNodeBreakerProperty(Node n) {
+        if (n.getAttributes().getNamedItem("name") != null && n.getAttributes().getNamedItem("name").getTextContent() != null) {
+            return n.getAttributes().getNamedItem("name").getTextContent().equals("CGMESModelDetail");
+        }
+        return false;
+    }
+
+    private static boolean isDanglingLineConversion(Node n) {
+        String name = n.getLocalName();
+        return (name.startsWith("substation") && SMALLGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && SMALLGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("line") && SMALLGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("substation") && MINIGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && MINIGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("line") && MINIGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("substation") && MICROGRID_SUBSTATIONS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("voltageLevel") && MICROGRID_VOLTAGELEVELS.contains(n.getAttributes().getNamedItem("name").getTextContent()))
+                || (name.startsWith("line") && MICROGRID_LINES.contains(n.getAttributes().getNamedItem("name").getTextContent()));
     }
 
     static interface DifferenceBuilder {
@@ -218,6 +352,35 @@ public final class ExportXmlCompare {
                     return ComparisonResult.EQUAL;
                 }
             }
+        }
+        return result;
+    }
+
+    static ComparisonResult ignoringNonEQ(Comparison comparison, ComparisonResult result) {
+        if (result == ComparisonResult.DIFFERENT) {
+            Node control = comparison.getControlDetails().getTarget();
+            Node test = comparison.getTestDetails().getTarget();
+            if (comparison.getType() == ComparisonType.ATTR_VALUE) {
+                if (control != null && control.getLocalName().equals("geographicalTags")) {
+                    return ComparisonResult.EQUAL;
+                } else if (control != null && control.getLocalName().equals("targetQ")) {
+                    return ComparisonResult.EQUAL;
+                } else if (comparison.getControlDetails().getXPath().contains("temporaryLimit")) {
+                    // If the control node is a temporary limit, the order depends on the name attribute,
+                    // this attribute is generated as a unique identifier in the EQ export to avoid duplicates in CGMES
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.CHILD_NODELIST_LENGTH) {
+                if (control.getLocalName().equals("network") || control.getLocalName().equals("shunt")
+                        || control.getLocalName().equals("generator")) {
+                    return ComparisonResult.EQUAL;
+                }
+            } else if (comparison.getType() == ComparisonType.ELEMENT_TAG_NAME) {
+                if (control.getLocalName().equals("temporaryLimits")) {
+                    return ComparisonResult.EQUAL;
+                }
+            }
+            return result;
         }
         return result;
     }
@@ -367,8 +530,14 @@ public final class ExportXmlCompare {
                     || name.endsWith(".normalPF");
         } else if (n.getNodeType() == Node.ATTRIBUTE_NODE) {
             // DanglingLine p, q, p0, q0 attributes in IIDM Network
+            // TapChanger r, x, g, b, rho, alpha attributes in IIDM Network
+            // Line b1, b2, g1, g2 attributes in IIDM Network
+            // Shunt bPerSection attribute in IIDM Network
             String name = n.getLocalName();
             return name.equals("p") || name.equals("q") || name.equals("p0") || name.equals("q0")
+                || name.equals("r") || name.equals("x") || name.equals("g") || name.equals("b") || name.equals("rho") || name.equals("alpha")
+                || name.equals("b1") || name.equals("b2") || name.equals("g1") || name.equals("g2")
+                || name.equals("bPerSection")
                 || isAttrValueOfNumericProperty((Attr) n);
         }
         return false;
@@ -395,6 +564,13 @@ public final class ExportXmlCompare {
         } else if (n.getLocalName().equals("p") || n.getLocalName().equals("q")) {
             return 1e-1;
         } else if (n.getLocalName().equals("p0") || n.getLocalName().equals("q0")) {
+            return 1e-5;
+        } else if (n.getLocalName().equals("r") || n.getLocalName().equals("x")
+                || n.getLocalName().equals("b") || n.getLocalName().equals("g")
+                || n.getLocalName().equals("b1") || n.getLocalName().equals("b2")
+                || n.getLocalName().equals("g1") || n.getLocalName().equals("g2")
+                || n.getLocalName().equals("alpha") || n.getLocalName().equals("rho")
+                || n.getLocalName().equals("bPerSection")) {
             return 1e-5;
         }
         return 1e-10;

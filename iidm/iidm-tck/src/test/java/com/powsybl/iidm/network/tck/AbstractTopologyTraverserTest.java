@@ -7,14 +7,15 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -189,12 +190,22 @@ public abstract class AbstractTopologyTraverserTest {
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
     }
 
+    @Test
+    public void test4() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordTraversed(start, s -> true);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+    }
+
     private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
-        List<String> traversed = new ArrayList<>();
+        Set<Terminal> traversed = new LinkedHashSet<>();
         start.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
+                if (!traversed.add(terminal)) {
+                    fail("Traversing an already traversed terminal");
+                }
                 return true;
             }
 
@@ -203,7 +214,7 @@ public abstract class AbstractTopologyTraverserTest {
                 return switchPredicate.test(aSwitch);
             }
         });
-        return traversed;
+        return traversed.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }

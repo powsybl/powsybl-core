@@ -872,7 +872,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             bus.getTerminals().stream()
                     .filter(t -> t != terminal)
                     .filter(t -> traverser.traverse(t, t.isConnected()))
-                    .forEach(t -> addNextTerminals(t, nextTerminals));
+                    .forEach(t -> {
+                        traversedTerminals.add(t);
+                        addNextTerminals(t, nextTerminals);
+                    });
 
             // then go through other buses of the voltage level
             graph.traverse(v, (v1, e, v2) -> {
