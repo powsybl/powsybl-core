@@ -87,10 +87,20 @@ class NetworkListenerList {
         }
     }
 
-    void notifyRemoval(Identifiable identifiable) {
+    void notifyBeforeRemoval(Identifiable identifiable) {
         for (NetworkListener listener : listeners) {
             try {
-                listener.onRemoval(identifiable);
+                listener.beforeRemoval(identifiable);
+            } catch (Throwable t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyAfterRemoval(String id) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.afterRemoval(id);
             } catch (Throwable t) {
                 LOGGER.error(t.toString(), t);
             }

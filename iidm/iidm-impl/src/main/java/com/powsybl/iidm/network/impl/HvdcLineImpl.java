@@ -209,15 +209,19 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public void remove() {
+        NetworkImpl network = getNetwork();
+
+        network.getListeners().notifyBeforeRemoval(this);
+
         // Detach converter stations
         converterStation1.setHvdcLine(null);
         converterStation2.setHvdcLine(null);
         converterStation1 = null;
         converterStation2 = null;
 
-        NetworkImpl network = getNetwork();
         network.getIndex().remove(this);
-        network.getListeners().notifyRemoval(this);
+
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     @Override
