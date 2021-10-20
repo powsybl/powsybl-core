@@ -29,10 +29,7 @@ public class BaseVoltagesConfigTest {
         InputStream configInputStream = getClass().getResourceAsStream("/base-voltages.yml");
         BaseVoltagesConfig config = yaml.load(configInputStream);
         assertNotNull(config);
-        assertNotNull(config.getBaseVoltages());
         assertEquals(7, config.getBaseVoltages().size());
-        BaseVoltageConfig a = config.getBaseVoltages().get(1);
-        String b = a.getName();
         assertEquals("vl180to300", config.getBaseVoltages().get(1).getName());
         assertEquals(300, config.getBaseVoltages().get(0).getMinValue(), 0);
         assertEquals(500, config.getBaseVoltages().get(0).getMaxValue(), 0);

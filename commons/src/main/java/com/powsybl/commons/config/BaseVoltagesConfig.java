@@ -15,9 +15,7 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -29,7 +27,7 @@ public class BaseVoltagesConfig {
 
     private static final String CONFIG_FILE = "base-voltages.yml";
 
-    private List<BaseVoltageConfig> baseVoltages;
+    private List<BaseVoltageConfig> baseVoltages = new ArrayList<>();
     private String defaultProfile;
 
     public List<BaseVoltageConfig> getBaseVoltages() {
@@ -37,7 +35,7 @@ public class BaseVoltagesConfig {
     }
 
     public void setBaseVoltages(List<BaseVoltageConfig> baseVoltages) {
-        this.baseVoltages = Objects.requireNonNull(baseVoltages);
+        this.baseVoltages = baseVoltages == null ? Collections.emptyList() : baseVoltages;
     }
 
     public String getDefaultProfile() {
