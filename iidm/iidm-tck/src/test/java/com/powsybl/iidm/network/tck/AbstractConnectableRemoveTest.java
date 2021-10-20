@@ -34,8 +34,8 @@ public abstract class AbstractConnectableRemoveTest {
         network = FourSubstationsNodeBreakerFactory.create();
         network.addListener(new DefaultNetworkListener() {
             @Override
-            public void onRemoval(Identifiable identifiable) {
-                removedObjects.add(identifiable.getId());
+            public void afterRemoval(String id) {
+                removedObjects.add(id);
             }
         });
     }
