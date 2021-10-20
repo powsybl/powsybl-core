@@ -534,13 +534,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 for (SwitchImpl s : graph.getEdgesObject()) {
                     if (s != null) {
                         network.getListeners().notifyBeforeRemoval(s);
-
                         removedSwitchesIds.add(s.getId());
                         network.getIndex().remove(s);
                     }
                 }
                 switches.clear();
-
                 removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
             }
         });
