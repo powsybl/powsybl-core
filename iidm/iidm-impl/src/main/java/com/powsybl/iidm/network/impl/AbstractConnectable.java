@@ -55,12 +55,16 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     @Override
     public void remove(boolean cleanDanglingSwitches) {
         NetworkImpl network = getNetwork();
+
+        network.getListeners().notifyBeforeRemoval(this);
+
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal, cleanDanglingSwitches);
         }
-        network.getListeners().notifyRemoval(this);
+
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
