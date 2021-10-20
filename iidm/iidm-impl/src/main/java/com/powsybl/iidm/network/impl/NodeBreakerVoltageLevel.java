@@ -542,7 +542,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 switches.clear();
 
                 removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
-
             }
         });
     }
