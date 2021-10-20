@@ -31,6 +31,7 @@ public final class CgmesNamespace {
 
     public static final String EQ_PROFILE = "http://entsoe.eu/CIM/EquipmentCore/3/1";
     public static final String EQ_OPERATION_PROFILE = "http://entsoe.eu/CIM/EquipmentOperation/3/1";
+    public static final String TP_PROFILE = "http://entsoe.eu/CIM/Topology/4/1";
     public static final String SV_PROFILE = "http://entsoe.eu/CIM/StateVariables/4/1";
     public static final String SSH_PROFILE = "http://entsoe.eu/CIM/SteadyStateHypothesis/1/1";
 

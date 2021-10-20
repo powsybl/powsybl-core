@@ -29,6 +29,7 @@ public class CgmesExportContext {
     private DateTime scenarioTime = DateTime.now();
 
     private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
+    private ModelDescription tpModelDescription = new ModelDescription("TP Model", CgmesNamespace.TP_PROFILE);
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
@@ -214,6 +215,10 @@ public class CgmesExportContext {
 
     public ModelDescription getEqModelDescription() {
         return eqModelDescription;
+    }
+
+    public ModelDescription getTpModelDescription() {
+        return tpModelDescription;
     }
 
     public ModelDescription getSvModelDescription() {

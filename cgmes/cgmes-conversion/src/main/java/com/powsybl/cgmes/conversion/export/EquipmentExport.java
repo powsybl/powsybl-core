@@ -445,7 +445,12 @@ public final class EquipmentExport {
                 danglingLine.addAlias(equivalentInjectionId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjection");
             }
             EquivalentInjectionEq.write(equivalentInjectionId, danglingLine.getNameOrId() + "_EI", danglingLine.getGeneration() != null, danglingLine.getGeneration() != null, minP, maxP, minQ, maxQ, baseVoltageId, cimNamespace, writer);
-            TerminalEq.write(CgmesExportUtil.getUniqueId(), equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
+            String equivalentInjectionTerminalId = danglingLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal").orElse(null);
+            if (equivalentInjectionTerminalId == null) {
+                equivalentInjectionTerminalId = CgmesExportUtil.getUniqueId();
+                danglingLine.addAlias(equivalentInjectionTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal");
+            }
+            TerminalEq.write(equivalentInjectionTerminalId, equivalentInjectionId, connectivityNodeId, 1, cimNamespace, writer);
 
             // Cast the danglingLine to an AcLineSegment
             AcLineSegmentEq.write(danglingLine.getId(), danglingLine.getNameOrId() + "_DL", danglingLine.getR(), danglingLine.getX(), danglingLine.getG(), danglingLine.getB(), cimNamespace, writer);
