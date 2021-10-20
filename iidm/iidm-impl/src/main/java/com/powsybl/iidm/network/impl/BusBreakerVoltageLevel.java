@@ -702,6 +702,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         NetworkImpl network = getNetwork();
         List<String> removedBusesIds = new ArrayList<>(graph.getVertexCount());
         for (ConfiguredBus bus : graph.getVerticesObj()) {
+            removedBusesIds.add(bus.getId());
             network.getListeners().notifyBeforeRemoval(bus);
 
             network.getIndex().remove(bus);
