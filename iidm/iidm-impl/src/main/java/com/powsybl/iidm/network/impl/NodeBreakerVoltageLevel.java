@@ -1084,15 +1084,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             boolean traverseTerminated = !graph.traverse(node, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                if (aSwitch == null) { // internal connection case
-                    return traverseNullableTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
-                } else {
-                    TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
-                    if (switchTraverseResult == TraverseResult.CONTINUE) {
-                        return traverseNullableTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
+                TraverseResult edgeTraverseResult = aSwitch != null ? traverser.traverse(aSwitch)
+                        : TraverseResult.CONTINUE; // internal connection case
+                if (edgeTraverseResult == TraverseResult.CONTINUE && otherTerminal != null) {
+                    TraverseResult otherTermTraverseResult = getTraverseResult(visitedTerminals, otherTerminal, traverser);
+                    if (otherTermTraverseResult == TraverseResult.CONTINUE) {
+                        addNextTerminals(otherTerminal, nextTerminals);
                     }
-                    return switchTraverseResult;
+                    return otherTermTraverseResult;
                 }
+                return edgeTraverseResult;
             });
             if (traverseTerminated) {
                 return false;
@@ -1106,18 +1107,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         return true;
-    }
-
-    private static TraverseResult traverseNullableTerminal(NodeTerminal terminal, Terminal.TopologyTraverser traverser,
-                                                    Set<Terminal> visitedTerminals, List<TerminalExt> nextTerminals) {
-        if (terminal == null) {
-            return TraverseResult.CONTINUE;
-        }
-        TraverseResult termTraverseResult = getTraverseResult(visitedTerminals, terminal, traverser);
-        if (termTraverseResult == TraverseResult.CONTINUE) {
-            addNextTerminals(terminal, nextTerminals);
-        }
-        return termTraverseResult;
     }
 
     private static TraverseResult getTraverseResult(Set<Terminal> visitedTerminals, NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
