@@ -500,8 +500,16 @@ public final class SteadyStateHypothesisExport {
             writer.writeStartElement(cimNamespace, "ACDCConverter.q");
             writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getQ()));
             writer.writeEndElement();
+            double ppcc;
+            if (isConverterStationRectifier(converterStation)) {
+                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
+                ppcc = converterStation.getHvdcLine().getActivePowerSetpoint() + poleLoss;
+            } else {
+                double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / 100;
+                ppcc = -(converterStation.getHvdcLine().getActivePowerSetpoint() - poleLoss);
+            }
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
-            writer.writeCharacters(CgmesExportUtil.format(converterStation.getHvdcLine().getActivePowerSetpoint()));
+            writer.writeCharacters(CgmesExportUtil.format(ppcc));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
             writer.writeCharacters(CgmesExportUtil.format(0.0));
@@ -547,21 +555,25 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
+    private static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
         if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
             if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
-                return converterStationRectifier(converterStation);
-            } else if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
-                return converterStationInverter(converterStation);
+                return true;
             }
         } else {
-            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
-                return converterStationInverter(converterStation);
-            } else if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
-                return converterStationRectifier(converterStation);
+            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
+                return true;
             }
         }
-        throw new PowsyblException("Invalid converterOperatingMode");
+        return false;
+    }
+
+    private static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
+        if (isConverterStationRectifier(converterStation)) {
+            return converterStationRectifier(converterStation);
+        } else {
+            return converterStationInverter(converterStation);
+        }
     }
 
     private static String converterStationRectifier(HvdcConverterStation<?> converterStation) {
