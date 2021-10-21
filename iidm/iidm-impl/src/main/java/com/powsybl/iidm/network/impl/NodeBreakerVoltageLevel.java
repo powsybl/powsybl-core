@@ -1073,36 +1073,34 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(visitedTerminals);
 
-        if (visitedTerminals.add(terminal)) {
-            TraverseResult termTraverseResult = traverser.traverse(terminal, true);
-            if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
-                return false;
-            } else if (termTraverseResult == TraverseResult.CONTINUE) {
-                List<TerminalExt> nextTerminals = new ArrayList<>();
-                addNextTerminals(terminal, nextTerminals);
+        TraverseResult termTraverseResult = getTraverseResult(visitedTerminals, terminal, traverser);
+        if (termTraverseResult == TraverseResult.TERMINATE_TRAVERSER) {
+            return false;
+        } else if (termTraverseResult == TraverseResult.CONTINUE) {
+            List<TerminalExt> nextTerminals = new ArrayList<>();
+            addNextTerminals(terminal, nextTerminals);
 
-                int node = terminal.getNode();
-                boolean traverseTerminated = !graph.traverse(node, (v1, e, v2) -> {
-                    SwitchImpl aSwitch = graph.getEdgeObject(e);
-                    NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                    if (aSwitch == null) { // internal connection case
-                        return traverseTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
-                    } else {
-                        TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
-                        if (switchTraverseResult == TraverseResult.CONTINUE) {
-                            return traverseTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
-                        }
-                        return switchTraverseResult;
+            int node = terminal.getNode();
+            boolean traverseTerminated = !graph.traverse(node, (v1, e, v2) -> {
+                SwitchImpl aSwitch = graph.getEdgeObject(e);
+                NodeTerminal otherTerminal = graph.getVertexObject(v2);
+                if (aSwitch == null) { // internal connection case
+                    return traverseNullableTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
+                } else {
+                    TraverseResult switchTraverseResult = traverser.traverse(aSwitch);
+                    if (switchTraverseResult == TraverseResult.CONTINUE) {
+                        return traverseNullableTerminal(otherTerminal, traverser, visitedTerminals, nextTerminals);
                     }
-                });
-                if (traverseTerminated) {
-                    return false;
+                    return switchTraverseResult;
                 }
+            });
+            if (traverseTerminated) {
+                return false;
+            }
 
-                for (TerminalExt nextTerminal : nextTerminals) {
-                    if (!nextTerminal.traverse(traverser, visitedTerminals)) {
-                        return false;
-                    }
+            for (TerminalExt nextTerminal : nextTerminals) {
+                if (!nextTerminal.traverse(traverser, visitedTerminals)) {
+                    return false;
                 }
             }
         }
@@ -1110,19 +1108,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         return true;
     }
 
-    private TraverseResult traverseTerminal(NodeTerminal terminal, Terminal.TopologyTraverser traverser,
-                                            Set<Terminal> visitedTerminals, List<TerminalExt> nextTerminals) {
+    private static TraverseResult traverseNullableTerminal(NodeTerminal terminal, Terminal.TopologyTraverser traverser,
+                                                    Set<Terminal> visitedTerminals, List<TerminalExt> nextTerminals) {
         if (terminal == null) {
             return TraverseResult.CONTINUE;
-        } else if (visitedTerminals.add(terminal)) {
-            TraverseResult termTraverseResult = traverser.traverse(terminal, true);
-            if (termTraverseResult == TraverseResult.CONTINUE) {
-                addNextTerminals(terminal, nextTerminals);
-            }
-            return termTraverseResult;
-        } else {
-            return TraverseResult.TERMINATE_PATH;
         }
+        TraverseResult termTraverseResult = getTraverseResult(visitedTerminals, terminal, traverser);
+        if (termTraverseResult == TraverseResult.CONTINUE) {
+            addNextTerminals(terminal, nextTerminals);
+        }
+        return termTraverseResult;
+    }
+
+    private static TraverseResult getTraverseResult(Set<Terminal> visitedTerminals, NodeTerminal terminal, Terminal.TopologyTraverser traverser) {
+        return visitedTerminals.add(terminal) ? traverser.traverse(terminal, true) : TraverseResult.TERMINATE_PATH;
     }
 
     @Override
