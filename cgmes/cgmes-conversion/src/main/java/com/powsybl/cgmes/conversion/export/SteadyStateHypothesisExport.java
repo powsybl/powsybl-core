@@ -586,7 +586,7 @@ public final class SteadyStateHypothesisExport {
         if (converterStation instanceof LccConverterStation) {
             return "CsConverter";
         } else if (converterStation instanceof VscConverterStation) {
-             return "VsConverter";
+            return "VsConverter";
         } else {
             throw new PowsyblException("Invalid converter type");
         }
