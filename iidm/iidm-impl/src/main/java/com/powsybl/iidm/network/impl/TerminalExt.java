@@ -46,11 +46,11 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     /**
      * Traverse from this terminal using the given topology traverser, knowing that the terminals in the given
-     * set have already been traversed.
+     * set have already been visited.
      * @return false if the traverser has to stop, meaning that a {@link TraverseResult#TERMINATE_TRAVERSER}
      * has been returned from the traverser, true otherwise
      */
-    boolean traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals);
+    boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals);
 
     String getConnectionInfo();
 

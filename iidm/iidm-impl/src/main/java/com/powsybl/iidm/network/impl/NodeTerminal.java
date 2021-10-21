@@ -182,8 +182,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public boolean traverse(TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        return ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        return ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override

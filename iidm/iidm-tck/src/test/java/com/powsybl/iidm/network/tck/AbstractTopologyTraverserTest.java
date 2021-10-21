@@ -175,81 +175,106 @@ public abstract class AbstractTopologyTraverserTest {
     public void test1() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
-        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
+        List<String> visited = recordVisited(start, s -> TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), visited);
     }
 
     @Test
     public void test2() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
-        List<String> traversed = recordTraversed(start, aSwitch ->
+        List<String> visited = recordVisited(start, aSwitch ->
                 !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH);
-        assertEquals(Arrays.asList("BBS1", "G"), traversed);
+        assertEquals(Arrays.asList("BBS1", "G"), visited);
     }
 
     @Test
     public void test3() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
-        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
+        List<String> visited = recordVisited(start, s -> TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), visited);
     }
 
     @Test
     public void test4() {
         Network network = EurostagTutorialExample1Factory.create();
         Terminal start = network.getGenerator("GEN").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> TraverseResult.CONTINUE);
-        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+        List<String> visited = recordVisited(start, s -> TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), visited);
+    }
+
+    @Test
+    public void test5() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Duplicate 2wt to go from VLGEN to VLHV1 even if traverser stops at one of them
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NGEN_NHV1");
+        TwoWindingsTransformer duplicatedTransformer = network.getSubstation("P1")
+                .newTwoWindingsTransformer()
+                .setId("duplicate")
+                .setVoltageLevel1("VLGEN").setBus1("NGEN")
+                .setVoltageLevel2("VLHV1").setBus2("NHV1")
+                .setRatedU1(transformer.getRatedU1())
+                .setRatedU2(transformer.getRatedU2())
+                .setR(transformer.getR())
+                .setX(transformer.getX())
+                .setG(transformer.getG())
+                .setB(transformer.getB())
+                .add();
+
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> visited = recordVisited(start, s -> TraverseResult.CONTINUE,
+            t -> t.getConnectable() == duplicatedTransformer && t.getVoltageLevel().getId().equals("VLGEN") ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "duplicate", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "duplicate", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), visited);
     }
 
     @Test
     public void testTerminateTraverser() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal startGNbv = network.getGenerator("G").getTerminal();
-        List<String> traversed0 = recordTraversed(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
-        assertEquals(List.of("G", "BBS1"), traversed0);
+        List<String> visited0 = recordVisited(startGNbv, s -> s != null && s.getId().equals("BR2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(List.of("G", "BBS1"), visited0);
 
-        List<String> traversed1 = recordTraversed(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
-        assertEquals(List.of("G"), traversed1);
+        List<String> visited1 = recordVisited(startGNbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of("G"), visited1);
 
-        List<String> traversed2 = recordTraversed(startGNbv, s -> TraverseResult.CONTINUE,
+        List<String> visited2 = recordVisited(startGNbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable() instanceof BusbarSection ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
-        assertEquals(List.of("G", "BBS1"), traversed2);
+        assertEquals(List.of("G", "BBS1"), visited2);
 
-        List<String> traversed3 = recordTraversed(startGNbv, s -> TraverseResult.CONTINUE,
+        List<String> visited3 = recordVisited(startGNbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE);
-        assertEquals(List.of("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2"), traversed3);
+        assertEquals(List.of("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2"), visited3);
 
         Terminal startLBbv = network.getLoad("LD2").getTerminal();
-        List<String> traversed4 = recordTraversed(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
-        assertEquals(List.of("LD2"), traversed4);
+        List<String> visited4 = recordVisited(startLBbv, s -> TraverseResult.CONTINUE, t -> TraverseResult.TERMINATE_TRAVERSER);
+        assertEquals(List.of("LD2"), visited4);
 
-        List<String> traversed5 = recordTraversed(startLBbv, s -> TraverseResult.CONTINUE,
+        List<String> visited5 = recordVisited(startLBbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
-        assertEquals(List.of("LD2", "L2"), traversed5);
+        assertEquals(List.of("LD2", "L2"), visited5);
 
-        List<String> traversed6 = recordTraversed(startLBbv, s -> TraverseResult.CONTINUE,
+        List<String> visited6 = recordVisited(startLBbv, s -> TraverseResult.CONTINUE,
             t -> t.getConnectable().getId().equals("L2") ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE);
-        assertEquals(List.of("LD2", "L2"), traversed6);
+        assertEquals(List.of("LD2", "L2"), visited6);
 
         Network network2 = FictitiousSwitchFactory.create();
-        List<String> traversed8 = recordTraversed(network2.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
-        assertEquals(List.of("CB", "O", "P", "CF", "CH", "CC", "CD", "CE", "CJ", "CI", "CG", "CJ", "D", "CI"), traversed8);
+        List<String> visited8 = recordVisited(network2.getGenerator("CB").getTerminal(), s -> TraverseResult.CONTINUE);
+        assertEquals(List.of("CB", "O", "P", "CF", "CH", "CC", "CD", "CE", "CJ", "CI", "CG", "CJ", "D", "CI"), visited8);
     }
 
-    private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchTest) {
-        return recordTraversed(start, switchTest, t -> TraverseResult.CONTINUE);
+    private List<String> recordVisited(Terminal start, Function<Switch, TraverseResult> switchTest) {
+        return recordVisited(start, switchTest, t -> TraverseResult.CONTINUE);
     }
 
-    private List<String> recordTraversed(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
-        Set<Terminal> traversed = new LinkedHashSet<>();
+    private List<String> recordVisited(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
+        Set<Terminal> visited = new LinkedHashSet<>();
         start.traverse(new Terminal.TopologyTraverser() {
             @Override
             public TraverseResult traverse(Terminal terminal, boolean connected) {
-                if (!traversed.add(terminal)) {
-                    fail("Traversing an already traversed terminal");
+                if (!visited.add(terminal)) {
+                    fail("Traversing an already visited terminal");
                 }
                 return terminalTest.apply(terminal);
             }
@@ -259,7 +284,7 @@ public abstract class AbstractTopologyTraverserTest {
                 return switchTest.apply(aSwitch);
             }
         });
-        return traversed.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
+        return visited.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }
