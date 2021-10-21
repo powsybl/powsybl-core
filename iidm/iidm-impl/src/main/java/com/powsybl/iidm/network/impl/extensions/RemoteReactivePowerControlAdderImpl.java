@@ -15,7 +15,7 @@ import com.powsybl.iidm.network.extensions.RemoteReactivePowerControlAdder;
 /**
  * @author Bertrand Rix <bertrand.rix at artelys.com>
  */
-public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
+public class RemoteReactivePowerControlAdderImpl extends AbstractExtensionAdder<Generator, RemoteReactivePowerControl> implements RemoteReactivePowerControlAdder {
 
     private double targetQ;
 
@@ -23,7 +23,7 @@ public class RemoteReactivePowerAdderImpl extends AbstractExtensionAdder<Generat
 
     private boolean enabled;
 
-    protected RemoteReactivePowerAdderImpl(final Generator extendable) {
+    protected RemoteReactivePowerControlAdderImpl(final Generator extendable) {
         super(extendable);
     }
 
