@@ -508,4 +508,31 @@ public class UndirectedGraphImplTest {
         graph.removeIsolatedVertices(false);
         assertEquals(2, graph.getVertexCount());
     }
+
+    /**
+     *    0   1
+     *    |   |
+     *      2
+     *      |
+     *      3
+     */
+    @Test
+    public void removeIsolatedVerticesAndDanglingEdges() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addVertex();
+        graph.addEdge(0, 2, null);
+        graph.addEdge(1, 2, null);
+        graph.addEdge(2, 3, null);
+        graph.setVertexObject(0, new Vertex("V1"));
+        graph.setVertexObject(3, new Vertex("V2"));
+        assertEquals(4, graph.getVertexCount());
+        assertEquals(3, graph.getEdgeCount());
+        graph.removeIsolatedVertices(true);
+        assertEquals(3, graph.getVertexCount());
+        assertArrayEquals(new int[] {0, 2, 3}, graph.getVertices()); // 1 has been removed
+        assertEquals(2, graph.getEdgeCount());
+        assertArrayEquals(new int[] {0, 2}, graph.getEdges()); // 1-2 has been removed
+    }
 }
