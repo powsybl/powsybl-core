@@ -499,7 +499,7 @@ public final class EurostagTutorialExample1Factory {
         line.getTerminal1().setP(560.0).setQ(550.0);
         line.getTerminal2().setP(560.0).setQ(550.0);
         line.newActivePowerLimits1().setPermanentLimit(500).add();
-        line.newActivePowerLimits1()
+        line.newActivePowerLimits2()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("10'")
@@ -519,7 +519,7 @@ public final class EurostagTutorialExample1Factory {
             .add();
 
         line.newApparentPowerLimits1().setPermanentLimit(500).add();
-        line.newApparentPowerLimits1()
+        line.newApparentPowerLimits2()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
             .setName("10'")
@@ -554,7 +554,7 @@ public final class EurostagTutorialExample1Factory {
             .setValue(Double.MAX_VALUE)
             .endTemporaryLimit()
             .add();
-        line.newActivePowerLimits1().setPermanentLimit(500).add();
+        line.newActivePowerLimits2().setPermanentLimit(500).add();
 
         line.newApparentPowerLimits1()
             .setPermanentLimit(1100)
@@ -569,7 +569,7 @@ public final class EurostagTutorialExample1Factory {
             .setValue(Double.MAX_VALUE)
             .endTemporaryLimit()
             .add();
-        line.newApparentPowerLimits1().setPermanentLimit(500).add();
+        line.newApparentPowerLimits2().setPermanentLimit(500).add();
 
         return network;
     }
