@@ -520,6 +520,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
+        getNetwork().getSynchronousComponentsManager().invalidate();
     }
 
     private Integer getEdge(String switchId, boolean throwException) {
@@ -740,8 +741,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
 
-            getNetwork().getIndex().remove(aSwitch);
-            getNetwork().getListeners().notifyRemoval(aSwitch);
+            NetworkImpl network = getNetwork();
+            network.getListeners().notifyBeforeRemoval(aSwitch);
+
+            network.getIndex().remove(aSwitch);
+
+            network.getListeners().notifyAfterRemoval(switchId);
         }
 
         @Override
@@ -1121,14 +1126,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeAllEdges() {
+        List<String> removedSwitchesIds = new ArrayList<>(graph.getEdgeCount());
+        NetworkImpl network = getNetwork();
         for (SwitchImpl s : graph.getEdgesObject()) {
             if (s != null) {
-                getNetwork().getIndex().remove(s);
-                getNetwork().getListeners().notifyRemoval(s);
+                network.getListeners().notifyBeforeRemoval(s);
+
+                removedSwitchesIds.add(s.getId());
+                network.getIndex().remove(s);
             }
         }
         graph.removeAllEdges();
         switches.clear();
+
+        removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
     }
 
     @Override

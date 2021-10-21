@@ -678,10 +678,15 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         + "' because switch '" + switchId + "' is connected to it");
             }
         }
-        getNetwork().getIndex().remove(bus);
-        getNetwork().getListeners().notifyRemoval(bus);
+
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(bus);
+
+        network.getIndex().remove(bus);
         int v = buses.remove(bus.getId());
         graph.removeVertex(v);
+
+        network.getListeners().notifyAfterRemoval(busId);
     }
 
     private void removeAllBuses() {
@@ -694,12 +699,18 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         + bus.getId() + " because of connected equipments");
             }
         }
+        NetworkImpl network = getNetwork();
+        List<String> removedBusesIds = new ArrayList<>(graph.getVertexCount());
         for (ConfiguredBus bus : graph.getVerticesObj()) {
-            getNetwork().getIndex().remove(bus);
-            getNetwork().getListeners().notifyRemoval(bus);
+            removedBusesIds.add(bus.getId());
+            network.getListeners().notifyBeforeRemoval(bus);
+
+            network.getIndex().remove(bus);
         }
         graph.removeAllVertices();
         buses.clear();
+
+        removedBusesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
     }
 
     private void addSwitch(SwitchImpl aSwitch, String busId1, String busId2) {
@@ -716,18 +727,33 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             throw new PowsyblException("Switch '" + switchId
                     + "' not found in voltage level '" + id + "'");
         }
-        SwitchImpl aSwitch = graph.removeEdge(e);
-        getNetwork().getIndex().remove(aSwitch);
-        getNetwork().getListeners().notifyRemoval(aSwitch);
+        NetworkImpl network = getNetwork();
+        SwitchImpl aSwitch = graph.getEdgeObject(e);
+
+        network.getListeners().notifyBeforeRemoval(aSwitch);
+
+        graph.removeEdge(e);
+        network.getIndex().remove(aSwitch);
+
+        network.getListeners().notifyAfterRemoval(switchId);
     }
 
     private void removeAllSwitches() {
+        NetworkImpl network = getNetwork();
+
+        List<String> removedSwitchesIds = new ArrayList<>(graph.getEdgeCount());
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getIndex().remove(s);
-            getNetwork().getListeners().notifyRemoval(s);
+            removedSwitchesIds.add(s.getId());
+            network.getListeners().notifyBeforeRemoval(s);
+
+            network.getIndex().remove(s);
         }
         graph.removeAllEdges();
         switches.clear();
+
+        for (String removedSwitchId : removedSwitchesIds) {
+            network.getListeners().notifyAfterRemoval(removedSwitchId);
+        }
     }
 
     private void checkTerminal(TerminalExt terminal) {
