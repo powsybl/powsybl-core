@@ -55,6 +55,7 @@ public final class SteadyStateHypothesisExport {
             writeStaticVarCompensators(network, cimNamespace, regulatingControlViews, writer);
             writeRegulatingControls(regulatingControlViews, cimNamespace, writer);
             writeGeneratingUnitsParticitationFactors(network, cimNamespace, writer);
+            writeConverters(network, cimNamespace, writer);
             // FIXME open status of retained switches in bus-branch models
             writeSwitches(network, cimNamespace, writer);
             // TODO writeControlAreas
@@ -487,6 +488,108 @@ public final class SteadyStateHypothesisExport {
         writer.writeCharacters(CgmesExportUtil.format(q));
         writer.writeEndElement();
         writer.writeEndElement();
+    }
+
+    private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
+            writer.writeStartElement(cimNamespace, converterClassName(converterStation));
+            writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
+            writer.writeStartElement(cimNamespace, "ACDCConverter.p");
+            writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getP()));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.q");
+            writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getQ()));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.targetPpcc");
+            writer.writeCharacters(CgmesExportUtil.format(converterStation.getHvdcLine().getActivePowerSetpoint()));
+            writer.writeEndElement();
+            writer.writeStartElement(cimNamespace, "ACDCConverter.targetUdc");
+            writer.writeCharacters(CgmesExportUtil.format(0.0));
+            writer.writeEndElement();
+            if (converterStation instanceof LccConverterStation) {
+                LccConverterStation lccConverterStation = (LccConverterStation) converterStation;
+                writer.writeStartElement(cimNamespace, "CsConverter.targetAlpha");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "CsConverter.targetGamma");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "CsConverter.targetIdc");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeEmptyElement(cimNamespace, "CsConverter.operatingMode");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
+                writer.writeEmptyElement(cimNamespace, "CsConverter.pPccControl");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "CsPpccControlKind.activePower");
+            } else if (converterStation instanceof VscConverterStation) {
+                VscConverterStation vscConverterStation = (VscConverterStation) converterStation;
+                writer.writeStartElement(cimNamespace, "VsConverter.droop");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "VsConverter.droopCompensation");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "VsConverter.qShare");
+                writer.writeCharacters(CgmesExportUtil.format(0));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "VsConverter.targetQpcc");
+                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getReactivePowerSetpoint()));
+                writer.writeEndElement();
+                writer.writeStartElement(cimNamespace, "VsConverter.targetUpcc");
+                writer.writeCharacters(CgmesExportUtil.format(vscConverterStation.getVoltageSetpoint()));
+                writer.writeEndElement();
+                writer.writeEmptyElement(cimNamespace, "VsConverter.pPccControl");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + converterOperatingMode(converterStation));
+                writer.writeEmptyElement(cimNamespace, "VsConverter.qPccControl");
+                writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, cimNamespace + "VsQpccControlKind." + (vscConverterStation.isVoltageRegulatorOn() ? "voltagePcc" : "reactivePcc"));
+            }
+            writer.writeEndElement();
+        }
+    }
+
+    private static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
+        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
+            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
+                return converterStationRectifier(converterStation);
+            } else if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
+                return converterStationInverter(converterStation);
+            }
+        } else {
+            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
+                return converterStationInverter(converterStation);
+            } else if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
+                return converterStationRectifier(converterStation);
+            }
+        }
+        throw new PowsyblException("Invalid converterOperatingMode");
+    }
+
+    private static String converterStationRectifier(HvdcConverterStation<?> converterStation) {
+        if (converterStation instanceof LccConverterStation) {
+            return "CsOperatingModeKind.rectifier";
+        } else if (converterStation instanceof VscConverterStation) {
+            return "VsPpccControlKind.pPcc";
+        }
+        throw new PowsyblException("Invalid converter type");
+    }
+
+    private static String converterStationInverter(HvdcConverterStation<?> converterStation) {
+        if (converterStation instanceof LccConverterStation) {
+            return "CsOperatingModeKind.inverter";
+        } else if (converterStation instanceof VscConverterStation) {
+            return "VsPpccControlKind.udc";
+        }
+        throw new PowsyblException("Invalid converter type");
+    }
+
+    private static String converterClassName(HvdcConverterStation<?> converterStation) {
+        if (converterStation instanceof LccConverterStation) {
+            return "CsConverter";
+        } else if (converterStation instanceof VscConverterStation) {
+             return "VsConverter";
+        } else {
+            throw new PowsyblException("Invalid converter type");
+        }
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
