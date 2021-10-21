@@ -487,7 +487,7 @@ class MergedLine implements TieLine {
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public void remove(boolean cleanDanglingSwitches) {
+    public void remove(boolean removeDanglingSwitches) {
         throw MergingView.createNotImplementedException();
     }
 

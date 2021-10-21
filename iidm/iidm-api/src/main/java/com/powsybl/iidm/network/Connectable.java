@@ -25,7 +25,7 @@ public interface Connectable<I extends Connectable<I>> extends Identifiable<I> {
     /**
      * Remove the equipment.
      */
-    void remove(boolean cleanDanglingSwitches);
+    void remove(boolean removeDanglingSwitches);
 
     default void remove() {
         remove(false);

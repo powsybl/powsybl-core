@@ -980,7 +980,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void detach(TerminalExt terminal, boolean cleanDanglingSwitches) {
+    public void detach(TerminalExt terminal, boolean removeDanglingSwitches) {
         if (!(terminal instanceof NodeTerminal)) {
             throw new IllegalArgumentException("Incorrect terminal type");
         }
@@ -994,7 +994,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         // remove the link terminal -> voltage level
         terminal.setVoltageLevel(null);
 
-        graph.removeIsolatedVertices(cleanDanglingSwitches);
+        graph.removeIsolatedVertices(removeDanglingSwitches);
     }
 
     private static boolean isBusbarSection(Terminal t) {
