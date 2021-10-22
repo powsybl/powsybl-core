@@ -535,6 +535,14 @@ public class UndirectedGraphImplTest {
         assertArrayEquals(new int[] {0, 2, 3}, graph.getVertices()); // 1 has been removed
         assertEquals(2, graph.getEdgeCount());
         assertArrayEquals(new int[] {0, 2}, graph.getEdges()); // 1-2 has been removed
+
+        graph.addVertexIfNotPresent(1); // restore vertex 1
+        graph.addEdge(1, 2, null); // and corresponding edge
+        graph.setVertexObject(0, null); // 0 is now a dangling vertex
+        graph.removeIsolatedVertices(true);
+        assertEquals(1, graph.getVertexCount());
+        assertArrayEquals(new int[] {3}, graph.getVertices()); // 0, 1 and 2 have been removed
+        assertEquals(0, graph.getEdgeCount());
     }
 
     /**
