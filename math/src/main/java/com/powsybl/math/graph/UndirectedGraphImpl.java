@@ -678,15 +678,13 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                     Edge<E> edge = edges.get(e);
                     int v1 = edge.getV1();
                     int v2 = edge.getV2();
+                    int otherV = v1 == v ? v2 : v1;
 
                     removeEdgeInternal(e);
 
                     // propagate to neighbors
-                    if (v1 == v) {
-                        removeIsolatedVertices(andAlsoDanglingEdges, v2, adjacencyList, encountered);
-                    } else {
-                        removeIsolatedVertices(andAlsoDanglingEdges, v1, adjacencyList, encountered);
-                    }
+                    adjacencyList[otherV].remove(e);
+                    removeIsolatedVertices(andAlsoDanglingEdges, otherV, adjacencyList, encountered);
                 }
             }
         }
