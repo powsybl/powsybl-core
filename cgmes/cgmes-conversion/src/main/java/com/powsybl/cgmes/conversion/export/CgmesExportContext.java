@@ -265,6 +265,39 @@ public class CgmesExportContext {
                 sw.addAlias(terminal2Id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2");
             }
         }
+
+        for (HvdcLine line : network.getHvdcLines()) {
+            String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElse(null);
+            if (dcNode1 == null) {
+                dcNode1 = CgmesExportUtil.getUniqueId();
+                line.addAlias(dcNode1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1");
+            }
+            String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElse(null);
+            if (dcNode2 == null) {
+                dcNode2 = CgmesExportUtil.getUniqueId();
+                line.addAlias(dcNode2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2");
+            }
+            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1").orElse(null);
+            if (dcTerminal1 == null) {
+                dcTerminal1 = CgmesExportUtil.getUniqueId();
+                line.addAlias(dcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1");
+            }
+            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2").orElse(null);
+            if (dcTerminal2 == null) {
+                dcTerminal2 = CgmesExportUtil.getUniqueId();
+                line.addAlias(dcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2");
+            }
+            String acdcConverterDcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1").orElse(null);
+            if (acdcConverterDcTerminal1 == null) {
+                acdcConverterDcTerminal1 = CgmesExportUtil.getUniqueId();
+                line.addAlias(acdcConverterDcTerminal1, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1");
+            }
+            String acdcConverterDcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2").orElse(null);
+            if (acdcConverterDcTerminal2 == null) {
+                acdcConverterDcTerminal2 = CgmesExportUtil.getUniqueId();
+                line.addAlias(acdcConverterDcTerminal2, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2");
+            }
+        }
     }
 
     private void addIidmMappingsTerminal(Terminal t, Connectable<?> c) {
