@@ -52,7 +52,7 @@ public abstract class AbstractRemoveDanglingSwitchesTopologyTest {
         addListener(network);
         Load ld1 = network.getLoad("LD1");
         ld1.remove(true);
-        assertEquals(List.of("S1VL1_LD1_BREAKER", "LD1"), removedObjects);
+        assertEquals(List.of("S1VL1_LD1_BREAKER", "S1VL1_BBS_LD1_DISCONNECTOR", "LD1"), removedObjects);
     }
 
     /**
