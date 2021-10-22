@@ -657,11 +657,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
-    public boolean removeIsolatedVertices(boolean andAlsoDanglingEdges, int v, TIntArrayList[] adjacencyList, BitSet encountered) {
-        if (encountered.get(v)) {
-            return false;
-        }
-        encountered.set(v);
+    public boolean removeIsolatedVertices(boolean andAlsoDanglingEdges, int v, TIntArrayList[] adjacencyList) {
 
         boolean changed = false;
 
@@ -684,7 +680,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
                     // propagate to neighbors
                     adjacencyList[otherV].remove(e);
-                    removeIsolatedVertices(andAlsoDanglingEdges, otherV, adjacencyList, encountered);
+                    removeIsolatedVertices(andAlsoDanglingEdges, otherV, adjacencyList);
                 }
             }
         }
@@ -695,10 +691,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     @Override
     public void removeIsolatedVertices(boolean andAlsoDanglingEdges) {
         TIntArrayList[] adjacencyList = getAdjacencyList();
-        BitSet encountered = new BitSet(vertices.size());
         boolean changed = false;
         for (int v = 0; v < vertices.size(); v++) {
-            if (removeIsolatedVertices(andAlsoDanglingEdges, v, adjacencyList, encountered)) {
+            if (removeIsolatedVertices(andAlsoDanglingEdges, v, adjacencyList)) {
                 changed = true;
             }
         }
