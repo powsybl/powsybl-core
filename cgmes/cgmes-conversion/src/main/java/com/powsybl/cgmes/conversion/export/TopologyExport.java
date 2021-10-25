@@ -70,21 +70,35 @@ public final class TopologyExport {
             }
         }
         for (HvdcLine line : network.getHvdcLines()) {
-            String dcTopologicalNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 1).orElseThrow(PowsyblException::new);
-            String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
-            writeDCNode(dcNode1, dcTopologicalNode1, cimNamespace, writer);
-            String acdcConverterDcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1").orElseThrow(PowsyblException::new);
-            writeACDCConverterDCTerminal(acdcConverterDcTerminal1, dcTopologicalNode1, cimNamespace, writer);
-            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1").orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal1, dcTopologicalNode1, cimNamespace, writer);
+            Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
+            Set<String> topologicalNodes = context.getTopologicalNodesByBusViewBus(b1.getId());
+            if (topologicalNodes == null) {
+                continue;
+            }
+            for (String topologicalNode : topologicalNodes) {
+                String dcTopologicalNode = topologicalNode + "DC";
+                String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
+                writeDCNode(dcNode1, dcTopologicalNode, cimNamespace, writer);
+                String acdcConverterDcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1").orElseThrow(PowsyblException::new);
+                writeACDCConverterDCTerminal(acdcConverterDcTerminal1, dcTopologicalNode, cimNamespace, writer);
+                String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1").orElseThrow(PowsyblException::new);
+                writeDCTerminal(dcTerminal1, dcTopologicalNode, cimNamespace, writer);
+            }
 
-            String dcTopologicalNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 2).orElseThrow(PowsyblException::new);
-            String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
-            writeDCNode(dcNode2, dcTopologicalNode2, cimNamespace, writer);
-            String acdcConverterDcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2").orElseThrow(PowsyblException::new);
-            writeACDCConverterDCTerminal(acdcConverterDcTerminal2, dcTopologicalNode2, cimNamespace, writer);
-            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2").orElseThrow(PowsyblException::new);
-            writeDCTerminal(dcTerminal2, dcTopologicalNode2, cimNamespace, writer);
+            Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
+            topologicalNodes = context.getTopologicalNodesByBusViewBus(b2.getId());
+            if (topologicalNodes == null) {
+                continue;
+            }
+            for (String topologicalNode : topologicalNodes) {
+                String dcTopologicalNode = topologicalNode + "DC";
+                String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
+                writeDCNode(dcNode2, dcTopologicalNode, cimNamespace, writer);
+                String acdcConverterDcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2").orElseThrow(PowsyblException::new);
+                writeACDCConverterDCTerminal(acdcConverterDcTerminal2, dcTopologicalNode, cimNamespace, writer);
+                String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2").orElseThrow(PowsyblException::new);
+                writeDCTerminal(dcTerminal2, dcTopologicalNode, cimNamespace, writer);
+            }
         }
     }
 
@@ -152,24 +166,22 @@ public final class TopologyExport {
                 writeTopologicalNode(topologicalNode.get(), dl.getNameOrId(), dl.getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
             }
         }
-        for (Line l : network.getLines()) {
-            if (!l.isTieLine()) {
-                continue;
-            }
-            TieLine tieLine = (TieLine) l;
-            String topologicalNode = tieLine.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE)
-                    .orElseGet(() -> tieLine.getProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + tieLine.getHalf1().getId() + "." + CgmesNames.TOPOLOGICAL_NODE));
-            if (topologicalNode != null) {
-                String baseVoltage = context.getBaseVoltageByNominalVoltage(tieLine.getHalf1().getBoundary().getVoltageLevel().getNominalV());
-                writeTopologicalNode(topologicalNode, tieLine.getNameOrId(), tieLine.getHalf1().getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
-            }
-        }
         for (HvdcLine line : network.getHvdcLines()) {
-            String dcTopologicalNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 1).orElseThrow(PowsyblException::new);
-            writeDCTopologicalNode(dcTopologicalNode1, line.getNameOrId() + 1, cimNamespace, writer);
+            Bus b1 = line.getConverterStation1().getTerminal().getBusView().getBus();
+            Set<String> topologicalNodes = context.getTopologicalNodesByBusViewBus(b1.getId());
+            if (topologicalNodes != null) {
+                for (String topologicalNode : topologicalNodes) {
+                    writeDCTopologicalNode(topologicalNode + "DC", line.getNameOrId() + 1, cimNamespace, writer);
+                }
+            }
 
-            String dcTopologicalNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 2).orElseThrow(PowsyblException::new);
-            writeDCTopologicalNode(dcTopologicalNode2, line.getNameOrId() + 2, cimNamespace, writer);
+            Bus b2 = line.getConverterStation2().getTerminal().getBusView().getBus();
+            topologicalNodes = context.getTopologicalNodesByBusViewBus(b2.getId());
+            if (topologicalNodes != null) {
+                for (String topologicalNode : topologicalNodes) {
+                    writeDCTopologicalNode(topologicalNode + "DC", line.getNameOrId() + 2, cimNamespace, writer);
+                }
+            }
         }
     }
 
