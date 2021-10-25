@@ -35,6 +35,11 @@ import java.util.Properties;
 public class TopologyExportTest extends AbstractConverterTest {
 
     @Test
+    public void smallGridHVDC() throws IOException, XMLStreamException {
+        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource());
+    }
+
+    @Test
     public void smallGridBusBranch() throws IOException, XMLStreamException {
         test(CgmesConformity1Catalog.smallBusBranch().dataSource());
     }

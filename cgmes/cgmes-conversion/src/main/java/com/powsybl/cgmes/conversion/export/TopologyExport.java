@@ -7,7 +7,9 @@
 package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.export.elements.DCLineSegmentEq;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 
@@ -57,27 +59,62 @@ public final class TopologyExport {
                 String terminalId;
                 if (c instanceof DanglingLine) {
                     writeBoundaryTerminal((DanglingLine) c, cimNamespace, writer, context);
-                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network").orElse(null);
-                    if (terminalId == null) {
-                        terminalId = CgmesExportUtil.getUniqueId();
-                    }
+                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Network").orElseThrow(PowsyblException::new);
                 } else {
                     int sequenceNumber = CgmesExportUtil.getTerminalSide(t, c);
-                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElse(null);
-                    if (terminalId == null) {
-                        terminalId = CgmesExportUtil.getUniqueId();
-                    }
+                    terminalId = c.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + sequenceNumber).orElseThrow(PowsyblException::new);
                 }
                 for (String topologicalNode : topologicalNodes) {
                     writeTerminal(terminalId, topologicalNode, cimNamespace, writer);
                 }
             }
         }
+        for (HvdcLine line : network.getHvdcLines()) {
+            String dcTopologicalNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 1).orElseThrow(PowsyblException::new);
+            String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElseThrow(PowsyblException::new);
+            writeDCNode(dcNode1, dcTopologicalNode1, cimNamespace, writer);
+            String acdcConverterDcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1").orElseThrow(PowsyblException::new);
+            writeACDCConverterDCTerminal(acdcConverterDcTerminal1, dcTopologicalNode1, cimNamespace, writer);
+            String dcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal1").orElseThrow(PowsyblException::new);
+            writeDCTerminal(dcTerminal1, dcTopologicalNode1, cimNamespace, writer);
+
+            String dcTopologicalNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 2).orElseThrow(PowsyblException::new);
+            String dcNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode2").orElseThrow(PowsyblException::new);
+            writeDCNode(dcNode2, dcTopologicalNode2, cimNamespace, writer);
+            String acdcConverterDcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2").orElseThrow(PowsyblException::new);
+            writeACDCConverterDCTerminal(acdcConverterDcTerminal2, dcTopologicalNode2, cimNamespace, writer);
+            String dcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCTerminal2").orElseThrow(PowsyblException::new);
+            writeDCTerminal(dcTerminal2, dcTopologicalNode2, cimNamespace, writer);
+        }
+    }
+
+    private static void writeDCNode(String dcNode, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "DCNode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcNode);
+        writer.writeEmptyElement(cimNamespace, "DCNode.DCTopologicalNode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        writer.writeEndElement();
+    }
+
+    private static void writeACDCConverterDCTerminal(String acdcConverterDcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "ACDCConverterDCTerminal");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + acdcConverterDcTerminal);
+        writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCTopologicalNode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        writer.writeEndElement();
+    }
+
+    private static void writeDCTerminal(String dcTerminal, String dcTopologicalNode, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "DCTerminal");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ABOUT, "#" + dcTerminal);
+        writer.writeEmptyElement(cimNamespace, "DCBaseTerminal.DCTopologicalNode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.RESOURCE, "#" + dcTopologicalNode);
+        writer.writeEndElement();
     }
 
     private static void writeBoundaryTerminal(DanglingLine dl, String cimNamespace, XMLStreamWriter writer, CgmesExportContext context) throws XMLStreamException {
-        String boundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElse(null);
-        String equivalentInjectionTerminalId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal").orElse(null);
+        String boundaryId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "Terminal_Boundary").orElseThrow(PowsyblException::new);
+        String equivalentInjectionTerminalId = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "EquivalentInjectionTerminal").orElseThrow(PowsyblException::new);
         Optional<String> topologicalNode = dl.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE);
         if (topologicalNode.isPresent()) {
             if (boundaryId != null) {
@@ -127,6 +164,22 @@ public final class TopologyExport {
                 writeTopologicalNode(topologicalNode, tieLine.getNameOrId(), tieLine.getHalf1().getBoundary().getVoltageLevel().getId(), baseVoltage, cimNamespace, writer);
             }
         }
+        for (HvdcLine line : network.getHvdcLines()) {
+            String dcTopologicalNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 1).orElseThrow(PowsyblException::new);
+            writeDCTopologicalNode(dcTopologicalNode1, line.getNameOrId() + 1, cimNamespace, writer);
+
+            String dcTopologicalNode2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TOPOLOGICAL_NODE + 2).orElseThrow(PowsyblException::new);
+            writeDCTopologicalNode(dcTopologicalNode2, line.getNameOrId() + 2, cimNamespace, writer);
+        }
+    }
+
+    private static void writeDCTopologicalNode(String dcTopologicalNode, String dcTopologicalNodeName, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeStartElement(cimNamespace, "DCTopologicalNode");
+        writer.writeAttribute(RDF_NAMESPACE, CgmesNames.ID, dcTopologicalNode);
+        writer.writeStartElement(cimNamespace, CgmesNames.NAME);
+        writer.writeCharacters(dcTopologicalNodeName);
+        writer.writeEndElement();
+        writer.writeEndElement();
     }
 
     private static void writeTopologicalNode(String topologicalNode, String topologicalNodeName, String connectivityNodeContainerId, String baseVoltageId, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
