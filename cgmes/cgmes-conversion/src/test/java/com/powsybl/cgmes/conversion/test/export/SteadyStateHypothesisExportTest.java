@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -80,6 +81,19 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
                 ExportXmlCompare::ignoringControlAreaNetInterchange));
     }
 
+    @Test
+    public void smallGridHVDC() throws IOException, XMLStreamException {
+        DifferenceEvaluator knownDiffs = DifferenceEvaluators.chain(
+                ExportXmlCompare::sameScenarioTime,
+                ExportXmlCompare::ensuringIncreasedModelVersion,
+                ExportXmlCompare::ignoringJunctionOrBusbarTerminals);
+        test(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), 4, knownDiffs, DifferenceEvaluators.chain(
+                DifferenceEvaluators.Default,
+                ExportXmlCompare::numericDifferenceEvaluator,
+                ExportXmlCompare::ignoringControlAreaNetInterchange,
+                ExportXmlCompare::ignoringHvdcLinePmax));
+    }
+
     private void test(ReadOnlyDataSource dataSource, int version, DifferenceEvaluator knownDiffs) throws IOException, XMLStreamException {
         test(dataSource, version, knownDiffs, DifferenceEvaluators.chain(
                 DifferenceEvaluators.Default,
@@ -90,9 +104,11 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         // Import original
         Properties properties = new Properties();
         properties.put("iidm.import.cgmes.profile-used-for-initial-state-values", "SSH");
+        properties.put("iidm.import.cgmes.create-cgmes-export-mapping", "true");
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export SSH
+        tmpDir = Paths.get("c:\\tmp");
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");
         try (OutputStream os = Files.newOutputStream(exportedSsh)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

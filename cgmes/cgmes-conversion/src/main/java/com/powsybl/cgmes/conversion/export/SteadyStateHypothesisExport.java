@@ -492,7 +492,7 @@ public final class SteadyStateHypothesisExport {
 
     private static void writeConverters(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         for (HvdcConverterStation<?> converterStation : network.getHvdcConverterStations()) {
-            writer.writeStartElement(cimNamespace, converterClassName(converterStation));
+            writer.writeStartElement(cimNamespace, CgmesExportUtil.converterClassName(converterStation));
             writer.writeAttribute(RDF_NAMESPACE, "about", "#" + converterStation.getId());
             writer.writeStartElement(cimNamespace, "ACDCConverter.p");
             writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getP()));
@@ -501,7 +501,7 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(CgmesExportUtil.format(converterStation.getTerminal().getQ()));
             writer.writeEndElement();
             double ppcc;
-            if (isConverterStationRectifier(converterStation)) {
+            if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
                 double poleLoss = converterStation.getLossFactor() * converterStation.getHvdcLine().getActivePowerSetpoint() / (100 - converterStation.getLossFactor());
                 ppcc = converterStation.getHvdcLine().getActivePowerSetpoint() + poleLoss;
             } else {
@@ -555,28 +555,15 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static boolean isConverterStationRectifier(HvdcConverterStation<?> converterStation) {
-        if (converterStation.getHvdcLine().getConvertersMode().equals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER)) {
-            if (converterStation.getHvdcLine().getConverterStation1().equals(converterStation)) {
-                return true;
-            }
-        } else {
-            if (converterStation.getHvdcLine().getConverterStation2().equals(converterStation)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
-        if (isConverterStationRectifier(converterStation)) {
+    public static String converterOperatingMode(HvdcConverterStation<?> converterStation) {
+        if (CgmesExportUtil.isConverterStationRectifier(converterStation)) {
             return converterStationRectifier(converterStation);
         } else {
             return converterStationInverter(converterStation);
         }
     }
 
-    private static String converterStationRectifier(HvdcConverterStation<?> converterStation) {
+    public static String converterStationRectifier(HvdcConverterStation<?> converterStation) {
         if (converterStation instanceof LccConverterStation) {
             return "CsOperatingModeKind.rectifier";
         } else if (converterStation instanceof VscConverterStation) {
@@ -585,23 +572,13 @@ public final class SteadyStateHypothesisExport {
         throw new PowsyblException("Invalid converter type");
     }
 
-    private static String converterStationInverter(HvdcConverterStation<?> converterStation) {
+    public static String converterStationInverter(HvdcConverterStation<?> converterStation) {
         if (converterStation instanceof LccConverterStation) {
             return "CsOperatingModeKind.inverter";
         } else if (converterStation instanceof VscConverterStation) {
             return "VsPpccControlKind.udc";
         }
         throw new PowsyblException("Invalid converter type");
-    }
-
-    private static String converterClassName(HvdcConverterStation<?> converterStation) {
-        if (converterStation instanceof LccConverterStation) {
-            return "CsConverter";
-        } else if (converterStation instanceof VscConverterStation) {
-            return "VsConverter";
-        } else {
-            throw new PowsyblException("Invalid converter type");
-        }
     }
 
     private static void writeGeneratingUnitsParticitationFactors(Network network, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
