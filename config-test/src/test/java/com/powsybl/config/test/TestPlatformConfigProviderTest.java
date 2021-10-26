@@ -6,16 +6,17 @@
  */
 package com.powsybl.config.test;
 
-import static org.junit.Assert.assertEquals;
-
+import com.powsybl.commons.config.BaseVoltagesConfig;
 import com.powsybl.commons.config.PlatformConfig;
-
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Jon Harper <jon.harper at rte-france.com>
@@ -32,5 +33,13 @@ public class TestPlatformConfigProviderTest {
         String testContent = Files.readAllLines(testPath, StandardCharsets.UTF_8).get(0);
         assertEquals("conf", testContent);
         assertEquals("baz", platformConfig.getModuleConfig("foo").getStringProperty("bar"));
+    }
+
+    @Test
+    public void testBaseVoltagesConfig() {
+        BaseVoltagesConfig config = BaseVoltagesConfig.fromPlatformConfig();
+        assertNotNull(config);
+        assertEquals(1, config.getBaseVoltages().size());
+        assertEquals("test", config.getBaseVoltages().get(0).getName());
     }
 }
