@@ -49,7 +49,11 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig() {
-        Path path = PlatformConfig.defaultConfig().getConfigDir().resolve(CONFIG_FILE);
+        return fromPlatformConfig(PlatformConfig.defaultConfig());
+    }
+
+    public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig) {
+        Path path = platformConfig.getConfigDir().resolve(CONFIG_FILE);
         if (!Files.exists(path)) {
             throw new PowsyblException("No base voltages configuration found");
         }
