@@ -109,15 +109,15 @@ public class BaseVoltagesConfig {
 
         @Override
         protected Object constructObject(Node node) {
-            if (node.getType().equals(BaseVoltageConfig.class)) {
-                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS));
-            } else if (node.getType().equals(BaseVoltagesConfig.class)) {
-                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGES_CONFIG_REQUIRED_FIELDS));
+            if (node.getTag().equals(rootTag)) {
+                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGES_CONFIG_REQUIRED_FIELDS), BaseVoltagesConfig.class);
+            } else if (node.getType().equals(BaseVoltageConfig.class)) {
+                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS), node.getType());
             }
             return super.constructObject(node);
         }
 
-        private void checkRequiredFields(Node node, List<String> requiredFields) {
+        private void checkRequiredFields(Node node, List<String> requiredFields, Class<?> aClass) {
             if (node instanceof MappingNode) {
                 for (NodeTuple nodeTuple : ((MappingNode) node).getValue()) {
                     Node keyNode = nodeTuple.getKeyNode();
@@ -127,7 +127,7 @@ public class BaseVoltagesConfig {
                 }
             }
             if (!requiredFields.isEmpty()) {
-                throw new YAMLException(node.getType() + " is missing " + String.join(", ", requiredFields));
+                throw new YAMLException(aClass + " is missing " + String.join(", ", requiredFields));
             }
         }
     }
