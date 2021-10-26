@@ -38,7 +38,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Properties;
 import java.util.function.Consumer;
@@ -203,7 +202,6 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
-        tmpDir = Paths.get("c:\\tmp");
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
         try (OutputStream os = Files.newOutputStream(exportedSv)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);

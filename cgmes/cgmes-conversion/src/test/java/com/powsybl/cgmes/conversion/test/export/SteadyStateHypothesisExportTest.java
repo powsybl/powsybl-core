@@ -31,7 +31,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -108,7 +107,6 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
         Network expected = new CgmesImport().importData(dataSource, NetworkFactory.findDefault(), properties);
 
         // Export SSH
-        tmpDir = Paths.get("c:\\tmp");
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");
         try (OutputStream os = Files.newOutputStream(exportedSsh)) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
