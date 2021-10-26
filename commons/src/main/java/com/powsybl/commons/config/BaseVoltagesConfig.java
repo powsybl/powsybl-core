@@ -9,6 +9,8 @@ package com.powsybl.commons.config;
 import com.powsybl.commons.PowsyblException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
+import org.yaml.snakeyaml.error.YAMLException;
+import org.yaml.snakeyaml.nodes.*;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,7 +54,7 @@ public class BaseVoltagesConfig {
 
     public static BaseVoltagesConfig fromInputStream(InputStream configInputStream) {
         Objects.requireNonNull(configInputStream);
-        Yaml yaml = new Yaml(new Constructor(BaseVoltagesConfig.class));
+        Yaml yaml = new Yaml(new BaseVoltagesConfigConstructor());
         return yaml.load(configInputStream);
     }
 
@@ -102,4 +104,36 @@ public class BaseVoltagesConfig {
                 .findFirst();
     }
 
+    private static class BaseVoltagesConfigConstructor extends Constructor {
+        private static final List<String> BASE_VOLTAGES_CONFIG_REQUIRED_FIELDS = Arrays.asList("baseVoltages", "defaultProfile");
+        private static final List<String> BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS = Arrays.asList("name", "minValue", "maxValue", "profile");
+
+        BaseVoltagesConfigConstructor() {
+            super(BaseVoltagesConfig.class);
+        }
+
+        @Override
+        protected Object constructObject(Node node) {
+            if (node.getType().equals(BaseVoltageConfig.class)) {
+                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGE_CONFIG_REQUIRED_FIELDS));
+            } else if (node.getType().equals(BaseVoltagesConfig.class)) {
+                checkRequiredFields(node, new LinkedList<>(BASE_VOLTAGES_CONFIG_REQUIRED_FIELDS));
+            }
+            return super.constructObject(node);
+        }
+
+        private void checkRequiredFields(Node node, List<String> requiredFields) {
+            if (node instanceof MappingNode) {
+                for (NodeTuple nodeTuple : ((MappingNode) node).getValue()) {
+                    Node keyNode = nodeTuple.getKeyNode();
+                    if (keyNode instanceof ScalarNode) {
+                        requiredFields.remove(((ScalarNode) keyNode).getValue());
+                    }
+                }
+            }
+            if (!requiredFields.isEmpty()) {
+                throw new YAMLException(node.getType() + " is missing " + String.join(", ", requiredFields));
+            }
+        }
+    }
 }
