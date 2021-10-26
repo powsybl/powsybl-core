@@ -49,7 +49,11 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig() {
-        return fromPath(PlatformConfig.defaultConfig().getConfigDir().resolve(CONFIG_FILE));
+        Path path = PlatformConfig.defaultConfig().getConfigDir().resolve(CONFIG_FILE);
+        if (!Files.exists(path)) {
+            throw new PowsyblException("No base voltages configuration found");
+        }
+        return fromPath(path);
     }
 
     public static BaseVoltagesConfig fromInputStream(InputStream configInputStream) {
@@ -60,19 +64,10 @@ public class BaseVoltagesConfig {
 
     public static BaseVoltagesConfig fromPath(Path configFile) {
         Objects.requireNonNull(configFile);
-        if (Files.exists(configFile)) {
-            try (InputStream configInputStream = Files.newInputStream(configFile)) {
-                return fromInputStream(configInputStream);
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-        } else {
-            InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + CONFIG_FILE);
-            if (configInputStream != null) {
-                return fromInputStream(configInputStream);
-            } else {
-                throw new PowsyblException("No base voltages configuration found");
-            }
+        try (InputStream configInputStream = Files.newInputStream(configFile)) {
+            return fromInputStream(configInputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
