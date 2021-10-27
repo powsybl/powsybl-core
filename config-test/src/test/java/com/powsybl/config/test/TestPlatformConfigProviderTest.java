@@ -25,7 +25,7 @@ public class TestPlatformConfigProviderTest {
 
     @Test
     public void test() throws IOException {
-        PlatformConfig platformConfig = new TestPlatformConfigProvider().getPlatformConfig();
+        PlatformConfig platformConfig = PlatformConfig.defaultConfig();
         assertEquals("/work/" + TestPlatformConfigProvider.CONFIG_DIR,
                 platformConfig.getConfigDir().toString());
 
