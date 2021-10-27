@@ -131,14 +131,14 @@ public class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
         line2 = network.getLine("NHV1_NHV2_2");
 
-        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1101, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
@@ -149,14 +149,14 @@ public class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
         line2 = network.getLine("NHV1_NHV2_2");
 
-        detector.checkPermanentLimit(line1, Branch.Side.ONE, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkPermanentLimit(line1, Branch.Side.TWO, 1101, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1100, l.getLimit(), 0d);
                       assertEquals(1101, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
@@ -166,14 +166,14 @@ public class DefaultLimitViolationDetectorTest {
         network = EurostagTutorialExample1Factory.createWithFixedLimits();
         line1 = network.getLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
+        detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.ACTIVE_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
@@ -183,14 +183,14 @@ public class DefaultLimitViolationDetectorTest {
         network = EurostagTutorialExample1Factory.createWithFixedLimits();
         line1 = network.getLine("NHV1_NHV2_1");
 
-        detector.checkTemporary(line1, Branch.Side.ONE, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
+        detector.checkTemporary(line1, Branch.Side.TWO, 1201, violationsCollector::add, LimitType.APPARENT_POWER);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
@@ -201,14 +201,14 @@ public class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkActivePower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
+        cdetector.checkActivePower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
@@ -219,14 +219,14 @@ public class DefaultLimitViolationDetectorTest {
         line1 = network.getLine("NHV1_NHV2_1");
 
         DefaultLimitViolationDetector cdetector = new DefaultLimitViolationDetector(1.0f, EnumSet.allOf(LoadingLimitType.class));
-        cdetector.checkApparentPower(line1, Branch.Side.ONE, 1201, violationsCollector::add);
+        cdetector.checkApparentPower(line1, Branch.Side.TWO, 1201, violationsCollector::add);
 
         Assertions.assertThat(violationsCollector)
                   .hasSize(1)
                   .allSatisfy(l -> {
                       assertEquals(1200, l.getLimit(), 0d);
                       assertEquals(1201, l.getValue(), 0d);
-                      assertSame(Branch.Side.ONE, l.getSide());
+                      assertSame(Branch.Side.TWO, l.getSide());
                   });
     }
 
