@@ -11,6 +11,7 @@ import org.junit.Test;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.ByteArrayInputStream;
+import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -73,6 +74,10 @@ public class BaseVoltagesConfigTest {
         BaseVoltagesConfig config = BaseVoltagesConfig.fromPath(configPath);
         assertNotNull(config);
         assertEquals("vl30to50", config.getBaseVoltages().get(5).getName());
+
+        // Testing non-existing path
+        Path unknownPath = Path.of("unknownPath");
+        assertThrows(UncheckedIOException.class, () -> BaseVoltagesConfig.fromPath(unknownPath));
     }
 
     @Test
@@ -129,6 +134,11 @@ public class BaseVoltagesConfigTest {
         YAMLException e5 = assertThrows(YAMLException.class, () -> BaseVoltagesConfig.fromInputStream(inputStream5));
         assertEquals("class com.powsybl.commons.config.BaseVoltageConfig is missing name, minValue, maxValue, profile",
                 e5.getCause().getMessage());
+
+        String malformed6 = "{baseVoltages, value}:";
+        ByteArrayInputStream inputStream6 = new ByteArrayInputStream(malformed6.getBytes());
+        YAMLException e6 = assertThrows(YAMLException.class, () -> BaseVoltagesConfig.fromInputStream(inputStream6));
+        assertEquals("class com.powsybl.commons.config.BaseVoltagesConfig is missing baseVoltages, defaultProfile", e6.getMessage());
     }
 
 }
