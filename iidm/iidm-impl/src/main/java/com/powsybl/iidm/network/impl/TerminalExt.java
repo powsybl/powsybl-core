@@ -44,7 +44,7 @@ interface TerminalExt extends Terminal, MultiVariantObject {
 
     void setNum(int num);
 
-    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals);
+    void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals);
 
     String getConnectionInfo();
 
