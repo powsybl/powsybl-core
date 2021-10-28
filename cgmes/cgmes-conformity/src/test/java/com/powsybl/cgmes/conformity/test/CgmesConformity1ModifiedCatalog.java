@@ -559,6 +559,25 @@ public final class CgmesConformity1ModifiedCatalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public static TestGridModelResources microGridBaseCaseMeasurements() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2/";
+        String baseModified = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MicroGrid/BaseCase/BC_BE_v2_measurements/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources("MicroGrid-BaseCase-BE-measurements",
+                null,
+                new ResourceSet(baseModified,
+                        "MicroGridTestConfiguration_BC_BE_EQ_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public static TestGridModelResources microGridBaseCaseAssembledSwitchAtBoundary() {
         String base = ENTSOE_CONFORMITY_1
                 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2/";
@@ -848,6 +867,28 @@ public final class CgmesConformity1ModifiedCatalog {
                 "MiniGridTestConfiguration_BC_SV_v3.0.0.xml"));
     }
 
+    public static TestGridModelResources miniNodeBreakerMeasurements() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_measurements/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-Measurements",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+
+    }
+
     public static TestGridModelResources miniNodeBreakerLimitsforEquipment() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
                 + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
@@ -920,6 +961,27 @@ public final class CgmesConformity1ModifiedCatalog {
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
         return new TestGridModelResources(
                 "MiniGrid-NodeBreaker-Sv-Injection",
+                null,
+                new ResourceSet(base,
+                        "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseOriginal,
+                        "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                        "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources miniNodeBreakerCimLine() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED
+                + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_cim_line/";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
+        return new TestGridModelResources(
+                "MiniGrid-NodeBreaker-Cim-Line",
                 null,
                 new ResourceSet(base,
                         "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml"),
@@ -1136,7 +1198,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcNanTargetPpcc() {
+    public static TestGridModelResources smallNodeBreakerHvdcNanTargetPpcc() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_NaN_targetPpcc";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1155,7 +1217,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcMissingDCLineSegment() {
+    public static TestGridModelResources smallNodeBreakerHvdcMissingDCLineSegment() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_missing_DCLineSegment";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1174,7 +1236,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcMissingAcDcConverters() {
+    public static TestGridModelResources smallNodeBreakerHvdcMissingAcDcConverters() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_missing_acDcConverters";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1193,7 +1255,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcTwoDcLineSegments() {
+    public static TestGridModelResources smallNodeBreakerHvdcTwoDcLineSegments() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_two_DCLineSegments";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1212,7 +1274,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcTwoAcDcConvertersOneDcLineSegments() {
+    public static TestGridModelResources smallNodeBreakerHvdcTwoAcDcConvertersOneDcLineSegments() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_twoAcDcConverters_oneDcLineSegment";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1231,7 +1293,7 @@ public final class CgmesConformity1ModifiedCatalog {
                         "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
-    public static TestGridModelResources smallNodeBrokerHvdcWithTransformers() {
+    public static TestGridModelResources smallNodeBreakerHvdcWithTransformers() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_with_transformers";
         String baseOriginal = ENTSOE_CONFORMITY_1
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
@@ -1239,6 +1301,44 @@ public final class CgmesConformity1ModifiedCatalog {
                 + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
         return new TestGridModelResources(
                 "SmallGrid-NodeBreaker-HVDC-with-transformers",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerHvdcWithDifferentConverterTypes() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/HVDC_withDifferentConverterTypes";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-HVDC-with-different-converter-types",
+                null,
+                new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SSH_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_SV_v3.0.0.xml",
+                        "SmallGridTestConfiguration_HVDC_GL_v3.0.0.xml"),
+                new ResourceSet(base, "SmallGridTestConfiguration_HVDC_EQ_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                        "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
+    }
+
+    public static TestGridModelResources smallNodeBreakerVscConverterRemotePccTerminal() {
+        String base = ENTSOE_CONFORMITY_1_MODIFIED + "/SmallGrid/VscConverter_remote_PccTerminal";
+        String baseOriginal = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_HVDC_Complete_v3.0.0/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0/";
+        return new TestGridModelResources(
+                "SmallGrid-NodeBreaker-SvcConverter-remote-PccTerminal",
                 null,
                 new ResourceSet(baseOriginal, "SmallGridTestConfiguration_HVDC_DL_v3.0.0.xml",
                         "SmallGridTestConfiguration_HVDC_TP_v3.0.0.xml",

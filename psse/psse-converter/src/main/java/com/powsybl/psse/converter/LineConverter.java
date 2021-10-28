@@ -6,6 +6,7 @@
  */
 package com.powsybl.psse.converter;
 
+import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,31 +19,45 @@ import com.powsybl.iidm.network.util.ContainersMapping;
 import com.powsybl.psse.converter.PsseImporter.PerUnitContext;
 import com.powsybl.psse.model.PsseVersion;
 import com.powsybl.psse.model.pf.PsseNonTransformerBranch;
+import com.powsybl.psse.model.pf.PssePowerFlowModel;
+
 import static com.powsybl.psse.model.PsseVersion.Major.V35;
 
+import java.util.Collections;
 import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class LineConverter extends AbstractConverter {
+class LineConverter extends AbstractConverter {
 
-    public LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
+    LineConverter(PsseNonTransformerBranch psseLine, ContainersMapping containerMapping, PerUnitContext perUnitContext, Network network, PsseVersion version) {
         super(containerMapping, network);
         this.psseLine = Objects.requireNonNull(psseLine);
         this.perUnitContext = Objects.requireNonNull(perUnitContext);
         this.version = Objects.requireNonNull(version);
     }
 
-    public void create() {
+    void create() {
         String id = getLineId();
 
         String bus1Id = getBusId(psseLine.getI());
         String bus2Id = getBusId(psseLine.getJ());
         String voltageLevel1Id = getContainersMapping().getVoltageLevelId(psseLine.getI());
         String voltageLevel2Id = getContainersMapping().getVoltageLevelId(psseLine.getJ());
+
+        VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevel1Id);
         VoltageLevel voltageLevel2 = getNetwork().getVoltageLevel(voltageLevel2Id);
+
+        // Support lines with different nominal voltage at ends
+        double rEu = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(psseLine.getR(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
+        double xEu = impedanceToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(psseLine.getX(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
+        Complex yEu = new Complex(rEu, xEu).reciprocal();
+        double g1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
+        double b1Eu = admittanceEnd1ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBi(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
+        double g2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getReal(), psseLine.getGj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
+        double b2Eu = admittanceEnd2ToEngineeringUnitsForLinesWithDifferentNominalVoltageAtEnds(yEu.getImaginary(), psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel1.getNominalV(), voltageLevel2.getNominalV(), perUnitContext.getSb());
 
         LineAdder adder = getNetwork().newLine()
             .setId(id)
@@ -51,18 +66,17 @@ public class LineConverter extends AbstractConverter {
             .setVoltageLevel1(voltageLevel1Id)
             .setConnectableBus2(bus2Id)
             .setVoltageLevel2(voltageLevel2Id)
-            .setR(impedanceToEngineeringUnits(psseLine.getR(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setX(impedanceToEngineeringUnits(psseLine.getX(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setG1(admittanceToEngineeringUnits(psseLine.getGi(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setB1(admittanceToEngineeringUnits(psseLine.getB() * 0.5 + psseLine.getBi(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setG2(admittanceToEngineeringUnits(psseLine.getGj(), voltageLevel2.getNominalV(), perUnitContext.getSb()))
-            .setB2(admittanceToEngineeringUnits(psseLine.getB() * 0.5 + psseLine.getBj(), voltageLevel2.getNominalV(), perUnitContext.getSb()));
+            .setR(rEu)
+            .setX(xEu)
+            .setG1(g1Eu)
+            .setB1(b1Eu)
+            .setG2(g2Eu)
+            .setB2(b2Eu);
 
         adder.setBus1(psseLine.getSt() == 1 ? bus1Id : null);
         adder.setBus2(psseLine.getSt() == 1 ? bus2Id : null);
         Line line = adder.add();
 
-        VoltageLevel voltageLevel1 = getNetwork().getVoltageLevel(voltageLevel1Id);
         defineOperationalLimits(line, voltageLevel1.getNominalV(), voltageLevel2.getNominalV());
 
         if (psseLine.getGi() != 0 || psseLine.getGj() != 0) {
@@ -96,7 +110,35 @@ public class LineConverter extends AbstractConverter {
     }
 
     private String getLineId() {
+        return getLineId(psseLine);
+    }
+
+    private static String getLineId(PsseNonTransformerBranch psseLine) {
         return "L-" + psseLine.getI() + "-" + psseLine.getJ() + "-" + psseLine.getCkt();
+    }
+
+    // At the moment we do not consider new lines and antenna lines are exported as open
+    static void updateLines(Network network, PssePowerFlowModel psseModel, PssePowerFlowModel updatePsseModel) {
+        psseModel.getNonTransformerBranches().forEach(psseLine -> {
+            updatePsseModel.addNonTransformerBranches(Collections.singletonList(psseLine));
+            PsseNonTransformerBranch updatePsseLine = updatePsseModel.getNonTransformerBranches().get(updatePsseModel.getNonTransformerBranches().size() - 1);
+
+            String lineId = getLineId(updatePsseLine);
+            Line line = network.getLine(lineId);
+            if (line == null) {
+                updatePsseLine.setSt(0);
+            } else {
+                updatePsseLine.setSt(getStatus(line));
+            }
+        });
+    }
+
+    private static int getStatus(Line line) {
+        if (line.getTerminal1().isConnected() && line.getTerminal2().isConnected()) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
 
     private final PsseNonTransformerBranch psseLine;

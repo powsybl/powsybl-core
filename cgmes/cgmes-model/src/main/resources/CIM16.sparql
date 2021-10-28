@@ -372,6 +372,12 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
         cim:ACDCTerminal.sequenceNumber "2" .
+    OPTIONAL {
+        ?ACLineSegment cim:Equipment.EquipmentContainer ?Line .
+        ?Line
+            a cim:Line ;
+            cim:IdentifiedObject.name ?lineName
+    }
 }}
 }
 
@@ -896,6 +902,9 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
     # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter }
+    OPTIONAL {
+        ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
+    }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter

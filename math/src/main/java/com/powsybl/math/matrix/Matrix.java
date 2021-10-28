@@ -182,12 +182,28 @@ public interface Matrix {
     void setAtIndex(int index, double value);
 
     /**
+     * Set value at element index {@code index} without doing any bound checking.
+     *
+     * @param index element index
+     * @param value the value to set at element index {@code index}
+     */
+    void setQuickAtIndex(int index, double value);
+
+    /**
      * Add value at element index {@code index}.
      *
      * @param index element index
      * @param value the value to add at element index {@code index}
      */
     void addAtIndex(int index, double value);
+
+    /**
+     * Add value at element index {@code index} without doing any bound checking.
+     *
+     * @param index element index
+     * @param value the value to add at element index {@code index}
+     */
+    void addQuickAtIndex(int index, double value);
 
     /**
      * @deprecated Use {@link #add(int, int, double)} instead.
@@ -266,6 +282,13 @@ public interface Matrix {
      * @return a copy of the matrix
      */
     Matrix copy(MatrixFactory factory);
+
+    /**
+     * Calculate the transposed matrix.
+     *
+     * @return the transposed matrix
+     */
+    Matrix transpose();
 
     /**
      * Print the matrix to a stream. Row and column names are also printed to facilitate debugging.

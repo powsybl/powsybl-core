@@ -7,14 +7,15 @@
 package com.powsybl.iidm.network.tck;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -169,7 +170,7 @@ public abstract class AbstractTopologyTraverserTest {
     public void test1() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> true);
+        List<String> traversed = recordVisited(start, s -> true);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
     }
 
@@ -177,7 +178,7 @@ public abstract class AbstractTopologyTraverserTest {
     public void test2() {
         Network network = createNodeBreakerNetwork();
         Terminal start = network.getVoltageLevel("VL1").getNodeBreakerView().getBusbarSection("BBS1").getTerminal();
-        List<String> traversed = recordTraversed(start, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
+        List<String> traversed = recordVisited(start, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
         assertEquals(Arrays.asList("BBS1", "G"), traversed);
     }
 
@@ -185,17 +186,56 @@ public abstract class AbstractTopologyTraverserTest {
     public void test3() {
         Network network = createMixedNodeBreakerBusBreakerNetwork();
         Terminal start = network.getGenerator("G").getTerminal();
-        List<String> traversed = recordTraversed(start, s -> true);
+        List<String> traversed = recordVisited(start, s -> true);
         assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
     }
 
-    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
-        List<String> traversed = new ArrayList<>();
+    @Test
+    public void test4() {
+        Network network = EurostagTutorialExample1Factory.create();
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordVisited(start, s -> true);
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+    }
+
+    @Test
+    public void test5() {
+        Network network = EurostagTutorialExample1Factory.create();
+
+        // Duplicate 2wt to go from VLGEN to VLHV1 even if traverser stops at one of them
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("NGEN_NHV1");
+        TwoWindingsTransformer duplicatedTransformer = network.getSubstation("P1")
+                .newTwoWindingsTransformer()
+                .setId("duplicate")
+                .setVoltageLevel1("VLGEN").setBus1("NGEN")
+                .setVoltageLevel2("VLHV1").setBus2("NHV1")
+                .setRatedU1(transformer.getRatedU1())
+                .setRatedU2(transformer.getRatedU2())
+                .setR(transformer.getR())
+                .setX(transformer.getX())
+                .setG(transformer.getG())
+                .setB(transformer.getB())
+                .add();
+
+        Terminal start = network.getGenerator("GEN").getTerminal();
+        List<String> traversed = recordVisited(start, s -> true,
+            t -> !(t.getConnectable() == duplicatedTransformer && t.getVoltageLevel().getId().equals("VLGEN")));
+        assertEquals(Arrays.asList("GEN", "NGEN_NHV1", "duplicate", "NGEN_NHV1", "NHV1_NHV2_1", "NHV1_NHV2_2", "duplicate", "NHV1_NHV2_1", "NHV1_NHV2_2", "NHV2_NLOAD", "NHV2_NLOAD", "LOAD"), traversed);
+    }
+
+    private List<String> recordVisited(Terminal start, Predicate<Switch> switchPredicate) {
+        return recordVisited(start, switchPredicate, t -> true);
+    }
+
+    private List<String> recordVisited(Terminal start, Predicate<Switch> switchPredicate, Predicate<Terminal> terminalPredicate) {
+        Set<Terminal> visited = new LinkedHashSet<>();
         start.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
-                return true;
+                if (!visited.add(terminal)) {
+                    fail("Visiting an already visited terminal");
+                }
+                return terminalPredicate.test(terminal);
             }
 
             @Override
@@ -203,7 +243,7 @@ public abstract class AbstractTopologyTraverserTest {
                 return switchPredicate.test(aSwitch);
             }
         });
-        return traversed;
+        return visited.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }

@@ -267,4 +267,16 @@ public abstract class AbstractNodeBreakerTest {
         assertNull(getBus(network.getLoad("L4")));
         assertNull(getConnectableBus(network.getLoad("L4")));
     }
+
+    @Test
+    public void testCalculatedBus() {
+        Network network = createIsolatedLoadNetwork();
+
+        Bus busL0 = network.getLoad("L0").getTerminal().getBusBreakerView().getBus();
+        assertNotNull(busL0);
+        assertEquals("VL", busL0.getVoltageLevel().getId());
+        assertEquals("VL_0", busL0.getId());
+
+        assertNull(network.getBusBreakerView().getBus("unknownBus"));
+    }
 }

@@ -42,7 +42,7 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
     }
 
     @Override
-    public Class<PsseVoltageSourceConverterDcTransmissionLine> psseTypeClass() {
+    protected Class<PsseVoltageSourceConverterDcTransmissionLine> psseTypeClass() {
         return PsseVoltageSourceConverterDcTransmissionLine.class;
     }
 
@@ -120,7 +120,7 @@ class VoltageSourceConverterDcTransmissionLineData extends AbstractRecordGroup<P
             }
 
             @Override
-            public Class<PsseVoltageSourceConverter> psseTypeClass() {
+            protected Class<PsseVoltageSourceConverter> psseTypeClass() {
                 return PsseVoltageSourceConverter.class;
             }
         }

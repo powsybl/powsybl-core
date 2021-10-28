@@ -115,17 +115,25 @@ public class DenseMatrix extends AbstractMatrix {
         return get(i, j);
     }
 
+    private void setUnsafe(int i, int j, double value) {
+        buffer.putDouble(j * Double.BYTES * rowCount + i * Double.BYTES, value);
+    }
+
     @Override
     public void set(int i, int j, double value) {
         checkBounds(i, j);
-        buffer.putDouble(j * Double.BYTES * rowCount + i * Double.BYTES, value);
+        setUnsafe(i, j, value);
+    }
+
+    private void addUnsafe(int i, int j, double value) {
+        int index = j * Double.BYTES * rowCount + i * Double.BYTES;
+        buffer.putDouble(index, buffer.getDouble(index) + value);
     }
 
     @Override
     public void add(int i, int j, double value) {
         checkBounds(i, j);
-        int index = j * Double.BYTES * rowCount + i * Double.BYTES;
-        buffer.putDouble(index, buffer.getDouble(index) + value);
+        addUnsafe(i, j, value);
     }
 
     @Override
@@ -149,17 +157,27 @@ public class DenseMatrix extends AbstractMatrix {
     @Override
     public void setAtIndex(int index, double value) {
         checkElementIndex(index);
+        setQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void setQuickAtIndex(int index, double value) {
         int i = index % rowCount;
         int j = index / rowCount;
-        set(i, j, value);
+        setUnsafe(i, j, value);
     }
 
     @Override
     public void addAtIndex(int index, double value) {
         checkElementIndex(index);
+        addQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void addQuickAtIndex(int index, double value) {
         int i = index % rowCount;
         int j = index / rowCount;
-        add(i, j, value);
+        addUnsafe(i, j, value);
     }
 
     @Override
@@ -258,6 +276,20 @@ public class DenseMatrix extends AbstractMatrix {
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return getRowCount() * getColumnCount();
+    }
+
+    @Override
+    public DenseMatrix transpose() {
+        int transposedRowCount = columnCount;
+        int transposedColumnCount = rowCount;
+        ByteBuffer transposedBuffer = createBuffer(transposedRowCount, transposedColumnCount);
+        for (int i = 0; i < rowCount; i++) {
+            for (int j = 0; j < columnCount; j++) {
+                double value = this.buffer.getDouble(j * Double.BYTES * rowCount + i * Double.BYTES);
+                transposedBuffer.putDouble(i * Double.BYTES * transposedRowCount + j * Double.BYTES, value);
+            }
+        }
+        return new DenseMatrix(transposedRowCount, transposedColumnCount, () -> transposedBuffer);
     }
 
     @Override

@@ -22,22 +22,22 @@ import com.powsybl.psse.model.pf.PsseTwoTerminalDcTransmissionLine;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class TwoTerminalDcConverter extends AbstractConverter {
+class TwoTerminalDcConverter extends AbstractConverter {
 
     private static final double DEFAULT_MAXP_FACTOR = 1.2;
 
-    public TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network) {
+    TwoTerminalDcConverter(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseTwoTerminalDc = Objects.requireNonNull(psseTwoTerminalDc);
     }
 
-    public void create() {
+    void create() {
 
         double lossFactor = 0.0;
         String busIdR = getBusId(psseTwoTerminalDc.getRectifier().getIp());
         VoltageLevel voltageLevelR = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseTwoTerminalDc.getRectifier().getIp()));
         LccConverterStationAdder adderR = voltageLevelR.newLccConverterStation()
-            .setId(getLccConverterId(psseTwoTerminalDc.getRectifier()))
+            .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getRectifier()))
             .setConnectableBus(busIdR)
             .setLossFactor((float) lossFactor)
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getRectifier()))
@@ -47,7 +47,7 @@ public class TwoTerminalDcConverter extends AbstractConverter {
         String busIdI = getBusId(psseTwoTerminalDc.getInverter().getIp());
         VoltageLevel voltageLevelI = getNetwork().getVoltageLevel(getContainersMapping().getVoltageLevelId(psseTwoTerminalDc.getInverter().getIp()));
         LccConverterStationAdder adderI = voltageLevelI.newLccConverterStation()
-            .setId(getLccConverterId(psseTwoTerminalDc.getInverter()))
+            .setId(getLccConverterId(psseTwoTerminalDc, psseTwoTerminalDc.getInverter()))
             .setConnectableBus(busIdI)
             .setLossFactor((float) lossFactor)
             .setPowerFactor((float) getLccConverterPowerFactor(psseTwoTerminalDc.getInverter()))
@@ -88,8 +88,8 @@ public class TwoTerminalDcConverter extends AbstractConverter {
         return Math.acos(0.5 * (Math.cos(Math.toRadians(converter.getAnmx())) + Math.cos(Math.toRadians(60.0))));
     }
 
-    private static String getLccConverterId(PsseTwoTerminalDcConverter converter) {
-        return "LccConverter-" + converter.getIp() + "-" + converter.getId();
+    private static String getLccConverterId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc, PsseTwoTerminalDcConverter converter) {
+        return "LccConverter-" + psseTwoTerminalDc.getRectifier().getIp() + "-" + psseTwoTerminalDc.getInverter().getIp() + "-" + converter.getIp();
     }
 
     private static String getTwoTerminalDcId(PsseTwoTerminalDcTransmissionLine psseTwoTerminalDc) {

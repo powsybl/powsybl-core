@@ -75,7 +75,7 @@ public class Context {
         return delimiter;
     }
 
-    public Context setDelimiter(char delimiter) {
+    private Context setDelimiter(char delimiter) {
         this.delimiter = delimiter;
         return this;
     }
@@ -103,11 +103,11 @@ public class Context {
         return fieldNames.get(recordGroup.getUniqueName());
     }
 
-    public CsvParserSettings getCsvParserSettings() {
+    CsvParserSettings getCsvParserSettings() {
         return csvParserSettings;
     }
 
-    public void resetCurrentRecordGroup() {
+    void resetCurrentRecordGroup() {
         currentRecordGroupMaxNumFields = 0;
     }
 
@@ -115,12 +115,12 @@ public class Context {
         return currentRecordGroupMaxNumFields;
     }
 
-    public Context setCurrentRecordNumFields(int numFields) {
+    Context setCurrentRecordNumFields(int numFields) {
         currentRecordGroupMaxNumFields = Math.max(currentRecordGroupMaxNumFields, numFields);
         return this;
     }
 
-    public JsonGenerator getJsonGenerator() {
+    JsonGenerator getJsonGenerator() {
         return jsonGenerator;
     }
 
@@ -129,7 +129,7 @@ public class Context {
         return this;
     }
 
-    public JsonNode getNetworkNode() {
+    JsonNode getNetworkNode() {
         return networkNode;
     }
 

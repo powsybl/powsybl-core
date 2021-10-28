@@ -19,6 +19,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -125,6 +127,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         } else {
             v = availableVertices.iterator().next();
             availableVertices.remove(v);
+            vertices.set(v, new Vertex<>());
         }
         invalidateAdjacencyList();
         notifyListener();
@@ -308,6 +311,29 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
+    public List<E> getEdgeObjectsConnectedToVertex(int v) {
+        return getEdgeObjectConnectedToVertexStream(v).collect(Collectors.toList());
+    }
+
+    @Override
+    public Stream<E> getEdgeObjectConnectedToVertexStream(int v) {
+        return getEdgeConnectedToVertexStream(v).mapToObj(this::getEdgeObject);
+    }
+
+    @Override
+    public List<Integer> getEdgesConnectedToVertex(int v) {
+        return getEdgeConnectedToVertexStream(v).boxed().collect(Collectors.toList());
+    }
+
+    @Override
+    public IntStream getEdgeConnectedToVertexStream(int v) {
+        checkVertex(v);
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        TIntArrayList adjacentEdges = adjacencyList[v];
+        return IntStream.range(0, adjacentEdges.size()).map(adjacentEdges::getQuick);
+    }
+
+    @Override
     public int getEdgeVertex2(int e) {
         checkEdge(e);
         return edges.get(e).getV2();
@@ -411,7 +437,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v1] = true;
                     keepGoing = traverse(v1, traverser, encountered);
-                } else if (traverserResult == TraverseResult.BREAK) {
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
             } else if (!encountered[v2]) {
@@ -419,7 +445,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 if (traverserResult == TraverseResult.CONTINUE) {
                     encountered[v2] = true;
                     keepGoing = traverse(v2, traverser, encountered);
-                } else if (traverserResult == TraverseResult.BREAK) {
+                } else if (traverserResult == TraverseResult.TERMINATE_TRAVERSER) {
                     keepGoing = false;
                 }
             }
@@ -436,6 +462,17 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
         traverse(v, traverser, encountered);
+    }
+
+    @Override
+    public void traverse(int[] startingVertices, Traverser traverser) {
+        boolean[] encountered = new boolean[vertices.size()];
+        Arrays.fill(encountered, false);
+        for (int startingVertex : startingVertices) {
+            if (!encountered[startingVertex]) {
+                traverse(startingVertex, traverser, encountered);
+            }
+        }
     }
 
     /**

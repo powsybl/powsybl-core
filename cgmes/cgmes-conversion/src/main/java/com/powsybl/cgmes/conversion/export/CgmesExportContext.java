@@ -28,6 +28,7 @@ public class CgmesExportContext {
     private CgmesTopologyKind topologyKind = CgmesTopologyKind.BUS_BRANCH;
     private DateTime scenarioTime = DateTime.now();
 
+    private ModelDescription eqModelDescription = new ModelDescription("EQ Model", CgmesNamespace.EQ_PROFILE);
     private ModelDescription svModelDescription = new ModelDescription("SV Model", CgmesNamespace.SV_PROFILE);
     private ModelDescription sshModelDescription = new ModelDescription("SSH Model", CgmesNamespace.SSH_PROFILE);
 
@@ -125,6 +126,7 @@ public class CgmesExportContext {
             sshModelDescription.addDependencies(sshMetadata.getDependencies());
             sshModelDescription.setModelingAuthoritySet(sshMetadata.getModelingAuthoritySet());
         }
+        // TODO Fill EQ Model Description
         addTopologicalNodeMappings(network);
     }
 
@@ -208,6 +210,10 @@ public class CgmesExportContext {
     public CgmesExportContext setScenarioTime(DateTime scenarioTime) {
         this.scenarioTime = Objects.requireNonNull(scenarioTime);
         return this;
+    }
+
+    public ModelDescription getEqModelDescription() {
+        return eqModelDescription;
     }
 
     public ModelDescription getSvModelDescription() {

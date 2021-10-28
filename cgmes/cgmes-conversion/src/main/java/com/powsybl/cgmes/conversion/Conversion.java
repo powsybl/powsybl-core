@@ -16,10 +16,9 @@ import com.powsybl.cgmes.extensions.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesSubset;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
-import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.joda.time.DateTime;
@@ -234,8 +233,13 @@ public class Conversion {
         // apply post-processors
         for (CgmesImportPostProcessor postProcessor : postProcessors) {
             // FIXME generic cgmes models may not have an underlying triplestore
+            // TODO maybe pass the properties to the post processors
             postProcessor.process(network, cgmes.tripleStore());
         }
+
+        // Complete Voltages and angles in starBus as properties
+        // Complete Voltages and angles in boundary buses
+        completeVoltagesAndAngles(network);
 
         if (config.storeCgmesConversionContextAsNetworkExtension()) {
             // Store the terminal mapping in an extension for external validation
@@ -243,6 +247,17 @@ public class Conversion {
         }
 
         return network;
+    }
+
+    private static void completeVoltagesAndAngles(Network network) {
+
+        // Voltage and angle in starBus as properties
+        network.getThreeWindingsTransformers()
+            .forEach(ThreeWindingsTransformerConversion::calculateVoltageAndAngleInStarBus);
+
+        // Voltage and angle in boundary buses
+        network.getDanglingLines()
+            .forEach(AbstractConductingEquipmentConversion::calculateVoltageAndAngleInBoundaryBus);
     }
 
     private static void createControlArea(CgmesControlAreas cgmesControlAreas, PropertyBag ca) {
@@ -376,6 +391,10 @@ public class Conversion {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(line.tabulateLocals("ACLineSegment"));
             }
+            String lineContainerId = line.getId("Line");
+            if (lineContainerId != null) {
+                createLineContainerFictitiousVoltageLevels(context, lineContainerId, line);
+            }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
             if (c.valid()) {
                 String node = c.boundaryNode();
@@ -387,6 +406,68 @@ public class Conversion {
                 }
             }
         }
+    }
+
+    static class LineContainerFictitiousVoltageLevelData {
+        String lineId;
+
+        String lineName;
+        String nodeId;
+        VoltageLevel vl;
+
+        String idForFictitiousVoltageLevel() {
+            return nodeId + "_VL";
+        }
+    }
+
+    private LineContainerFictitiousVoltageLevelData voltageLevelDataForACLSinLineContainer(Context context, String lineId, PropertyBag lineSegment, String terminalRef) {
+        LineContainerFictitiousVoltageLevelData vldata = new LineContainerFictitiousVoltageLevelData();
+        vldata.lineId = lineId;
+        vldata.lineName = lineSegment.get("lineName");
+        CgmesTerminal t = cgmes.terminal(lineSegment.getId(terminalRef));
+        vldata.nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
+        String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
+        VoltageLevel vl;
+        if (vlId != null) {
+            vldata.vl = context.network().getVoltageLevel(vlId);
+        } else {
+            vldata.vl = context.network().getVoltageLevel(vldata.idForFictitiousVoltageLevel());
+        }
+        return vldata;
+    }
+
+    private void createLineContainerFictitiousVoltageLevels(Context context, String lineId, PropertyBag lineSegment) {
+        // Try to obtain data for a potential fictitious voltage level from Terminal1 of AC Line Segment
+        LineContainerFictitiousVoltageLevelData vldata1 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal1");
+        // The same, from Terminal2 of AC Line Segment
+        LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal2");
+        // Only create a fictitious voltage levels replacing cim:Line Container if we are NOT at boundaries
+        if (vldata1.vl == null && !context.boundary().containsNode(vldata1.nodeId)) {
+            newFictitiousVoltageLevel(context, vldata1, vldata2.vl);
+        }
+        if (vldata2.vl == null && !context.boundary().containsNode(vldata2.nodeId)) {
+            newFictitiousVoltageLevel(context, vldata2, vldata1.vl);
+        }
+    }
+
+    private VoltageLevel newFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
+        String id = vldata.idForFictitiousVoltageLevel();
+        LOG.warn("Fictitious Voltage Level {} created for Line container {} node {}", id, vldata.lineId, vldata.lineName);
+        // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
+        VoltageLevel vl = context.network().newVoltageLevel()
+                .setNominalV(vlref != null ? vlref.getNominalV() : 1.0)
+                .setTopologyKind(
+                        context.nodeBreaker()
+                                ? TopologyKind.NODE_BREAKER
+                                : TopologyKind.BUS_BREAKER)
+                .setLowVoltageLimit(vlref != null ? vlref.getLowVoltageLimit() : 1.0)
+                .setHighVoltageLimit(vlref != null ? vlref.getHighVoltageLimit() : 1.0)
+                .setId(id)
+                .setName(vldata.lineName)
+                .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
+                .add();
+        vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
+        return vl;
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
@@ -513,7 +594,7 @@ public class Conversion {
             // set (voltage, angle) values after all nodes have been created and connected
             for (PropertyBag n : nodes) {
                 NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
-                if (!nc.insideBoundary()) {
+                if (!nc.insideBoundary() || nc.insideBoundary() && context.config().convertBoundary()) {
                     nc.setVoltageAngleNodeBreaker();
                 }
             }

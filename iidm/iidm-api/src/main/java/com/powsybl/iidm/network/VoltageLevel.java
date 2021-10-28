@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
@@ -522,6 +524,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         }
 
         /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        Stream<Switch> getSwitchStream(int node);
+
+        /**
+         * Get the switches connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Switch> getSwitches(int node);
+
+        /**
+         * Get the indices of the nodes connected with an internal connections to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         */
+        IntStream getNodeInternalConnectedToStream(int node);
+
+        /**
+         * Get the internal connections connected to the {@code node}.
+         *
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
+         * @return
+         */
+        List<Integer> getNodesInternalConnectedTo(int node);
+
+        /**
          * Check if a {@link Connectable}, a {@link Switch} or an {@link InternalConnection} is attached to the given node.
          *
          * @throws com.powsybl.commons.PowsyblException if node is not valid
@@ -613,6 +645,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * The {@code traverser} callback is called every time an edge is traversed.
          */
         void traverse(int node, Traverser traverser);
+
+        /**
+         * Performs a depth-first traversal of the topology graph,
+         * starting from each node in array {@code nodes}.
+         * The {@code traverser} callback is called every time an edge is traversed.
+         */
+        void traverse(int[] node, Traverser traverser);
     }
 
     /**
@@ -1093,6 +1132,69 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return LCC converter stations count connected to this voltage level
      */
     int getLccConverterStationCount();
+
+    /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Iterable<Line> getLines();
+
+    /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Stream<Line> getLineStream();
+
+    /**
+     * Get line count connected to this voltage level.
+     *
+     * @return line count connected to this voltage level
+     */
+    int getLineCount();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
+
+    /**
+     * Get two windings transformer count connected to this voltage level.
+     *
+     * @return two windings transformer count connected to this voltage level
+     */
+    int getTwoWindingsTransformerCount();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
+
+    /**
+     * Get three windings transformer count connected to this voltage level.
+     *
+     * @return three windings transformer count connected to this voltage level
+     */
+    int getThreeWindingsTransformerCount();
 
     /**
      * Remove this voltage level from the network.
