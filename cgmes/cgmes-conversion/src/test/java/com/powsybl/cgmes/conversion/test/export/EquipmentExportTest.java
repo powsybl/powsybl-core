@@ -46,14 +46,14 @@ import static org.junit.Assert.assertTrue;
 public class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
-    public void smallGridHVDC() throws IOException, XMLStreamException {
+    public void smallGridHvdc() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         test(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
     @Test
-    public void smallGridHVDCWithCapabilityCurve() throws IOException, XMLStreamException {
+    public void smallGridHvdcWithCapabilityCurve() throws IOException, XMLStreamException {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         test(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource(), NetworkFactory.findDefault(), properties));
