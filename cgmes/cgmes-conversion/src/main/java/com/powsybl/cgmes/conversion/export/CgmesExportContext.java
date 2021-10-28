@@ -252,7 +252,11 @@ public class CgmesExportContext {
                 addIidmMappingsTerminal(t, c);
             }
         }
+        addIidmMappingsSwitchTerminals(network);
+        addIidmMappingsHvdcTerminals(network);
+    }
 
+    private void addIidmMappingsSwitchTerminals(Network network) {
         for (Switch sw : network.getSwitches()) {
             String terminal1Id = sw.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "1").orElse(null);
             if (terminal1Id == null) {
@@ -265,7 +269,9 @@ public class CgmesExportContext {
                 sw.addAlias(terminal2Id, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.TERMINAL + "2");
             }
         }
+    }
 
+    private void addIidmMappingsHvdcTerminals(Network network) {
         for (HvdcLine line : network.getHvdcLines()) {
             String dcNode1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "DCNode1").orElse(null);
             if (dcNode1 == null) {
