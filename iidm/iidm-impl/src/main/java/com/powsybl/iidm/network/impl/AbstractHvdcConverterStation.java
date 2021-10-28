@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -42,11 +41,6 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.HVDC_CONVERTER_STATION;
     }
 
     @Override

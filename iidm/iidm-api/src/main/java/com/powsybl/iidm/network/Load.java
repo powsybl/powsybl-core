@@ -110,7 +110,7 @@ public interface Load extends Injection<Load> {
     Load setQ0(double q0);
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.LOAD;
     }
 }

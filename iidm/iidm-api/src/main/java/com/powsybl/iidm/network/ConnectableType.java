@@ -9,7 +9,10 @@ package com.powsybl.iidm.network;
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ *
+ * @deprecated Use {@link IdentifiableType} instead.
  */
+@Deprecated(since = "4.5.0")
 public enum ConnectableType {
     BUSBAR_SECTION,
     LINE,

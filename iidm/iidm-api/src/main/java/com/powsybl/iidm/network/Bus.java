@@ -256,7 +256,7 @@ public interface Bus extends Identifiable<Bus> {
     }
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.BUS;
     }
 }

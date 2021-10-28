@@ -63,7 +63,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
 
-        assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
+        assertEquals(IdentifiableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
         assertEquals(6, shuntCompensator.getSectionCount());
@@ -220,7 +220,7 @@ public abstract class AbstractShuntCompensatorTest {
                 .add();
         ShuntCompensator shuntCompensator = adder.add();
 
-        assertEquals(ConnectableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
+        assertEquals(IdentifiableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getNameOrId());
         assertEquals(SHUNT, shuntCompensator.getId());

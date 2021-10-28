@@ -264,7 +264,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     }
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.SHUNT_COMPENSATOR;
     }
 }

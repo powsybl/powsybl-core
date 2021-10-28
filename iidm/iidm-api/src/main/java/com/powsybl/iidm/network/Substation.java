@@ -182,7 +182,7 @@ public interface Substation extends Container<Substation> {
     }
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.SUBSTATION;
     }
 }

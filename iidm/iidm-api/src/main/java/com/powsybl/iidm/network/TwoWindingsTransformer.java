@@ -230,7 +230,7 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     }
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.TWO_WINDINGS_TRANSFORMER;
     }
 }

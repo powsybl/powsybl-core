@@ -51,7 +51,7 @@ public interface HvdcConverterStation<T extends HvdcConverterStation<T>> extends
     T setLossFactor(float lossFactor);
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.HVDC_CONVERTER_STATION;
     }
 }

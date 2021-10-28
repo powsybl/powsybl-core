@@ -179,5 +179,5 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
      *
      * @return the identifiable type
      */
-    IdentifiableType getIdentifiableType();
+    IdentifiableType getType();
 }

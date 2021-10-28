@@ -70,7 +70,7 @@ public interface BusbarSection extends Injection<BusbarSection> {
     double getAngle();
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.BUSBAR_SECTION;
     }
 }

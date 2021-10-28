@@ -131,7 +131,7 @@ public class VariantManagerImplTest {
         }
 
         @Override
-        public IdentifiableType getIdentifiableType() {
+        public IdentifiableType getType() {
             return null;
         }
     }

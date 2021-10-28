@@ -234,7 +234,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     }
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.STATIC_VAR_COMPENSATOR;
     }
 }

@@ -178,10 +178,10 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             // Remove all branches, transformers and HVDC lines
             List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
             for (Connectable connectable : connectables) {
-                ConnectableType type = connectable.getType();
+                IdentifiableType type = connectable.getType();
                 if (VoltageLevels.MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                     connectable.remove();
-                } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
+                } else if (type == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
                     if (hvdcLine != null) {
                         hvdcLine.remove();

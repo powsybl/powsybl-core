@@ -339,7 +339,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     double getRatedU0();
 
     @Override
-    default IdentifiableType getIdentifiableType() {
+    default IdentifiableType getType() {
         return IdentifiableType.THREE_WINDINGS_TRANSFORMER;
     }
 }

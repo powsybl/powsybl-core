@@ -168,7 +168,7 @@ abstract class AbstractIdentifiableAdapter<I extends Identifiable<I>> extends Ab
     }
 
     @Override
-    public IdentifiableType getIdentifiableType() {
-        return getDelegate().getIdentifiableType();
+    public IdentifiableType getType() {
+        return getDelegate().getType();
     }
 }
