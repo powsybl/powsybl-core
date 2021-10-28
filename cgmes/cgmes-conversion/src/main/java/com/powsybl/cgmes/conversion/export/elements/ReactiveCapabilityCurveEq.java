@@ -9,7 +9,6 @@ package com.powsybl.cgmes.conversion.export.elements;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.ReactiveLimitsHolder;
 import com.powsybl.iidm.network.VscConverterStation;
 
