@@ -7,6 +7,7 @@
 package com.powsybl.cgmes.conversion.test.export;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.export.CgmesExportContext;
@@ -49,6 +50,13 @@ public class EquipmentExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
         test(new CgmesImport().importData(CgmesConformity1Catalog.smallNodeBreakerHvdc().dataSource(), NetworkFactory.findDefault(), properties));
+    }
+
+    @Test
+    public void smallGridHVDCWithCapabilityCurve() throws IOException, XMLStreamException {
+        Properties properties = new Properties();
+        properties.put(CgmesImport.CREATE_CGMES_EXPORT_MAPPING, "true");
+        test(new CgmesImport().importData(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve().dataSource(), NetworkFactory.findDefault(), properties));
     }
 
     @Test
