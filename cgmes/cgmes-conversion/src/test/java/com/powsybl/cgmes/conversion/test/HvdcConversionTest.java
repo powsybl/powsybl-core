@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
@@ -381,14 +380,18 @@ public class HvdcConversionTest {
         if (curve.getPointCount() != referenceVsCapabilityCurve.num) {
             return false;
         }
-        if (!referenceVsCapabilityCurve.xValues.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getP).collect(Collectors.toList()))) {
-            return false;
-        }
-        if (!referenceVsCapabilityCurve.y1Values.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getMinQ).collect(Collectors.toList()))) {
-            return false;
-        }
-        if (!referenceVsCapabilityCurve.y2Values.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getMaxQ).collect(Collectors.toList()))) {
-            return false;
+        int i = 0;
+        for (ReactiveCapabilityCurve.Point point : curve.getPoints()) {
+            if (referenceVsCapabilityCurve.xValues.get(i) != point.getP()) {
+                return false;
+            }
+            if (referenceVsCapabilityCurve.y1Values.get(i) != point.getMinQ()) {
+                return false;
+            }
+            if (referenceVsCapabilityCurve.y2Values.get(i) != point.getMaxQ()) {
+                return false;
+            }
+            i++;
         }
         return true;
     }
