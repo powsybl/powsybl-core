@@ -929,6 +929,7 @@ OPTIONAL {
     ?ACDCConverter
        cim:VsConverter.qPccControl ?qPccControl ;
        cim:VsConverter.pPccControl ?pPccControl .
+    OPTIONAL { ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
     OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
 }

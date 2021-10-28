@@ -11,7 +11,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,11 +28,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -247,6 +247,30 @@ public class HvdcConversionTest {
             "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
     }
 
+    @Test
+    public void smallNodeBreakerHvdcWithVsCapabilityCurve() throws IOException {
+        Conversion.Config config = new Conversion.Config().setEnsureIdAliasUnicity(true);
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.smallNodeBreakerHvdcWithVsCapabilityCurve(), config);
+
+        assertEquals(4, n.getHvdcConverterStationCount());
+        assertEquals(2, n.getHvdcLineCount());
+
+        assertTrue(containsLccConverter(n, "_7393a68e-c4e6-48dd-9347-543858363fdb", "Conv1", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, 0.8));
+        assertTrue(containsLccConverter(n, "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", "Conv2", "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", 0.0, -0.75741));
+        assertTrue(containsHvdcLine(n, "_11d10c55-94cc-47e4-8e24-bc5ac4d026c0", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine",
+                "_7393a68e-c4e6-48dd-9347-543858363fdb", "_9793118d-5ba1-4a9c-b2e0-db1d15be5913", 12.3, 63.8, 76.55999999999999));
+
+        assertTrue(containsVscConverter(n, "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "VSC2", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32362458, 218.47, 0.0));
+        assertTrue(containsVscConverter(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", "VSC1", "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", 0.32467532, 213.54, 0.0));
+        assertTrue(containsHvdcLine(n, "_d9a49bc9-f4b8-4bfa-9d0f-d18f12f2575b", HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, "dcLine2",
+                "_b46bfb8e-7af6-459e-acf3-53a42c943a7c", "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", 8.3, 154.0, 184.2));
+
+        assertTrue(containsVsCapabilityCurve(n, "_b48ce7cf-abf5-413f-bc51-9e1d3103c9bd", ReactiveLimitsKind.CURVE, 3,
+                Collections.unmodifiableList(Arrays.asList(-100.0, 0.0, 100.0)),
+                Collections.unmodifiableList(Arrays.asList(-200.0, -300.0, -200.0)),
+                Collections.unmodifiableList(Arrays.asList(200.0, 300.0, 200.0))));
+    }
+
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
@@ -335,6 +359,35 @@ public class HvdcConversionTest {
         }
         if (Math.abs(referenceConverter.reactivePowerSetpoint - vscConverter.getReactivePowerSetpoint()) > tolerance) {
             LOG.info("Different reactivePowerSetpoint {} reference {}", vscConverter.getReactivePowerSetpoint(), referenceConverter.reactivePowerSetpoint);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean containsVsCapabilityCurve(Network n, String id, ReactiveLimitsKind type, int values, List<Double> xValues, List<Double> y1Values, List<Double> y2Values) {
+        ReferenceVsCapabilityCurve referenceVsCapabilityCurve = new ReferenceVsCapabilityCurve(type, values, xValues, y1Values, y2Values);
+        return containsVsCapabilityCurve(n, id, referenceVsCapabilityCurve);
+    }
+
+    private boolean containsVsCapabilityCurve(Network n, String id, ReferenceVsCapabilityCurve referenceVsCapabilityCurve) {
+        VscConverterStation vscConverter = n.getVscConverterStation(id);
+        if (vscConverter.getReactiveLimits().getKind() != referenceVsCapabilityCurve.type) {
+            return false;
+        }
+        ReactiveCapabilityCurve curve = vscConverter.getReactiveLimits(ReactiveCapabilityCurve.class);
+        if (curve == null) {
+            return false;
+        }
+        if (curve.getPointCount() != referenceVsCapabilityCurve.num) {
+            return false;
+        }
+        if (!referenceVsCapabilityCurve.xValues.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getP).collect(Collectors.toList()))) {
+            return false;
+        }
+        if (!referenceVsCapabilityCurve.y1Values.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getMinQ).collect(Collectors.toList()))) {
+            return false;
+        }
+        if (!referenceVsCapabilityCurve.y2Values.containsAll(curve.getPoints().stream().map(ReactiveCapabilityCurve.Point::getMaxQ).collect(Collectors.toList()))) {
             return false;
         }
         return true;
@@ -474,6 +527,22 @@ public class HvdcConversionTest {
             this.r = r;
             this.activePowerSetpoint = activePowerSetpoint;
             this.maxP = maxP;
+        }
+    }
+
+    static class ReferenceVsCapabilityCurve {
+        ReactiveLimitsKind type;
+        int num;
+        List<Double> xValues;
+        List<Double> y1Values;
+        List<Double> y2Values;
+
+        ReferenceVsCapabilityCurve(ReactiveLimitsKind type, int num, List<Double> xValues, List<Double> y1Values, List<Double> y2Values) {
+            this.type = type;
+            this.num = num;
+            this.xValues = xValues;
+            this.y1Values = y1Values;
+            this.y2Values = y2Values;
         }
     }
 
