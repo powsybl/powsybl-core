@@ -887,33 +887,24 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    void traverse(BusTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(traversedTerminals);
-
-        if (traversedTerminals.contains(terminal)) {
-            return;
-        }
-
-        List<TerminalExt> nextTerminals = new ArrayList<>();
+        Objects.requireNonNull(visitedTerminals);
 
         // check if we are allowed to traverse the terminal itself
-        if (traverser.traverse(terminal, terminal.isConnected())) {
-            traversedTerminals.add(terminal);
+        if (visitedTerminals.add(terminal) && traverser.traverse(terminal, terminal.isConnected())) {
 
+            List<TerminalExt> nextTerminals = new ArrayList<>();
             addNextTerminals(terminal, nextTerminals);
 
             // then check we can traverse terminal connected to same bus
             int v = getVertex(terminal.getConnectableBusId(), true);
             ConfiguredBus bus = graph.getVertexObject(v);
             bus.getTerminals().stream()
-                    .filter(t -> t != terminal)
+                    .filter(visitedTerminals::add)
                     .filter(t -> traverser.traverse(t, t.isConnected()))
-                    .forEach(t -> {
-                        traversedTerminals.add(t);
-                        addNextTerminals(t, nextTerminals);
-                    });
+                    .forEach(t -> addNextTerminals(t, nextTerminals));
 
             // then go through other buses of the voltage level
             graph.traverse(v, (v1, e, v2) -> {
@@ -925,9 +916,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     }
 
                     BusTerminal otherTerminal = otherBus.getTerminals().get(0);
-                    if (traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
-                        traversedTerminals.add(otherTerminal);
-
+                    if (visitedTerminals.add(otherTerminal) && traverser.traverse(otherTerminal, otherTerminal.isConnected())) {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     }
@@ -935,7 +924,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 return TraverseResult.TERMINATE_PATH;
             });
 
-            nextTerminals.forEach(t -> t.traverse(traverser, traversedTerminals));
+            nextTerminals.forEach(t -> t.traverse(traverser, visitedTerminals));
         }
     }
 

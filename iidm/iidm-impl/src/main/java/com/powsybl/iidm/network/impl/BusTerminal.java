@@ -132,8 +132,8 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override

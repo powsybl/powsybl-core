@@ -127,6 +127,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         } else {
             v = availableVertices.iterator().next();
             availableVertices.remove(v);
+            vertices.set(v, new Vertex<>());
         }
         invalidateAdjacencyList();
         notifyVertexAdded(v);

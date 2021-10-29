@@ -111,6 +111,17 @@ public class UndirectedGraphImplTest {
     }
 
     @Test
+    public void testRemoveVertexAndAdd() {
+        graph.addVertex();
+        graph.addVertex();
+        graph.removeVertex(0);
+        graph.addVertex();
+        assertEquals(2, graph.getVertexCount());
+        assertEquals(2, graph.getVertices().length);
+        graph.setVertexObject(0, new Vertex("test"));
+    }
+
+    @Test
     public void testRemoveAllVertices() {
         graph.addVertex();
         graph.addVertex();

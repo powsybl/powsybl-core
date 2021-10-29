@@ -183,8 +183,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
