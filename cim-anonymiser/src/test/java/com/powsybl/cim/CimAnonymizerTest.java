@@ -10,6 +10,7 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.CharStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.TestUtil;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.junit.After;
 import org.junit.Before;
@@ -21,7 +22,6 @@ import org.xmlunit.diff.Diff;
 import javax.xml.transform.Source;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -82,7 +82,7 @@ public class CimAnonymizerTest {
             }
         }
 
-        assertEquals(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/sample.csv"))),
-                     new String(Files.readAllBytes(dictionaryFile), StandardCharsets.UTF_8));
+        assertEquals(TestUtil.normalizeLineSeparator(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/sample.csv")))),
+                TestUtil.normalizeLineSeparator(Files.readString(dictionaryFile)));
     }
 }

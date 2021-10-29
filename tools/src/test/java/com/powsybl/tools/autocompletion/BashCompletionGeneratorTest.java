@@ -6,6 +6,7 @@
  */
 package com.powsybl.tools.autocompletion;
 
+import com.powsybl.commons.TestUtil;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -49,8 +50,9 @@ public class BashCompletionGeneratorTest {
     private void checkGeneratedScript(String referencePath, BashCommand... commands) throws IOException {
         try (StringWriter sw = new StringWriter()) {
             generator.generateCommands("itools", Arrays.asList(commands), sw);
-            String script = sw.toString();
-            assertEquals(readResource(referencePath), script);
+            String script = TestUtil.normalizeLineSeparator(sw.toString());
+            String refScript = TestUtil.normalizeLineSeparator(readResource(referencePath));
+            assertEquals(refScript, script);
         }
     }
 

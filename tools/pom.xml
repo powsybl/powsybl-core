@@ -83,6 +83,12 @@
 
         <!-- Test dependencies -->
         <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-commons</artifactId>
+            <type>test-jar</type>
+        </dependency>
+
+        <dependency>
             <groupId>com.google.jimfs</groupId>
             <artifactId>jimfs</artifactId>
             <scope>test</scope>
