@@ -106,9 +106,9 @@ class SwitchesChain {
     private static Terminal terminalAssociatedToFirstConductingEquipmentConnectable(List<String> nodes,
         NodeConnectables connectables, boolean isNodeBreakerModel) {
         for (String node : nodes) {
-            Connectable connectable = connectables.getFirstConductingEquipment(node);
+            Connectable<?> connectable = connectables.getFirstConductingEquipment(node);
             if (connectable != null) {
-                return (Terminal) connectable.getTerminals().stream()
+                return connectable.getTerminals().stream()
                     .filter(terminal -> isTerminalNode((Terminal) terminal, node, isNodeBreakerModel)).findFirst()
                     .orElse(null);
             }
@@ -128,10 +128,10 @@ class SwitchesChain {
     // At this moment we only know this information in danglingLines so
     // the terminal will only be accepted if it is a danglingLine
     private static Terminal bestTerminal(Terminal terminalEnd1, Terminal terminalEnd2) {
-        if (terminalEnd1.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
+        if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
             return terminalEnd1;
         }
-        if (terminalEnd2.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
+        if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
             return terminalEnd2;
         }
         return null;
@@ -139,7 +139,7 @@ class SwitchesChain {
 
     private static class NodeConnectables {
 
-        private final Map<String, List<Connectable>> connectables;
+        private final Map<String, List<Connectable<?>>> connectables;
 
         NodeConnectables(VoltageLevel vl, boolean isNodeBreakerModel) {
             connectables = new HashMap<>();
@@ -151,7 +151,7 @@ class SwitchesChain {
             }
         }
 
-        private static void connectablesNodeBreaker(VoltageLevel vl, Map<String, List<Connectable>> connectables) {
+        private static void connectablesNodeBreaker(VoltageLevel vl, Map<String, List<Connectable<?>>> connectables) {
             vl.getConnectables().forEach(c -> {
                 if (isDiscarded(c)) {
                     return;
@@ -162,7 +162,7 @@ class SwitchesChain {
             });
         }
 
-        private static void connectablesBusBreaker(VoltageLevel vl, Map<String, List<Connectable>> connectables) {
+        private static void connectablesBusBreaker(VoltageLevel vl, Map<String, List<Connectable<?>>> connectables) {
             vl.getConnectables().forEach(c -> {
                 if (isDiscarded(c)) {
                     return;
@@ -181,18 +181,18 @@ class SwitchesChain {
             return 0;
         }
 
-        private Connectable getFirstConductingEquipment(String nodeId) {
+        private Connectable<?> getFirstConductingEquipment(String nodeId) {
             if (connectables.containsKey(nodeId)) {
-                return connectables.get(nodeId).stream().filter(c -> isConductingEquipment(c)).findFirst().orElse(null);
+                return connectables.get(nodeId).stream().filter(NodeConnectables::isConductingEquipment).findFirst().orElse(null);
             }
             return null;
         }
 
-        private static boolean isDiscarded(Connectable connectable) {
+        private static boolean isDiscarded(Connectable<?> connectable) {
             return connectable.getType() == ConnectableType.BUSBAR_SECTION;
         }
 
-        private static boolean isConductingEquipment(Connectable connectable) {
+        private static boolean isConductingEquipment(Connectable<?> connectable) {
             return connectable.getType() == ConnectableType.LINE
                 || connectable.getType() == ConnectableType.DANGLING_LINE;
         }
@@ -200,15 +200,15 @@ class SwitchesChain {
 
     private static class Adjacency {
 
-        private final Map<String, List<String>> adjacency;
+        private final Map<String, List<String>> adjacencies;
 
         Adjacency(VoltageLevel vl, String switchId, boolean isNodeBreakerModel) {
-            adjacency = new HashMap<>();
+            adjacencies = new HashMap<>();
 
             if (isNodeBreakerModel) {
-                adjacencyNodeBreaker(vl, switchId, adjacency);
+                adjacencyNodeBreaker(vl, switchId, adjacencies);
             } else {
-                adjacencyBusBreaker(vl, switchId, adjacency);
+                adjacencyBusBreaker(vl, switchId, adjacencies);
             }
         }
 
@@ -246,8 +246,8 @@ class SwitchesChain {
         }
 
         private List<String> getAdjacents(String nodeId) {
-            if (adjacency.containsKey(nodeId)) {
-                return adjacency.get(nodeId);
+            if (adjacencies.containsKey(nodeId)) {
+                return adjacencies.get(nodeId);
             }
             return Collections.<String>emptyList();
         }

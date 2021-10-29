@@ -58,7 +58,7 @@ public class TerminalMapping {
                 .orElse(null);
     }
 
-    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network, Context context) {
+    public Terminal find(String cgmesTerminalId, CgmesModel cgmesModel, Network network) {
         CgmesTerminal cgmesTerminal = cgmesModel.terminal(cgmesTerminalId);
 
         if (isSwitch(cgmesTerminal.conductingEquipmentType())) {

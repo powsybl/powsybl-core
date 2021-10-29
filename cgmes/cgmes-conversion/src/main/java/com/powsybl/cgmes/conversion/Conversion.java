@@ -284,7 +284,7 @@ public class Conversion {
             cgmesControlArea.add(boundary);
             return;
         }
-        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network, context);
+        Terminal terminal = context.terminalMapping().find(terminalId, cgmesModel, network);
         if (terminal != null) {
             cgmesControlArea.add(terminal);
         }
