@@ -123,18 +123,15 @@ class SwitchesChain {
         return terminal.getBusBreakerView().getBus().getId().equals(node);
     }
 
+    // The best terminal is the terminal associated to the line, branch at the border
+    // one end inside the controlArea and the other outside.
+    // At this moment we only know this information in danglingLines so
+    // the terminal will only be accepted if it is a danglingLine
     private static Terminal bestTerminal(Terminal terminalEnd1, Terminal terminalEnd2) {
-        if (terminalEnd1 != null && terminalEnd2 != null) {
-            if (terminalEnd1.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
-                return terminalEnd1;
-            }
-            if (terminalEnd2.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
-                return terminalEnd2;
-            }
+        if (terminalEnd1.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
             return terminalEnd1;
-        } else if (terminalEnd1 != null) {
-            return terminalEnd1;
-        } else if (terminalEnd2 != null) {
+        }
+        if (terminalEnd2.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
             return terminalEnd2;
         }
         return null;
