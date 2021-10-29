@@ -520,6 +520,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         getNetwork().getBusView().invalidateCache();
         getNetwork().getBusBreakerView().invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
+        getNetwork().getSynchronousComponentsManager().invalidate();
     }
 
     private Integer getEdge(String switchId, boolean throwException) {
@@ -740,8 +741,12 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
 
-            getNetwork().getIndex().remove(aSwitch);
-            getNetwork().getListeners().notifyRemoval(aSwitch);
+            NetworkImpl network = getNetwork();
+            network.getListeners().notifyBeforeRemoval(aSwitch);
+
+            network.getIndex().remove(aSwitch);
+
+            network.getListeners().notifyAfterRemoval(switchId);
         }
 
         @Override
@@ -1057,33 +1062,24 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         traverse(terminal, traverser, new HashSet<>());
     }
 
-    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
+    void traverse(NodeTerminal terminal, VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
         Objects.requireNonNull(terminal);
         Objects.requireNonNull(traverser);
-        Objects.requireNonNull(traversedTerminals);
+        Objects.requireNonNull(visitedTerminals);
 
-        if (traversedTerminals.contains(terminal)) {
-            return;
-        }
+        if (visitedTerminals.add(terminal) && traverser.traverse(terminal, true)) {
 
-        if (traverser.traverse(terminal, true)) {
-            traversedTerminals.add(terminal);
-
-            int node = terminal.getNode();
             List<TerminalExt> nextTerminals = new ArrayList<>();
-
             addNextTerminals(terminal, nextTerminals);
 
-            graph.traverse(node, (v1, e, v2) -> {
+            graph.traverse(terminal.getNode(), (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
                 if (aSwitch == null // internal connection case
                         || traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
-                    } else if (traverser.traverse(otherTerminal, true)) {
-                        traversedTerminals.add(otherTerminal);
-
+                    } else if (visitedTerminals.add(otherTerminal) && traverser.traverse(otherTerminal, true)) {
                         addNextTerminals(otherTerminal, nextTerminals);
                         return TraverseResult.CONTINUE;
                     } else {
@@ -1095,7 +1091,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             });
 
             for (TerminalExt nextTerminal : nextTerminals) {
-                nextTerminal.traverse(traverser, traversedTerminals);
+                nextTerminal.traverse(traverser, visitedTerminals);
             }
         }
     }
@@ -1130,14 +1126,20 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private void removeAllEdges() {
+        List<String> removedSwitchesIds = new ArrayList<>(graph.getEdgeCount());
+        NetworkImpl network = getNetwork();
         for (SwitchImpl s : graph.getEdgesObject()) {
             if (s != null) {
-                getNetwork().getIndex().remove(s);
-                getNetwork().getListeners().notifyRemoval(s);
+                network.getListeners().notifyBeforeRemoval(s);
+
+                removedSwitchesIds.add(s.getId());
+                network.getIndex().remove(s);
             }
         }
         graph.removeAllEdges();
         switches.clear();
+
+        removedSwitchesIds.forEach(id -> network.getListeners().notifyAfterRemoval(id));
     }
 
     @Override

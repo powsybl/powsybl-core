@@ -8,11 +8,16 @@ package com.powsybl.cgmes.conversion.export;
 
 import com.powsybl.cgmes.conversion.export.CgmesExportContext.ModelDescription;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.extensions.LoadDetail;
 import com.powsybl.iidm.network.util.LinkData;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISODateTimeFormat;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
@@ -41,6 +46,10 @@ public final class CgmesExportUtil {
     }
 
     public static String format(int value) {
+        return String.valueOf(value);
+    }
+
+    public static String format(boolean value) {
         return String.valueOf(value);
     }
 
@@ -98,4 +107,56 @@ public final class CgmesExportUtil {
         Complex s1 = new Complex(p, q);
         return (s1.conjugate().divide(v1.conjugate()).subtract(adm.y11().multiply(v1))).divide(adm.y12());
     }
+
+    public static String loadClassName(LoadDetail loadDetail) {
+        if (loadDetail != null) {
+            // Conform load if fixed part is zero and variable part is non-zero
+            if (loadDetail.getFixedActivePower() == 0 && loadDetail.getFixedReactivePower() == 0
+                    && (loadDetail.getVariableActivePower() != 0 || loadDetail.getVariableReactivePower() != 0)) {
+                return "ConformLoad";
+            }
+            // NonConform load if fixed part is non-zero and variable part is all zero
+            if (loadDetail.getVariableActivePower() == 0 && loadDetail.getVariableReactivePower() == 0
+                    && (loadDetail.getFixedActivePower() != 0 || loadDetail.getFixedReactivePower() != 0)) {
+                return "NonConformLoad";
+            }
+        }
+        LOG.warn("It is not possible to determine the type of load");
+        return "EnergyConsumer";
+    }
+
+    public static int getTerminalSide(Terminal t, Connectable<?> c) {
+        if (c.getTerminals().size() == 1) {
+            return 1;
+        } else {
+            if (c instanceof Injection) {
+                // An injection should have only one terminal
+            } else if (c instanceof Branch) {
+                switch (((Branch<?>) c).getSide(t)) {
+                    case ONE:
+                        return 1;
+                    case TWO:
+                        return 2;
+                    default:
+                        throw new AssertionError("Incorrect branch side " + ((Branch<?>) c).getSide(t));
+                }
+            } else if (c instanceof ThreeWindingsTransformer) {
+                switch (((ThreeWindingsTransformer) c).getSide(t)) {
+                    case ONE:
+                        return 1;
+                    case TWO:
+                        return 2;
+                    case THREE:
+                        return 3;
+                    default:
+                        throw new AssertionError("Incorrect three-windings transformer side " + ((ThreeWindingsTransformer) c).getSide(t));
+                }
+            } else {
+                throw new PowsyblException("Unexpected Connectable instance: " + c.getClass());
+            }
+        }
+        return 0;
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesExportUtil.class);
 }
