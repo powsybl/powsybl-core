@@ -446,13 +446,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return PowerFlow.UNDEFINED;
     }
 
-    PowerFlow powerFlowSV() {
-        if (stateVariablesPowerFlow().defined()) {
-            return stateVariablesPowerFlow();
-        }
-        return PowerFlow.UNDEFINED;
-    }
-
     PowerFlow powerFlow(int n) {
         switch (context.config().getProfileUsedForInitialStateValues()) {
             case SSH:
