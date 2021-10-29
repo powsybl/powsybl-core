@@ -109,7 +109,7 @@ class SwitchesChain {
             Connectable<?> connectable = connectables.getFirstConductingEquipment(node);
             if (connectable != null) {
                 return connectable.getTerminals().stream()
-                    .filter(terminal -> isTerminalNode((Terminal) terminal, node, isNodeBreakerModel)).findFirst()
+                    .filter(terminal -> isTerminalNode(terminal, node, isNodeBreakerModel)).findFirst()
                     .orElse(null);
             }
         }
