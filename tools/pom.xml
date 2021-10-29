@@ -86,6 +86,7 @@
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-commons</artifactId>
             <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
