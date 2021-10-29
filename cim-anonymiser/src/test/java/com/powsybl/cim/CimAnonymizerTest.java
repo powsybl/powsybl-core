@@ -22,6 +22,7 @@ import org.xmlunit.diff.Diff;
 import javax.xml.transform.Source;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -83,6 +84,6 @@ public class CimAnonymizerTest {
         }
 
         assertEquals(TestUtil.normalizeLineSeparator(CharStreams.toString(new InputStreamReader(getClass().getResourceAsStream("/sample.csv")))),
-                TestUtil.normalizeLineSeparator(Files.readString(dictionaryFile)));
+                TestUtil.normalizeLineSeparator(Files.readString(dictionaryFile, StandardCharsets.UTF_8)));
     }
 }
