@@ -13,7 +13,6 @@ import com.powsybl.powerfactory.model.DataObject;
 import com.powsybl.powerfactory.model.Project;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -72,18 +71,75 @@ final class ContainersMappingHelper {
         }
     }
 
-    static ContainersMapping create(Project project, List<DataObject> elmTerms) {
-        List<DataObject> nodes = new ArrayList<>();
-        List<Edge> edges = new ArrayList<>();
-        Map<DataObject, List<DataObject>> branchesByCubicleId = new HashMap<>();
+    private static final class BusesToVoltageLevelId {
+
+        private final Project project;
+
+        private int noNameVoltageLevelCount = 0;
+
+        private BusesToVoltageLevelId(Project project) {
+            this.project = project;
+        }
+
+        public String getVoltageLevelId(Set<Integer> ids) {
+            List<DataObject> objs = ids.stream()
+                    .map(id -> project.getObjectById(id).orElse(null))
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            Set<DataObject> containers = objs.stream()
+                    .map(obj -> {
+                        String className = obj.getParent().getDataClassName();
+                        if (className.equals("ElmSubstat") || className.equals("ElmTrfstat")) {
+                            return obj.getParent();
+                        }
+                        return null;
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            String voltageLevelId = null;
+
+            if (containers.size() == 1) {
+                float uknom = objs.stream()
+                        .map(obj -> obj.findFloatAttributeValue("uknom").orElse(null))
+                        .filter(Objects::nonNull)
+                        .findFirst()
+                        .orElseThrow();
+
+                DataObject container = containers.iterator().next();
+                float unom = container.getFloatAttributeValue("Unom");
+                if (uknom == unom) { // check terminal nominal voltage is consistent with container one
+                    voltageLevelId = container.getName();
+                }
+            }
+
+            if (voltageLevelId == null) { // automatic naming
+                return "VL" + noNameVoltageLevelCount++;
+            }
+
+            return voltageLevelId;
+        }
+    }
+
+    private static boolean isBranch(DataObject connectedObj) {
+        if (connectedObj == null) {
+            return false;
+        }
+        String dataClassName = connectedObj.getDataClassName();
+        return dataClassName.equals("ElmTr2")
+                || dataClassName.equals("ElmTr3")
+                || dataClassName.equals("ElmLne")
+                || dataClassName.equals("ElmCoup");
+    }
+
+    private static void createNodes(List<DataObject> elmTerms, List<DataObject> nodes, List<Edge> edges,
+                                    Map<DataObject, List<DataObject>> branchesByCubicleId) {
         for (DataObject elmTerm : elmTerms) {
             nodes.add(elmTerm);
             for (DataObject staCubic : elmTerm.getChildrenByClass("StaCubic")) {
                 DataObject connectedObj = staCubic.findObjectAttributeValue("obj_id").orElse(null);
-                if (connectedObj != null && connectedObj.getDataClassName().equals("ElmTr2")
-                        || connectedObj.getDataClassName().equals("ElmTr3")
-                        || connectedObj.getDataClassName().equals("ElmLne")
-                        || connectedObj.getDataClassName().equals("ElmCoup")) {
+                if (isBranch(connectedObj)) {
                     nodes.add(staCubic);
                     edges.add(new Edge(elmTerm, staCubic, null, false, 0, 0));
                     branchesByCubicleId.computeIfAbsent(connectedObj, k -> new ArrayList<>())
@@ -91,7 +147,9 @@ final class ContainersMappingHelper {
                 }
             }
         }
+    }
 
+    private static void createEdges(List<Edge> edges, Map<DataObject, List<DataObject>> branchesByCubicleId) {
         for (Map.Entry<DataObject, List<DataObject>> e : branchesByCubicleId.entrySet()) {
             DataObject connectedObj = e.getKey();
             List<DataObject> staCubics = e.getValue();
@@ -125,52 +183,17 @@ final class ContainersMappingHelper {
                 throw new PowsyblException(connectedObj.getName() + " should be connected at both sides");
             }
         }
+    }
 
-        Function<Set<Integer>, String> busesToVoltageLevelId = new Function<Set<Integer>, String>() {
+    static ContainersMapping create(Project project, List<DataObject> elmTerms) {
+        List<DataObject> nodes = new ArrayList<>();
+        List<Edge> edges = new ArrayList<>();
+        Map<DataObject, List<DataObject>> branchesByCubicleId = new HashMap<>();
 
-            private int noNameVoltageLevelCount = 0;
+        createNodes(elmTerms, nodes, edges, branchesByCubicleId);
+        createEdges(edges, branchesByCubicleId);
 
-            @Override
-            public String apply(Set<Integer> ids) {
-                List<DataObject> objs = ids.stream()
-                        .map(id -> project.getObjectById(id).orElse(null))
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
-
-                Set<DataObject> containers = objs.stream()
-                        .map(obj -> {
-                            String className = obj.getParent().getDataClassName();
-                            if (className.equals("ElmSubstat") || className.equals("ElmTrfstat")) {
-                                return obj.getParent();
-                            }
-                            return null;
-                        })
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toSet());
-
-                String voltageLevelId = null;
-
-                if (containers.size() == 1) {
-                    float uknom = objs.stream()
-                            .map(obj -> obj.findFloatAttributeValue("uknom").orElse(null))
-                            .filter(Objects::nonNull)
-                            .findFirst()
-                            .orElseThrow();
-
-                    DataObject container = containers.iterator().next();
-                    float unom = container.getFloatAttributeValue("Unom");
-                    if (uknom == unom) { // check terminal nominal voltage is consistent with container one
-                        voltageLevelId = container.getName();
-                    }
-                }
-
-                if (voltageLevelId == null) { // automatic naming
-                    return "VL" + noNameVoltageLevelCount++;
-                }
-
-                return voltageLevelId;
-            }
-        };
+        BusesToVoltageLevelId busesToVoltageLevelId = new BusesToVoltageLevelId(project);
 
         return ContainersMapping.create(nodes, edges,
             obj -> Ints.checkedCast(obj.getId()),
@@ -180,7 +203,7 @@ final class ContainersMappingHelper {
             Edge::getR,
             Edge::getX,
             Edge::isTransformer,
-            busesToVoltageLevelId,
+            busesToVoltageLevelId::getVoltageLevelId,
             value -> "S" + value);
     }
 }

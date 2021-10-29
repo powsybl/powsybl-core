@@ -61,28 +61,32 @@ public class Project {
         return Optional.ofNullable(objectsById.get(id));
     }
 
+    private void indexBackwardLinks(DataObject dataObject) {
+        for (DataAttribute attribute : dataObject.getDataClass().getAttributes()) {
+            if (attribute.getType() == DataAttributeType.OBJECT) {
+                dataObject.findObjectAttributeValue(attribute.getName())
+                        .ifPresent(link -> backwardLinks.computeIfAbsent(link.getId(), k -> new ArrayList<>())
+                                .add(dataObject));
+            } else if (attribute.getType() == DataAttributeType.OBJECT_VECTOR) {
+                dataObject.findObjectVectorAttributeValue(attribute.getName())
+                        .ifPresent(links -> {
+                            for (DataObject link : links) {
+                                if (link != null) {
+                                    backwardLinks.computeIfAbsent(link.getId(), k -> new ArrayList<>())
+                                            .add(dataObject);
+                                }
+                            }
+                        });
+            }
+        }
+    }
+
     private void indexBackwardLinks() {
         if (backwardLinks == null) {
             backwardLinks = new HashMap<>();
             for (Map.Entry<Long, DataObject> e : objectsById.entrySet()) {
                 DataObject dataObject = e.getValue();
-                for (DataAttribute attribute : dataObject.getDataClass().getAttributes()) {
-                    if (attribute.getType() == DataAttributeType.OBJECT) {
-                        dataObject.findObjectAttributeValue(attribute.getName())
-                                .ifPresent(link -> backwardLinks.computeIfAbsent(link.getId(), k -> new ArrayList<>())
-                                        .add(dataObject));
-                    } else if (attribute.getType() == DataAttributeType.OBJECT_VECTOR) {
-                        dataObject.findObjectVectorAttributeValue(attribute.getName())
-                                .ifPresent(links -> {
-                                    for (DataObject link : links) {
-                                        if (link != null) {
-                                            backwardLinks.computeIfAbsent(link.getId(), k -> new ArrayList<>())
-                                                    .add(dataObject);
-                                        }
-                                    }
-                                });
-                    }
-                }
+                indexBackwardLinks(dataObject);
             }
         }
     }

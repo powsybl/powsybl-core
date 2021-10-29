@@ -184,72 +184,74 @@ public class DgsReader {
         return projObj;
     }
 
+    private class DgsHandlerImpl implements DgsHandler {
+
+        private DataClass clazz;
+
+        private DataObject object;
+
+        private String descr;
+
+        @Override
+        public void onTableHeader(String tableName) {
+            if (!tableName.equals("General")) {
+                // this is a class description
+                clazz = new DataClass(tableName);
+                classesByName.put(clazz.getName(), clazz);
+            }
+        }
+
+        @Override
+        public void onAttributeDescription(String attributeName, char attributeType) {
+            if (clazz != null && !attributeName.equals("ID")) {
+                DataAttributeType type = getDataAttributeType(attributeType);
+                clazz.addAttribute(new DataAttribute(attributeName, type, ""));
+            }
+        }
+
+        @Override
+        public void onStringValue(String attributeName, String value) {
+            if (clazz != null) {
+                if ("ID".equals(attributeName)) {
+                    long id = Long.parseLong(value);
+                    object = createDataObject(id, clazz);
+                    if (clazz.getName().equals("ElmNet")) {
+                        elmNet = object;
+                    }
+                } else {
+                    object.setStringAttributeValue(attributeName, value);
+                }
+            } else {
+                if ("Descr".equals(attributeName)) {
+                    descr = value;
+                } else if ("Val".equals(attributeName)) {
+                    general.put(descr, value);
+                }
+            }
+        }
+
+        @Override
+        public void onIntegerValue(String attributeName, int value) {
+            object.setIntAttributeValue(attributeName, value);
+        }
+
+        @Override
+        public void onRealValue(String attributeName, float value) {
+            object.setFloatAttributeValue(attributeName, value);
+        }
+
+        @Override
+        public void onObjectValue(String attributeName, long id) {
+            toResolveList.add(new ToResolve(object, attributeName, id));
+        }
+    }
+
     public Project read(String projectName, Reader reader) {
         Objects.requireNonNull(projectName);
         Objects.requireNonNull(reader);
         Stopwatch stopwatch = Stopwatch.createStarted();
 
-        new DgsParser().read(reader, new DgsHandler() {
-
-            private DataClass clazz;
-
-            private DataObject object;
-
-            private String descr;
-
-            @Override
-            public void onTableHeader(String tableName) {
-                if (!tableName.equals("General")) {
-                    // this is a class description
-                    clazz = new DataClass(tableName);
-                    classesByName.put(clazz.getName(), clazz);
-                }
-            }
-
-            @Override
-            public void onAttributeDescription(String attributeName, char attributeType) {
-                if (clazz != null && !attributeName.equals("ID")) {
-                    DataAttributeType type = getDataAttributeType(attributeType);
-                    clazz.addAttribute(new DataAttribute(attributeName, type, ""));
-                }
-            }
-
-            @Override
-            public void onStringValue(String attributeName, String value) {
-                if (clazz != null) {
-                    if ("ID".equals(attributeName)) {
-                        long id = Long.parseLong(value);
-                        object = createDataObject(id, clazz);
-                        if (clazz.getName().equals("ElmNet")) {
-                            elmNet = object;
-                        }
-                    } else {
-                        object.setStringAttributeValue(attributeName, value);
-                    }
-                } else {
-                    if ("Descr".equals(attributeName)) {
-                        descr = value;
-                    } else if ("Val".equals(attributeName)) {
-                        general.put(descr, value);
-                    }
-                }
-            }
-
-            @Override
-            public void onIntegerValue(String attributeName, int value) {
-                object.setIntAttributeValue(attributeName, value);
-            }
-
-            @Override
-            public void onRealValue(String attributeName, float value) {
-                object.setFloatAttributeValue(attributeName, value);
-            }
-
-            @Override
-            public void onObjectValue(String attributeName, long id) {
-                toResolveList.add(new ToResolve(object, attributeName, id));
-            }
-        });
+        new DgsParser().read(reader, new DgsHandlerImpl());
 
         Objects.requireNonNull(elmNet, "ElmNet object is missing");
 

@@ -155,12 +155,20 @@ public class DataObject {
         }
     }
 
+    private static PowerFactoryException createAttributeNotFoundException(String name) {
+        return new PowerFactoryException("Attribute '" + name + "' not found");
+    }
+
+    private static PowerFactoryException createAttributeNotFoundException(String type, String name) {
+        return new PowerFactoryException(type + " attribute '" + name + "' not found");
+    }
+
     private <T> void setGenericAttributeValue(String name, DataAttributeType type, T value) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
         DataAttribute attribute = dataClass.getAttributeByName(name);
         if (attribute == null) {
-            throw new PowerFactoryException("Attribute '" + name + "' not found");
+            throw createAttributeNotFoundException(name);
         }
         checkAttributeType(attribute, type);
         attributeValues.put(name, value);
@@ -172,7 +180,7 @@ public class DataObject {
     }
 
     public Object getAttributeValue(String name) {
-        return findAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Attribute '" + name + "' not found"));
+        return findAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException(name));
     }
 
     private <T> Optional<T> findGenericAttributeValue(String name, DataAttributeType type) {
@@ -192,7 +200,7 @@ public class DataObject {
     }
 
     public String getStringAttributeValue(String name) {
-        return findStringAttributeValue(name).orElseThrow(() -> new PowerFactoryException("String attribute '" + name + "' not found"));
+        return findStringAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("String", name));
     }
 
     public DataObject setStringAttributeValue(String name, String value) {
@@ -205,7 +213,7 @@ public class DataObject {
     }
 
     public DataObject getObjectAttributeValue(String name) {
-        return findObjectAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Object attribute '" + name + "' not found"));
+        return findObjectAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object", name));
     }
 
     public DataObject setObjectAttributeValue(String name, DataObject value) {
@@ -218,7 +226,7 @@ public class DataObject {
     }
 
     public List<DataObject> getObjectVectorAttributeValue(String name) {
-        return findObjectVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Object vector attribute '" + name + "' not found"));
+        return findObjectVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Object vector", name));
     }
 
     public DataObject setObjectVectorAttributeValue(String name, List<DataObject> value) {
@@ -231,7 +239,7 @@ public class DataObject {
     }
 
     public float getFloatAttributeValue(String name) {
-        return findFloatAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Float attribute '" + name + "' not found"));
+        return findFloatAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Float", name));
     }
 
     public DataObject setFloatAttributeValue(String name, float value) {
@@ -244,7 +252,7 @@ public class DataObject {
     }
 
     public List<Integer> getIntVectorAttributeValue(String name) {
-        return findIntVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Int vector attribute '" + name + "' not found"));
+        return findIntVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Int vector", name));
     }
 
     public DataObject setIntVectorAttributeValue(String name, List<Integer> value) {
@@ -257,7 +265,7 @@ public class DataObject {
     }
 
     public List<Float> getFloatVectorAttributeValue(String name) {
-        return findFloatVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Float vector attribute '" + name + "' not found"));
+        return findFloatVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Float vector", name));
     }
 
     public DataObject setFloatVectorAttributeValue(String name, List<Float> value) {
@@ -270,7 +278,7 @@ public class DataObject {
     }
 
     public List<Double> getDoubleVectorAttributeValue(String name) {
-        return findDoubleVectorAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Double vector attribute '" + name + "' not found"));
+        return findDoubleVectorAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Double vector", name));
     }
 
     public DataObject setDoubleVectorAttributeValue(String name, List<Double> value) {
@@ -293,7 +301,7 @@ public class DataObject {
     }
 
     public int getIntAttributeValue(String name) {
-        return findIntAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Integer attribute '" + name + "' not found"));
+        return findIntAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Integer", name));
     }
 
     public DataObject setIntAttributeValue(String name, int value) {
@@ -316,7 +324,7 @@ public class DataObject {
     }
 
     public long getLongAttributeValue(String name) {
-        return findLongAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Long attribute '" + name + "' not found"));
+        return findLongAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Long", name));
     }
 
     public DataObject setLongAttributeValue(String name, long value) {
@@ -339,7 +347,7 @@ public class DataObject {
     }
 
     public double getDoubleAttributeValue(String name) {
-        return findDoubleAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Double attribute '" + name + "' not found"));
+        return findDoubleAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Double", name));
     }
 
     public DataObject setDoubleAttributeValue(String name, double value) {
@@ -352,7 +360,7 @@ public class DataObject {
     }
 
     public RealMatrix getMatrixAttributeValue(String name) {
-        return findMatrixAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Matrix attribute '" + name + "' not found"));
+        return findMatrixAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Matrix", name));
     }
 
     public DataObject setMatrixAttributeValue(String name, RealMatrix value) {
@@ -369,7 +377,7 @@ public class DataObject {
     }
 
     public Instant getInstantAttributeValue(String name) {
-        return findInstantAttributeValue(name).orElseThrow(() -> new PowerFactoryException("Instant attribute '" + name + "' not found"));
+        return findInstantAttributeValue(name).orElseThrow(() -> createAttributeNotFoundException("Instant", name));
     }
 
     public DataObject setInstantAttributeValue(String name, Instant value) {

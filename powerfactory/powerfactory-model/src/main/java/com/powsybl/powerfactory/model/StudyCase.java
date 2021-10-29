@@ -20,6 +20,8 @@ public class StudyCase {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StudyCase.class);
 
+    private static final String ROOT_ID = "root_id";
+
     private final DataObject intCase;
 
     public StudyCase(DataObject intCase) {
@@ -58,10 +60,7 @@ public class StudyCase {
         return dataClass.getName().startsWith("Elm") || dataClass.getName().startsWith("Sta");
     }
 
-    public List<DataObject> applyNetworkExpansionStages() {
-        Map<Long, DataObject> networkObjectsById = new HashMap<>();
-        int[] normalObjectCount = new int[1];
-        int[] hiddenObjectCount = new int[1];
+    private void findNetworkObjects(Map<Long, DataObject> networkObjectsById, int[] normalObjectCount, int[] hiddenObjectCount) {
         for (DataObject elmNet : getElmNets()) {
             elmNet.traverse(obj -> {
                 if (isNetworkObject(obj)) {
@@ -77,20 +76,20 @@ public class StudyCase {
                 }
             });
         }
-        int[] addedObjectCount = new int[1];
-        int[] modifiedObjectCount = new int[1];
-        int[] deletedObjectCount = new int[1];
+    }
+
+    private void applyNetworkVariations(Map<Long, DataObject> networkObjectsById, int[] addedObjectCount, int[] modifiedObjectCount, int[] deletedObjectCount) {
         for (NetworkVariation variation : getNetworkVariations()) {
             for (NetworkExpansionStage expansionStage : variation.getActiveExpansionStages()) {
                 expansionStage.traverse(obj -> {
                     if (isNetworkObject(obj)) {
                         SchemeStatus schemeStatus = obj.getSchemeStatus();
                         if (schemeStatus == SchemeStatus.MODIFICATION_OBJECT) {
-                            DataObject root = obj.getObjectAttributeValue("root_id");
+                            DataObject root = obj.getObjectAttributeValue(ROOT_ID);
                             root.copyAttributeValues(obj);
                             modifiedObjectCount[0]++;
                         } else if (schemeStatus == SchemeStatus.ADD_OBJECT) {
-                            DataObject root = obj.getObjectAttributeValue("root_id");
+                            DataObject root = obj.getObjectAttributeValue(ROOT_ID);
                             root.copyAttributeValues(obj);
                             // add hidden object with new values from expansion nstage
                             networkObjectsById.put(root.getId(), root);
@@ -100,15 +99,31 @@ public class StudyCase {
                         }
                     } else if (obj.getDataClassName().equals("IntSdel")) {
                         // delete root object
-                        DataObject root = obj.getObjectAttributeValue("root_id");
+                        DataObject root = obj.getObjectAttributeValue(ROOT_ID);
                         networkObjectsById.remove(root.getId());
                         deletedObjectCount[0]++;
                     }
                 });
             }
         }
+    }
+
+    public List<DataObject> applyNetworkExpansionStages() {
+        Map<Long, DataObject> networkObjectsById = new HashMap<>();
+        int[] normalObjectCount = new int[1];
+        int[] hiddenObjectCount = new int[1];
+
+        findNetworkObjects(networkObjectsById, normalObjectCount, hiddenObjectCount);
+
+        int[] addedObjectCount = new int[1];
+        int[] modifiedObjectCount = new int[1];
+        int[] deletedObjectCount = new int[1];
+
+        applyNetworkVariations(networkObjectsById, addedObjectCount, modifiedObjectCount, deletedObjectCount);
+
         LOGGER.info("Network objects summary: {} normal, {} hidden, {} added, {} modified, {} deleted",
                 normalObjectCount[0], hiddenObjectCount[0], addedObjectCount[0], modifiedObjectCount[0], deletedObjectCount[0]);
+
         return new ArrayList<>(networkObjectsById.values());
     }
 }

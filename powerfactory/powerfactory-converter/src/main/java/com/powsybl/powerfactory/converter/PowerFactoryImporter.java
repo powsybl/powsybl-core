@@ -31,6 +31,7 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -41,6 +42,7 @@ public class PowerFactoryImporter implements Importer {
     private static final Logger LOGGER = LoggerFactory.getLogger(PowerFactoryImporter.class);
 
     private static final String FORMAT = "POWER-FACTORY";
+    private static final String TYP_ID = "typ_id";
 
     @Override
     public String getFormat() {
@@ -249,7 +251,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 default:
-                    LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj.toString());
+                    LOGGER.warn("Unexpected data class '{}' ('{}')", obj.getDataClassName(), obj);
             }
         }
 
@@ -332,7 +334,7 @@ public class PowerFactoryImporter implements Importer {
                 .setMinP(pMinUc)
                 .setMaxP(pMaxUc)
                 .add();
-        elmSym.findObjectAttributeValue("typ_id").ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
+        elmSym.findObjectAttributeValue(TYP_ID).ifPresent(typSym -> createReactiveLimits(elmSym, typSym, g));
     }
 
     private void createReactiveLimits(DataObject elmSym, DataObject typSym, Generator g) {
@@ -371,7 +373,7 @@ public class PowerFactoryImporter implements Importer {
         NodeRef nodeRef1 = it.next();
         NodeRef nodeRef2 = it.next();
         float dline = elmLne.getFloatAttributeValue("dline");
-        DataObject typLne = elmLne.getObjectAttributeValue("typ_id");
+        DataObject typLne = elmLne.getObjectAttributeValue(TYP_ID);
         float rline = typLne.getFloatAttributeValue("rline");
         float xline = typLne.getFloatAttributeValue("xline");
         float bline = typLne.getFloatAttributeValue("bline");
@@ -408,7 +410,7 @@ public class PowerFactoryImporter implements Importer {
         VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
         Substation s = vl1.getSubstation().orElseThrow();
-        DataObject typTr2 = elmTr2.getObjectAttributeValue("typ_id");
+        DataObject typTr2 = elmTr2.getObjectAttributeValue(TYP_ID);
         float strn = typTr2.getFloatAttributeValue("strn");
         float utrnL = typTr2.getFloatAttributeValue("utrn_l");
         float utrnH = typTr2.getFloatAttributeValue("utrn_h");
@@ -465,12 +467,12 @@ public class PowerFactoryImporter implements Importer {
         VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
         VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
         VoltageLevel vl3 = network.getVoltageLevel(nodeRef3.voltageLevelId);
-        DataObject typTr3 = elmTr3.getObjectAttributeValue("typ_id");
+        DataObject typTr3 = elmTr3.getObjectAttributeValue(TYP_ID);
         float utrn3L = typTr3.getFloatAttributeValue("utrn3_l");
         float utrn3H = typTr3.getFloatAttributeValue("utrn3_h");
         float utrn3M = typTr3.getFloatAttributeValue("utrn3_m");
         float[] utrn3 = {utrn3H, utrn3M, utrn3L};
-        List<VoltageLevel> vls = Arrays.asList(vl1, vl2, vl3).stream()
+        List<VoltageLevel> vls = Stream.of(vl1, vl2, vl3)
                 .sorted(Comparator.comparingDouble(VoltageLevel::getNominalV))
                 .collect(Collectors.toList());
         double ratedU1 = utrn3[vls.indexOf(vl1)];
@@ -533,6 +535,45 @@ public class PowerFactoryImporter implements Importer {
         return vl;
     }
 
+    private void createSwitch(ImportContext importContext, VoltageLevel vl, MutableInt nodeCount, int bbNode,
+                              DataObject staCubic, DataObject connectedObj) {
+        List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
+        if (staSwitches.size() > 1) {
+            throw new PowsyblException("Multiple staSwitch not supported");
+        }
+        DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
+
+        int node;
+        if (staSwitch != null) {
+            node = nodeCount.intValue();
+            nodeCount.increment();
+            String switchId = vl.getId() + "_" + staSwitch.getName();
+            boolean open = staSwitch.findIntAttributeValue("on_off").orElse(0) == 0;
+            vl.getNodeBreakerView().newSwitch()
+                    .setId(switchId)
+                    .setEnsureIdUnicity(true)
+                    .setKind(SwitchKind.BREAKER)
+                    .setNode1(bbNode)
+                    .setNode2(node)
+                    .setOpen(open)
+                    .add();
+        } else {
+            if (connectedObj.getDataClassName().equals("ElmCoup")) {
+                // no need to create an intermediate internal node
+                node = bbNode;
+            } else {
+                node = nodeCount.intValue();
+                nodeCount.increment();
+                vl.getNodeBreakerView().newInternalConnection()
+                        .setNode1(bbNode)
+                        .setNode2(node)
+                        .add();
+            }
+        }
+        importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
+                .add(new NodeRef(vl.getId(), node));
+    }
+
     private void createNode(Network network, ImportContext importContext, DataObject elmTerm) {
         VoltageLevel vl = createVoltageLevel(network, importContext, elmTerm);
         int iUsage = elmTerm.getIntAttributeValue("iUsage");
@@ -551,41 +592,7 @@ public class PowerFactoryImporter implements Importer {
             if (connectedObj == null) {
                 importContext.cubiclesObjectNotFound.add(staCubic);
             } else {
-                List<DataObject> staSwitches = staCubic.getChildrenByClass("StaSwitch");
-                if (staSwitches.size() > 1) {
-                    throw new PowsyblException("Multiple staSwitch not supported");
-                }
-                DataObject staSwitch = staSwitches.isEmpty() ? null : staSwitches.get(0);
-
-                int node;
-                if (staSwitch != null) {
-                    node = nodeCount.intValue();
-                    nodeCount.increment();
-                    String switchId = vl.getId() + "_" + staSwitch.getName();
-                    boolean open = staSwitch.findIntAttributeValue("on_off").orElse(0) == 0;
-                    vl.getNodeBreakerView().newSwitch()
-                            .setId(switchId)
-                            .setEnsureIdUnicity(true)
-                            .setKind(SwitchKind.BREAKER)
-                            .setNode1(bbNode)
-                            .setNode2(node)
-                            .setOpen(open)
-                            .add();
-                } else {
-                    if (connectedObj.getDataClassName().equals("ElmCoup")) {
-                        // no need to create an intermediate internal node
-                        node = bbNode;
-                    } else {
-                        node = nodeCount.intValue();
-                        nodeCount.increment();
-                        vl.getNodeBreakerView().newInternalConnection()
-                                .setNode1(bbNode)
-                                .setNode2(node)
-                                .add();
-                    }
-                }
-                importContext.objIdToNode.computeIfAbsent(connectedObj.getId(), k -> new ArrayList<>())
-                        .add(new NodeRef(vl.getId(), node));
+                createSwitch(importContext, vl, nodeCount, bbNode, staCubic, connectedObj);
             }
         }
     }
