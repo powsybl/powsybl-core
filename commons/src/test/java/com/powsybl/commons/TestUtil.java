@@ -6,6 +6,8 @@
  */
 package com.powsybl.commons;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -15,7 +17,7 @@ public final class TestUtil {
     }
 
     public static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n")
+        return Objects.requireNonNull(str).replace("\r\n", "\n")
                 .replace("\r", "\n");
     }
 }
