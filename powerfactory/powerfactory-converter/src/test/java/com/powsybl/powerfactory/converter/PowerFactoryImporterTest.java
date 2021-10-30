@@ -13,6 +13,8 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.NetworkXml;
+import com.powsybl.powerfactory.model.Project;
+import com.powsybl.powerfactory.model.ProjectLoader;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
@@ -22,6 +24,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.junit.Assert.*;
 
@@ -41,7 +44,11 @@ public class PowerFactoryImporterTest extends AbstractConverterTest {
     @Test
     public void testExistsAndCopy() throws IOException {
         InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/ieee14.dgs"));
-        Files.copy(is, fileSystem.getPath("/work/ieee14.dgs"));
+        Path dgsFile = fileSystem.getPath("/work/ieee14.dgs");
+        Files.copy(is, dgsFile);
+
+        Optional<Project> project = ProjectLoader.load(dgsFile);
+        assertTrue(project.isPresent());
 
         PowerFactoryImporter importer = new PowerFactoryImporter();
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));

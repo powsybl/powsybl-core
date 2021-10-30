@@ -46,6 +46,7 @@ public class ProjectTest {
         assertEquals("test", project.getName());
         assertEquals(creationTime, project.getCreationTime());
         assertEquals(rootObj, project.getRootObject());
+        assertSame(project, objFoo.getProject());
         assertEquals(Map.of("k", "v"), project.getProperties());
         assertSame(objFoo, project.getObjectById(1L).orElseThrow());
         assertEquals(1, project.getObjectsByClass("ElmFoo").size());
@@ -53,10 +54,12 @@ public class ProjectTest {
 
         // test links and backward links
         assertSame(objBar, objFoo.findObjectAttributeValue("ref").orElseThrow());
+        assertSame(objBar, objFoo.getObjectAttributeValue("ref"));
         assertEquals(2, project.getBackwardLinks(objBar.getId()).size());
         assertSame(objFoo, project.getBackwardLinks(objBar.getId()).get(0));
         assertSame(objBaz, project.getBackwardLinks(objBar.getId()).get(1));
         assertEquals(2, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().size());
+        assertEquals(2, objBaz.getObjectVectorAttributeValue("refs").size());
         assertSame(objFoo, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().get(0));
         assertSame(objBar, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().get(1));
         assertEquals(1, project.getBackwardLinks(objFoo.getId()).size());
