@@ -31,7 +31,6 @@ import java.io.UncheckedIOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -222,7 +221,7 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmTr3":
-                    create3wTransformer(network, importContext, obj);
+                    // TODO
                     break;
 
                 case "ElmZpu":
@@ -440,7 +439,8 @@ public class PowerFactoryImporter implements Importer {
             x *= rho * rho;
         }
 
-        // TODO
+        // TODO ratio and phase tap changer
+
         s.newTwoWindingsTransformer()
                 .setId(elmTr2.getName())
                 .setEnsureIdUnicity(true)
@@ -455,62 +455,6 @@ public class PowerFactoryImporter implements Importer {
                 .setX(x)
                 .setG(0)
                 .setB(0)
-                .add();
-    }
-
-    private void create3wTransformer(Network network, ImportContext importContext, DataObject elmTr3) {
-        Collection<NodeRef> nodeRefs = checkNodes(elmTr3, importContext.objIdToNode, 3);
-        Iterator<NodeRef> it = nodeRefs.iterator();
-        NodeRef nodeRef1 = it.next();
-        NodeRef nodeRef2 = it.next();
-        NodeRef nodeRef3 = it.next();
-        VoltageLevel vl1 = network.getVoltageLevel(nodeRef1.voltageLevelId);
-        VoltageLevel vl2 = network.getVoltageLevel(nodeRef2.voltageLevelId);
-        VoltageLevel vl3 = network.getVoltageLevel(nodeRef3.voltageLevelId);
-        DataObject typTr3 = elmTr3.getObjectAttributeValue(TYP_ID);
-        float utrn3L = typTr3.getFloatAttributeValue("utrn3_l");
-        float utrn3H = typTr3.getFloatAttributeValue("utrn3_h");
-        float utrn3M = typTr3.getFloatAttributeValue("utrn3_m");
-        float[] utrn3 = {utrn3H, utrn3M, utrn3L};
-        List<VoltageLevel> vls = Stream.of(vl1, vl2, vl3)
-                .sorted(Comparator.comparingDouble(VoltageLevel::getNominalV))
-                .collect(Collectors.toList());
-        double ratedU1 = utrn3[vls.indexOf(vl1)];
-        double ratedU2 = utrn3[vls.indexOf(vl2)];
-        double ratedU3 = utrn3[vls.indexOf(vl3)];
-        // TODO
-        Substation s = vl1.getSubstation().orElseThrow();
-        s.newThreeWindingsTransformer()
-                .setId(elmTr3.getName())
-                .setEnsureIdUnicity(true)
-                .setRatedU0(utrn3H)
-                .newLeg1()
-                    .setNode(nodeRef1.node)
-                    .setVoltageLevel(vl1.getId())
-                    .setRatedU(ratedU1)
-                    .setR(0.1)
-                    .setX(1)
-                    .setG(0)
-                    .setB(0)
-                .add()
-                .newLeg2()
-                    .setNode(nodeRef2.node)
-                    .setVoltageLevel(vl2.getId())
-                    .setRatedU(ratedU2)
-                    .setR(0.1)
-                    .setX(1)
-                    .setG(0)
-                    .setB(0)
-                .add()
-                .newLeg3()
-                    .setNode(nodeRef3.node)
-                    .setVoltageLevel(vl3.getId())
-                    .setRatedU(ratedU3)
-                    .setR(0.1)
-                    .setX(1)
-                    .setG(0)
-                    .setB(0)
-                .add()
                 .add();
     }
 
