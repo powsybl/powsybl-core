@@ -9,7 +9,6 @@ package com.powsybl.powerfactory.model;
 import org.junit.Test;
 
 import java.time.Instant;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,8 +41,7 @@ public class ProjectTest {
         objBaz.setObjectVectorAttributeValue("refs", List.of(objFoo, objBar));
         Instant creationTime = Instant.parse("2021-10-30T09:35:25Z");
         DataObject rootObj = new DataObject(0L, new DataClass("ElmNet"));
-        Project project = new Project("test", creationTime, Map.of("k", "v"), rootObj,
-                new LinkedHashMap<>(Map.of(objFoo.getId(), objFoo, objBar.getId(), objBar, objBaz.getId(), objBaz)));
+        Project project = new Project("test", creationTime, Map.of("k", "v"), rootObj, List.of(objFoo, objBar, objBaz));
 
         assertEquals("test", project.getName());
         assertEquals(creationTime, project.getCreationTime());
@@ -56,8 +54,8 @@ public class ProjectTest {
         // test links and backward links
         assertSame(objBar, objFoo.findObjectAttributeValue("ref").orElseThrow());
         assertEquals(2, project.getBackwardLinks(objBar.getId()).size());
-        assertSame(objBaz, project.getBackwardLinks(objBar.getId()).get(0));
-        assertSame(objFoo, project.getBackwardLinks(objBar.getId()).get(1));
+        assertSame(objFoo, project.getBackwardLinks(objBar.getId()).get(0));
+        assertSame(objBaz, project.getBackwardLinks(objBar.getId()).get(1));
         assertEquals(2, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().size());
         assertSame(objFoo, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().get(0));
         assertSame(objBar, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().get(1));

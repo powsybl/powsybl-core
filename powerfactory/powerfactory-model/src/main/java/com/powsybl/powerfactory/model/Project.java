@@ -41,6 +41,20 @@ public class Project {
         }
     }
 
+    private static Map<Long, DataObject> indexObjects(List<DataObject> objs) {
+        Objects.requireNonNull(objs);
+        Map<Long, DataObject> objectsById = new LinkedHashMap<>(objs.size());
+        for (DataObject obj : objs) {
+            objectsById.put(obj.getId(), obj);
+        }
+        return objectsById;
+    }
+
+    public Project(String name, Instant creationTime, Map<String, String> properties, DataObject rootObject,
+                   List<DataObject> objects) {
+        this(name, creationTime, properties, rootObject, indexObjects(objects));
+    }
+
     public String getName() {
         return name;
     }
