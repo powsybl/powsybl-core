@@ -7,6 +7,7 @@
 package com.powsybl.powerfactory.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
@@ -20,11 +21,36 @@ import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class PowerFactoryImporterTest extends AbstractConverterTest {
+
+    @Test
+    public void testBase() {
+        PowerFactoryImporter importer = new PowerFactoryImporter();
+        assertEquals("POWER-FACTORY", importer.getFormat());
+        assertTrue(importer.getParameters().isEmpty());
+        assertEquals("PowerFactory to IIDM converter", importer.getComment());
+    }
+
+    @Test
+    public void testExistsAndCopy() throws IOException {
+        InputStream is = Objects.requireNonNull(getClass().getResourceAsStream("/ieee14.dgs"));
+        Files.copy(is, fileSystem.getPath("/work/ieee14.dgs"));
+
+        PowerFactoryImporter importer = new PowerFactoryImporter();
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "ieee14")));
+        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/work"), "error")));
+
+        importer.copy(new FileDataSource(fileSystem.getPath("/work"), "ieee14"),
+                new FileDataSource(fileSystem.getPath("/work"), "ieee14-copy"));
+        assertTrue(Files.exists(fileSystem.getPath("/work/ieee14-copy.dgs")));
+    }
 
     private void importAndCompareXml(String id) {
         Network network = new PowerFactoryImporter()

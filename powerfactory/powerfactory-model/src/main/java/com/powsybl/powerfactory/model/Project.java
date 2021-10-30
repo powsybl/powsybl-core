@@ -83,7 +83,7 @@ public class Project {
 
     private void indexBackwardLinks() {
         if (backwardLinks == null) {
-            backwardLinks = new HashMap<>();
+            backwardLinks = new LinkedHashMap<>();
             for (Map.Entry<Long, DataObject> e : objectsById.entrySet()) {
                 DataObject dataObject = e.getValue();
                 indexBackwardLinks(dataObject);

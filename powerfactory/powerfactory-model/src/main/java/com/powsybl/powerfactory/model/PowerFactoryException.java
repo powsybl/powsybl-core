@@ -14,8 +14,4 @@ public class PowerFactoryException extends RuntimeException {
     public PowerFactoryException(String message) {
         super(message);
     }
-
-    public PowerFactoryException(Throwable cause) {
-        super(cause);
-    }
 }
