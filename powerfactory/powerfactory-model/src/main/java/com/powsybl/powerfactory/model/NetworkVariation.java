@@ -25,7 +25,7 @@ public class NetworkVariation {
     }
 
     public String getName() {
-        return intScheme.getName();
+        return intScheme.getLocName();
     }
 
     public List<NetworkExpansionStage> getExpansionStages() {

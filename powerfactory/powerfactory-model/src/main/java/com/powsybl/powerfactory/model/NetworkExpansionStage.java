@@ -22,7 +22,7 @@ public class NetworkExpansionStage {
     }
 
     public String getName() {
-        return intSstage.getName();
+        return intSstage.getLocName();
     }
 
     public Instant getActivationTime() {

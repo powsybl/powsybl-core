@@ -44,7 +44,7 @@ public class DataObject {
         return id;
     }
 
-    public String getName() {
+    public String getLocName() {
         return findStringAttributeValue(DataAttribute.LOC_NAME).orElseThrow(() -> new PowerFactoryException("Attribute 'loc_name' not found in class " + dataClass.getName()));
     }
 
@@ -80,7 +80,7 @@ public class DataObject {
 
     public Optional<DataObject> getChild(String name) {
         Objects.requireNonNull(name);
-        return children.stream().filter(child -> child.getName().equals(name)).findFirst();
+        return children.stream().filter(child -> child.getLocName().equals(name)).findFirst();
     }
 
     public Optional<DataObject> getChild(String... names) {
@@ -206,6 +206,10 @@ public class DataObject {
     public DataObject setStringAttributeValue(String name, String value) {
         setGenericAttributeValue(name, DataAttributeType.STRING, value);
         return this;
+    }
+
+    public DataObject setLocName(String locName) {
+        return setStringAttributeValue(DataAttribute.LOC_NAME, locName);
     }
 
     public Optional<DataObject> findObjectAttributeValue(String name) {
@@ -434,7 +438,7 @@ public class DataObject {
     }
 
     public String getFullName() {
-        return getPath().stream().map(DataObject::getName).collect(Collectors.joining("\\"))
+        return getPath().stream().map(DataObject::getLocName).collect(Collectors.joining("\\"))
                 + '.' + dataClass.getName();
     }
 

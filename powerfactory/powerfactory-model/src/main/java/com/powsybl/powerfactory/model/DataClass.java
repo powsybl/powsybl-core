@@ -50,4 +50,9 @@ public class DataClass {
     public String toString() {
         return "DataClass(name=" + name + ")";
     }
+
+    public static DataClass init(String name) {
+        return new DataClass(name)
+                .addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
+    }
 }

@@ -29,7 +29,7 @@ public class StudyCase {
     }
 
     public String getName() {
-        return intCase.getName();
+        return intCase.getLocName();
     }
 
     public Instant getTime() {

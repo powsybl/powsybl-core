@@ -22,26 +22,24 @@ public class ProjectTest {
 
     @Test
     public void testLinks() {
-        DataClass clsFoo = new DataClass("ElmFoo");
-        clsFoo.addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        clsFoo.addAttribute(new DataAttribute("ref", DataAttributeType.OBJECT));
-        DataClass clsBar = new DataClass("ElmBar");
-        clsBar.addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        DataClass clsBaz = new DataClass("ElmBaz");
-        clsBaz.addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        clsBaz.addAttribute(new DataAttribute("refs", DataAttributeType.OBJECT_VECTOR));
+        DataClass clsFoo = DataClass.init("ElmFoo")
+                .addAttribute(new DataAttribute("ref", DataAttributeType.OBJECT));
+        DataClass clsBar = DataClass.init("ElmBar");
+        DataClass clsBaz = DataClass.init("ElmBaz")
+                .addAttribute(new DataAttribute("refs", DataAttributeType.OBJECT_VECTOR));
 
-        DataObject objFoo = new DataObject(1L, clsFoo);
-        objFoo.setStringAttributeValue(DataAttribute.LOC_NAME, "foo");
-        DataObject objBar = new DataObject(2L, clsBar);
-        objBar.setStringAttributeValue(DataAttribute.LOC_NAME, "bar");
-        objFoo.setObjectAttributeValue("ref", objBar);
-        DataObject objBaz = new DataObject(3L, clsBaz);
-        objBaz.setStringAttributeValue(DataAttribute.LOC_NAME, "baz");
-        objBaz.setObjectVectorAttributeValue("refs", List.of(objFoo, objBar));
+        DataObject objBar = new DataObject(2L, clsBar)
+                .setLocName("bar");
+        DataObject objFoo = new DataObject(1L, clsFoo)
+                .setLocName("foo")
+                .setObjectAttributeValue("ref", objBar);
+        DataObject objBaz = new DataObject(3L, clsBaz)
+                .setLocName("baz")
+                .setObjectVectorAttributeValue("refs", List.of(objFoo, objBar));
         Instant creationTime = Instant.parse("2021-10-30T09:35:25Z");
         DataObject rootObj = new DataObject(0L, new DataClass("ElmNet"));
-        Project project = new Project("test", creationTime, Map.of("k", "v"), rootObj, List.of(objFoo, objBar, objBaz));
+        Project project = new Project("test", creationTime, Map.of("k", "v"), rootObj,
+                List.of(objFoo, objBar, objBaz));
 
         assertEquals("test", project.getName());
         assertEquals(creationTime, project.getCreationTime());
@@ -64,5 +62,47 @@ public class ProjectTest {
         assertSame(objBar, objBaz.findObjectVectorAttributeValue("refs").orElseThrow().get(1));
         assertEquals(1, project.getBackwardLinks(objFoo.getId()).size());
         assertSame(objBaz, project.getBackwardLinks(objFoo.getId()).get(0));
+    }
+
+    private static Project createProject() {
+        DataClass intPrj = DataClass.init("IntPrj");
+        long nextId = 0L;
+        DataObject rootObj = new DataObject(nextId++, intPrj)
+                .setLocName("Test");
+        Instant creationTime = Instant.parse("2021-10-30T09:35:25Z");
+
+        DataClass intPrjfolder = DataClass.init("IntPrjfolder");
+        DataObject studyCasesFolder = new DataObject(nextId++, intPrjfolder)
+                .setLocName("Study Cases")
+                .setParent(rootObj);
+        DataObject networkDataFolder = new DataObject(nextId++, intPrjfolder)
+                .setLocName("Network Data")
+                .setParent(rootObj);
+
+        DataClass intCase = DataClass.init("IntCase");
+        DataObject studyCase1 = new DataObject(nextId++, intCase)
+                .setLocName("Study Case 1")
+                .setParent(rootObj);
+        DataClass setTime1 = DataClass.init("SetTime")
+                .addAttribute(new DataAttribute("datetime", DataAttributeType.INTEGER));
+        DataObject setStudyTime1 = new DataObject(nextId++, setTime1)
+                .setLocName("Set Study Time")
+                .setInstantAttributeValue("datetime", Instant.parse("2021-10-30T09:35:25Z"))
+                .setParent(studyCase1);
+
+        return new Project("test", creationTime, Map.of("k", "v"), rootObj,
+                List.of(studyCasesFolder, networkDataFolder, studyCase1, setStudyTime1));
+    }
+
+    @Test
+    public void testStudyCases() {
+        Project project = createProject();
+        List<StudyCase> studyCases = project.getStudyCases();
+        assertEquals(1, studyCases.size());
+        StudyCase studyCase1 = studyCases.get(0);
+        assertEquals("Study Case 1", studyCase1.getName());
+        assertEquals(Instant.parse("2021-10-30T09:35:25Z"), studyCase1.getTime());
+        List<NetworkVariation> networkVariations = studyCase1.getNetworkVariations();
+        assertEquals(0, networkVariations.size());
     }
 }

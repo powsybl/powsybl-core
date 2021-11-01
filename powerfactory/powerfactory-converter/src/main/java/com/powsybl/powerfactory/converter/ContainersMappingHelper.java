@@ -110,7 +110,7 @@ final class ContainersMappingHelper {
                 DataObject container = containers.iterator().next();
                 float unom = container.getFloatAttributeValue("Unom");
                 if (uknom == unom) { // check terminal nominal voltage is consistent with container one
-                    voltageLevelId = container.getName();
+                    voltageLevelId = container.getLocName();
                 }
             }
 
@@ -180,7 +180,7 @@ final class ContainersMappingHelper {
                     throw new IllegalStateException("Unexpected object class: " + connectedObj.getDataClassName());
                 }
             } else {
-                throw new PowsyblException(connectedObj.getName() + " should be connected at both sides");
+                throw new PowsyblException(connectedObj.getLocName() + " should be connected at both sides");
             }
         }
     }

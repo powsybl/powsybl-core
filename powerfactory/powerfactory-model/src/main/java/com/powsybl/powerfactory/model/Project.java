@@ -45,7 +45,10 @@ public class Project {
         Objects.requireNonNull(objs);
         Map<Long, DataObject> objectsById = new LinkedHashMap<>(objs.size());
         for (DataObject obj : objs) {
-            objectsById.put(obj.getId(), obj);
+            DataObject oldObj = objectsById.put(obj.getId(), obj);
+            if (oldObj != null) {
+                throw new PowerFactoryException("An object with ID " + obj.getId() + " already exists");
+            }
         }
         return objectsById;
     }

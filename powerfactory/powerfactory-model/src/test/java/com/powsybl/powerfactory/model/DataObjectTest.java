@@ -23,17 +23,15 @@ import static org.junit.Assert.*;
 public class DataObjectTest {
 
     private static DataClass createFooClass() {
-        DataClass clsFoo = new DataClass("ElmFoo");
-        clsFoo.addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        clsFoo.addAttribute(new DataAttribute("i", DataAttributeType.INTEGER));
-        clsFoo.addAttribute(new DataAttribute("f", DataAttributeType.FLOAT));
-        clsFoo.addAttribute(new DataAttribute("d", DataAttributeType.DOUBLE));
-        clsFoo.addAttribute(new DataAttribute("l", DataAttributeType.INTEGER64));
-        clsFoo.addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR));
-        clsFoo.addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR));
-        clsFoo.addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR));
-        clsFoo.addAttribute(new DataAttribute("m", DataAttributeType.MATRIX));
-        return clsFoo;
+        return DataClass.init("ElmFoo")
+                .addAttribute(new DataAttribute("i", DataAttributeType.INTEGER))
+                .addAttribute(new DataAttribute("f", DataAttributeType.FLOAT))
+                .addAttribute(new DataAttribute("d", DataAttributeType.DOUBLE))
+                .addAttribute(new DataAttribute("l", DataAttributeType.INTEGER64))
+                .addAttribute(new DataAttribute("iv", DataAttributeType.INTEGER_VECTOR))
+                .addAttribute(new DataAttribute("fv", DataAttributeType.FLOAT_VECTOR))
+                .addAttribute(new DataAttribute("dv", DataAttributeType.DOUBLE_VECTOR))
+                .addAttribute(new DataAttribute("m", DataAttributeType.MATRIX));
     }
 
     @Test
@@ -52,8 +50,8 @@ public class DataObjectTest {
     @Test
     public void testObj() throws IOException {
         DataClass clsFoo = createFooClass();
-        DataObject objFoo = new DataObject(0L, clsFoo);
-        objFoo.setStringAttributeValue(DataAttribute.LOC_NAME, "foo");
+        DataObject objFoo = new DataObject(0L, clsFoo)
+                .setLocName("foo");
         assertEquals(0L, objFoo.getId());
         assertSame(clsFoo, objFoo.getDataClass());
         assertEquals("ElmFoo", objFoo.getDataClassName());
@@ -61,10 +59,9 @@ public class DataObjectTest {
         assertNull(objFoo.getParent());
         assertTrue(objFoo.getChildren().isEmpty());
 
-        DataClass clsBar = new DataClass("ElmBar");
-        clsBar.addAttribute(new DataAttribute(DataAttribute.LOC_NAME, DataAttributeType.STRING));
-        DataObject objBar = new DataObject(1L, clsBar);
-        objBar.setStringAttributeValue(DataAttribute.LOC_NAME, "bar");
+        DataClass clsBar = DataClass.init("ElmBar");
+        DataObject objBar = new DataObject(1L, clsBar)
+                .setLocName("bar");
         objFoo.setParent(objBar);
         assertEquals(1, objBar.getChildren().size());
         assertSame(objBar, objFoo.getParent());
@@ -94,7 +91,7 @@ public class DataObjectTest {
         DataObject objFoo = new DataObject(0L, clsFoo);
         assertFalse(objFoo.findStringAttributeValue(DataAttribute.LOC_NAME).isPresent());
         objFoo.setStringAttributeValue(DataAttribute.LOC_NAME, "foo");
-        assertEquals("foo", objFoo.getName());
+        assertEquals("foo", objFoo.getLocName());
         assertEquals("foo.ElmFoo", objFoo.getFullName());
         assertEquals("foo.ElmFoo", objFoo.toString());
         assertTrue(objFoo.findStringAttributeValue(DataAttribute.LOC_NAME).isPresent());

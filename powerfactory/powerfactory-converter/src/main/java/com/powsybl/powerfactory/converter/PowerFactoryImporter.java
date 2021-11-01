@@ -148,7 +148,7 @@ public class PowerFactoryImporter implements Importer {
         if (elmNets.isEmpty()) {
             throw new PowsyblException("No ElmNet object found");
         }
-        LOGGER.info("Active study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getName).collect(Collectors.toList()));
+        LOGGER.info("Active study case has {} network(s): {}", elmNets.size(), elmNets.stream().map(DataObject::getLocName).collect(Collectors.toList()));
         List<NetworkVariation> variations = studyCase.getNetworkVariations();
         LOGGER.info("Active study case has {} network variation(s): {}", variations.size(),
                 variations.stream().map(NetworkVariation::getName).collect(Collectors.toList()));
@@ -267,7 +267,7 @@ public class PowerFactoryImporter implements Importer {
         float p0 = elmLod.getFloatAttributeValue("plini");
         float q0 = elmLod.getFloatAttributeValue("qlini");
         vl.newLoad()
-                .setId(elmLod.getName())
+                .setId(elmLod.getLocName())
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setP0(p0)
@@ -301,7 +301,7 @@ public class PowerFactoryImporter implements Importer {
         int ncapa = elmShnt.getIntAttributeValue("ncapa");
         int ncapx = elmShnt.getIntAttributeValue("ncapx");
         vl.newShuntCompensator()
-                .setId(elmShnt.getName())
+                .setId(elmShnt.getLocName())
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setSectionCount(ncapa)
@@ -323,7 +323,7 @@ public class PowerFactoryImporter implements Importer {
         double pMinUc = elmSym.getFloatAttributeValue("Pmin_uc");
         double pMaxUc = elmSym.getFloatAttributeValue("Pmax_uc");
         Generator g = vl.newGenerator()
-                .setId(elmSym.getName())
+                .setId(elmSym.getLocName())
                 .setEnsureIdUnicity(true)
                 .setNode(nodeRef.node)
                 .setTargetP(pgini)
@@ -386,7 +386,7 @@ public class PowerFactoryImporter implements Importer {
         double b1 = b / 2;
         double b2 = b / 2;
         network.newLine()
-                .setId(elmLne.getName())
+                .setId(elmLne.getLocName())
                 .setEnsureIdUnicity(true)
                 .setVoltageLevel1(nodeRef1.voltageLevelId)
                 .setVoltageLevel2(nodeRef2.voltageLevelId)
@@ -442,7 +442,7 @@ public class PowerFactoryImporter implements Importer {
         // TODO ratio and phase tap changer
 
         s.newTwoWindingsTransformer()
-                .setId(elmTr2.getName())
+                .setId(elmTr2.getLocName())
                 .setEnsureIdUnicity(true)
                 .setVoltageLevel1(nodeRef1.voltageLevelId)
                 .setVoltageLevel2(nodeRef2.voltageLevelId)
@@ -491,7 +491,7 @@ public class PowerFactoryImporter implements Importer {
         if (staSwitch != null) {
             node = nodeCount.intValue();
             nodeCount.increment();
-            String switchId = vl.getId() + "_" + staSwitch.getName();
+            String switchId = vl.getId() + "_" + staSwitch.getLocName();
             boolean open = staSwitch.findIntAttributeValue("on_off").orElse(0) == 0;
             vl.getNodeBreakerView().newSwitch()
                     .setId(switchId)
@@ -526,7 +526,7 @@ public class PowerFactoryImporter implements Importer {
         nodeCount.increment();
         if (iUsage == 0) { // busbar
             vl.getNodeBreakerView().newBusbarSection()
-                    .setId(vl.getId() + "_" + elmTerm.getName())
+                    .setId(vl.getId() + "_" + elmTerm.getLocName())
                     .setEnsureIdUnicity(true)
                     .setNode(bbNode)
                     .add();
@@ -549,7 +549,7 @@ public class PowerFactoryImporter implements Importer {
         if (!nodeRef1.voltageLevelId.equals(nodeRef2.voltageLevelId)) {
             throw new PowsyblException("ElmCoup not connected to same ElmSubstat at both sides: " + elmCoup);
         }
-        String switchId = nodeRef1.voltageLevelId + "_" + elmCoup.getName();
+        String switchId = nodeRef1.voltageLevelId + "_" + elmCoup.getLocName();
         boolean open = elmCoup.findIntAttributeValue("on_off").orElse(0) == 0;
         String aUsage = elmCoup.getStringAttributeValue("aUsage");
         SwitchKind switchKind;
