@@ -139,6 +139,10 @@ public class PowerFactoryImporter implements Importer {
         return nodeRefs;
     }
 
+    private static PowerFactoryException createNotYetSupportedException() {
+        return new PowerFactoryException("Not yet supported");
+    }
+
     private Network createNetwork(Project project, NetworkFactory networkFactory) {
         List<StudyCase> studyCases = project.getStudyCases();
         LOGGER.info("Project has {} study case(s): {}", studyCases.size(), studyCases.stream().map(StudyCase::getName).collect(Collectors.toList()));
@@ -221,12 +225,8 @@ public class PowerFactoryImporter implements Importer {
                     break;
 
                 case "ElmTr3":
-                    // TODO
-                    break;
-
                 case "ElmZpu":
-                    // TODO
-                    break;
+                    throw createNotYetSupportedException();
 
                 case "ElmNet":
                 case "StaCubic":
@@ -362,7 +362,7 @@ public class PowerFactoryImporter implements Importer {
                         .add();
             }
         } else {
-            // TODO
+            throw createNotYetSupportedException();
         }
     }
 
