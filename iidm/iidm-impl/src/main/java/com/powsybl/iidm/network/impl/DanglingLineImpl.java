@@ -265,11 +265,6 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.DANGLING_LINE;
-    }
-
-    @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }

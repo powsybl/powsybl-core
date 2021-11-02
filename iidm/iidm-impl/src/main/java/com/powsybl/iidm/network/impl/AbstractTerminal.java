@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -75,10 +75,10 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public Terminal setP(double p) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set active power on a busbar section");
         }
-        if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
+        if (!Double.isNaN(p) && connectable.getType() == IdentifiableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
         int variantIndex = network.get().getVariantIndex();
@@ -95,7 +95,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public Terminal setQ(double q) {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
         }
         int variantIndex = network.get().getVariantIndex();
@@ -109,7 +109,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public double getI() {
-        if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
+        if (connectable.getType() == IdentifiableType.BUSBAR_SECTION) {
             return 0;
         }
         int variantIndex = network.get().getVariantIndex();

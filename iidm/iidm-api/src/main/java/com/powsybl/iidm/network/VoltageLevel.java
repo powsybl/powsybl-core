@@ -1253,4 +1253,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @param writer a writer
      */
     void exportTopology(Writer writer) throws IOException;
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.VOLTAGE_LEVEL;
+    }
 }

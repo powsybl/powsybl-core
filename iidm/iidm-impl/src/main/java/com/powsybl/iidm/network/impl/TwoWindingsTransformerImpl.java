@@ -55,11 +55,6 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.TWO_WINDINGS_TRANSFORMER;
-    }
-
-    @Override
     public Optional<Substation> getSubstation() {
         return Optional.ofNullable(substation);
     }
