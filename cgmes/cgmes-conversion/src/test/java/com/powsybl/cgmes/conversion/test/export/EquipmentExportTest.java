@@ -30,6 +30,7 @@ import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
@@ -74,7 +75,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
         // Export CGMES EQ file
         Path exportedEq = tmpDir.resolve("exportedEq.xml");
-        try (OutputStream os = Files.newOutputStream(exportedEq)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedEq))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(network);
             EquipmentExport.write(network, writer, context);
