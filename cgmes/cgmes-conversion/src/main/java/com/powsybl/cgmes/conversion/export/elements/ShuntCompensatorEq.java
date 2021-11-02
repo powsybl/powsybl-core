@@ -48,7 +48,11 @@ public final class ShuntCompensatorEq {
         writer.writeEndElement();
         if (modelType.equals(ShuntCompensatorModelType.LINEAR)) {
             writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_BPERSECTION);
-            writer.writeCharacters(CgmesExportUtil.format(bPerSection));
+            if (Math.abs(bPerSection) < 1E-10) {
+                writer.writeCharacters(CgmesExportUtil.scientificFormat(bPerSection));
+            } else {
+                writer.writeCharacters(CgmesExportUtil.format(bPerSection));
+            }
             writer.writeEndElement();
             if (!Double.isNaN(gPerSection)) {
                 writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
