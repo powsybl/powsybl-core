@@ -313,14 +313,14 @@ public interface UndirectedGraph<V, E> {
      *
      * @param l the listener to add.
      */
-    void addListener(UndirectedGraphListener l);
+    void addListener(UndirectedGraphListener<V, E> l);
 
     /**
      * Remove a {@link UndirectedGraphListener} to stop listening the graph changes.
      *
      * @param l the listener to remove.
      */
-    void removeListener(UndirectedGraphListener l);
+    void removeListener(UndirectedGraphListener<V, E> l);
 
     /**
      * Prints the entire graph to the specified {@link PrintStream}.
@@ -331,4 +331,10 @@ public interface UndirectedGraph<V, E> {
      * @param edgeToString the function to use to render the values of edges.
      */
     void print(PrintStream out, Function<V, String> vertexToString, Function<E, String> edgeToString);
+
+    /**
+     * Remove from the vertices which are not connected to any edge, and which have no associated object.
+     * If {@code andAlsoDanglingEdges} is true, also remove dangling edges.
+     */
+    void removeIsolatedVertices(boolean andAlsoDanglingEdges);
 }

@@ -58,11 +58,11 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         if (hvdcLine != null) {
             throw new ValidationException(this, "Impossible to remove this converter station (still attached to '" + hvdcLine.getId() + "')");
         }
-        super.remove();
+        super.remove(removeDanglingSwitches);
     }
 
 }
