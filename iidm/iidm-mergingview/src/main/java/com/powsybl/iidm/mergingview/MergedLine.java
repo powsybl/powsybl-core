@@ -94,11 +94,6 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
-    }
-
-    @Override
     public boolean isTieLine() {
         return true;
     }

@@ -227,11 +227,6 @@ public class ThreeWindingsTransformerAdapter extends AbstractIdentifiableAdapter
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public ConnectableType getType() {
-        return getDelegate().getType();
-    }
-
-    @Override
     public double getRatedU0() {
         return getDelegate().getRatedU0();
     }

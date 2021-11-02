@@ -998,7 +998,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private static boolean isBusbarSection(Terminal t) {
-        return t != null && t.getConnectable().getType() == ConnectableType.BUSBAR_SECTION;
+        return t != null && t.getConnectable().getType() == IdentifiableType.BUSBAR_SECTION;
     }
 
     private static boolean isOpenedDisconnector(Switch s) {
