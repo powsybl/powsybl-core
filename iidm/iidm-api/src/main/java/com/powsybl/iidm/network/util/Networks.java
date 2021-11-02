@@ -393,7 +393,7 @@ public final class Networks {
 
         Terminal[] equivalentTerminal = new Terminal[1];
 
-        VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
+        VoltageLevel.NodeBreakerView.TopologyTraverser traverser = (node1, sw, node2) -> {
             if (sw != null && sw.isOpen()) {
                 return TraverseResult.TERMINATE_PATH;
             }

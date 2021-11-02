@@ -262,4 +262,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     default ShuntCompensator setTargetDeadband(double targetDeadband) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.SHUNT_COMPENSATOR;
+    }
 }
