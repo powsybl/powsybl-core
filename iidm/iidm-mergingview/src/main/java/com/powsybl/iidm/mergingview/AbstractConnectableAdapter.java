@@ -30,7 +30,7 @@ abstract class AbstractConnectableAdapter<I extends Connectable<I>> extends Abst
     }
 
     @Override
-    public final void remove() {
+    public final void remove(boolean removeDanglingSwitches) {
         throw MergingView.createNotImplementedException();
     }
 }

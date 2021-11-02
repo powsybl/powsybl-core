@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraphImpl;
+import com.powsybl.math.graph.UndirectedGraphListener;
 import org.anarres.graphviz.builder.GraphVizAttribute;
 import org.anarres.graphviz.builder.GraphVizEdge;
 import org.anarres.graphviz.builder.GraphVizGraph;
@@ -320,7 +321,42 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         super(id, name, fictitious, substation, ref, nominalV, lowVoltageLimit, highVoltageLimit);
         variants = new VariantArray<>(ref == null ? substation.getNetwork().getRef() : ref, VariantImpl::new);
         // invalidate topology and connected components
-        graph.addListener(this::invalidateCache);
+        graph.addListener(new UndirectedGraphListener<>() {
+            @Override
+            public void vertexAdded(int v) {
+                invalidateCache();
+            }
+
+            @Override
+            public void vertexObjectSet(int v, ConfiguredBus obj) {
+                invalidateCache();
+            }
+
+            @Override
+            public void vertexRemoved(int v, ConfiguredBus obj) {
+                invalidateCache();
+            }
+
+            @Override
+            public void allVerticesRemoved() {
+                invalidateCache();
+            }
+
+            @Override
+            public void edgeAdded(int e, SwitchImpl obj) {
+                invalidateCache();
+            }
+
+            @Override
+            public void edgeRemoved(int e, SwitchImpl obj) {
+                invalidateCache();
+            }
+
+            @Override
+            public void allEdgesRemoved() {
+                invalidateCache();
+            }
+        });
     }
 
     @Override
@@ -793,8 +829,10 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void detach(final TerminalExt terminal) {
-        assert terminal instanceof BusTerminal;
+    public void detach(final TerminalExt terminal, boolean removeDanglingSwitches) {
+        if (!(terminal instanceof BusTerminal)) {
+            throw new IllegalArgumentException("Incorrect terminal type");
+        }
 
         // remove the link bus -> terminal
         String connectableBusId = ((BusTerminal) terminal).getConnectableBusId();
