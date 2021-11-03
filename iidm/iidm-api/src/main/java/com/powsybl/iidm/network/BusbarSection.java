@@ -68,4 +68,9 @@ public interface BusbarSection extends Injection<BusbarSection> {
     double getV();
 
     double getAngle();
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.BUSBAR_SECTION;
+    }
 }

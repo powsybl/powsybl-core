@@ -173,4 +173,11 @@ public interface Identifiable<I extends Identifiable<I>> extends Extendable<I> {
     default void setFictitious(boolean fictitious) {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Get identifiable type.
+     *
+     * @return the identifiable type
+     */
+    IdentifiableType getType();
 }

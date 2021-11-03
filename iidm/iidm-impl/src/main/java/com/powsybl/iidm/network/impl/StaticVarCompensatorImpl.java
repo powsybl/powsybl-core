@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -55,11 +54,6 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.STATIC_VAR_COMPENSATOR;
     }
 
     @Override

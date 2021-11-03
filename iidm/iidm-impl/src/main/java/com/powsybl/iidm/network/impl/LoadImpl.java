@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.ValidationUtil;
@@ -41,11 +40,6 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
             this.p0.add(p0);
             this.q0.add(q0);
         }
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.LOAD;
     }
 
     @Override
