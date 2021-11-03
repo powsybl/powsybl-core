@@ -80,6 +80,21 @@ public class TieFlowConversionTest {
         });
     }
 
+    @Test
+    public void microGridBaseCaseBEWithTieFlowMappedToSwitch() throws IOException {
+        Conversion.Config config = new Conversion.Config();
+        Network n = networkModel(CgmesConformity1ModifiedCatalog.microGridBaseCaseBEWithTieFlowMappedToSwitch(), config);
+
+        CgmesControlAreas cgmesControlAreas = n.getExtension(CgmesControlAreas.class);
+        assertEquals(1, cgmesControlAreas.getCgmesControlAreas().size());
+
+        cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
+            assertEquals(5, cgmesControlArea.getTerminals().size());
+            assertEquals(0, cgmesControlArea.getBoundaries().size());
+            assertTrue(containsTerminal(cgmesControlArea, "_17086487-56ba-4979-b8de-064025a6b4da", IdentifiableType.DANGLING_LINE));
+        });
+    }
+
     private Network networkModel(TestGridModel testGridModel, Conversion.Config config) throws IOException {
 
         ReadOnlyDataSource ds = testGridModel.dataSource();
