@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ValidationException;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
@@ -183,12 +182,12 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
-        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        return ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(TopologyTraverser traverser) {
         ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 

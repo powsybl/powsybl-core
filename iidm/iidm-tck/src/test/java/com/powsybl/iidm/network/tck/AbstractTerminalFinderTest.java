@@ -34,7 +34,7 @@ public abstract class AbstractTerminalFinderTest {
         assertTrue(bestOptTerminal.isPresent());
 
         Terminal bestTerminal = bestOptTerminal.get();
-        assertEquals(ConnectableType.BUSBAR_SECTION, bestTerminal.getConnectable().getType());
+        assertEquals(IdentifiableType.BUSBAR_SECTION, bestTerminal.getConnectable().getType());
         assertEquals("N_0", bestTerminal.getBusBreakerView().getBus().getId());
         assertEquals("N_0", bestTerminal.getBusView().getBus().getId());
     }
@@ -66,7 +66,7 @@ public abstract class AbstractTerminalFinderTest {
         assertTrue(bestOptTerminal.isPresent());
 
         Terminal bestTerminal = bestOptTerminal.get();
-        assertEquals(ConnectableType.LINE, bestTerminal.getConnectable().getType());
+        assertEquals(IdentifiableType.LINE, bestTerminal.getConnectable().getType());
         assertEquals("NHV1", bestTerminal.getBusBreakerView().getBus().getId());
         assertEquals("VLHV1_0", bestTerminal.getBusView().getBus().getId());
     }
@@ -84,7 +84,7 @@ public abstract class AbstractTerminalFinderTest {
         assertTrue(bestOptTerminal.isPresent());
 
         Terminal bestTerminal = bestOptTerminal.get();
-        assertEquals(ConnectableType.LINE, bestTerminal.getConnectable().getType());
+        assertEquals(IdentifiableType.LINE, bestTerminal.getConnectable().getType());
         assertEquals("NHV2", bestTerminal.getBusBreakerView().getBus().getId());
         assertEquals("VLHV2_0", bestTerminal.getBusView().getBus().getId());
     }
@@ -102,7 +102,7 @@ public abstract class AbstractTerminalFinderTest {
         assertTrue(bestOptTerminal.isPresent());
 
         Terminal bestTerminal = bestOptTerminal.get();
-        assertEquals(ConnectableType.GENERATOR, bestTerminal.getConnectable().getType());
+        assertEquals(IdentifiableType.GENERATOR, bestTerminal.getConnectable().getType());
         assertEquals("NGEN", bestTerminal.getBusBreakerView().getBus().getId());
         assertEquals("VLGEN_0", bestTerminal.getBusView().getBus().getId());
     }

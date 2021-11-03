@@ -323,7 +323,7 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(() -> vlActual.printTopology(System.out, mock(ShortIdDictionary.class)));
         TestUtil.notImplemented(() -> {
             try {
-                vlActual.exportTopology(mock(Writer.class), mock(Random.class));
+                vlActual.exportTopology(mock(Writer.class), new Random(0L));
                 vlActual.exportTopology(mock(Writer.class));
             } catch (IOException e) {
                 // Ignored

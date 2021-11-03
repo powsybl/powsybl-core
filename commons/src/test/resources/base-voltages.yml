@@ -1,0 +1,31 @@
+baseVoltages:
+  - name: "vl300to500"
+    minValue: 300
+    maxValue: 500
+    profile: "Default"
+  - name: "vl180to300"
+    minValue: 180
+    maxValue: 300
+    profile: "Default"
+  - name: "vl120to180"
+    minValue: 120
+    maxValue: 180
+    profile: "Default"
+  - name: "vl70to120"
+    minValue: 70
+    maxValue: 120
+    profile: "Default"
+  - name: "vl50to70"
+    minValue: 50
+    maxValue: 70
+    profile: "Default"
+  - name: "vl30to50"
+    minValue: 30
+    maxValue: 50
+    profile: "Default"
+  - name: "vl0to30"
+    minValue: 0
+    maxValue: 30
+    profile: "Default"
+
+defaultProfile: "Default"
