@@ -63,11 +63,6 @@ public abstract class AbstractConverterTest {
         assertFalse(hasDiff);
     }
 
-    private static String normalizeLineSeparator(String str) {
-        return str.replace("\r\n", "\n")
-                .replace("\r", "\n");
-    }
-
     protected static void compareTxt(InputStream expected, InputStream actual) {
         try {
             compareTxt(expected, new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
@@ -91,8 +86,8 @@ public abstract class AbstractConverterTest {
 
     protected static void compareTxt(InputStream expected, String actual) {
         try {
-            String expectedStr = normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
-            String actualStr = normalizeLineSeparator(actual);
+            String expectedStr = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
+            String actualStr = TestUtil.normalizeLineSeparator(actual);
             assertEquals(expectedStr, actualStr);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
