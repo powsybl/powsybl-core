@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraverseResult;
+
 /**
  * An equipment connection point in a substation topology.
  *
@@ -22,6 +24,12 @@ public interface Terminal {
          * Get the connection node of this terminal in a node/breaker topology.
          */
         int getNode();
+
+        /**
+         * Move the connectable end on the given side to the given node of the given voltage level.
+         * If the given voltage level's topology is not NODE-BREAKER, a runtime exception is thrown.
+         */
+        void moveConnectable(int node, String voltageLevelId);
 
     }
 
@@ -45,6 +53,12 @@ public interface Terminal {
         Bus getConnectableBus();
 
         void setConnectableBus(String busId);
+
+        /**
+         * Move the connectable end on the given side to the given connectable bus with the given connection status.
+         * If the given bus' voltage level topology is not BUS-BREAKER, a runtime exception is thrown.
+         */
+        void moveConnectable(String busId, boolean connected);
     }
 
     /**
@@ -158,6 +172,31 @@ public interface Terminal {
      * Traverse the full network topology graph.
      * @param traverser traversal handler
      */
-    void traverse(VoltageLevel.TopologyTraverser traverser);
+    void traverse(TopologyTraverser traverser);
 
+    /**
+     * Topology traversal handler
+     */
+    interface TopologyTraverser {
+
+        /**
+         * Called when a terminal is encountered.
+         *
+         * @param terminal  the encountered terminal
+         * @param connected in bus/breaker topology, give the terminal connection status
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(Terminal terminal, boolean connected);
+
+        /**
+         * Called when a switch is encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(Switch aSwitch);
+
+    }
 }

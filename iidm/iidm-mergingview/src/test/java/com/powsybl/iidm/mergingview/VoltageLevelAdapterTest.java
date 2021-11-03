@@ -187,6 +187,98 @@ public class VoltageLevelAdapterTest {
         assertEquals(vlExpected.getLccConverterStationCount(), vlActual.getLccConverterStationCount());
         assertEquals(vlExpected.getLccConverterStationStream().count(), vlActual.getLccConverterStationStream().count());
 
+        // Line
+        mergingView.newLine()
+                .setId("l1")
+                .setName("line1")
+                .setR(1.0)
+                .setX(2.0)
+                .setG1(3.0)
+                .setG2(4.0)
+                .setB1(5.0)
+                .setB2(6.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setBus1("busA")
+                .setBus2("busB")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+                .add();
+        vlActual.getLines().forEach(b -> {
+            assertTrue(b instanceof LineAdapter);
+            assertNotNull(b);
+        });
+        assertEquals(vlExpected.getLineCount(), vlActual.getLineCount());
+        assertEquals(vlExpected.getLineStream().count(), vlActual.getLineStream().count());
+        assertEquals(Iterables.size(vlExpected.getLines()), Iterables.size(vlActual.getLines()));
+
+        // TwoWindingsTransformer
+        TwoWindingsTransformer twoWindingsTransformer = vlActual.getSubstation().get().newTwoWindingsTransformer()
+                .setId("2wt")
+                .setName("TwoWindingsTransformer")
+                .setR(1.0)
+                .setX(2.0)
+                .setG(3.0)
+                .setB(4.0)
+                .setRatedU1(5.0)
+                .setRatedU2(6.0)
+                .setRatedS(7.0)
+                .setVoltageLevel1("vl1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus1("busA")
+                .setConnectableBus2("busB")
+            .add();
+        vlActual.getTwoWindingsTransformers().forEach(b -> {
+            assertTrue(b instanceof TwoWindingsTransformerAdapter);
+            assertNotNull(b);
+        });
+        assertEquals(vlExpected.getTwoWindingsTransformerCount(), vlActual.getTwoWindingsTransformerCount());
+        assertEquals(vlExpected.getTwoWindingsTransformerStream().count(), vlActual.getTwoWindingsTransformerStream().count());
+        assertEquals(Iterables.size(vlExpected.getTwoWindingsTransformers()), Iterables.size(vlActual.getTwoWindingsTransformers()));
+
+        // ThreeWindingsTransformer
+        ThreeWindingsTransformer threeWindingsTransformer = vlActual.getSubstation().get().newThreeWindingsTransformer()
+                .setId("3wt")
+                .setName("ThreeWindingsTransformer")
+                .newLeg1()
+                .setR(1.3)
+                .setX(1.4)
+                .setG(1.6)
+                .setB(1.7)
+                .setRatedU(1.1)
+                .setRatedS(1.2)
+                .setVoltageLevel("vl1")
+                .setBus("busA")
+                .add()
+                .newLeg2()
+                .setR(2.03)
+                .setX(2.04)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(2.05)
+                .setRatedS(2.06)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .newLeg3()
+                .setR(3.3)
+                .setX(3.4)
+                .setG(0.0)
+                .setB(0.0)
+                .setRatedU(3.5)
+                .setRatedS(3.6)
+                .setVoltageLevel("vl2")
+                .setBus("busB")
+                .add()
+                .add();
+        vlActual.getThreeWindingsTransformers().forEach(b -> {
+            assertTrue(b instanceof ThreeWindingsTransformerAdapter);
+            assertNotNull(b);
+        });
+        assertEquals(vlExpected.getThreeWindingsTransformerCount(), vlActual.getThreeWindingsTransformerCount());
+        assertEquals(vlExpected.getThreeWindingsTransformerStream().count(), vlActual.getThreeWindingsTransformerStream().count());
+        assertEquals(Iterables.size(vlExpected.getThreeWindingsTransformers()), Iterables.size(vlActual.getThreeWindingsTransformers()));
+
         // Switch
         vlActual.getSwitches().forEach(s -> {
             assertTrue(s instanceof SwitchAdapter);
@@ -231,7 +323,7 @@ public class VoltageLevelAdapterTest {
         TestUtil.notImplemented(() -> vlActual.printTopology(System.out, mock(ShortIdDictionary.class)));
         TestUtil.notImplemented(() -> {
             try {
-                vlActual.exportTopology(mock(Writer.class), mock(Random.class));
+                vlActual.exportTopology(mock(Writer.class), new Random(0L));
                 vlActual.exportTopology(mock(Writer.class));
             } catch (IOException e) {
                 // Ignored
@@ -242,8 +334,11 @@ public class VoltageLevelAdapterTest {
         assertEquals(1, Iterables.size(vlActual.getConnectables(Battery.class)));
         assertSame(dl, vlActual.getConnectable("DLL1", DanglingLine.class));
         assertEquals(1, Iterables.size(vlActual.getConnectables(DanglingLine.class)));
-        assertEquals(8, Iterables.size(vlActual.getConnectables()));
-        assertEquals(8, vlActual.getConnectableStream().count());
+        assertEquals(1, Iterables.size(vlActual.getConnectables(Line.class)));
+        assertEquals(1, Iterables.size(vlActual.getConnectables(TwoWindingsTransformer.class)));
+        assertEquals(1, Iterables.size(vlActual.getConnectables(ThreeWindingsTransformer.class)));
+        assertEquals(11, Iterables.size(vlActual.getConnectables()));
+        assertEquals(11, vlActual.getConnectableStream().count());
 
         MergingView cgm = MergingViewFactory.createCGM(null);
         VoltageLevel vl1 = cgm.getVoltageLevel("VL1");

@@ -19,7 +19,7 @@ public class PsseConversionContextExtensionAdderImpl  extends AbstractExtensionA
 
     private Context context;
 
-    public PsseConversionContextExtensionAdderImpl(Network extendable) {
+    PsseConversionContextExtensionAdderImpl(Network extendable) {
         super(extendable);
     }
 

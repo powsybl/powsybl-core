@@ -17,7 +17,6 @@ import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.common.collect.Iterables;
 import com.powsybl.cgmes.conversion.update.Changelog;
 import com.powsybl.cgmes.conversion.update.IidmChange;
 import com.powsybl.cgmes.conversion.update.IidmChangeRemoval;
@@ -120,7 +119,7 @@ public final class ChangelogUpdateTest {
         // Check the changes order is correct, and removal is last, as it was made last
         assertTrue(isSortedByIndex(changes));
         assertTrue(changes.get(0) instanceof IidmChangeUpdate);
-        assertTrue(Iterables.getLast(changes) instanceof IidmChangeRemoval);
+        assertTrue(changes.get(4) instanceof IidmChangeRemoval); // this is not the last event because done using the pre-destruction event
     }
 
     private static boolean isSortedByIndex(List<IidmChange> changes) {

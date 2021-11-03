@@ -8,7 +8,6 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
@@ -22,8 +21,16 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
-    private final NodeBreakerView nodeBreakerView = () -> {
-        throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
+    private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
+        @Override
+        public int getNode() {
+            throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
+        }
+
+        @Override
+        public void moveConnectable(int node, String voltageLevelId) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), node, voltageLevelId);
+        }
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
@@ -46,14 +53,26 @@ class BusTerminal extends AbstractTerminal {
             // Assert that the new bus exists
             vl.getBus(busId, true);
 
-            vl.detach(BusTerminal.this);
+            vl.detach(BusTerminal.this, false);
             int variantIndex = network.get().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
+
+        @Override
+        public void moveConnectable(String busId, boolean connected) {
+            getConnectable().move(BusTerminal.this, getConnectionInfo(), busId, connected);
+        }
+
     };
+
+    @Override
+    public String getConnectionInfo() {
+        return "bus " + getBusBreakerView().getConnectableBus().getId() + ", "
+                + (getBusBreakerView().getBus() != null ? "connected" : "disconnected");
+    }
 
     private final BusViewExt busView = new BusViewExt() {
 
@@ -112,12 +131,12 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        return ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(TopologyTraverser traverser) {
         ((BusBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 

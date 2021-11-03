@@ -635,7 +635,15 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          */
         BusbarSection getBusbarSection(String id);
 
-        interface Traverser {
+        interface TopologyTraverser {
+            /**
+             * Called for each traversal step
+             * @param node1 the node the traversal comes from
+             * @param sw the {@link Switch} encountered, or null if it is an {@link InternalConnection}
+             * @param node2 the node the traversal will go to, if the returned TraverseResult is {@link TraverseResult#CONTINUE}
+             * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+             * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+             */
             TraverseResult traverse(int node1, Switch sw, int node2);
         }
 
@@ -644,14 +652,14 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * starting from {@code node}.
          * The {@code traverser} callback is called every time an edge is traversed.
          */
-        void traverse(int node, Traverser traverser);
+        void traverse(int node, TopologyTraverser traverser);
 
         /**
          * Performs a depth-first traversal of the topology graph,
          * starting from each node in array {@code nodes}.
          * The {@code traverser} callback is called every time an edge is traversed.
          */
-        void traverse(int[] node, Traverser traverser);
+        void traverse(int[] node, TopologyTraverser traverser);
     }
 
     /**
@@ -829,30 +837,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * @see VariantManager
          */
         Bus getMergedBus(String configuredBusId);
-    }
-
-    /**
-     * Topology traversal handler
-     */
-    interface TopologyTraverser {
-
-        /**
-         * Called when a terminal in encountered.
-         *
-         * @param terminal  the encountered terminal
-         * @param connected in bus/breaker topology, give the terminal connection status
-         * @return true to continue the graph traversal, false otherwise
-         */
-        boolean traverse(Terminal terminal, boolean connected);
-
-        /**
-         * Called when a switch in encountered
-         *
-         * @param aSwitch the encountered switch
-         * @return true to continue the graph traversal, false otherwise
-         */
-        boolean traverse(Switch aSwitch);
-
     }
 
     Optional<Substation> getSubstation();
@@ -1134,6 +1118,69 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLccConverterStationCount();
 
     /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Iterable<Line> getLines();
+
+    /**
+     * Get all lines connected to this voltage level.
+     *
+     * @return all lines connected to this voltage level
+     */
+    Stream<Line> getLineStream();
+
+    /**
+     * Get line count connected to this voltage level.
+     *
+     * @return line count connected to this voltage level
+     */
+    int getLineCount();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();
+
+    /**
+     * Get all two windings transformers connected to this voltage level.
+     *
+     * @return all two windings transformers connected to this voltage level
+     */
+    Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
+
+    /**
+     * Get two windings transformer count connected to this voltage level.
+     *
+     * @return two windings transformer count connected to this voltage level
+     */
+    int getTwoWindingsTransformerCount();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers();
+
+    /**
+     * Get all three windings transformers connected to this voltage level.
+     *
+     * @return all three windings transformers connected to this voltage level
+     */
+    Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
+
+    /**
+     * Get three windings transformer count connected to this voltage level.
+     *
+     * @return three windings transformer count connected to this voltage level
+     */
+    int getThreeWindingsTransformerCount();
+
+    /**
      * Remove this voltage level from the network.
      */
     default void remove() {
@@ -1206,4 +1253,9 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @param writer a writer
      */
     void exportTopology(Writer writer) throws IOException;
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.VOLTAGE_LEVEL;
+    }
 }

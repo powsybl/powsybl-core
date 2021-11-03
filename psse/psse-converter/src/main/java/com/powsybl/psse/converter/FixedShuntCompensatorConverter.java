@@ -24,14 +24,14 @@ import com.powsybl.psse.model.pf.PssePowerFlowModel;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  * @author José Antonio Marqués <marquesja at aia.es>
  */
-public class FixedShuntCompensatorConverter extends AbstractConverter {
+class FixedShuntCompensatorConverter extends AbstractConverter {
 
-    public FixedShuntCompensatorConverter(PsseFixedShunt psseFixedShunt, ContainersMapping containerMapping, Network network) {
+    FixedShuntCompensatorConverter(PsseFixedShunt psseFixedShunt, ContainersMapping containerMapping, Network network) {
         super(containerMapping, network);
         this.psseFixedShunt = Objects.requireNonNull(psseFixedShunt);
     }
 
-    public void create() {
+    void create() {
         if (psseFixedShunt.getGl() == 0 && psseFixedShunt.getBl() == 0.0) {
             LOGGER.warn("Shunt ({}) has Gl and Bl = 0, not imported ", psseFixedShunt.getI());
             return;

@@ -53,4 +53,9 @@ public interface Switch extends Identifiable<Switch> {
      * @param retained the retain status of the switch
      */
     void setRetained(boolean retained);
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.SWITCH;
+    }
 }

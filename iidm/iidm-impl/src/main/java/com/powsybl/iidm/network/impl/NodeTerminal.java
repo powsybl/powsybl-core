@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.ValidationException;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
@@ -40,6 +39,11 @@ class NodeTerminal extends AbstractTerminal {
         public int getNode() {
             return node;
         }
+
+        @Override
+        public void moveConnectable(int node, String voltageLevelId) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), node, voltageLevelId);
+        }
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
@@ -59,7 +63,17 @@ class NodeTerminal extends AbstractTerminal {
             throw NodeBreakerVoltageLevel.createNotSupportedNodeBreakerTopologyException();
         }
 
+        @Override
+        public void moveConnectable(String busId, boolean connected) {
+            getConnectable().move(NodeTerminal.this, getConnectionInfo(), busId, connected);
+        }
+
     };
+
+    @Override
+    public String getConnectionInfo() {
+        return "node " + getNode() + ", Voltage level " + getVoltageLevel().getId();
+    }
 
     private final BusViewExt busView = new BusViewExt() {
 
@@ -168,12 +182,12 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser, Set<Terminal> traversedTerminals) {
-        ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, traversedTerminals);
+    public boolean traverse(TopologyTraverser traverser, Set<Terminal> visitedTerminals) {
+        return ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser, visitedTerminals);
     }
 
     @Override
-    public void traverse(VoltageLevel.TopologyTraverser traverser) {
+    public void traverse(TopologyTraverser traverser) {
         ((NodeBreakerVoltageLevel) voltageLevel).traverse(this, traverser);
     }
 

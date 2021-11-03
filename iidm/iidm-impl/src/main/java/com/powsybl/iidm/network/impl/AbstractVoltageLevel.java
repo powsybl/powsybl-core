@@ -351,6 +351,51 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public int getLineCount() {
+        return getConnectableCount(Line.class);
+    }
+
+    @Override
+    public Iterable<Line> getLines() {
+        return getConnectables(Line.class);
+    }
+
+    @Override
+    public Stream<Line> getLineStream() {
+        return getConnectableStream(Line.class);
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return getConnectableCount(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getConnectables(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getConnectableStream(TwoWindingsTransformer.class);
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return getConnectableCount(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getConnectables(ThreeWindingsTransformer.class);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getConnectableStream(ThreeWindingsTransformer.class);
+    }
+
+    @Override
     protected String getTypeDescription() {
         return "Voltage level";
     }
@@ -398,6 +443,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     public void remove() {
         VoltageLevels.checkRemovability(this);
 
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
         // Remove all connectables
         List<Connectable> connectables = Lists.newArrayList(getConnectables());
         for (Connectable connectable : connectables) {
@@ -409,9 +457,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
         // Remove this voltage level from the network
         getSubstation().map(SubstationImpl.class::cast).ifPresent(s -> s.remove(this));
-        getNetwork().getIndex().remove(this);
+        network.getIndex().remove(this);
 
-        getNetwork().getListeners().notifyRemoval(this);
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     protected abstract void removeTopology();

@@ -271,13 +271,13 @@ class NodeBreakerVoltageLevelAdapter extends AbstractVoltageLevelAdapter {
         }
 
         @Override
-        public void traverse(int node, Traverser traverser) {
+        public void traverse(int node, TopologyTraverser traverser) {
             // TODO(mathbagu)
             throw MergingView.createNotImplementedException();
         }
 
         @Override
-        public void traverse(int[] nodes, Traverser traverser) {
+        public void traverse(int[] nodes, TopologyTraverser traverser) {
             // TODO
             throw MergingView.createNotImplementedException();
         }

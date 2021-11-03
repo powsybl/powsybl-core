@@ -170,15 +170,18 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public void remove() {
         Substations.checkRemovability(this);
 
+        NetworkImpl network = getNetwork();
+        network.getListeners().notifyBeforeRemoval(this);
+
         Set<VoltageLevelExt> vls = new HashSet<>(voltageLevels);
         for (VoltageLevelExt vl : vls) {
             // Remove all branches, transformers and HVDC lines
             List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
             for (Connectable connectable : connectables) {
-                ConnectableType type = connectable.getType();
+                IdentifiableType type = connectable.getType();
                 if (VoltageLevels.MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                     connectable.remove();
-                } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
+                } else if (type == IdentifiableType.HVDC_CONVERTER_STATION) {
                     HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
                     if (hvdcLine != null) {
                         hvdcLine.remove();
@@ -191,9 +194,9 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         }
 
         // Remove this substation from the network
-        getNetwork().getIndex().remove(this);
+        network.getIndex().remove(this);
 
-        getNetwork().getListeners().notifyRemoval(this);
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     void remove(VoltageLevelExt voltageLevelExt) {

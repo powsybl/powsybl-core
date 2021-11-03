@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
@@ -49,9 +50,15 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
         assertEquals(TWT_NAME, transformer.getNameOrId());
         assertEquals(substation, transformer.getSubstation().orElse(null));
-        assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
+        assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        assertEquals(1, Iterables.size(vl1.getThreeWindingsTransformers()));
+        assertEquals(1, vl1.getThreeWindingsTransformerStream().count());
+        assertEquals(1, vl1.getThreeWindingsTransformerCount());
+        assertSame(transformer, vl1.getThreeWindingsTransformers().iterator().next());
+        assertSame(transformer, vl1.getThreeWindingsTransformerStream().findFirst().get());
 
         // leg1 adder
         ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();

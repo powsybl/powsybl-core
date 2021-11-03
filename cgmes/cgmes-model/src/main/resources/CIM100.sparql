@@ -1,0 +1,96 @@
+#
+# Copyright (c) 2021, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# include: CIM16.sparql
+
+# query: boundaryNodes
+# All pairs (Connectiviy Node, Topological Node) from a graph that has a modelProfile EquipmentBoundary-
+# We expect all Connectivity Nodes have 1 and only one corresponding TopologicalNode
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+GRAPH ?graphBDEQ {
+    ?FullModel md:Model.profile ?modelProfile .
+    FILTER (regex(?modelProfile, "EquipmentBoundary-", "i"))
+    ?ConnectivityNode
+        a cim:ConnectivityNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?container .
+    OPTIONAL { ?ConnectivityNode entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNode }
+    OPTIONAL { ?container entsoe:IdentifiedObject.energyIdentCodeEic ?energyIdentCodeEicFromNodeContainer }
+    OPTIONAL { ?ConnectivityNode cim:IdentifiedObject.description ?description }
+}
+OPTIONAL { GRAPH ?grapBDTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}}
+}
+
+# query: synchronousMachines
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine ;
+        cim:IdentifiedObject.name ?name ;
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    OPTIONAL {
+        ?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
+       }
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:IdentifiedObject.name ?nameGeneratingUnit .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.qPercent ?qPercent }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?SynchronousMachine
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:SynchronousMachine.referencePriority ?referencePriority ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled .
+    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
+}}
+}
+
+# query: operationalLimits
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?OperationalLimit
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
+        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        cim:IdentifiedObject.name ?name ;
+        a ?OperationalLimitSubclass .
+    ?OperationalLimitType
+        a cim:OperationalLimitType ;
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
+    OPTIONAL { ?OperationalLimit cim:CurrentLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:ApparentPowerLimit.normalValue ?normalValue }
+    OPTIONAL { ?OperationalLimit cim:VoltageLimit.normalValue ?normalValue }
+    # operational limit sets can be attached to terminals or equipments
+    OPTIONAL { ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal }
+    OPTIONAL { GRAPH ?graph2 {
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment cim:Equipment.EquipmentContainer ?EquipmentContainer
+    }}
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
+    OPTIONAL { ?OperationalLimitType eu:OperationalLimitType.kind ?limitType }
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
+}}
+{ GRAPH ?graphSSH {
+   OPTIONAL {?OperationalLimit cim:CurrentLimit.value ?value }
+   OPTIONAL {?OperationalLimit cim:ApparentPowerLimit.value ?value }
+   OPTIONAL {?OperationalLimit cim:VoltageLimit.value ?value }
+}}
+}

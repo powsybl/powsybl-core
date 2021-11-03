@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.tck;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.tck.internal.AbstractTransformerTest;
 import org.junit.Test;
@@ -46,7 +47,7 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(5.0, twoWindingsTransformer.getRatedU1(), 0.0);
         assertEquals(6.0, twoWindingsTransformer.getRatedU2(), 0.0);
         assertEquals(7.0, twoWindingsTransformer.getRatedS(), 0.0);
-        assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
+        assertEquals(IdentifiableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
         assertSame(substation, twoWindingsTransformer.getSubstation().orElse(null));
 
         // setter getter
@@ -73,6 +74,12 @@ public abstract class AbstractTwoWindingsTransformerTest extends AbstractTransfo
         assertEquals(ratedS, twoWindingsTransformer.getRatedS(), 0.0);
 
         assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
+        VoltageLevel vl1 = network.getVoltageLevel("vl1");
+        assertEquals(1, Iterables.size(vl1.getTwoWindingsTransformers()));
+        assertEquals(1, vl1.getTwoWindingsTransformerStream().count());
+        assertEquals(1, vl1.getTwoWindingsTransformerCount());
+        assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformers().iterator().next());
+        assertSame(twoWindingsTransformer, vl1.getTwoWindingsTransformerStream().findFirst().get());
 
         RatioTapChanger ratioTapChangerInLeg1 = createRatioTapChanger(twoWindingsTransformer,
                 twoWindingsTransformer.getTerminal(TwoWindingsTransformer.Side.ONE));
