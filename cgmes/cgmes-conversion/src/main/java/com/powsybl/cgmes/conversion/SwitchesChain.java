@@ -156,7 +156,7 @@ class SwitchesChain {
                 if (isDiscarded(c)) {
                     return;
                 }
-                c.getTerminals().forEach(
+                c.getTerminals().stream().filter(t -> isSameVoltageLevel((Terminal) t, vl)).forEach(
                     t -> connectables.computeIfAbsent(String.valueOf(((Terminal) t).getNodeBreakerView().getNode()),
                         k -> new ArrayList<>()).add(c));
             });
@@ -168,10 +168,17 @@ class SwitchesChain {
                     return;
                 }
                 c.getTerminals()
-                    .forEach(t -> connectables
-                        .computeIfAbsent(((Terminal) t).getBusBreakerView().getBus().getId(), k -> new ArrayList<>())
-                        .add(c));
+                    .forEach(t -> {
+                        if (!((Terminal) t).getVoltageLevel().equals(vl)) {
+                            return;
+                        }
+                        connectables.computeIfAbsent(((Terminal) t).getBusBreakerView().getBus().getId(), k -> new ArrayList<>()).add(c);
+                    });
             });
+        }
+
+        private static boolean isSameVoltageLevel(Terminal terminal, VoltageLevel vl) {
+            return terminal.getVoltageLevel().equals(vl);
         }
 
         private int getConnectablesNodeCount(String nodeId) {
