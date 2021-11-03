@@ -84,7 +84,7 @@ public abstract class AbstractDanglingLineTest {
                     .add();
         DanglingLine danglingLine = network.getDanglingLine(id);
         // adder
-        assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
+        assertEquals(IdentifiableType.DANGLING_LINE, danglingLine.getType());
         assertEquals(r, danglingLine.getR(), 0.0);
         assertEquals(x, danglingLine.getX(), 0.0);
         assertEquals(g, danglingLine.getG(), 0.0);
