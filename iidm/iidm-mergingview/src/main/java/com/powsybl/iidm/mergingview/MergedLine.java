@@ -94,11 +94,6 @@ class MergedLine implements TieLine {
     }
 
     @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
-    }
-
-    @Override
     public boolean isTieLine() {
         return true;
     }
@@ -487,7 +482,7 @@ class MergedLine implements TieLine {
     // Not implemented methods -------
     // -------------------------------
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         throw MergingView.createNotImplementedException();
     }
 

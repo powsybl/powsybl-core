@@ -180,4 +180,9 @@ public interface Substation extends Container<Substation> {
     default void remove() {
         throw new UnsupportedOperationException("Not implemented");
     }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.SUBSTATION;
+    }
 }

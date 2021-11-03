@@ -57,7 +57,7 @@ public class DanglingLineAdapterTest {
         assertTrue(danglingLine instanceof DanglingLineAdapter);
         assertSame(mergingView, danglingLine.getNetwork());
 
-        assertEquals(ConnectableType.DANGLING_LINE, danglingLine.getType());
+        assertEquals(IdentifiableType.DANGLING_LINE, danglingLine.getType());
         assertEquals(r, danglingLine.getR(), 0.0);
         assertEquals(x, danglingLine.getX(), 0.0);
         assertEquals(g, danglingLine.getG(), 0.0);
@@ -138,7 +138,7 @@ public class DanglingLineAdapterTest {
 
         // MergedLine
         final MergedLine mergedLine = (MergedLine) line;
-        assertEquals(ConnectableType.LINE, mergedLine.getType());
+        assertEquals(IdentifiableType.LINE, mergedLine.getType());
         assertTrue(mergedLine.isTieLine());
         assertSame(mergingView, mergedLine.getNetwork());
         assertSame(dl1.getTerminal(), mergedLine.getTerminal(Branch.Side.ONE));

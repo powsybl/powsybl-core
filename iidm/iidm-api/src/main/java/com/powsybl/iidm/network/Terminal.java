@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.math.graph.TraverseResult;
+
 /**
  * An equipment connection point in a substation topology.
  *
@@ -170,6 +172,31 @@ public interface Terminal {
      * Traverse the full network topology graph.
      * @param traverser traversal handler
      */
-    void traverse(VoltageLevel.TopologyTraverser traverser);
+    void traverse(TopologyTraverser traverser);
 
+    /**
+     * Topology traversal handler
+     */
+    interface TopologyTraverser {
+
+        /**
+         * Called when a terminal is encountered.
+         *
+         * @param terminal  the encountered terminal
+         * @param connected in bus/breaker topology, give the terminal connection status
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(Terminal terminal, boolean connected);
+
+        /**
+         * Called when a switch is encountered
+         *
+         * @param aSwitch the encountered switch
+         * @return {@link TraverseResult#CONTINUE} to continue traversal, {@link TraverseResult#TERMINATE_PATH}
+         * to stop the current traversal path, {@link TraverseResult#TERMINATE_TRAVERSER} to stop all the traversal paths
+         */
+        TraverseResult traverse(Switch aSwitch);
+
+    }
 }
