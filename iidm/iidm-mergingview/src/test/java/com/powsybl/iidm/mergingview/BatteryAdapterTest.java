@@ -42,7 +42,7 @@ public class BatteryAdapterTest {
                                      .add();
 
         assertSame(battery, mergingView.getBattery("BATEST"));
-        assertEquals(ConnectableType.BATTERY, battery.getType());
+        assertEquals(IdentifiableType.BATTERY, battery.getType());
         assertTrue(battery instanceof BatteryAdapter);
         assertSame(mergingView, battery.getNetwork());
         assertEquals("BATEST", battery.getId());

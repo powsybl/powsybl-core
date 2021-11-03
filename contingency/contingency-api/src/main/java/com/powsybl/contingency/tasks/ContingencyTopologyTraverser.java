@@ -7,6 +7,7 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.math.graph.TraverseResult;
 
 import java.util.Objects;
 import java.util.Set;
@@ -30,32 +31,29 @@ final class ContingencyTopologyTraverser {
         Objects.requireNonNull(switchesToOpen);
         Objects.requireNonNull(terminalsToDisconnect);
 
-        terminal.traverse(new VoltageLevel.TopologyTraverser() {
+        terminal.traverse(new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
                 if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
                     // we have no idea what kind of switch it was in the initial node/breaker topology
                     // so to keep things simple we do not propagate the fault
                     if (connected) {
                         terminalsToDisconnect.add(terminal);
                     }
-                    return false;
+                    return TraverseResult.TERMINATE_PATH;
                 }
                 // in node/breaker topology propagation is decided only based on switch position
-                return true;
+                return TraverseResult.CONTINUE;
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                boolean traverse = false;
-
+            public TraverseResult traverse(Switch aSwitch) {
                 if (isOpenable(aSwitch)) {
+                    // Traverser stops on current path as contingency opens the openable switch
                     switchesToOpen.add(aSwitch);
-                } else if (!aSwitch.isOpen()) {
-                    traverse = true;
+                    return TraverseResult.TERMINATE_PATH;
                 }
-
-                return traverse;
+                return aSwitch.isOpen() ? TraverseResult.TERMINATE_PATH : TraverseResult.CONTINUE;
             }
         });
     }
