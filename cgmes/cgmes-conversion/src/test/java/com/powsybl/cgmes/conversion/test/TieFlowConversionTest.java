@@ -24,7 +24,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -45,7 +45,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(1, cgmesControlArea.getTerminals().size());
             assertEquals(2, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsTerminal(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", ConnectableType.DANGLING_LINE));
+            assertTrue(containsTerminal(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -60,7 +60,7 @@ public class TieFlowConversionTest {
         cgmesControlAreas.getCgmesControlAreas().forEach(cgmesControlArea -> {
             assertEquals(0, cgmesControlArea.getTerminals().size());
             assertEquals(3, cgmesControlArea.getBoundaries().size());
-            assertTrue(containsBoundary(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", ConnectableType.DANGLING_LINE));
+            assertTrue(containsBoundary(cgmesControlArea, "_044ef2e7-c766-11e1-8775-005056c00008", IdentifiableType.DANGLING_LINE));
         });
     }
 
@@ -79,7 +79,7 @@ public class TieFlowConversionTest {
         return n;
     }
 
-    private static boolean containsTerminal(CgmesControlArea cgmesControlArea, String connectableId, ConnectableType connectableType) {
+    private static boolean containsTerminal(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType connectableType) {
         boolean ok = cgmesControlArea.getTerminals().stream().anyMatch(t -> isConnectableOk(connectableId, connectableType,
             t.getConnectable().getId(), t.getConnectable().getType()));
         if (!ok) {
@@ -90,7 +90,7 @@ public class TieFlowConversionTest {
         return ok;
     }
 
-    private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, ConnectableType connectableType) {
+    private static boolean containsBoundary(CgmesControlArea cgmesControlArea, String connectableId, IdentifiableType connectableType) {
         boolean ok = cgmesControlArea.getBoundaries().stream().anyMatch(b -> isConnectableOk(connectableId, connectableType,
             b.getConnectable().getId(), b.getConnectable().getType()));
         if (!ok) {
@@ -101,7 +101,7 @@ public class TieFlowConversionTest {
         return ok;
     }
 
-    private static boolean isConnectableOk(String refConnectableId, ConnectableType refConnectableType, String connectableId, ConnectableType connectableType) {
+    private static boolean isConnectableOk(String refConnectableId, IdentifiableType refConnectableType, String connectableId, IdentifiableType connectableType) {
         return refConnectableId.equals(connectableId) && refConnectableType.equals(connectableType);
     }
 

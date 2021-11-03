@@ -11,7 +11,7 @@ import java.util.*;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.IdentifiableType;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -128,10 +128,10 @@ class SwitchesChain {
     // At this moment we only know this information in danglingLines so
     // the terminal will only be accepted if it is a danglingLine
     private static Terminal bestTerminal(Terminal terminalEnd1, Terminal terminalEnd2) {
-        if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
+        if (terminalEnd1 != null && terminalEnd1.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
             return terminalEnd1;
         }
-        if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == ConnectableType.DANGLING_LINE) {
+        if (terminalEnd2 != null && terminalEnd2.getConnectable().getType() == IdentifiableType.DANGLING_LINE) {
             return terminalEnd2;
         }
         return null;
@@ -196,12 +196,12 @@ class SwitchesChain {
         }
 
         private static boolean isDiscarded(Connectable<?> connectable) {
-            return connectable.getType() == ConnectableType.BUSBAR_SECTION;
+            return connectable.getType() == IdentifiableType.BUSBAR_SECTION;
         }
 
         private static boolean isConductingEquipment(Connectable<?> connectable) {
-            return connectable.getType() == ConnectableType.LINE
-                || connectable.getType() == ConnectableType.DANGLING_LINE;
+            return connectable.getType() == IdentifiableType.LINE
+                || connectable.getType() == IdentifiableType.DANGLING_LINE;
         }
     }
 
