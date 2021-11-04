@@ -85,11 +85,11 @@ public final class SensitivityAnalysis {
 
             return CompletableFuture.supplyAsync(() -> {
                 SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-                SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter(factors);
+                SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
 
                 provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
 
-                return new SensitivityAnalysisResult(valueWriter.getValues());
+                return new SensitivityAnalysisResult(factors, contingencies, valueWriter.getValues());
             });
         }
 

@@ -7,10 +7,12 @@
 package com.powsybl.sensitivity;
 
 import com.powsybl.commons.io.table.*;
+import com.powsybl.contingency.Contingency;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -23,8 +25,11 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
 
     private final TableFormatter formatter;
 
-    public SensitivityValueCsvWriter(TableFormatter formatter) {
+    private final List<Contingency> contingencies;
+
+    public SensitivityValueCsvWriter(TableFormatter formatter, List<Contingency> contingencies) {
         this.formatter = Objects.requireNonNull(formatter);
+        this.contingencies = Objects.requireNonNull(contingencies);
     }
 
     public static TableFormatter createTableFormatter(Writer writer) {
@@ -33,18 +38,17 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
         var tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
         return factory.create(writer, "", tfc,
                 new Column("Contingency ID"),
-                new Column("Variable ID"),
-                new Column("Function ID"),
+                new Column("Factor index"),
                 new Column("Function ref value"),
                 new Column("Sensitivity value"));
     }
 
     @Override
-    public void write(String contingencyId, String variableId, String functionId, int factorIndex, int contingencyIndex, double value, double functionReference) {
+    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        Contingency contingency = contingencyIndex != -1 ? contingencies.get(contingencyIndex) : null;
         try {
-            formatter.writeCell(Objects.toString(contingencyId, ""));
-            formatter.writeCell(variableId);
-            formatter.writeCell(functionId);
+            formatter.writeCell(contingency != null ? contingency.getId() : "");
+            formatter.writeCell(factorIndex);
             formatter.writeCell(functionReference);
             formatter.writeCell(value);
         } catch (IOException e) {

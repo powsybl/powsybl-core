@@ -6,22 +6,11 @@
  */
 package com.powsybl.sensitivity;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.google.common.base.Stopwatch;
-import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Pair;
 import org.jgrapht.alg.util.Triple;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.UncheckedIOException;
-import java.io.Writer;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Sensitivity analysis result
@@ -47,7 +36,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class SensitivityAnalysisResult {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityAnalysisResult.class);
+    private final List<SensitivityFactor> factors;
+
+    private final List<Contingency> contingencies;
 
     private final List<SensitivityValue> values;
 
@@ -61,15 +52,27 @@ public class SensitivityAnalysisResult {
      * Sensitivity analysis result
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
-    public SensitivityAnalysisResult(List<SensitivityValue> values) {
+    public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityValue> values) {
+        this.factors = Objects.requireNonNull(factors);
+        this.contingencies = Objects.requireNonNull(contingencies);
         this.values = Objects.requireNonNull(values);
         for (SensitivityValue value : values) {
-            SensitivityFactor factor = value.getFactor();
-            valuesByContingencyId.computeIfAbsent(value.getContingencyId(), k -> new ArrayList<>())
+            SensitivityFactor factor = factors.get(value.getFactorIndex());
+            Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
+            String contingencyId = contingency != null ? contingency.getId() : "";
+            valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
-            valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(value.getContingencyId(), factor.getFunctionId(), factor.getVariableId()), value);
-            functionReferenceByContingencyAndFunctionId.put(Pair.of(value.getContingencyId(), factor.getFunctionId()), value.getFunctionReference());
+            valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
+            functionReferenceByContingencyAndFunctionId.put(Pair.of(contingencyId, factor.getFunctionId()), value.getFunctionReference());
         }
+    }
+
+    public List<SensitivityFactor> getFactors() {
+        return factors;
+    }
+
+    public List<Contingency> getContingencies() {
+        return contingencies;
     }
 
     /**
@@ -97,7 +100,7 @@ public class SensitivityAnalysisResult {
      * @return pre-contingency sensitivity values.
      */
     public List<SensitivityValue> getPreContingencyValues() {
-        return valuesByContingencyId.getOrDefault(null, Collections.emptyList());
+        return valuesByContingencyId.getOrDefault("", Collections.emptyList());
     }
 
     /**
@@ -121,85 +124,5 @@ public class SensitivityAnalysisResult {
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId) {
         return functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
-    }
-
-    /**
-     * Get the status of the presence of contingencies
-     *
-     * @return true if the analysis contains contingencies, false otherwise
-     */
-    public boolean contingenciesArePresent() {
-        return !valuesByContingencyId.isEmpty();
-    }
-
-    /**
-     * Get a collection of all the sensitivity values for all contingencies.
-     *
-     * @return a collection of all the sensitivity values for all contingencies.
-     */
-    public Map<String, List<SensitivityValue>> getValuesByContingencyId() {
-        return valuesByContingencyId;
-    }
-
-    public static SensitivityAnalysisResult empty() {
-        return new SensitivityAnalysisResult(Collections.emptyList());
-    }
-
-    static final class ParsingContext {
-        private List<SensitivityValue> values;
-    }
-
-    public static SensitivityAnalysisResult parseJson(JsonParser jsonParser) {
-        Objects.requireNonNull(jsonParser);
-
-        var stopwatch = Stopwatch.createStarted();
-
-        var context = new ParsingContext();
-        try {
-            JsonToken token;
-            while ((token = jsonParser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    String fieldName = jsonParser.getCurrentName();
-                    switch (fieldName) {
-                        case "values":
-                            jsonParser.nextToken();
-                            context.values = SensitivityValue.parseJsonArray(jsonParser);
-                            break;
-                        default:
-                            break;
-                    }
-                } else if (token == JsonToken.END_OBJECT) {
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        stopwatch.stop();
-        LOGGER.info("result read in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return new SensitivityAnalysisResult(context.values);
-    }
-
-    public static SensitivityAnalysisResult readJson(Reader reader) {
-        return JsonUtil.parseJson(reader, SensitivityAnalysisResult::parseJson);
-    }
-
-    public static void writeJson(Writer writer, SensitivityAnalysisResult result) {
-        JsonUtil.writeJson(writer, generator -> writeJson(generator, result));
-    }
-
-    public static void writeJson(JsonGenerator jsonGenerator, SensitivityAnalysisResult result) {
-        try {
-            jsonGenerator.writeStartObject();
-
-            jsonGenerator.writeFieldName("values");
-            SensitivityValue.writeJson(jsonGenerator, result.getValues());
-
-            jsonGenerator.writeEndObject();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 }

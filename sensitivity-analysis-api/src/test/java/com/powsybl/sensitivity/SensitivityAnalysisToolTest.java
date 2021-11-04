@@ -127,8 +127,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
         assertTrue(Files.exists(outputCsvFile));
-        String outputCsvRef = "Contingency ID,Variable ID,Function ID,Function ref value,Sensitivity value" + System.lineSeparator() +
-                ",GEN,NHV1_NHV2_1,0.00000,0.00000" + System.lineSeparator();
+        String outputCsvRef = "Contingency ID,Factor index,Function ref value,Sensitivity value" + System.lineSeparator() +
+                ",0,0.00000,0.00000" + System.lineSeparator();
         assertEquals(outputCsvRef, Files.readString(outputCsvFile));
     }
 

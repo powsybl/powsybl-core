@@ -49,7 +49,7 @@ public class SensitivityAnalysisTest {
                 false,
                 ContingencyContext.none());
         factorReader = handler -> handler.onFactor(factor.getFunctionType(), factor.getFunctionId(), factor.getVariableType(), factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
-        valueWriter = new SensitivityValueModelWriter(List.of(factor));
+        valueWriter = new SensitivityValueModelWriter();
         contingencies = Collections.emptyList();
         variableSets = Collections.emptyList();
         parameters = Mockito.mock(SensitivityAnalysisParameters.class);

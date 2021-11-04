@@ -11,5 +11,5 @@ package com.powsybl.sensitivity;
  */
 public interface SensitivityValueWriter {
 
-    void write(String contingencyId, String variableId, String functionId, int factorIndex, int contingencyIndex, double value, double functionReference);
+    void write(int factorIndex, int contingencyIndex, double value, double functionReference);
 }

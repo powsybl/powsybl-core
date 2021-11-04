@@ -176,7 +176,7 @@ public class SensitivityAnalysisTool implements Tool {
             if (csv) {
                 try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
                      TableFormatter formatter = SensitivityValueCsvWriter.createTableFormatter(writer)) {
-                    SensitivityValueWriter valuesWriter = new SensitivityValueCsvWriter(formatter);
+                    SensitivityValueWriter valuesWriter = new SensitivityValueCsvWriter(formatter, contingencies);
                     SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                             factorsReader, valuesWriter, contingencies, variableSets, params,
                             computationManager);

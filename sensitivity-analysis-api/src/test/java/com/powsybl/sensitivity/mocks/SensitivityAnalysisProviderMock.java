@@ -26,7 +26,7 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     public CompletableFuture<Void> run(Network network, String workingStateId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
-            valueWriter.write(contingencyContext.getContingencyId(), variableId, functionId, factorIndex[0], 0, 0.0, 0.0);
+            valueWriter.write(factorIndex[0], -1, 0.0, 0.0);
             factorIndex[0]++;
         });
         return CompletableFuture.completedFuture(null);

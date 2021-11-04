@@ -22,7 +22,7 @@ public class SensitivityValueJsonWriter implements SensitivityValueWriter {
     }
 
     @Override
-    public void write(String contingencyId, String variableId, String functionId, int factorIndex, int contingencyIndex, double value, double functionReference) {
-        SensitivityValue.writeJson(jsonGenerator, contingencyId, variableId, functionId, value, functionReference);
+    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
     }
 }

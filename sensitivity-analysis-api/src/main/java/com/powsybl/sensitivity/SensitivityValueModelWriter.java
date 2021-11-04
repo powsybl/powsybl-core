@@ -8,27 +8,20 @@ package com.powsybl.sensitivity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SensitivityValueModelWriter implements SensitivityValueWriter {
 
-    private final List<SensitivityFactor> factors;
-
     private final List<SensitivityValue> values = new ArrayList<>();
-
-    public SensitivityValueModelWriter(List<SensitivityFactor> factors) {
-        this.factors = Objects.requireNonNull(factors);
-    }
 
     public List<SensitivityValue> getValues() {
         return values;
     }
 
     @Override
-    public void write(String contingencyId, String variableId, String functionId, int factorIndex, int contingencyIndex, double value, double functionReference) {
-        values.add(new SensitivityValue(factors.get(factorIndex), contingencyId, value, functionReference));
+    public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
+        values.add(new SensitivityValue(factorIndex, contingencyIndex, value, functionReference));
     }
 }

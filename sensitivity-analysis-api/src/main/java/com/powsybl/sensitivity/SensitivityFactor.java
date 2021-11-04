@@ -54,7 +54,8 @@ public class SensitivityFactor {
     private final ContingencyContext contingencyContext;
 
     /**
-     * Constructor
+     * Constructor.
+     *
      * @param functionType see {@link com.powsybl.sensitivity.SensitivityFunctionType}
      * @param functionId the id of the equipment to monitor (in general the id of a branch). For BUS_VOLTAGE type, see
      * {@link com.powsybl.iidm.network.IdBasedBusRef}
