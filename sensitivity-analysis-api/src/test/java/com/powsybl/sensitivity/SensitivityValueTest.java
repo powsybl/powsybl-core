@@ -6,35 +6,31 @@
  */
 package com.powsybl.sensitivity;
 
-/**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
- */
-public class SensitivityValueTest {
+import com.powsybl.commons.AbstractConverterTest;
+import org.junit.Test;
 
-    private static final double EPSILON_COMPARISON = 1e-5;
-//
-//    @Test
-//    public void getFactor() {
-//        SensitivityFactor factor = Mockito.mock(SensitivityFactor.class);
-//        SensitivityValue sensitivityValue = new SensitivityValue(factor, "c1", 2.f, 3.f);
-//        assertSame(factor, sensitivityValue.getFactor());
-//    }
-//
-//    @Test
-//    public void getValue() {
-//        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), "c1", 2.f, 3.f);
-//        assertEquals(2.f, sensitivityValue.getValue(), EPSILON_COMPARISON);
-//    }
-//
-//    @Test
-//    public void getFunctionReference() {
-//        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), "c1", 2.f, 3.f);
-//        assertEquals(3.f, sensitivityValue.getFunctionReference(), EPSILON_COMPARISON);
-//    }
-//
-//    @Test
-//    public void getContingencyId() {
-//        SensitivityValue sensitivityValue = new SensitivityValue(Mockito.mock(SensitivityFactor.class), "c1", 2.f, 3.f);
-//        assertEquals("c1", sensitivityValue.getContingencyId());
-//    }
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
+
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public class SensitivityValueTest extends AbstractConverterTest {
+
+    @Test
+    public void test() {
+        SensitivityValue value = new SensitivityValue(0, -1, 1d, 2d);
+        assertEquals(0, value.getFactorIndex());
+        assertEquals(-1, value.getContingencyIndex());
+        assertEquals(1d, value.getValue(), 0d);
+        assertEquals(2d, value.getFunctionReference(), 0d);
+        assertEquals("SensitivityValue(factorIndex=0, contingencyIndex='-1', value=1.0, functionReference=2.0)", value.toString());
+    }
+
+    @Test
+    public void testJson() throws IOException {
+        SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
+        roundTripTest(value, (values2, jsonFile) -> SensitivityValue.writeJson(jsonFile, values2), SensitivityValue::readJson, "/valueRef.json");
+    }
 }

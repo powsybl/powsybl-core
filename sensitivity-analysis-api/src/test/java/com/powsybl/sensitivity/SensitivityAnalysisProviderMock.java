@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.sensitivity.mocks;
+package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.sensitivity.*;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.IntStream;
 
 /**
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}
@@ -26,8 +26,25 @@ public class SensitivityAnalysisProviderMock implements SensitivityAnalysisProvi
     public CompletableFuture<Void> run(Network network, String workingStateId, SensitivityFactorReader factorReader, SensitivityValueWriter valueWriter, List<Contingency> contingencies, List<SensitivityVariableSet> variableSets, SensitivityAnalysisParameters parameters, ComputationManager computationManager, Reporter reporter) {
         int[] factorIndex = new int[1];
         factorReader.read((functionType, functionId, variableType, variableId, variableSet, contingencyContext) -> {
-            valueWriter.write(factorIndex[0], -1, 0.0, 0.0);
-            factorIndex[0]++;
+            switch (contingencyContext.getContextType()) {
+                case NONE:
+                    valueWriter.write(factorIndex[0]++, -1, 0.0, 0.0);
+                    break;
+
+                case ALL:
+                    for (int contingencyIndex = 0; contingencyIndex < contingencies.size(); contingencyIndex++) {
+                        valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                    }
+                    break;
+
+                case SPECIFIC:
+                    int contingencyIndex = IntStream.range(0, contingencies.size())
+                            .filter(i -> contingencies.get(i).getId().equals(contingencyContext.getContingencyId()))
+                            .findFirst()
+                            .orElseThrow();
+                    valueWriter.write(factorIndex[0]++, contingencyIndex, 0.0, 0.0);
+                    break;
+            }
         });
         return CompletableFuture.completedFuture(null);
     }

@@ -6,29 +6,40 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityVariableSetTest {
+public class SensitivityVariableSetTest extends AbstractConverterTest {
 
     private static final double EPSILON_COMPARISON = 1e-5;
 
     @Test
-    public void baseTest() {
-        WeightedSensitivityVariable wsv = new WeightedSensitivityVariable("v1", 3.4);
-        assertEquals("v1", wsv.getId());
-        assertEquals(3.4, wsv.getWeight(), EPSILON_COMPARISON);
-        assertEquals("WeightedSensitivityVariable(id='v1', weight=3.4)", wsv.toString());
+    public void test() {
+        WeightedSensitivityVariable variable = new WeightedSensitivityVariable("v1", 3.4);
+        assertEquals("v1", variable.getId());
+        assertEquals(3.4, variable.getWeight(), EPSILON_COMPARISON);
+        assertEquals("WeightedSensitivityVariable(id='v1', weight=3.4)", variable.toString());
+        SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(variable));
+        assertEquals("id", variableSet.getId());
+        assertEquals(1, variableSet.getVariables().size());
+        assertNotNull(variableSet.getVariables().get(0));
+        assertEquals("v1", variableSet.getVariables().get(0).getId());
+        assertEquals("SensitivityVariableSet(id='id', variables=[WeightedSensitivityVariable(id='v1', weight=3.4)])", variableSet.toString());
+    }
 
-        SensitivityVariableSet set = new SensitivityVariableSet("id", List.of(wsv));
-        assertEquals("id", set.getId());
-        assertSame(wsv, set.getVariables().get(0));
-        assertEquals("SensitivityVariableSet(id='id', variables=[WeightedSensitivityVariable(id='v1', weight=3.4)])", set.toString());
+    @Test
+    public void testJson() throws IOException {
+        SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4),
+                                                                                      new WeightedSensitivityVariable("v2", 2.1)));
+        roundTripTest(variableSet, (variableSet2, jsonFile) -> SensitivityVariableSet.writeJson(jsonFile, variableSet2), SensitivityVariableSet::readJson, "/variableSetRef.json");
     }
 }

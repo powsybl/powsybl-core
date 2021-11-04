@@ -59,7 +59,7 @@ public class SensitivityAnalysisResult {
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
             Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;
-            String contingencyId = contingency != null ? contingency.getId() : "";
+            String contingencyId = contingency != null ? contingency.getId() : null;
             valuesByContingencyId.computeIfAbsent(contingencyId, k -> new ArrayList<>())
                     .add(value);
             valuesByContingencyIdAndFunctionIdAndVariableId.put(Triple.of(contingencyId, factor.getFunctionId(), factor.getVariableId()), value);
@@ -100,7 +100,7 @@ public class SensitivityAnalysisResult {
      * @return pre-contingency sensitivity values.
      */
     public List<SensitivityValue> getPreContingencyValues() {
-        return valuesByContingencyId.getOrDefault("", Collections.emptyList());
+        return valuesByContingencyId.getOrDefault(null, Collections.emptyList());
     }
 
     /**
@@ -123,6 +123,6 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId) {
-        return functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
+        return functionReferenceByContingencyAndFunctionId.getOrDefault(Pair.of(contingencyId, functionId), Double.NaN);
     }
 }

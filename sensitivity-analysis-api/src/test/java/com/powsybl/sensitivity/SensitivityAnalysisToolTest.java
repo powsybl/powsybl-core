@@ -29,11 +29,13 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.sensitivity.SensitivityFunctionType.*;
+import static com.powsybl.sensitivity.SensitivityVariableType.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
@@ -57,7 +59,8 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
                 .registerModule(new ContingencyJsonModule());
 
         // create factors
-        List<SensitivityFactor> factors = List.of(new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "NHV1_NHV2_1", SensitivityVariableType.INJECTION_ACTIVE_POWER, "GEN", false, ContingencyContext.all()));
+        List<SensitivityFactor> factors = List.of(new SensitivityFactor(BRANCH_ACTIVE_POWER, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "GEN", false, ContingencyContext.all()),
+                                                  new SensitivityFactor(BRANCH_ACTIVE_POWER, "NHV1_NHV2_1", INJECTION_ACTIVE_POWER, "glsk", true, ContingencyContext.specificContingency("NHV1_NHV2_2")));
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("factors.json"), StandardCharsets.UTF_8)) {
             objectMapper.writeValue(writer, factors);
         }
@@ -108,9 +111,13 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             values = objectMapper.readValue(reader, new TypeReference<>() {
             });
         }
-        assertEquals(1, values.size());
-        SensitivityValue value = values.get(0);
-//        assertEquals("", value.getFactor().getFunctionId());
+        assertEquals(2, values.size());
+        SensitivityValue value0 = values.get(0);
+        assertEquals(0, value0.getFactorIndex());
+        assertEquals(0, value0.getContingencyIndex());
+        SensitivityValue value1 = values.get(1);
+        assertEquals(1, value1.getFactorIndex());
+        assertEquals(0, value1.getContingencyIndex());
     }
 
     @Test
@@ -127,26 +134,40 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
         assertTrue(Files.exists(outputCsvFile));
-        String outputCsvRef = "Contingency ID,Factor index,Function ref value,Sensitivity value" + System.lineSeparator() +
-                ",0,0.00000,0.00000" + System.lineSeparator();
+        String outputCsvRef = String.join(System.lineSeparator(),
+                "Contingency ID,Factor index,Function ref value,Sensitivity value",
+                "NHV1_NHV2_2,0,0.00000,0.00000",
+                "NHV1_NHV2_2,1,0.00000,0.00000")
+                + System.lineSeparator();
         assertEquals(outputCsvRef, Files.readString(outputCsvFile));
     }
 
-//
-//    @Test
-//    public void checkFailsWhenNetworkFileNotFound() throws IOException {
-//        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv", "--output-file", "output.csv"}, 3, null, "com.powsybl.commons.PowsyblException: File wrongFile.uct does not exist or is not a regular file");
-//    }
-//
-//    @Test
-//    public void checkFailsWhenFactorsFileNotFound() throws IOException {
-//        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv", "--output-file", "output.csv"}, 3, null, "PowsyblException: Unsupported file format or invalid file");
-//    }
-//
-//    @Test
-//    public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-//        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "test.csv", "--output-file", "out.txt"}, 3, "", "Unsupported output format: out.txt");
-//    }
+    @Test
+    public void checkFailsWhenNetworkFileNotFound() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "wrongFile.xiidm",
+            "--factors-file", "factors.json",
+            "--output-file", "output.csv"},
+                3, null, "com.powsybl.commons.PowsyblException: File wrongFile.xiidm does not exist or is not a regular file");
+    }
+
+    @Test
+    public void checkFailsWhenFactorsFileNotFound() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "wrongFile.json",
+            "--output-file", "output.csv"},
+                3, null, "java.nio.file.NoSuchFileException: wrongFile.json");
+    }
+
+    @Test
+    public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
+        assertCommand(new String[] {COMMAND_NAME,
+            "--case-file", "network.xiidm",
+            "--factors-file", "factors.json",
+            "--output-file", "output.txt"},
+                3, "", "Unsupported output format: output.txt");
+    }
 
     @Test
     public void checkCommand() {

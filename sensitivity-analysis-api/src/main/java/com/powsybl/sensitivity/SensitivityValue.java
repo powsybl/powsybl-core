@@ -15,8 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Reader;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +54,9 @@ public class SensitivityValue {
      */
     public SensitivityValue(int factorIndex, int contingencyIndex, double value, double functionReference) {
         this.factorIndex = factorIndex;
+        if (contingencyIndex < -1) {
+            throw new IllegalArgumentException("Invalid contingency index: " + contingencyIndex);
+        }
         this.contingencyIndex = contingencyIndex;
         this.value = value;
         this.functionReference = functionReference;
@@ -152,6 +159,7 @@ public class SensitivityValue {
                 context.factorIndex = parser.getIntValue();
                 break;
             case "contingencyIndex":
+                parser.nextToken();
                 context.contingencyIndex = parser.getIntValue();
                 break;
             case "value":
@@ -167,11 +175,23 @@ public class SensitivityValue {
         }
     }
 
+    public static SensitivityValue readJson(Reader reader) {
+        return JsonUtil.parseJson(reader, SensitivityValue::parseJson);
+    }
+
+    public static SensitivityValue readJson(Path jsonFile) {
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return SensitivityValue.readJson(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static void writeJson(JsonGenerator generator, SensitivityValue value) {
         writeJson(generator, value.factorIndex, value.contingencyIndex, value.value, value.functionReference);
     }
 
-    static void writeJson(JsonGenerator generator, Collection<SensitivityValue> values) {
+    static void writeJson(JsonGenerator generator, List<SensitivityValue> values) {
         Objects.requireNonNull(values);
         try {
             generator.writeStartArray();
@@ -206,5 +226,9 @@ public class SensitivityValue {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public static void writeJson(Path jsonFile, SensitivityValue value) {
+        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, value));
     }
 }

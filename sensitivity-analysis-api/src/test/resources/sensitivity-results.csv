@@ -1,7 +1,0 @@
-Variant,VariableId,FunctionId,FunctionRefValue,SensitivityValue
-State N,FFR1AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000
-State N,FFR2AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000
-State N,FFR3AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000
-Contingency c1,FFR1AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000
-Contingency c1,FFR2AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000
-Contingency c1,FFR3AA1 _generator,BBE1AA1  BBE2AA1  1,0.00000,0.00000

@@ -17,12 +17,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SensitivityFactorTest extends AbstractConverterTest {
 
     @Test
-    public void testGetters() {
+    public void test() {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
@@ -39,8 +39,8 @@ public class SensitivityFactorTest extends AbstractConverterTest {
     @Test
     public void testMatrix() {
         List<SensitivityFactor> factors = SensitivityFactor.createMatrix(SensitivityFunctionType.BRANCH_ACTIVE_POWER, List.of("l12", "l13", "l23"),
-                SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"),
-                false, ContingencyContext.all());
+                                                                         SensitivityVariableType.HVDC_LINE_ACTIVE_POWER, List.of("hvdc34"),
+                                                                         false, ContingencyContext.all());
         assertEquals(3, factors.size());
     }
 
