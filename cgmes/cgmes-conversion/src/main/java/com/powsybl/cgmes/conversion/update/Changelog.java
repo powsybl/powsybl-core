@@ -20,15 +20,15 @@ import java.util.TreeSet;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.DefaultNetworkListener;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkListener;
 
 /**
  * @author Elena Kaltakova <kaltakovae at aia.es>
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class Changelog implements NetworkListener {
+public class Changelog extends DefaultNetworkListener {
 
     /**
      * Register Network changes
@@ -48,7 +48,7 @@ public class Changelog implements NetworkListener {
     }
 
     @Override
-    public void onRemoval(Identifiable identifiable) {
+    public void beforeRemoval(Identifiable identifiable) {
         baseChanges.add(new IidmChangeRemoval(identifiable));
     }
 

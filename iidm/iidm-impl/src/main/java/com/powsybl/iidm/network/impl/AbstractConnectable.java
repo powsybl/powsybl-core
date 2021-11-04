@@ -53,14 +53,18 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public void remove() {
+    public void remove(boolean removeDanglingSwitches) {
         NetworkImpl network = getNetwork();
+
+        network.getListeners().notifyBeforeRemoval(this);
+
         network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
             VoltageLevelExt vl = terminal.getVoltageLevel();
-            vl.detach(terminal);
+            vl.detach(terminal, removeDanglingSwitches);
         }
-        network.getListeners().notifyRemoval(this);
+
+        network.getListeners().notifyAfterRemoval(id);
     }
 
     protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
@@ -167,7 +171,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         voltageLevel.attach(terminalExt, false);
 
         // then we can detach the old terminal, as we now know that the new terminal is valid
-        oldTerminal.getVoltageLevel().detach(oldTerminal);
+        oldTerminal.getVoltageLevel().detach(oldTerminal, false);
 
         // replace the old terminal by the new terminal in the connectable
         int iSide = terminals.indexOf(oldTerminal);

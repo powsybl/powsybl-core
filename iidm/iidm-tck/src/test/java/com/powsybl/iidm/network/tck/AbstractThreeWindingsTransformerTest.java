@@ -50,7 +50,7 @@ public abstract class AbstractThreeWindingsTransformerTest extends AbstractTrans
         assertEquals(TWT_NAME, transformer.getOptionalName().orElse(null));
         assertEquals(TWT_NAME, transformer.getNameOrId());
         assertEquals(substation, transformer.getSubstation().orElse(null));
-        assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
+        assertEquals(IdentifiableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
         VoltageLevel vl1 = network.getVoltageLevel("vl1");

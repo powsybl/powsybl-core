@@ -8,7 +8,6 @@
 package com.powsybl.iidm.mergingview;
 
 import com.powsybl.iidm.network.Connectable;
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
@@ -24,11 +23,6 @@ abstract class AbstractConnectableAdapter<I extends Connectable<I>> extends Abst
     }
 
     @Override
-    public final ConnectableType getType() {
-        return getDelegate().getType();
-    }
-
-    @Override
     public final List<? extends Terminal> getTerminals() {
         return getDelegate().getTerminals().stream()
                 .map(getIndex()::getTerminal)
@@ -36,7 +30,7 @@ abstract class AbstractConnectableAdapter<I extends Connectable<I>> extends Abst
     }
 
     @Override
-    public final void remove() {
+    public final void remove(boolean removeDanglingSwitches) {
         throw MergingView.createNotImplementedException();
     }
 }

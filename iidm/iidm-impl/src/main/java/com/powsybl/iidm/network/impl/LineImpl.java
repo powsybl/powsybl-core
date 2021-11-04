@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.ValidationUtil;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -36,11 +35,6 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         this.b1 = b1;
         this.g2 = g2;
         this.b2 = b2;
-    }
-
-    @Override
-    public ConnectableType getType() {
-        return ConnectableType.LINE;
     }
 
     @Override
