@@ -170,7 +170,7 @@ public class SensitivityValue {
         writeJson(generator, value.contingencyId, value.getFactor().getVariableId(), value.getFactor().getFunctionId(), value.value, value.functionReference);
     }
 
-    static void writeJson(JsonGenerator generator, Collection<? extends SensitivityValue> valueList) {
+    static void writeJson(JsonGenerator generator, Collection<SensitivityValue> valueList) {
         Objects.requireNonNull(valueList);
         try {
             generator.writeStartArray();
@@ -183,7 +183,7 @@ public class SensitivityValue {
         }
     }
 
-    static void writeJson(Writer writer, List<? extends SensitivityValue> valueList) {
+    static void writeJson(Writer writer, List<SensitivityValue> valueList) {
         JsonUtil.writeJson(writer, generator -> writeJson(generator, valueList));
     }
 

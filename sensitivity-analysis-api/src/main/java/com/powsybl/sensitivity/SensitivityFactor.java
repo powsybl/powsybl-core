@@ -115,11 +115,11 @@ public class SensitivityFactor {
                 factor.getVariableId(), factor.isVariableSet(), factor.getContingencyContext());
     }
 
-    static void writeJson(JsonGenerator generator, List<? extends SensitivityFactor> factorList) {
-        Objects.requireNonNull(factorList);
+    static void writeJson(JsonGenerator generator, List<SensitivityFactor> factors) {
+        Objects.requireNonNull(factors);
         try {
             generator.writeStartArray();
-            for (SensitivityFactor factor : factorList) {
+            for (SensitivityFactor factor : factors) {
                 writeJson(generator, factor);
             }
             generator.writeEndArray();
@@ -128,8 +128,12 @@ public class SensitivityFactor {
         }
     }
 
-    public static void writeJson(Writer writer, List<? extends SensitivityFactor> factorList) {
-        JsonUtil.writeJson(writer, generator -> writeJson(generator, factorList));
+    public static void writeJson(Writer writer, List<SensitivityFactor> factors) {
+        JsonUtil.writeJson(writer, generator -> writeJson(generator, factors));
+    }
+
+    public static void writeJson(Path jsonFile, List<SensitivityFactor> factors) {
+        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, factors));
     }
 
     public static void writeJson(JsonGenerator jsonGenerator, SensitivityFunctionType functionType, String functionId, SensitivityVariableType variableType,
