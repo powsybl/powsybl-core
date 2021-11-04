@@ -175,11 +175,11 @@ public class SensitivityValue {
         }
     }
 
-    public static SensitivityValue readJson(Reader reader) {
-        return JsonUtil.parseJson(reader, SensitivityValue::parseJson);
+    public static List<SensitivityValue> readJson(Reader reader) {
+        return JsonUtil.parseJson(reader, SensitivityValue::parseJsonArray);
     }
 
-    public static SensitivityValue readJson(Path jsonFile) {
+    public static List<SensitivityValue> readJson(Path jsonFile) {
         try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
             return SensitivityValue.readJson(reader);
         } catch (IOException e) {
@@ -228,7 +228,7 @@ public class SensitivityValue {
         }
     }
 
-    public static void writeJson(Path jsonFile, SensitivityValue value) {
-        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, value));
+    public static void writeJson(Path jsonFile, List<SensitivityValue> values) {
+        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, values));
     }
 }

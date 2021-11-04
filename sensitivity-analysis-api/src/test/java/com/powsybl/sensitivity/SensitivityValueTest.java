@@ -10,6 +10,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,7 +31,8 @@ public class SensitivityValueTest extends AbstractConverterTest {
 
     @Test
     public void testJson() throws IOException {
-        SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
-        roundTripTest(value, (values2, jsonFile) -> SensitivityValue.writeJson(jsonFile, values2), SensitivityValue::readJson, "/valueRef.json");
+        List<SensitivityValue> values = List.of(new SensitivityValue(0, 0, 1d, 2d),
+                                                new SensitivityValue(1, 0, 3d, 4d));
+        roundTripTest(values, (values2, jsonFile) -> SensitivityValue.writeJson(jsonFile, values2), SensitivityValue::readJson, "/valuesRef.json");
     }
 }
