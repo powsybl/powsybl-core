@@ -6,6 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import org.jgrapht.alg.util.Pair;
 import org.jgrapht.alg.util.Triple;
@@ -107,12 +108,21 @@ public class SensitivityAnalysisResult {
      * Get the sensitivity value associated with a given function and a given variable for a specific contingency.
      *
      * @param contingencyId the id of the considered contingency
-     * @param functionId sensitivity function id
      * @param variableId sensitivity variable id
+     * @param functionId sensitivity function id
      * @return the sensitivity value associated with a given function and a given variable for a given contingency
      */
-    public SensitivityValue getValue(String contingencyId, String functionId, String variableId) {
-        return valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
+    public double getSensitivityValue(String contingencyId, String variableId, String functionId) {
+        SensitivityValue value = valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
+        if (value == null) {
+            throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
+                    + "', variable '" + variableId + "'");
+        }
+        return value.getValue();
+    }
+
+    public double getSensitivityValue(String variableId, String functionId) {
+        return getSensitivityValue(null, variableId, functionId);
     }
 
     /**
@@ -123,6 +133,14 @@ public class SensitivityAnalysisResult {
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId) {
-        return functionReferenceByContingencyAndFunctionId.getOrDefault(Pair.of(contingencyId, functionId), Double.NaN);
+        Double value = functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
+        if (value == null) {
+            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + "'");
+        }
+        return value;
+    }
+
+    public double getFunctionReferenceValue(String functionId) {
+        return getFunctionReferenceValue(null, functionId);
     }
 }

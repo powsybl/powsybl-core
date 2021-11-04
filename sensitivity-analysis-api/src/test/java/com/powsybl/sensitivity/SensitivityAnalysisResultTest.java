@@ -6,6 +6,7 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.*;
 import org.junit.Test;
 
@@ -36,11 +37,11 @@ public class SensitivityAnalysisResultTest {
         assertSame(contingencies, result.getContingencies());
         assertEquals(2, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
-        assertSame(value1, result.getValue("NHV1_NHV2_2", "l", "g"));
+        assertEquals(1d, result.getSensitivityValue("NHV1_NHV2_2", "g", "l"), 0d);
         assertEquals(2d, result.getFunctionReferenceValue("NHV1_NHV2_2", "l"), 0d);
-        assertTrue(Double.isNaN(result.getFunctionReferenceValue("NHV1_NHV2_2", "llll")));
-        assertNull(result.getValue("NHV1_NHV2_2", "l1", "g"));
-        assertSame(value2, result.getValue(null, "l2", "g2"));
+        assertThrows(PowsyblException.class, () -> result.getFunctionReferenceValue("NHV1_NHV2_2", "llll"));
+        assertThrows(PowsyblException.class, () -> result.getSensitivityValue("NHV1_NHV2_2", "g", "l1"));
+        assertEquals(3d, result.getSensitivityValue(null, "g2", "l2"), 0d);
         assertEquals(1, result.getPreContingencyValues().size());
     }
 }
