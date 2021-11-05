@@ -218,7 +218,7 @@ public class CgmesDcConversion {
         this.acDcConverterDcTerminal2Id = findAcDcConverterDcTerminal(acDcConverterIdEnd2, acDcConverterDcNode2);
         this.dcLineSegmentId = dcLineSegmentId;
         this.dcLineSegment = pbDcLineSegment;
-        if (this.cconverter1 == null || this.cconverter2 == null || this.dcLineSegment == null) {
+        if (this.cconverter1 == null || this.cconverter2 == null) {
             return false;
         }
         this.converterType = decodeType(this.cconverter1.getLocal(TYPE));

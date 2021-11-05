@@ -27,6 +27,8 @@ import java.util.*;
  */
 public final class EquipmentExport {
 
+    private static final String ACDCCONVERTERDCTERMINAL = "ACDCConverterDCTerminal";
+
     public static void write(Network network, XMLStreamWriter writer) {
         write(network, writer, new CgmesExportContext(network));
     }
@@ -552,11 +554,11 @@ public final class EquipmentExport {
             writeDCTerminal(dcTerminal2, line.getId(), dcNode2, 2, cimNamespace, writer);
             HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
-            String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter.getId(), dcNode1, 2, cimNamespace, writer);
             converter = line.getConverterStation2();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
-            String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + ACDCCONVERTERDCTERMINAL).orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter.getId(), dcNode2, 2, cimNamespace, writer);
             DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
             writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, cimNamespace, writer);
@@ -581,7 +583,7 @@ public final class EquipmentExport {
     }
 
     private static void writeAcdcConverterDCTerminal(String id, String conductingEquipmentId, String dcNodeId, int sequenceNumber, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        DCTerminalEq.write("ACDCConverterDCTerminal", id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
+        DCTerminalEq.write(ACDCCONVERTERDCTERMINAL, id, conductingEquipmentId, dcNodeId, sequenceNumber, cimNamespace, writer);
     }
 
     private static void writeControlAreas(Network network, Map<Terminal, String> exportedTerminals, Map<Boundary, String> danglingLineBoundaries, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
