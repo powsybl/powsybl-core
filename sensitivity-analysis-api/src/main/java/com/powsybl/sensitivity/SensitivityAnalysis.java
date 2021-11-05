@@ -16,6 +16,7 @@ import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManagerConstants;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -256,6 +257,14 @@ public final class SensitivityAnalysis {
                                              List<SensitivityVariableSet> variableSets,
                                              SensitivityAnalysisParameters parameters) {
             return runAsync(network, workingStateId, sensitivityFactors, contingencies, variableSets, parameters).join();
+        }
+
+        public SensitivityAnalysisResult run(Network network,
+                                             List<SensitivityFactor> sensitivityFactors,
+                                             List<Contingency> contingencies,
+                                             List<SensitivityVariableSet> variableSets,
+                                             SensitivityAnalysisParameters parameters) {
+            return runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, sensitivityFactors, contingencies, variableSets, parameters).join();
         }
 
         @Override
