@@ -116,7 +116,7 @@ public class SensitivityAnalysisResult {
         SensitivityValue value = valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
         if (value == null) {
             throw new PowsyblException("Sensitivity value not found for contingency '" + contingencyId + "', function '"
-                    + "', variable '" + variableId + "'");
+                    + functionId + "', variable '" + variableId + "'");
         }
         return value.getValue();
     }
@@ -135,7 +135,7 @@ public class SensitivityAnalysisResult {
     public double getFunctionReferenceValue(String contingencyId, String functionId) {
         Double value = functionReferenceByContingencyAndFunctionId.get(Pair.of(contingencyId, functionId));
         if (value == null) {
-            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + "'");
+            throw new PowsyblException("Reference flow value not found for contingency '" + contingencyId + "', function '" + functionId + "'");
         }
         return value;
     }
