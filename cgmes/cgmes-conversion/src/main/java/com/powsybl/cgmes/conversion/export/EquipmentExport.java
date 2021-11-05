@@ -552,11 +552,11 @@ public final class EquipmentExport {
             writeDCTerminal(dcTerminal2, line.getId(), dcNode2, 2, cimNamespace, writer);
             HvdcConverterStation<?> converter = line.getConverterStation1();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
-            String acdcConverterDcTerminal1 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal1").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal1 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal1, converter.getId(), dcNode1, 2, cimNamespace, writer);
             converter = line.getConverterStation2();
             writeTerminal(converter.getTerminal(), exportedTerminals, CgmesExportUtil.getUniqueId(), converter.getId(), connectivityNodeId(exportedNodes, converter.getTerminal()), 1, cimNamespace, writer);
-            String acdcConverterDcTerminal2 = line.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal2").orElseThrow(PowsyblException::new);
+            String acdcConverterDcTerminal2 = converter.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal").orElseThrow(PowsyblException::new);
             writeAcdcConverterDCTerminal(acdcConverterDcTerminal2, converter.getId(), dcNode2, 2, cimNamespace, writer);
             DCLineSegmentEq.write(line.getId(), line.getNameOrId(), line.getR(), cimNamespace, writer);
             writeHvdcConverterStation(line.getConverterStation1(), line.getNominalV(), dcConverterUnit1, cimNamespace, writer);

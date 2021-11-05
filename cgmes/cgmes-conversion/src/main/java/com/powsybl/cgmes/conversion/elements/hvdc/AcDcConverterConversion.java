@@ -10,8 +10,10 @@ package com.powsybl.cgmes.conversion.elements.hvdc;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForVscConverters;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
+import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
@@ -28,11 +30,12 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
     private static final double DEFAULT_POWER_FACTOR = 0.8;
 
-    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, Context context) {
+    public AcDcConverterConversion(PropertyBag c, HvdcType converterType, double lossFactor, String acDcConverterDcTerminalId,  Context context) {
         super("ACDCConverter", c, context);
 
         this.converterType = Objects.requireNonNull(converterType);
         this.lossFactor = lossFactor;
+        this.acDcConverterDcTerminalId = acDcConverterDcTerminalId;
     }
 
     @Override
@@ -58,6 +61,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             RegulatingControlMappingForVscConverters.initialize(adder);
             VscConverterStation c = adder.add();
             addAliasesAndProperties(c);
+            addHvdcAliasesAndProperties(c);
 
             convertedTerminals(c.getTerminal());
             context.regulatingControlMapping().forVscConverters().add(c.getId(), p);
@@ -74,10 +78,15 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             connect(adder);
             LccConverterStation c = adder.add();
             addAliasesAndProperties(c);
+            addHvdcAliasesAndProperties(c);
 
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());
         }
+    }
+
+    private void addHvdcAliasesAndProperties(HvdcConverterStation<?> c) {
+        c.addAlias(acDcConverterDcTerminalId, Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "ACDCConverterDCTerminal");
     }
 
     public void setLccPowerFactor(double powerFactor) {
@@ -90,5 +99,6 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
     private final HvdcType converterType;
     private final double lossFactor;
+    private final String acDcConverterDcTerminalId;
     private LccConverterStation lccConverter = null;
 }
