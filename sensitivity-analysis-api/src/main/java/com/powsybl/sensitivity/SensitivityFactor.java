@@ -24,9 +24,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Sensitivity factor to be computed in the sensitivity analysis.
@@ -270,15 +272,10 @@ public class SensitivityFactor {
         }
     }
 
-    public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, List<String> functionIds,
-                                                        SensitivityVariableType variableType, List<String> variableIds,
-                                                        boolean variableSet, ContingencyContext contingencyContext) {
-        List<SensitivityFactor> factors = new ArrayList<>();
-        for (String functionId : functionIds) {
-            for (String variableId : variableIds) {
-                factors.add(new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext));
-            }
-        }
-        return factors;
+    public static List<SensitivityFactor> createMatrix(SensitivityFunctionType functionType, Collection<String> functionIds,
+                                                       SensitivityVariableType variableType, Collection<String> variableIds,
+                                                       boolean variableSet, ContingencyContext contingencyContext) {
+        return functionIds.stream().flatMap(functionId -> variableIds.stream().map(variableId -> new SensitivityFactor(functionType, functionId, variableType, variableId, variableSet, contingencyContext)))
+                .collect(Collectors.toList());
     }
 }
