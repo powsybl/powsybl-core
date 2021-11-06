@@ -71,6 +71,11 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             objectMapper.writeValue(writer, contingencyList);
         }
 
+        List<SensitivityVariableSet> variableSets = Collections.emptyList();
+        try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("variableSets.json"), StandardCharsets.UTF_8)) {
+            objectMapper.writeValue(writer, variableSets);
+        }
+
         SensitivityAnalysisParameters parameters = new SensitivityAnalysisParameters();
         try (Writer writer = Files.newBufferedWriter(fileSystem.getPath("parameters.json"), StandardCharsets.UTF_8)) {
             objectMapper.writeValue(writer, parameters);
@@ -101,6 +106,7 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
             "--case-file", "network.xiidm",
             "--factors-file", "factors.json",
             "--contingencies-file", "contingencies.json",
+            "--variable-sets-file", "variableSets.json",
             "--parameters-file", "parameters.json",
             "--output-file", "output.json"},
                 CommandLineTools.COMMAND_OK_STATUS, expectedOut, "");

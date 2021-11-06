@@ -100,9 +100,9 @@ public class SensitivityVariableSet {
                     return new SensitivityVariableSet(id, variables);
                 }
             }
-            throw new PowsyblException("Parsing error");
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        throw new PowsyblException("Parsing error");
     }
 }

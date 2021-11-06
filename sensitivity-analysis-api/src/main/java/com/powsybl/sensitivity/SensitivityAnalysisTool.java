@@ -16,11 +16,12 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.DefaultComputationManagerConfig;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyList;
+import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.sensitivity.json.SensitivityJsonModule;
+import com.powsybl.sensitivity.json.SensitivityJson;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -143,8 +144,8 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
-        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
-                .registerModule(new SensitivityJsonModule());
+        ObjectMapper objectMapper = SensitivityJson.createObjectMapper()
+                .registerModule(new ContingencyJsonModule());
 
         SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();
 
@@ -159,7 +160,7 @@ public class SensitivityAnalysisTool implements Tool {
 
         List<SensitivityVariableSet> variableSets;
         if (line.hasOption(VARIABLE_SETS_FILE_OPTION)) {
-            try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)), StandardCharsets.UTF_8)) {
+            try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(VARIABLE_SETS_FILE_OPTION)), StandardCharsets.UTF_8)) {
                 variableSets = objectMapper.readValue(reader, new TypeReference<>() {
                 });
             }

@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,14 +98,13 @@ public class SensitivityValue {
                 if (token == JsonToken.FIELD_NAME) {
                     parseJson(parser, context);
                 } else if (token == JsonToken.END_OBJECT) {
-                    break;
+                    return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
                 }
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
-        return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
+        throw new PowsyblException("Parsing error");
     }
 
     private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
