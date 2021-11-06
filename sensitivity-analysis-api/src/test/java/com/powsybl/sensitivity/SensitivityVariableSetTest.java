@@ -6,7 +6,10 @@
  */
 package com.powsybl.sensitivity;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -40,6 +43,9 @@ public class SensitivityVariableSetTest extends AbstractConverterTest {
     public void testJson() throws IOException {
         SensitivityVariableSet variableSet = new SensitivityVariableSet("id", List.of(new WeightedSensitivityVariable("v1", 3.4),
                                                                                       new WeightedSensitivityVariable("v2", 2.1)));
-        roundTripTest(variableSet, (variableSet2, jsonFile) -> SensitivityVariableSet.writeJson(jsonFile, variableSet2), SensitivityVariableSet::readJson, "/variableSetRef.json");
+        ObjectMapper objectMapper = new ObjectMapper()
+                .registerModule(new SensitivityJsonModule());
+        roundTripTest(variableSet, (variableSet2, jsonFile) -> JsonUtil.writeJson(jsonFile, variableSet, objectMapper),
+            jsonFile -> JsonUtil.readJson(jsonFile, SensitivityVariableSet.class, objectMapper), "/variableSetRef.json");
     }
 }

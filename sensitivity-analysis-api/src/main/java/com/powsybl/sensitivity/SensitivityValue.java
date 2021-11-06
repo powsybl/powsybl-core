@@ -9,20 +9,12 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.google.common.base.Stopwatch;
-import com.powsybl.commons.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 /**
  * Elementary result value of a sensitivity analysis, given the sensitivity factor and a contingency id (use null to get
@@ -93,13 +85,6 @@ public class SensitivityValue {
         private int contingencyIndex;
         private double value;
         private double functionReference;
-
-        private void reset() {
-            factorIndex = -1;
-            contingencyIndex = -1;
-            value = Double.NaN;
-            functionReference = Double.NaN;
-        }
     }
 
     public static SensitivityValue parseJson(JsonParser parser) {
@@ -120,35 +105,6 @@ public class SensitivityValue {
         }
 
         return new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference);
-    }
-
-    public static List<SensitivityValue> parseJsonArray(JsonParser parser) {
-        Objects.requireNonNull(parser);
-
-        Stopwatch stopwatch = Stopwatch.createStarted();
-
-        List<SensitivityValue> values = new ArrayList<>();
-        try {
-            ParsingContext context = new ParsingContext();
-            JsonToken token;
-            while ((token = parser.nextToken()) != null) {
-                if (token == JsonToken.FIELD_NAME) {
-                    parseJson(parser, context);
-                } else if (token == JsonToken.END_OBJECT) {
-                    values.add(new SensitivityValue(context.factorIndex, context.contingencyIndex, context.value, context.functionReference));
-                    context.reset();
-                } else if (token == JsonToken.END_ARRAY) {
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        stopwatch.stop();
-        LOGGER.info("{} values read in {} ms", values.size(), stopwatch.elapsed(TimeUnit.MILLISECONDS));
-
-        return values;
     }
 
     private static void parseJson(JsonParser parser, ParsingContext context) throws IOException {
@@ -175,37 +131,8 @@ public class SensitivityValue {
         }
     }
 
-    public static List<SensitivityValue> readJson(Reader reader) {
-        return JsonUtil.parseJson(reader, SensitivityValue::parseJsonArray);
-    }
-
-    public static List<SensitivityValue> readJson(Path jsonFile) {
-        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
-            return SensitivityValue.readJson(reader);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
     public static void writeJson(JsonGenerator generator, SensitivityValue value) {
         writeJson(generator, value.factorIndex, value.contingencyIndex, value.value, value.functionReference);
-    }
-
-    static void writeJson(JsonGenerator generator, List<SensitivityValue> values) {
-        Objects.requireNonNull(values);
-        try {
-            generator.writeStartArray();
-            for (SensitivityValue value : values) {
-                writeJson(generator, value);
-            }
-            generator.writeEndArray();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    static void writeJson(Writer writer, List<SensitivityValue> values) {
-        JsonUtil.writeJson(writer, generator -> writeJson(generator, values));
     }
 
     static void writeJson(JsonGenerator jsonGenerator,
@@ -226,9 +153,5 @@ public class SensitivityValue {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    public static void writeJson(Path jsonFile, List<SensitivityValue> values) {
-        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, values));
     }
 }

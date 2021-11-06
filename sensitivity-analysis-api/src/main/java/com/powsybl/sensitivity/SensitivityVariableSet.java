@@ -10,14 +10,9 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.io.UncheckedIOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
@@ -82,10 +77,6 @@ public class SensitivityVariableSet {
         }
     }
 
-    public static void writeJson(Path jsonFile, SensitivityVariableSet variableSet) {
-        JsonUtil.writeJson(jsonFile, generator -> writeJson(generator, variableSet));
-    }
-
     public static SensitivityVariableSet parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
         try {
@@ -110,18 +101,6 @@ public class SensitivityVariableSet {
                 }
             }
             throw new PowsyblException("Parsing error");
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static SensitivityVariableSet readJson(Reader reader) {
-        return JsonUtil.parseJson(reader, SensitivityVariableSet::parseJson);
-    }
-
-    public static SensitivityVariableSet readJson(Path jsonFile) {
-        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
-            return SensitivityVariableSet.readJson(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
