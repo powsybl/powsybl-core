@@ -15,8 +15,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
-import static com.powsybl.sensitivity.SensitivityFactor.parseJson;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -38,10 +36,10 @@ public class SensitivityFactorJsonReader implements SensitivityFactorReader {
                 JsonToken token;
                 while ((token = parser.nextToken()) != null) {
                     if (token == JsonToken.FIELD_NAME) {
-                        parseJson(parser, context);
+                        SensitivityFactor.parseJson(parser, context);
                     } else if (token == JsonToken.END_OBJECT) {
                         handler.onFactor(context.functionType, context.functionId, context.variableType, context.variableId, context.variableSet,
-                                new ContingencyContext(context.contingencyId, context.contingencyContextType));
+                                ContingencyContext.create(context.contingencyId, context.contingencyContextType));
                         context.reset();
                     } else if (token == JsonToken.END_ARRAY) {
                         break;

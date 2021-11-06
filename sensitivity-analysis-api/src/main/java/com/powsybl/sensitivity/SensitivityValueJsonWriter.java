@@ -8,21 +8,37 @@ package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SensitivityValueJsonWriter implements SensitivityValueWriter {
+public class SensitivityValueJsonWriter implements SensitivityValueWriter, AutoCloseable {
 
     private final JsonGenerator jsonGenerator;
 
     public SensitivityValueJsonWriter(JsonGenerator jsonGenerator) {
         this.jsonGenerator = Objects.requireNonNull(jsonGenerator);
+        try {
+            jsonGenerator.writeStartArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Override
     public void write(int factorIndex, int contingencyIndex, double value, double functionReference) {
         SensitivityValue.writeJson(jsonGenerator, factorIndex, contingencyIndex, value, functionReference);
+    }
+
+    @Override
+    public void close() {
+        try {
+            jsonGenerator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

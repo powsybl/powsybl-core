@@ -29,9 +29,7 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.IOException;
 import java.io.Reader;
-import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -183,15 +181,10 @@ public class SensitivityAnalysisTool implements Tool {
                 }
             } else {
                 JsonUtil.writeJson(outputFile, jsonGenerator -> {
-                    try {
-                        jsonGenerator.writeStartArray();
-                        SensitivityValueWriter valuesWriter = new SensitivityValueJsonWriter(jsonGenerator);
+                    try (SensitivityValueJsonWriter valuesWriter = new SensitivityValueJsonWriter(jsonGenerator)) {
                         SensitivityAnalysis.run(network, network.getVariantManager().getWorkingVariantId(),
                                 factorsReader, valuesWriter, contingencies, variableSets, params,
                                 computationManager);
-                        jsonGenerator.writeEndArray();
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
                     }
                 });
             }
