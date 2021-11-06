@@ -18,7 +18,9 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -84,14 +86,11 @@ public final class SensitivityAnalysis {
             Objects.requireNonNull(computationManager, "Computation manager should not be null");
             Objects.requireNonNull(reporter, "Reporter should not be null");
 
-            return CompletableFuture.supplyAsync(() -> {
-                SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
-                SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
+            SensitivityFactorReader factorReader = new SensitivityFactorModelReader(factors, network);
+            SensitivityValueModelWriter valueWriter = new SensitivityValueModelWriter();
 
-                provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter);
-
-                return new SensitivityAnalysisResult(factors, contingencies, valueWriter.getValues());
-            });
+            return provider.run(network, workingStateId, factorReader, valueWriter, contingencies, variableSets, parameters, computationManager, reporter)
+                    .thenApply(unused -> new SensitivityAnalysisResult(factors, contingencies, valueWriter.getValues()));
         }
 
         public CompletableFuture<SensitivityAnalysisResult> runAsync(Network network,
