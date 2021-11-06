@@ -36,7 +36,7 @@ public class SensitivityAnalysisParametersJsonSerializer extends StdSerializer<S
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);
 
-        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, JsonSensitivityAnalysisParameters.getExtensionSerializers());
+        JsonUtil.writeExtensions(parameters, jsonGenerator, serializerProvider, SensitivityJson.getExtensionSerializers());
 
         jsonGenerator.writeEndObject();
     }

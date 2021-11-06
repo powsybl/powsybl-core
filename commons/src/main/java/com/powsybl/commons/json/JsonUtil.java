@@ -70,6 +70,28 @@ public final class JsonUtil {
         }
     }
 
+    public static <T> T readJsonAndUpdate(InputStream is, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(is);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try {
+            return objectMapper.readerForUpdating(object).readValue(is);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static <T> T readJsonAndUpdate(Path jsonFile, T object, ObjectMapper objectMapper) {
+        Objects.requireNonNull(jsonFile);
+        Objects.requireNonNull(object);
+        Objects.requireNonNull(objectMapper);
+        try (Reader reader = Files.newBufferedReader(jsonFile, StandardCharsets.UTF_8)) {
+            return objectMapper.readerForUpdating(object).readValue(reader);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     public static JsonFactory createJsonFactory() {
         return new JsonFactory()
                 .disable(JsonGenerator.Feature.QUOTE_NON_NUMERIC_NUMBERS)

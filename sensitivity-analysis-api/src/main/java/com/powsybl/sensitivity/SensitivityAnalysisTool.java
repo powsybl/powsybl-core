@@ -20,7 +20,6 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.sensitivity.json.JsonSensitivityAnalysisParameters;
 import com.powsybl.sensitivity.json.SensitivityJsonModule;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -144,23 +143,24 @@ public class SensitivityAnalysisTool implements Tool {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
 
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new SensitivityJsonModule());
+
         SensitivityAnalysisParameters params = SensitivityAnalysisParameters.load();
 
         if (line.hasOption(PARAMETERS_FILE)) {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
-            JsonSensitivityAnalysisParameters.update(params, parametersFile);
+            JsonUtil.readJsonAndUpdate(parametersFile, params, objectMapper);
         }
 
         List<Contingency> contingencies = line.hasOption(CONTINGENCIES_FILE_OPTION)
                 ? ContingencyList.load(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION))).getContingencies(network)
                 : Collections.emptyList();
 
-        ObjectMapper mapper = new ObjectMapper()
-                .registerModule(new SensitivityJsonModule());
         List<SensitivityVariableSet> variableSets;
         if (line.hasOption(VARIABLE_SETS_FILE_OPTION)) {
             try (Reader reader = Files.newBufferedReader(context.getFileSystem().getPath(line.getOptionValue(CONTINGENCIES_FILE_OPTION)), StandardCharsets.UTF_8)) {
-                variableSets = mapper.readValue(reader, new TypeReference<>() {
+                variableSets = objectMapper.readValue(reader, new TypeReference<>() {
                 });
             }
         } else {

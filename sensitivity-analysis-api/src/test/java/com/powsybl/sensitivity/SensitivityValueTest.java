@@ -9,7 +9,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.sensitivity.json.SensitivityJsonModule;
+import com.powsybl.sensitivity.json.SensitivityJson;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -34,8 +34,7 @@ public class SensitivityValueTest extends AbstractConverterTest {
     @Test
     public void testJson() throws IOException {
         SensitivityValue value = new SensitivityValue(0, 0, 1d, 2d);
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new SensitivityJsonModule());
+        ObjectMapper objectMapper = SensitivityJson.createObjectMapper();
         roundTripTest(value, (value2, jsonFile) -> JsonUtil.writeJson(jsonFile, value, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityValue.class, objectMapper), "/valueRef.json");
     }

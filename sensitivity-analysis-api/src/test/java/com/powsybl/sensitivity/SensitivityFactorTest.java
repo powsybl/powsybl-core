@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.ContingencyContext;
-import com.powsybl.sensitivity.json.SensitivityJsonModule;
+import com.powsybl.sensitivity.json.SensitivityJson;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -52,8 +52,7 @@ public class SensitivityFactorTest extends AbstractConverterTest {
         SensitivityFactor factor = new SensitivityFactor(SensitivityFunctionType.BRANCH_ACTIVE_POWER, "l",
                                                          SensitivityVariableType.INJECTION_ACTIVE_POWER, "g",
                                                          false, ContingencyContext.all());
-        ObjectMapper objectMapper = new ObjectMapper()
-                .registerModule(new SensitivityJsonModule());
+        ObjectMapper objectMapper = SensitivityJson.createObjectMapper();
         roundTripTest(factor, (factor1, jsonFile) -> JsonUtil.writeJson(jsonFile, factor1, objectMapper),
             jsonFile -> JsonUtil.readJson(jsonFile, SensitivityFactor.class, objectMapper), "/factorRef.json");
     }
