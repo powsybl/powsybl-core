@@ -8,6 +8,7 @@ package com.powsybl.sensitivity;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.contingency.*;
 import com.powsybl.contingency.json.ContingencyJsonModule;
 import com.powsybl.iidm.network.Network;
@@ -140,13 +141,13 @@ public class SensitivityAnalysisToolTest extends AbstractToolTest {
 
         Path outputCsvFile = fileSystem.getPath("output.csv");
         assertTrue(Files.exists(outputCsvFile));
-        String outputCsvRef = String.join(System.lineSeparator(),
+        String outputCsvRef = TestUtil.normalizeLineSeparator(String.join(System.lineSeparator(),
                "Sensitivity analysis result",
                "Contingency ID;Factor index;Function ref value;Sensitivity value",
-               "NHV1_NHV2_2;0;0,00000;0,00000",
-               "NHV1_NHV2_2;1;0,00000;0,00000")
-                + System.lineSeparator();
-        assertEquals(outputCsvRef, Files.readString(outputCsvFile));
+               "NHV1_NHV2_2;0;0.00000;0.00000",
+               "NHV1_NHV2_2;1;0.00000;0.00000")
+                + System.lineSeparator());
+        assertEquals(outputCsvRef, TestUtil.normalizeLineSeparator(Files.readString(outputCsvFile)));
     }
 
     @Test
