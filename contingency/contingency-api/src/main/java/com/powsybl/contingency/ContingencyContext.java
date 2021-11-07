@@ -30,7 +30,7 @@ public class ContingencyContext {
     private final String contingencyId;
 
     /**
-     * Define if information are asked for pre-contingency state, post-contingency state or both
+     * Define if information is asked for pre-contingency state, post-contingency state or both
      * For pre-contingency state only, contingency id is null
      */
     private final ContingencyContextType contextType;

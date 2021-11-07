@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -35,8 +34,8 @@ public class SensitivityValueCsvWriter implements SensitivityValueWriter {
     public static TableFormatter createTableFormatter(Writer writer) {
         Objects.requireNonNull(writer);
         TableFormatterFactory factory = new CsvTableFormatterFactory();
-        var tfc = new TableFormatterConfig(Locale.US, CSV_SEPARATOR, "N/A", true, false);
-        return factory.create(writer, "", tfc,
+        var tfc = TableFormatterConfig.load();
+        return factory.create(writer, "Sensitivity analysis result", tfc,
                 new Column("Contingency ID"),
                 new Column("Factor index"),
                 new Column("Function ref value"),

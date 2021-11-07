@@ -13,6 +13,7 @@ import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +38,7 @@ public class SensitivityVariableSet {
      */
     public SensitivityVariableSet(String id, List<WeightedSensitivityVariable> variables) {
         this.id = Objects.requireNonNull(id);
-        this.variables = Objects.requireNonNull(variables);
+        this.variables = Collections.unmodifiableList(Objects.requireNonNull(variables));
     }
 
     public String getId() {
@@ -94,7 +95,7 @@ public class SensitivityVariableSet {
                             variables = WeightedSensitivityVariable.parseJson(parser);
                             break;
                         default:
-                            break;
+                            throw new PowsyblException("Unexpected field: " + fieldName);
                     }
                 } else if (token == JsonToken.END_OBJECT) {
                     return new SensitivityVariableSet(id, variables);

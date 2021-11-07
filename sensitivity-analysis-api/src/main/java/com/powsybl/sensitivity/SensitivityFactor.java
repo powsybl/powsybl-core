@@ -192,7 +192,7 @@ public class SensitivityFactor {
                 context.contingencyId = parser.nextTextValue();
                 break;
             default:
-                break;
+                throw new PowsyblException("Unexpected field: " + fieldName);
         }
     }
 

@@ -54,9 +54,9 @@ public class SensitivityAnalysisResult {
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
     public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityValue> values) {
-        this.factors = Objects.requireNonNull(factors);
-        this.contingencies = Objects.requireNonNull(contingencies);
-        this.values = Objects.requireNonNull(values);
+        this.factors = Collections.unmodifiableList(Objects.requireNonNull(factors));
+        this.contingencies = Collections.unmodifiableList(Objects.requireNonNull(contingencies));
+        this.values = Collections.unmodifiableList(Objects.requireNonNull(values));
         for (SensitivityValue value : values) {
             SensitivityFactor factor = factors.get(value.getFactorIndex());
             Contingency contingency = value.getContingencyIndex() != -1 ? contingencies.get(value.getContingencyIndex()) : null;

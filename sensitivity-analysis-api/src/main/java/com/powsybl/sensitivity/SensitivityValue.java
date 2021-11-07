@@ -127,7 +127,7 @@ public class SensitivityValue {
                 context.functionReference = parser.getDoubleValue();
                 break;
             default:
-                break;
+                throw new PowsyblException("Unexpected field: " + fieldName);
         }
     }
 

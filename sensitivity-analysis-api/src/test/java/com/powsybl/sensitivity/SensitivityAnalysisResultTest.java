@@ -33,8 +33,6 @@ public class SensitivityAnalysisResultTest {
         SensitivityValue value2 = new SensitivityValue(1, -1, 3d, 4d);
         List<SensitivityValue> values = List.of(value1, value2);
         SensitivityAnalysisResult result = new SensitivityAnalysisResult(factors, contingencies, values);
-        assertSame(factors, result.getFactors());
-        assertSame(contingencies, result.getContingencies());
         assertEquals(2, result.getValues().size());
         assertEquals(1, result.getValues("NHV1_NHV2_2").size());
         assertEquals(1d, result.getSensitivityValue("NHV1_NHV2_2", "g", "l"), 0d);

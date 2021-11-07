@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auto.service.AutoService;
+import com.google.common.base.Stopwatch;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.json.JsonUtil;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
@@ -171,6 +173,7 @@ public class SensitivityAnalysisTool implements Tool {
         SensitivityFactorJsonReader factorsReader = new SensitivityFactorJsonReader(factorsFile);
 
         context.getOutputStream().println("Running analysis...");
+        Stopwatch stopwatch = Stopwatch.createStarted();
         try (ComputationManager computationManager = DefaultComputationManagerConfig.load().createLongTimeExecutionComputationManager()) {
             if (csv) {
                 try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8);
@@ -190,5 +193,6 @@ public class SensitivityAnalysisTool implements Tool {
                 });
             }
         }
+        context.getOutputStream().println("Analysis done in " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + " ms");
     }
 }
