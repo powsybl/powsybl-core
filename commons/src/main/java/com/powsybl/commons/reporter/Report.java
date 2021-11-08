@@ -17,9 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * <i>WARNING:</i> <code>Reporter</code> <i>is still a beta feature, structural changes might occur in the future releases</i>
- *
- * <p>A class representing a functional log, consisting of a key identifying the report, a map of {@link TypedValue} indexed
+ * A class representing a functional log, consisting of a key identifying the report, a map of {@link TypedValue} indexed
  * by their keys, and a default report message string, which may contain references to those values or to the values
  * of corresponding {@link Reporter}.
  * @author Florian Dupuy <florian.dupuy at rte-france.com>

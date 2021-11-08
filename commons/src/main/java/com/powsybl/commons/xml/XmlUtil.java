@@ -13,6 +13,7 @@ import javanet.staxutils.IndentingXMLStreamWriter;
 
 import javax.xml.stream.*;
 import java.io.OutputStream;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.function.Supplier;
@@ -235,14 +236,25 @@ public final class XmlUtil {
     }
 
     public static XMLStreamWriter initializeWriter(boolean indent, String indentString, OutputStream os) throws XMLStreamException {
-        XMLStreamWriter writer;
-        writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        XMLStreamWriter writer = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(os, StandardCharsets.UTF_8.toString());
+        return initializeWriter(indent, indentString, writer);
+    }
+
+    public static XMLStreamWriter initializeWriter(boolean indent, String indentString, Writer writer) throws XMLStreamException {
+        XMLStreamWriter xmlWriter = XML_OUTPUT_FACTORY_SUPPLIER.get().createXMLStreamWriter(writer);
+        return initializeWriter(indent, indentString, xmlWriter);
+    }
+
+    private static XMLStreamWriter initializeWriter(boolean indent, String indentString, XMLStreamWriter initialXmlWriter) throws XMLStreamException {
+        XMLStreamWriter xmlWriter;
         if (indent) {
-            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(writer);
+            IndentingXMLStreamWriter indentingWriter = new IndentingXMLStreamWriter(initialXmlWriter);
             indentingWriter.setIndent(indentString);
-            writer = indentingWriter;
+            xmlWriter = indentingWriter;
+        } else {
+            xmlWriter = initialXmlWriter;
         }
-        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-        return writer;
+        xmlWriter.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        return xmlWriter;
     }
 }
