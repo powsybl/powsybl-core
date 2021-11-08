@@ -20,8 +20,6 @@ import java.util.Objects;
  */
 public class SensitivityValueCsvWriter implements SensitivityValueWriter {
 
-    private static final char CSV_SEPARATOR = ',';
-
     private final TableFormatter formatter;
 
     private final List<Contingency> contingencies;
