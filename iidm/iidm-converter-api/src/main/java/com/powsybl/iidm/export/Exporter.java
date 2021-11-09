@@ -66,6 +66,8 @@ public interface Exporter {
      * @param dataSource data source
      * @param reporter the reporter used for functional logs
      */
-    void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter);
+    default void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter) {
+        export(network, parameters, dataSource);
+    }
 
 }
