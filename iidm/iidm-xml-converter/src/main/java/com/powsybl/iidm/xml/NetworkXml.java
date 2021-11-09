@@ -65,7 +65,7 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
-    private static final String VALID = "valid";
+    private static final String MINIMUM_VALIDATION_LEVEL = "minimumValidationLevel";
 
     // cache to improve performance
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
@@ -224,7 +224,7 @@ public final class NetworkXml {
                     .filter(e -> getExtensionXmlSerializer(options, e) != null)
                     .collect(Collectors.toList());
             if (!extensions.isEmpty()) {
-                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationStatus() == Network.ValidationStatus.VALID), EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeStartElement(context.getVersion().getNamespaceURI(n.getValidationLevel() == ValidationLevel.LOADFLOW), EXTENSION_ELEMENT_NAME);
                 context.getWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
                 for (Extension<? extends Identifiable<?>> extension : IidmXmlUtil.sortedExtensions(extensions, options)) {
                     writeExtension(extension, context);
@@ -244,10 +244,11 @@ public final class NetworkXml {
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         IidmXmlVersion version = options.getVersion() == null ? CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
         XMLStreamWriter writer = XmlUtil.initializeWriter(options.isIndent(), INDENT, os);
-        writer.setPrefix(IIDM_PREFIX, version.getNamespaceURI(n.getValidationStatus() == Network.ValidationStatus.VALID));
-        IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationStatus() != Network.ValidationStatus.VALID, NETWORK_ROOT_ELEMENT_NAME, VALID, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
-        writer.writeStartElement(version.getNamespaceURI(n.getValidationStatus() == Network.ValidationStatus.VALID), NETWORK_ROOT_ELEMENT_NAME);
-        writer.writeNamespace(IIDM_PREFIX, version.getNamespaceURI(n.getValidationStatus() == Network.ValidationStatus.VALID));
+        String namespaceUri = version.getNamespaceURI(n.getValidationLevel() == ValidationLevel.LOADFLOW);
+        writer.setPrefix(IIDM_PREFIX, namespaceUri);
+        IidmXmlUtil.assertMinimumVersionIfNotDefault(n.getValidationLevel() != ValidationLevel.LOADFLOW, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, version);
+        writer.writeStartElement(namespaceUri, NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, namespaceUri);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
@@ -259,9 +260,9 @@ public final class NetworkXml {
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         IidmXmlVersion version = options.getVersion() == null ? IidmXmlConstants.CURRENT_IIDM_XML_VERSION : IidmXmlVersion.of(options.getVersion(), ".");
-        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationStatus() == Network.ValidationStatus.VALID);
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter, version, n.getValidationLevel() == ValidationLevel.LOADFLOW);
 
-        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(VALID, n.getValidationStatus().toString()));
+        IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> writer.writeAttribute(MINIMUM_VALIDATION_LEVEL, n.getValidationLevel().toString()));
 
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
@@ -414,12 +415,12 @@ public final class NetworkXml {
 
             NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
-            Network.ValidationStatus[] valid = new Network.ValidationStatus[1];
-            valid[0] = Network.ValidationStatus.VALID;
-            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> valid[0] = Network.ValidationStatus.valueOf(reader.getAttributeValue(null, VALID)));
+            ValidationLevel[] minValidationLevel = new ValidationLevel[1];
+            minValidationLevel[0] = ValidationLevel.LOADFLOW;
+            IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_7, context, () -> minValidationLevel[0] = ValidationLevel.valueOf(reader.getAttributeValue(null, MINIMUM_VALIDATION_LEVEL)));
 
-            IidmXmlUtil.assertMinimumVersionIfNotDefault(valid[0] != Network.ValidationStatus.VALID, NETWORK_ROOT_ELEMENT_NAME, VALID, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
-            network.enableValidationChecks(valid[0] == Network.ValidationStatus.VALID);
+            IidmXmlUtil.assertMinimumVersionIfNotDefault(minValidationLevel[0] != ValidationLevel.LOADFLOW, NETWORK_ROOT_ELEMENT_NAME, MINIMUM_VALIDATION_LEVEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_7, context);
+            network.setMinimumAcceptableValidationLevel(minValidationLevel[0]);
 
             if (!config.withNoExtension()) {
                 context.buildExtensionNamespaceUriList(EXTENSIONS_SUPPLIER.get().getProviders().stream());
@@ -489,13 +490,6 @@ public final class NetworkXml {
             checkExtensionsNotFound(context, extensionNamesNotFound);
 
             context.getEndTasks().forEach(Runnable::run);
-            if (valid[0] != Network.ValidationStatus.UNCHECKED) {
-                network.runValidationChecks(false);
-                if (valid[0] != network.getValidationStatus()) {
-                    throw new PowsyblException("Inconsistent network validation status (" + valid[0].toString()
-                            + " should be " + network.getValidationStatus().toString() + ")");
-                }
-            }
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

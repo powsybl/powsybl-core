@@ -14,8 +14,6 @@ import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static com.powsybl.iidm.network.Network.ValidationStatus.VALID;
-
 /**
  * A power network model.
  *
@@ -89,12 +87,6 @@ import static com.powsybl.iidm.network.Network.ValidationStatus.VALID;
  * @see VariantManager
  */
 public interface Network extends Container<Network> {
-
-    enum ValidationStatus {
-        VALID,
-        UNCHECKED,
-        INVALID
-    }
 
     /**
      * A global bus/breaker view of the network.
@@ -875,7 +867,7 @@ public interface Network extends Container<Network> {
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */
-    default ValidationStatus runValidationChecks() {
+    default ValidationLevel runValidationChecks() {
         return runValidationChecks(true);
     }
 
@@ -885,7 +877,7 @@ public interface Network extends Container<Network> {
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */
-    default ValidationStatus runValidationChecks(boolean throwsException) {
+    default ValidationLevel runValidationChecks(boolean throwsException) {
         return runValidationChecks(throwsException, Reporter.NO_OP);
     }
 
@@ -895,24 +887,20 @@ public interface Network extends Container<Network> {
      * If all network components are valid, network validation status is updated to true.
      * Return the network validation status.
      */
-    default ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
-        return VALID;
+    default ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        return ValidationLevel.LOADFLOW;
     }
 
     /**
      * Return the network validation status. Do <b>not</b> run any validation check.
      */
-    default ValidationStatus getValidationStatus() {
-        return VALID;
+    default ValidationLevel getValidationLevel() {
+        return ValidationLevel.LOADFLOW;
     }
 
-    /**
-     * Set the validation status.<br>
-     * If the wanted validation status is true, attempt to {@link #runValidationChecks()} the network first if the network is invalid.
-     */
-    default Network enableValidationChecks(boolean valid) {
-        if (!valid) {
-            throw new UnsupportedOperationException("Invalid network not supported");
+    default Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        if (validationLevel != ValidationLevel.LOADFLOW) {
+            throw new UnsupportedOperationException("Validation level below LOADFLOW not supported");
         }
         return this;
     }

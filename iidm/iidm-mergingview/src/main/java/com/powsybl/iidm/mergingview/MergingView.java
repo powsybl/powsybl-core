@@ -881,37 +881,25 @@ public final class MergingView implements Network, MultiVariantObject {
     }
 
     @Override
-    public ValidationStatus runValidationChecks() {
+    public ValidationLevel runValidationChecks() {
         index.getNetworkStream().forEach(Network::runValidationChecks);
-        return getValidationStatus();
+        return getValidationLevel();
     }
 
     @Override
-    public ValidationStatus runValidationChecks(boolean throwsException) {
+    public ValidationLevel runValidationChecks(boolean throwsException) {
         index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException));
-        return getValidationStatus();
+        return getValidationLevel();
     }
 
     @Override
-    public ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
         index.getNetworkStream().forEach(n -> n.runValidationChecks(throwsException, reporter));
-        return getValidationStatus();
+        return getValidationLevel();
     }
 
     @Override
-    public ValidationStatus getValidationStatus() {
-        if (index.getNetworkStream().anyMatch(n -> n.getValidationStatus() == ValidationStatus.VALID)) {
-            return ValidationStatus.VALID;
-        }
-        if (index.getNetworkStream().anyMatch(n -> n.getValidationStatus() == ValidationStatus.INVALID)) {
-            return ValidationStatus.INVALID;
-        }
-        return ValidationStatus.UNCHECKED;
-    }
-
-    @Override
-    public MergingView enableValidationChecks(boolean valid) {
-        index.getNetworkStream().forEach(n -> n.enableValidationChecks(valid));
-        return this;
+    public ValidationLevel getValidationLevel() {
+        return index.getNetworkStream().map(Network::getValidationLevel).min(ValidationLevel::compareTo).orElseThrow(AssertionError::new);
     }
 }

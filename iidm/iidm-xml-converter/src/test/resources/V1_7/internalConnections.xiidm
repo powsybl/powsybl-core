@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="internal-connections" caseDate="2018-11-08T12:33:26.208+01:00" forecastDistance="0" sourceFormat="test" valid="VALID">
+<iidm:network xmlns:iidm="http://www.powsybl.org/schema/iidm/1_7" id="internal-connections" caseDate="2018-11-08T12:33:26.208+01:00" forecastDistance="0" sourceFormat="test" minimumValidationLevel="LOADFLOW">
     <iidm:substation id="s1" country="ES">
         <iidm:voltageLevel id="vl1" nominalV="400.0" topologyKind="NODE_BREAKER">
             <iidm:nodeBreakerTopology>

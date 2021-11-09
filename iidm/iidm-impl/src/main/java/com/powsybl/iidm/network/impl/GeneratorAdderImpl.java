@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.GeneratorAdder;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ValidationUtil;
+import com.powsybl.iidm.network.*;
 
 /**
  *
@@ -114,8 +111,8 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, network.areValidationChecksEnabled());
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, targetQ, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         ValidationUtil.checkRatedS(this, ratedS);
         GeneratorImpl generator
@@ -129,7 +126,6 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(generator);
         network.getListeners().notifyCreation(generator);
-        network.uncheckValidationStatusIfDisabledCheck();
         return generator;
     }
 

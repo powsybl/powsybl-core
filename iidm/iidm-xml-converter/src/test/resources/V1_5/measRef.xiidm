@@ -48,8 +48,8 @@
     </iidm:extension>
     <iidm:extension id="NGEN_NHV1">
         <m:measurements>
-            <m:measurement id="MEAS_TWT_Q_2" type="REACTIVE_POWER" side="TWO" value="-600.07" standardDeviation="10.2" valid="VALID"/>
-            <m:measurement id="MEAS_TWT_Q_1" type="REACTIVE_POWER" side="ONE" value="605.2" standardDeviation="9.7" valid="VALID">
+            <m:measurement id="MEAS_TWT_Q_2" type="REACTIVE_POWER" side="TWO" value="-600.07" standardDeviation="10.2" valid="true"/>
+            <m:measurement id="MEAS_TWT_Q_1" type="REACTIVE_POWER" side="ONE" value="605.2" standardDeviation="9.7" valid="true">
                 <m:property name="source" value="test2"/>
             </m:measurement>
         </m:measurements>

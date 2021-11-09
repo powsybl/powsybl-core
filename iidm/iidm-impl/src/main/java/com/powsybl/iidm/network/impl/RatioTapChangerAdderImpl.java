@@ -167,21 +167,25 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     public RatioTapChanger add() {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
-            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.areValidationChecksEnabled());
+            ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+            network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
         }
         if (steps.isEmpty()) {
-            ValidationUtil.throwExceptionOrLogError(parent, "ratio tap changer should have at least one step", network.areValidationChecksEnabled());
+            throw new ValidationException(parent, "ratio tap changer should have at least one step");
         }
         if (tapPosition != null) {
             int highTapPosition = lowTapPosition + steps.size() - 1;
             if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
-                        + highTapPosition + "]", network.areValidationChecksEnabled());
+                        + highTapPosition + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+                network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
             }
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, network.areValidationChecksEnabled());
-        ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband, network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,
+                targetV, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(parent, "ratio tap changer", regulating, targetDeadband,
+                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
                                           tapPosition, regulating, targetV, targetDeadband);
@@ -189,14 +193,14 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         Set<TapChanger> tapChangers = new HashSet<>();
         tapChangers.addAll(parent.getAllTapChangers());
         tapChangers.remove(parent.getRatioTapChanger());
-        ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating, network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
+                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
 
         if (parent.hasPhaseTapChanger()) {
             LOGGER.warn("{} has both Ratio and Phase Tap Changer", parent);
         }
 
         parent.setRatioTapChanger(tapChanger);
-        network.uncheckValidationStatusIfDisabledCheck();
         return tapChanger;
     }
 

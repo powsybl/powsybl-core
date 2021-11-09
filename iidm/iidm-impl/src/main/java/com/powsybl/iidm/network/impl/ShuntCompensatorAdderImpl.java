@@ -144,12 +144,10 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
         @Override
         public ShuntCompensatorAdder add() {
-            NetworkImpl network = getNetwork();
             if (sectionAdders.isEmpty()) {
-                ValidationUtil.throwExceptionOrLogError(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section", network.areValidationChecksEnabled());
+                throw new ValidationException(ShuntCompensatorAdderImpl.this, "a shunt compensator must have at least one section");
             }
             modelBuilder = this;
-            network.uncheckValidationStatusIfDisabledCheck();
             return ShuntCompensatorAdderImpl.this;
         }
 
@@ -220,9 +218,9 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         }
 
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.areValidationChecksEnabled());
-        ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.areValidationChecksEnabled());
-        ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(this, sectionCount, modelBuilder.getMaximumSectionCount(), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
 
         ShuntCompensatorImpl shunt = new ShuntCompensatorImpl(network.getRef(),
                 id, getName(), isFictitious(), modelBuilder.build(), sectionCount,
@@ -233,7 +231,6 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(shunt);
         network.getListeners().notifyCreation(shunt);
-        network.uncheckValidationStatusIfDisabledCheck();
         return shunt;
     }
 

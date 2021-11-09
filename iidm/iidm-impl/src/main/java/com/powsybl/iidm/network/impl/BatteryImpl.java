@@ -66,12 +66,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setP0(double p0) {
-        ValidationUtil.checkP0(this, p0, network.areValidationChecksEnabled());
+        ValidationUtil.checkP0(this, p0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("p0", variantId, oldValue, p0);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 
@@ -88,12 +88,12 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setQ0(double q0) {
-        ValidationUtil.checkQ0(this, q0, network.areValidationChecksEnabled());
+        ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("q0", variantId, oldValue, q0);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 

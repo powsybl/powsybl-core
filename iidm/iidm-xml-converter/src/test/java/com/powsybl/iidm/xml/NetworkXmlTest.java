@@ -198,7 +198,7 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     @Test
     public void testInvalid() throws IOException {
         Network network = InvalidNetworkFactory.create();
-        assertEquals(Network.ValidationStatus.INVALID, network.runValidationChecks(false));
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.runValidationChecks(false));
         roundTripXmlTest(network,
                 NetworkXml::write,
                 NetworkXml::read,

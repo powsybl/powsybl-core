@@ -124,11 +124,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         int variantIndex = network.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex), network.areValidationChecksEnabled());
+        ValidationUtil.checkVoltageControl(this,
+                voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex),
+                network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 
@@ -143,7 +145,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         Terminal oldValue = this.regulatingTerminal;
         this.regulatingTerminal = regulatingTerminal != null ? (TerminalExt) regulatingTerminal : getTerminal();
         notifyUpdate("regulatingTerminal", oldValue, regulatingTerminal);
-        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 
@@ -154,12 +155,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
-        ValidationUtil.checkActivePowerSetpoint(this, targetP, network.areValidationChecksEnabled());
+        ValidationUtil.checkActivePowerSetpoint(this, targetP, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         double oldValue = this.targetP.set(network.getVariantIndex(), targetP);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetP", variantId, oldValue, targetP);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 
@@ -171,11 +172,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
         int variantIndex = network.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV.get(variantIndex), targetQ, network.areValidationChecksEnabled());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
+                targetV.get(variantIndex), targetQ, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 
@@ -187,11 +189,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetV(double targetV) {
         int variantIndex = network.getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, targetQ.get(variantIndex), network.areValidationChecksEnabled());
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex),
+                targetV, targetQ.get(variantIndex), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("targetV", variantId, oldValue, targetV);
-        network.uncheckValidationStatusIfDisabledCheck();
+        network.invalidate();
         return this;
     }
 
@@ -206,7 +209,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         double oldValue = this.ratedS;
         this.ratedS = ratedS;
         notifyUpdate("ratedS", oldValue, ratedS);
-        network.uncheckValidationStatusIfDisabledCheck();
         return this;
     }
 

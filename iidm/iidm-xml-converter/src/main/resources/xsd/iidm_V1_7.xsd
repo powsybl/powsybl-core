@@ -46,7 +46,7 @@
             <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
             <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
             <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
-            <xs:attribute name="valid" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="Identifiable">

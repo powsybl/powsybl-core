@@ -24,7 +24,7 @@ public final class InvalidNetworkFactory {
         Objects.requireNonNull(networkFactory);
         Network network = Network.create("invalid", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
-        network.enableValidationChecks(false);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
         Substation sub = network.newSubstation()
                 .setId("sub")
                 .add();
@@ -170,34 +170,24 @@ public final class InvalidNetworkFactory {
                 .add().add();
         t3wt.getLeg1().newRatioTapChanger()
                 .setRegulating(true)
+                .beginStep()
+                .setRho(1.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .endStep()
                 .add();
         t3wt.getLeg2().newPhaseTapChanger()
                 .setRegulating(true)
-                .add();
-        network.newTieLine()
-                .setVoltageLevel1(vl.getId())
-                .setVoltageLevel2(vl2.getId())
-                .setBus1(busId)
-                .setBus2(bus2Id)
-                .setId("tl")
-                .newHalfLine1()
-                .setId("half1")
+                .beginStep()
+                .setAlpha(1.0)
+                .setRho(1.0)
                 .setR(1.0)
                 .setX(1.0)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .add()
-                .newHalfLine2()
-                .setId("half2")
-                .setR(1.0)
-                .setX(1.0)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .add()
+                .setG(0.0)
+                .setB(0.0)
+                .endStep()
                 .add();
         TwoWindingsTransformer t2wt = sub.newTwoWindingsTransformer()
                 .setId("tw2t")
@@ -224,6 +214,14 @@ public final class InvalidNetworkFactory {
                 .add();
         t2wt.newPhaseTapChanger()
                 .setRegulating(true)
+                .beginStep()
+                .setAlpha(1.0)
+                .setRho(1.0)
+                .setR(1.0)
+                .setX(1.0)
+                .setG(0.0)
+                .setB(0.0)
+                .endStep()
                 .add();
         VscConverterStation vcs = vl2.newVscConverterStation()
                 .setId("vcs")

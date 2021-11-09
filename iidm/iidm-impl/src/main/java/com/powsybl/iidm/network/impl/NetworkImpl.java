@@ -41,9 +41,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private String sourceFormat;
 
-    private ValidationStatus validationStatus = ValidationStatus.VALID;
-
-    private boolean enableChecks = true;
+    private ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
+    private ValidationLevel minValidationLevel = ValidationLevel.LOADFLOW;
 
     private final NetworkIndex index = new NetworkIndex();
 
@@ -1139,65 +1138,55 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
-    public ValidationStatus runValidationChecks() {
+    public ValidationLevel runValidationChecks() {
         return runValidationChecks(true);
     }
 
     @Override
-    public ValidationStatus runValidationChecks(boolean throwsException) {
-        if (validationStatus != ValidationStatus.VALID) {
-            try {
-                ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()));
-            } catch (ValidationException e) {
-                validationStatus = ValidationStatus.INVALID;
-                if (throwsException) {
-                    throw e;
-                } else {
-                    return validationStatus;
-                }
-            }
-            validationStatus = ValidationStatus.VALID;
+    public ValidationLevel runValidationChecks(boolean throwsException) {
+        return runValidationChecks(throwsException, Reporter.NO_OP);
+    }
+
+    @Override
+    public ValidationLevel runValidationChecks(boolean throwsException, Reporter reporter) {
+        Reporter readReporter = Objects.requireNonNull(reporter).createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
+        validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()),
+                true, throwsException, validationLevel != null ? validationLevel : minValidationLevel, readReporter);
+        return validationLevel;
+    }
+
+    @Override
+    public ValidationLevel getValidationLevel() {
+        if (validationLevel == null) {
+            validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, minValidationLevel, Reporter.NO_OP);
         }
-        return validationStatus;
+        return validationLevel;
     }
 
     @Override
-    public ValidationStatus runValidationChecks(boolean throwsException, Reporter reporter) {
-        Reporter readReporter = reporter.createSubReporter("IIDMValidation", "Running validation checks on IIDM network " + id);
-        if (validationStatus != ValidationStatus.VALID) {
-            if (throwsException) {
-                try {
-                    ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), true, readReporter);
-                } catch (ValidationException e) {
-                    validationStatus = ValidationStatus.INVALID;
-                    throw e;
-                }
-            } else {
-                ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, readReporter);
-                return runValidationChecks(false);
-            }
+    public Network setMinimumAcceptableValidationLevel(ValidationLevel validationLevel) {
+        Objects.requireNonNull(validationLevel);
+        if (this.validationLevel == null) {
+            this.validationLevel = ValidationUtil.validate(Collections.unmodifiableCollection(index.getAll()), false, false, this.validationLevel, Reporter.NO_OP);
         }
-        return validationStatus;
-    }
-
-    @Override
-    public ValidationStatus getValidationStatus() {
-        return validationStatus;
-    }
-
-    @Override
-    public NetworkImpl enableValidationChecks(boolean enableChecks) {
-        this.enableChecks = enableChecks;
+        if (this.validationLevel.compareTo(validationLevel) < 0) {
+            throw new ValidationException(this, "Network should be corrected in order to correspond to validation level " + validationLevel);
+        }
+        this.minValidationLevel = validationLevel;
         return this;
     }
 
-    boolean areValidationChecksEnabled() {
-        return enableChecks;
+    ValidationLevel getMinValidationLevel() {
+        return minValidationLevel;
     }
 
-    void uncheckValidationStatusIfDisabledCheck() {
-        if (!enableChecks) {
-            validationStatus = ValidationStatus.UNCHECKED;
+    void setValidationLevelIfGreaterThan(ValidationLevel validationLevel) {
+        this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
+    }
+
+    void invalidate() {
+        if (minValidationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
+            validationLevel = null;
         }
     }
 }

@@ -155,7 +155,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             graph.addVertexIfNotPresent(node1);
             graph.addVertexIfNotPresent(node2);
             graph.addEdge(node1, node2, aSwitch);
-            getNetwork().uncheckValidationStatusIfDisabledCheck();
             return aSwitch;
         }
 

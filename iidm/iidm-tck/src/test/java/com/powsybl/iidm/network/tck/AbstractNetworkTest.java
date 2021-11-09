@@ -203,18 +203,26 @@ public abstract class AbstractNetworkTest {
         verifyNoMoreInteractions(mockedListener);
 
         // validation
-        assertEquals(Network.ValidationStatus.VALID, network.getValidationStatus());
+        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
         network.runValidationChecks();
-        network.enableValidationChecks(false);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
+        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
         voltageLevel1.newLoad()
                 .setId("unchecked")
                 .setP0(1.0)
                 .setQ0(1.0)
                 .setNode(3)
                 .add();
-        assertEquals(Network.ValidationStatus.UNCHECKED, network.getValidationStatus());
-        network.runValidationChecks();
-        assertEquals(Network.ValidationStatus.VALID, network.getValidationStatus());
+        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
+        Load unchecked2 = voltageLevel1.newLoad()
+                .setId("unchecked2")
+                .setNode(10)
+                .add();
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
+        unchecked2.setP0(0.0).setQ0(0.0);
+        assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.LOADFLOW);
     }
 
     @Test
@@ -559,21 +567,21 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testInvalidNetwork() {
         Network network = InvalidNetworkFactory.create();
-        assertEquals(Network.ValidationStatus.UNCHECKED, network.getValidationStatus());
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
 
-        assertEquals(Network.ValidationStatus.INVALID, network.runValidationChecks(false));
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.runValidationChecks(false));
 
         ReporterModel reporter = new ReporterModel("testReportInvalidNetwork", "Test reporting of invalid network", Collections.emptyMap());
-        assertEquals(Network.ValidationStatus.INVALID, network.runValidationChecks(false, reporter));
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.runValidationChecks(false, reporter));
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
         assertEquals("IIDMValidation", subReporter.getTaskKey());
         assertEquals("Running validation checks on IIDM network invalid", subReporter.getDefaultName());
         Collection<Report> reports = subReporter.getReports();
-        assertEquals(34, reports.size());
+        assertEquals(32, reports.size());
 
-        assertEquals(Network.ValidationStatus.INVALID, network.getValidationStatus());
+        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
 
         try {
             network.runValidationChecks();
@@ -582,7 +590,11 @@ public abstract class AbstractNetworkTest {
             // Ignore
         }
 
-        network.enableValidationChecks(true);
-        assertEquals(Network.ValidationStatus.INVALID, network.getValidationStatus());
+        try {
+            network.setMinimumAcceptableValidationLevel(ValidationLevel.LOADFLOW);
+            fail();
+        } catch (ValidationException e) {
+            // Ignore
+        }
     }
 }

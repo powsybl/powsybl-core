@@ -46,7 +46,7 @@
             <xs:attribute name="caseDate" use="required" type="xs:dateTime"/>
             <xs:attribute name="forecastDistance" use="required" type="xs:int"/>
             <xs:attribute name="sourceFormat" use="required" type="iidm:nonEmptyString"/>
-            <xs:attribute name="valid" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="minimumValidationLevel" use="required" type="iidm:nonEmptyString"/>
         </xs:complexType>
     </xs:element>
     <xs:complexType name="Identifiable">
@@ -498,7 +498,7 @@
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="0" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
+            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="optional" type="xs:int"/>
@@ -517,7 +517,7 @@
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="0" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
+            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="optional" type="xs:int"/>

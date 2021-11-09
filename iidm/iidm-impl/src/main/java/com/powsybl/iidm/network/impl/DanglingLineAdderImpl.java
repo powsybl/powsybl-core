@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 
 /**
@@ -64,12 +65,12 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
 
         @Override
         public DanglingLineAdder add() {
+            NetworkImpl network = getNetwork();
             ValidationUtil.checkActivePowerLimits(DanglingLineAdderImpl.this, minP, maxP);
-            ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, getNetwork().areValidationChecksEnabled());
-            ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, getNetwork().areValidationChecksEnabled());
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkActivePowerSetpoint(DanglingLineAdderImpl.this, targetP, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+            network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(DanglingLineAdderImpl.this, voltageRegulationOn, targetV, targetQ, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
 
             generationAdder = this;
-            getNetwork().uncheckValidationStatusIfDisabledCheck();
             return DanglingLineAdderImpl.this;
         }
 
@@ -163,8 +164,8 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
 
-        ValidationUtil.checkP0(this, p0, network.areValidationChecksEnabled());
-        ValidationUtil.checkQ0(this, q0, network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkP0(this, p0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkQ0(this, q0, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
         ValidationUtil.checkG(this, g);
@@ -180,7 +181,6 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         voltageLevel.attach(terminal, false);
         network.getIndex().checkAndAdd(danglingLine);
         network.getListeners().notifyCreation(danglingLine);
-        network.uncheckValidationStatusIfDisabledCheck();
         return danglingLine;
     }
 

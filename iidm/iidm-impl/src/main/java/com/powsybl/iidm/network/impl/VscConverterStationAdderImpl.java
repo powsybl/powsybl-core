@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.iidm.network.ValidationUtil;
 
@@ -71,7 +72,6 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
         getVoltageLevel().attach(terminal, false);
         network.getIndex().checkAndAdd(converterStation);
         network.getListeners().notifyCreation(converterStation);
-        network.uncheckValidationStatusIfDisabledCheck();
         return converterStation;
     }
 
@@ -79,7 +79,8 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     protected void validate() {
         super.validate();
         NetworkImpl network = getNetwork();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, network.areValidationChecksEnabled());
+        network.setValidationLevelIfGreaterThan(ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint,
+                reactivePowerSetpoint, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0));
         ValidationUtil.checkRegulatingTerminal(this, regulatingTerminal, network);
     }
 

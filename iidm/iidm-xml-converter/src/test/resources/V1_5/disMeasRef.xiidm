@@ -208,7 +208,7 @@
     </iidm:extension>
     <iidm:extension id="TWT">
         <dm:discreteMeasurements>
-            <dm:discreteMeasurement id="DIS_MEAS_TAP_POS" type="TAP_POSITION" tapChanger="PHASE_TAP_CHANGER" valueType="INT" value="15" valid="VALID">
+            <dm:discreteMeasurement id="DIS_MEAS_TAP_POS" type="TAP_POSITION" tapChanger="PHASE_TAP_CHANGER" valueType="INT" value="15" valid="LOADFLOW">
                 <dm:property name="source" value="test2"/>
             </dm:discreteMeasurement>
         </dm:discreteMeasurements>
