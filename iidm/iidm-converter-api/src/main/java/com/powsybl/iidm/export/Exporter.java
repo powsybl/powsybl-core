@@ -7,6 +7,7 @@
 package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.reporter.Reporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 
@@ -53,6 +54,18 @@ public interface Exporter {
      * @param parameters some properties to configure the export
      * @param dataSource data source
      */
-    void export(Network network, Properties parameters, DataSource dataSource);
+    default void export(Network network, Properties parameters, DataSource dataSource) {
+        export(network, parameters, dataSource, Reporter.NO_OP);
+    }
+
+    /**
+     * Export a model.
+     *
+     * @param network the model
+     * @param parameters some properties to configure the export
+     * @param dataSource data source
+     * @param reporter the reporter used for functional logs
+     */
+    void export(Network network, Properties parameters, DataSource dataSource, Reporter reporter);
 
 }
