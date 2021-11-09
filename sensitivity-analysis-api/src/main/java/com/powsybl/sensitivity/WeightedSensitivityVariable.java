@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * Associates a classical sensitivity variable and a weight.
  * The weight is not normalized.
- * A list of weighted variables is used in general to model an injection increase of a group of generators and loads
+ * A list of weighted variables can be used to model an injection increase of a group of generators and loads
  * trough shift keys, also called GLSK (for Generation and Load shift keys), see {@link com.powsybl.sensitivity.SensitivityVariableSet}
  * for more details.
  *
