@@ -34,6 +34,7 @@ import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.StringWriter;
@@ -198,7 +199,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
-        try (OutputStream os = Files.newOutputStream(exportedSv)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             context.getSvModelDescription().setVersion(svVersion);
             context.setExportBoundaryPowerFlows(true);
