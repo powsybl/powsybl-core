@@ -49,7 +49,7 @@ public class DebugPhaseTapChanger {
             Consumer<TwoWindingsTransformer> pre,
             Consumer<TwoWindingsTransformer> post) {
         if (LOG.isInfoEnabled()) {
-            LOG.info(String.format("current = %d", tx.getPhaseTapChanger().getTapPosition()));
+            LOG.info(String.format("current = %d", tx.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new)));
             LOG.info(String.format("ratedU1 = %10.4f", tx.getRatedU1()));
             LOG.info(String.format("ratedU2 = %10.4f", tx.getRatedU2()));
             LOG.info(String.format("v,a1    = %10.4f %10.4f",
@@ -59,7 +59,7 @@ public class DebugPhaseTapChanger {
                     tx.getTerminal2().getBusView().getBus().getV(),
                     tx.getTerminal2().getBusView().getBus().getAngle()));
         }
-        int backup = tx.getPhaseTapChanger().getTapPosition();
+        int backup = tx.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new);
         for (int k = tx.getPhaseTapChanger().getLowTapPosition(); k <= tx.getPhaseTapChanger()
                 .getHighTapPosition(); k++) {
             tx.getPhaseTapChanger().setTapPosition(k);

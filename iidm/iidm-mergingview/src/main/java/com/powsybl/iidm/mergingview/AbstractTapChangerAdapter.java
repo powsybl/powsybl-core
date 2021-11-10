@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.TapChanger;
 import com.powsybl.iidm.network.TapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.OptionalInt;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -54,18 +56,19 @@ abstract class AbstractTapChangerAdapter<P extends TapChanger<P, S>, S extends T
     }
 
     @Override
-    public int getTapPosition() {
+    public OptionalInt getTapPosition() {
         return getDelegate().getTapPosition();
-    }
-
-    @Override
-    public Integer getTapPositionAsInteger() {
-        return getDelegate().getTapPositionAsInteger();
     }
 
     @Override
     public P setTapPosition(final int tapPosition) {
         getDelegate().setTapPosition(tapPosition);
+        return (P) this;
+    }
+
+    @Override
+    public P removeTapPosition() {
+        getDelegate().removeTapPosition();
         return (P) this;
     }
 

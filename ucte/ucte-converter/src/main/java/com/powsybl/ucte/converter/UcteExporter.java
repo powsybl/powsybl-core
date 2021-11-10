@@ -786,7 +786,7 @@ public class UcteExporter implements Exporter {
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
-                twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getTapPosition().orElseThrow(AssertionError::new),
                 Double.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
             uctePhaseRegulation.setU(twoWindingsTransformer.getRatioTapChanger().getTargetV());
@@ -809,14 +809,14 @@ public class UcteExporter implements Exporter {
             return new UcteAngleRegulation(calculateSymmAngleDu(twoWindingsTransformer),
                     90,
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         } else {
             return new UcteAngleRegulation(calculateAsymmAngleDu(twoWindingsTransformer),
                     calculateAsymmAngleTheta(twoWindingsTransformer),
                     twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(),
-                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new),
                     calculateAngleP(twoWindingsTransformer),
                     ucteAngleRegulationType);
         }

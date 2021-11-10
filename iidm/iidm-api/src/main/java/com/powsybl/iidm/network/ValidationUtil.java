@@ -618,15 +618,16 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkRtc(Validable validable, RatioTapChanger rtc, Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (rtc.getTapPositionAsInteger() == null) {
+        if (rtc.getTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
         }
-        if (rtc.getTapPositionAsInteger() != null) {
+        if (rtc.getTapPosition().isPresent()) {
+            int tapPosition = rtc.getTapPosition().getAsInt();
             int highTapPosition = rtc.getLowTapPosition() + rtc.getAllSteps().size() - 1;
-            if (rtc.getTapPosition() < rtc.getLowTapPosition() || rtc.getTapPosition() > highTapPosition) {
+            if (tapPosition < rtc.getLowTapPosition() || tapPosition > highTapPosition) {
                 throwExceptionOrLogError(validable, "incorrect tap position "
-                        + rtc.getTapPosition() + " [" + rtc.getLowTapPosition() + ", "
+                        + tapPosition + " [" + rtc.getLowTapPosition() + ", "
                         + highTapPosition + "]", throwException, reporter);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
             }
@@ -638,15 +639,16 @@ public final class ValidationUtil {
 
     private static ValidationLevel checkPtc(Validable validable, PhaseTapChanger ptc, Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (ptc.getTapPositionAsInteger() == null) {
+        if (ptc.getTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
         }
-        if (ptc.getTapPositionAsInteger() != null) {
+        if (ptc.getTapPosition().isPresent()) {
+            int tapPosition = ptc.getTapPosition().getAsInt();
             int highTapPosition = ptc.getLowTapPosition() + ptc.getAllSteps().size() - 1;
-            if (ptc.getTapPosition() < ptc.getLowTapPosition() || ptc.getTapPosition() > highTapPosition) {
+            if (tapPosition < ptc.getLowTapPosition() || tapPosition > highTapPosition) {
                 throwExceptionOrLogError(validable, "incorrect tap position "
-                        + ptc.getTapPosition() + " [" + ptc.getLowTapPosition() + ", "
+                        + tapPosition + " [" + ptc.getLowTapPosition() + ", "
                         + highTapPosition + "]", throwException, reporter);
                 validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
             }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
@@ -87,7 +86,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.lowTapPosition = lowTapPosition;
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".lowTapPosition", oldValue, lowTapPosition);
         int variantIndex = networkRef.get().getVariantIndex();
-        this.tapPosition.set(variantIndex, getTapPosition() + (this.lowTapPosition - oldValue));
+        int position = tapPosition.get(networkRef.get().getVariantIndex());
+        this.tapPosition.set(variantIndex, position != Integer.MIN_VALUE ? position + (this.lowTapPosition - oldValue) : Integer.MIN_VALUE);
         return (C) this;
     }
 
@@ -95,20 +95,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return lowTapPosition + steps.size() - 1;
     }
 
-    public int getTapPosition() {
+    public OptionalInt getTapPosition() {
         int position = tapPosition.get(networkRef.get().getVariantIndex());
         if (position == Integer.MIN_VALUE) {
-            throw new PowsyblException("Undefined tap position, use getTapPositionAsInteger");
+            return OptionalInt.empty();
         }
-        return position;
-    }
-
-    public Integer getTapPositionAsInteger() {
-        int position = tapPosition.get(networkRef.get().getVariantIndex());
-        if (position == Integer.MIN_VALUE) {
-            return null;
-        }
-        return position;
+        return OptionalInt.of(position);
     }
 
     public OptionalInt getNeutralPosition() {
@@ -125,7 +117,23 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                     + getHighTapPosition() + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         }
         int variantIndex = networkRef.get().getVariantIndex();
-        int oldValue = this.tapPosition.set(variantIndex, tapPosition);
+        Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
+        if (oldValue == Integer.MIN_VALUE) {
+            oldValue = null;
+        }
+        String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        network.invalidate();
+        return (C) this;
+    }
+
+    public C removeTapPosition() {
+        ValidationUtil.throwExceptionOrLogError(parent, "tap position has been removed", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        int variantIndex = networkRef.get().getVariantIndex();
+        Integer oldValue = this.tapPosition.set(variantIndex, Integer.MIN_VALUE);
+        if (oldValue == Integer.MIN_VALUE) {
+            oldValue = null;
+        }
         String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
         network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
         network.invalidate();
@@ -142,7 +150,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public S getCurrentStep() {
-        return getStep(getTapPosition());
+        int position = tapPosition.get(networkRef.get().getVariantIndex());
+        if (position == Integer.MIN_VALUE) {
+            return null;
+        }
+        return getStep(position);
     }
 
     public boolean isRegulating() {

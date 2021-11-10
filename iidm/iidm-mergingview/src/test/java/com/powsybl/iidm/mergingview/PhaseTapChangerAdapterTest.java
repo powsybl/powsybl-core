@@ -87,7 +87,7 @@ public class PhaseTapChangerAdapterTest {
 
         // setter getter
         phaseTapChanger.setTapPosition(0);
-        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertEquals(0, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);

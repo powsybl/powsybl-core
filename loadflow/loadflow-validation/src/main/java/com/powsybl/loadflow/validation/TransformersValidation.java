@@ -76,7 +76,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         Objects.requireNonNull(twtsWriter);
 
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
-        int tapPosition = ratioTapChanger.getTapPosition();
+        int tapPosition = ratioTapChanger.getTapPosition().orElseThrow(AssertionError::new);
         int lowTapPosition = ratioTapChanger.getLowTapPosition();
         int highTapPosition = ratioTapChanger.getHighTapPosition();
         double rho = ratioTapChanger.getCurrentStep().getRho();

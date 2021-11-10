@@ -754,8 +754,8 @@ public class Comparison {
                     expected.getHighTapPosition(),
                     actual.getHighTapPosition());
             compare("tapChanger.tapPosition",
-                    expected.getTapPosition(),
-                    actual.getTapPosition());
+                    expected.getTapPosition().orElseThrow(AssertionError::new),
+                    actual.getTapPosition().orElseThrow(AssertionError::new));
             compare("tapChanger.targetDeadband",
                     expected.getTargetDeadband(),
                     actual.getTargetDeadband());

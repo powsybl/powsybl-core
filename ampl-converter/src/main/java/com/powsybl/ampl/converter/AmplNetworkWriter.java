@@ -1107,7 +1107,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
+                    .writeCell(rtc.getTapPosition().orElseThrow(AssertionError::new) - rtc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
             if (config.isExportRatioTapChangerVoltageTarget()) {
@@ -1160,7 +1160,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(ptc.getTapPosition() - ptc.getLowTapPosition() + 1)
+                    .writeCell(ptc.getTapPosition().orElseThrow(AssertionError::new) - ptc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(faultNum)
                     .writeCell(actionNum)

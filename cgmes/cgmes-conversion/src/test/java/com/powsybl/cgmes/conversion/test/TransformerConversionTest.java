@@ -659,7 +659,7 @@ public class TransformerConversionTest {
             return;
         }
 
-        int tapPosition = rtc.getTapPosition();
+        int tapPosition = rtc.getTapPosition().orElseThrow(AssertionError::new);
         RatioTapChangerStep step = rtc.getStep(tapPosition);
         LOG.info("RatioTapChanger: TapPosition {}", tapPosition);
         LOG.info("RatioTapChanger: Step Ratio {}", 1 / step.getRho());
@@ -675,7 +675,7 @@ public class TransformerConversionTest {
             return;
         }
 
-        int tapPosition = ptc.getTapPosition();
+        int tapPosition = ptc.getTapPosition().orElseThrow(AssertionError::new);
         PhaseTapChangerStep step = ptc.getStep(tapPosition);
         LOG.info("PhaseTapChanger: TapPosition {}", tapPosition);
         LOG.info("PhaseTapChanger: Step Ratio {}", 1 / step.getRho());

@@ -84,11 +84,11 @@ public class ActionDslLoaderTest {
         assertNotNull(fixedTapAction);
         addPhaseShifter(0);
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
-        assertEquals(0, phaseTapChanger.getTapPosition());
+        assertEquals(0, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network, null);
-        assertEquals(1, phaseTapChanger.getTapPosition());
+        assertEquals(1, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
@@ -115,11 +115,11 @@ public class ActionDslLoaderTest {
             assertEquals(data.getDeltaTap(), ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
             addPhaseShifter(data.getInitTapPosition());
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
-            assertEquals(1, phaseTapChanger.getTapPosition());
+            assertEquals(1, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
             assertTrue(phaseTapChanger.isRegulating());
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             deltaTapAction.run(network, null);
-            assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition());
+            assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
             assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
             assertFalse(phaseTapChanger.isRegulating());
         }

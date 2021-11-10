@@ -38,11 +38,7 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * Depends on the working variant.
      * @see VariantManager
      */
-    int getTapPosition();
-
-    default Integer getTapPositionAsInteger() {
-        return getTapPosition();
-    }
+    OptionalInt getTapPosition();
 
     /**
      * Set the current tap position.
@@ -55,6 +51,8 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @param tapPosition the current tap position
      */
     C setTapPosition(int tapPosition);
+
+    C removeTapPosition();
 
     /**
      * Get the number of steps.
