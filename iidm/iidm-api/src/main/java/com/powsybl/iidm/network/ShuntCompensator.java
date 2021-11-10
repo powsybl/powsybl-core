@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import java.util.OptionalInt;
+
 /**
  * A shunt compensator.
  *
@@ -117,7 +119,7 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Depends on the working variant.
      * @see VariantManager
      */
-    int getSectionCount();
+    OptionalInt getSectionCount();
 
     /**
      * Get the maximum number of sections that can be in service

@@ -66,7 +66,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals(IdentifiableType.SHUNT_COMPENSATOR, shuntCompensator.getType());
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(6, shuntCompensator.getSectionCount());
+        assertEquals(6, shuntCompensator.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
         assertEquals(30.0, shuntCompensator.getB(), 0.0);
         assertEquals(24.0, shuntCompensator.getG(), 0.0);
@@ -106,7 +106,7 @@ public abstract class AbstractShuntCompensatorTest {
             // ignore
         }
         shuntCompensator.setSectionCount(6);
-        assertEquals(6, shuntCompensator.getSectionCount());
+        assertEquals(6, shuntCompensator.getSectionCount().orElseThrow(AssertionError::new));
 
         // b
         try {
@@ -224,7 +224,7 @@ public abstract class AbstractShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getOptionalName().orElse(null));
         assertEquals("shuntName", shuntCompensator.getNameOrId());
         assertEquals(SHUNT, shuntCompensator.getId());
-        assertEquals(1, shuntCompensator.getSectionCount());
+        assertEquals(1, shuntCompensator.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(2, shuntCompensator.getMaximumSectionCount());
         assertEquals(5.0, shuntCompensator.getB(), 0.0);
         assertEquals(2.0, shuntCompensator.getG(), 0.0);
@@ -265,7 +265,7 @@ public abstract class AbstractShuntCompensatorTest {
             // ignore
         }
         shuntCompensator.setSectionCount(2);
-        assertEquals(2, shuntCompensator.getSectionCount());
+        assertEquals(2, shuntCompensator.getSectionCount().orElseThrow(AssertionError::new));
 
         // b
         try {
@@ -423,7 +423,7 @@ public abstract class AbstractShuntCompensatorTest {
 
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
-        assertEquals(5, shunt.getSectionCount());
+        assertEquals(5, shunt.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(10.0, shunt.getB(), 0.0); // 2*5
         assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         // change values in s4
@@ -438,7 +438,7 @@ public abstract class AbstractShuntCompensatorTest {
         variantManager.cloneVariant("s4", "s2b");
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
-        assertEquals(4, shunt.getSectionCount());
+        assertEquals(4, shunt.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(8.0, shunt.getB(), 0.0); // 2*4
         assertEquals(4.0, shunt.getG(), 0.0); // 1*4
         assertFalse(shunt.isVoltageRegulatorOn());
@@ -447,7 +447,7 @@ public abstract class AbstractShuntCompensatorTest {
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
-        assertEquals(5, shunt.getSectionCount());
+        assertEquals(5, shunt.getSectionCount().orElseThrow(AssertionError::new));
         assertEquals(10.0, shunt.getB(), 0.0); // 2*5
         assertEquals(5.0, shunt.getG(), 0.0); // 1*5
         assertTrue(shunt.isVoltageRegulatorOn());

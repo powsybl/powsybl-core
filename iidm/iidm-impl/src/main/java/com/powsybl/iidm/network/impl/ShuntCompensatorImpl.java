@@ -13,6 +13,7 @@ import gnu.trove.list.array.TDoubleArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.Objects;
+import java.util.OptionalInt;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -42,7 +43,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     ShuntCompensatorImpl(Ref<NetworkImpl> networkRef,
                          String id, String name, boolean fictitious, ShuntCompensatorModelExt model,
-                         int sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
+                         Integer sectionCount, TerminalExt regulatingTerminal, boolean voltageRegulatorOn,
                          double targetV, double targetDeadband) {
         super(networkRef, id, name, fictitious);
         network = networkRef.get();
@@ -53,7 +54,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.sectionCount.add(sectionCount);
+            this.sectionCount.add(sectionCount == null ? Integer.MIN_VALUE : sectionCount);
             this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
@@ -67,8 +68,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public int getSectionCount() {
-        return sectionCount.get(network.getVariantIndex());
+    public OptionalInt getSectionCount() {
+        int section = sectionCount.get(network.getVariantIndex());
+        return section == Integer.MIN_VALUE ? OptionalInt.empty() : OptionalInt.of(section);
     }
 
     @Override

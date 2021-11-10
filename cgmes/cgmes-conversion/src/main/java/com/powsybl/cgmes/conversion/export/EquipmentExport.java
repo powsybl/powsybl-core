@@ -268,7 +268,7 @@ public final class EquipmentExport {
                 bPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getBPerSection();
                 gPerSection = ((ShuntCompensatorLinearModel) s.getModel()).getGPerSection();
             }
-            ShuntCompensatorEq.write(s.getId(), s.getNameOrId(), s.getSectionCount(), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, cimNamespace, writer);
+            ShuntCompensatorEq.write(s.getId(), s.getNameOrId(), s.getSectionCount().orElseThrow(AssertionError::new), s.getMaximumSectionCount(), s.getTerminal().getVoltageLevel().getNominalV(), s.getModelType(), bPerSection, gPerSection, cimNamespace, writer);
             if (s.getModelType().equals(ShuntCompensatorModelType.NON_LINEAR)) {
                 double b = 0.0;
                 double g = 0.0;

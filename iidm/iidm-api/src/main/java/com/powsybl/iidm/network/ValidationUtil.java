@@ -380,28 +380,33 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkSections(Validable validable, int currentSectionCount, int maximumSectionCount) {
-        checkSections(validable, currentSectionCount, maximumSectionCount, true);
+    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount) {
+        return checkSections(validable, currentSectionCount, maximumSectionCount, true);
     }
 
-    public static ValidationLevel checkSections(Validable validable, int currentSectionCount, int maximumSectionCount, boolean throwException) {
+    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, boolean throwException) {
         return checkSections(validable, currentSectionCount, maximumSectionCount, throwException, Reporter.NO_OP);
     }
 
-    public static ValidationLevel checkSections(Validable validable, int currentSectionCount, int maximumSectionCount, boolean throwException, Reporter reporter) {
+    public static ValidationLevel checkSections(Validable validable, Integer currentSectionCount, int maximumSectionCount, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
-        if (currentSectionCount < 0) {
-            throwExceptionOrLogError(validable, "the current number of section (" + currentSectionCount
-                    + ") should be greater than or equal to 0", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
-        }
         checkMaximumSectionCount(validable, maximumSectionCount);
-        if (currentSectionCount > maximumSectionCount) {
-            throwExceptionOrLogError(validable,
-                    "the current number (" + currentSectionCount
-                            + ") of section should be lesser than the maximum number of section ("
-                            + maximumSectionCount + ")", throwException, reporter);
+        if (currentSectionCount == null) {
+            throwExceptionOrLogError(validable, "the current number of section is undefined", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+        } else {
+            if (currentSectionCount < 0) {
+                throwExceptionOrLogError(validable, "the current number of section (" + currentSectionCount
+                        + ") should be greater than or equal to 0", throwException, reporter);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            }
+            if (currentSectionCount > maximumSectionCount) {
+                throwExceptionOrLogError(validable,
+                        "the current number (" + currentSectionCount
+                                + ") of section should be lesser than the maximum number of section ("
+                                + maximumSectionCount + ")", throwException, reporter);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            }
         }
         return validationLevel;
     }
@@ -695,7 +700,7 @@ public final class ValidationUtil {
                     ShuntCompensator shunt = (ShuntCompensator) identifiable;
                     validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reporter));
                     validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.getSectionCount(), shunt.getMaximumSectionCount(), throwException, reporter));
+                    validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.getSectionCount().isPresent() ? shunt.getSectionCount().getAsInt() : null, shunt.getMaximumSectionCount(), throwException, reporter));
                 } else if (identifiable instanceof StaticVarCompensator) {
                     StaticVarCompensator svc = (StaticVarCompensator) identifiable;
                     validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), throwException, reporter));

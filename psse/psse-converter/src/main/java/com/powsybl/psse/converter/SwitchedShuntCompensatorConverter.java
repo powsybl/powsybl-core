@@ -296,7 +296,7 @@ class SwitchedShuntCompensatorConverter extends AbstractConverter {
     }
 
     private static double getQ(ShuntCompensator switchedShunt) {
-        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount()),
+        return shuntAdmittanceToPower(switchedShunt.getB(switchedShunt.getSectionCount().orElseThrow(AssertionError::new)),
             switchedShunt.getTerminal().getVoltageLevel().getNominalV());
     }
 

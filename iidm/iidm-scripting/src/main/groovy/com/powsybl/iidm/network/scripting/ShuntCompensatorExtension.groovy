@@ -59,7 +59,7 @@ class ShuntCompensatorExtension {
     }
 
     static int getCurrentSectionCount(ShuntCompensator self) {
-        self.getSectionCount()
+        self.getSectionCount().getAsInt()
     }
 
     static void setCurrentSectionCount(ShuntCompensator self, int currentSectionCount) {

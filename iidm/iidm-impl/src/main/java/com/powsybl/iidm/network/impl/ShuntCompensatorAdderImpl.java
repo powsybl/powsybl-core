@@ -22,7 +22,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private ShuntCompensatorModelBuilder modelBuilder;
 
-    private int sectionCount = -1;
+    private Integer sectionCount;
 
     private double targetV = Double.NaN;
 

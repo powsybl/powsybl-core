@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.ShuntCompensatorModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.OptionalInt;
+
 /**
  * @author Thomas Adam <tadam at silicom.fr>
  */
@@ -24,7 +26,7 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     // Simple delegated methods ------
     // -------------------------------
     @Override
-    public int getSectionCount() {
+    public OptionalInt getSectionCount() {
         return getDelegate().getSectionCount();
     }
 

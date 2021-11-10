@@ -65,6 +65,6 @@ class NetworkExtensionTest {
     @Test
     void getShuntTest() {
         assertNotNull(network.getShunt("SHUNT"))
-        assertEquals(6, network.getShunt("SHUNT").getSectionCount())
+        assertEquals(6, network.getShunt("SHUNT").getSectionCount().getAsInt())
     }
 }
