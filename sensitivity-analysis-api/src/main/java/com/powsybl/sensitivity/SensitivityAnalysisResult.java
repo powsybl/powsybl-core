@@ -21,15 +21,17 @@ import java.util.*;
  * </p>
  *
  * Sensitivity analysis is used to assess the impact of a small modification of a network variables on the value of
- * network functions. A combination of a variable and a function is called a sensitivity factor. A sensitivity analysis returns
- * the sensitivity values for each factor. The sensitivity analysis API offers the possibility to calculate the sensitivities
- * on a set of contingencies besides the pre-contingency state.
+ * network functions. A combination of a variable and a function is called a sensitivity factor. It returns
+ * the sensitivity values for each factor, and the reference values for each function. The sensitivity analysis API
+ * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
  * The full set of results consists of:
  *  - the list of factors
  *  - the list of contingencies
- *  - the list of sensitivity values in pre-contingency and post-contingency states.
- *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or the value of function references:
- *  - a sensitivity value given the ID of a contingency
+ *  - the list of sensitivity values in pre-contingency and post-contingency states
+ *  - the list of function reference values in pre-contingency and post-contingency states.
+ *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
+ *  For example, you can retrieve a sensitivity value as a double given the ID of a contingency, the ID of a variable
+ *  and the ID of a function.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see SensitivityValue
