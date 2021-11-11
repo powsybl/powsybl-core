@@ -20,6 +20,8 @@ import static com.powsybl.cgmes.model.CgmesNamespace.RDF_NAMESPACE;
  */
 public final class ShuntCompensatorEq {
 
+    private static final double BPERSECTION_FORMAT_THRESHOLD = 1E-10;
+
     private static final String EQ_SHUNTCOMPENSATOR_NORMALSECTIONS = "ShuntCompensator.normalSections";
     private static final String EQ_SHUNTCOMPENSATOR_MAXIMUMSECTIONS = "ShuntCompensator.maximumSections";
     private static final String EQ_SHUNTCOMPENSATOR_NOMU = "ShuntCompensator.nomU";
@@ -48,7 +50,11 @@ public final class ShuntCompensatorEq {
         writer.writeEndElement();
         if (modelType.equals(ShuntCompensatorModelType.LINEAR)) {
             writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_BPERSECTION);
-            writer.writeCharacters(CgmesExportUtil.format(bPerSection));
+            if (Math.abs(bPerSection) < BPERSECTION_FORMAT_THRESHOLD) {
+                writer.writeCharacters(CgmesExportUtil.scientificFormat(bPerSection));
+            } else {
+                writer.writeCharacters(CgmesExportUtil.format(bPerSection));
+            }
             writer.writeEndElement();
             if (!Double.isNaN(gPerSection)) {
                 writer.writeStartElement(cimNamespace, EQ_LINEARSHUNTCOMPENSATOR_GPERSECTION);
