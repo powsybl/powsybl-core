@@ -521,11 +521,6 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags dcTerminalsTP() {
-        return dcTerminals;
-    }
-
-    @Override
     public PropertyBags tieFlows() {
         return tieFlows;
     }
