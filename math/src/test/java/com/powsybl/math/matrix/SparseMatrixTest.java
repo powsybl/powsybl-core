@@ -91,13 +91,4 @@ public class SparseMatrixTest extends AbstractMatrixTest {
             }
         }
     }
-
-    @Test
-    public void timeToDenseNotSupportedTest() {
-        try {
-            new SparseMatrix(2, 2, 2).times(new DenseMatrix(2, 2));
-            fail();
-        } catch (PowsyblException ignored) {
-        }
-    }
 }

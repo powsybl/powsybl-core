@@ -340,14 +340,22 @@ class SparseMatrix extends AbstractMatrix {
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
+    private native SparseMatrix add(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2, double alpha, double beta);
+
     @Override
     public Matrix times(Matrix other) {
-        if (!(other instanceof SparseMatrix)) {
-            throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
-        }
-        SparseMatrix o = (SparseMatrix) other;
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
         SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
                 o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
+    }
+
+    @Override
+    public Matrix add(Matrix other, double alpha, double beta) {
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        SparseMatrix result = add(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData(), alpha, beta);
         result.setRgrowthThreshold(rgrowthThreshold);
         return result;
     }
