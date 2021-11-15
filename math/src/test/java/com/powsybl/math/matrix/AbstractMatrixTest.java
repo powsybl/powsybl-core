@@ -113,12 +113,12 @@ public abstract class AbstractMatrixTest {
         /*
         4 0
         5 0
-        0 6
+        0 0
          */
         Matrix b = getMatrixFactory().create(3, 2, 3);
         b.set(0, 0, 4);
         b.set(1, 0, 5);
-        b.set(2, 1, 6);
+
         Matrix cs = a.add(b);
         DenseMatrix c = cs.toDense();
 
@@ -129,7 +129,45 @@ public abstract class AbstractMatrixTest {
         assertEquals(2, c.get(2, 0), EPSILON);
         assertEquals(0, c.get(0, 1), EPSILON);
         assertEquals(3, c.get(1, 1), EPSILON);
-        assertEquals(6, c.get(2, 1), EPSILON);
+        assertEquals(0, c.get(2, 1), EPSILON);
+    }
+
+    @Test
+    public void testAdditionWithEmptyColumnInTheMiddle() {
+        /*
+        1 0 0
+        0 0 3
+        2 0 0
+         */
+        Matrix a = getMatrixFactory().create(3, 3, 3);
+        a.set(0, 0, 1);
+        a.set(2, 0, 2);
+        a.set(1, 2, 3);
+
+        /*
+        4 0 6
+        5 0 0
+        0 0 0
+         */
+        Matrix b = getMatrixFactory().create(3, 3, 3);
+        b.set(0, 0, 4);
+        b.set(1, 0, 5);
+        b.set(0, 2, 6);
+
+        Matrix cs = a.add(b);
+        DenseMatrix c = cs.toDense();
+
+        assertEquals(3, c.getRowCount());
+        assertEquals(3, c.getColumnCount());
+        assertEquals(5, c.get(0, 0), EPSILON);
+        assertEquals(5, c.get(1, 0), EPSILON);
+        assertEquals(2, c.get(2, 0), EPSILON);
+        assertEquals(0, c.get(0, 1), EPSILON);
+        assertEquals(0, c.get(1, 1), EPSILON);
+        assertEquals(0, c.get(2, 1), EPSILON);
+        assertEquals(6, c.get(0, 2), EPSILON);
+        assertEquals(3, c.get(1, 2), EPSILON);
+        assertEquals(0, c.get(2, 2), EPSILON);
     }
 
     @Test
