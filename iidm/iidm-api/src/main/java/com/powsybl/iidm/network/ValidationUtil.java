@@ -643,7 +643,7 @@ public final class ValidationUtil {
                 .count();
         if (regulatingTc > 1) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-            validationLevel = ValidationLevel.STATE_ESTIMATION;
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
         }
         return validationLevel;
     }
@@ -659,7 +659,7 @@ public final class ValidationUtil {
         if (twt.getOptionalRatioTapChanger().map(RatioTapChanger::isRegulating).orElse(false)
                 && twt.getOptionalPhaseTapChanger().map(PhaseTapChanger::isRegulating).orElse(false)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-            validationLevel = ValidationLevel.STATE_ESTIMATION;
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
         }
         return validationLevel;
     }
@@ -720,7 +720,7 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         for (Identifiable<?> identifiable : identifiables) {
             validationLevel = checkIdentifiable(identifiable, validationLevel, throwException, reporter);
-            if (!allChecks && validationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
+            if (!allChecks && validationLevel == ValidationLevel.MINIMUM_VALUE) {
                 return validationLevel;
             }
         }
