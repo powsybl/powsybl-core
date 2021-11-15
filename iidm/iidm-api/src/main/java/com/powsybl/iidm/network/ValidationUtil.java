@@ -26,6 +26,7 @@ public final class ValidationUtil {
     private static final String ACTIVE_POWER_SETPOINT = "active power setpoint";
     private static final String MAXIMUM_P = "maximum P";
     private static final String UNIQUE_REGULATING_TAP_CHANGER_MSG = "Only one regulating control enabled is allowed";
+    private static final String VOLTAGE_SETPOINT = "voltage setpoint";
 
     private ValidationUtil() {
     }
@@ -74,10 +75,6 @@ public final class ValidationUtil {
         logError(validable, createInvalidValueMessage(value, valueName, reason), reporter);
     }
 
-    public static void checkActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
-        checkActivePowerSetpoint(validable, activePowerSetpoint, true);
-    }
-
     public static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, boolean throwException) {
         return checkActivePowerSetpoint(validable, activePowerSetpoint, throwException, Reporter.NO_OP);
     }
@@ -88,10 +85,6 @@ public final class ValidationUtil {
             return ValidationLevel.STATE_ESTIMATION;
         }
         return ValidationLevel.LOADFLOW;
-    }
-
-    public static void checkHvdcActivePowerSetpoint(Validable validable, double activePowerSetpoint) {
-        checkHvdcActivePowerSetpoint(validable, activePowerSetpoint, true);
     }
 
     public static ValidationLevel checkHvdcActivePowerSetpoint(Validable validable, double activePowerSetpoint, boolean throwException) {
@@ -130,10 +123,6 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband) {
-        checkTargetDeadband(validable, validableType, regulating, targetDeadband, true);
-    }
-
     public static ValidationLevel checkTargetDeadband(Validable validable, String validableType, boolean regulating, double targetDeadband, boolean throwException) {
         return checkTargetDeadband(validable, validableType, regulating, targetDeadband, throwException, Reporter.NO_OP);
     }
@@ -148,7 +137,7 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0", throwException, reporter);
             validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
         }
-        return ValidationLevel.LOADFLOW;
+        return validationLevel;
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException) {
@@ -160,17 +149,11 @@ public final class ValidationUtil {
             throwExceptionOrLogError(validable, "voltage regulator status is not set", throwException, reporter);
             return ValidationLevel.STATE_ESTIMATION;
         }
-        if (voltageRegulatorOn) {
-            if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on", throwException, reporter);
-                return ValidationLevel.STATE_ESTIMATION;
-            }
+        if (voltageRegulatorOn && (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0)) {
+            throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
+            return ValidationLevel.STATE_ESTIMATION;
         }
         return ValidationLevel.LOADFLOW;
-    }
-
-    public static void checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint) {
-        checkVoltageControl(validable, voltageRegulatorOn, voltageSetpoint, reactivePowerSetpoint, true);
     }
 
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException) {
@@ -184,7 +167,7 @@ public final class ValidationUtil {
         }
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
-                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, "voltage setpoint", "voltage regulator is on", throwException, reporter);
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
                 return ValidationLevel.STATE_ESTIMATION;
             }
         } else if (Double.isNaN(reactivePowerSetpoint)) {
@@ -238,10 +221,6 @@ public final class ValidationUtil {
         }
     }
 
-    public static void checkP0(Validable validable, double p0) {
-        checkP0(validable, p0, true);
-    }
-
     public static ValidationLevel checkP0(Validable validable, double p0, boolean throwException) {
         return checkP0(validable, p0, throwException, Reporter.NO_OP);
     }
@@ -252,10 +231,6 @@ public final class ValidationUtil {
             return ValidationLevel.STATE_ESTIMATION;
         }
         return ValidationLevel.LOADFLOW;
-    }
-
-    public static void checkQ0(Validable validable, double q0) {
-        checkQ0(validable, q0, true);
     }
 
     public static ValidationLevel checkQ0(Validable validable, double q0, boolean throwException) {
@@ -356,8 +331,7 @@ public final class ValidationUtil {
     }
 
     /**
-     * @deprecated
-     * Use {@link #checkBPerSection(Validable, double)} instead.
+     * @deprecated Use {@link #checkBPerSection(Validable, double)} instead.
      */
     @Deprecated(since = "4.2.0")
     public static void checkLinearBPerSection(Validable validable, double bPerSection) {
@@ -434,7 +408,7 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkSvcRegulator(Validable validable, double voltageSetpoint, double reactivePowerSetpoint,
-                                         StaticVarCompensator.RegulationMode regulationMode, boolean throwException, Reporter reporter) {
+                                                    StaticVarCompensator.RegulationMode regulationMode, boolean throwException, Reporter reporter) {
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "Regulation mode is invalid", throwException, reporter);
             return ValidationLevel.STATE_ESTIMATION;
@@ -442,7 +416,7 @@ public final class ValidationUtil {
         switch (regulationMode) {
             case VOLTAGE:
                 if (Double.isNaN(voltageSetpoint)) {
-                    throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, "voltage setpoint", throwException, reporter);
+                    throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reporter);
                     return ValidationLevel.STATE_ESTIMATION;
                 }
                 break;
@@ -497,13 +471,13 @@ public final class ValidationUtil {
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                      Terminal regulationTerminal, double targetV, Network network, boolean throwException) {
+                                                                 Terminal regulationTerminal, double targetV, Network network, boolean throwException) {
         return checkRatioTapChangerRegulation(validable, regulating, loadTapChangingCapabilities, regulationTerminal, targetV, network, throwException, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkRatioTapChangerRegulation(Validable validable, boolean regulating, boolean loadTapChangingCapabilities,
-                                                      Terminal regulationTerminal, double targetV, Network network, boolean throwException,
-                                                      Reporter reporter) {
+                                                                 Terminal regulationTerminal, double targetV, Network network, boolean throwException,
+                                                                 Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (regulating) {
             if (Double.isNaN(targetV)) {
@@ -522,26 +496,15 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static void checkRatioTapChangerRegulation(Validable validable, boolean regulating,
-                                                      Terminal regulationTerminal, double targetV, Network network) {
-        checkRatioTapChangerRegulation(validable, regulating, true, regulationTerminal, targetV, network);
-    }
-
-    public static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                                      Network network) {
-        checkPhaseTapChangerRegulation(validable, regulationMode, regulationValue, regulating, regulationTerminal, network, true);
-    }
-
     public static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                                      Network network, boolean throwException) {
+                                                                 double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                 Network network, boolean throwException) {
         return checkPhaseTapChangerRegulation(validable, regulationMode, regulationValue, regulating, regulationTerminal, network, throwException, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
-                                                      double regulationValue, boolean regulating, Terminal regulationTerminal,
-                                                      Network network, boolean throwException, Reporter reporter) {
+                                                                 double regulationValue, boolean regulating, Terminal regulationTerminal,
+                                                                 Network network, boolean throwException, Reporter reporter) {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "phase regulation mode is not set", throwException, reporter);
@@ -567,18 +530,13 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
-    public static void checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                               Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating) {
-        checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, true);
-    }
-
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable,
-                                                               Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
+                                                                          Set<TapChanger> tapChangersNotIncludingTheModified, boolean regulating, boolean throwException) {
         return checkOnlyOneTapChangerRegulatingEnabled(validable, tapChangersNotIncludingTheModified, regulating, throwException, Reporter.NO_OP);
     }
 
     public static ValidationLevel checkOnlyOneTapChangerRegulatingEnabled(Validable validable, Set<TapChanger> tapChangersNotIncludingTheModified,
-                                                               boolean regulating, boolean throwException, Reporter reporter) {
+                                                                          boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
             return ValidationLevel.STATE_ESTIMATION;
@@ -663,6 +621,95 @@ public final class ValidationUtil {
         return validationLevel;
     }
 
+    private static ValidationLevel checkThreeWindingsTransformer(Validable validable, ThreeWindingsTransformer twt, boolean throwException, Reporter reporter) {
+        ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
+        for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
+            if (leg.hasRatioTapChanger()) {
+                validationLevel = ValidationLevel.min(validationLevel, checkRtc(validable, leg.getRatioTapChanger(), twt.getNetwork(), throwException, reporter));
+            }
+            if (leg.hasPhaseTapChanger()) {
+                validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, leg.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
+            }
+        }
+        long regulatingTc = twt.getLegStream()
+                .map(ThreeWindingsTransformer.Leg::getRatioTapChanger)
+                .filter(Objects::nonNull)
+                .filter(TapChanger::isRegulating)
+                .count()
+                + twt.getLegStream()
+                .map(ThreeWindingsTransformer.Leg::getPhaseTapChanger)
+                .filter(Objects::nonNull)
+                .filter(TapChanger::isRegulating)
+                .count();
+        if (regulatingTc > 1) {
+            throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
+            validationLevel = ValidationLevel.STATE_ESTIMATION;
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkTwoWindingsTransformer(Validable validable, TwoWindingsTransformer twt, boolean throwException, Reporter reporter) {
+        ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
+        if (twt.hasRatioTapChanger()) {
+            validationLevel = ValidationLevel.min(validationLevel, checkRtc(validable, twt.getRatioTapChanger(), twt.getNetwork(), throwException, reporter));
+        }
+        if (twt.hasPhaseTapChanger()) {
+            validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, twt.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
+        }
+        if (twt.getOptionalRatioTapChanger().map(RatioTapChanger::isRegulating).orElse(false)
+                && twt.getOptionalPhaseTapChanger().map(PhaseTapChanger::isRegulating).orElse(false)) {
+            throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
+            validationLevel = ValidationLevel.STATE_ESTIMATION;
+        }
+        return validationLevel;
+    }
+
+    private static ValidationLevel checkIdentifiable(Identifiable<?> identifiable, ValidationLevel previous, boolean throwException, Reporter reporter) {
+        ValidationLevel validationLevel = previous;
+        if (identifiable instanceof Validable) {
+            Validable validable = (Validable) identifiable;
+            if (identifiable instanceof Battery) {
+                Battery battery = (Battery) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getP0(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getQ0(), throwException, reporter));
+            } else if (identifiable instanceof DanglingLine) {
+                DanglingLine danglingLine = (DanglingLine) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
+                DanglingLine.Generation generation = danglingLine.getGeneration();
+                validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
+            } else if (identifiable instanceof Generator) {
+                Generator generator = (Generator) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
+            } else if (identifiable instanceof HvdcLine) {
+                HvdcLine hvdcLine = (HvdcLine) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), throwException, reporter));
+            } else if (identifiable instanceof Load) {
+                Load load = (Load) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, load.getP0(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), throwException, reporter));
+            } else if (identifiable instanceof ShuntCompensator) {
+                ShuntCompensator shunt = (ShuntCompensator) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reporter));
+                validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.getSectionCount().isPresent() ? shunt.getSectionCount().getAsInt() : null, shunt.getMaximumSectionCount(), throwException, reporter));
+            } else if (identifiable instanceof StaticVarCompensator) {
+                StaticVarCompensator svc = (StaticVarCompensator) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), throwException, reporter));
+            } else if (identifiable instanceof ThreeWindingsTransformer) {
+                validationLevel = ValidationLevel.min(validationLevel, checkThreeWindingsTransformer(validable, (ThreeWindingsTransformer) identifiable, throwException, reporter));
+            } else if (identifiable instanceof TwoWindingsTransformer) {
+                validationLevel = ValidationLevel.min(validationLevel, checkTwoWindingsTransformer(validable, (TwoWindingsTransformer) identifiable, throwException, reporter));
+            } else if (identifiable instanceof VscConverterStation) {
+                VscConverterStation converterStation = (VscConverterStation) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reporter));
+            }
+        }
+        return validationLevel;
+    }
+
     public static ValidationLevel validate(Collection<Identifiable<?>> identifiables, boolean allChecks, boolean throwException, ValidationLevel previous, Reporter reporter) {
         Objects.requireNonNull(identifiables);
         Objects.requireNonNull(previous);
@@ -672,76 +719,9 @@ public final class ValidationUtil {
         }
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         for (Identifiable<?> identifiable : identifiables) {
-            if (identifiable instanceof Validable) {
-                Validable validable = (Validable) identifiable;
-                if (identifiable instanceof Battery) {
-                    Battery battery = (Battery) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, battery.getP0(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, battery.getQ0(), throwException, reporter));
-                } else if (identifiable instanceof DanglingLine) {
-                    DanglingLine danglingLine = (DanglingLine) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, danglingLine.getP0(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, danglingLine.getQ0(), throwException, reporter));
-                    DanglingLine.Generation generation = danglingLine.getGeneration();
-                    validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generation.getTargetP(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generation.isVoltageRegulationOn(), generation.getTargetV(), generation.getTargetQ(), throwException, reporter));
-                } else if (identifiable instanceof Generator) {
-                    Generator generator = (Generator) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkActivePowerSetpoint(validable, generator.getTargetP(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
-                } else if (identifiable instanceof HvdcLine) {
-                    HvdcLine hvdcLine = (HvdcLine) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), throwException, reporter));
-                } else if (identifiable instanceof Load) {
-                    Load load = (Load) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkP0(validable, load.getP0(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkQ0(validable, load.getQ0(), throwException, reporter));
-                } else if (identifiable instanceof ShuntCompensator) {
-                    ShuntCompensator shunt = (ShuntCompensator) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, shunt.isVoltageRegulatorOn(), shunt.getTargetV(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkTargetDeadband(validable, "shunt compensator", shunt.isVoltageRegulatorOn(), shunt.getTargetDeadband(), throwException, reporter));
-                    validationLevel = ValidationLevel.min(validationLevel, checkSections(validable, shunt.getSectionCount().isPresent() ? shunt.getSectionCount().getAsInt() : null, shunt.getMaximumSectionCount(), throwException, reporter));
-                } else if (identifiable instanceof StaticVarCompensator) {
-                    StaticVarCompensator svc = (StaticVarCompensator) identifiable;
-                    validationLevel = ValidationLevel.min(validationLevel, checkSvcRegulator(validable, svc.getVoltageSetpoint(), svc.getReactivePowerSetpoint(), svc.getRegulationMode(), throwException, reporter));
-                } else if (identifiable instanceof ThreeWindingsTransformer) {
-                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-                    for (ThreeWindingsTransformer.Leg leg : twt.getLegs()) {
-                        if (leg.getRatioTapChanger() != null) {
-                            validationLevel = ValidationLevel.min(validationLevel, checkRtc(validable, leg.getRatioTapChanger(), twt.getNetwork(), throwException, reporter));
-                        }
-                        if (leg.getPhaseTapChanger() != null) {
-                            validationLevel = ValidationLevel.min(validationLevel, checkPtc(validable, leg.getPhaseTapChanger(), twt.getNetwork(), throwException, reporter));
-                        }
-                    }
-                    long regulatingTc = twt.getLegStream()
-                            .map(ThreeWindingsTransformer.Leg::getRatioTapChanger)
-                            .filter(Objects::nonNull)
-                            .filter(TapChanger::isRegulating)
-                            .count()
-                            + twt.getLegStream()
-                            .map(ThreeWindingsTransformer.Leg::getPhaseTapChanger)
-                            .filter(Objects::nonNull)
-                            .filter(TapChanger::isRegulating)
-                            .count();
-                    if (regulatingTc > 1) {
-                        throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-                    }
-                } else if (identifiable instanceof TwoWindingsTransformer) {
-                    TwoWindingsTransformer twt = (TwoWindingsTransformer) identifiable;
-                    twt.getOptionalRatioTapChanger().ifPresent(rtc -> checkRtc(validable, rtc, twt.getNetwork(), throwException, reporter));
-                    twt.getOptionalPhaseTapChanger().ifPresent(ptc -> checkPtc(validable, ptc, twt.getNetwork(), throwException, reporter));
-                    if (twt.getOptionalRatioTapChanger().map(RatioTapChanger::isRegulating).orElse(false)
-                            && twt.getOptionalPhaseTapChanger().map(PhaseTapChanger::isRegulating).orElse(false)) {
-                        throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-                    }
-                } else if (identifiable instanceof VscConverterStation) {
-                    VscConverterStation converterStation = (VscConverterStation) identifiable;
-                    checkVoltageControl(validable, converterStation.isVoltageRegulatorOn(), converterStation.getVoltageSetpoint(), converterStation.getReactivePowerSetpoint(), throwException, reporter);
-                }
-                if (!allChecks && validationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
-                    return validationLevel;
-                }
+            validationLevel = checkIdentifiable(identifiable, validationLevel, throwException, reporter);
+            if (!allChecks && validationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
+                return validationLevel;
             }
         }
         return validationLevel;
