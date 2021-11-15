@@ -24,6 +24,7 @@ import com.powsybl.iidm.parameters.ParameterType;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -71,9 +72,9 @@ public class CgmesExport implements Exporter {
         CgmesExportContext context = new CgmesExportContext(network)
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
                 .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
-        try (OutputStream oeq = ds.newOutputStream(filenameEq, false);
-                OutputStream osv = ds.newOutputStream(filenameSv, false);
-                OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
+        try (OutputStream oeq = new BufferedOutputStream(ds.newOutputStream(filenameEq, false));
+                OutputStream osv = new BufferedOutputStream(ds.newOutputStream(filenameSv, false));
+                OutputStream ossh = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
             XMLStreamWriter writer;
             writer = XmlUtil.initializeWriter(true, "    ", oeq);
             EquipmentExport.write(network, writer, context);
