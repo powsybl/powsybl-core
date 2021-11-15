@@ -58,6 +58,10 @@ class ShuntCompensatorExtension {
         }
     }
 
+    /*static int getSectionCount(ShuntCompensator self) {
+        self.getSectionCount().orElseThrow(AssertionError::new) // Throws a StackOverflow exception (cyclic method call)
+    }*/
+
     static int getCurrentSectionCount(ShuntCompensator self) {
         self.getSectionCount().getAsInt()
     }
