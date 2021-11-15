@@ -130,6 +130,11 @@ public abstract class AbstractMatrixTest {
         assertEquals(0, c.get(0, 1), EPSILON);
         assertEquals(3, c.get(1, 1), EPSILON);
         assertEquals(0, c.get(2, 1), EPSILON);
+
+        // in case of sparse matrix check, we only have 4 values
+        if (cs instanceof SparseMatrix) {
+            assertEquals(4, ((SparseMatrix) cs).getValues().length);
+        }
     }
 
     @Test
