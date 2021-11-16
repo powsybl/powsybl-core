@@ -152,6 +152,37 @@ public class TieLineTest {
         assertTrue(compare(getQ(caseSv3.line2, Branch.Side.TWO), tieLine.getHalf2().getBoundary().getQ()));
     }
 
+    @Test
+    public void tieLineWithDifferentNominalVoltageAtEndsTest() {
+
+        // Line1 from node1 to boundaryNode, Line2 from boundaryNode to node2
+        CaseSv caseSv = createCaseDifferentNominalVoltageAtEnds();
+        Network n = createNetworkWithTieLineWithDifferentNominalVoltageAtEnds(NetworkFactory.findDefault(), Branch.Side.TWO, Branch.Side.ONE, caseSv);
+        TieLine tieLine = (TieLine) n.getLine("TWO + ONE");
+
+        SV sv2 = new SV(tieLine.getTerminal1().getP(), tieLine.getTerminal1().getQ(),
+            tieLine.getTerminal1().getBusView().getBus().getV(),
+            tieLine.getTerminal1().getBusView().getBus().getAngle(),
+            Branch.Side.ONE).otherSide(tieLine);
+        assertTrue(compare(sv2, caseSv.node2, caseSv.line2, Branch.Side.ONE));
+
+        SV sv1 = new SV(tieLine.getTerminal2().getP(), tieLine.getTerminal2().getQ(),
+            tieLine.getTerminal2().getBusView().getBus().getV(),
+            tieLine.getTerminal2().getBusView().getBus().getAngle(),
+            Branch.Side.TWO).otherSide(tieLine);
+        assertTrue(compare(sv1, caseSv.node1, caseSv.line1, Branch.Side.TWO));
+
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getHalf1().getBoundary().getV()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getHalf1().getBoundary().getAngle()));
+        assertTrue(compare(getP(caseSv.line1, Branch.Side.TWO), tieLine.getHalf1().getBoundary().getP()));
+        assertTrue(compare(getQ(caseSv.line1, Branch.Side.TWO), tieLine.getHalf1().getBoundary().getQ()));
+
+        assertTrue(compare(caseSv.nodeBoundary.v, tieLine.getHalf2().getBoundary().getV()));
+        assertTrue(compare(caseSv.nodeBoundary.a, tieLine.getHalf2().getBoundary().getAngle()));
+        assertTrue(compare(getP(caseSv.line2, Branch.Side.ONE), tieLine.getHalf2().getBoundary().getP()));
+        assertTrue(compare(getQ(caseSv.line2, Branch.Side.ONE), tieLine.getHalf2().getBoundary().getQ()));
+    }
+
     private static Network createNetworkWithTieLine(NetworkFactory networkFactory,
         Branch.Side boundarySide1, Branch.Side boundarySide2, CaseSv caseSv) {
 
@@ -187,6 +218,86 @@ public class TieLineTest {
 
         BranchReorientedParameters brp1 = new BranchReorientedParameters(0.019, 0.059, 0.02, 0.075, 0.03, 0.065, isLine1Reoriented(boundarySide1));
         BranchReorientedParameters brp2 = new BranchReorientedParameters(0.038, 0.118, 0.015, 0.050, 0.025, 0.080, isLine2Reoriented(boundarySide2));
+
+        TieLineAdder adder = network.newTieLine()
+            .setId(boundarySide1.name() + " + " + boundarySide2.name())
+            .setName(boundarySide1.name() + " + " + boundarySide2.name())
+            .newHalfLine1()
+            .setId(boundarySide1.name())
+            .setName(boundarySide1.name())
+            .setR(brp1.getR())
+            .setX(brp1.getX())
+            .setG1(brp1.getG1())
+            .setB1(brp1.getB1())
+            .setG2(brp1.getG2())
+            .setB2(brp1.getB2())
+            .add()
+            .newHalfLine2()
+            .setId(boundarySide2.name())
+            .setName(boundarySide2.name())
+            .setR(brp2.getR())
+            .setX(brp2.getX())
+            .setG1(brp2.getG1())
+            .setB1(brp2.getB1())
+            .setG2(brp2.getG2())
+            .setB2(brp2.getB2())
+            .add();
+
+        adder.setVoltageLevel1("S1VL1")
+            .setBus1("S1VL1-BUS")
+            .setVoltageLevel2("S2VL1")
+            .setBus2("S2VL1-BUS")
+            .setUcteXnodeCode("UcteNode");
+
+        TieLine tieLine = adder.add();
+        tieLine.getTerminal1().getBusView().getBus().setV(caseSv.node1.v);
+        tieLine.getTerminal1().getBusView().getBus().setAngle(caseSv.node1.a);
+        tieLine.getTerminal1().setP(getOtherSideP(caseSv.line1, boundarySide1));
+        tieLine.getTerminal1().setQ(getOtherSideQ(caseSv.line1, boundarySide1));
+
+        tieLine.getTerminal2().getBusView().getBus().setV(caseSv.node2.v);
+        tieLine.getTerminal2().getBusView().getBus().setAngle(caseSv.node2.a);
+        tieLine.getTerminal2().setP(getOtherSideP(caseSv.line2, boundarySide2));
+        tieLine.getTerminal2().setQ(getOtherSideQ(caseSv.line2, boundarySide2));
+
+        return network;
+    }
+
+    private static Network createNetworkWithTieLineWithDifferentNominalVoltageAtEnds(NetworkFactory networkFactory,
+        Branch.Side boundarySide1, Branch.Side boundarySide2, CaseSv caseSv) {
+
+        Network network = networkFactory.createNetwork("TieLine-BusBreaker", "test");
+        network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
+        network.setForecastDistance(0);
+
+        Substation s1 = network.newSubstation()
+                .setId("S1")
+                .add();
+        VoltageLevel s1vl1 = s1.newVoltageLevel()
+                .setId("S1VL1")
+                .setNominalV(138.0)
+                .setLowVoltageLimit(110.0)
+                .setHighVoltageLimit(150.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        createBus(s1vl1, "S1VL1-BUS");
+
+        Substation s2 = network.newSubstation()
+            .setId("S2")
+            .add();
+        VoltageLevel s2vl1 = s2.newVoltageLevel()
+            .setId("S2VL1")
+            .setNominalV(220.0)
+            .setLowVoltageLimit(195.0)
+            .setHighVoltageLimit(240.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
+
+        createBus(s2vl1, "S2VL1-BUS");
+
+        BranchReorientedParameters brp1 = new BranchReorientedParameters(2.1672071999999996, 9.5543748, 0.0, 1.648813274522159E-4, 0.0, 1.648813274522159E-4, isLine1Reoriented(boundarySide1));
+        BranchReorientedParameters brp2 = new BranchReorientedParameters(3.1513680000000006, 14.928011999999999, 0.008044414674299755, -0.03791520949675112, -0.005046041932060755, 0.023978278075869598, isLine2Reoriented(boundarySide2));
 
         TieLineAdder adder = network.newTieLine()
             .setId(boundarySide1.name() + " + " + boundarySide2.name())
@@ -289,7 +400,7 @@ public class TieLineTest {
         return true;
     }
 
-    private static boolean compare(double actual, double expected) {
+    private static boolean compare(double expected, double actual) {
         double tol = 0.00001;
         if (Math.abs(actual - expected) > tol) {
             return false;
@@ -338,6 +449,19 @@ public class TieLineTest {
 
         LineSv line1 = new LineSv(-0.26349561, 0.01081185, 0.32121215, -0.16335034);
         LineSv line2 = new LineSv(-0.21700000, -0.12700000, 0.26349561, -0.01081185);
+        return new CaseSv(node1, node2, nodeBoundary, line1, line2);
+    }
+
+    // Line1 from nodeBoundary to node1, Line2 from node2 to nodeBoundary
+    // Line1 from node1 to nodeBoundary, Line2 from nodeBoundary to node2
+    // Different nominal voltage at node1 and node2
+    private static CaseSv createCaseDifferentNominalVoltageAtEnds() {
+        NodeSv node1 = new NodeSv(145.2861673277147, Math.toDegrees(-0.01745197));
+        NodeSv nodeBoundary = new NodeSv(145.42378472578227, Math.toDegrees(-0.02324020));
+        NodeSv node2 = new NodeSv(231.30269602522478, Math.toDegrees(-0.02818192));
+
+        LineSv line1 = new LineSv(11.729938, -8.196614, -11.713527, 1.301712);
+        LineSv line2 = new LineSv(11.713527, -1.301712, -11.700000, -6.700000);
         return new CaseSv(node1, node2, nodeBoundary, line1, line2);
     }
 
