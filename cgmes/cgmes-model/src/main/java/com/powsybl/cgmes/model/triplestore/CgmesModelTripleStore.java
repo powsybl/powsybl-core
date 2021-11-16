@@ -44,6 +44,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void read(InputStream is, String baseName, String contextName) {
+        // Reset cached isNodeBreaker everytime we read new data
+        isNodeBreakerComputed = false;
         tripleStore.read(is, baseName, contextName);
     }
 
@@ -145,6 +147,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean isNodeBreaker() {
+        if (!isNodeBreakerComputed) {
+            isNodeBreaker = computeIsNodeBreaker();
+            isNodeBreakerComputed = true;
+        }
+        return isNodeBreaker;
+    }
+
+    private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
         if (!queryCatalog.containsKey(MODEL_PROFILES)) {
@@ -688,6 +698,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
+    private boolean isNodeBreaker;
+    private boolean isNodeBreakerComputed = false;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
