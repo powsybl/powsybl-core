@@ -7,6 +7,7 @@
 package com.powsybl.tools.autocompletion;
 
 import com.google.common.collect.ImmutableList;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -57,7 +58,7 @@ public class BashCompletionToolTest extends AbstractToolTest {
 
     private String expectedScript() throws IOException {
         try (InputStream is = getClass().getResourceAsStream("tool-output.sh")) {
-            return IOUtils.toString(is, StandardCharsets.UTF_8);
+            return TestUtil.normalizeLineSeparator(IOUtils.toString(is, StandardCharsets.UTF_8));
         }
     }
 
@@ -76,7 +77,7 @@ public class BashCompletionToolTest extends AbstractToolTest {
 
         tool.generateCompletionScript(ImmutableList.of(tool2, tool1), fileSystem.getPath("/output.sh"));
 
-        String outputScript = Files.readString(fileSystem.getPath("/output.sh"), StandardCharsets.UTF_8);
+        String outputScript = TestUtil.normalizeLineSeparator(Files.readString(fileSystem.getPath("/output.sh"), StandardCharsets.UTF_8));
         assertEquals(expectedScript(), outputScript);
     }
 

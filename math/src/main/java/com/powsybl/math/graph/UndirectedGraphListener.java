@@ -10,7 +10,19 @@ package com.powsybl.math.graph;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface UndirectedGraphListener {
+public interface UndirectedGraphListener<V, E> {
 
-    void graphChanged();
+    void vertexAdded(int v);
+
+    void vertexObjectSet(int v, V obj);
+
+    void vertexRemoved(int v, V obj);
+
+    void allVerticesRemoved();
+
+    void edgeAdded(int e, E obj);
+
+    void edgeRemoved(int e, E obj);
+
+    void allEdgesRemoved();
 }

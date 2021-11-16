@@ -104,7 +104,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
     private final TIntLinkedList removedEdges = new TIntLinkedList();
 
-    private final List<UndirectedGraphListener> listeners = new CopyOnWriteArrayList<>();
+    private final List<UndirectedGraphListener<V, E>> listeners = new CopyOnWriteArrayList<>();
 
     private void checkVertex(int v) {
         if (v < 0 || v >= vertices.size() || vertices.get(v) == null) {
@@ -130,7 +130,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             vertices.set(v, new Vertex<>());
         }
         invalidateAdjacencyList();
-        notifyListener();
+        notifyVertexAdded(v);
         return v;
     }
 
@@ -140,6 +140,8 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             if (availableVertices.contains(v)) {
                 vertices.set(v, new Vertex<>());
                 availableVertices.remove(v);
+                invalidateAdjacencyList();
+                notifyVertexAdded(v);
             }
         } else {
             for (int i = vertices.size(); i < v; i++) {
@@ -147,9 +149,9 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
                 availableVertices.add(i);
             }
             vertices.add(new Vertex<>());
+            invalidateAdjacencyList();
+            notifyVertexAdded(v);
         }
-        invalidateAdjacencyList();
-        notifyListener();
     }
 
     @Override
@@ -160,14 +162,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         return v < vertices.size() && vertices.get(v) != null;
     }
 
-    @Override
-    public V removeVertex(int v) {
-        checkVertex(v);
-        for (Edge<E> e : edges) {
-            if (e != null && (e.getV1() == v || e.getV2() == v)) {
-                throw new PowsyblException("An edge is connected to vertex " + v);
-            }
-        }
+    private V removeVertexInternal(int v) {
         V obj = vertices.get(v).getObject();
         if (v == vertices.size() - 1) {
             vertices.remove(v);
@@ -176,8 +171,20 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             vertices.set(v, null);
             availableVertices.add(v);
         }
+        notifyVertexRemoved(v, obj);
+        return obj;
+    }
+
+    @Override
+    public V removeVertex(int v) {
+        checkVertex(v);
+        for (Edge<E> e : edges) {
+            if (e != null && (e.getV1() == v || e.getV2() == v)) {
+                throw new PowsyblException("An edge is connected to vertex " + v);
+            }
+        }
+        V obj = removeVertexInternal(v);
         invalidateAdjacencyList();
-        notifyListener();
         return obj;
     }
 
@@ -204,7 +211,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         vertices.clear();
         availableVertices.clear();
         invalidateAdjacencyList();
-        notifyListener();
+        notifyAllVerticesRemoved();
     }
 
     @Override
@@ -221,13 +228,11 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             edges.set(e, edge);
         }
         invalidateAdjacencyList();
-        notifyListener();
+        notifyEdgeAdded(e, obj);
         return e;
     }
 
-    @Override
-    public E removeEdge(int e) {
-        checkEdge(e);
+    private E removeEdgeInternal(int e) {
         E obj = edges.get(e).getObject();
         if (e == edges.size() - 1) {
             edges.remove(e);
@@ -235,8 +240,15 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
             edges.set(e, null);
             removedEdges.add(e);
         }
+        notifyEdgeRemoved(e, obj);
+        return obj;
+    }
+
+    @Override
+    public E removeEdge(int e) {
+        checkEdge(e);
+        E obj = removeEdgeInternal(e);
         invalidateAdjacencyList();
-        notifyListener();
         return obj;
     }
 
@@ -245,7 +257,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         edges.clear();
         removedEdges.clear();
         invalidateAdjacencyList();
-        notifyListener();
+        notifyAllEdgesRemoved();
     }
 
     @Override
@@ -302,6 +314,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     public void setVertexObject(int v, V obj) {
         checkVertex(v);
         vertices.get(v).setObject(obj);
+        notifyVertexObjectSet(v, obj);
     }
 
     @Override
@@ -458,21 +471,24 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void traverse(int v, Traverser traverser) {
+    public boolean traverse(int v, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
-        traverse(v, traverser, encountered);
+        return traverse(v, traverser, encountered);
     }
 
     @Override
-    public void traverse(int[] startingVertices, Traverser traverser) {
+    public boolean traverse(int[] startingVertices, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
         for (int startingVertex : startingVertices) {
             if (!encountered[startingVertex]) {
-                traverse(startingVertex, traverser, encountered);
+                if (!traverse(startingVertex, traverser, encountered)) {
+                    return false;
+                }
             }
         }
+        return true;
     }
 
     /**
@@ -569,21 +585,54 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void addListener(UndirectedGraphListener l) {
+    public void addListener(UndirectedGraphListener<V, E> l) {
         listeners.add(l);
     }
 
     @Override
-    public void removeListener(UndirectedGraphListener l) {
+    public void removeListener(UndirectedGraphListener<V, E> l) {
         listeners.remove(l);
     }
 
-    /**
-     * Notify all the listeners that the graph has changed.
-     */
-    private void notifyListener() {
-        for (UndirectedGraphListener l : listeners) {
-            l.graphChanged();
+    private void notifyVertexAdded(int v) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.vertexAdded(v);
+        }
+    }
+
+    private void notifyVertexObjectSet(int v, V obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.vertexObjectSet(v, obj);
+        }
+    }
+
+    private void notifyVertexRemoved(int v, V obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.vertexRemoved(v, obj);
+        }
+    }
+
+    private void notifyAllVerticesRemoved() {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.allVerticesRemoved();
+        }
+    }
+
+    private void notifyEdgeAdded(int e, E obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.edgeAdded(e, obj);
+        }
+    }
+
+    private void notifyEdgeRemoved(int e, E obj) {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.edgeRemoved(e, obj);
+        }
+    }
+
+    private void notifyAllEdgesRemoved() {
+        for (UndirectedGraphListener<V, E> l : listeners) {
+            l.allEdgesRemoved();
         }
     }
 
@@ -612,4 +661,64 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
         }
     }
 
+    public void removeIsolatedVertices(boolean andAlsoDanglingEdges, int v, TIntArrayList[] adjacencyList) {
+
+        Vertex<V> vertex = vertices.get(v);
+        if (vertex != null && vertex.getObject() == null) {
+            TIntArrayList adjacentEdges = adjacencyList[v];
+            if (adjacentEdges.isEmpty() || (adjacentEdges.size() == 1 && andAlsoDanglingEdges)) {
+
+                removeVertexInternal(v);
+                adjacencyList[v] = null;
+
+                if (!adjacentEdges.isEmpty()) {
+                    int e = adjacentEdges.getQuick(0);
+                    removeDanglingEdgeAndPropagate(e, v, adjacencyList);
+                }
+            }
+        }
+    }
+
+    private void removeDanglingEdgeAndPropagate(int edgeToRemove, int vFrom, TIntArrayList[] adjacencyList) {
+        Edge<E> edge = edges.get(edgeToRemove);
+        int v1 = edge.getV1();
+        int v2 = edge.getV2();
+        int vTo = v1 == vFrom ? v2 : v1;
+
+        // updating adjacency list of vFrom & vTo is not done here, as:
+        //  - vFrom adjacency list has been set to null when vertex vFrom has been removed
+        //  - vTo adjacency list is updated hereafter
+        removeEdgeInternal(edgeToRemove);
+
+        Vertex<V> vertex = vertices.get(vTo);
+        TIntArrayList adjacentEdges = adjacencyList[vTo];
+        if (vertex == null || vertex.getObject() != null || adjacentEdges.size() > 2) {
+            // propagation stops: update adjacency list of vertex
+            adjacentEdges.remove(edgeToRemove);
+            return;
+        }
+
+        // propagate: we know that one of the neighbours (vFrom) of this vertex has been removed, hence:
+        //  - if only one adjacent edge, this is a newly isolated vertex
+        //  - if only two adjacent edges, this is a newly dangling vertex
+        removeVertexInternal(vTo);
+        adjacencyList[vTo] = null;
+
+        // find the other edge to remove if dangling vertex
+        if (adjacentEdges.size() == 2) {
+            int otherEdgeToRemove = adjacentEdges.getQuick(0) == edgeToRemove
+                    ? adjacentEdges.getQuick(1)
+                    : adjacentEdges.getQuick(0);
+            removeDanglingEdgeAndPropagate(otherEdgeToRemove, vTo, adjacencyList);
+        }
+
+    }
+
+    @Override
+    public void removeIsolatedVertices(boolean andAlsoDanglingEdges) {
+        TIntArrayList[] adjacencyList = getAdjacencyList();
+        for (int v = 0; v < vertices.size(); v++) {
+            removeIsolatedVertices(andAlsoDanglingEdges, v, adjacencyList);
+        }
+    }
 }

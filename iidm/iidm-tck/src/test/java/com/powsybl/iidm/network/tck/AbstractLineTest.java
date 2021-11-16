@@ -92,7 +92,7 @@ public abstract class AbstractLineTest {
         assertSame(busB, acLine.getTerminal(Branch.Side.TWO).getBusBreakerView().getConnectableBus());
 
         assertFalse(acLine.isTieLine());
-        assertEquals(ConnectableType.LINE, acLine.getType());
+        assertEquals(IdentifiableType.LINE, acLine.getType());
 
         // setter getter
         double r = 10.0;
@@ -486,7 +486,7 @@ public abstract class AbstractLineTest {
                 .add();
         TieLine tieLine = adder.add();
         assertTrue(tieLine.isTieLine());
-        assertEquals(ConnectableType.LINE, tieLine.getType());
+        assertEquals(IdentifiableType.LINE, tieLine.getType());
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         assertEquals("hl1", tieLine.getHalf1().getId());
         assertEquals(HALF1_NAME, tieLine.getHalf1().getName());

@@ -60,7 +60,7 @@ public abstract class AbstractBatteryTest {
         battery.setMaxP(maxP);
         assertEquals(maxP, battery.getMaxP(), 0.0);
 
-        assertEquals(ConnectableType.BATTERY, battery.getType());
+        assertEquals(IdentifiableType.BATTERY, battery.getType());
 
         assertEquals("NBAT", battery.getTerminal().getBusBreakerView().getBus().getId());
     }
