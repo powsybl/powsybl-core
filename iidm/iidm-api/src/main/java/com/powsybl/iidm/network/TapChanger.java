@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.OptionalInt;
 
 /**
@@ -78,6 +79,10 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     default OptionalInt getNeutralPosition() {
         return OptionalInt.empty();
+    }
+
+    default Optional<S> getNeutralStep() {
+        return Optional.empty();
     }
 
     /**

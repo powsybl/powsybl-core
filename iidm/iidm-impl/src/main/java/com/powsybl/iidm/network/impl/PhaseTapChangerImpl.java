@@ -51,6 +51,11 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
+    public Optional<PhaseTapChangerStep> getNeutralStep() {
+        return relativeNeutralPosition != null ? Optional.of(steps.get(relativeNeutralPosition)) : Optional.empty();
+    }
+
+    @Override
     protected Integer getRelativeNeutralPosition() {
         for (int i = 0; i < steps.size(); i++) {
             PhaseTapChangerStepImpl step = steps.get(i);
