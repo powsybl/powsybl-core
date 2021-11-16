@@ -51,6 +51,17 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     }
 
     @Override
+    protected Integer getRelativeNeutralPosition() {
+        for (int i = 0; i < steps.size(); i++) {
+            PhaseTapChangerStepImpl step = steps.get(i);
+            if (step.getRho() == 1 && step.getAlpha() == 0) {
+                return i;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public PhaseTapChangerImpl setRegulating(boolean regulating) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, getRegulationMode(), getRegulationValue(), regulating, getRegulationTerminal(), getNetwork());
 

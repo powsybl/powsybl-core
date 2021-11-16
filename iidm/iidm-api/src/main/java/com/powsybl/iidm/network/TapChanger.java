@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.OptionalInt;
 
 /**
  *
@@ -70,6 +71,14 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * @see VariantManager
      */
     S getCurrentStep();
+
+    /**
+     * Get the position of the neutral step (rho = 1, alpha = 0) if it exists.
+     * Otherwise return an empty optional.
+     */
+    default OptionalInt getNeutralPosition() {
+        return OptionalInt.empty();
+    }
 
     /**
      * Get the regulating status.
