@@ -50,6 +50,10 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             missing(bv);
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
+        if (nominalVoltage == 0) {
+            context.fixed("nominalVoltage", "should not be equal to 0");
+            nominalVoltage = 1;
+        }
 
         String iidmVoltageLevelId = context.substationIdMapping().voltageLevelIidm(id);
         VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
