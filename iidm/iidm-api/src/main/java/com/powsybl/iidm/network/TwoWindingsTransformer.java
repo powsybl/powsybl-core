@@ -228,4 +228,9 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
     default TwoWindingsTransformer setRatedS(double ratedS) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    default IdentifiableType getType() {
+        return IdentifiableType.TWO_WINDINGS_TRANSFORMER;
+    }
 }

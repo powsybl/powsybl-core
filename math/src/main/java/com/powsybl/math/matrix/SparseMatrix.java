@@ -309,12 +309,22 @@ class SparseMatrix extends AbstractMatrix {
     @Override
     public void setAtIndex(int index, double value) {
         checkElementIndex(index);
+        setQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void setQuickAtIndex(int index, double value) {
         values.set(index, value);
     }
 
     @Override
     public void addAtIndex(int index, double value) {
         checkElementIndex(index);
+        addQuickAtIndex(index, value);
+    }
+
+    @Override
+    public void addQuickAtIndex(int index, double value) {
         values.setQuick(index, values.getQuick(index) + value);
     }
 

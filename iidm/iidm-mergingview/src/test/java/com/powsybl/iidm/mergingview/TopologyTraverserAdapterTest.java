@@ -6,16 +6,18 @@
  */
 package com.powsybl.iidm.mergingview;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.math.graph.TraverseResult;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.function.Predicate;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -26,32 +28,44 @@ public class TopologyTraverserAdapterTest {
     public void test() {
         MergingView cgm = MergingViewFactory.createCGM(null);
         Terminal start1 = cgm.getLoad("LOAD1").getTerminal();
-        List<String> traversed1 = recordTraversed(start1, s -> true);
-        assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1 + DL2"), traversed1);
+        List<String> visited1 = recordVisited(start1, s -> TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("LOAD1", "BBS1", "DL1 + DL2"), visited1);
 
-        List<String> traversed1bis = recordTraversed(start1, aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER);
-        assertEquals(Collections.singletonList("LOAD1"), traversed1bis);
+        List<String> visited1bis = recordVisited(start1,
+            aSwitch -> !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER ? TraverseResult.CONTINUE : TraverseResult.TERMINATE_PATH);
+        assertEquals(Collections.singletonList("LOAD1"), visited1bis);
 
         Terminal start2 = cgm.getLoad("LOAD2").getTerminal();
-        List<String> traversed2 = recordTraversed(start2, s -> true);
-        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), traversed2);
+        List<String> visited2 = recordVisited(start2, s -> TraverseResult.CONTINUE);
+
+        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), visited2);
+
+        List<String> visited3 = recordVisited(start2, s -> TraverseResult.CONTINUE,
+            t -> t.getConnectable().getId().equals("DL1 + DL2") ? TraverseResult.TERMINATE_TRAVERSER : TraverseResult.CONTINUE);
+        assertEquals(Arrays.asList("LOAD2", "DL1 + DL2"), visited3);
     }
 
-    private List<String> recordTraversed(Terminal start, Predicate<Switch> switchPredicate) {
-        List<String> traversed = new ArrayList<>();
-        start.traverse(new VoltageLevel.TopologyTraverser() {
+    private List<String> recordVisited(Terminal start, Function<Switch, TraverseResult> switchPredicate) {
+        return recordVisited(start, switchPredicate, t -> TraverseResult.CONTINUE);
+    }
+
+    private List<String> recordVisited(Terminal start, Function<Switch, TraverseResult> switchTest, Function<Terminal, TraverseResult> terminalTest) {
+        Set<Terminal> visited = new LinkedHashSet<>();
+        start.traverse(new Terminal.TopologyTraverser() {
             @Override
-            public boolean traverse(Terminal terminal, boolean connected) {
-                traversed.add(terminal.getConnectable().getId());
-                return true;
+            public TraverseResult traverse(Terminal terminal, boolean connected) {
+                if (!visited.add(terminal)) {
+                    fail("Visiting an already visited terminal");
+                }
+                return terminalTest.apply(terminal);
             }
 
             @Override
-            public boolean traverse(Switch aSwitch) {
-                return switchPredicate.test(aSwitch);
+            public TraverseResult traverse(Switch aSwitch) {
+                return switchTest.apply(aSwitch);
             }
         });
-        return traversed;
+        return visited.stream().map(t -> t.getConnectable().getId()).collect(Collectors.toList());
     }
 
 }

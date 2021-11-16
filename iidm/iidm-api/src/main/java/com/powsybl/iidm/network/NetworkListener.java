@@ -13,7 +13,9 @@ public interface NetworkListener {
 
     void onCreation(Identifiable identifiable);
 
-    void onRemoval(Identifiable identifiable);
+    void beforeRemoval(Identifiable identifiable);
+
+    void afterRemoval(String id);
 
     void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue);
 

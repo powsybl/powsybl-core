@@ -8,10 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.conversion.export.CgmesExportContext;
-import com.powsybl.cgmes.conversion.export.StateVariablesAdder;
-import com.powsybl.cgmes.conversion.export.StateVariablesExport;
-import com.powsybl.cgmes.conversion.export.SteadyStateHypothesisExport;
+import com.powsybl.cgmes.conversion.export.*;
 import com.powsybl.cgmes.conversion.update.CgmesUpdate;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
@@ -27,6 +24,7 @@ import com.powsybl.iidm.parameters.ParameterType;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
@@ -68,14 +66,18 @@ public class CgmesExport implements Exporter {
         // At this point only SSH, SV can be exported when relying only in Network data
         // (minimum amount of CGMES references are expected as aliases/properties/extensions)
         String baseName = baseName(network, params);
+        String filenameEq = baseName + "_EQ.xml";
         String filenameSv = baseName + "_SV.xml";
         String filenameSsh = baseName + "_SSH.xml";
         CgmesExportContext context = new CgmesExportContext(network)
                 .setExportBoundaryPowerFlows(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_BOUNDARY_POWER_FLOWS_PARAMETER))
                 .setExportFlowsForSwitches(ConversionParameters.readBooleanParameter(getFormat(), params, EXPORT_POWER_FLOWS_FOR_SWITCHES_PARAMETER));
-        try (OutputStream osv = ds.newOutputStream(filenameSv, false);
-                OutputStream ossh = ds.newOutputStream(filenameSsh, false)) {
+        try (OutputStream oeq = new BufferedOutputStream(ds.newOutputStream(filenameEq, false));
+                OutputStream osv = new BufferedOutputStream(ds.newOutputStream(filenameSv, false));
+                OutputStream ossh = new BufferedOutputStream(ds.newOutputStream(filenameSsh, false))) {
             XMLStreamWriter writer;
+            writer = XmlUtil.initializeWriter(true, "    ", oeq);
+            EquipmentExport.write(network, writer, context);
             writer = XmlUtil.initializeWriter(true, "    ", osv);
             StateVariablesExport.write(network, writer, context);
             writer = XmlUtil.initializeWriter(true, "    ", ossh);
