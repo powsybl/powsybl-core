@@ -16,7 +16,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
-import com.powsybl.iidm.network.test.InvalidNetworkFactory;
+import com.powsybl.iidm.network.test.ScadaNetworkFactory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -196,16 +196,16 @@ public class NetworkXmlTest extends AbstractXmlConverterTest {
     }
 
     @Test
-    public void testInvalid() throws IOException {
-        Network network = InvalidNetworkFactory.create();
+    public void testScada() throws IOException {
+        Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false));
         roundTripXmlTest(network,
                 NetworkXml::write,
                 NetworkXml::read,
-                getVersionedNetworkPath("invalidNetwork.xml", CURRENT_IIDM_XML_VERSION));
+                getVersionedNetworkPath("scadaNetwork.xml", CURRENT_IIDM_XML_VERSION));
 
         // backward compatibility
-        roundTripVersionedXmlFromMinToCurrentVersionTest("invalidNetwork.xml", IidmXmlVersion.V_1_7);
+        roundTripVersionedXmlFromMinToCurrentVersionTest("scadaNetwork.xml", IidmXmlVersion.V_1_7);
 
         Path path = tmpDir.resolve("test");
         NetworkXml.write(network, path);

@@ -503,16 +503,6 @@ public abstract class AbstractTapChangerTest {
     }
 
     @Test
-    public void negativeTargetVOnlyWarning() {
-        createRatioTapChangerWith3Steps(0, 1, false, true, -10.0, 1.0, terminal);
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        assertNotNull(rtc);
-        assertFalse(rtc.hasLoadTapChangingCapabilities());
-        assertTrue(rtc.isRegulating());
-        assertEquals(-10.0, rtc.getTargetV(), 0.0);
-    }
-
-    @Test
     public void invalidTargetDeadbandRtc() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("2 windings transformer 'twt': Unexpected value for target deadband of ratio tap changer: -1.0");

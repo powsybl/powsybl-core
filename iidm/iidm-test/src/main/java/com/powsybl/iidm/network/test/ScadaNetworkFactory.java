@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public final class InvalidNetworkFactory {
+public final class ScadaNetworkFactory {
 
     public static Network create() {
         return create(NetworkFactory.findDefault());
@@ -22,7 +22,7 @@ public final class InvalidNetworkFactory {
 
     public static Network create(NetworkFactory networkFactory) {
         Objects.requireNonNull(networkFactory);
-        Network network = Network.create("invalid", "test");
+        Network network = Network.create("scada", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
         Substation sub = network.newSubstation()
@@ -116,7 +116,6 @@ public final class InvalidNetworkFactory {
                 .setId("shunt")
                 .setBus(bus2Id)
                 .setVoltageRegulatorOn(true)
-                .setSectionCount(-2)
                 .newLinearModel()
                 .setBPerSection(10.0)
                 .setMaximumSectionCount(1)
@@ -179,7 +178,6 @@ public final class InvalidNetworkFactory {
                 .endStep()
                 .add();
         t3wt.getLeg2().newPhaseTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setAlpha(1.0)
                 .setRho(1.0)
@@ -213,7 +211,6 @@ public final class InvalidNetworkFactory {
                 .endStep()
                 .add();
         t2wt.newPhaseTapChanger()
-                .setRegulating(true)
                 .beginStep()
                 .setAlpha(1.0)
                 .setRho(1.0)
@@ -241,6 +238,6 @@ public final class InvalidNetworkFactory {
         return network;
     }
 
-    private InvalidNetworkFactory() {
+    private ScadaNetworkFactory() {
     }
 }

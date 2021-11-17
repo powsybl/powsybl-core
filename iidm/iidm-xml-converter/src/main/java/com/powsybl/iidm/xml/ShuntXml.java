@@ -132,8 +132,10 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     .add();
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
-            int sectionCount = XmlUtil.readIntAttribute(context.getReader(), "sectionCount");
-            adder.setSectionCount(sectionCount);
+            Integer sectionCount = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "sectionCount");
+            if (sectionCount != null) {
+                adder.setSectionCount(sectionCount);
+            }
         });
         readNodeOrBus(adder, context);
         double p = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p");

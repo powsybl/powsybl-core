@@ -66,7 +66,7 @@ public enum IidmXmlVersion {
         if (this.compareTo(V_1_7) < 0) {
             throw new PowsyblException("Invalid network not supported for XIIDM version < 1.7");
         }
-        return "iidm_invalid_V" + toString("_") + ".xsd";
+        return "iidm_scada_V" + toString("_") + ".xsd";
     }
 
     public static IidmXmlVersion fromNamespaceURI(String namespaceURI) {

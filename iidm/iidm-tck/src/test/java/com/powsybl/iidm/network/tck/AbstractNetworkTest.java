@@ -565,21 +565,21 @@ public abstract class AbstractNetworkTest {
     }
 
     @Test
-    public void testInvalidNetwork() {
-        Network network = InvalidNetworkFactory.create();
+    public void testScadaNetwork() {
+        Network network = ScadaNetworkFactory.create();
         assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
 
         assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false));
 
-        ReporterModel reporter = new ReporterModel("testReportInvalidNetwork", "Test reporting of invalid network", Collections.emptyMap());
+        ReporterModel reporter = new ReporterModel("testReportScadaNetwork", "Test reporting of SCADA network", Collections.emptyMap());
         assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false, reporter));
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
         assertEquals("IIDMValidation", subReporter.getTaskKey());
-        assertEquals("Running validation checks on IIDM network invalid", subReporter.getDefaultName());
+        assertEquals("Running validation checks on IIDM network scada", subReporter.getDefaultName());
         Collection<Report> reports = subReporter.getReports();
-        assertEquals(32, reports.size());
+        assertEquals(26, reports.size());
 
         assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
 
