@@ -82,7 +82,7 @@ public final class ValidationUtil {
     public static ValidationLevel checkActivePowerSetpoint(Validable validable, double activePowerSetpoint, boolean throwException, Reporter reporter) {
         if (Double.isNaN(activePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -94,10 +94,10 @@ public final class ValidationUtil {
     public static ValidationLevel checkHvdcActivePowerSetpoint(Validable validable, double activePowerSetpoint, boolean throwException, Reporter reporter) {
         if (Double.isNaN(activePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         } else if (activePowerSetpoint < 0) {
             throwExceptionOrLogErrorForInvalidValue(validable, activePowerSetpoint, ACTIVE_POWER_SETPOINT, "active power setpoint should not be negative", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -131,11 +131,11 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (regulating && Double.isNaN(targetDeadband)) {
             throwExceptionOrLogError(validable, "Undefined value for target deadband of regulating " + validableType, throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         if (targetDeadband < 0) {
             throwExceptionOrLogError(validable, "Unexpected value for target deadband of " + validableType + ": " + targetDeadband + " < 0", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         return validationLevel;
     }
@@ -147,11 +147,11 @@ public final class ValidationUtil {
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, boolean throwException, Reporter reporter) {
         if (voltageRegulatorOn == null) {
             throwExceptionOrLogError(validable, "voltage regulator status is not set", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         if (voltageRegulatorOn && (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0)) {
             throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -163,16 +163,16 @@ public final class ValidationUtil {
     public static ValidationLevel checkVoltageControl(Validable validable, Boolean voltageRegulatorOn, double voltageSetpoint, double reactivePowerSetpoint, boolean throwException, Reporter reporter) {
         if (voltageRegulatorOn == null) {
             throwExceptionOrLogError(validable, "voltage regulator status is not set", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint) || voltageSetpoint <= 0) {
                 throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
-                return ValidationLevel.STATE_ESTIMATION;
+                return ValidationLevel.SCADA;
             }
         } else if (Double.isNaN(reactivePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -228,7 +228,7 @@ public final class ValidationUtil {
     public static ValidationLevel checkP0(Validable validable, double p0, boolean throwException, Reporter reporter) {
         if (Double.isNaN(p0)) {
             throwExceptionOrLogError(validable, "p0 is invalid", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -240,7 +240,7 @@ public final class ValidationUtil {
     public static ValidationLevel checkQ0(Validable validable, double q0, boolean throwException, Reporter reporter) {
         if (Double.isNaN(q0)) {
             throwExceptionOrLogError(validable, "q0 is invalid", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -367,19 +367,19 @@ public final class ValidationUtil {
         checkMaximumSectionCount(validable, maximumSectionCount);
         if (currentSectionCount == null) {
             throwExceptionOrLogError(validable, "the current number of section is undefined", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         } else {
             if (currentSectionCount < 0) {
                 throwExceptionOrLogError(validable, "the current number of section (" + currentSectionCount
                         + ") should be greater than or equal to 0", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
             if (currentSectionCount > maximumSectionCount) {
                 throwExceptionOrLogError(validable,
                         "the current number (" + currentSectionCount
                                 + ") of section should be lesser than the maximum number of section ("
                                 + maximumSectionCount + ")", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
         }
         return validationLevel;
@@ -411,20 +411,20 @@ public final class ValidationUtil {
                                                     StaticVarCompensator.RegulationMode regulationMode, boolean throwException, Reporter reporter) {
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "Regulation mode is invalid", throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         switch (regulationMode) {
             case VOLTAGE:
                 if (Double.isNaN(voltageSetpoint)) {
                     throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, throwException, reporter);
-                    return ValidationLevel.STATE_ESTIMATION;
+                    return ValidationLevel.SCADA;
                 }
                 break;
 
             case REACTIVE_POWER:
                 if (Double.isNaN(reactivePowerSetpoint)) {
                     throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", throwException, reporter);
-                    return ValidationLevel.STATE_ESTIMATION;
+                    return ValidationLevel.SCADA;
                 }
                 break;
 
@@ -453,7 +453,7 @@ public final class ValidationUtil {
     private static ValidationLevel errorOrWarningForRtc(Validable validable, boolean loadTapChangingCapabilities, String message, boolean throwException, Reporter reporter) {
         if (loadTapChangingCapabilities) {
             throwExceptionOrLogError(validable, message, throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         } else {
             reporter.report(Report.builder()
                     .withKey(validable.getMessageHeader())
@@ -508,20 +508,20 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (regulationMode == null) {
             throwExceptionOrLogError(validable, "phase regulation mode is not set", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         if (regulating && regulationMode != null) {
             if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
                 throwExceptionOrLogError(validable, "phase regulation is on and threshold/setpoint value is not set", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
             if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
                 throwExceptionOrLogError(validable, "phase regulation is on and regulated terminal is not set", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
             if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP) {
                 throwExceptionOrLogError(validable, "phase regulation cannot be on if mode is FIXED", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
         }
         if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getNetwork() != network) {
@@ -539,7 +539,7 @@ public final class ValidationUtil {
                                                                           boolean regulating, boolean throwException, Reporter reporter) {
         if (regulating && tapChangersNotIncludingTheModified.stream().anyMatch(TapChanger::isRegulating)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-            return ValidationLevel.STATE_ESTIMATION;
+            return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
     }
@@ -583,7 +583,7 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (rtc.getTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         if (rtc.getTapPosition().isPresent()) {
             int tapPosition = rtc.getTapPosition().getAsInt();
@@ -592,7 +592,7 @@ public final class ValidationUtil {
                 throwExceptionOrLogError(validable, "incorrect tap position "
                         + tapPosition + " [" + rtc.getLowTapPosition() + ", "
                         + highTapPosition + "]", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
         }
         validationLevel = ValidationLevel.min(validationLevel, checkRatioTapChangerRegulation(validable, rtc.isRegulating(), rtc.hasLoadTapChangingCapabilities(), rtc.getRegulationTerminal(), rtc.getTargetV(), network, throwException, reporter));
@@ -604,7 +604,7 @@ public final class ValidationUtil {
         ValidationLevel validationLevel = ValidationLevel.LOADFLOW;
         if (ptc.getTapPosition().isEmpty()) {
             throwExceptionOrLogError(validable, "tap position is not set", throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         if (ptc.getTapPosition().isPresent()) {
             int tapPosition = ptc.getTapPosition().getAsInt();
@@ -613,7 +613,7 @@ public final class ValidationUtil {
                 throwExceptionOrLogError(validable, "incorrect tap position "
                         + tapPosition + " [" + ptc.getLowTapPosition() + ", "
                         + highTapPosition + "]", throwException, reporter);
-                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+                validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
             }
         }
         validationLevel = ValidationLevel.min(validationLevel, checkPhaseTapChangerRegulation(validable, ptc.getRegulationMode(), ptc.getRegulationValue(), ptc.isRegulating(), ptc.getRegulationTerminal(), network, throwException, reporter));
@@ -643,7 +643,7 @@ public final class ValidationUtil {
                 .count();
         if (regulatingTc > 1) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         return validationLevel;
     }
@@ -659,7 +659,7 @@ public final class ValidationUtil {
         if (twt.getOptionalRatioTapChanger().map(RatioTapChanger::isRegulating).orElse(false)
                 && twt.getOptionalPhaseTapChanger().map(PhaseTapChanger::isRegulating).orElse(false)) {
             throwExceptionOrLogError(validable, UNIQUE_REGULATING_TAP_CHANGER_MSG, throwException, reporter);
-            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.STATE_ESTIMATION);
+            validationLevel = ValidationLevel.min(validationLevel, ValidationLevel.SCADA);
         }
         return validationLevel;
     }

@@ -168,7 +168,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-            network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
+            network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
         }
         if (steps.isEmpty()) {
             throw new ValidationException(parent, "ratio tap changer should have at least one step");
@@ -179,7 +179,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
                         + highTapPosition + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-                network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
+                network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkRatioTapChangerRegulation(parent, regulating, loadTapChangingCapabilities, regulationTerminal,

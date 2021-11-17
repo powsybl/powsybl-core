@@ -205,7 +205,7 @@ public abstract class AbstractNetworkTest {
         // validation
         assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
         network.runValidationChecks();
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
         assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
         voltageLevel1.newLoad()
                 .setId("unchecked")
@@ -214,12 +214,12 @@ public abstract class AbstractNetworkTest {
                 .setNode(3)
                 .add();
         assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
         Load unchecked2 = voltageLevel1.newLoad()
                 .setId("unchecked2")
                 .setNode(10)
                 .add();
-        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
+        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
         unchecked2.setP0(0.0).setQ0(0.0);
         assertEquals(ValidationLevel.LOADFLOW, network.getValidationLevel());
         network.setMinimumAcceptableValidationLevel(ValidationLevel.LOADFLOW);
@@ -567,12 +567,12 @@ public abstract class AbstractNetworkTest {
     @Test
     public void testInvalidNetwork() {
         Network network = InvalidNetworkFactory.create();
-        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
+        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
 
-        assertEquals(ValidationLevel.STATE_ESTIMATION, network.runValidationChecks(false));
+        assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false));
 
         ReporterModel reporter = new ReporterModel("testReportInvalidNetwork", "Test reporting of invalid network", Collections.emptyMap());
-        assertEquals(ValidationLevel.STATE_ESTIMATION, network.runValidationChecks(false, reporter));
+        assertEquals(ValidationLevel.SCADA, network.runValidationChecks(false, reporter));
         List<ReporterModel> subReporters = reporter.getSubReporters();
         assertEquals(1, subReporters.size());
         ReporterModel subReporter = subReporters.get(0);
@@ -581,7 +581,7 @@ public abstract class AbstractNetworkTest {
         Collection<Report> reports = subReporter.getReports();
         assertEquals(32, reports.size());
 
-        assertEquals(ValidationLevel.STATE_ESTIMATION, network.getValidationLevel());
+        assertEquals(ValidationLevel.SCADA, network.getValidationLevel());
 
         try {
             network.runValidationChecks();

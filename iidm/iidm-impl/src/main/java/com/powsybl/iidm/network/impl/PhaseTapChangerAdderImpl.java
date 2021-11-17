@@ -179,7 +179,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         NetworkImpl network = getNetwork();
         if (tapPosition == null) {
             ValidationUtil.throwExceptionOrLogError(parent, "tap position is not set", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-            network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
+            network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
         }
         if (steps.isEmpty()) {
             throw new ValidationException(parent, "a phase tap changer shall have at least one step");
@@ -190,7 +190,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                 ValidationUtil.throwExceptionOrLogError(parent, "incorrect tap position "
                         + tapPosition + " [" + lowTapPosition + ", "
                         + highTapPosition + "]", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-                network.setValidationLevelIfGreaterThan(ValidationLevel.STATE_ESTIMATION);
+                network.setValidationLevelIfGreaterThan(ValidationLevel.SCADA);
             }
         }
         network.setValidationLevelIfGreaterThan(ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,

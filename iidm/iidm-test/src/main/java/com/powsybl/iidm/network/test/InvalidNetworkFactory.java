@@ -24,7 +24,7 @@ public final class InvalidNetworkFactory {
         Objects.requireNonNull(networkFactory);
         Network network = Network.create("invalid", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
-        network.setMinimumAcceptableValidationLevel(ValidationLevel.STATE_ESTIMATION);
+        network.setMinimumAcceptableValidationLevel(ValidationLevel.SCADA);
         Substation sub = network.newSubstation()
                 .setId("sub")
                 .add();
