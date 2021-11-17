@@ -81,6 +81,10 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
         return OptionalInt.empty();
     }
 
+    /**
+     * Get the neutral step (rho = 1, alpha = 0) if it exists.
+     * Otherwise return an empty optional.
+     */
     default Optional<S> getNeutralStep() {
         return Optional.empty();
     }
