@@ -44,8 +44,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void read(InputStream is, String baseName, String contextName) {
-        // Reset cached isNodeBreaker everytime we read new data
-        nodeBreakerComputed = false;
+        // Reset cached nodeBreaker value everytime we read new data
+        nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
     }
 
@@ -147,9 +147,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean isNodeBreaker() {
-        if (!nodeBreakerComputed) {
+        if (nodeBreaker == null) {
             nodeBreaker = computeIsNodeBreaker();
-            nodeBreakerComputed = true;
         }
         return nodeBreaker;
     }
@@ -169,6 +168,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // also have EquipmentOperation or EquipmentBoundaryOperation
         Map<String, Boolean> modelHasOperationProfile = computeEqModelHasEquipmentOperationProfile(r);
         boolean consideredNodeBreaker = modelHasOperationProfile.values().stream().allMatch(Boolean::valueOf);
+        if (LOG.isInfoEnabled()) {
+            logNodeBreaker(consideredNodeBreaker, modelHasOperationProfile);
+        }
+        return consideredNodeBreaker;
+    }
+
+    private void logNodeBreaker(boolean consideredNodeBreaker, Map<String, Boolean> modelHasOperationProfile) {
         if (consideredNodeBreaker) {
             LOG.info(
                     "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
@@ -181,7 +187,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 }
             });
         }
-        return consideredNodeBreaker;
     }
 
     private Map<String, Boolean> computeEqModelHasEquipmentOperationProfile(PropertyBags modelProfiles) {
@@ -703,8 +708,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
-    private boolean nodeBreaker;
-    private boolean nodeBreakerComputed = false;
+    private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";
