@@ -26,6 +26,7 @@ public final class ValidationUtil {
     private static final String ACTIVE_POWER_SETPOINT = "active power setpoint";
     private static final String MAXIMUM_P = "maximum P";
     private static final String UNIQUE_REGULATING_TAP_CHANGER_MSG = "Only one regulating control enabled is allowed";
+    private static final String VOLTAGE_REGULATOR_ON = "voltage regulator is on";
     private static final String VOLTAGE_SETPOINT = "voltage setpoint";
 
     private ValidationUtil() {
@@ -148,11 +149,11 @@ public final class ValidationUtil {
         }
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON, throwException, reporter);
                 return ValidationLevel.SCADA;
             }
             if (voltageSetpoint <= 0) {
-                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
+                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON);
             }
         }
         return ValidationLevel.LOADFLOW;
@@ -169,11 +170,11 @@ public final class ValidationUtil {
         }
         if (voltageRegulatorOn) {
             if (Double.isNaN(voltageSetpoint)) {
-                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on", throwException, reporter);
+                throwExceptionOrLogErrorForInvalidValue(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON, throwException, reporter);
                 return ValidationLevel.SCADA;
             }
             if (voltageSetpoint <= 0) {
-                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, "voltage regulator is on");
+                throw createInvalidValueException(validable, voltageSetpoint, VOLTAGE_SETPOINT, VOLTAGE_REGULATOR_ON);
             }
         } else if (Double.isNaN(reactivePowerSetpoint)) {
             throwExceptionOrLogErrorForInvalidValue(validable, reactivePowerSetpoint, "reactive power setpoint", "voltage regulator is off", throwException, reporter);
