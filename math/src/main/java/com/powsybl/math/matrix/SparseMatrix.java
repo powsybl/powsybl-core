@@ -10,8 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
 import org.scijava.nativelib.NativeLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -28,8 +26,6 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class SparseMatrix extends AbstractMatrix {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SparseMatrix.class);
 
     private static native void nativeInit();
 
@@ -234,7 +230,9 @@ class SparseMatrix extends AbstractMatrix {
             // ok, continue to fill row
         } else if (j > currentColumn) {
             // start new column
-            columnStart[j] = values.size();
+            for (int k = currentColumn + 1; k <= j; k++) {
+                columnStart[k] = values.size();
+            }
             currentColumn = j;
         } else {
             throw new PowsyblException("Columns have to be filled in the right order");
@@ -243,6 +241,13 @@ class SparseMatrix extends AbstractMatrix {
         rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
         columnValueCount[j]++;
+    }
+
+    private void fillLastEmptyColumns() {
+        for (int k = currentColumn + 1; k < columnCount; k++) {
+            columnStart[k] = values.size();
+        }
+        currentColumn = columnCount - 1;
     }
 
     /**
@@ -335,19 +340,32 @@ class SparseMatrix extends AbstractMatrix {
 
     @Override
     public LUDecomposition decomposeLU() {
+        fillLastEmptyColumns();
         return new SparseLUDecomposition(this);
     }
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
+    private native SparseMatrix add(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2, double alpha, double beta);
+
     @Override
     public Matrix times(Matrix other) {
-        if (!(other instanceof SparseMatrix)) {
-            throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
-        }
-        SparseMatrix o = (SparseMatrix) other;
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        fillLastEmptyColumns();
+        o.fillLastEmptyColumns();
         SparseMatrix result = times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
                 o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        result.setRgrowthThreshold(rgrowthThreshold);
+        return result;
+    }
+
+    @Override
+    public Matrix add(Matrix other, double alpha, double beta) {
+        SparseMatrix o = Objects.requireNonNull(other).toSparse();
+        fillLastEmptyColumns();
+        o.fillLastEmptyColumns();
+        SparseMatrix result = add(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData(), alpha, beta);
         result.setRgrowthThreshold(rgrowthThreshold);
         return result;
     }
@@ -399,6 +417,7 @@ class SparseMatrix extends AbstractMatrix {
 
     @Override
     public SparseMatrix transpose() {
+        fillLastEmptyColumns();
         SparseMatrix transposed = transpose(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData());
         transposed.setRgrowthThreshold(rgrowthThreshold);
         return transposed;

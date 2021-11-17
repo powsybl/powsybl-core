@@ -153,7 +153,7 @@ public class Conversion {
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
-        cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodesMapping(t));
+        cgmes.computedTerminals().forEach(t -> context.terminalMapping().buildTopologicalNodeCgmesTerminalsMapping(t));
         cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
