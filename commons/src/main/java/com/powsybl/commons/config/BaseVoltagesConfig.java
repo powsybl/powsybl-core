@@ -7,6 +7,8 @@
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
@@ -29,6 +31,8 @@ import java.util.stream.Collectors;
  * @author Florian Dupuy <florian.dupuy at rte-france.com>
  */
 public class BaseVoltagesConfig {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseVoltagesConfig.class);
 
     private static final String DEFAULT_CONFIG_FILE_NAME = "base-voltages.yml";
 
@@ -80,11 +84,13 @@ public class BaseVoltagesConfig {
                 throw new UncheckedIOException(e);
             }
         } else {
+            LOGGER.debug("Base voltage configuration file {} not found, loading default file {} from class path",
+                    configFile, configFileName);
             InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + configFileName);
             if (configInputStream != null) {
                 return fromInputStream(configInputStream);
             } else {
-                throw new PowsyblException("No base voltages configuration found");
+                throw new PowsyblException("No default base voltages configuration found: " + configFileName);
             }
         }
     }
