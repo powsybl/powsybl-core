@@ -84,7 +84,7 @@ public class BaseVoltagesConfig {
                 throw new UncheckedIOException(e);
             }
         } else {
-            LOGGER.debug("Base voltage configuration file {} not found, loading default file {} from class path",
+            LOGGER.debug("Base voltage configuration file '{}' not found, loading default file '{}' from class path",
                     configFile, configFileName);
             InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + configFileName);
             if (configInputStream != null) {
