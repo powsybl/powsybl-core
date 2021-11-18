@@ -10,7 +10,10 @@ import com.powsybl.commons.PowsyblException;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,11 +56,7 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig) {
-        Path path = platformConfig.getConfigDir().resolve(CONFIG_FILE);
-        if (!Files.exists(path)) {
-            throw new PowsyblException("No base voltages configuration found");
-        }
-        return fromPath(path);
+        return fromPath(platformConfig.getConfigDir().resolve(CONFIG_FILE));
     }
 
     public static BaseVoltagesConfig fromInputStream(InputStream configInputStream) {
@@ -68,10 +67,19 @@ public class BaseVoltagesConfig {
 
     public static BaseVoltagesConfig fromPath(Path configFile) {
         Objects.requireNonNull(configFile);
-        try (InputStream configInputStream = Files.newInputStream(configFile)) {
-            return fromInputStream(configInputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+        if (Files.exists(configFile)) {
+            try (InputStream configInputStream = Files.newInputStream(configFile)) {
+                return fromInputStream(configInputStream);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + CONFIG_FILE);
+            if (configInputStream != null) {
+                return fromInputStream(configInputStream);
+            } else {
+                throw new PowsyblException("No base voltages configuration found");
+            }
         }
     }
 

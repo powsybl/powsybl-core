@@ -6,12 +6,10 @@
  */
 package com.powsybl.commons.config;
 
-import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.ByteArrayInputStream;
-import java.io.UncheckedIOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -60,13 +58,6 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testMissingPlatformConfigFile() {
-        PlatformConfig platformConfig = new PlatformConfig((ModuleConfigRepository) null, Path.of("./"));
-        assertThrows("No base voltages configuration found", PowsyblException.class,
-            () -> BaseVoltagesConfig.fromPlatformConfig(platformConfig));
-    }
-
-    @Test
     public void testFromPath() throws URISyntaxException {
         URL resource = getClass().getResource("/base-voltages.yml");
         assertNotNull(resource);
@@ -74,10 +65,6 @@ public class BaseVoltagesConfigTest {
         BaseVoltagesConfig config = BaseVoltagesConfig.fromPath(configPath);
         assertNotNull(config);
         assertEquals("vl30to50", config.getBaseVoltages().get(5).getName());
-
-        // Testing non-existing path
-        Path unknownPath = Path.of("unknownPath");
-        assertThrows(UncheckedIOException.class, () -> BaseVoltagesConfig.fromPath(unknownPath));
     }
 
     @Test
