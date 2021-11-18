@@ -497,11 +497,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags dcTerminalsTP() {
-        return namedQuery("dcTerminalsTP");
-    }
-
-    @Override
     public PropertyBags tieFlows() {
         return namedQuery("tieFlows");
     }
