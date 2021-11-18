@@ -58,11 +58,12 @@ class BoundaryEquipment {
     }
 
     void log() {
-        if (LOG.isDebugEnabled()) {
+        if (LOG.isTraceEnabled()) {
+            String title = "BoundaryEquipment " + type.toString();
             if (propertyBags.size() == 1) {
-                LOG.debug(propertyBags.get(0).tabulateLocals(type.toString()));
+                LOG.trace(propertyBags.get(0).tabulateLocals(title));
             } else {
-                propertyBags.forEach(p -> LOG.debug(p.tabulateLocals(type.toString())));
+                propertyBags.forEach(p -> LOG.trace(p.tabulateLocals(title)));
             }
         }
     }
