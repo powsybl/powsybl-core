@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public class BaseVoltagesConfig {
 
-    private static final String CONFIG_FILE = "base-voltages.yml";
+    private static final String DEFAULT_CONFIG_FILE_NAME = "base-voltages.yml";
 
     private List<BaseVoltageConfig> baseVoltages = new ArrayList<>();
     private String defaultProfile;
@@ -56,7 +56,11 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig) {
-        return fromPath(platformConfig.getConfigDir().resolve(CONFIG_FILE));
+        return fromPlatformConfig(platformConfig, DEFAULT_CONFIG_FILE_NAME);
+    }
+
+    public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig, String configFileName) {
+        return fromPath(platformConfig.getConfigDir(), configFileName);
     }
 
     public static BaseVoltagesConfig fromInputStream(InputStream configInputStream) {
@@ -65,8 +69,10 @@ public class BaseVoltagesConfig {
         return yaml.load(configInputStream);
     }
 
-    public static BaseVoltagesConfig fromPath(Path configFile) {
-        Objects.requireNonNull(configFile);
+    public static BaseVoltagesConfig fromPath(Path configDir, String configFileName) {
+        Objects.requireNonNull(configDir);
+        Objects.requireNonNull(configFileName);
+        Path configFile = configDir.resolve(configFileName);
         if (Files.exists(configFile)) {
             try (InputStream configInputStream = Files.newInputStream(configFile)) {
                 return fromInputStream(configInputStream);
@@ -74,7 +80,7 @@ public class BaseVoltagesConfig {
                 throw new UncheckedIOException(e);
             }
         } else {
-            InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + CONFIG_FILE);
+            InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + configFileName);
             if (configInputStream != null) {
                 return fromInputStream(configInputStream);
             } else {

@@ -6,16 +6,20 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
 import org.yaml.snakeyaml.error.YAMLException;
 
 import java.io.ByteArrayInputStream;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -58,13 +62,24 @@ public class BaseVoltagesConfigTest {
     }
 
     @Test
-    public void testFromPath() throws URISyntaxException {
-        URL resource = getClass().getResource("/base-voltages.yml");
-        assertNotNull(resource);
-        Path configPath = Paths.get(resource.toURI());
-        BaseVoltagesConfig config = BaseVoltagesConfig.fromPath(configPath);
-        assertNotNull(config);
-        assertEquals("vl30to50", config.getBaseVoltages().get(5).getName());
+    public void testMissingPlatformConfigFile() {
+        PlatformConfig platformConfig = new PlatformConfig((ModuleConfigRepository) null, Path.of("./"));
+        assertThrows("No base voltages configuration found", PowsyblException.class,
+            () -> BaseVoltagesConfig.fromPlatformConfig(platformConfig, "unknown.yml"));
+    }
+
+    @Test
+    public void testFromPath() throws IOException {
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            Files.copy(Objects.requireNonNull(getClass().getResourceAsStream("/base-voltages.yml")), fs.getPath("/work/my-base-voltages.yml"));
+            Path workDir = fs.getPath("/work");
+            BaseVoltagesConfig config = BaseVoltagesConfig.fromPath(workDir, "my-base-voltages.yml");
+            assertNotNull(config);
+            assertEquals("vl30to50", config.getBaseVoltages().get(5).getName());
+
+            // Testing non-existing path
+            assertThrows(PowsyblException.class, () -> BaseVoltagesConfig.fromPath(workDir, "unknown.yml"));
+        }
     }
 
     @Test
