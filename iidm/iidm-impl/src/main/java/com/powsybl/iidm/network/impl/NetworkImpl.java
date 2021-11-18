@@ -934,6 +934,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (dl1 != null) {
 
             // Dangling line 2 must always be reoriented
+            // setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
             BranchReorientedParameters brp2 = new BranchReorientedParameters(dl2.getR(), dl2.getX(), dl2.getG(), dl2.getB(), 0.0, 0.0);
 
             MergedLine l = new MergedLine();

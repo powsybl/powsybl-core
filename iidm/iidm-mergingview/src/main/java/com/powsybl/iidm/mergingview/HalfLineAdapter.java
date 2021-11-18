@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Boundary;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.util.BranchReorientedParameters;
 
 import java.util.Objects;
 
@@ -23,6 +24,10 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     private final DanglingLine danglingLine;
     private final Branch.Side side;
 
+    private double r;
+
+    private double x;
+
     private double g1;
 
     private double g2;
@@ -32,14 +37,29 @@ public class HalfLineAdapter implements TieLine.HalfLine {
     private double b2;
 
     public HalfLineAdapter(DanglingLine danglingLine, Branch.Side side, MergingViewIndex index) {
+        this(danglingLine, side, index, false);
+    }
+
+    public HalfLineAdapter(DanglingLine danglingLine, Branch.Side side, MergingViewIndex index, boolean mustBeReoriented) {
+
+        // TODO(mathbagu): is it correct? should we initialize only b1/g1 (resp. b2/g2) like it's done in the destructive merge?
+
+        // if mustBeReoriented is false then end1 and end2 of the halfLine correspond to end1 and end2 of the associated danglingLine
+        // if mustBeReoriented is true then end1 and end2 of the halfLine correspond to end2 and end1 of the associated danglingLine
+        // As in the danglingLine only G (g1 + g2) is recorded we do not need to know if the danglingLine has been reoriented
+        BranchReorientedParameters brp = new BranchReorientedParameters(danglingLine.getR(), danglingLine.getX(),
+            danglingLine.getG() / 2, danglingLine.getB() / 2, danglingLine.getG() / 2, danglingLine.getB() / 2, mustBeReoriented);
+
         this.index = Objects.requireNonNull(index);
         this.danglingLine = Objects.requireNonNull(danglingLine);
         this.side = Objects.requireNonNull(side);
-        // TODO(mathbagu): is it correct? should we initialize only b1/g1 (resp. b2/g2) like it's done in the destructive merge?
-        this.g1 = danglingLine.getG() / 2.0;
-        this.g2 = danglingLine.getG() / 2.0;
-        this.b1 = danglingLine.getB() / 2.0;
-        this.b2 = danglingLine.getB() / 2.0;
+
+        this.r = brp.getR();
+        this.x = brp.getX();
+        this.g1 = brp.getG1();
+        this.g2 = brp.getG2();
+        this.b1 = brp.getB1();
+        this.b2 = brp.getB2();
     }
 
     DanglingLine getDanglingLine() {
@@ -58,22 +78,24 @@ public class HalfLineAdapter implements TieLine.HalfLine {
 
     @Override
     public double getR() {
-        return danglingLine.getR();
+        return r;
     }
 
     @Override
     public TieLine.HalfLine setR(double r) {
+        this.r = r;
         danglingLine.setR(r);
         return this;
     }
 
     @Override
     public double getX() {
-        return danglingLine.getX();
+        return x;
     }
 
     @Override
     public TieLine.HalfLine setX(double x) {
+        this.x = x;
         danglingLine.setX(x);
         return this;
     }

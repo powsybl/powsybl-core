@@ -148,6 +148,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion implements
         }
     }
 
+    // Before creating the TieLine the initial branches are reoriented if it is necessary,
+    // then the setG1, setB1 and setG2, setB2 will be associated to the end1 and end2 of the reoriented branch
     private static Line createTieLine(Context context, String boundaryNode, BoundaryLine boundaryLine1, BoundaryLine boundaryLine2) {
 
         BranchReorientedParameters brp1 = new BranchReorientedParameters(boundaryLine1.getR(), boundaryLine1.getX(),
