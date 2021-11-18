@@ -305,6 +305,43 @@ public class DanglingLineAdapterTest {
         assertEquals(v1, expectedSVmlEnd1.getU(), 1.0e-6);
         assertEquals(angle1, expectedSVmlEnd1.getA(), 1.0e-6);
 
+        try {
+            mergedLine.setR(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setX(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setG1(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setB1(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setG2(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+        try {
+            mergedLine.setB2(1.0);
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("direct modification of characteristics not supported for MergedLines", e.getMessage());
+        }
+
         mergedLine.setFictitious(true);
         assertTrue(mergedLine.isFictitious());
 

@@ -11,12 +11,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionAdder;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.util.HalfLineUtil;
 import com.powsybl.iidm.network.util.Identifiables;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 import com.powsybl.iidm.network.util.LinkData;
-import com.powsybl.iidm.network.util.LinkData.BranchAdmittanceMatrix;
 
-import org.apache.commons.math3.complex.Complex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +24,7 @@ import java.util.stream.Collectors;
 
 /**
  * @author Thomas Adam <tadam at silicom.fr>
+ * @author José Antonio Marqués <marquesja at aia.es>
  */
 class MergedLine implements TieLine {
 
@@ -222,70 +222,70 @@ class MergedLine implements TieLine {
 
     @Override
     public double getR() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         // Add 0.0 to avoid negative zero, tests where the R value is compared as text, fail
         return adm.y12().negate().reciprocal().getReal() + 0.0;
     }
 
     @Override
     public Line setR(final double r) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getX() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         // Add 0.0 to avoid negative zero, tests where the X value is compared as text, fail
         return adm.y12().negate().reciprocal().getImaginary() + 0.0;
     }
 
     @Override
     public Line setX(final double x) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getG1() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         return adm.y11().add(adm.y12()).getReal();
     }
 
     @Override
     public Line setG1(final double g1) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getG2() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         return adm.y22().add(adm.y21()).getReal();
     }
 
     @Override
     public Line setG2(final double g2) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getB1() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         return adm.y11().add(adm.y12()).getImaginary();
     }
 
     @Override
     public Line setB1(final double b1) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
     public double getB2() {
-        LinkData.BranchAdmittanceMatrix adm = equivalentBranchAdmittanceMatrix(half1, half2);
+        LinkData.BranchAdmittanceMatrix adm = HalfLineUtil.equivalentBranchAdmittanceMatrix(half1, half2);
         return adm.y22().add(adm.y21()).getImaginary();
     }
 
     @Override
     public Line setB2(final double b2) {
-        throw createNotSupportedForTieLines();
+        throw createNotSupportedForMergedLines();
     }
 
     @Override
@@ -573,33 +573,7 @@ class MergedLine implements TieLine {
         }
     }
 
-    // zero impedance half lines should be supported
-    private static LinkData.BranchAdmittanceMatrix equivalentBranchAdmittanceMatrix(HalfLineAdapter half1,
-        HalfLineAdapter half2) {
-
-        BranchAdmittanceMatrix adm1 = LinkData.calculateBranchAdmittance(half1.getR(), half1.getX(), 1.0, 0.0, 1.0, 0.0,
-            new Complex(half1.getG1(), half1.getB1()), new Complex(half1.getG2(), half1.getB2()));
-        BranchAdmittanceMatrix adm2 = LinkData.calculateBranchAdmittance(half2.getR(), half2.getX(), 1.0, 0.0, 1.0, 0.0,
-            new Complex(half2.getG1(), half2.getB1()), new Complex(half2.getG2(), half2.getB2()));
-
-        if (zeroImpedanceLine(adm1)) {
-            return adm2;
-        } else if (zeroImpedanceLine(adm2)) {
-            return adm1;
-        } else {
-            return LinkData.kronChain(adm1, Branch.Side.TWO, adm2, Branch.Side.ONE);
-        }
-    }
-
-    private static boolean zeroImpedanceLine(BranchAdmittanceMatrix adm) {
-        if (adm.y12().getReal() == 0.0 && adm.y12().getImaginary() == 0.0) {
-            return true;
-        } else {
-            return adm.y21().getReal() == 0.0 && adm.y22().getImaginary() == 0.0;
-        }
-    }
-
-    private static ValidationException createNotSupportedForTieLines() {
-        throw new PowsyblException("direct modification of characteristics not supported for tie lines");
+    private static ValidationException createNotSupportedForMergedLines() {
+        throw new PowsyblException("direct modification of characteristics not supported for MergedLines");
     }
 }
