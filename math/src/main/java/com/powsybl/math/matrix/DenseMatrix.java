@@ -237,6 +237,11 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     @Override
+    public Matrix add(Matrix other, double alpha, double beta) {
+        return new DenseMatrix(toJamaMatrix().times(alpha).plus(other.toDense().toJamaMatrix().times(beta)));
+    }
+
+    @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         Objects.requireNonNull(handler);
         for (int j = 0; j < getColumnCount(); j++) {
