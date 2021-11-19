@@ -6,20 +6,22 @@
  */
 package com.powsybl.iidm.export;
 
+import com.google.common.io.ByteStreams;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.TestUtil;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.reporter.Report;
 import com.powsybl.commons.reporter.ReporterModel;
 import com.powsybl.iidm.AbstractConvertersTest;
-
 import com.powsybl.iidm.tools.ExporterMockWithReporter;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-
 import java.util.Collection;
 import java.util.Optional;
 
@@ -108,7 +110,7 @@ public class ExportersTest extends AbstractConvertersTest {
     }
 
     @Test
-    public void exportWithReporter() {
+    public void exportWithReporter() throws Exception {
         Exporter testExporter = new ExporterMockWithReporter();
         DataSource dataSource = Exporters.createDataSource(path);
         ReporterModel reporter = new ReporterModel("reportTest", "Testing exporter reporter");
@@ -116,5 +118,12 @@ public class ExportersTest extends AbstractConvertersTest {
         Optional<Report> report = reporter.getReports().stream().findFirst();
         assertTrue(report.isPresent());
 
+        StringWriter sw = new StringWriter();
+        reporter.export(sw);
+
+        InputStream refStream = getClass().getResourceAsStream("/exportReporterTest.txt");
+        String refLogExport = TestUtil.normalizeLineSeparator(new String(ByteStreams.toByteArray(refStream), StandardCharsets.UTF_8));
+        String logExport = TestUtil.normalizeLineSeparator(sw.toString());
+        assertEquals(refLogExport, logExport);
     }
 }
