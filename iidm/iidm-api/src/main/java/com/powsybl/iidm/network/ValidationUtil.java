@@ -552,7 +552,7 @@ public final class ValidationUtil {
     public static ValidationLevel checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode,
                                            boolean throwException, Reporter reporter) {
         if (converterMode == null) {
-            throwExceptionOrLogError(validable, "converter mode is invalid", throwException);
+            throwExceptionOrLogError(validable, "converter mode is invalid", throwException, reporter);
             return ValidationLevel.SCADA;
         }
         return ValidationLevel.LOADFLOW;
