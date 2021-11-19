@@ -135,8 +135,6 @@ public interface CgmesModel {
 
     PropertyBags dcTerminals();
 
-    PropertyBags dcTerminalsTP();
-
     default PropertyBags tieFlows() {
         return new PropertyBags();
     }

@@ -47,4 +47,9 @@ public abstract class AbstractMatrix implements Matrix {
         iterateNonZeroValue(matrix::set);
         return matrix;
     }
+
+    @Override
+    public Matrix add(Matrix other) {
+        return add(other, 1d, 1d);
+    }
 }
