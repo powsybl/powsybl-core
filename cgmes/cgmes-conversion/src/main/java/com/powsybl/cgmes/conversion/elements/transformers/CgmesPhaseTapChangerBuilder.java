@@ -13,6 +13,7 @@ import java.util.function.Supplier;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -62,7 +63,21 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         if (isLinear()) {
             addStepsLinear();
         } else if (isTabular()) {
-            addStepsFromTable();
+            PropertyBags table = context.phaseTapChangerTable(tableId);
+            if (table == null) {
+                addStepsLinear();
+                return;
+            }
+            int min = table.stream().map(p -> p.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
+            for (int i = min; i < min + table.size(); i++) {
+                int index = i;
+                if (table.stream().noneMatch(p -> p.asInt(CgmesNames.STEP) == index)) {
+                    context.ignored("PhaseTapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Phase tap changer considered linear", index, tableId));
+                    addStepsLinear();
+                    return;
+                }
+            }
+            addStepsFromTable(table);
         } else if (isAsymmetrical()) {
             addStepsAsymmetrical();
         } else if (isSymmetrical()) {
@@ -91,11 +106,7 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
         stepXforLinearAndSymmetrical();
     }
 
-    private void addStepsFromTable() {
-        PropertyBags table = context.phaseTapChangerTable(tableId);
-        if (table == null) {
-            return;
-        }
+    private void addStepsFromTable(PropertyBags table) {
         Comparator<PropertyBag> byStep = Comparator
                 .comparingInt((PropertyBag p) -> p.asInt(CgmesNames.STEP));
         table.sort(byStep);
