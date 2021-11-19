@@ -545,10 +545,17 @@ public final class ValidationUtil {
         return ValidationLevel.LOADFLOW;
     }
 
-    public static void checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode) {
+    public static ValidationLevel checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode, boolean throwException) {
+        return checkConvertersMode(validable, converterMode, throwException, Reporter.NO_OP);
+    }
+
+    public static ValidationLevel checkConvertersMode(Validable validable, HvdcLine.ConvertersMode converterMode,
+                                           boolean throwException, Reporter reporter) {
         if (converterMode == null) {
-            throw new ValidationException(validable, "converter mode is invalid");
+            throwExceptionOrLogError(validable, "converter mode is invalid", throwException);
+            return ValidationLevel.SCADA;
         }
+        return ValidationLevel.LOADFLOW;
     }
 
     public static void checkPowerFactor(Validable validable, double powerFactor) {
@@ -682,6 +689,7 @@ public final class ValidationUtil {
                 validationLevel = ValidationLevel.min(validationLevel, checkVoltageControl(validable, generator.isVoltageRegulatorOn(), generator.getTargetV(), generator.getTargetQ(), throwException, reporter));
             } else if (identifiable instanceof HvdcLine) {
                 HvdcLine hvdcLine = (HvdcLine) identifiable;
+                validationLevel = ValidationLevel.min(validationLevel, checkConvertersMode(validable, hvdcLine.getConvertersMode(), throwException, reporter));
                 validationLevel = ValidationLevel.min(validationLevel, checkHvdcActivePowerSetpoint(validable, hvdcLine.getActivePowerSetpoint(), throwException, reporter));
             } else if (identifiable instanceof Load) {
                 Load load = (Load) identifiable;

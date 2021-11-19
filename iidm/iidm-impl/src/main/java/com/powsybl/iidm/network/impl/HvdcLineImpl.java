@@ -83,12 +83,13 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
 
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
-        ValidationUtil.checkConvertersMode(this, convertersMode);
+        ValidationUtil.checkConvertersMode(this, convertersMode, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
+        network.invalidate();
         return this;
     }
 
