@@ -189,7 +189,6 @@ public final class Cim14SmallCasesNetworkCatalog {
     private static Network loadNetwork(TestGridModel gm) {
         XMLImporter xmli = new XMLImporter();
         ReadOnlyDataSource ds = new ResourceDataSource(gm.name(), new ResourceSet("/cim14", gm.name() + ".xiidm"));
-        Network n = xmli.importData(ds, null);
-        return n;
+        return xmli.importData(ds, NetworkFactory.findDefault(), null);
     }
 }

@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -24,7 +25,7 @@ public class CgmesConversionContextExtensionTest {
     public void test() {
         Properties properties = new Properties();
         properties.put(CgmesImport.STORE_CGMES_CONVERSION_CONTEXT_AS_NETWORK_EXTENSION, "true");
-        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), properties);
+        Network network = new CgmesImport().importData(CgmesConformity1Catalog.microGridBaseCaseBE().dataSource(), NetworkFactory.findDefault(), properties);
         CgmesConversionContextExtension extension = network.getExtension(CgmesConversionContextExtension.class);
         assertNotNull(extension);
         assertTrue(extension.getContext().config().storeCgmesConversionContextAsNetworkExtension());
