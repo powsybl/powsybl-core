@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.timeseries.ast;
+package com.powsybl.timeseries.dsl;
 
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
@@ -24,9 +24,9 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class CalculatedTimeSeriesDslAstTransformation implements ASTTransformation {
+public class CalculatedTimeSeriesGroovyDslAstTransformation implements ASTTransformation {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesDslAstTransformation.class);
+    protected static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesGroovyDslAstTransformation.class);
 
     private static final boolean DEBUG = false;
 

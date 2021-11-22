@@ -4,14 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.timeseries
+package com.powsybl.timeseries.dsl
 
-import com.powsybl.timeseries.ast.CalculatedTimeSeriesDslAstTransformation
-import com.powsybl.timeseries.ast.DoubleNodeCalc
-import com.powsybl.timeseries.ast.FloatNodeCalc
-import com.powsybl.timeseries.ast.IntegerNodeCalc
-import com.powsybl.timeseries.ast.NodeCalc
-import com.powsybl.timeseries.ast.TimeSeriesNameNodeCalc
+import com.google.auto.service.AutoService
+import com.powsybl.timeseries.CalculatedTimeSeriesDslLoader
+import com.powsybl.timeseries.ReadOnlyTimeSeriesStore
+import com.powsybl.timeseries.TimeSeriesException
+import com.powsybl.timeseries.TimeSeriesFilter
+import com.powsybl.timeseries.ast.*
+import com.powsybl.timeseries.dsl.CalculatedTimeSeriesGroovyDslAstTransformation
 import org.codehaus.groovy.control.CompilerConfiguration
 import org.codehaus.groovy.control.customizers.ASTTransformationCustomizer
 import org.slf4j.Logger
@@ -22,13 +23,12 @@ import java.time.ZonedDateTime
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class CalculatedTimeSeriesDslLoader {
+@AutoService(CalculatedTimeSeriesDslLoader.class)
+class CalculatedTimeSeriesGroovyDslLoader implements CalculatedTimeSeriesDslLoader {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesDslLoader.class)
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesGroovyDslLoader.class)
 
     public static final String SCRIPT_NAME = "script"
-
-    protected final GroovyCodeSource dslSrc
 
     static class TimeSeriesGroovyObject {
 
@@ -100,10 +100,6 @@ class CalculatedTimeSeriesDslLoader {
         }
     }
 
-    CalculatedTimeSeriesDslLoader(String script) {
-        this.dslSrc = new GroovyCodeSource(script, SCRIPT_NAME, GroovyShell.DEFAULT_CODE_BASE)
-    }
-
     static void bind(Binding binding, ReadOnlyTimeSeriesStore store, Map<String, NodeCalc> nodes) {
         def ts = new TimeSeriesGroovyObject(store, nodes)
         binding.timeSeries = ts
@@ -114,12 +110,12 @@ class CalculatedTimeSeriesDslLoader {
     }
 
     static CompilerConfiguration createCompilerConfig() {
-        def astCustomizer = new ASTTransformationCustomizer(new CalculatedTimeSeriesDslAstTransformation())
+        def astCustomizer = new ASTTransformationCustomizer(new CalculatedTimeSeriesGroovyDslAstTransformation())
         def config = new CompilerConfiguration()
         config.addCompilationCustomizers(astCustomizer)
     }
 
-    Map<String, NodeCalc> load(ReadOnlyTimeSeriesStore store) {
+    public Map<String, NodeCalc> load(String script, ReadOnlyTimeSeriesStore store) {
         long start = System.currentTimeMillis()
 
         Map<String, NodeCalc> nodes = new HashMap<>()
@@ -128,6 +124,7 @@ class CalculatedTimeSeriesDslLoader {
         bind(binding, store, nodes)
 
         def shell = new GroovyShell(binding, createCompilerConfig())
+        def dslSrc = new GroovyCodeSource(script, SCRIPT_NAME, GroovyShell.DEFAULT_CODE_BASE)
         shell.evaluate(dslSrc)
 
         LOGGER.trace("Calculated time series DSL loaded in {} ms", (System.currentTimeMillis() -start))
