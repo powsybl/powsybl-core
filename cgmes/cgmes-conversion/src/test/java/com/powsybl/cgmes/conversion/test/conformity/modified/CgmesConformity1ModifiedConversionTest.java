@@ -85,14 +85,30 @@ public class CgmesConformity1ModifiedConversionTest {
     public void microBERatioPhaseFaultyTabularTest() {
         Network network = new CgmesImport()
                 .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerFaultyTabular().dataSource(), NetworkFactory.findDefault(), null);
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
+                .getRatioTapChanger();
+        int neutralStep = 4;
+        double stepVoltageIncrement = 1.250000;
+        // table with steps 1, 2, 3, 8 ignored, rtc considered linear with 6 steps
+        assertEquals(6, rtc.getStepCount());
+        for (int k = 1; k <= 6; k++) {
+            assertEquals(0.0, rtc.getStep(k).getR(), 0.0);
+            assertEquals(0.0, rtc.getStep(k).getX(), 0.0);
+            assertEquals(0.0, rtc.getStep(k).getG(), 0.0);
+            assertEquals(0.0, rtc.getStep(k).getB(), 0.0);
+            assertEquals(1 / (1.0 + (k - neutralStep) * (stepVoltageIncrement / 100.0)), rtc.getStep(k).getRho(), 0.0);
+        }
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
                 .getPhaseTapChanger();
-        // table with step 1 and 4 ignored, ptc considered linear with 5 steps
+        // table with step 1 and 4 ignored, ptc considered linear (with no step increment) with 5 steps
         assertEquals(5, ptc.getStepCount());
-        assertEquals(0.0, ptc.getStep(1).getR(), 0);
-        assertEquals(0.0, ptc.getStep(1).getX(), 0);
         for (int k = 1; k <= 5; k++) {
-            assertEquals(1.0, ptc.getStep(k).getRho(), 0);
+            assertEquals(0.0, ptc.getStep(k).getR(), 0.0);
+            assertEquals(0.0, ptc.getStep(k).getX(), 0.0);
+            assertEquals(0.0, ptc.getStep(k).getG(), 0.0);
+            assertEquals(0.0, ptc.getStep(k).getB(), 0.0);
+            assertEquals(1.0, ptc.getStep(k).getRho(), 0.0);
+            assertEquals(0.0, ptc.getStep(k).getAlpha(), 0.0);
         }
     }
 

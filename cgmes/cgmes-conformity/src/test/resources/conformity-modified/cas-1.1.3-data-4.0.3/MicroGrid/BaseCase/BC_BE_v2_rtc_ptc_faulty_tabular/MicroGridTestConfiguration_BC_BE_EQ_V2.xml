@@ -2224,24 +2224,10 @@
      <cim:TapChangerTablePoint.x>-3.1783</cim:TapChangerTablePoint.x>
      <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#rtcTable1"/>
     </cim:RatioTapChangerTablePoint>
-    <cim:RatioTapChangerTablePoint rdf:ID="rtcTablePoint4">
-     <cim:TapChangerTablePoint.r>0</cim:TapChangerTablePoint.r>
-     <cim:TapChangerTablePoint.ratio>1</cim:TapChangerTablePoint.ratio>
-     <cim:TapChangerTablePoint.step>4</cim:TapChangerTablePoint.step>
-     <cim:TapChangerTablePoint.x>0</cim:TapChangerTablePoint.x>
-     <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#rtcTable1"/>
-    </cim:RatioTapChangerTablePoint>
-    <cim:RatioTapChangerTablePoint rdf:ID="rtcTablePoint5">
-     <!-- r optional <cim:TapChangerTablePoint.r>33.97976</cim:TapChangerTablePoint.r> -->
-     <cim:TapChangerTablePoint.ratio>1.0662727355957031</cim:TapChangerTablePoint.ratio>
-     <cim:TapChangerTablePoint.step>5</cim:TapChangerTablePoint.step>
-     <cim:TapChangerTablePoint.x>-11.05201</cim:TapChangerTablePoint.x>
-     <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#rtcTable1"/>
-    </cim:RatioTapChangerTablePoint>
     <cim:RatioTapChangerTablePoint rdf:ID="rtcTablePoint6">
      <cim:TapChangerTablePoint.r>38.47649</cim:TapChangerTablePoint.r>
      <cim:TapChangerTablePoint.ratio>1.0773181915283203</cim:TapChangerTablePoint.ratio>
-     <cim:TapChangerTablePoint.step>6</cim:TapChangerTablePoint.step>
+     <cim:TapChangerTablePoint.step>8</cim:TapChangerTablePoint.step>
      <!-- x optional ><cim:TapChangerTablePoint.x>-13.99188</cim:TapChangerTablePoint.x> -->
      <cim:RatioTapChangerTablePoint.RatioTapChangerTable rdf:resource="#rtcTable1"/>
     </cim:RatioTapChangerTablePoint>
