@@ -9,8 +9,10 @@ package com.powsybl.timeseries;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.ast.NodeCalc;
 
+import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -20,9 +22,14 @@ public interface CalculatedTimeSeriesDslLoader {
     Map<String, NodeCalc> load(String script, ReadOnlyTimeSeriesStore store);
 
     static CalculatedTimeSeriesDslLoader find() {
-        return ServiceLoader.load(CalculatedTimeSeriesDslLoader.class).stream()
-                .findFirst()
-                .orElseThrow(() -> new PowsyblException("No calculated time series DSL loader found"))
-                .get();
+        List<CalculatedTimeSeriesDslLoader> loaders = ServiceLoader.load(CalculatedTimeSeriesDslLoader.class).stream()
+                .map(ServiceLoader.Provider::get)
+                .collect(Collectors.toList());
+        if (loaders.isEmpty()) {
+            throw new PowsyblException("No calculated time series DSL loader found");
+        } else if (loaders.size() > 1) {
+            throw new PowsyblException("Several calculated time series DSL loaders found, only one is authorized");
+        }
+        return loaders.get(0);
     }
 }
