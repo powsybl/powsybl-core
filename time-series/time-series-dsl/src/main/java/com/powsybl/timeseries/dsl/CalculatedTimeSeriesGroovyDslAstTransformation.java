@@ -28,9 +28,7 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation implements ASTTransf
 
     protected static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesGroovyDslAstTransformation.class);
 
-    private static final boolean DEBUG = false;
-
-    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer, boolean debug) {
+    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer) {
         LOGGER.trace("Apply AST transformation");
         ModuleNode ast = sourceUnit.getAST();
         BlockStatement blockStatement = ast.getStatementBlock();
@@ -44,7 +42,7 @@ public class CalculatedTimeSeriesGroovyDslAstTransformation implements ASTTransf
     }
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
+        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit));
     }
 
     static class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
