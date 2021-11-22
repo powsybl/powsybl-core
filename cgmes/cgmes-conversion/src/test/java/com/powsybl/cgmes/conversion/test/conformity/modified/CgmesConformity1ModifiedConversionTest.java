@@ -82,6 +82,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBERatioPhaseFaultyTabularTest() {
+        Network network = new CgmesImport()
+                .importData(CgmesConformity1ModifiedCatalog.microGridBaseCaseBERatioPhaseTapChangerFaultyTabular().dataSource(), NetworkFactory.findDefault(), null);
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
+                .getPhaseTapChanger();
+        // table with step 1 and 4 ignored, ptc considered linear with 5 steps
+        assertEquals(5, ptc.getStepCount());
+        assertEquals(0.0, ptc.getStep(1).getR(), 0);
+        assertEquals(0.0, ptc.getStep(1).getX(), 0);
+        for (int k = 1; k <= 5; k++) {
+            assertEquals(1.0, ptc.getStep(k).getRho(), 0);
+        }
+    }
+
+    @Test
     public void microBEPhaseTapChangerLinearTest() throws IOException {
         Conversion.Config config = new Conversion.Config();
         Network n = networkModel(CgmesConformity1ModifiedCatalog.microT4BePhaseTapChangerLinear(),
