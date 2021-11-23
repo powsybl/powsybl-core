@@ -81,6 +81,10 @@ public class MergingNetworkTest {
         assertEquals(value, mergingView.getProperty(key));
         assertEquals("defaultValue", mergingView.getProperty("noFound", "defaultValue"));
         assertEquals(1, mergingView.getPropertyNames().size());
+        assertFalse(mergingView.removeProperty("noFound"));
+        assertTrue(mergingView.removeProperty("keyTest"));
+        assertFalse(mergingView.hasProperty("keyTest"));
+        assertFalse(mergingView.hasProperty());
 
         // Identifiables
         assertFalse("MergingView cannot be empty", mergingView.getIdentifiables().isEmpty());
