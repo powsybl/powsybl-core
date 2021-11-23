@@ -482,6 +482,7 @@ class MergedLine implements TieLine {
     public boolean removeProperty(String key) {
         boolean removed1 = getDanglingLine1().removeProperty(key);
         boolean removed2 = getDanglingLine2().removeProperty(key);
+        properties.remove(key);
         return removed1 || removed2;
     }
 
