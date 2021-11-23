@@ -4,47 +4,22 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.timeseries.ast;
+package com.powsybl.timeseries.dsl;
 
-import org.codehaus.groovy.ast.ASTNode;
+import com.powsybl.dsl.AbstractPowsyblDslAstTransformation;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
-import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.control.SourceUnit;
-import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class CalculatedTimeSeriesDslAstTransformation implements ASTTransformation {
+public class CalculatedTimeSeriesGroovyDslAstTransformation extends AbstractPowsyblDslAstTransformation {
 
-    protected static final Logger LOGGER = LoggerFactory.getLogger(CalculatedTimeSeriesDslAstTransformation.class);
-
-    private static final boolean DEBUG = false;
-
-    protected void visit(SourceUnit sourceUnit, ClassCodeExpressionTransformer transformer, boolean debug) {
-        LOGGER.trace("Apply AST transformation");
-        ModuleNode ast = sourceUnit.getAST();
-        BlockStatement blockStatement = ast.getStatementBlock();
-
-        List<MethodNode> methods = ast.getMethods();
-        for (MethodNode methodNode : methods) {
-            methodNode.getCode().visit(transformer);
-        }
-
-        blockStatement.visit(transformer);
-    }
-
-    public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
+    public CalculatedTimeSeriesGroovyDslAstTransformation() {
+        super(CustomClassCodeExpressionTransformer::new);
     }
 
     static class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
