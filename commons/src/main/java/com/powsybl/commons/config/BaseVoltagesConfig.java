@@ -7,10 +7,15 @@
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.error.YAMLException;
-import org.yaml.snakeyaml.nodes.*;
+import org.yaml.snakeyaml.nodes.MappingNode;
+import org.yaml.snakeyaml.nodes.Node;
+import org.yaml.snakeyaml.nodes.NodeTuple;
+import org.yaml.snakeyaml.nodes.ScalarNode;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +32,9 @@ import java.util.stream.Collectors;
  */
 public class BaseVoltagesConfig {
 
-    private static final String CONFIG_FILE = "base-voltages.yml";
+    private static final Logger LOGGER = LoggerFactory.getLogger(BaseVoltagesConfig.class);
+
+    private static final String DEFAULT_CONFIG_FILE_NAME = "base-voltages.yml";
 
     private List<BaseVoltageConfig> baseVoltages = new ArrayList<>();
     private String defaultProfile;
@@ -53,11 +60,11 @@ public class BaseVoltagesConfig {
     }
 
     public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig) {
-        Path path = platformConfig.getConfigDir().resolve(CONFIG_FILE);
-        if (!Files.exists(path)) {
-            throw new PowsyblException("No base voltages configuration found");
-        }
-        return fromPath(path);
+        return fromPlatformConfig(platformConfig, DEFAULT_CONFIG_FILE_NAME);
+    }
+
+    public static BaseVoltagesConfig fromPlatformConfig(PlatformConfig platformConfig, String configFileName) {
+        return fromPath(platformConfig.getConfigDir(), configFileName);
     }
 
     public static BaseVoltagesConfig fromInputStream(InputStream configInputStream) {
@@ -66,12 +73,25 @@ public class BaseVoltagesConfig {
         return yaml.load(configInputStream);
     }
 
-    public static BaseVoltagesConfig fromPath(Path configFile) {
-        Objects.requireNonNull(configFile);
-        try (InputStream configInputStream = Files.newInputStream(configFile)) {
-            return fromInputStream(configInputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public static BaseVoltagesConfig fromPath(Path configDir, String configFileName) {
+        Objects.requireNonNull(configDir);
+        Objects.requireNonNull(configFileName);
+        Path configFile = configDir.resolve(configFileName);
+        if (Files.exists(configFile)) {
+            try (InputStream configInputStream = Files.newInputStream(configFile)) {
+                return fromInputStream(configInputStream);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        } else {
+            LOGGER.debug("Base voltage configuration file '{}' not found, loading default file '{}' from class path",
+                    configFile, configFileName);
+            InputStream configInputStream = BaseVoltagesConfig.class.getResourceAsStream("/" + configFileName);
+            if (configInputStream != null) {
+                return fromInputStream(configInputStream);
+            } else {
+                throw new PowsyblException("No default base voltages configuration found: " + configFileName);
+            }
         }
     }
 

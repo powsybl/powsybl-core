@@ -226,12 +226,33 @@ public interface Matrix {
     LUDecomposition decomposeLU();
 
     /**
-     * Multiply the matrix by another one (this*other).
+     * Multiply the matrix by another one (this*other). The resulting matrix has the same implementation as
+     * this matrix.
      *
      * @param other the other matrix
      * @return the result of the multiplication of this matrix by the other one
      */
     Matrix times(Matrix other);
+
+    /**
+     * Addition the matrix with another one (alpha * this + beta * other). The resulting matrix has the same
+     * implementation as this matrix.
+     *
+     * @param other the other matrix
+     * @param alpha a scalar to multiply this matrix
+     * @param beta a scalar to multiply other matrix
+     * @return the result of the addition of this matrix and the other one
+     */
+    Matrix add(Matrix other, double alpha, double beta);
+
+    /**
+     * Addition the matrix with another one (this + other). The resulting matrix has the same implementation as
+     * this matrix.
+     *
+     * @param other the other matrix
+     * @return the result of the addition of this matrix and the other one
+     */
+    Matrix add(Matrix other);
 
     /**
      * Iterate over non zero values of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
