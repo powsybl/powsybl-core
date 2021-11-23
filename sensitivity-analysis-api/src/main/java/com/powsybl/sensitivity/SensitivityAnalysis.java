@@ -24,7 +24,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Sensitivity analysis main API. It is a utility class (so with only static methods) used as an entry point for running
+ * Sensitivity analysis main API. It is a utility class used as an entry point for running
  * a sensitivity analysis allowing to choose either a specific implementation or just to rely on the default one.
  *
  * @author Joris Mancini {@literal <joris.mancini at rte-france.com>}

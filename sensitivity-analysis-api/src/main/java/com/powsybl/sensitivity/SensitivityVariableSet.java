@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Models a group of injection increases.
+ * Models a group of variables.
  * A list of weighted variables is used in general to model an injection increase of a group of generators and loads
  * through shift keys, also called GLSK (for Generation and Load shift keys).
  * Note that weights are not normalized.
@@ -33,7 +33,7 @@ public class SensitivityVariableSet {
 
     /**
      * Constructor
-     * @param id ID of this complex variable. It does not correspond to an id in the network.
+     * @param id ID of this complex variable. It should not correspond to an id present in the network.
      * @param variables the list of weighted variables, see {@link com.powsybl.sensitivity.WeightedSensitivityVariable}
      */
     public SensitivityVariableSet(String id, List<WeightedSensitivityVariable> variables) {

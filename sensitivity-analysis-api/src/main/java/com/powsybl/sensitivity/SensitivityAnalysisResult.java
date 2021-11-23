@@ -20,18 +20,19 @@ import java.util.*;
  *     Composed of a list of sensitivity values in pre-contingency and post-contingency states.
  * </p>
  *
- * A single sensitivity analysis should return, besides its status and some stats on the
- * analysis itself, all the sensitivity values for each factor (combination of a monitored equipment or bus and a specific
- * equipment or group of equipments). The chosen sensitivity provider offers the possibility to calculate the sensitivity
- * on a set of contingencies besides the pre-contingency state.
- * Note that the analysis is launched only once, but the solver itself modifies the matrix for each state of the network
- * to output a full set of results. In the sensitivity API, it has been allowed to provide a list of contingencies as an input,
- * which then triggers such a sensitivity analysis.
- * The full set of results consists of :
- *  - the list of sensitivity values in pre-contingency and post-contingency states.
- *  - some metadata (status, stats, logs)
+ * Sensitivity analysis is used to assess the impact of a small modification of a network variables on the value of
+ * network functions. A combination of a variable and a function is called a sensitivity factor. It returns
+ * the sensitivity values for each factor, and the reference values for each function. The sensitivity analysis API
+ * offers the possibility to calculate the sensitivities on a set of contingencies besides the pre-contingency state.
+ * The full set of results consists of:
+ *  - the list of factors
+ *  - the list of contingencies
+ *  - the list of sensitivity values in pre-contingency and post-contingency states
+ *  - the list of function reference values in pre-contingency and post-contingency states.
+ *  A sensitivity analysis result offers a set of methods to retrieve sensitivity values or function reference values.
+ *  For example, you can retrieve a sensitivity value as a double given the ID of a contingency, the ID of a variable
+ *  and the ID of a function.
  *
- * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see SensitivityValue
  */
@@ -51,6 +52,8 @@ public class SensitivityAnalysisResult {
 
     /**
      * Sensitivity analysis result
+     * @param factors the list of sensitivity factors that have been computed.
+     * @param contingencies the list of contingencies that have been simulated.
      * @param values result values of the sensitivity analysis in pre-contingency state and post-contingency states.
      */
     public SensitivityAnalysisResult(List<SensitivityFactor> factors, List<Contingency> contingencies, List<SensitivityValue> values) {
@@ -68,49 +71,59 @@ public class SensitivityAnalysisResult {
         }
     }
 
+    /**
+     * Get a list of all the sensitivity factors.
+     *
+     * @return a list of all the sensitivity factors.
+     */
     public List<SensitivityFactor> getFactors() {
         return factors;
     }
 
+    /**
+     * Get a list of all the contingencies.
+     *
+     * @return a list of all the contingencies.
+     */
     public List<Contingency> getContingencies() {
         return contingencies;
     }
 
     /**
-     * Get a collection of all the sensitivity values.
+     * Get a list of all the sensitivity values.
      *
-     * @return a collection of all the sensitivity values.
+     * @return a list of all the sensitivity values.
      */
     public List<SensitivityValue> getValues() {
         return values;
     }
 
     /**
-     * Get a collection of sensitivity value associated with given contingency id
+     * Get a list of sensitivity value associated to a given contingency id
      *
-     * @param contingencyId the ID of the considered contingency
-     * @return the sensitivity value associated with a given contingency ID.
+     * @param contingencyId the ID of the considered contingency. Use null to get pre-contingency sensitivity values.
+     * @return the sensitivity value associated to a given contingency ID.
      */
     public List<SensitivityValue> getValues(String contingencyId) {
         return valuesByContingencyId.getOrDefault(contingencyId, Collections.emptyList());
     }
 
     /**
-     * Get a collection of pre-contingency sensitivity value
+     * Get a list of all the pre-contingency sensitivity values.
      *
-     * @return pre-contingency sensitivity values.
+     * @return a list of all the pre-contingency sensitivity values.
      */
     public List<SensitivityValue> getPreContingencyValues() {
         return valuesByContingencyId.getOrDefault(null, Collections.emptyList());
     }
 
     /**
-     * Get the sensitivity value associated with a given function and a given variable for a specific contingency.
+     * Get the sensitivity value associated to a given function and a given variable and for a specific contingency.
      *
-     * @param contingencyId the id of the considered contingency
-     * @param variableId sensitivity variable id
-     * @param functionId sensitivity function id
-     * @return the sensitivity value associated with a given function and a given variable for a given contingency
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency sensitivity value.
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable for a given contingency.
      */
     public double getSensitivityValue(String contingencyId, String variableId, String functionId) {
         SensitivityValue value = valuesByContingencyIdAndFunctionIdAndVariableId.get(Triple.of(contingencyId, functionId, variableId));
@@ -121,15 +134,22 @@ public class SensitivityAnalysisResult {
         return value.getValue();
     }
 
+    /**
+     * Get the sensitivity value associated to a given function and a given variable in pre-contingency state.
+     *
+     * @param variableId the sensitivity variable id.
+     * @param functionId the sensitivity function id.
+     * @return the sensitivity value associated with a given function and a given variable in pre-contingency state.
+     */
     public double getSensitivityValue(String variableId, String functionId) {
         return getSensitivityValue(null, variableId, functionId);
     }
 
     /**
-     * Get the function reference associated with a given contingency Id and a given function.
+     * Get the function reference associated to a given contingency Id and a given function.
      *
-     * @param contingencyId the id of the considered contingency
-     * @param functionId sensitivity function id
+     * @param contingencyId the id of the considered contingency. Use null to get a pre-contingency function reference value.
+     * @param functionId sensitivity function id.
      * @return the function reference value
      */
     public double getFunctionReferenceValue(String contingencyId, String functionId) {
@@ -140,6 +160,12 @@ public class SensitivityAnalysisResult {
         return value;
     }
 
+    /**
+     * Get the function reference associated to a given function in a pre-contingency state.
+     *
+     * @param functionId sensitivity function id.
+     * @return the function reference value.
+     */
     public double getFunctionReferenceValue(String functionId) {
         return getFunctionReferenceValue(null, functionId);
     }

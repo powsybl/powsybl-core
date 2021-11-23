@@ -27,7 +27,7 @@ import java.util.concurrent.CompletableFuture;
  * </p>
  * <p>
  *     PTDFs used in Flowbased methodology for example are sensitivity analysis
- *     results. The sensitivity variables are the GSK shift and the sensitivity function
+ *     results. The sensitivity variables are the GSK shift and the function reference
  *     are the monitored lines/transformers flows.
  * </p>
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -35,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
 public interface SensitivityAnalysisProvider extends Versionable, PlatformConfigNamedProvider {
 
     /**
-     * Run an asynchronous single sensitivity analysis job.
-     * Factors will be computed by a {@code computationManager} on the {@code workingStateId} of the {@code network}
+     * Run a single sensitivity analysis.
+     * Factors are given by a {@code factorReader} on the {@code workingStateId} of the {@code network}
      * on pre-contingency state and after each {@link com.powsybl.contingency.Contingency} provided by
      * {@code contingencies} according to the {@code parameters}.
      *
@@ -45,7 +45,7 @@ public interface SensitivityAnalysisProvider extends Versionable, PlatformConfig
      * @param factorReader provider of sensitivity factors to be computed
      * @param valueWriter provider of sensitivity values results
      * @param contingencies list of contingencies after which sensitivity factors will be computed
-     * @param variableSets list of variableSets (ex-glsk)
+     * @param variableSets list of variableSets
      * @param parameters specific sensitivity analysis parameters
      * @param computationManager a computation manager to external program execution
      * @param reporter a reporter for functional logs

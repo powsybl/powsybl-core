@@ -10,8 +10,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.PowsyblException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -26,8 +24,6 @@ import java.util.Objects;
  * @see SensitivityFactor
  */
 public class SensitivityValue {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(SensitivityValue.class);
 
     private final int factorIndex;
 
