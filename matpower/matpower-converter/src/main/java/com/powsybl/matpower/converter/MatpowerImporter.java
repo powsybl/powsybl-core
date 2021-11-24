@@ -173,7 +173,7 @@ public class MatpowerImporter implements Importer {
                         .setMaxQ(mGen.getMaximumReactivePowerOutput())
                         .add();
             }
-            LOGGER.debug("Created generator {}", generator.getId());
+            LOGGER.trace("Created generator {}", generator.getId());
         });
     }
 
@@ -184,7 +184,7 @@ public class MatpowerImporter implements Importer {
                 .add();
         bus.setV(mBus.getVoltageMagnitude() * voltageLevel.getNominalV())
                 .setAngle(mBus.getVoltageAngle());
-        LOGGER.debug("Created bus {}", bus.getId());
+        LOGGER.trace("Created bus {}", bus.getId());
         return bus;
     }
 
@@ -194,7 +194,7 @@ public class MatpowerImporter implements Importer {
             substation = network.newSubstation()
                     .setId(substationId)
                     .add();
-            LOGGER.debug("Created substation {}", substation.getId());
+            LOGGER.trace("Created substation {}", substation.getId());
         }
         return substation;
     }
@@ -208,7 +208,7 @@ public class MatpowerImporter implements Importer {
                     .setNominalV(nominalV)
                     .setTopologyKind(TopologyKind.BUS_BREAKER)
                     .add();
-            LOGGER.debug("Created voltagelevel {}", voltageLevel.getId());
+            LOGGER.trace("Created voltagelevel {}", voltageLevel.getId());
         }
         return voltageLevel;
     }
@@ -224,7 +224,7 @@ public class MatpowerImporter implements Importer {
                 .setP0(mBus.getRealPowerDemand())
                 .setQ0(mBus.getReactivePowerDemand())
                 .add();
-            LOGGER.debug("Created load {}", newLoad.getId());
+            LOGGER.trace("Created load {}", newLoad.getId());
         }
     }
 
@@ -243,7 +243,7 @@ public class MatpowerImporter implements Importer {
                     .setMaximumSectionCount(1)
                     .add();
             ShuntCompensator newShunt = adder.add();
-            LOGGER.debug("Created shunt {}", newShunt.getId());
+            LOGGER.trace("Created shunt {}", newShunt.getId());
         }
     }
 
@@ -286,7 +286,7 @@ public class MatpowerImporter implements Importer {
                         .setG(0)
                         .setB(mBranch.getB() / zb)
                         .add();
-                LOGGER.debug("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
+                LOGGER.trace("Created TwoWindingsTransformer {} {} {}", newTwt.getId(), bus1Id, bus2Id);
             } else {
                 Line newLine = network.newLine()
                         .setId(getId(LINE_PREFIX, mBranch.getFrom(), mBranch.getTo()))
@@ -304,7 +304,7 @@ public class MatpowerImporter implements Importer {
                         .setG2(0)
                         .setB2(mBranch.getB() / zb / 2)
                         .add();
-                LOGGER.debug("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
+                LOGGER.trace("Created line {} {} {}", newLine.getId(), bus1Id, bus2Id);
             }
         }
     }
@@ -360,7 +360,7 @@ public class MatpowerImporter implements Importer {
             try (InputStream iStream = dataSource.newInputStream(null, EXT)) {
 
                 MatpowerModel model = MatpowerReader.read(iStream, dataSource.getBaseName());
-                LOGGER.debug("MATPOWER model {}", model.getCaseName());
+                LOGGER.debug("MATPOWER model '{}'", model.getCaseName());
 
                 ContainersMapping containerMapping = ContainersMapping.create(model.getBuses(), model.getBranches(),
                     MBus::getNumber, MBranch::getFrom, MBranch::getTo, branch -> 0, MBranch::getR, MBranch::getX, branch -> isTransformer(model, branch),
