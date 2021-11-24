@@ -39,7 +39,7 @@ abstract class AbstractComponentsManager<C extends Component> {
         if (components != null) {
             return;
         }
-        System.out.println("UPDATE");
+
         long startTime = System.currentTimeMillis();
 
         // reset
@@ -92,9 +92,6 @@ abstract class AbstractComponentsManager<C extends Component> {
         if (bus1 != null && bus2 != null) {
             int busNum1 = id2num.get(bus1.getId());
             int busNum2 = id2num.get(bus2.getId());
-            if (busNum1 == busNum2) {
-                throw new IllegalStateException();
-            }
             adjacencyList[busNum1].add(busNum2);
             adjacencyList[busNum2].add(busNum1);
         }
