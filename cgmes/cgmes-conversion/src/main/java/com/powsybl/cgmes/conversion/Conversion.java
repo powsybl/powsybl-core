@@ -384,26 +384,27 @@ public class Conversion {
         }
     }
 
+    private void putVoltageLevelRefByLineContainerIdIfPresent(String lineContainerId, Supplier<String> terminalId1, Supplier<String> terminalId2, Map<String, VoltageLevel> nominalVoltageByLineContainerId, Context context) {
+        String vlId = Optional.ofNullable(context.namingStrategy().getId("VoltageLevel",
+                        context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
+                .orElseGet(() -> context.namingStrategy().getId("VoltageLevel",
+                        context.cgmes().voltageLevel(cgmes.terminal(terminalId2.get()), context.nodeBreaker())));
+        if (vlId != null) {
+            VoltageLevel vl = context.network().getVoltageLevel(vlId);
+            if (vl != null) {
+                nominalVoltageByLineContainerId.put(lineContainerId, vl);
+            }
+        }
+    }
+
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
-        Map<String, VoltageLevel> voltageLevelMap = new HashMap<>();
+        Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
         PropertyBags acLineSegments = cgmes.acLineSegments();
         for (PropertyBag line : acLineSegments) {
             String lineContainerId = line.getId("Line");
-            if (lineContainerId != null) {
-                voltageLevelMap.computeIfAbsent(lineContainerId, k -> {
-                    CgmesTerminal t = cgmes.terminal(line.getId("Terminal1"));
-                    String vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
-                    if (vlId != null && context.network().getVoltageLevel(vlId) != null) {
-                        return context.network().getVoltageLevel(vlId);
-                    } else {
-                        t = cgmes.terminal(line.getId("Terminal2"));
-                        vlId = context.namingStrategy().getId("VoltageLevel", context.cgmes().voltageLevel(t, context.nodeBreaker()));
-                        if (vlId != null && context.network().getVoltageLevel(vlId) != null) {
-                            return context.network().getVoltageLevel(vlId);
-                        }
-                    }
-                    return null;
-                });
+            if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
+                putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
+                        voltageLevelRefByLineContainerId, context);
             }
         }
         for (PropertyBag line : acLineSegments) {
@@ -412,7 +413,7 @@ public class Conversion {
             }
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null) {
-                VoltageLevel vlRef = voltageLevelMap.get(lineContainerId);
+                VoltageLevel vlRef = voltageLevelRefByLineContainerId.get(lineContainerId);
                 createLineContainerFictitiousVoltageLevels(context, lineContainerId, vlRef, line);
             }
             ACLineSegmentConversion c = new ACLineSegmentConversion(line, context);
