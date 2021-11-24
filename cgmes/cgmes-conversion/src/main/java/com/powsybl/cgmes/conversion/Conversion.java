@@ -384,7 +384,10 @@ public class Conversion {
         }
     }
 
-    private void putVoltageLevelRefByLineContainerIdIfPresent(String lineContainerId, Supplier<String> terminalId1, Supplier<String> terminalId2, Map<String, VoltageLevel> nominalVoltageByLineContainerId, Context context) {
+    private void putVoltageLevelRefByLineContainerIdIfPresent(String lineContainerId, Supplier<String> terminalId1,
+                                                              Supplier<String> terminalId2,
+                                                              Map<String, VoltageLevel> nominalVoltageByLineContainerId,
+                                                              Context context) {
         String vlId = Optional.ofNullable(context.namingStrategy().getId("VoltageLevel",
                         context.cgmes().voltageLevel(cgmes.terminal(terminalId1.get()), context.nodeBreaker())))
                 .orElseGet(() -> context.namingStrategy().getId("VoltageLevel",
@@ -400,7 +403,7 @@ public class Conversion {
     private void convertACLineSegmentsToLines(Context context, Set<String> delayedBoundaryNodes) {
         Map<String, VoltageLevel> voltageLevelRefByLineContainerId = new HashMap<>();
         PropertyBags acLineSegments = cgmes.acLineSegments();
-        for (PropertyBag line : acLineSegments) {
+        for (PropertyBag line : acLineSegments) { // Retrieve a voltage level reference for every line container of AC Line Segments outside boundaries
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null && !voltageLevelRefByLineContainerId.containsKey(lineContainerId)) {
                 putVoltageLevelRefByLineContainerIdIfPresent(lineContainerId, () -> line.getId("Terminal1"), () -> line.getId("Terminal2"),
@@ -412,7 +415,7 @@ public class Conversion {
                 LOG.debug(line.tabulateLocals("ACLineSegment"));
             }
             String lineContainerId = line.getId("Line");
-            if (lineContainerId != null) {
+            if (lineContainerId != null) { // Create fictitious voltage levels for AC line segments inside line containers outside boundaries
                 VoltageLevel vlRef = voltageLevelRefByLineContainerId.get(lineContainerId);
                 createLineContainerFictitiousVoltageLevels(context, lineContainerId, vlRef, line);
             }
@@ -463,14 +466,14 @@ public class Conversion {
         LineContainerFictitiousVoltageLevelData vldata2 = voltageLevelDataForACLSinLineContainer(context, lineId, lineSegment, "Terminal2");
         // Only create a fictitious voltage levels replacing cim:Line Container if we are NOT at boundaries
         if (vldata1.vl == null && !context.boundary().containsNode(vldata1.nodeId)) {
-            newFictitiousVoltageLevel(context, vldata1, vlRef);
+            createLineContainerFictitiousVoltageLevel(context, vldata1, vlRef);
         }
         if (vldata2.vl == null && !context.boundary().containsNode(vldata2.nodeId)) {
-            newFictitiousVoltageLevel(context, vldata2, vlRef);
+            createLineContainerFictitiousVoltageLevel(context, vldata2, vlRef);
         }
     }
 
-    private VoltageLevel newFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
+    private void createLineContainerFictitiousVoltageLevel(Context context, LineContainerFictitiousVoltageLevelData vldata, VoltageLevel vlref) {
         String id = vldata.idForFictitiousVoltageLevel();
         LOG.warn("Fictitious Voltage Level {} created for Line container {} node {}", id, vldata.lineId, vldata.lineName);
         // Nominal voltage and low/high limits are copied from the reference voltage level, if it is given
@@ -487,7 +490,6 @@ public class Conversion {
                 .setEnsureIdUnicity(context.config().isEnsureIdAliasUnicity())
                 .add();
         vl.setProperty(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + "LineContainerId", vldata.lineId);
-        return vl;
     }
 
     private void convertSwitches(Context context, Set<String> delayedBoundaryNodes) {
