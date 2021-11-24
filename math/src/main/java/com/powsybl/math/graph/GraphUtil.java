@@ -9,6 +9,7 @@ package com.powsybl.math.graph;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 
 /**
  *
@@ -53,13 +54,14 @@ public final class GraphUtil {
     }
 
     private static void computeConnectedComponents(int v1, int c, int[] componentSize, TIntArrayList[] adjacencyList, int[] componentNumber) {
-        componentNumber[v1] = c;
-        ++componentSize[c];
-        TIntArrayList ls = adjacencyList[v1];
-        for (int i = 0; i < ls.size(); i++) {
-            int v2 = ls.getQuick(i);
-            if (componentNumber[v2] == -1) {
-                computeConnectedComponents(v2, c, componentSize, adjacencyList, componentNumber);
+        LinkedList<Integer> nodes = new LinkedList<>();
+        nodes.add(v1);
+        while (!nodes.isEmpty()) {
+            int node = nodes.poll();
+            if (componentNumber[node] == -1) {
+                componentNumber[node] = c;
+                ++componentSize[c];
+                adjacencyList[node].forEach(e -> componentNumber[e] != -1 || nodes.add(e));
             }
         }
     }
