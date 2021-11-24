@@ -27,6 +27,9 @@ abstract class AbstractCgmesTapChangerBuilder {
     protected final PropertyBag p;
     protected final TapChanger tapChanger;
 
+    protected int lowStep;
+    protected int highStep;
+
     AbstractCgmesTapChangerBuilder(PropertyBag p, Context context) {
         Objects.requireNonNull(p);
         Objects.requireNonNull(context);
@@ -55,8 +58,9 @@ abstract class AbstractCgmesTapChangerBuilder {
     }
 
     protected TapChanger build() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
+        lowStep = p.asInt(CgmesNames.LOW_STEP);
+        highStep = p.asInt(CgmesNames.HIGH_STEP);
+        addSteps();
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         int normalStep = p.asInt(CgmesNames.NORMAL_STEP, neutralStep);
         int position = initialTapPosition(normalStep);
@@ -73,7 +77,6 @@ abstract class AbstractCgmesTapChangerBuilder {
         }
 
         addRegulationData();
-        addSteps();
         return tapChanger;
     }
 
@@ -86,6 +89,8 @@ abstract class AbstractCgmesTapChangerBuilder {
                 return false;
             }
         }
+        lowStep = min;
+        highStep = min + table.size() - 1;
         return true;
     }
 

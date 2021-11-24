@@ -83,8 +83,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsLinear() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);
         for (int step = lowStep; step <= highStep; step++) {
@@ -124,8 +122,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsAsymmetrical() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepVoltageIncrement = p.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
         double windingConnectionAngle = p.asDouble(CgmesNames.WINDING_CONNECTION_ANGLE);
@@ -171,8 +167,6 @@ public class CgmesPhaseTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
     }
 
     private void addStepsSymmetrical() {
-        int lowStep = p.asInt(CgmesNames.LOW_STEP);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
         double stepVoltageIncrement = p.asDouble(CgmesNames.VOLTAGE_STEP_INCREMENT);
         double stepPhaseShiftIncrement = p.asDouble(CgmesNames.STEP_PHASE_SHIFT_INCREMENT);

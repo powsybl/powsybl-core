@@ -77,9 +77,8 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
 
     private void addStepsFromLowHighIncrement() {
         double stepVoltageIncrement = p.asDouble(CgmesNames.STEP_VOLTAGE_INCREMENT);
-        int highStep = p.asInt(CgmesNames.HIGH_STEP);
         int neutralStep = p.asInt(CgmesNames.NEUTRAL_STEP);
-        for (int step = tapChanger.getLowTapPosition(); step <= highStep; step++) {
+        for (int step = lowStep; step <= highStep; step++) {
             double ratio = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0);
             tapChanger.beginStep()
                     .setRatio(ratio)
