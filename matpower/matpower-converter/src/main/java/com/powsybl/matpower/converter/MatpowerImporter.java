@@ -171,7 +171,7 @@ public class MatpowerImporter implements Importer {
                         .add();
             }
             LOGGER.trace("Created generator {}", generator.getId());
-        });
+        }
     }
 
     private static Bus createBus(MBus mBus, VoltageLevel voltageLevel) {
