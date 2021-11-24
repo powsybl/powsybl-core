@@ -27,7 +27,7 @@ public class MatpowerModel {
 
     private final List<MGen> generators = new ArrayList<>();
 
-    private final Map<Integer, MGen> generatorsByBusNum = new HashMap<>();
+    private final Map<Integer, List<MGen>> generatorsByBusNum = new HashMap<>();
 
     private final List<MBranch> branches = new ArrayList<>();
 
@@ -77,11 +77,12 @@ public class MatpowerModel {
     public void addGenerator(MGen generator) {
         Objects.requireNonNull(generator);
         generators.add(generator);
-        generatorsByBusNum.put(generator.getNumber(), generator);
+        generatorsByBusNum.computeIfAbsent(generator.getNumber(), k -> new ArrayList<>())
+                .add(generator);
     }
 
-    public MGen getGeneratorByBusNum(int busNum) {
-        return generatorsByBusNum.get(busNum);
+    public List<MGen> getGeneratorByBusNum(int busNum) {
+        return generatorsByBusNum.getOrDefault(busNum, Collections.emptyList());
     }
 
     public List<MBranch> getBranches() {
