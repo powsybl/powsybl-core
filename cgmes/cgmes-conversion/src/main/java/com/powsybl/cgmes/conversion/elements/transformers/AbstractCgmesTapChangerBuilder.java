@@ -13,7 +13,9 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -73,6 +75,18 @@ abstract class AbstractCgmesTapChangerBuilder {
         addRegulationData();
         addSteps();
         return tapChanger;
+    }
+
+    protected boolean isTableValid(String tableId, PropertyBags table) {
+        int min = table.stream().map(p -> p.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
+        for (int i = min; i < min + table.size(); i++) {
+            int index = i;
+            if (table.stream().noneMatch(p -> p.asInt(CgmesNames.STEP) == index)) {
+                context.ignored("PhaseTapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Phase tap changer considered linear", index, tableId));
+                return false;
+            }
+        }
+        return true;
     }
 
     protected abstract void addRegulationData();

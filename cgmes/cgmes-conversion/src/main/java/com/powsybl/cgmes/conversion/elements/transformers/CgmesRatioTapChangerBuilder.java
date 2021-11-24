@@ -12,7 +12,6 @@ import java.util.Comparator;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMappingForTransformers;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -45,16 +44,11 @@ public class CgmesRatioTapChangerBuilder extends AbstractCgmesTapChangerBuilder 
                 addStepsFromLowHighIncrement();
                 return;
             }
-            int min = table.stream().map(p -> p.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
-            for (int i = min; i < min + table.size(); i++) {
-                int index = i;
-                if (table.stream().noneMatch(p -> p.asInt(CgmesNames.STEP) == index)) {
-                    context.ignored("RatioTapChanger table", () -> String.format("There is at least one missing step (%s) in table %s", index, tableId));
-                    addStepsFromLowHighIncrement();
-                    return;
-                }
+            if (isTableValid(tableId, table)) {
+                addStepsFromTable(table, tableId);
+            } else {
+                addStepsFromLowHighIncrement();
             }
-            addStepsFromTable(table, tableId);
         } else {
             addStepsFromLowHighIncrement();
         }
