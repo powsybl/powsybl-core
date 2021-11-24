@@ -6,7 +6,7 @@
   "noGeneratorReactiveLimits" : true,
   "twtSplitShuntAdmittance" : false,
   "simulShunt" : false,
-  "readSlackBus" : false,
+  "readSlackBus" : true,
   "writeSlackBus" : false,
   "dc" : false,
   "distributedSlack" : true,
