@@ -61,7 +61,7 @@ public class MatpowerImporter implements Importer {
 
         private final boolean ignoreBaseMva;
 
-        private Bus slackBus;
+        private final List<Bus> slackBuses = new ArrayList<>();
 
         private Context(double baseMva, boolean ignoreBaseMva) {
             this.baseMva = baseMva;
@@ -76,12 +76,8 @@ public class MatpowerImporter implements Importer {
             return baseMva;
         }
 
-        private Bus getSlackBus() {
-            return slackBus;
-        }
-
-        private void setSlackBus(Bus slackBus) {
-            this.slackBus = Objects.requireNonNull(slackBus);
+        private List<Bus> getSlackBuses() {
+            return slackBuses;
         }
     }
 
@@ -120,7 +116,7 @@ public class MatpowerImporter implements Importer {
             // create bus
             Bus bus = createBus(mBus, voltageLevel);
             if (mBus.getType() == MBus.Type.REF) {
-                context.setSlackBus(bus);
+                context.getSlackBuses().add(bus);
             }
 
             // create load
@@ -372,8 +368,8 @@ public class MatpowerImporter implements Importer {
 
                 createBranches(model, containerMapping, network, context);
 
-                if (context.getSlackBus() != null) {
-                    SlackTerminal.attach(context.getSlackBus());
+                for (Bus slackBus : context.getSlackBuses()) {
+                    SlackTerminal.attach(slackBus);
                 }
             }
         } catch (IOException e) {
