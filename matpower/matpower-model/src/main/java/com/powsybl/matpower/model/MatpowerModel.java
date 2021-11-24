@@ -81,7 +81,7 @@ public class MatpowerModel {
                 .add(generator);
     }
 
-    public List<MGen> getGeneratorByBusNum(int busNum) {
+    public List<MGen> getGeneratorsByBusNum(int busNum) {
         return generatorsByBusNum.getOrDefault(busNum, Collections.emptyList());
     }
 

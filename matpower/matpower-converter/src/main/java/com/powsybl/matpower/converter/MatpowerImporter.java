@@ -121,7 +121,7 @@ public class MatpowerImporter implements Importer {
     }
 
     private static void createGenerators(MatpowerModel model, MBus mBus, VoltageLevel voltageLevel) {
-        for (MGen mGen : model.getGeneratorByBusNum(mBus.getNumber())) {
+        for (MGen mGen : model.getGeneratorsByBusNum(mBus.getNumber())) {
             String busId = getId(BUS_PREFIX, mGen.getNumber());
             String genId = getId(GENERATOR_PREFIX, mGen.getNumber());
             Generator generator = voltageLevel.newGenerator()
