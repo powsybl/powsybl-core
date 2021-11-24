@@ -27,6 +27,8 @@ public class MatpowerModel {
 
     private final List<MGen> generators = new ArrayList<>();
 
+    private final Map<Integer, MGen> generatorsByBusNum = new HashMap<>();
+
     private final List<MBranch> branches = new ArrayList<>();
 
     @JsonCreator
@@ -72,7 +74,22 @@ public class MatpowerModel {
         return generators;
     }
 
+    public void addGenerator(MGen generator) {
+        Objects.requireNonNull(generator);
+        generators.add(generator);
+        generatorsByBusNum.put(generator.getNumber(), generator);
+    }
+
+    public MGen getGeneratorByBusNum(int busNum) {
+        return generatorsByBusNum.get(busNum);
+    }
+
     public List<MBranch> getBranches() {
         return branches;
+    }
+
+    public void addBranch(MBranch branch) {
+        Objects.requireNonNull(branch);
+        branches.add(branch);
     }
 }
