@@ -66,12 +66,28 @@ public class MatpowerModel {
         return buses;
     }
 
+    public void setBuses(List<MBus> buses) {
+        Objects.requireNonNull(buses);
+        this.buses.clear();
+        for (MBus bus : buses) {
+            addBus(bus);
+        }
+    }
+
     public MBus getBusByNum(int num) {
         return busByNum.get(num);
     }
 
     public List<MGen> getGenerators() {
         return generators;
+    }
+
+    public void setGenerators(List<MGen> generators) {
+        Objects.requireNonNull(generators);
+        this.generators.clear();
+        for (MGen generator : generators) {
+            addGenerator(generator);
+        }
     }
 
     public void addGenerator(MGen generator) {
@@ -87,6 +103,14 @@ public class MatpowerModel {
 
     public List<MBranch> getBranches() {
         return branches;
+    }
+
+    public void setBranches(List<MBranch> branches) {
+        Objects.requireNonNull(branches);
+        this.branches.clear();
+        for (MBranch branch : branches) {
+            addBranch(branch);
+        }
     }
 
     public void addBranch(MBranch branch) {
