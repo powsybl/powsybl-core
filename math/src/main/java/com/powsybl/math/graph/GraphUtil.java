@@ -8,8 +8,9 @@ package com.powsybl.math.graph;
 
 import gnu.trove.list.array.TIntArrayList;
 
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  *
@@ -54,7 +55,7 @@ public final class GraphUtil {
     }
 
     private static void computeConnectedComponents(int v1, int c, int[] componentSize, TIntArrayList[] adjacencyList, int[] componentNumber) {
-        LinkedList<Integer> nodes = new LinkedList<>();
+        Queue<Integer> nodes = new ArrayDeque<>();
         nodes.add(v1);
         while (!nodes.isEmpty()) {
             int node = nodes.poll();
