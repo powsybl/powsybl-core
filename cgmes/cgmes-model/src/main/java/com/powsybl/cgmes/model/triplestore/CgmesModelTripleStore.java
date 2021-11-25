@@ -44,6 +44,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public void read(InputStream is, String baseName, String contextName) {
+        // Reset cached nodeBreaker value everytime we read new data
+        nodeBreaker = null;
         tripleStore.read(is, baseName, contextName);
     }
 
@@ -145,6 +147,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean isNodeBreaker() {
+        if (nodeBreaker == null) {
+            nodeBreaker = computeIsNodeBreaker();
+        }
+        return nodeBreaker;
+    }
+
+    private boolean computeIsNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
         if (!queryCatalog.containsKey(MODEL_PROFILES)) {
@@ -157,36 +166,47 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // Only consider is node breaker if all models that have profile
         // EquipmentCore or EquipmentBoundary
         // also have EquipmentOperation or EquipmentBoundaryOperation
-        Map<String, Boolean> eqModelHasEquipmentOperationProfile = new HashMap<>();
-        for (PropertyBag mp : r) {
+        Map<String, Boolean> modelHasOperationProfile = computeEqModelHasEquipmentOperationProfile(r);
+        boolean consideredNodeBreaker = modelHasOperationProfile.values().stream().allMatch(Boolean::valueOf);
+        if (LOG.isInfoEnabled()) {
+            logNodeBreaker(consideredNodeBreaker, modelHasOperationProfile);
+        }
+        return consideredNodeBreaker;
+    }
+
+    private void logNodeBreaker(boolean consideredNodeBreaker, Map<String, Boolean> modelHasOperationProfile) {
+        if (consideredNodeBreaker) {
+            LOG.info(
+                    "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
+        } else {
+            LOG.info(
+                    "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
+            modelHasOperationProfile.entrySet().forEach(meqop -> {
+                if (!meqop.getValue()) {
+                    LOG.info("    {}", meqop.getKey());
+                }
+            });
+        }
+    }
+
+    private Map<String, Boolean> computeEqModelHasEquipmentOperationProfile(PropertyBags modelProfiles) {
+        Map<String, Boolean> modelHasOperationProfile = new HashMap<>();
+        for (PropertyBag mp : modelProfiles) {
             String m = mp.get("FullModel");
             String p = mp.get(PROFILE);
             if (p != null) {
                 if (isEquipmentCore(p) || p.contains("/EquipmentBoundary/")) {
-                    eqModelHasEquipmentOperationProfile.putIfAbsent(m, false);
+                    modelHasOperationProfile.putIfAbsent(m, false);
                 }
                 if (isEquipmentOperation(p) || p.contains("/EquipmentBoundaryOperation/")) {
-                    eqModelHasEquipmentOperationProfile.put(m, true);
+                    modelHasOperationProfile.put(m, true);
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model {} is considered node-breaker", m);
                     }
                 }
             }
         }
-        boolean isNodeBreaker = eqModelHasEquipmentOperationProfile.values().stream().allMatch(Boolean::valueOf);
-        if (isNodeBreaker) {
-            LOG.info(
-                    "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
-        } else {
-            LOG.info(
-                    "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
-            eqModelHasEquipmentOperationProfile.entrySet().forEach(meqop -> {
-                if (!meqop.getValue()) {
-                    LOG.info("    {}", meqop.getKey());
-                }
-            });
-        }
-        return isNodeBreaker;
+        return modelHasOperationProfile;
     }
 
     @Override
@@ -477,11 +497,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags dcTerminalsTP() {
-        return namedQuery("dcTerminalsTP");
-    }
-
-    @Override
     public PropertyBags tieFlows() {
         return namedQuery("tieFlows");
     }
@@ -688,6 +703,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final int cimVersion;
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
+    private Boolean nodeBreaker = null;
 
     private static final String MODEL_PROFILES = "modelProfiles";
     private static final String PROFILE = "profile";

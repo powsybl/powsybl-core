@@ -745,7 +745,9 @@ OPTIONAL { GRAPH ?graphSSH {
         cim:RotatingMachine.q ?q ;
         cim:SynchronousMachine.referencePriority ?referencePriority ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled .
-    OPTIONAL { ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF }
+}}
+OPTIONAL { GRAPH ?graphSSH2 {
+    ?GeneratingUnit cim:GeneratingUnit.normalPF ?normalPF
 }}
 }
 
