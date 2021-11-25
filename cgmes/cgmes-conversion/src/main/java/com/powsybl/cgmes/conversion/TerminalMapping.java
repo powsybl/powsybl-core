@@ -24,6 +24,7 @@ public class TerminalMapping {
         terminals = new HashMap<>();
         terminalNumbers = new HashMap<>();
         topologicalNodesMapping = new HashMap<>();
+        cgmesTerminalsMapping = new HashMap<>();
     }
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
@@ -46,13 +47,7 @@ public class TerminalMapping {
         if (terminals.get(cgmesTerminalId) != null) {
             return terminals.get(cgmesTerminalId);
         }
-        return topologicalNodesMapping.entrySet().stream()
-                .filter(entry -> entry.getValue().contains(cgmesTerminalId))
-                .map(Map.Entry::getKey)
-                .map(this::findFromTopologicalNode)
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
+        return findFromTopologicalNode(cgmesTerminalsMapping.get(cgmesTerminalId));
     }
 
     public Boundary findBoundary(String cgmesTerminalId) {
@@ -66,10 +61,11 @@ public class TerminalMapping {
         return -1;
     }
 
-    public void buildTopologicalNodesMapping(CgmesTerminal t) {
+    public void buildTopologicalNodeCgmesTerminalsMapping(CgmesTerminal t) {
         String tp = t.topologicalNode();
         if (tp != null) {
             topologicalNodesMapping.computeIfAbsent(tp, tpnode -> new ArrayList<>()).add(t.id());
+            cgmesTerminalsMapping.put(t.id(), tp);
         }
     }
 
@@ -107,4 +103,5 @@ public class TerminalMapping {
     // (only mapped when the terminal is connected to a branch)
     private final Map<String, Integer>  terminalNumbers;
     private final Map<String, List<String>> topologicalNodesMapping;
+    private final Map<String, String> cgmesTerminalsMapping;
 }
