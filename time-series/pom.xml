@@ -25,6 +25,7 @@
 
     <modules>
         <module>time-series-api</module>
+        <module>time-series-dsl</module>
     </modules>
 
 </project>
