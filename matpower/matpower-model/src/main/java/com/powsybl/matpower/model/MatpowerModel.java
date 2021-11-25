@@ -67,6 +67,8 @@ public class MatpowerModel {
     }
 
     public void setBuses(List<MBus> buses) {
+        Objects.requireNonNull(buses);
+        this.buses.clear();
         for (MBus bus : buses) {
             addBus(bus);
         }
@@ -81,6 +83,8 @@ public class MatpowerModel {
     }
 
     public void setGenerators(List<MGen> generators) {
+        Objects.requireNonNull(generators);
+        this.generators.clear();
         for (MGen generator : generators) {
             addGenerator(generator);
         }
@@ -102,6 +106,8 @@ public class MatpowerModel {
     }
 
     public void setBranches(List<MBranch> branches) {
+        Objects.requireNonNull(branches);
+        this.branches.clear();
         for (MBranch branch : branches) {
             addBranch(branch);
         }
