@@ -62,7 +62,12 @@ public final class GraphUtil {
             if (componentNumbers[node] == -1) {
                 componentSize++;
                 componentNumbers[node] = c;
-                adjacencyList[node].forEach(e -> componentNumbers[e] != -1 || nodes.add(e));
+                adjacencyList[node].forEach(e -> {
+                    if (componentNumbers[e] == -1) {
+                        nodes.add(e);
+                    }
+                    return true;
+                });
             }
         }
         componentSizes.add(componentSize);
