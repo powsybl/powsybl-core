@@ -85,7 +85,7 @@ abstract class AbstractCgmesTapChangerBuilder {
         for (int i = min; i < min + table.size(); i++) {
             int index = i;
             if (table.stream().noneMatch(p -> p.asInt(CgmesNames.STEP) == index)) {
-                context.ignored("PhaseTapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Phase tap changer considered linear", index, tableId));
+                context.ignored("TapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Tap changer considered linear", index, tableId));
                 return false;
             }
         }
