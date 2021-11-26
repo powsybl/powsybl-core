@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.VariantManager;
 
 import java.util.Properties;
@@ -38,7 +39,7 @@ public class NetworkImporterMock implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory factory, Properties parameters) {
         Network network = mock(Network.class);
         when(network.getVariantManager()).thenReturn(mock(VariantManager.class));
         return network;
