@@ -68,7 +68,7 @@ public class EquipmentExportTest extends AbstractConverterTest {
 
     @Test
     public void nordic32() throws IOException, XMLStreamException {
-        test(new XMLImporter().importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), null));
+        test(new XMLImporter().importData(new ResourceDataSource("nordic32", new ResourceSet("/cim14", "nordic32.xiidm")), NetworkFactory.findDefault(), null));
     }
 
     @Test
