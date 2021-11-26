@@ -59,7 +59,7 @@ public class NamingStrategyTest {
         ResourceDataSource dataSource = new ResourceDataSource("expectedExport", new ResourceSet("/", "expectedExport.uct"));
 
         UcteImporter importer = new UcteImporter();
-        Network network = importer.importData(dataSource, new Properties());
+        Network network = importer.importData(dataSource, NetworkFactory.findDefault(), new Properties());
 
         NamingStrategy strategy = new DefaultNamingStrategy();
         UcteNodeCode code1 = strategy.getUcteNodeCode("B_SU1_11");
