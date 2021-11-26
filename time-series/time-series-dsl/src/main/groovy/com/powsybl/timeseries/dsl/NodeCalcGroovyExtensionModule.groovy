@@ -4,8 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.timeseries
+package com.powsybl.timeseries.dsl
 
+import com.powsybl.commons.PowsyblException
 import com.powsybl.timeseries.ast.BigDecimalNodeCalc
 import com.powsybl.timeseries.ast.BinaryOperation
 import com.powsybl.timeseries.ast.DoubleNodeCalc
@@ -38,7 +39,7 @@ class NodeCalcGroovyExtensionModule {
             case "!=":
                 return self != value
             default:
-                throw new AssertionError("Unexpected operator: " + op)
+                throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 
@@ -57,7 +58,7 @@ class NodeCalcGroovyExtensionModule {
             case "!=":
                 return BinaryOperation.notEquals(left, right)
             default:
-                throw new AssertionError("Unexpected operator: " + op)
+                throw new PowsyblException("Unexpected operator: " + op)
         }
     }
 

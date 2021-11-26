@@ -34,8 +34,10 @@ import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.StringWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
@@ -149,14 +151,13 @@ public class StateVariablesExportTest extends AbstractConverterTest {
 
     private String exportSvAsString(Network network, int svVersion) throws XMLStreamException, IOException {
         CgmesExportContext context = new CgmesExportContext(network);
-        Path file = fileSystem.getPath("/work/" + network.getId() + ".xml");
-        OutputStream os = Files.newOutputStream(file);
-        XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
+        StringWriter stringWriter = new StringWriter();
+        XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", stringWriter);
         context.getSvModelDescription().setVersion(svVersion);
         context.setExportBoundaryPowerFlows(true);
         StateVariablesExport.write(network, writer, context);
 
-        return Files.readString(file);
+        return stringWriter.toString();
     }
 
     private static String getCgmesTerminal(Terminal terminal) {
@@ -203,7 +204,7 @@ public class StateVariablesExportTest extends AbstractConverterTest {
         // Export SV
         CgmesExportContext context = new CgmesExportContext(expected);
         Path exportedSv = tmpDir.resolve("exportedSv.xml");
-        try (OutputStream os = Files.newOutputStream(exportedSv)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSv))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             context.getSvModelDescription().setVersion(svVersion);
             context.setExportBoundaryPowerFlows(true);

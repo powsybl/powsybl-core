@@ -26,6 +26,7 @@ import org.xmlunit.diff.DifferenceEvaluators;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -108,7 +109,7 @@ public class SteadyStateHypothesisExportTest extends AbstractConverterTest {
 
         // Export SSH
         Path exportedSsh = tmpDir.resolve("exportedSsh.xml");
-        try (OutputStream os = Files.newOutputStream(exportedSsh)) {
+        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(exportedSsh))) {
             XMLStreamWriter writer = XmlUtil.initializeWriter(true, "    ", os);
             CgmesExportContext context = new CgmesExportContext(expected);
             context.getSshModelDescription().setVersion(version);

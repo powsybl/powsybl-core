@@ -322,32 +322,4 @@ public class TimeSeriesTest {
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
         assertArrayEquals(new double[] {Double.NaN, Double.NaN, 6d}, split.get(1).get(1).toArray(), 0d);
     }
-
-    @Test
-    public void splitWithCalcTest() {
-        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
-        DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
-        DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
-        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(a, b);
-        List<List<DoubleTimeSeries>> split = TimeSeries.split(timeSeriesList, 2);
-        assertEquals(2, split.size());
-        assertEquals(2, split.get(0).size());
-        assertEquals(2, split.get(1).size());
-        assertTrue(split.get(0).get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(split.get(1).get(0) instanceof StoredDoubleTimeSeries);
-        assertTrue(split.get(0).get(1) instanceof CalculatedTimeSeries);
-        assertTrue(split.get(1).get(1) instanceof CalculatedTimeSeries);
-        assertArrayEquals(new double[]{1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
-        assertArrayEquals(new double[]{Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
-        // next check could surprising but it is because of calculated time series with infinite indexes which
-        // are not really splitted
-        assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(0).get(1).toArray(), 0d);
-        assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(1).get(1).toArray(), 0d);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void splitWithOnlyCalcTest() {
-        List<DoubleTimeSeries> timeSeriesList = DoubleTimeSeries.build("ts['a'] = 1", "ts['b'] = 2");
-        TimeSeries.split(timeSeriesList, 2);
-    }
 }
