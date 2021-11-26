@@ -108,7 +108,7 @@ public final class MatpowerReader {
                     gen.setRampQ(generators.getDouble(row, 19));
                     gen.setApf(generators.getDouble(row, 20));
                 }
-                model.getGenerators().add(gen);
+                model.addGenerator(gen);
             }
 
             for (int row = 0; row < branches.getDimensions()[0]; row++) {
@@ -128,7 +128,7 @@ public final class MatpowerReader {
                     branch.setAngMin(branches.getDouble(row, 11));
                     branch.setAngMax(branches.getDouble(row, 12));
                 }
-                model.getBranches().add(branch);
+                model.addBranch(branch);
             }
         }
         return model;
