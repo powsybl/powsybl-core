@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -101,7 +102,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertTrue(importer.exists(dataSource));
 
         // importData
-        Network network = importer.importData(dataSource, null);
+        Network network = importer.importData(dataSource, NetworkFactory.findDefault(), null);
         assertNotNull(network.getSubstation("P1"));
     }
 
@@ -152,24 +153,24 @@ public class XMLImporterTest extends AbstractConverterTest {
     @Test
     public void importData() {
         // should be ok
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), NetworkFactory.findDefault(), null));
 
         // should fail because file that does not exist
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), null);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), NetworkFactory.findDefault(), null);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), null));
 
         // extension plugin will be not found but option is set to throw an exception
         // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params);
             fail();
         } catch (RuntimeException ignored) {
         }
@@ -179,16 +180,16 @@ public class XMLImporterTest extends AbstractConverterTest {
         Properties params2 = new Properties();
         params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params2);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), NetworkFactory.findDefault(), params2);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // read file with id mapping
-        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), params);
+        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), NetworkFactory.findDefault(), params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
+        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), NetworkFactory.findDefault(), null);
         assertNotNull(network2.getSubstation("P1"));
     }
 }
