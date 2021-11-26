@@ -81,10 +81,10 @@ abstract class AbstractCgmesTapChangerBuilder {
     }
 
     protected boolean isTableValid(String tableId, PropertyBags table) {
-        int min = table.stream().map(p -> p.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
+        int min = table.stream().map(step -> step.asInt(CgmesNames.STEP)).min(Integer::compareTo).orElseThrow(() -> new PowsyblException("Should at least contain one step"));
         for (int i = min; i < min + table.size(); i++) {
             int index = i;
-            if (table.stream().noneMatch(p -> p.asInt(CgmesNames.STEP) == index)) {
+            if (table.stream().noneMatch(step -> step.asInt(CgmesNames.STEP) == index)) {
                 context.ignored("TapChanger table", () -> String.format("There is at least one missing step (%s) in table %s. Tap changer considered linear", index, tableId));
                 return false;
             }
