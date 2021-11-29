@@ -70,7 +70,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_PHASE_SHIFTER_REGULATION_ON = false;
     public static final boolean DEFAULT_TWT_SPLIT_SHUNT_ADMITTANCE = false;
     public static final boolean DEFAULT_SIMUL_SHUNT = false;
-    public static final boolean DEFAULT_READ_SLACK_BUS = false;
+    public static final boolean DEFAULT_READ_SLACK_BUS = true;
     public static final boolean DEFAULT_WRITE_SLACK_BUS = false;
     public static final boolean DEFAULT_DC = false;
     public static final boolean DEFAULT_DISTRIBUTED_SLACK = true;
