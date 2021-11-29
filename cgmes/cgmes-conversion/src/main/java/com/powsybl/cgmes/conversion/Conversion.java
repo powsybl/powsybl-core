@@ -132,8 +132,8 @@ public class Conversion {
 
     public Network convert() {
 
-        if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
-            LOG.debug(cgmes.baseVoltages().tabulate());
+        if (LOG.isTraceEnabled() && cgmes.baseVoltages() != null) {
+            LOG.trace("{}{}{}", "BaseVoltages", System.lineSeparator(), cgmes.baseVoltages().tabulate());
         }
         // Check that at least we have an EquipmentCore profile
         if (!cgmes.hasEquipmentCore()) {
@@ -288,17 +288,15 @@ public class Conversion {
     private void convert(
             PropertyBags elements,
             Function<PropertyBag, AbstractObjectConversion> f) {
-        String conversion = null;
-
+        String logTitle = null;
         for (PropertyBag element : elements) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(element.tabulateLocals());
-            }
             AbstractObjectConversion c = f.apply(element);
-            if (conversion == null) {
-                conversion = c.getClass().getName();
-                conversion = conversion.substring(conversion.lastIndexOf('.') + 1);
-                conversion = conversion.replace("Conversion", "");
+            if (LOG.isTraceEnabled()) {
+                if (logTitle == null) {
+                    logTitle = c.getClass().getSimpleName();
+                    logTitle = logTitle.replace("Conversion", "");
+                }
+                LOG.trace(element.tabulateLocals(logTitle));
             }
             if (c.insideBoundary()) {
                 c.convertInsideBoundary();
@@ -388,8 +386,8 @@ public class Conversion {
         Iterator<PropertyBag> k = cgmes.acLineSegments().iterator();
         while (k.hasNext()) {
             PropertyBag line = k.next();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(line.tabulateLocals("ACLineSegment"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(line.tabulateLocals("ACLineSegment"));
             }
             String lineContainerId = line.getId("Line");
             if (lineContainerId != null) {
@@ -474,8 +472,8 @@ public class Conversion {
         Iterator<PropertyBag> k = cgmes.switches().iterator();
         while (k.hasNext()) {
             PropertyBag sw = k.next();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(sw.tabulateLocals("Switch"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(sw.tabulateLocals("Switch"));
             }
             SwitchConversion c = new SwitchConversion(sw, context);
             if (c.valid()) {
@@ -494,8 +492,8 @@ public class Conversion {
         Iterator<PropertyBag> k = cgmes.equivalentBranches().iterator();
         while (k.hasNext()) {
             PropertyBag equivalentBranch = k.next();
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(equivalentBranch.tabulateLocals("EquivalentBranch"));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace(equivalentBranch.tabulateLocals("EquivalentBranch"));
             }
             EquivalentBranchConversion c = new EquivalentBranchConversion(equivalentBranch, context);
             if (c.valid()) {
@@ -512,9 +510,9 @@ public class Conversion {
 
     private void convertTransformers(Context context, Set<String> delayedBoundaryNodes) {
         cgmes.groupedTransformerEnds().forEach((t, ends) -> {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("Transformer {}, {}-winding", t, ends.size());
+                ends.forEach(e -> LOG.trace(e.tabulateLocals("TransformerEnd")));
             }
             if (ends.size() == 2) {
                 convertTwoWindingsTransformers(context, ends, delayedBoundaryNodes);

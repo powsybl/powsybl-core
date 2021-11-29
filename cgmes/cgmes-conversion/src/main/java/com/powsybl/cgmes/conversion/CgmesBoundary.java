@@ -32,8 +32,8 @@ public class CgmesBoundary {
         lineAtNodes = new HashMap<>();
         hvdcNodes = new HashSet<>();
         if (bns != null) {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug("{}{}{}",
+            if (LOG.isTraceEnabled()) {
+                LOG.trace("{}{}{}",
                         "CgmesBoundary nodes",
                         System.lineSeparator(),
                         bns.tabulateLocals());
