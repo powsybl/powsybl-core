@@ -96,6 +96,11 @@ public class VariantManagerImplTest {
         }
 
         @Override
+        public boolean removeProperty(String key) {
+            return false;
+        }
+
+        @Override
         public Set<String> getPropertyNames() {
             return Collections.emptySet();
         }
