@@ -70,7 +70,7 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
 
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                 .setLossFactor((float) this.lossFactor)
-                .setPowerFactor((float) DEFAULT_POWER_FACTOR);
+                .setPowerFactor((float) getPowerFactor(p));
             identify(adder);
             connect(adder);
             LccConverterStation c = adder.add();
@@ -79,6 +79,16 @@ public class AcDcConverterConversion extends AbstractReactiveLimitsOwnerConversi
             this.lccConverter = c;
             convertedTerminals(c.getTerminal());
         }
+    }
+
+    private static double getPowerFactor(PropertyBag propertyBag) {
+        double p = propertyBag.asDouble("p");
+        double q = propertyBag.asDouble("q");
+        double powerFactor = p / Math.hypot(p, q);
+        if (Double.isNaN(powerFactor)) {
+            return DEFAULT_POWER_FACTOR;
+        }
+        return powerFactor;
     }
 
     public void setLccPowerFactor(double powerFactor) {

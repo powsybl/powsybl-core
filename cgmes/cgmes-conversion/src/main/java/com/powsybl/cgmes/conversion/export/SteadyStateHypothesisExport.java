@@ -192,10 +192,10 @@ public final class SteadyStateHypothesisExport {
             writer.writeCharacters(Boolean.toString(controlEnabled));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.p");
-            writer.writeCharacters(CgmesExportUtil.format(g.getTerminal().getP()));
+            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetP()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "RotatingMachine.q");
-            writer.writeCharacters(CgmesExportUtil.format(g.getTerminal().getQ()));
+            writer.writeCharacters(CgmesExportUtil.format(-g.getTargetQ()));
             writer.writeEndElement();
             writer.writeStartElement(cimNamespace, "SynchronousMachine.referencePriority");
             // reference priority is used for angle reference selection (slack)
