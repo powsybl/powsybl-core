@@ -907,6 +907,9 @@ WHERE {
     OPTIONAL {
         ?ACDCConverter cim:ACDCConverter.PccTerminal ?PccTerminal
     }
+    OPTIONAL {
+        ?ACDCConverter cim:VsConverter.CapabilityCurve ?ReactiveCapabilityCurve
+    }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?ACDCConverter
