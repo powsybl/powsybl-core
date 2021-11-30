@@ -10,8 +10,8 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
@@ -40,7 +40,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     // attributes depending on the variant
 
-    protected final TIntArrayList tapPosition;
+    protected final List<Integer> tapPosition;
 
     protected final TBooleanArrayList regulating;
 
@@ -57,11 +57,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         steps.forEach(s -> s.setParent(this));
         this.regulationTerminal = regulationTerminal;
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.tapPosition = new TIntArrayList(variantArraySize);
+        this.tapPosition = new ArrayList<>(variantArraySize);
         this.regulating = new TBooleanArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.tapPosition.add(tapPosition != null ? tapPosition : Integer.MIN_VALUE);
+            this.tapPosition.add(tapPosition);
             this.regulating.add(regulating);
             this.targetDeadband.add(targetDeadband);
         }
@@ -96,11 +96,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public OptionalInt getTapPosition() {
-        int position = tapPosition.get(networkRef.get().getVariantIndex());
-        if (position == Integer.MIN_VALUE) {
-            return OptionalInt.empty();
-        }
-        return OptionalInt.of(position);
+        Integer position = tapPosition.get(networkRef.get().getVariantIndex());
+        return position == null ? OptionalInt.empty() : OptionalInt.of(position);
     }
 
     public OptionalInt getNeutralPosition() {
@@ -118,9 +115,6 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         }
         int variantIndex = networkRef.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, tapPosition);
-        if (oldValue == Integer.MIN_VALUE) {
-            oldValue = null;
-        }
         String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
         network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
         network.invalidate();
@@ -130,10 +124,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     public C unsetTapPosition() {
         ValidationUtil.throwExceptionOrLogError(parent, "tap position has been unset", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = networkRef.get().getVariantIndex();
-        Integer oldValue = this.tapPosition.set(variantIndex, Integer.MIN_VALUE);
-        if (oldValue == Integer.MIN_VALUE) {
-            oldValue = null;
-        }
+        Integer oldValue = this.tapPosition.set(variantIndex, null);
         String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
         network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, null);
         network.invalidate();
@@ -203,7 +194,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         regulating.ensureCapacity(regulating.size() + number);
-        tapPosition.ensureCapacity(tapPosition.size() + number);
+        ((ArrayList<Integer>) tapPosition).ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
             regulating.add(regulating.get(sourceIndex));
             tapPosition.add(tapPosition.get(sourceIndex));
@@ -214,7 +205,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     @Override
     public void reduceVariantArraySize(int number) {
         regulating.remove(regulating.size() - number, number);
-        tapPosition.remove(tapPosition.size() - number, number);
+        List<Integer> tmp = new ArrayList<>(tapPosition.subList(0, number));
+        tapPosition.clear();
+        tapPosition.addAll(tmp);
         targetDeadband.remove(targetDeadband.size() - number, number);
     }
 

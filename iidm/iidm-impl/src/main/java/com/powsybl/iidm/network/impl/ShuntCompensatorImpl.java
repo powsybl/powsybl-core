@@ -10,8 +10,9 @@ import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-import gnu.trove.list.array.TIntArrayList;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.OptionalInt;
 
@@ -30,7 +31,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     // attributes depending on the variant
 
     /* the current number of section switched on */
-    private final TIntArrayList sectionCount;
+    private final List<Integer> sectionCount;
 
     /* the regulating status */
     private final TBooleanArrayList voltageRegulatorOn;
@@ -49,12 +50,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         network = networkRef.get();
         this.regulatingTerminal = regulatingTerminal;
         int variantArraySize = network.getVariantManager().getVariantArraySize();
-        this.sectionCount = new TIntArrayList(variantArraySize);
+        this.sectionCount = new ArrayList<>(variantArraySize);
         this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         this.targetDeadband = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.sectionCount.add(sectionCount == null ? Integer.MIN_VALUE : sectionCount);
+            this.sectionCount.add(sectionCount);
             this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetV.add(targetV);
             this.targetDeadband.add(targetDeadband);
@@ -69,8 +70,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public OptionalInt getSectionCount() {
-        int section = sectionCount.get(network.getVariantIndex());
-        return section == Integer.MIN_VALUE ? OptionalInt.empty() : OptionalInt.of(section);
+        Integer section = sectionCount.get(network.getVariantIndex());
+        return section == null ? OptionalInt.empty() : OptionalInt.of(section);
     }
 
     @Override
@@ -85,7 +86,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
             throw new ValidationException(this, "unexpected section number (" + sectionCount + "): no existing associated section");
         }
         int variantIndex = network.getVariantIndex();
-        int oldValue = this.sectionCount.set(variantIndex, sectionCount);
+        Integer oldValue = this.sectionCount.set(variantIndex, sectionCount);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("sectionCount", variantId, oldValue, sectionCount);
         network.invalidate();
@@ -96,10 +97,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensator unsetSectionCount() {
         ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = network.getVariantIndex();
-        Integer oldValue = this.sectionCount.set(variantIndex, Integer.MIN_VALUE);
-        if (oldValue == Integer.MIN_VALUE) {
-            oldValue = null;
-        }
+        Integer oldValue = this.sectionCount.set(variantIndex, null);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
         notifyUpdate("sectionCount", variantId, oldValue, null);
         network.invalidate();
@@ -214,7 +212,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
-        sectionCount.ensureCapacity(sectionCount.size() + number);
+        ((ArrayList<Integer>) sectionCount).ensureCapacity(sectionCount.size() + number);
         voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         targetDeadband.ensureCapacity(targetDeadband.size() + number);
@@ -229,7 +227,9 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
-        sectionCount.remove(sectionCount.size() - number, number);
+        List<Integer> tmp = new ArrayList<>(sectionCount.subList(0, number));
+        sectionCount.clear();
+        sectionCount.addAll(tmp);
         voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
         targetV.remove(targetV.size() - number, number);
         targetDeadband.remove(targetDeadband.size() - number, number);
