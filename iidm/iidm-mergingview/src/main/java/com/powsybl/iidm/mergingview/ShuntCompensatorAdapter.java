@@ -42,6 +42,12 @@ public class ShuntCompensatorAdapter extends AbstractInjectionAdapter<ShuntCompe
     }
 
     @Override
+    public ShuntCompensator unsetSectionCount() {
+        getDelegate().unsetSectionCount();
+        return this;
+    }
+
+    @Override
     public double getB() {
         return getDelegate().getB();
     }

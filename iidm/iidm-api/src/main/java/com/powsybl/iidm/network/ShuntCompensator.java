@@ -139,6 +139,12 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     ShuntCompensator setSectionCount(int sectionCount);
 
     /**
+     * Unset the count of sections in service.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    ShuntCompensator unsetSectionCount();
+
+    /**
      * Get the susceptance (in S) of the shunt in its current state i.e. the sum of the sections' susceptances for all sections in service.
      * Return 0 if no section is in service (disconnected state).
      * @see #getSectionCount()

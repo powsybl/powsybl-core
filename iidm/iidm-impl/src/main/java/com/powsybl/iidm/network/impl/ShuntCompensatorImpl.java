@@ -93,6 +93,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public ShuntCompensator unsetSectionCount() {
+        ValidationUtil.throwExceptionOrLogError(this, "count of sections in service has been unset", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
+        int variantIndex = network.getVariantIndex();
+        Integer oldValue = this.sectionCount.set(variantIndex, Integer.MIN_VALUE);
+        if (oldValue == Integer.MIN_VALUE) {
+            oldValue = null;
+        }
+        String variantId = network.getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("sectionCount", variantId, oldValue, null);
+        network.invalidate();
+        return this;
+    }
+
+    @Override
     public double getB() {
         return model.getB(sectionCount.get(network.getVariantIndex()));
     }

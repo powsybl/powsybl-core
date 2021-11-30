@@ -135,7 +135,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
             oldValue = null;
         }
         String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
-        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
+        network.getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, null);
         network.invalidate();
         return (C) this;
     }
