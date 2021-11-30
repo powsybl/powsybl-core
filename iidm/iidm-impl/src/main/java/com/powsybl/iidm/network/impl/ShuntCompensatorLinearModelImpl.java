@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.ShuntCompensatorLinearModel;
 import com.powsybl.iidm.network.ShuntCompensatorModelType;
+import com.powsybl.iidm.network.ValidationLevel;
 import com.powsybl.iidm.network.ValidationUtil;
 
 import java.util.Objects;
@@ -92,12 +93,10 @@ class ShuntCompensatorLinearModelImpl implements ShuntCompensatorModelExt, Shunt
 
     @Override
     public ShuntCompensatorLinearModel setMaximumSectionCount(int maximumSectionCount) {
-        NetworkImpl network = shuntCompensator.getNetwork();
-        network.setValidationLevelIfGreaterThan(ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount().isPresent() ? shuntCompensator.getSectionCount().getAsInt() : null, maximumSectionCount));
+        ValidationUtil.checkSections(shuntCompensator, shuntCompensator.getSectionCount().isPresent() ? shuntCompensator.getSectionCount().getAsInt() : null, maximumSectionCount, shuntCompensator.getNetwork().getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
         shuntCompensator.notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
-        network.invalidate();
         return this;
     }
 

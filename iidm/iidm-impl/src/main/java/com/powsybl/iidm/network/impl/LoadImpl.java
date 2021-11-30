@@ -78,8 +78,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
         int variantIndex = network.getVariantIndex();
         double oldValue = this.p0.set(variantIndex, p0);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("p0", variantId, oldValue, p0);
         network.invalidate();
+        notifyUpdate("p0", variantId, oldValue, p0);
         return this;
     }
 
@@ -94,8 +94,8 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
         int variantIndex = network.getVariantIndex();
         double oldValue = this.q0.set(variantIndex, q0);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("q0", variantId, oldValue, q0);
         network.invalidate();
+        notifyUpdate("q0", variantId, oldValue, q0);
         return this;
     }
 
