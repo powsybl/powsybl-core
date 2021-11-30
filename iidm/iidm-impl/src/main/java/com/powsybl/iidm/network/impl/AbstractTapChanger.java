@@ -127,7 +127,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
-    public C removeTapPosition() {
+    public C unsetTapPosition() {
         ValidationUtil.throwExceptionOrLogError(parent, "tap position has been removed", network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         int variantIndex = networkRef.get().getVariantIndex();
         Integer oldValue = this.tapPosition.set(variantIndex, Integer.MIN_VALUE);

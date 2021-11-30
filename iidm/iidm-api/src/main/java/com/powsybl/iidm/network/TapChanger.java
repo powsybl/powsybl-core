@@ -52,7 +52,11 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     C setTapPosition(int tapPosition);
 
-    C removeTapPosition();
+    /**
+     * Unset the current tap position: tap position is now undefined.
+     * Note: this can be done <b>only</b> in SCADA validation level.
+     */
+    C unsetTapPosition();
 
     /**
      * Get the number of steps.
