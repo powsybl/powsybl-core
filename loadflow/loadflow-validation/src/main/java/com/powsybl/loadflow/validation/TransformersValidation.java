@@ -13,6 +13,7 @@ import java.io.Writer;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.powsybl.commons.PowsyblException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +77,7 @@ public final class TransformersValidation extends AbstractTransformersValidation
         Objects.requireNonNull(twtsWriter);
 
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
-        int tapPosition = ratioTapChanger.getTapPosition().orElseThrow(AssertionError::new);
+        int tapPosition = ratioTapChanger.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported"));
         int lowTapPosition = ratioTapChanger.getLowTapPosition();
         int highTapPosition = ratioTapChanger.getHighTapPosition();
         double rho = ratioTapChanger.getCurrentStep().getRho();

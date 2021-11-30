@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test.network.compare;
 import com.powsybl.cgmes.extensions.CgmesSshMetadata;
 import com.powsybl.cgmes.extensions.CgmesSvMetadata;
 import com.powsybl.cgmes.extensions.CimCharacteristics;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve.Point;
 import com.powsybl.iidm.network.extensions.*;
@@ -754,8 +755,8 @@ public class Comparison {
                     expected.getHighTapPosition(),
                     actual.getHighTapPosition());
             compare("tapChanger.tapPosition",
-                    expected.getTapPosition().orElseThrow(AssertionError::new),
-                    actual.getTapPosition().orElseThrow(AssertionError::new));
+                    expected.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")),
+                    actual.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
             compare("tapChanger.targetDeadband",
                     expected.getTargetDeadband(),
                     actual.getTargetDeadband());

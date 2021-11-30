@@ -84,11 +84,11 @@ public class ActionDslLoaderTest {
         assertNotNull(fixedTapAction);
         addPhaseShifter(0);
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
-        assertEquals(0, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
+        assertEquals(0, phaseTapChanger.getTapPosition().orElse(-1));
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
         fixedTapAction.run(network, null);
-        assertEquals(1, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
+        assertEquals(1, phaseTapChanger.getTapPosition().orElse(-1));
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
         assertFalse(phaseTapChanger.isRegulating());
     }
@@ -115,11 +115,11 @@ public class ActionDslLoaderTest {
             assertEquals(data.getDeltaTap(), ((PhaseShifterTapTask) deltaTapAction.getTasks().get(0)).getTapDelta());
             addPhaseShifter(data.getInitTapPosition());
             PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger();
-            assertEquals(1, phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
+            assertEquals(1, phaseTapChanger.getTapPosition().orElse(-1));
             assertTrue(phaseTapChanger.isRegulating());
             assertEquals(PhaseTapChanger.RegulationMode.CURRENT_LIMITER, phaseTapChanger.getRegulationMode());
             deltaTapAction.run(network, null);
-            assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new));
+            assertEquals(data.getExpectedTapPosition(), phaseTapChanger.getTapPosition().orElse(-1));
             assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, phaseTapChanger.getRegulationMode());
             assertFalse(phaseTapChanger.isRegulating());
         }

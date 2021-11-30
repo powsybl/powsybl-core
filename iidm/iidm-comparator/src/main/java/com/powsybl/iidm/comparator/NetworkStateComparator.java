@@ -8,6 +8,7 @@ package com.powsybl.iidm.comparator;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -204,7 +205,7 @@ public class NetworkStateComparator {
         public void setValue(TwoWindingsTransformer twt, Cell cell) {
             RatioTapChanger rtc = twt.getRatioTapChanger();
             if (rtc != null) {
-                cell.setCellValue(rtc.getTapPosition().orElseThrow(AssertionError::new));
+                cell.setCellValue(rtc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
             }
         }
     };
@@ -220,7 +221,7 @@ public class NetworkStateComparator {
         public void setValue(TwoWindingsTransformer twt, Cell cell) {
             PhaseTapChanger ptc = twt.getPhaseTapChanger();
             if (ptc != null) {
-                cell.setCellValue(ptc.getTapPosition().orElseThrow(AssertionError::new));
+                cell.setCellValue(ptc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")));
             }
         }
     };

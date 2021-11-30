@@ -376,10 +376,10 @@ public final class StateVariablesExport {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             if (twt.hasPhaseTapChanger()) {
                 String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new), cimNamespace, writer);
+                writeSvTapStep(ptcId, twt.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")), cimNamespace, writer);
             } else if (twt.hasRatioTapChanger()) {
                 String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 1).orElseGet(() -> twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + 2).orElseThrow(PowsyblException::new));
-                writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition().orElseThrow(AssertionError::new), cimNamespace, writer);
+                writeSvTapStep(rtcId, twt.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")), cimNamespace, writer);
             }
         }
 
@@ -388,10 +388,10 @@ public final class StateVariablesExport {
             for (ThreeWindingsTransformer.Leg leg : Arrays.asList(twt.getLeg1(), twt.getLeg2(), twt.getLeg3())) {
                 if (leg.hasPhaseTapChanger()) {
                     String ptcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.PHASE_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition().orElseThrow(AssertionError::new), cimNamespace, writer);
+                    writeSvTapStep(ptcId, leg.getPhaseTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")), cimNamespace, writer);
                 } else if (leg.hasRatioTapChanger()) {
                     String rtcId = twt.getAliasFromType(Conversion.CGMES_PREFIX_ALIAS_PROPERTIES + CgmesNames.RATIO_TAP_CHANGER + i).orElseThrow(PowsyblException::new);
-                    writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition().orElseThrow(AssertionError::new), cimNamespace, writer);
+                    writeSvTapStep(rtcId, leg.getRatioTapChanger().getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")), cimNamespace, writer);
                 }
                 i++;
             }

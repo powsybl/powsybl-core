@@ -56,7 +56,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
             XmlUtil.writeDouble(B_PER_SECTION, bPerSection, context.getWriter());
             int maximumSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getMaximumSectionCount() : 1;
             context.getWriter().writeAttribute(MAXIMUM_SECTION_COUNT, Integer.toString(maximumSectionCount));
-            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount().orElseThrow(AssertionError::new) : 1;
+            int currentSectionCount = model instanceof ShuntCompensatorLinearModel ? sc.getSectionCount().orElseThrow(() -> new PowsyblException("Should not happen for XIIDM version " + context.getVersion().toString("."))) : 1;
             context.getWriter().writeAttribute("currentSectionCount", Integer.toString(currentSectionCount));
         });
         if (sc.getSectionCount().isPresent()) {

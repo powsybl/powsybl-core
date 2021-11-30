@@ -8,6 +8,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.ampl.converter.util.AmplDatTableFormatter;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
@@ -1107,7 +1108,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(rtc.getTapPosition().orElseThrow(AssertionError::new) - rtc.getLowTapPosition() + 1)
+                    .writeCell(rtc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - rtc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
             if (config.isExportRatioTapChangerVoltageTarget()) {
@@ -1160,7 +1161,7 @@ public class AmplNetworkWriter {
             int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
             formatter.writeCell(variantIndex)
                     .writeCell(rtcNum)
-                    .writeCell(ptc.getTapPosition().orElseThrow(AssertionError::new) - ptc.getLowTapPosition() + 1)
+                    .writeCell(ptc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) - ptc.getLowTapPosition() + 1)
                     .writeCell(tcsNum)
                     .writeCell(faultNum)
                     .writeCell(actionNum)

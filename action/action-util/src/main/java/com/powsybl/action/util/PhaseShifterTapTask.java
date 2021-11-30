@@ -49,7 +49,7 @@ public class PhaseShifterTapTask implements ModificationTask {
     }
 
     private void adjustTapPosition(PhaseTapChanger phaseTapChanger) {
-        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition().orElseThrow(AssertionError::new) + tapDelta,
+        phaseTapChanger.setTapPosition(Math.min(Math.max(phaseTapChanger.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")) + tapDelta,
                 phaseTapChanger.getLowTapPosition()), phaseTapChanger.getHighTapPosition()));
     }
 }

@@ -289,7 +289,7 @@ public final class SteadyStateHypothesisExport {
     }
 
     private static void writeTapChanger(String type, String id, TapChanger<?, ?> tc, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
-        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition().orElseThrow(AssertionError::new), cimNamespace, writer);
+        writeTapChanger(type, id, tc.isRegulating(), tc.getTapPosition().orElseThrow(() -> new PowsyblException("SCADA network not supported")), cimNamespace, writer);
     }
 
     private static void writeTapChanger(String type, String id, boolean controlEnabled, int step, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
