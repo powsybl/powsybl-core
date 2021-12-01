@@ -103,12 +103,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
-        double ratedU1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU1");
-        double ratedU2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU2");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
+        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
         adder.setR(r)
                 .setX(x)
                 .setG(g)

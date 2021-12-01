@@ -90,12 +90,12 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected Line readRootElementAttributes(LineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
-        double g1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b1");
-        double g2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g2");
-        double b2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b2");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
+        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
+        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
         adder.setR(r)
                 .setX(x)
                 .setG1(g1)

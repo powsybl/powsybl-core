@@ -70,8 +70,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
-        double bMin = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "bMin");
-        double bMax = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "bMax");
+        double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
+        double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
 
         String[] voltageSetpointName = {"voltageSetpoint"};
         String[] reactivePowerSetpointName = {"reactivePowerSetpoint"};

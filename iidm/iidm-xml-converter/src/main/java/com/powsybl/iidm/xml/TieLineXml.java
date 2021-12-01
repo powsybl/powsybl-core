@@ -112,12 +112,12 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     private static void readHalf(TieLineAdder.HalfLineAdder adder, NetworkXmlReaderContext context, int side) {
         String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id_" + side));
         String name = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "name_" + side));
-        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r_" + side);
-        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x_" + side);
-        double g1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g1_" + side);
-        double b1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b1_" + side);
-        double g2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g2_" + side);
-        double b2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b2_" + side);
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r_" + side);
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x_" + side);
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1_" + side);
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1_" + side);
+        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2_" + side);
+        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2_" + side);
         adder.setId(id)
                 .setName(name)
                 .setR(r)

@@ -163,7 +163,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     break;
                 case SHUNT_LINEAR_MODEL:
                     IidmXmlUtil.assertMinimumVersion(ROOT_ELEMENT_NAME, SHUNT_LINEAR_MODEL, IidmXmlUtil.ErrorMessage.NOT_SUPPORTED, IidmXmlVersion.V_1_3, context);
-                    double bPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), B_PER_SECTION);
+                    double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), B_PER_SECTION);
                     double gPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "gPerSection");
                     int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), MAXIMUM_SECTION_COUNT);
                     adder.newLinearModel()
@@ -177,7 +177,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
                     ShuntCompensatorNonLinearModelAdder modelAdder = adder.newNonLinearModel();
                     XmlUtil.readUntilEndElement(SHUNT_NON_LINEAR_MODEL, context.getReader(), () -> {
                         if ("section".equals(context.getReader().getLocalName())) {
-                            double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
+                            double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
                             double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
                             modelAdder.beginSection()
                                     .setB(b)

@@ -144,30 +144,30 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected ThreeWindingsTransformer readRootElementAttributes(ThreeWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
-        double r1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r1");
-        double x1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x1");
-        double g1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g1");
-        double b1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b1");
-        double ratedU1 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU1");
-        double r2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r2");
-        double x2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x2");
-        double ratedU2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU2");
-        double r3 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r3");
-        double x3 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x3");
-        double ratedU3 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU3");
+        double r1 = XmlUtil.readDoubleAttribute(context.getReader(), "r1");
+        double x1 = XmlUtil.readDoubleAttribute(context.getReader(), "x1");
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
+        double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
+        double r2 = XmlUtil.readDoubleAttribute(context.getReader(), "r2");
+        double x2 = XmlUtil.readDoubleAttribute(context.getReader(), "x2");
+        double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
+        double r3 = XmlUtil.readDoubleAttribute(context.getReader(), "r3");
+        double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
+        double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
         LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
         LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_1, context, () -> {
-            double ratedU0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "ratedU0");
+            double ratedU0 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU0");
             adder.setRatedU0(ratedU0);
 
-            double g2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g2");
-            double b2 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b2");
+            double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
+            double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
             legAdder2.setG(g2).setB(b2);
 
-            double g3 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g3");
-            double b3 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b3");
+            double g3 = XmlUtil.readDoubleAttribute(context.getReader(), "g3");
+            double b3 = XmlUtil.readDoubleAttribute(context.getReader(), "b3");
             legAdder3.setG(g3).setB(b3);
         });
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_2, context, () -> {

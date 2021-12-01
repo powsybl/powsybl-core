@@ -114,10 +114,10 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
         double p0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "q0");
-        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
-        double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "b");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
+        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
+        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         IidmXmlUtil.runFromMinimumVersion(IidmXmlVersion.V_1_3, context, () -> {
             String voltageRegulationOnStr = context.getReader().getAttributeValue(null, "generationVoltageRegulationOn");
             if (voltageRegulationOnStr != null) {

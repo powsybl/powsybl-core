@@ -239,11 +239,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected VoltageLevel readRootElementAttributes(VoltageLevelAdder adder, NetworkXmlReaderContext context) {
-        double nominalV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "nominalV");
+        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
         double lowVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "lowVoltageLimit");
         double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
-        String topologyKindStr = context.getReader().getAttributeValue(null, "topologyKind");
-        TopologyKind topologyKind = topologyKindStr != null ? TopologyKind.valueOf(topologyKindStr) : null;
+        TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
         return adder
                 .setNominalV(nominalV)
                 .setLowVoltageLimit(lowVoltageLimit)

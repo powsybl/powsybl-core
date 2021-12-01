@@ -53,12 +53,12 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected HvdcLine readRootElementAttributes(HvdcLineAdder adder, NetworkXmlReaderContext context) {
-        double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "r");
-        double nominalV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "nominalV");
+        double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
+        double nominalV = XmlUtil.readDoubleAttribute(context.getReader(), "nominalV");
         String convertersModeStr = context.getReader().getAttributeValue(null, "convertersMode");
         HvdcLine.ConvertersMode convertersMode = convertersModeStr != null ? HvdcLine.ConvertersMode.valueOf(convertersModeStr) : null;
         double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "activePowerSetpoint");
-        double maxP = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "maxP");
+        double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         String converterStation1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation1"));
         String converterStation2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "converterStation2"));
         return adder.setR(r)
