@@ -98,7 +98,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         int variantIndex = network.getVariantIndex();
         Integer oldValue = this.sectionCount.set(variantIndex, null);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("sectionCount", variantId, oldValue, null);
         return this;
     }
@@ -171,7 +171,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", voltageRegulatorOn, targetDeadband.get(variantIndex), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -187,7 +187,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }
@@ -203,7 +203,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         ValidationUtil.checkTargetDeadband(this, "shunt compensator", this.voltageRegulatorOn.get(variantIndex), targetDeadband, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("targetDeadband", variantId, oldValue, targetDeadband);
         return this;
     }

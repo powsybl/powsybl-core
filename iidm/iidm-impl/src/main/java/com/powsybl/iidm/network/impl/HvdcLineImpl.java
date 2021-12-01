@@ -88,7 +88,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         ConvertersMode oldValue = this.convertersMode.get(variantIndex) != -1 ? ConvertersMode.values()[this.convertersMode.get(variantIndex)] : null;
         this.convertersMode.set(variantIndex, convertersMode != null ? convertersMode.ordinal() : -1);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("convertersMode", variantId, oldValue, convertersMode);
         return this;
     }
@@ -147,7 +147,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine {
         int variantIndex = network.getVariantIndex();
         double oldValue = this.activePowerSetpoint.set(variantIndex, activePowerSetpoint);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("activePowerSetpoint", variantId, oldValue, activePowerSetpoint);
         return this;
     }

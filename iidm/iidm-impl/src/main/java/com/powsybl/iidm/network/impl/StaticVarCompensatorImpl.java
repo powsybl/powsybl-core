@@ -104,7 +104,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = network.getVariantIndex();
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
@@ -120,7 +120,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = network.getVariantIndex();
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
@@ -137,7 +137,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(variantIndex,
                 regulationMode != null ? regulationMode.ordinal() : -1)];
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("regulationMode", variantId, oldValue, regulationMode);
         return this;
     }

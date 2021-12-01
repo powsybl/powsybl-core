@@ -75,7 +75,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         tapChangers.remove(parent.getPhaseTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers,
                 regulating, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        network.invalidate();
+        network.invalidateValidationLevel();
         return super.setRegulating(regulating);
     }
 
@@ -90,7 +90,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
                 isRegulating(), getRegulationTerminal(), network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         RegulationMode oldValue = this.regulationMode;
         this.regulationMode = regulationMode;
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationMode", oldValue, regulationMode);
         return this;
     }
@@ -107,7 +107,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         int variantIndex = networkRef.get().getVariantIndex();
         double oldValue = this.regulationValue.set(variantIndex, regulationValue);
         String variantId = networkRef.get().getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         return this;
     }
@@ -116,7 +116,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     public PhaseTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, getRegulationValue(), isRegulating(),
                 regulationTerminal, network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        network.invalidate();
+        network.invalidateValidationLevel();
         return super.setRegulationTerminal(regulationTerminal);
     }
 

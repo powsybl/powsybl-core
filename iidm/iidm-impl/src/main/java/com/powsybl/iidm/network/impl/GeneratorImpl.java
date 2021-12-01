@@ -129,7 +129,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
                 network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
@@ -159,7 +159,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = network.getVariantIndex();
         double oldValue = this.targetP.set(network.getVariantIndex(), targetP);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("targetP", variantId, oldValue, targetP);
         return this;
     }
@@ -176,7 +176,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
                 targetV.get(variantIndex), targetQ, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("targetQ", variantId, oldValue, targetQ);
         return this;
     }
@@ -193,7 +193,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
                 targetV, targetQ.get(variantIndex), network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate("targetV", variantId, oldValue, targetV);
         return this;
     }

@@ -74,7 +74,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         tapChangers.remove(parent.getRatioTapChanger());
         ValidationUtil.checkOnlyOneTapChangerRegulatingEnabled(parent, tapChangers, regulating,
                 network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        network.invalidate();
+        network.invalidateValidationLevel();
         return super.setRegulating(regulating);
     }
 
@@ -89,7 +89,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
                 getTargetV(), network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
         boolean oldValue = this.loadTapChangingCapabilities;
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".loadTapChangingCapabilities", oldValue, loadTapChangingCapabilities);
         return this;
     }
@@ -106,7 +106,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         int variantIndex = network.getVariantIndex();
         double oldValue = this.targetV.set(variantIndex, targetV);
         String variantId = network.getVariantManager().getVariantId(variantIndex);
-        network.invalidate();
+        network.invalidateValidationLevel();
         notifyUpdate(() -> getTapChangerAttribute() + ".targetV", variantId, oldValue, targetV);
         return this;
     }
@@ -115,7 +115,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     public RatioTapChangerImpl setRegulationTerminal(Terminal regulationTerminal) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, isRegulating(),
                 loadTapChangingCapabilities, regulationTerminal, getTargetV(), network, network.getMinValidationLevel().compareTo(ValidationLevel.LOADFLOW) >= 0);
-        network.invalidate();
+        network.invalidateValidationLevel();
         return super.setRegulationTerminal(regulationTerminal);
     }
 

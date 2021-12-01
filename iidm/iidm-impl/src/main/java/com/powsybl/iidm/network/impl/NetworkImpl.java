@@ -1184,7 +1184,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         this.validationLevel = ValidationLevel.min(this.validationLevel, validationLevel);
     }
 
-    void invalidate() {
+    void invalidateValidationLevel() {
         if (minValidationLevel.compareTo(ValidationLevel.LOADFLOW) < 0) {
             validationLevel = null;
         }
