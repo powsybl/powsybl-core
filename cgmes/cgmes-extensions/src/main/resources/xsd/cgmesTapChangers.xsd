@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:ctc="http://www.powsybl.org/schema/iidm/ext/cgmes_tap_changers/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/cgmes_tap_changers/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name='nonEmptyString'>
+        <xs:restriction base='xs:string'>
+            <xs:minLength value='1'/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="cgmesTapChangers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="tapChanger" minOccurs="1" maxOccurs="3">
+                    <xs:complexType>
+                        <xs:attribute name="id" use="required" type="ctc:nonEmptyString"/>
+                        <xs:attribute name="iidmId" use="optional" type="ctc:nonEmptyString"/>
+                        <xs:attribute name="type" use="optional" type="xs:string"/>
+                        <xs:attribute name="hidden" use="optional" type="xs:boolean"/>
+                        <xs:attribute name="step" use="optional" type="xs:int"/>
+                        <xs:attribute name="controlId" use="optional" type="ctc:nonEmptyString"/>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
