@@ -40,8 +40,8 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
         for (CgmesTapChanger tapChanger : extension.getTapChangers()) {
             writer.writeStartElement(getNamespaceUri(), "tapChanger");
             writer.writeAttribute("id", tapChanger.getId());
-            if (tapChanger.getDifferentIidmId() != null) {
-                writer.writeAttribute("iidmId", tapChanger.getDifferentIidmId());
+            if (tapChanger.getCombinedTapChangerId() != null) {
+                writer.writeAttribute("combinedTapChangerId", tapChanger.getCombinedTapChangerId());
             }
             if (tapChanger.getType() != null) {
                 writer.writeAttribute("type", tapChanger.getType());
@@ -68,7 +68,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
             if (reader.getLocalName().equals("tapChanger")) {
                 CgmesTapChangerAdder adder = tapChangers.newTapChanger()
                         .setId(reader.getAttributeValue(null, "id"))
-                        .setDifferentIidmId(reader.getAttributeValue(null, "iidmId"))
+                        .setCombinedTapChangerId(reader.getAttributeValue(null, "combinedTapChangerId"))
                         .setType(reader.getAttributeValue(null, "type"))
                         .setHiddenStatus(XmlUtil.readOptionalBoolAttribute(reader, "hidden", false))
                         .setControlId(reader.getAttributeValue(null, "controlId"));
@@ -78,7 +78,7 @@ public class CgmesTapChangersXmlSerializer<C extends Connectable<C>> extends Abs
                 }
                 adder.add();
             } else {
-                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesControlArea>");
+                throw new PowsyblException("Unknown element name <" + reader.getLocalName() + "> in <cgmesTapChangers>");
             }
         });
         return extendable.getExtension(CgmesTapChangers.class);

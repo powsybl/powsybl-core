@@ -14,15 +14,15 @@ import java.util.OptionalInt;
 class CgmesTapChangerImpl implements CgmesTapChanger {
 
     private final String id;
-    private final String iidmId;
+    private final String combinedTapChangerId;
     private final String type;
     private final boolean hidden;
     private final Integer step;
     private final String controlId;
 
-    CgmesTapChangerImpl(String id, String iidmId, String type, boolean hidden, Integer step, String controlId, CgmesTapChangersImpl<?> mapping) {
+    CgmesTapChangerImpl(String id, String combinedTapChangerId, String type, boolean hidden, Integer step, String controlId, CgmesTapChangersImpl<?> mapping) {
         this.id = id;
-        this.iidmId = iidmId;
+        this.combinedTapChangerId = combinedTapChangerId;
         this.type = type;
         this.hidden = hidden;
         this.step = step;
@@ -40,8 +40,8 @@ class CgmesTapChangerImpl implements CgmesTapChanger {
     }
 
     @Override
-    public String getDifferentIidmId() {
-        return iidmId;
+    public String getCombinedTapChangerId() {
+        return combinedTapChangerId;
     }
 
     @Override

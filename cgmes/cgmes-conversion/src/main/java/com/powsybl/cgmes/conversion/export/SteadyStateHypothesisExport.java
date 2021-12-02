@@ -154,8 +154,8 @@ public final class SteadyStateHypothesisExport {
         addRegulatingControlView(tc, cgmesTc, regulatingControlViews);
         if (cgmesTcs != null) {
             for (CgmesTapChanger tapChanger : cgmesTcs.getTapChangers()) {
-                if (tapChanger.isHidden() && tapChanger.getDifferentIidmId().equals(tcId)) {
-                    writeHiddenTapChanger(eq, tapChanger, defaultType, cimNamespace, writer);
+                if (tapChanger.isHidden() && tapChanger.getCombinedTapChangerId().equals(tcId)) {
+                    writeHiddenTapChanger(tapChanger, defaultType, cimNamespace, writer);
                 }
             }
         }
@@ -334,7 +334,7 @@ public final class SteadyStateHypothesisExport {
         }
     }
 
-    private static void writeHiddenTapChanger(Identifiable<?> eq, CgmesTapChanger cgmesTc, String defaultType, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeHiddenTapChanger(CgmesTapChanger cgmesTc, String defaultType, String cimNamespace, XMLStreamWriter writer) throws XMLStreamException {
         writeTapChanger(Optional.ofNullable(cgmesTc.getType()).orElse(defaultType), cgmesTc.getId(), false,
                 cgmesTc.getStep().orElseThrow(() -> new PowsyblException("Non null step expected for tap changer " + cgmesTc.getId())),
                 cimNamespace, writer);

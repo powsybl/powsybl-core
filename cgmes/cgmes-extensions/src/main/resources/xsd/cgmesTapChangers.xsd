@@ -15,7 +15,7 @@
                 <xs:element name="tapChanger" minOccurs="1" maxOccurs="3">
                     <xs:complexType>
                         <xs:attribute name="id" use="required" type="ctc:nonEmptyString"/>
-                        <xs:attribute name="iidmId" use="optional" type="ctc:nonEmptyString"/>
+                        <xs:attribute name="combinedTapChangerId" use="optional" type="ctc:nonEmptyString"/>
                         <xs:attribute name="type" use="optional" type="xs:string"/>
                         <xs:attribute name="hidden" use="optional" type="xs:boolean"/>
                         <xs:attribute name="step" use="optional" type="xs:int"/>

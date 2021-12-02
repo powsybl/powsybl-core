@@ -15,7 +15,7 @@ public interface CgmesTapChanger {
 
     String getId();
 
-    String getDifferentIidmId();
+    String getCombinedTapChangerId();
 
     String getType();
 

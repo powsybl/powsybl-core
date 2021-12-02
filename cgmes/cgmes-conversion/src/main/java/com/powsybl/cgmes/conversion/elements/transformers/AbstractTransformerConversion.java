@@ -146,7 +146,7 @@ abstract class AbstractTransformerConversion extends AbstractConductingEquipment
             if (tch != null) {
                 tapChangers.newTapChanger()
                         .setId(tch.getId())
-                        .setDifferentIidmId(tc.getId())
+                        .setCombinedTapChangerId(tc.getId())
                         .setHiddenStatus(true)
                         .setStep(tch.getTapPosition())
                         .setType(tch.getType())

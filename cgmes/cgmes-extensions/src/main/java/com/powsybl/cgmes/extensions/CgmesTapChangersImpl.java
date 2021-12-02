@@ -10,9 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Connectable;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Miora Vedelago <miora.ralambotiana at rte-france.com>
@@ -27,7 +26,8 @@ class CgmesTapChangersImpl<C extends Connectable<C>> extends AbstractExtension<C
 
     @Override
     public Set<CgmesTapChanger> getTapChangers() {
-        return Set.copyOf(tapChangers.values());
+        return tapChangers.values().stream().sorted(Comparator.comparing(CgmesTapChanger::getId))
+                .collect(Collectors.toCollection(LinkedHashSet::new)); // If not sorted, hard to debug in SSH files
     }
 
     @Override

@@ -13,7 +13,7 @@ public interface CgmesTapChangerAdder {
 
     CgmesTapChangerAdder setId(String id);
 
-    CgmesTapChangerAdder setDifferentIidmId(String iidmId);
+    CgmesTapChangerAdder setCombinedTapChangerId(String combinedTapChangerId);
 
     CgmesTapChangerAdder setType(String type);
 

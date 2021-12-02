@@ -16,7 +16,7 @@ class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
     private final CgmesTapChangersImpl<?> mapping;
 
     private String id = null;
-    private String iidmId = null;
+    private String combinedTapChangerId = null;
     private String type = null;
     private boolean hidden = false;
     private Integer step = null;
@@ -33,8 +33,8 @@ class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
     }
 
     @Override
-    public CgmesTapChangerAdder setDifferentIidmId(String iidmId) {
-        this.iidmId = iidmId;
+    public CgmesTapChangerAdder setCombinedTapChangerId(String combinedTapChangerId) {
+        this.combinedTapChangerId = combinedTapChangerId;
         return this;
     }
 
@@ -72,18 +72,18 @@ class CgmesTapChangerAdderImpl implements CgmesTapChangerAdder {
                 throw new PowsyblException("Non-hidden tap changers step positions can be directly found on the tap changer" +
                         " and should not be forced");
             }
-            if (iidmId != null) {
-                throw new PowsyblException("Non-hidden tap changers do not have an IIDM ID different from their ID");
+            if (combinedTapChangerId != null) {
+                throw new PowsyblException("Non-hidden tap changers do not have a different ID for the combined tap changer");
             }
         }
         if (hidden) {
             if (step == null) {
                 throw new PowsyblException("Hidden tap changers step positions should be explicit");
             }
-            if (iidmId == null) {
-                throw new PowsyblException("Hidden tap changers should have a different IIDM ID");
+            if (combinedTapChangerId == null) {
+                throw new PowsyblException("Hidden tap changers should have an ID for the combined tap changer");
             }
         }
-        return new CgmesTapChangerImpl(id, iidmId, type, hidden, step, controlId, mapping);
+        return new CgmesTapChangerImpl(id, combinedTapChangerId, type, hidden, step, controlId, mapping);
     }
 }
